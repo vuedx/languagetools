@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch File",
+      "program": "${file}",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "pwa-node"
+    },
+    {
+      "name": "Launch Extension Host",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}/extension",
+        "${workspaceRoot}/examples/simple"
+      ],
+      "sourceMaps": true,
+      "enableSourceMapCaching": true,
+      "outFiles": [
+        "${workspaceRoot}/extension/dist/*.js",
+        "${workspaceRoot}/packages/@vuedx/language-server/dist/*.js"
+      ]
+    },
+    {
+      "name": "Attach to Language Server",
+      "port": 6010,
+      "request": "attach",
+      "type": "node",
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/extension/dist/*.js",
+        "${workspaceFolder}/packages/@vuedx/language-server/dist/*.js"
+      ]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch Extension",
+      "configurations": ["Launch Extension Host", "Attach to Language Server"]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getSemanticDiagnostics should report semantic issues in a vue file 1`] = `
+Array [
+  Array [
+    "Type '4' is not assignable to type 'string'.",
+    Object {
+      "line": 4,
+      "offset": 7,
+    },
+  ],
+]
+`;
+
+exports[`getSuggestionDiagnostics should report suggestions in a vue file 1`] = `
+Array [
+  Array [
+    "'foo' is declared but its value is never read.",
+    Object {
+      "line": 4,
+      "offset": 7,
+    },
+  ],
+]
+`;
+
+exports[`getSyntacticDiagnostics should report syntax issues in a vue file 1`] = `
+Array [
+  Array [
+    "Expression expected.",
+    Object {
+      "line": 4,
+      "offset": 18,
+    },
+  ],
+  Array [
+    "',' expected.",
+    Object {
+      "line": 8,
+      "offset": 3,
+    },
+  ],
+]
+`;

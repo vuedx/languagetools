@@ -1,0 +1,25 @@
+name: meta.block.__var_BLOCK__.vue
+begin: (<)(__var_BLOCK__)
+beginCaptures:
+  0: { name: meta.tag.open.vue }
+  1: { name: punctuation.definition.tag.open.begin.vue }
+  2: { name: entity.name.tag.vue }
+end: (<\/)(__var_BLOCK__)(>)
+endCaptures:
+  0: { name: meta.tag.close.vue }
+  1: { name: punctuation.definition.tag.close.begin.vue }
+  2: { name: entity.name.tag.vue }
+  3: { name: punctuation.definition.tag.close.end.vue }
+patterns:
+  - begin: (>)
+    beginCaptures:
+      0: { name: meta.tag.open.vue }
+      1: { name: punctuation.definition.tag.open.end.vue }
+    contentName: meta.embedded.block.__var_LANGUAGE__
+    end: (?=<\/__var_BLOCK__>)
+    patterns:
+      - include: __var_SCOPE_NAME__
+  - { include: '#attribute' }
+  - match: \s
+  - match: ([="'])
+    name: invalid.illegal.tag.open.character-not-allowed-here.vue

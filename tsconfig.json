@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2018",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "rootDir": ".",
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "declaration": true,
+    "baseUrl": ".",
+    "paths": {
+      "@vuedx/*": ["packages/@vuedx/*/src/index.ts"]
+    }
+  },
+  "compileOnSave": true,
+  "include": ["packages/**/*.ts", "types/*.d.ts", "extension/**/*.ts"],
+  "exclude": ["node_modules", "**/node_modules"]
+}

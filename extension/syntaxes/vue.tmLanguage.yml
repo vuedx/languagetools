@@ -1,0 +1,91 @@
+# RegExp
+# tag name      : [a-zA-Z][^\0\s\f\/>]*
+# attribute name: [\s\f\0]*[^\s\f\0\/"'<>=]+
+# double string : "[^\0"]*"
+# single string : '[^\0']*'
+# string        : [^\s\f\0"'`<>]*
+# attribute     : [\s\f\0]*[^\s\f\0\/"'<>=]+(=("[^\0"]*"|'[^\0']*'|[^\s\f\0"'`<>]+))?
+# open tag      : <([a-zA-Z][^\0\s\f\/>]+)(?![\/>]\s)([\s\f\0]*[^\s\f\0\/"'<>=]+(=("[^\0"]*"|'[^\0']*'|[^\s\f\0"'`<>]+))?)*\s*>
+# has lang attr :
+
+name: Vue
+scopeName: source.vue
+fileTypes:
+  - vue
+
+patterns:
+  - { include: '#comment' }
+  - { include: '#language-block' }
+  - { include: '#block' }
+
+repository:
+  comment:
+    name: comment.block.html.vue
+    begin: <!--
+    end: -->
+    captures:
+      0: { name: punctuation.definition.comment.html }
+    patterns:
+      - match: \G-?>
+        name: invalid.illegal.characters-not-allowed-here.html
+      - match: <!--(?!>)|<!-(?=-->)
+        name: invalid.illegal.characters-not-allowed-here.html
+      - match: --!>
+        name: invalid.illegal.characters-not-allowed-here.html
+
+  string-quoted-double:
+    name: string.quoted.double.vue
+    match: (")[^"]*(")
+    captures:
+      1: { name: punctuation.definition.string.quoted.double.begin.vue }
+      2: { name: punctuation.definition.string.quoted.double.end.vue }
+
+  string-quoted-single:
+    name: string.quoted.single.vue
+    begin: (')
+    beginCaptures:
+      1: { name: punctuation.definition.string.quoted.single.begin.vue }
+    end: (')
+    endCaptures:
+      1: { name: punctuation.definition.string.quoted.single.end.vue }
+    patterns:
+      - match: ([^']*)
+
+  string-unquoted:
+    name: string.unquoted.vue
+    match: ([^\s\f\0"'`<>]+)
+
+  string:
+    name: string.vue
+    patterns:
+      - { include: '#string-unquoted' }
+      - { include: '#string-quoted-double' }
+      - { include: '#string-quoted-single' }
+
+  attribute:
+    name: meta.attribute.$1.vue
+    begin: ([^\s\f\0\/"'<>=]+)
+    beginCaptures:
+      1: { name: entity.other.attribute-name.vue }
+    end: (?=[\s\/>])
+    patterns:
+      - begin: (=)(?=[^\s`<>])
+        beginCaptures:
+          1: { name: punctuation.separater.key-value.vue }
+        end: (?<=["'])|(?=[\s\/>])
+        patterns:
+          - { include: '#string' }
+      - match: (=)
+        name: invalid.illegal.tag.open.character-not-allowed-here.vue
+
+  block:
+    patterns: []
+
+  language-block:
+    begin: (^[ \t]+)?(?=<([a-zA-Z][^\0\s\f\/>]+)(?![\/>]\s)(?:[\s\f="']*(?:(?!lang=)[^\s\f\0\/"'<>=]+)(?:=(?:"[^\0"]*"|'[^\0']*'|[^\s\f\0"'`<>]+))?)*(?:[\s\f="']*lang=(?:"[^\0"]*"|'[^\0']*'|[^\s\f\0"'`<>]+))(?:[\s\f="']*(?:(?!lang)[^\s\f\0\/"'<>=]*)(?:=(?:"[^\0"]*"|'[^\0']*'|[^\s\f\0"'`<>]+))?)*\s*>)
+    beginCaptures:
+      0: { name: punctuation.whitespace.embedded.leading.vue }
+    end: (?!\G)([ \t]*$\n?)?
+    endCaptures:
+      0: { name: punctuation.whitespace.embedded.trailing.vue }
+    patterns: []

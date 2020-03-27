@@ -1,0 +1,150 @@
+{
+  "private": true,
+  "name": "vue-language-features",
+  "displayName": "Vue Language Features",
+  "version": "0.0.0",
+  "description": "Made with 💚 for Vue Developers.",
+  "main": "dist/extension.js",
+  "activationEvents": [
+    "onLanguage:vue",
+    "onCommand:vue.virtual.openAtCursor",
+    "onCommand:vue.syntax.generateGrammar"
+  ],
+  "scripts": {
+    "prepare": "node scripts/build-grammar",
+    "postinstall": "vscode-install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/znck/vuedx.git"
+  },
+  "keywords": [
+    "vue",
+    "vetur"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "publisher": "Vue",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.32.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "contributes": {
+    "grammars": [
+      {
+        "language": "vue",
+        "scopeName": "source.vue",
+        "path": "./syntaxes/vue.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.javascript": "javascript",
+          "meta.embedded.block.typescript": "typescript"
+        }
+      },
+      {
+        "language": "vue-html",
+        "scopeName": "text.html.vue-html",
+        "path": "./syntaxes/vue-html.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.js": "javascript"
+        }
+      },
+      {
+        "scopeName": "markdown.vue.codeblock",
+        "path": "./syntaxes/markdown.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.vue": "vue"
+        }
+      }
+    ],
+    "languages": [
+      {
+        "id": "vue",
+        "aliases": [
+          "Vue"
+        ],
+        "extensions": [
+          ".vue"
+        ],
+        "configuration": "./languages/vue-language-configuration.json"
+      },
+      {
+        "id": "vue-html",
+        "aliases": [
+          "Vue HTML",
+          "vhtml",
+          "vhtm"
+        ],
+        "extensions": [
+          ".vue-html",
+          ".vhtml"
+        ],
+        "configuration": "./languages/vue-html-language-configuration.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "vue.virtual.openAtCursor",
+        "title": "Vue: Show virtual file"
+      },
+      {
+        "command": "vue.syntax.generateGrammar",
+        "title": "Vue: Refresh syntax highlighter"
+      }
+    ],
+    "configuration": {
+      "title": "Vue Language Features",
+      "properties": {
+        "vue.blocks": {
+          "type": "object",
+          "title": "SFC Blocks",
+          "additionalItems": {
+            "type": "object",
+            "properties": {
+              "default": {
+                "type": "string",
+                "title": "Default language"
+              },
+              "allowed": {
+                "type": "array",
+                "title": "Allowed languages",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "typescriptServerPlugins": [
+      {
+        "name": "@vuedx/typescript-plugin-vue",
+        "languages": [
+          "vue", "typescript", "javascript"
+        ]
+      }
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/znck/vuedx/issues"
+  },
+  "homepage": "https://github.com/znck/vuedx/blob/master/extension#readme",
+  "devDependencies": {
+    "fast-glob": "^3.2.2",
+    "npm-run-all": "^4.1.5",
+    "vscode": "^1.1.36",
+    "yaml": "^1.8.2"
+  },
+  "dependencies": {
+    "@vuedx/typescript-plugin-vue": "workspace:0.1.0",
+    "@vuedx/vue-virtual-textdocument": "workspace:0.1.0",
+    "inversify": "^5.0.1",
+    "reflect-metadata": "^0.1.13"
+  }
+}

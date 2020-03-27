@@ -1,0 +1,30 @@
+{
+  "name": "@vuedx/template-ast-types",
+  "version": "0.0.0",
+  "description": "Helper functions for Vue template AST",
+  "main": "dist/template-ast-types.js",
+  "module": "dist/template-ast-types.js",
+  "types": "dist/template-ast-types.d.ts",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/znck/vuedx.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "vue-template-compiler",
+    "vue",
+    "ast"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/znck/vuedx/issues"
+  },
+  "homepage": "https://github.com/znck/vuedx#readme",
+  "dependencies": {
+    "@vue/compiler-core": "^3.0.0-alpha.8"
+  }
+}
