@@ -1,4 +1,6 @@
-# Vue Developer Experience
+# Vue Developer Experience 
+
+[![Build Status](https://travis-ci.org/znck/vue-developer-experience.svg?branch=master)](https://travis-ci.org/znck/vue-developer-experience)
 
 > Project Status: ⚠️ EXPERIMENTAL
 
