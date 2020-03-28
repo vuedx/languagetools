@@ -10,3 +10,4 @@ export function prepareRenameLocation(
 ) {
   return result
 }
+           

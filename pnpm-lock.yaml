@@ -9,6 +9,7 @@ importers:
       '@types/node': 13.9.0
       jest: 25.1.0
       jest-expect-message: 1.0.2
+      npm-run-all: 4.1.5
       rollup: 2.0.6
       rollup-plugin-cjs-es: 1.0.0_rollup@2.0.6
       rollup-plugin-dts: 1.3.0_rollup@2.0.6+typescript@3.8.3
@@ -24,6 +25,7 @@ importers:
       '@types/node': ^13.9.0
       jest: ^25.1.0
       jest-expect-message: ^1.0.2
+      npm-run-all: ^4.1.5
       rollup: ^2.0.6
       rollup-plugin-cjs-es: ^1.0.0
       rollup-plugin-dts: ^1.3.0
@@ -1492,6 +1494,24 @@ packages:
       node: '>= 0.4'
     resolution:
       integrity: sha512-Ae3um/gb8F0mui/jPL+QiqmglkUsaQf7FwBEHYIFkztkneosu9imhqHpBzQ3h1vit8t5iQ74t6PEVvphBZiuiQ==
+  /es-abstract/1.17.5:
+    dependencies:
+      es-to-primitive: 1.2.1
+      function-bind: 1.1.1
+      has: 1.0.3
+      has-symbols: 1.0.1
+      is-callable: 1.1.5
+      is-regex: 1.0.5
+      object-inspect: 1.7.0
+      object-keys: 1.1.1
+      object.assign: 4.1.0
+      string.prototype.trimleft: 2.1.1
+      string.prototype.trimright: 2.1.1
+    dev: true
+    engines:
+      node: '>= 0.4'
+    resolution:
+      integrity: sha512-BR9auzDbySxOcfog0tLECW8l28eRGpDpU3Dm3Hp4q/N+VtLTmyj4EUN088XZWQDW/hzj6sYRDXeOFsaAODKvpg==
   /es-info/0.3.0:
     dependencies:
       estree-walker: 0.6.1
@@ -3179,7 +3199,7 @@ packages:
       cross-spawn: 6.0.5
       memorystream: 0.3.1
       minimatch: 3.0.4
-      pidtree: 0.3.0
+      pidtree: 0.3.1
       read-pkg: 3.0.0
       shell-quote: 1.7.2
       string.prototype.padend: 3.1.0
@@ -3412,13 +3432,13 @@ packages:
       node: '>=8.6'
     resolution:
       integrity: sha512-ISBaA8xQNmwELC7eOjqFKMESB2VIqt4PPDD0nsS95b/9dZXvVKOlz9keMSnoGGKcOHXfTvDD6WMaRoSc9UuhRA==
-  /pidtree/0.3.0:
+  /pidtree/0.3.1:
     dev: true
     engines:
       node: '>=0.10'
     hasBin: true
     resolution:
-      integrity: sha512-9CT4NFlDcosssyg8KVFltgokyKZIFjoBxw8CTGy+5F38Y1eQWrt8tRayiUOXE+zVKQnYu5BR8JjCtvK3BcnBhg==
+      integrity: sha512-qQbW94hLHEqCg7nhby4yRC7G2+jYHY4Rguc2bjw7Uug4GIJuu1tvf2uHaZv5Q8zdt+WKJ6qK1FOI6amaWUo5FA==
   /pify/3.0.0:
     dev: true
     engines:
@@ -4046,7 +4066,7 @@ packages:
   /string.prototype.padend/3.1.0:
     dependencies:
       define-properties: 1.1.3
-      es-abstract: 1.17.4
+      es-abstract: 1.17.5
     dev: true
     engines:
       node: '>= 0.4'

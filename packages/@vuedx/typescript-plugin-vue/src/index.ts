@@ -1,4 +1,9 @@
-import { DocumentStore, isVirtualFile, isVueFile, VueTextDocument } from '@vuedx/vue-virtual-textdocument'
+import {
+  DocumentStore,
+  isVirtualFile,
+  isVueFile,
+  VueTextDocument,
+} from '@vuedx/vue-virtual-textdocument'
 import FS from 'fs'
 import Path from 'path'
 import { URI } from 'vscode-uri'
@@ -8,32 +13,38 @@ interface Modules {
   typescript: typeof import('typescript/lib/tsserverlibrary')
 }
 
+let _id = 0
 export default function init({ typescript: ts }: Modules) {
-  console.log('Init vue plugin.')
   function create(info: ts.server.PluginCreateInfo) {
-    info.project.projectService.logger.info(
-      'vue:: Create ts server with vue plugin...'
-    )
-
+    const id = _id++
     function log(...args: any[]) {
-      info.project.projectService.logger.info('vue:: ' + args.join(' '))
+      if (__DEV__) {
+        info.project.projectService.logger.info(
+          `vue(${id}):: ` + args.join(' ')
+        )
+      }
     }
 
-    console.log = log
+    log(`Create ts server with vue plugin...`)
+
     const context = new VueContext(
       new DocumentStore(
         uri => {
-          info.project.projectService.logger.info('vue:: store load ' + uri)
+          const fileName = URI.parse(uri).fsPath
+          const content = FS.readFileSync(fileName, { encoding: 'utf8' }) || ''
+          log(`store.load(file=${fileName})`)
 
-          return VueTextDocument.create(
-            uri,
-            'vue',
-            0,
-            FS.readFileSync(URI.parse(uri).fsPath, { encoding: 'utf8' }) || ''
-          )
+          return VueTextDocument.create(uri, 'vue', 0, content)
         },
-        () => info.project.useCaseSensitiveFileNames()
-      )
+        () => {
+          const result = info.project.useCaseSensitiveFileNames()
+
+          log('CaseSensitiveFileNames='+result)
+
+          return result
+        }
+      ),
+      { log }
     )
 
     function patchFileSystem(
@@ -173,14 +184,10 @@ export default function init({ typescript: ts }: Modules) {
             })
 
             if (info.project.projectService.logger.loggingEnabled()) {
-              info.project.projectService.logger.info(
-                `vue:: ${key}.resolveModuleNames in ${containingFile}`
-              )
+              log(`${key}.resolveModuleNames in ${containingFile}`)
               info.project.projectService.logger.startGroup()
               moduleNames.forEach((moduleName, index) => {
-                info.project.projectService.logger.info(
-                  `  ${moduleName} => ${result[index]?.resolvedFileName}`
-                )
+                log(`  ${moduleName} => ${result[index]?.resolvedFileName}`)
               })
               info.project.projectService.logger.endGroup()
             }
@@ -362,7 +369,8 @@ function override<T, K extends keyof T>(
   handler: (fn: Required<T>[K]) => T[K]
 ) {
   // @ts-ignore
-  const original = object[key].bind(object)
+  const original = object[key] ? object[key].bind(object) : object[key]
+  if (!original) console.log(`ERROR: cannot find ${key}`)
   const fn = handler(original)
 
   // @ts-ignore

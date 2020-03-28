@@ -8,6 +8,7 @@ import {
   virtualFileNameSep,
 } from '@vuedx/vue-virtual-textdocument'
 import ts from 'typescript'
+import { prepareQuickInfo } from './features/quickInfo'
 
 function isNumber(any: any): any is number {
   return typeof any === 'number'
@@ -52,11 +53,18 @@ function chain<T>(value?: T): Chain<T> {
   }
 }
 
+export interface Logger {
+  log(message: string): void
+}
+
 export class VueContext {
-  constructor(private readonly documents: DocumentStore<VueTextDocument>) {}
-  
+  constructor(
+    private readonly documents: DocumentStore<VueTextDocument>,
+    public readonly logger: Logger
+  ) {}
+
   getFileNameFromVirtualFileName(fileName: string): string {
-    return fileName.split(virtualFileNameSep).shift()!
+    return this.documents.get(fileName.split(virtualFileNameSep).shift()!)!.fsPath
   }
   isVueFile(fileName: string) {
     return isVueFile(fileName)
@@ -88,7 +96,14 @@ export class VueContext {
 
   getFileNameAt(fileName: string, position: number) {
     if (this.isVueFile(fileName)) {
-      return this.getVirtualDocumentAt(fileName, position)?.fsPath
+      const virtualFileName = this.getVirtualDocumentAt(fileName, position)
+        ?.fsPath
+
+      this.logger.log(
+        `getFileNameAt(${fileName}, ${position}) = ${virtualFileName}`
+      )
+
+      return virtualFileName
     }
 
     return fileName
@@ -97,27 +112,32 @@ export class VueContext {
   getInnerFileNames(fileName: string, onlyScript = false) {
     if (this.isVueFile(fileName)) {
       const document = this.documents.get(fileName)
+
       if (!document) return []
 
-      return [document.getBlockDocument('script')!.fsPath]
+      const scriptFileName = document.getBlockDocument('script')!.fsPath
+
+      this.logger.log(`getInnerFileNames(${fileName}) = [${scriptFileName}]`)
+
+      return [scriptFileName]
     }
+
+    this.logger.log(`getInnerFileNames(${fileName}) = [${fileName}]`)
 
     return [fileName]
   }
 }
 
-export class VueLanguageServer implements ts.LanguageService {
+export class VueLanguageServer implements Partial<ts.LanguageService> {
   private constructor(
     private readonly context: VueContext,
     private readonly service: ts.LanguageService,
     private readonly typescript: typeof ts
   ) {}
 
-  cleanupSemanticCache(): void {
-    throw new Error('Method not implemented.')
-  }
-
   getSyntacticDiagnostics(fileName: string): ts.DiagnosticWithLocation[] {
+    this.context.logger.log('getSyntacticDiagnostics file=' + fileName)
+
     return flat(
       this.context
         .getInnerFileNames(fileName)
@@ -251,7 +271,10 @@ export class VueLanguageServer implements ts.LanguageService {
     position: number
   ): ts.QuickInfo | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName => this.service.getQuickInfoAtPosition(fileName, position))
+      .next(
+        fileName => this.service.getQuickInfoAtPosition(fileName, position)!
+      )
+      .next(quickInfo => prepareQuickInfo(fileName, quickInfo))
       .end()
   }
 
@@ -299,7 +322,9 @@ export class VueLanguageServer implements ts.LanguageService {
       .next(fileName => this.service.getRenameInfo(fileName, position, options))
       .next(info => {
         if ('fileToRename' in info && info.fileToRename) {
-          info.fileToRename = this.context.getFileNameFromVirtualFileName(info.fileToRename)
+          info.fileToRename = this.context.getFileNameFromVirtualFileName(
+            info.fileToRename
+          )
         }
 
         return info
@@ -327,8 +352,13 @@ export class VueLanguageServer implements ts.LanguageService {
       )
       .next(locations =>
         locations.map(location => {
-          console.log('vue:: remaping => ' + location.fileName)
-          location.fileName = this.context.getFileNameFromVirtualFileName(location.fileName)
+          const originalFileName = location.fileName
+          
+          location.fileName = this.context.getFileNameFromVirtualFileName(
+            originalFileName
+          )
+
+          this.context.logger.log(`remaping ${originalFileName} => ${location.fileName}`)
 
           return location
         })
@@ -737,33 +767,28 @@ export class VueLanguageServer implements ts.LanguageService {
     )
   }
 
-  getEmitOutput(
-    fileName: string,
-    emitOnlyDtsFiles?: boolean | undefined,
-    forceDtsEmit?: boolean | undefined
-  ): ts.EmitOutput {
-    return this.service.getEmitOutput(fileName, emitOnlyDtsFiles, forceDtsEmit)
-  }
-
-  getProgram(): ts.Program | undefined {
-    return this.service.getProgram()
-  }
-
-  dispose(): void {
-    return this.service.dispose()
-  }
-
-  toLineColumnOffset(fileName: string, position: number) {
-    return this.service.toLineColumnOffset!(fileName, position)
-  }
-
-  static create(context: VueContext, server: ts.LanguageService, typescript: typeof ts) {
+  static create(
+    context: VueContext,
+    server: ts.LanguageService,
+    typescript: typeof ts
+  ) {
     const instance = new VueLanguageServer(context, server, typescript)
     const proxy = Object.create(null)
     const keys = Object.keys(server) as (keyof ts.LanguageService)[]
 
     for (const key of keys) {
-      proxy[key] = instance[key].bind(instance)
+      proxy[key] =
+        key in instance
+          ? (...args: any[]) => {
+            context.logger.log(`vls::${key}(${args[0]})`)
+              // @ts-ignore
+              return instance[key].apply(instance, args)
+            }
+          : (...args: any[]) => {
+              context.logger.log(`ts::${key}(${args[0]})`)
+              // @ts-ignore
+              return server[key](...args)
+            }
     }
 
     return proxy as ts.LanguageService

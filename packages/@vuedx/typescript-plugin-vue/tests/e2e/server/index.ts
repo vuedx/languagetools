@@ -63,19 +63,13 @@ export class TestVueServer {
 
     const pid = this.server.pid
     this.onExit.finally(() => {
-      const logFiles = [
-        Path.resolve(__dirname, `ti-${pid}.log`),
-      ]
+      const logFiles = [Path.resolve(__dirname, `ti-${pid}.log`)]
 
-      if (process.env.CI !== 'vscode-jest-tests') {
-        logFiles.push(config.logFile)
+      if (config.logFile.endsWith(`.PID.log`)) {
+        logFiles.push(config.logFile.replace('PID', String(pid)))
       }
 
-      logFiles.forEach(logFile => {
-        if (Fs.existsSync(logFile)) {
-          Fs.unlinkSync(logFile)
-        }
-      })
+      logFiles.forEach(logFile => Fs.unlinkSync(logFile))
     })
 
     this.server.stdout!.setEncoding('utf-8')
@@ -188,7 +182,10 @@ export function createLanguageServerForTest(projectDir?: string) {
 
   const logFile = Path.resolve(
     __dirname,
-    'tsserver.' + Path.basename(projectDir) + '.log'
+    'tsserver.' +
+      Path.basename(projectDir) +
+      (process.env.TEST_ENV === 'jest' ? '.PID' : '') +
+      '.log'
   )
 
   return new TestVueServer(projectDir, { logFile })
