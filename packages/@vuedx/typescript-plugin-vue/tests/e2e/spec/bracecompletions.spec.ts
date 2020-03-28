@@ -2,7 +2,7 @@ import Proto from 'typescript/lib/protocol'
 import { createLanguageServerForTest } from '../server'
 
 describe('getBraceCompletions', () => {
-  test('should complete object properties', async () => {
+  test('should complete the opened braces', async () => {
     const server = createLanguageServerForTest()
     server.openFile('fixture-brace-completions.vue')
     server.sendCommand(Proto.CommandTypes.BraceCompletion, <Proto.BraceCompletionRequestArgs>{
