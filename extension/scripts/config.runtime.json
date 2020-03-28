@@ -1,1 +1,0 @@
-{"docs":{"allowed":["md"],"default":"md"},"template":{"default":"vue-html","allowed":["pug"]},"script":{"default":"javascript","allowed":["typescript"]},"style":{"default":"css","allowed":["sass","scss","less","postcss","stylus"]},"story":{"default":"","allowed":["js"]},"example":{"default":"","allowed":["md"]}}
