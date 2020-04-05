@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`compiler one 1`] = `
+"import { h as _h, renderList as _renderList, Fragment as _Fragment, resolveComponent as _resolveComponent } from \\"vue\\"
+import _Ctx from './example.vue'
+import _Foo from './foo.vue'
+
+
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  const _component_Bar = _resolveComponent(\\"Bar\\")
+
+  return (_ctx.bar)
+    ? _h(_Foo, { id: \\"foo\\" }, [])
+    : _h(_Fragment, _renderList(_ctx.bars, (foo) => {
+        return _h(_component_Bar, {}, [])
+      }))
+}"
+`;

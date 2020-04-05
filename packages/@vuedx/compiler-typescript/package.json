@@ -1,0 +1,22 @@
+{
+  "name": "@vuedx/compiler-typescript",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/compiler-typescript.js",
+  "module": "dist/compiler-typescript.esm.js",
+  "types": "dist/compiler-typescript.d.ts",
+  "keywords": [],
+  "files": [
+    "dist"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "dependencies": {
+    "@vue/compiler-core": "^3.0.0-alpha.11",
+    "lodash.camelcase": "^4.3.0"
+  },
+  "devDependencies": {
+    "@types/lodash.camelcase": "^4.3.6",
+    "vue": "^3.0.0-alpha.11"
+  }
+}

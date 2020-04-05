@@ -59,6 +59,18 @@ importers:
       reflect-metadata: ^0.1.13
       vscode: ^1.1.36
       yaml: ^1.8.2
+  packages/@vuedx/compiler-typescript:
+    dependencies:
+      '@vue/compiler-core': 3.0.0-alpha.11
+      lodash.camelcase: 4.3.0
+    devDependencies:
+      '@types/lodash.camelcase': 4.3.6
+      vue: 3.0.0-alpha.11
+    specifiers:
+      '@types/lodash.camelcase': ^4.3.6
+      '@vue/compiler-core': ^3.0.0-alpha.11
+      lodash.camelcase: ^4.3.0
+      vue: ^3.0.0-alpha.11
   packages/@vuedx/sfc-inspector:
     dependencies:
       '@babel/code-frame': 7.8.3
@@ -221,6 +233,12 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-E6SpIDJZ0cZAKoCNk+qSDd0ChfTnpiJN9FfNf3RZ20dzwA2vL2oq5IX1XTVT+4vDmRlta2nGk5HGMMskJAR+4A==
+  /@babel/parser/7.9.4:
+    engines:
+      node: '>=6.0.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-bC49otXX6N0/VYhgOMh4gnP26E9xnDZK3TmbNpxYzzz9BQLBosQwfyOe9/cXUU3txYhTzLCbcqd5c8y/OmCjHA==
   /@babel/plugin-syntax-bigint/7.8.3_@babel+core@7.8.7:
     dependencies:
       '@babel/core': 7.8.7
@@ -634,6 +652,16 @@ packages:
     dev: true
     resolution:
       integrity: sha512-QDDY2uNAhCV7TMCITrxz+MRk1EizcsevzfeS6LykIlq2V1E5oO4wXG8V2ZEd9w7Snxeeagk46YbMgZ8ESHx3sw==
+  /@types/lodash.camelcase/4.3.6:
+    dependencies:
+      '@types/lodash': 4.14.149
+    dev: true
+    resolution:
+      integrity: sha512-hd/TEuPd76Jtf1xEq85CHbCqR+iqvs5IOKyrYbiaOg69BRQgPN9XkvLj8Jl8rBp/dfJ2wQ1AVcP8mZmybq7kIg==
+  /@types/lodash/4.14.149:
+    dev: true
+    resolution:
+      integrity: sha512-ijGqzZt/b7BfzcK9vTrS6MFljQRPn5BFWOx8oE0GYxribu6uV+aA9zZuXI1zc/etK9E8nrgdoF2+LgUw7+9tJQ==
   /@types/node/13.9.0:
     dev: true
     resolution:
@@ -662,6 +690,15 @@ packages:
     dev: true
     resolution:
       integrity: sha512-9T1auFmbPZoxHz0enUFlUuKRy3it01R+hlggyVUMtnCTQRunsQYifnSGb8hET4Xo8yiC0o0r1paW3ud5+rbURg==
+  /@vue/compiler-core/3.0.0-alpha.11:
+    dependencies:
+      '@babel/parser': 7.9.4
+      '@babel/types': 7.9.0
+      '@vue/shared': 3.0.0-alpha.11
+      estree-walker: 0.8.1
+      source-map: 0.6.1
+    resolution:
+      integrity: sha512-4M+i82PT9FaxeqxIDwkXls2f52iDtifUZkfsNqVdf8Q5YBgeLL5D7O7ZpCqIz8LL+cwNUQCEkhf/JfxKu5nAfQ==
   /@vue/compiler-core/3.0.0-alpha.8:
     dependencies:
       '@babel/parser': 7.8.8
@@ -681,6 +718,13 @@ packages:
       source-map: 0.6.1
     resolution:
       integrity: sha512-Hx4yr83DwIS4B6WfEXWJYcD5EjGoBLQKx7EfoKTvp7++ssO574J/BgasJSUbw/DOm3sHumXZtWRDTn/SKSTs7Q==
+  /@vue/compiler-dom/3.0.0-alpha.11:
+    dependencies:
+      '@vue/compiler-core': 3.0.0-alpha.11
+      '@vue/shared': 3.0.0-alpha.11
+    dev: true
+    resolution:
+      integrity: sha512-MxyMBbag78Jq17Lwt2sO/mqxzAP6HZC6Qbc6OrgoDE8ChhvidL3SmhXhmwGjMXaWjQ36trKaqMDcVMiuPdAHqQ==
   /@vue/compiler-dom/3.0.0-alpha.8:
     dependencies:
       '@vue/compiler-core': 3.0.0-alpha.8
@@ -736,17 +780,38 @@ packages:
     dev: false
     resolution:
       integrity: sha512-BW3rpZyy6xxrvjGEM5vsadQrYH8kiG1MAO/8aKW4mgW+4Rj34MUATrWwYdmk+yVsgnaMirfUYuc4gRZbcTZCYw==
+  /@vue/reactivity/3.0.0-alpha.11:
+    dependencies:
+      '@vue/shared': 3.0.0-alpha.11
+    dev: true
+    resolution:
+      integrity: sha512-SsI4PoF7iMp4skNds0NDSiiXvC3cWlNiAScB8gnENm7naiBmLq4R2EVzZRt3YaRTr9uWzkUOlStDJdxaCEahdg==
   /@vue/reactivity/3.0.0-alpha.9:
     dependencies:
       '@vue/shared': 3.0.0-alpha.9
     resolution:
       integrity: sha512-Z9jlQ2yjNQIcVBg1SSViUQH8UgVhXHFblw4c6Xrf7vgejjxAqJwk6DKNbAJlneeA3Z84Ul+1Q8JY4zClLagW/A==
+  /@vue/runtime-core/3.0.0-alpha.11:
+    dependencies:
+      '@vue/reactivity': 3.0.0-alpha.11
+      '@vue/shared': 3.0.0-alpha.11
+    dev: true
+    resolution:
+      integrity: sha512-sx0AKWaVEis0TGg2UAN5KTVAHXTW363wH8O03ANtJvWo0lFDPAxIdAwqy+TBUOp3W+G1dhDyNXT30pWagHQD1A==
   /@vue/runtime-core/3.0.0-alpha.9:
     dependencies:
       '@vue/reactivity': 3.0.0-alpha.9
       '@vue/shared': 3.0.0-alpha.9
     resolution:
       integrity: sha512-mqTQ2kpKtUKwvMT23VDm6HEIt+8SxvOaL47aLs5uROs7Jamgp0K2oNkGH/MltWpaDkXVSsbSBBgijgYDsKlbZw==
+  /@vue/runtime-dom/3.0.0-alpha.11:
+    dependencies:
+      '@vue/runtime-core': 3.0.0-alpha.11
+      '@vue/shared': 3.0.0-alpha.11
+      csstype: 2.6.10
+    dev: true
+    resolution:
+      integrity: sha512-2ag5O2E1I00XqSRGLBfXhFPOxDMNRQEB31RXR1Gx+Vom9v1VQEXpZ7YpU3w+mctNvN3s+kg4G+EFUu4sF4MIHA==
   /@vue/runtime-dom/3.0.0-alpha.9:
     dependencies:
       '@vue/runtime-core': 3.0.0-alpha.9
@@ -754,6 +819,9 @@ packages:
       csstype: 2.6.9
     resolution:
       integrity: sha512-zWDW7Lg38PDoW+grQsSPzBauMMeY6A9yw/qaAzzgeN71EXJRInmv1fog/dVuWbD7/ZNc8E4jzDUJL16ryGbSmg==
+  /@vue/shared/3.0.0-alpha.11:
+    resolution:
+      integrity: sha512-vzzz/JUqEgjeRRk3SHV+kcDrFtBI6E+p5RUjXLRAQR62XIFfDpTmqpfrx+SEpOyhN7lgAXOsWPkrb9xl8Jw0XQ==
   /@vue/shared/3.0.0-alpha.8:
     dev: false
     resolution:
@@ -1326,6 +1394,10 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-sEb3XFPx3jNnCAMtqrXPDeSgQr+jojtCeNf8cvMNMh1cG970+lljssvQDzPq6lmmJu2Vhqood/gtEomBiHOGnA==
+  /csstype/2.6.10:
+    dev: true
+    resolution:
+      integrity: sha512-D34BqZU4cIlMCY93rZHbrq9pjTAQJ3U8S8rfBqjwHxkGPThWFjzZDQpgMJY0QViLxth6ZKYiwFBo14RdN44U/w==
   /csstype/2.6.9:
     resolution:
       integrity: sha512-xz39Sb4+OaTsULgUERcCk+TJj8ylkL4aSVDQiX/ksxbELSqwkgt4d4RD7fovIdgJGSuNYqwZEiVjYY5l0ask+Q==
@@ -2924,6 +2996,10 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==
+  /lodash.camelcase/4.3.0:
+    dev: false
+    resolution:
+      integrity: sha1-soqmKIorn8ZRA1x3EfZathkDMaY=
   /lodash.memoize/4.1.2:
     dev: true
     resolution:
@@ -4471,6 +4547,14 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-cGFh9jmGLcTapCpPCKvn8aG/j9zVQ+0x5hzYJq5h5YyUXVGa1iamOaB2M2PZXoumQPES4qeAP1FwkI0b6tL4bQ==
+  /vue/3.0.0-alpha.11:
+    dependencies:
+      '@vue/compiler-dom': 3.0.0-alpha.11
+      '@vue/runtime-dom': 3.0.0-alpha.11
+      '@vue/shared': 3.0.0-alpha.11
+    dev: true
+    resolution:
+      integrity: sha512-+MmVjmYzT9pKWzT6Qo0pwtePIDgJQdQScSEZxDzuAw9gxKyUrVpMeGemqZ4MBwJf+S7fSg931PC5SEyASP5IBA==
   /vue/3.0.0-alpha.9:
     dependencies:
       '@vue/compiler-dom': 3.0.0-alpha.9
