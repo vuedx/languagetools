@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/vue-virtual-textdocument",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "",
   "main": "dist/vue-virtual-textdocument.js",
   "module": "dist/vue-virtual-textdocument.esm.js",
