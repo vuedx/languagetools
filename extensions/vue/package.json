@@ -118,8 +118,7 @@
   "bugs": {
     "url": "https://github.com/znck/vuedx/issues"
   },
-  "homepage": "https://github.com/znck/vuedx/blob/master/extension#readme",
-  "extensionDependencies": ["znck.vue"],
+  "homepage": "https://github.com/znck/vuedx/blob/master/extensions/vue#readme",
   "devDependencies": {
     "@vuedx/extensions-shared": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",

@@ -52,7 +52,8 @@
   "bugs": {
     "url": "https://github.com/znck/vuedx/issues"
   },
-  "homepage": "https://github.com/znck/vuedx/blob/master/extension#readme",
+  "homepage": "https://github.com/znck/vuedx/blob/master/extensions/vue-language-features#readme",
+  "extensionDependencies": ["znck.vue"],
   "devDependencies": {
     "@vuedx/extensions-shared": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
@@ -63,6 +64,6 @@
     "vscode": "^1.1.36"
   },
   "dependencies": {
-    "@vuedx/typescript-plugin-vue": "^0.1.0-alpha.2"
+    "@vuedx/typescript-plugin-vue": "workspace:*"
   }
 }

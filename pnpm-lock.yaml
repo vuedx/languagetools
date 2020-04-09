@@ -41,16 +41,9 @@ importers:
     specifiers:
       typescript: ^3.8.3
       vue: ^3.0.0-alpha.8
-  extensions/shared:
-    dependencies:
-      '@vuedx/vue-virtual-textdocument': 'link:../../packages/@vuedx/vue-virtual-textdocument'
-      inversify: 5.0.1
-    specifiers:
-      '@vuedx/vue-virtual-textdocument': 'workspace:^0.1.0-alpha.2'
-      inversify: ^5.0.1
   extensions/vue:
     devDependencies:
-      '@vuedx/extensions-shared': 'link:../shared'
+      '@vuedx/extensions-shared': 'link:../../packages/@vuedx/extensions-shared'
       '@vuedx/vue-virtual-textdocument': 'link:../../packages/@vuedx/vue-virtual-textdocument'
       inversify: 5.0.1
       reflect-metadata: 0.1.13
@@ -67,9 +60,9 @@ importers:
       yaml: ^1.8.2
   extensions/vue-language-features:
     dependencies:
-      '@vuedx/typescript-plugin-vue': 0.1.0-alpha.2
+      '@vuedx/typescript-plugin-vue': 'link:../../packages/@vuedx/typescript-plugin-vue'
     devDependencies:
-      '@vuedx/extensions-shared': 'link:../shared'
+      '@vuedx/extensions-shared': 'link:../../packages/@vuedx/extensions-shared'
       '@vuedx/vue-virtual-textdocument': 'link:../../packages/@vuedx/vue-virtual-textdocument'
       inversify: 5.0.1
       reflect-metadata: 0.1.13
@@ -78,7 +71,7 @@ importers:
       yaml: 1.8.3
     specifiers:
       '@vuedx/extensions-shared': 'workspace:*'
-      '@vuedx/typescript-plugin-vue': ^0.1.0-alpha.2
+      '@vuedx/typescript-plugin-vue': 'workspace:*'
       '@vuedx/vue-virtual-textdocument': 'workspace:*'
       inversify: ^5.0.1
       reflect-metadata: ^0.1.13
@@ -108,6 +101,11 @@ importers:
       '@vue/compiler-core': ^3.0.0-alpha.12
       '@vuedx/template-ast-types': 'workspace:*'
       lodash.camelcase: ^4.3.0
+  packages/@vuedx/extensions-shared:
+    dependencies:
+      '@vuedx/vue-virtual-textdocument': 'link:../vue-virtual-textdocument'
+    specifiers:
+      '@vuedx/vue-virtual-textdocument': 'workspace:^0.1.0-alpha.2'
   packages/@vuedx/sfc-inspector:
     dependencies:
       '@babel/code-frame': 7.8.3
@@ -934,10 +932,6 @@ packages:
   /@vue/shared/3.0.0-alpha.9:
     resolution:
       integrity: sha512-34jsIMNwXJ6V6qlGx5ATw4YHTRxoKCyKN8MulRrUxo4BDhzEl1T1nsh6A9dsmJ8MGki/4MtYyxStTnPBQCLNfA==
-  /@vuedx/typescript-plugin-vue/0.1.0-alpha.2:
-    dev: false
-    resolution:
-      integrity: sha512-8N8mTHRMbznmBjah5j1I0lO+fuFTsGIpN0ezhC965cVa5WeIASwIe1Ssx1KSdES1IBsDWWDA0QuBhwLgyFnbbA==
   /abab/2.0.3:
     dev: true
     resolution:
@@ -2223,6 +2217,7 @@ packages:
     resolution:
       integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
   /inversify/5.0.1:
+    dev: true
     resolution:
       integrity: sha512-Ieh06s48WnEYGcqHepdsJUIJUXpwH5o5vodAX+DK2JA/gjy4EbEcQZxw+uFfzysmKjiLXGYwNG3qDZsKVMcINQ==
   /ip-regex/2.1.0:
