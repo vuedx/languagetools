@@ -9,7 +9,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/znck/vuedx.git"
+    "url": "git+https://github.com/znck/vue-developer-experience.git"
   },
   "files": [
     "bin",
@@ -24,9 +24,9 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/znck/vuedx/issues"
+    "url": "https://github.com/znck/vue-developer-experience/issues"
   },
-  "homepage": "https://github.com/znck/vuedx#readme",
+  "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
     "@babel/code-frame": "^7.8.3",
     "@babel/generator": "^7.9.5",
