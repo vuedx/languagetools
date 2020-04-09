@@ -6,7 +6,9 @@
     "test:ts": "TEST_ENV=jest jest --runInBand --config ./jest.e2e.config.js",
     "build:dev": "rollup -c",
     "build": "rollup -c --environment BUILD:production",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "release": "pnpm recursive --filter ./packages exec version",
+    "postrelease": "pnpm run build && pnpm recursive --filter ./packages publish --access public --tag latest"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.0.2",

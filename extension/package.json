@@ -2,7 +2,7 @@
   "private": true,
   "name": "vue-language-features",
   "displayName": "Vue",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.0",
   "description": "Made with 💚 for Vue Developers.",
   "main": "dist/extension.js",
   "activationEvents": [
@@ -125,7 +125,9 @@
     "typescriptServerPlugins": [
       {
         "name": "@vuedx/typescript-plugin-vue",
-        "languages": ["vue"]
+        "languages": [
+          "vue"
+        ]
       }
     ]
   },
