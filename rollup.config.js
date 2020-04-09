@@ -3,6 +3,8 @@ const Fs = require('fs')
 const ts = require('rollup-plugin-typescript2')
 const node = require('@rollup/plugin-node-resolve')
 const commonjs = require('@rollup/plugin-commonjs')
+const cjs2es = require('rollup-plugin-cjs-es')
+const alias = require('@rollup/plugin-alias')
 const json = require('@rollup/plugin-json')
 const replace = require('@rollup/plugin-replace')
 const terser = require('rollup-plugin-terser').terser
@@ -21,7 +23,10 @@ const env = {
 }
 
 createConfig('packages/@vuedx', packages)
-createConfig('.', ['extension'])
+createConfig(
+  '.',
+  ['extension'].filter((name) => name.match(filter))
+)
 
 export default configurations
 
@@ -55,16 +60,67 @@ function createConfig(dir, names, external = []) {
     }
 
     try {
+      /** @type {import('rollup').RollupOptions} */
       const options = {
         input: Path.relative(projectDir, Path.resolve(pkgDir, 'src/index.ts')),
-        external: ['path', 'fs', 'vscode', 'events', 'querystring', 'assert']
+        external: [
+          // VS Code
+          'vscode',
+          'postcss',
+          // Node
+          'path',
+          'fs',
+          'events',
+          'querystring',
+          'assert',
+          'url',
+          'util',
+          'os',
+        ]
           .concat(Object.keys(pkg.dependencies || {}))
           .concat(external),
-        plugins: [json(), node(), createTs(pkgDir), replace(env), , commonjs()],
+        context: 'null',
+        plugins: [json(), node(), createTs(pkgDir), replace(env), commonjs()],
+        treeshake: {
+          annotations: true,
+          moduleSideEffects: false,
+          unknownGlobalSideEffects: false,
+          propertyReadSideEffects: false,
+        },
+        onwarn(warning, fn) {
+          if (warning.code === 'CIRCULAR_DEPENDENCY') {
+            if (/(inversify|postcss)/.test(warning.message)) return
+          }
+          fn(warning)
+        },
+      }
+
+      if (/(typescript-plugin-vue|extension|vue-virtual-textdocument)/.test(name)) {
+        options.plugins.push(
+          replace({
+            values: {
+              'var trimPlugin = postcss.plugin': 'var trimPlugin =/*#__PURE__*/postcss.plugin',
+              'var scopedPlugin = postcss.plugin': 'var scopedPlugin =/*#__PURE__*/postcss.plugin',
+            }
+          })
+        )
+        options.plugins.unshift(
+          alias({
+            entries: [
+              {
+                find: /^(consolidate|sass|less|stylus)$/,
+                replacement: Path.resolve(
+                  __dirname,
+                  'scripts/empty-package.js'
+                ),
+              },
+            ],
+          })
+        )
       }
 
       if (isProd) {
-        options.plugins.push(terser())
+        // options.plugins.push(terser())
       }
 
       if (pkg.main) {

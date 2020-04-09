@@ -25,6 +25,6 @@
   },
   "homepage": "https://github.com/znck/vuedx#readme",
   "dependencies": {
-    "@vue/compiler-core": "^3.0.0-alpha.8"
+    "@vue/compiler-core": "^3.0.0-alpha.12"
   }
 }

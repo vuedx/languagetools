@@ -1,9 +1,11 @@
 {
   "private": true,
   "name": "vue-language-features",
+  "publisher": "znck",
   "displayName": "Vue",
   "version": "0.1.0-alpha.0",
   "description": "Made with 💚 for Vue Developers.",
+  "icon": "logo.png",
   "main": "dist/extension.js",
   "activationEvents": [
     "onLanguage:vue",
@@ -11,19 +13,18 @@
     "onCommand:vue.generateGrammar"
   ],
   "scripts": {
-    "prepare": "node scripts/build-grammar",
+    "prepare": "node scripts/prepare && node scripts/build-grammar",
     "postinstall": "vscode-install"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/znck/vuedx.git"
+    "url": "https://github.com/znck/vuedx"
   },
   "keywords": [
     "vue",
     "vetur"
   ],
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
-  "publisher": "Vue",
   "license": "MIT",
   "engines": {
     "vscode": "^1.32.0"
@@ -106,10 +107,6 @@
           "additionalItems": {
             "type": "object",
             "properties": {
-              "default": {
-                "type": "string",
-                "title": "Default language"
-              },
               "allowed": {
                 "type": "array",
                 "title": "Allowed languages",
@@ -125,6 +122,7 @@
     "typescriptServerPlugins": [
       {
         "name": "@vuedx/typescript-plugin-vue",
+        "enableForWorkspaceTypeScriptVersions": true,
         "languages": [
           "vue"
         ]
@@ -136,15 +134,14 @@
   },
   "homepage": "https://github.com/znck/vuedx/blob/master/extension#readme",
   "devDependencies": {
-    "fast-glob": "^3.2.2",
-    "npm-run-all": "^4.1.5",
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
     "vscode": "^1.1.36",
+    "inversify": "^5.0.1",
+    "reflect-metadata": "^0.1.13",
+    "vue": "^3.0.0-alpha.12",
     "yaml": "^1.8.2"
   },
   "dependencies": {
-    "@vuedx/typescript-plugin-vue": "workspace:0.1.0",
-    "@vuedx/vue-virtual-textdocument": "workspace:0.1.0",
-    "inversify": "^5.0.1",
-    "reflect-metadata": "^0.1.13"
+    "@vuedx/typescript-plugin-vue": "workspace:*"
   }
 }

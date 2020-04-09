@@ -1,0 +1,17 @@
+**
+node_modules/**
+
+# Dependencies
+!node_modules/@vuedx/typescript-plugin-vue/dist/*
+!node_modules/@vuedx/typescript-plugin-vue/package.json
+
+# Project Files
+!dist
+!languages/*.json
+!scripts/*.js
+!syntaxes/*.json
+!syntaxes/*.yml
+!logo.png
+!readme.md
+!LICENSE
+!package.json

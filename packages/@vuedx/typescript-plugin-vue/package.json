@@ -12,10 +12,8 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^3.8.3"
-  },
-  "dependencies": {
-    "@vuedx/vue-virtual-textdocument": "workspace:0.1.0",
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
+    "typescript": "^3.8.3",
     "vscode-uri": "^2.1.1"
   }
 }

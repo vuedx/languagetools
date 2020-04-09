@@ -7,10 +7,11 @@
     "build:dev": "rollup -c",
     "build": "rollup -c --environment BUILD:production",
     "prepublishOnly": "npm run build",
-    "release": "pnpm recursive --filter ./packages exec version",
+    "release": "pnpm recursive --filter ./packages exec npm version",
     "postrelease": "pnpm run build && pnpm recursive --filter ./packages publish --access public --tag latest"
   },
   "devDependencies": {
+    "@rollup/plugin-alias": "^3.0.1",
     "@rollup/plugin-commonjs": "^11.0.2",
     "@rollup/plugin-json": "^4.0.2",
     "@rollup/plugin-node-resolve": "^7.1.1",

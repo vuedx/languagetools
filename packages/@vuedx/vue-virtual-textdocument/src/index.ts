@@ -4,6 +4,7 @@ import {
   SFCBlock,
   SFCDescriptor,
 } from '@vue/compiler-sfc'
+import { baseParse, baseCompile } from '@vue/compiler-core'
 import {
   parse as parseQueryString,
   stringify as stringifyQueryString,
@@ -205,6 +206,10 @@ export class VueTextDocument implements TextDocument {
       sourceMap: false,
       pad: 'space',
       filename: this.fsPath,
+      compiler: {
+        compile: baseCompile,
+        parse: baseParse,
+      },
     })
 
     const prevIds = Object.keys(this.documents)
