@@ -41,7 +41,7 @@ function main(version, publish, filter) {
         )
       else run('vsce package -o extension.vsix', extensionDir)
 
-      run('rm -rf node_modules', extensionDir)
+      run('rm -rf node_modules package-lock.json', extensionDir)
     } finally {
       revert()
       console.log()
