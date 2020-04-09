@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Helper functions for Vue template AST",
   "main": "dist/template-ast-types.js",
-  "module": "dist/template-ast-types.js",
+  "module": "dist/template-ast-types.esm.js",
   "types": "dist/template-ast-types.d.ts",
   "private": true,
   "repository": {

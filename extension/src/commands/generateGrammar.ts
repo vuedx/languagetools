@@ -4,8 +4,8 @@ import Fs from 'fs'
 import { inject, injectable } from 'inversify'
 import Path from 'path'
 import vscode from 'vscode'
-import { ConfigurationService } from '../../services/configuration'
-import { Installable } from '../../utils/installable'
+import { ConfigurationService } from '../services/configuration'
+import { Installable } from '../utils/installable'
 
 @injectable()
 export class GenerateGrammarCommand extends Installable {
@@ -28,7 +28,7 @@ export class GenerateGrammarCommand extends Installable {
 
     return vscode.Disposable.from(
       vscode.commands.registerTextEditorCommand(
-        'vue.syntax.generateGrammar',
+        'vue.generateGrammar',
         this.onExecute.bind(this)
       ),
       vscode.workspace.onDidOpenTextDocument(async event => {

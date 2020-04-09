@@ -16,6 +16,7 @@
     "sourceMap": true,
     "declaration": true,
     "baseUrl": ".",
+    "lib": ["ESNext"],
     "paths": {
       "@vuedx/*": ["packages/@vuedx/*/src/index.ts"]
     }

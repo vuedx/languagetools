@@ -59,7 +59,7 @@ function createConfig(dir, names, external = []) {
     try {
       const options = {
         input: Path.relative(projectDir, Path.resolve(pkgDir, 'src/index.ts')),
-        external: ['path', 'fs', 'vscode', 'events', 'querystring']
+        external: ['path', 'fs', 'vscode', 'events', 'querystring', 'assert']
           .concat(Object.keys(pkg.dependencies || {}))
           .concat(external),
         plugins: [json(), node(), createTs(pkgDir), replace(env), , commonjs()],

@@ -61,15 +61,23 @@ importers:
       yaml: ^1.8.2
   packages/@vuedx/compiler-typescript:
     dependencies:
+      '@babel/parser': 7.9.4
+      '@babel/types': 7.9.0
       '@vue/compiler-core': 3.0.0-alpha.11
+      '@vuedx/template-ast-types': 'link:../template-ast-types'
       lodash.camelcase: 4.3.0
     devDependencies:
       '@types/lodash.camelcase': 4.3.6
+      source-map: 0.6.1
       vue: 3.0.0-alpha.11
     specifiers:
+      '@babel/parser': ^7.9.4
+      '@babel/types': ^7.9.0
       '@types/lodash.camelcase': ^4.3.6
       '@vue/compiler-core': ^3.0.0-alpha.11
+      '@vuedx/template-ast-types': 'link:../template-ast-types'
       lodash.camelcase: ^4.3.0
+      source-map: '0.6'
       vue: ^3.0.0-alpha.11
   packages/@vuedx/sfc-inspector:
     dependencies:

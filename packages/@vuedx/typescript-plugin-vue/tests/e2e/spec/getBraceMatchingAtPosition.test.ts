@@ -1,7 +1,7 @@
 import Proto from 'typescript/lib/protocol'
 import { createLanguageServerForTest } from '../server'
 
-describe('getBraceCompletions', () => {
+describe('getBraceMatchingAtPosition', () => {
   test('should complete the opened braces', async () => {
     const server = createLanguageServerForTest()
     server.openFile('fixture-brace-completions.vue')

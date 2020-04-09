@@ -194,7 +194,7 @@ export class VueTextDocument implements TextDocument {
         : this.offsetAt(positionOrOffset)
 
     return this._blocks.find(
-      block =>
+      (block) =>
         block.loc.start.offset <= offset && offset <= block.loc.end.offset
     )
   }
@@ -220,7 +220,7 @@ export class VueTextDocument implements TextDocument {
     this._blocks.sort((a, b) => a.loc.start.offset - b.loc.start.offset)
 
     if (prevIds.length) {
-      prevIds.forEach(id => {
+      prevIds.forEach((id) => {
         const selector = parseQueryString(id) as BlockSelector
 
         if (selector && 'index' in selector) {
@@ -280,11 +280,19 @@ export class VueTextDocument implements TextDocument {
     return Object.values(this.documents).filter(isNotNull)
   }
 
+  public forTS() {
+    return Object.values(this.documents)
+      .filter(isNotNull)
+      .filter((document) =>
+        /^(typescript|javascript)$/.test(document.languageId)
+      )
+  }
+
   public getBlockDocument(
     block?: SFCBlock | 'script' | 'template' | BlockSelector | string
   ) {
     if (!block) return
-    
+
     const selector = this.getSelectorFor(block)
 
     if (!selector) return
@@ -434,14 +442,14 @@ export function parseVirtualFileUri(fileNameOrUri: string) {
 
 export class DocumentStore<T> {
   private map = new Map<string, T>()
+  private lowerCaseNames = new Map<string, string>()
 
-  constructor(
-    private resolve: (uri: string) => T | null,
-    private useCaseSensitiveFileNames = () => true
-  ) {}
+  constructor(private resolve: (uri: string) => T | null) {}
 
   private normalizeUri(uri: string) {
-    return this.useCaseSensitiveFileNames() ? uri : uri.toLowerCase()
+    const lower = uri.toLowerCase()
+
+    return this.lowerCaseNames.get(lower) || uri
   }
 
   has(uri: string): boolean {
@@ -453,7 +461,8 @@ export class DocumentStore<T> {
   }
 
   set(uri: string, document: T): void {
-    this.map.set(this.normalizeUri(uri), document)
+    this.map.set(uri, document)
+    this.lowerCaseNames.set(uri.toLowerCase(), uri)
   }
 
   delete(uri: string) {
@@ -472,7 +481,7 @@ export class DocumentStore<T> {
     const document = this.resolve(uri)
 
     if (document) {
-      this.map.set(this.normalizeUri(uri), document)
+      this.set(uri, document)
     }
 
     return document

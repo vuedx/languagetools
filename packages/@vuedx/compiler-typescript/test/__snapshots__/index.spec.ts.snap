@@ -1,18 +1,107 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`compiler one 1`] = `
-"import { h as _h, renderList as _renderList, Fragment as _Fragment, resolveComponent as _resolveComponent } from \\"vue\\"
-import _Ctx from './example.vue'
-import _Foo from './foo.vue'
+exports[`compiler render function to template mapping directive v-else-if 1`] = `
+Object {
+  "render": "_h(_Fragment, [
+    (_ctx.foo)
+      ? _h(\\"div\\", {}, [])
+      : (_ctx.bar)
+        ? _h(\\"span\\", {}, [])
+        : null
+  ])",
+  "template": "<div v-if=\\"foo\\" /><span v-else-if=\\"bar\\" />",
+}
+`;
 
+exports[`compiler render function to template mapping directive v-else-if 2`] = `
+Object {
+  "render": "_h(\\"div\\", {}, [])",
+  "template": "<div v-if=\\"foo\\" />",
+}
+`;
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  const _component_Bar = _resolveComponent(\\"Bar\\")
+exports[`compiler render function to template mapping directive v-else-if 3`] = `
+Object {
+  "render": "_h(\\"span\\", {}, [])",
+  "template": "<span v-else-if=\\"bar\\" />",
+}
+`;
 
-  return (_ctx.bar)
-    ? _h(_Foo, { id: \\"foo\\" }, [])
-    : _h(_Fragment, _renderList(_ctx.bars, (foo) => {
-        return _h(_component_Bar, {}, [])
-      }))
-}"
+exports[`compiler render function to template mapping directive v-if 1`] = `
+Object {
+  "render": "_h(_Fragment, [
+    (_ctx.foo)
+      ? _h(\\"div\\", {}, [])
+      : null
+  ])",
+  "template": "<div v-if=\\"foo\\" />",
+}
+`;
+
+exports[`compiler render function to template mapping directive v-if 2`] = `
+Object {
+  "render": "_h(\\"div\\", {}, [])",
+  "template": "<div v-if=\\"foo\\" />",
+}
+`;
+
+exports[`compiler render function to template mapping directive v-slot (on component) 1`] = `
+Object {
+  "render": "_h(_component_Foo, {}, {
+      default: _withCtx((content) => [_toDisplayString(_ctx.foo + content)])
+    })",
+  "template": "<Foo v-slot=\\"content\\">{{ foo + content }}</Foo>",
+}
+`;
+
+exports[`compiler render function to template mapping directive v-slot 1`] = `
+Object {
+  "render": "_h(_component_Foo, {}, {
+      default: _withCtx(({ content }) => [_toDisplayString(_ctx.foo + content)]),
+      [_ctx.other]: _withCtx(({ other }, second) => [_toDisplayString(_ctx.foo + other + second)])
+    })",
+  "template": "
+        <Foo>
+          <template #default=\\"{ content }\\">{{ foo + content }}</template>
+          <template #[other]=\\"{ other }, second\\">{{ foo + other + second }}</template>
+        </Foo>
+      ",
+}
+`;
+
+exports[`compiler render function to template mapping element 1`] = `
+Object {
+  "render": "_h(\\"input\\", {
+      type: \\"text\\",
+      placeholder: \\"username\\",
+      required: \\"\\"
+    }, [])",
+  "template": "<input type=\\"text\\" placeholder=\\"username\\" required />",
+}
+`;
+
+exports[`compiler render function to template mapping element with children 1`] = `
+Object {
+  "render": "_h(\\"form\\", {}, [
+      _h(\\"input\\", {}, [])
+    ])",
+  "template": "<form><input /></form>",
+}
+`;
+
+exports[`compiler render function to template mapping nested element 1`] = `
+Object {
+  "render": "_h(\\"input\\", {}, [])",
+  "template": "<input />",
+}
+`;
+
+exports[`compiler render function to template mapping root fragment 1`] = `
+Object {
+  "render": "_h(_Fragment, [
+    _h(\\"div\\", {}, []),
+    _h(\\"div\\", {}, [])
+  ])",
+  "template": "<div></div><div></div>",
+}
 `;

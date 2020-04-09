@@ -40,7 +40,7 @@ export const transformFor: NodeTransform = createStructuralDirectiveTransform(
         const childBlock =
           forNode.children.length === 1
             ? forNode.children[0]
-            : createCallExpression(context.helperString(H), [
+            : createCallExpression(context.helperString(context.helper(H)), [
                 fragment,
                 forNode.children,
               ])
@@ -53,10 +53,10 @@ export const transformFor: NodeTransform = createStructuralDirectiveTransform(
           ) as ForIteratorExpression
         )
 
-        forNode.codegenNode = createCallExpression('_h', [
-          fragment,
-          renderExp,
-        ]) as any
+        forNode.codegenNode = createCallExpression(
+          context.helperString(context.helper(H)),
+          [fragment, renderExp]
+        ) as any
       }
     })
   }

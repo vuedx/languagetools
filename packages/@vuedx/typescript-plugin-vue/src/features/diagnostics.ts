@@ -1,37 +1,15 @@
-import {
-  VirtualTextDocument,
-  VueTextDocument,
-} from '@vuedx/vue-virtual-textdocument'
 import ts from 'typescript'
+import { virtualFileNameSep } from '@vuedx/vue-virtual-textdocument'
 
-interface Context {
-  getVueFile(fileName: string): VueTextDocument
-  
-  getVitualFile(
-    vueFileName: string,
-    selector: 'script' | 'render'
-  ): VirtualTextDocument
-  
-  getVirtualFileAtPosition(
-    vueFileName: string,
-    position: number
-  ): VirtualTextDocument
-}
-
-export function getSyntacticDiagnostics(
-  fn: ts.LanguageService['getSyntacticDiagnostics']
-): ts.LanguageService['getSyntacticDiagnostics'] {}
+const virtualFileRegex = new RegExp(`(?<=\\.vue)${virtualFileNameSep}(script|template|style|customBlock|render)(__[0-9]+)?`, 'g')
 
 export function prepareSyntacticDiagnostics(
   fileName: string,
   result: ts.DiagnosticWithLocation[]
 ) {
-  result.forEach(item => {
+  result.forEach((item) => {
     if (typeof item.messageText === 'string') {
-      item.messageText = item.messageText.replace(
-        /(?<=\.vue)\?type=[^#]+#/g,
-        ''
-      )
+      item.messageText = item.messageText.replace(virtualFileRegex, '')
     }
   })
 
@@ -42,12 +20,9 @@ export function prepareSuggestionDiagnostics(
   fileName: string,
   result: ts.DiagnosticWithLocation[]
 ) {
-  result.forEach(item => {
+  result.forEach((item) => {
     if (typeof item.messageText === 'string') {
-      item.messageText = item.messageText.replace(
-        /(?<=\.vue)\?type=[^#]+#/g,
-        ''
-      )
+      item.messageText = item.messageText.replace(virtualFileRegex, '')
     }
   })
 
@@ -58,12 +33,9 @@ export function prepareSemanticDiagnostics(
   fileName: string,
   result: ts.Diagnostic[]
 ) {
-  result.forEach(item => {
+  result.forEach((item) => {
     if (typeof item.messageText === 'string') {
-      item.messageText = item.messageText.replace(
-        /(?<=\.vue)\?type=[^#]+#/g,
-        ''
-      )
+      item.messageText = item.messageText.replace(virtualFileRegex, '')
     }
   })
 

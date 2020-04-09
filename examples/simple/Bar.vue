@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue'
-
+export const Baz = 5
 export default defineComponent({
   props: {
     foo: String,

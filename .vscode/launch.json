@@ -2,6 +2,25 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "node",
+      "name": "vscode-jest-tests",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+      "args": [
+        "--runInBand",
+        "--config",
+        "${workspaceFolder}/jest.e2e.config.js",
+        "${fileBasename}"
+      ],
+      "env": {
+        "CI": "vscode-jest-tests"
+      },
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true
+    },
+    {
       "name": "Launch File",
       "program": "${file}",
       "request": "launch",

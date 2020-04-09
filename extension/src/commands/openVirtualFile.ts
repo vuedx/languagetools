@@ -1,10 +1,10 @@
 import vscode from 'vscode'
-import { DocumentService } from '../../services/documents'
+import { DocumentService } from '../services/documents'
 import { injectable } from 'inversify'
 import { Installable } from 'extension/src/utils/installable'
 
 @injectable()
-export class OpenVirtualDocumentCommand extends Installable {
+export class OpenVirtualFileCommand extends Installable {
   public constructor(private readonly documents: DocumentService) {
     super()
   }
@@ -13,7 +13,7 @@ export class OpenVirtualDocumentCommand extends Installable {
     super.install()
 
     return vscode.commands.registerTextEditorCommand(
-      'vue.virtual.openAtCursor',
+      'vue.openVirtualFile',
       this.onExecute.bind(this)
     )
   }

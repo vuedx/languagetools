@@ -1,14 +1,14 @@
 {
   "private": true,
   "name": "vue-language-features",
-  "displayName": "Vue Language Features",
+  "displayName": "Vue",
   "version": "0.0.0",
   "description": "Made with 💚 for Vue Developers.",
   "main": "dist/extension.js",
   "activationEvents": [
     "onLanguage:vue",
-    "onCommand:vue.virtual.openAtCursor",
-    "onCommand:vue.syntax.generateGrammar"
+    "onCommand:vue.openVirtualFile",
+    "onCommand:vue.generateGrammar"
   ],
   "scripts": {
     "prepare": "node scripts/build-grammar",
@@ -89,11 +89,11 @@
     ],
     "commands": [
       {
-        "command": "vue.virtual.openAtCursor",
+        "command": "vue.openVirtualFile",
         "title": "Vue: Show virtual file"
       },
       {
-        "command": "vue.syntax.generateGrammar",
+        "command": "vue.generateGrammar",
         "title": "Vue: Refresh syntax highlighter"
       }
     ],
@@ -125,9 +125,7 @@
     "typescriptServerPlugins": [
       {
         "name": "@vuedx/typescript-plugin-vue",
-        "languages": [
-          "vue", "typescript", "javascript"
-        ]
+        "languages": ["vue"]
       }
     ]
   },

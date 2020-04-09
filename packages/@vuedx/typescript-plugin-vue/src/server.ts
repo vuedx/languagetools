@@ -9,6 +9,16 @@ import {
 } from '@vuedx/vue-virtual-textdocument'
 import ts from 'typescript'
 import { prepareQuickInfo } from './features/quickInfo'
+import { prepareCodeFixAction } from './features/action'
+import {
+  prepareSemanticDiagnostics,
+  prepareSyntacticDiagnostics,
+  prepareSuggestionDiagnostics,
+} from './features/diagnostics'
+import {
+  prepareDefinitionAndBoundSpan,
+  prepareDefinitionInfo,
+} from './features/definition'
 
 function isNumber(any: any): any is number {
   return typeof any === 'number'
@@ -17,7 +27,7 @@ function isNumber(any: any): any is number {
 function flat<T>(items: (T | T[])[]): T[] {
   const result: T[] = []
 
-  items.forEach(item => {
+  items.forEach((item) => {
     if (Array.isArray(item)) {
       result.push(...flat(item))
     } else {
@@ -64,7 +74,7 @@ export class VueContext {
   ) {}
 
   getFileNameFromVirtualFileName(fileName: string): string {
-    return this.documents.get(fileName.split(virtualFileNameSep).shift()!)!.fsPath
+    return fileName.split(virtualFileNameSep).shift()!
   }
   isVueFile(fileName: string) {
     return isVueFile(fileName)
@@ -81,7 +91,7 @@ export class VueContext {
   getVirtualDocument(fileNameOrUri: string) {
     return chain(parseVirtualFileUri(fileNameOrUri)!)
       .next(
-        ref =>
+        (ref) =>
           this.getVueDocument(ref.uri)?.getBlockDocument(ref.selector) || null
       )
       .end(null)
@@ -99,9 +109,10 @@ export class VueContext {
       const virtualFileName = this.getVirtualDocumentAt(fileName, position)
         ?.fsPath
 
-      this.logger.log(
-        `getFileNameAt(${fileName}, ${position}) = ${virtualFileName}`
-      )
+      __DEV__ &&
+        this.logger.log(
+          `getFileNameAt(${fileName}, ${position}) = ${virtualFileName}`
+        )
 
       return virtualFileName
     }
@@ -117,12 +128,13 @@ export class VueContext {
 
       const scriptFileName = document.getBlockDocument('script')!.fsPath
 
-      this.logger.log(`getInnerFileNames(${fileName}) = [${scriptFileName}]`)
+      __DEV__ &&
+        this.logger.log(`getInnerFileNames(${fileName}) = [${scriptFileName}]`)
 
       return [scriptFileName]
     }
 
-    this.logger.log(`getInnerFileNames(${fileName}) = [${fileName}]`)
+    __DEV__ && this.logger.log(`getInnerFileNames(${fileName}) = [${fileName}]`)
 
     return [fileName]
   }
@@ -135,30 +147,51 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     private readonly typescript: typeof ts
   ) {}
 
-  getSyntacticDiagnostics(fileName: string): ts.DiagnosticWithLocation[] {
-    this.context.logger.log('getSyntacticDiagnostics file=' + fileName)
+  getProgram() {
+    const program = this.service.getProgram()
 
-    return flat(
+    __DEV__ && this.context.logger.log(`VLS.getProgram() = ${typeof program}`)
+
+    return program
+  }
+
+  getSyntacticDiagnostics(fileName: string): ts.DiagnosticWithLocation[] {
+    __DEV__ &&
+      this.context.logger.log('getSyntacticDiagnostics file=' + fileName)
+
+    const diagnostics = flat(
       this.context
         .getInnerFileNames(fileName)
         .map(this.service.getSyntacticDiagnostics)
     )
+
+    return prepareSyntacticDiagnostics(fileName, diagnostics)
   }
 
   getSemanticDiagnostics(fileName: string): ts.Diagnostic[] {
-    return flat(
+    __DEV__ &&
+      this.context.logger.log('getSemanticDiagnostics file=' + fileName)
+
+    const diagnostics = flat(
       this.context
         .getInnerFileNames(fileName)
         .map(this.service.getSemanticDiagnostics)
     )
+
+    return prepareSemanticDiagnostics(fileName, diagnostics)
   }
 
   getSuggestionDiagnostics(fileName: string): ts.DiagnosticWithLocation[] {
-    return flat(
+    __DEV__ &&
+      this.context.logger.log('getSemanticDiagnostics file=' + fileName)
+
+    const diagnostics = flat(
       this.context
         .getInnerFileNames(fileName)
         .map(this.service.getSuggestionDiagnostics)
     )
+
+    return prepareSuggestionDiagnostics(fileName, diagnostics)
   }
 
   getCompilerOptionsDiagnostics(): ts.Diagnostic[] {
@@ -172,7 +205,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return flat(
       this.context
         .getInnerFileNames(fileName, true)
-        .map(fileName =>
+        .map((fileName) =>
           this.service.getSyntacticClassifications(fileName, span)
         )
     )
@@ -185,7 +218,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return flat(
       this.context
         .getInnerFileNames(fileName, true)
-        .map(fileName =>
+        .map((fileName) =>
           this.service.getSemanticClassifications(fileName, span)
         )
     )
@@ -198,7 +231,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return firstOrDefault(
       this.context
         .getInnerFileNames(fileName, true)
-        .map(fileName =>
+        .map((fileName) =>
           this.service.getEncodedSyntacticClassifications(fileName, span)
         ),
       () => ({ spans: [], endOfLineState: this.typescript.EndOfLineState.None })
@@ -212,7 +245,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return firstOrDefault(
       this.context
         .getInnerFileNames(fileName, true)
-        .map(fileName =>
+        .map((fileName) =>
           this.service.getEncodedSyntacticClassifications(fileName, span)
         ),
       () => ({ spans: [], endOfLineState: this.typescript.EndOfLineState.None })
@@ -225,7 +258,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     options: ts.GetCompletionsAtPositionOptions | undefined
   ): ts.WithMetadata<ts.CompletionInfo> | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getCompletionsAtPosition(fileName, position, options)
       )
       .end()
@@ -240,7 +273,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     preferences: ts.UserPreferences | undefined
   ): ts.CompletionEntryDetails | undefined {
     throw chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getCompletionEntryDetails(
           fileName,
           position,
@@ -260,7 +293,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     source: string | undefined
   ): ts.Symbol | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.getCompletionEntrySymbol(fileName, position, name, source)
       )
       .end()
@@ -272,9 +305,9 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
   ): ts.QuickInfo | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
       .next(
-        fileName => this.service.getQuickInfoAtPosition(fileName, position)!
+        (fileName) => this.service.getQuickInfoAtPosition(fileName, position)!
       )
-      .next(quickInfo => prepareQuickInfo(fileName, quickInfo))
+      .next((quickInfo) => prepareQuickInfo(fileName, quickInfo))
       .end()
   }
 
@@ -284,7 +317,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     endPos: number
   ): ts.TextSpan | undefined {
     return chain(this.context.getFileNameAt(fileName, startPos))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getNameOrDottedNameSpan(fileName, startPos, endPos)
       )
       .end()
@@ -295,7 +328,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): ts.TextSpan | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getBreakpointStatementAtPosition(fileName, position)
       )
       .end()
@@ -307,7 +340,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     options: ts.SignatureHelpItemsOptions | undefined
   ): ts.SignatureHelpItems | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getSignatureHelpItems(fileName, position, options)
       )
       .end()
@@ -319,8 +352,10 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     options?: ts.RenameInfoOptions | undefined
   ): ts.RenameInfo {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName => this.service.getRenameInfo(fileName, position, options))
-      .next(info => {
+      .next((fileName) =>
+        this.service.getRenameInfo(fileName, position, options)
+      )
+      .next((info) => {
         if ('fileToRename' in info && info.fileToRename) {
           info.fileToRename = this.context.getFileNameFromVirtualFileName(
             info.fileToRename
@@ -341,7 +376,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
   ): readonly ts.RenameLocation[] | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
       .next(
-        fileName =>
+        (fileName) =>
           this.service.findRenameLocations(
             fileName,
             position,
@@ -350,15 +385,18 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
             providePrefixAndSuffixTextForRename
           )!
       )
-      .next(locations =>
-        locations.map(location => {
+      .next((locations) =>
+        locations.map((location) => {
           const originalFileName = location.fileName
-          
+
           location.fileName = this.context.getFileNameFromVirtualFileName(
             originalFileName
           )
 
-          this.context.logger.log(`remaping ${originalFileName} => ${location.fileName}`)
+          __DEV__ &&
+            this.context.logger.log(
+              `remaping ${originalFileName} => ${location.fileName}`
+            )
 
           return location
         })
@@ -371,7 +409,9 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): ts.SelectionRange {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName => this.service.getSmartSelectionRange(fileName, position))
+      .next((fileName) =>
+        this.service.getSmartSelectionRange(fileName, position)
+      )
       .end({ textSpan: { start: position, length: 0 } })
   }
 
@@ -380,9 +420,10 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): readonly ts.DefinitionInfo[] | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getDefinitionAtPosition(fileName, position)
       )
+      .next((result) => prepareDefinitionInfo(fileName, result))
       .end()
   }
 
@@ -391,9 +432,14 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): ts.DefinitionInfoAndBoundSpan | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
-        this.service.getDefinitionAndBoundSpan(fileName, position)
-      )
+      .next((fileName) => {
+        __DEV__ &&
+          this.context.logger.log(
+            `getDefinitionAndBoundSpan(fileName=${fileName}, position=${position})`
+          )
+        return this.service.getDefinitionAndBoundSpan(fileName, position)
+      })
+      .next((result) => prepareDefinitionAndBoundSpan(fileName, result))
       .end()
   }
 
@@ -402,9 +448,10 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): readonly ts.DefinitionInfo[] | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getTypeDefinitionAtPosition(fileName, position)
       )
+      .next((result) => prepareDefinitionInfo(fileName, result))
       .end()
   }
 
@@ -413,7 +460,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): readonly ts.ImplementationLocation[] | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getImplementationAtPosition(fileName, position)
       )
       .end()
@@ -424,7 +471,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): ts.ReferenceEntry[] | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getReferencesAtPosition(fileName, position)
       )
       .end()
@@ -435,7 +482,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): ts.ReferencedSymbol[] | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName => this.service.findReferences(fileName, position))
+      .next((fileName) => this.service.findReferences(fileName, position))
       .end()
   }
 
@@ -445,7 +492,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     filesToSearch: string[]
   ): ts.DocumentHighlights[] | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getDocumentHighlights(fileName, position, filesToSearch)
       )
       .end()
@@ -456,7 +503,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): readonly ts.ReferenceEntry[] | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getOccurrencesAtPosition(fileName, position)
       )
       .end()
@@ -480,7 +527,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return flat(
       this.context
         .getInnerFileNames(fileName)
-        .map(fileName => this.service.getNavigationBarItems(fileName))
+        .map((fileName) => this.service.getNavigationBarItems(fileName))
     )
   }
 
@@ -488,7 +535,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return firstOrDefault(
       this.context
         .getInnerFileNames(fileName)
-        .map(fileName => this.service.getNavigationTree(fileName)),
+        .map((fileName) => this.service.getNavigationTree(fileName)),
       () => ({
         kind: this.typescript.ScriptElementKind.moduleElement,
         text: '<unknown>',
@@ -504,7 +551,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): ts.CallHierarchyItem | ts.CallHierarchyItem[] | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName => this.service.prepareCallHierarchy(fileName, position))
+      .next((fileName) => this.service.prepareCallHierarchy(fileName, position))
       .end()
   }
   provideCallHierarchyIncomingCalls(
@@ -512,7 +559,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): ts.CallHierarchyIncomingCall[] {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.provideCallHierarchyIncomingCalls(fileName, position)
       )
       .end([])
@@ -522,7 +569,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): ts.CallHierarchyOutgoingCall[] {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.provideCallHierarchyOutgoingCalls(fileName, position)
       )
       .end([])
@@ -531,7 +578,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return flat(
       this.context
         .getInnerFileNames(fileName, true)
-        .map(fileName => this.service.getOutliningSpans(fileName))
+        .map((fileName) => this.service.getOutliningSpans(fileName))
     )
   }
   getTodoComments(
@@ -541,7 +588,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return flat(
       this.context
         .getInnerFileNames(fileName, true)
-        .map(fileName => this.service.getTodoComments(fileName, descriptors))
+        .map((fileName) => this.service.getTodoComments(fileName, descriptors))
     )
   }
   getBraceMatchingAtPosition(
@@ -549,7 +596,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): ts.TextSpan[] {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getBraceMatchingAtPosition(fileName, position)
       )
       .end([])
@@ -561,7 +608,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     options: ts.EditorOptions | ts.EditorSettings
   ): number {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getIndentationAtPosition(fileName, position, options)
       )
       .end(0)
@@ -573,7 +620,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     options: ts.FormatCodeOptions | ts.FormatCodeSettings
   ): ts.TextChange[] {
     return chain(this.context.getFileNameAt(fileName, start))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getFormattingEditsForRange(fileName, start, end, options)
       )
       .end([])
@@ -586,7 +633,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return flat(
       this.context
         .getInnerFileNames(fileName, true)
-        .map(fileName =>
+        .map((fileName) =>
           this.service.getFormattingEditsForDocument(fileName, options)
         )
     )
@@ -599,7 +646,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     options: ts.FormatCodeOptions | ts.FormatCodeSettings
   ): ts.TextChange[] {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getFormattingEditsAfterKeystroke(
           fileName,
           position,
@@ -614,7 +661,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): ts.TextInsertion | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getDocCommentTemplateAtPosition(fileName, position)
       )
       .end()
@@ -625,7 +672,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     openingBrace: number
   ): boolean {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.isValidBraceCompletionAtPosition(
           fileName,
           position,
@@ -639,7 +686,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     position: number
   ): ts.JsxClosingTagInfo | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getJsxClosingTagAtPosition(fileName, position)
       )
       .end()
@@ -650,7 +697,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     onlyMultiLine: boolean
   ): ts.TextSpan | undefined {
     return chain(this.context.getFileNameAt(fileName, position))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getSpanOfEnclosingComment(
           fileName,
           position,
@@ -668,7 +715,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     preferences: ts.UserPreferences
   ): readonly ts.CodeFixAction[] {
     return chain(this.context.getFileNameAt(fileName, start))
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getCodeFixesAtPosition(
           fileName,
           start,
@@ -678,6 +725,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
           preferences
         )
       )
+      .next((fixes) => prepareCodeFixAction(fileName, fixes))
       .end([])
   }
   getCombinedCodeFix(
@@ -709,7 +757,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
         isNumber(positionOrRange) ? positionOrRange : positionOrRange.pos
       )
     )
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getApplicableRefactors(
           fileName,
           positionOrRange,
@@ -733,7 +781,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
         isNumber(positionOrRange) ? positionOrRange : positionOrRange.pos
       )
     )
-      .next(fileName =>
+      .next((fileName) =>
         this.service.getEditsForRefactor(
           fileName,
           formatOptions,
@@ -780,14 +828,34 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
       proxy[key] =
         key in instance
           ? (...args: any[]) => {
-            context.logger.log(`vls::${key}(${args[0]})`)
+              __DEV__ &&
+                context.logger.log(
+                  `VLS => ${JSON.stringify({ command: key, arguments: args })}`
+                )
               // @ts-ignore
-              return instance[key].apply(instance, args)
+              const result = instance[key].apply(instance, args)
+
+              __DEV__ &&
+                context.logger.log(
+                  `VLS <= ${JSON.stringify({ command: key, result })}`
+                )
+
+              return result
             }
           : (...args: any[]) => {
-              context.logger.log(`ts::${key}(${args[0]})`)
+              __DEV__ &&
+                context.logger.log(
+                  `TS => ${JSON.stringify({ command: key, arguments: args })}`
+                )
               // @ts-ignore
-              return server[key](...args)
+              const result = server[key](...args)
+
+              __DEV__ &&
+                context.logger.log(
+                  `TS <= ${JSON.stringify({ command: key, result })}`
+                )
+
+              return result
             }
     }
 
