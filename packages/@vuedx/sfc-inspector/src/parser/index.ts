@@ -2,7 +2,7 @@ import {
   parse as parseSFC,
   SFCScriptBlock,
   SFCTemplateBlock,
-} from '@vue/compiler-sfc'
+} from '@vuedx/compiler-sfc'
 import { EnhancedSFCDescriptor } from '../interfaces'
 import { parse as parseFlow } from './flow'
 import { parse as parseHTML } from './html'

@@ -2,14 +2,13 @@ import {
   DocumentStore,
   isVirtualFile,
   isVueFile,
-  VueTextDocument,
   VirtualTextDocument,
+  VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import FS from 'fs'
 import Path from 'path'
 import { URI } from 'vscode-uri'
 import { VueContext, VueLanguageServer } from './server'
-import { assert } from 'packages/@vuedx/compiler-typescript/src'
 
 interface Modules {
   typescript: typeof import('typescript/lib/tsserverlibrary')

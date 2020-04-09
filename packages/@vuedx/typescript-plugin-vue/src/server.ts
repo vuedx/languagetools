@@ -1,28 +1,28 @@
 import {
+  asUri,
   DocumentStore,
   isVirtualFile,
   isVueFile,
-  VueTextDocument,
-  asUri,
   parseVirtualFileUri,
   virtualFileNameSep,
+  VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import ts from 'typescript'
-import { prepareQuickInfo } from './features/quickInfo'
 import { prepareCodeFixAction } from './features/action'
-import {
-  prepareSemanticDiagnostics,
-  prepareSyntacticDiagnostics,
-  prepareSuggestionDiagnostics,
-} from './features/diagnostics'
 import {
   prepareDefinitionAndBoundSpan,
   prepareDefinitionInfo,
 } from './features/definition'
 import {
+  prepareSemanticDiagnostics,
+  prepareSuggestionDiagnostics,
+  prepareSyntacticDiagnostics,
+} from './features/diagnostics'
+import {
   prepareApplicableRefactorInfo,
   prepareRefactorEditInfo,
 } from './features/edit'
+import { prepareQuickInfo } from './features/quickInfo'
 
 function isNumber(any: any): any is number {
   return typeof any === 'number'

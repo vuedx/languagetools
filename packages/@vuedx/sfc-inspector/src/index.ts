@@ -3,15 +3,12 @@ import FS from 'fs'
 import Path from 'path'
 import { InspectorOptions } from './interfaces'
 import { ComponentPublicAPIInspectorPlugin } from './plugins/public-api'
-
-export * from './inspector'
-export * from './interfaces'
-export * from './VueComponentInfo'
+import { VueComponentInfo } from './VueComponentInfo'
 
 export async function inspect(
   fileName: string,
   options: Partial<InspectorOptions> = {}
-) {
+): Promise<VueComponentInfo> {
   const ref: InspectorOptions = {
     async load(id) {
       if (options.load) return options.load(id)

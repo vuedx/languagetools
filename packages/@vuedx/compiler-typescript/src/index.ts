@@ -33,6 +33,7 @@ export type Options = Required<Pick<CompilerOptions, 'filename'>> &
   Omit<CompilerOptions, 'filename'> & {
     components: Record<string, string>
   }
+
 export function compile(source: string, options: Options) {
   const ast = baseParse(source, options)
   const { code, map } = doCompile(clone(ast), options)

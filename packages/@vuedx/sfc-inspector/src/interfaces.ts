@@ -10,7 +10,7 @@ import {
   SFCScriptBlock,
   SFCTemplateBlock,
   SFCDescriptor,
-} from '@vue/compiler-sfc'
+} from '@vuedx/compiler-sfc'
 import { EventInfo, PropInfo } from './VueComponentInfo'
 
 export interface EnhancedSFCScriptBlock extends SFCScriptBlock {

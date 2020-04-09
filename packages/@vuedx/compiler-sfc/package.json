@@ -1,0 +1,18 @@
+{
+  "name": "@vuedx/compiler-sfc",
+  "version": "0.1.0-alpha.1",
+  "description": "",
+  "main": "dist/compiler-sfc.js",
+  "module": "dist/compiler-sfc.esm.js",
+  "types": "dist/compiler-sfc.d.ts",
+  "keywords": [],
+  "files": [
+    "dist"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "devDependencies": {
+    "@vue/compiler-core": "^3.0.0-alpha.12",
+    "source-map": "0.6"
+  }
+}

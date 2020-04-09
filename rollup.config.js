@@ -3,11 +3,9 @@ const Fs = require('fs')
 const ts = require('rollup-plugin-typescript2')
 const node = require('@rollup/plugin-node-resolve')
 const commonjs = require('@rollup/plugin-commonjs')
-const cjs2es = require('rollup-plugin-cjs-es')
 const alias = require('@rollup/plugin-alias')
 const json = require('@rollup/plugin-json')
 const replace = require('@rollup/plugin-replace')
-const terser = require('rollup-plugin-terser').terser
 const dts = require('rollup-plugin-dts').default
 
 /** @type {import('rollup').RollupOptions[]} */
@@ -18,8 +16,10 @@ const isProd = process.env.BUILD === 'production'
 const packages = Fs.readdirSync(
   Path.resolve(projectDir, './packages/@vuedx')
 ).filter((pkg) => pkg.match(filter))
+
 const env = {
   __DEV__: isProd ? 'false' : 'process.env.NODE_ENV !== "production"',
+  'process.env.NODE_ENV': isProd ? '"production"' : '"development"',
 }
 
 createConfig('packages/@vuedx', packages)
@@ -89,38 +89,10 @@ function createConfig(dir, names, external = []) {
         },
         onwarn(warning, fn) {
           if (warning.code === 'CIRCULAR_DEPENDENCY') {
-            if (/(inversify|postcss)/.test(warning.message)) return
+            if (/(inversify)/.test(warning.message)) return
           }
           fn(warning)
         },
-      }
-
-      if (/(typescript-plugin-vue|extension|vue-virtual-textdocument)/.test(name)) {
-        options.plugins.push(
-          replace({
-            values: {
-              'var trimPlugin = postcss.plugin': 'var trimPlugin =/*#__PURE__*/postcss.plugin',
-              'var scopedPlugin = postcss.plugin': 'var scopedPlugin =/*#__PURE__*/postcss.plugin',
-            }
-          })
-        )
-        options.plugins.unshift(
-          alias({
-            entries: [
-              {
-                find: /^(consolidate|sass|less|stylus)$/,
-                replacement: Path.resolve(
-                  __dirname,
-                  'scripts/empty-package.js'
-                ),
-              },
-            ],
-          })
-        )
-      }
-
-      if (isProd) {
-        // options.plugins.push(terser())
       }
 
       if (pkg.main) {

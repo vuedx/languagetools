@@ -6,6 +6,8 @@ const OPTIONS: ParserOptions = {
   plugins: [...baseOptions.plugins!, 'flow', 'flowComments'],
 }
 
-export function parse(source: string, sourceFilename: string) {
+import { File } from '@babel/types'
+
+export function parse(source: string, sourceFilename: string): File {
   return baseParse(source, { ...OPTIONS, sourceFilename })
 }
