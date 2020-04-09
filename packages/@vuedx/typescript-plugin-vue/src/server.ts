@@ -19,6 +19,10 @@ import {
   prepareDefinitionAndBoundSpan,
   prepareDefinitionInfo,
 } from './features/definition'
+import {
+  prepareApplicableRefactorInfo,
+  prepareRefactorEditInfo,
+} from './features/edit'
 
 function isNumber(any: any): any is number {
   return typeof any === 'number'
@@ -147,10 +151,14 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     private readonly typescript: typeof ts
   ) {}
 
+  private program?: ts.Program
+
   getProgram() {
     const program = this.service.getProgram()
 
     __DEV__ && this.context.logger.log(`VLS.getProgram() = ${typeof program}`)
+
+    if (program) this.program
 
     return program
   }
@@ -764,6 +772,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
           preferences
         )
       )
+      .next((refactors) => prepareApplicableRefactorInfo(fileName, refactors))
       .end([])
   }
 
@@ -791,6 +800,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
           preferences
         )
       )
+      .next((refactor) => prepareRefactorEditInfo(fileName, refactor))
       .end()
   }
   organizeImports(
@@ -828,32 +838,14 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
       proxy[key] =
         key in instance
           ? (...args: any[]) => {
-              __DEV__ &&
-                context.logger.log(
-                  `VLS => ${JSON.stringify({ command: key, arguments: args })}`
-                )
               // @ts-ignore
               const result = instance[key].apply(instance, args)
-
-              __DEV__ &&
-                context.logger.log(
-                  `VLS <= ${JSON.stringify({ command: key, result })}`
-                )
 
               return result
             }
           : (...args: any[]) => {
-              __DEV__ &&
-                context.logger.log(
-                  `TS => ${JSON.stringify({ command: key, arguments: args })}`
-                )
               // @ts-ignore
               const result = server[key](...args)
-
-              __DEV__ &&
-                context.logger.log(
-                  `TS <= ${JSON.stringify({ command: key, result })}`
-                )
 
               return result
             }

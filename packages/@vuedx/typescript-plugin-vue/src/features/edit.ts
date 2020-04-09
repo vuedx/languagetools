@@ -20,13 +20,15 @@ export function prepareApplicableRefactorInfo(
 
 export function prepareRefactorEditInfo(
   fileName: string,
-  result?: ts.RefactorEditInfo
+  result: ts.RefactorEditInfo
 ) {
-  if (!result) return
-
   if (result.renameFilename) {
     result.renameFilename = mayBeVirtualFileName(result.renameFilename)
   }
+
+  result.edits.forEach(edit => {
+    edit.fileName = mayBeVirtualFileName(edit.fileName)
+  })
 
   return result
 }

@@ -4,7 +4,6 @@ import { defineComponent, ref, computed } from 'vue'
 
 export const Name = 'name'
 
-const newLocal = ref<string>('foo bar')
 export default defineComponent({
   components: { Bar, Baz },
   props: {
@@ -13,7 +12,7 @@ export default defineComponent({
   },
   setup(props) {
     const foo = newLocal
-    const bar = computed(() => foo.value)
+    const bar = refactor(foo)
 
     return {
       foo: bar,
@@ -21,6 +20,10 @@ export default defineComponent({
     }
   },
 })
+
+function refactor(foo: any) {
+  return computed(() => foo.value)
+}
 </script>
 
 <template>

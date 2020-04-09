@@ -29,7 +29,7 @@ export function isVueFile(fileName: string) {
 }
 
 export function isVirtualFile(fileName: string) {
-  return fileName.includes('.vue' + virtualFileNameSep)
+  return fileName.indexOf('.vue' + virtualFileNameSep) > 0
 }
 
 export function asUri(fileNameOrUri: string) {

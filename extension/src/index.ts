@@ -20,7 +20,7 @@ export async function activate(context: vscode.ExtensionContext) {
     // clean container.
     new vscode.Disposable(() => container.unbindAll())
   )
-
-  const ts = vscode.extensions.getExtension('typescript-language-features')
+  
+  const ts = vscode.extensions.getExtension('vscode.typescript-language-features')
   if (ts && !ts.isActive) ts.activate()
 }

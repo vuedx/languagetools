@@ -9,6 +9,7 @@ import FS from 'fs'
 import Path from 'path'
 import { URI } from 'vscode-uri'
 import { VueContext, VueLanguageServer } from './server'
+import { assert } from 'packages/@vuedx/compiler-typescript/src'
 
 interface Modules {
   typescript: typeof import('typescript/lib/tsserverlibrary')
@@ -26,9 +27,19 @@ export default function init({ typescript: ts }: Modules) {
   function create(info: ts.server.PluginCreateInfo) {
     function log(...args: any[]) {
       if (__DEV__) {
-        info.project.projectService.logger.info(`vue:: ` + args.join(' '))
+        info.project.projectService.logger.info(
+          `vue:: ` +
+            args
+              .join(' ')
+              .replace(
+                new RegExp(__dirname.split('@vuedx').shift()!, 'g'),
+                '~/'
+              )
+        )
       }
     }
+
+    function verbose(messaeg: string) {}
 
     __DEV__ && log(`Create ts server with vue plugin...`)
     if (__DEV__) {
@@ -51,7 +62,7 @@ export default function init({ typescript: ts }: Modules) {
       override(info[key], 'fileExists', (fn) => (path) => {
         __DEV__ &&
           (context.isVueFile(path) || context.isVirtualFile(path)) &&
-          log(`${key}.fileExists(fileName=${path})`)
+          verbose(`${key}.fileExists(fileName=${path})`)
 
         return isVirtualFile(path) || fn(path)
       })
@@ -59,7 +70,7 @@ export default function init({ typescript: ts }: Modules) {
       override(info[key], 'readFile', (fn) => (path: string) => {
         __DEV__ &&
           (context.isVueFile(path) || context.isVirtualFile(path)) &&
-          log(`${key}.readFile(fileName=${path})`)
+          verbose(`${key}.readFile(fileName=${path})`)
 
         return isVirtualFile(path)
           ? context.getVirtualDocument(path)!.getText()
@@ -71,7 +82,7 @@ export default function init({ typescript: ts }: Modules) {
         'readDirectory',
         (fn) => (path, extensions, exclude, include, depth) => {
           if (extensions) {
-            __DEV__ && log(`${key}.readDirectory()`)
+            __DEV__ && verbose(`${key}.readDirectory()`)
             extensions = ['vue'].concat(extensions)
           }
 
@@ -85,7 +96,7 @@ export default function init({ typescript: ts }: Modules) {
         (fn) => (path, callback, pollingInterval, options) => {
           __DEV__ &&
             (context.isVueFile(path) || context.isVirtualFile(path)) &&
-            log(`${key}.watchFile(fileName=${path})`)
+            verbose(`${key}.watchFile(fileName=${path})`)
 
           if (isVirtualFile(path)) {
             const realPath = context.getFileNameFromVirtualFileName(path)
@@ -120,11 +131,6 @@ export default function init({ typescript: ts }: Modules) {
             redirectedReference,
             options
           ) {
-            if (isVirtualFile(containingFile)) {
-              containingFile = context.getVirtualDocument(containingFile)!
-                .fsPath
-            }
-
             const containingDir = Path.dirname(containingFile)
             const perFolderCache = cache.getOrCreateCacheForDirectory(
               containingDir
@@ -137,11 +143,6 @@ export default function init({ typescript: ts }: Modules) {
                 if (perFolderCache.has(moduleName)) {
                   return perFolderCache.get(moduleName)!.resolvedModule
                 }
-
-                __DEV__ &&
-                  log(
-                    `${key}.resolveModuleNames(${moduleName} in ${containingFile})`
-                  )
 
                 const result = ts.resolveModuleName(
                   moduleName,
@@ -203,7 +204,10 @@ export default function init({ typescript: ts }: Modules) {
               isVueFile ? forVueFiles[index] : forAllFiles[index]
             )
 
-            if (__DEV__ && !containingFile.includes('/node_modules/')) {
+            if (
+              __DEV__ &&
+              (forVueFiles.some(Boolean) || isVueFile(containingFile))
+            ) {
               log(`${key}.resolveModuleNames in ${containingFile}`)
               info.project.projectService.logger.startGroup()
               moduleNames.forEach((moduleName, index) => {
@@ -219,17 +223,34 @@ export default function init({ typescript: ts }: Modules) {
     function patchScriptInformation(
       key: keyof Pick<typeof info, 'languageServiceHost'>
     ) {
+      override(info[key], 'getScriptFileNames', (fn) => () => {
+        const result = fn()
+        const vue = result.filter(isVueFile)
+
+        vue.forEach((fileName) => {
+          context
+            .getVueDocument(fileName)
+            ?.forTS()
+            .forEach((virtual) => result.push(virtual.fsPath))
+        })
+
+        __DEV__ &&
+          log(`${key}.getScriptFileNames() = ${JSON.stringify(result)}`)
+
+        return result
+      })
+
       // Script Information
       override(info[key], 'getScriptKind', (fn) => (path) => {
         let kind: ts.ScriptKind
         if (isVueFile(path)) {
-          kind = ts.ScriptKind.External
-          __DEV__ && log(`${key}.getScriptKind(${path}) = ${kind}`)
+          kind = ts.ScriptKind.Deferred
+          __DEV__ && verbose(`${key}.getScriptKind(${path}) = ${kind}`)
         } else if (isVirtualFile(path)) {
           kind = languageIdToScriptKind(
             context.getVirtualDocument(path)!.languageId
           )
-          __DEV__ && log(`${key}.getScriptKind(${path}) = ${kind}`)
+          __DEV__ && verbose(`${key}.getScriptKind(${path}) = ${kind}`)
         } else {
           kind = fn(path)
         }
@@ -241,11 +262,11 @@ export default function init({ typescript: ts }: Modules) {
         let version: string = '0'
         if (isVueFile(path)) {
           version = fn(path)
-          __DEV__ && log(`${key}.getScriptVersion(${path}) = ${version}`)
+          __DEV__ && verbose(`${key}.getScriptVersion(${path}) = ${version}`)
         } else if (isVirtualFile(path)) {
           const doc = context.getVirtualDocument(path)!
           version = 'Vue-' + doc.container.version + '-' + doc.version
-          __DEV__ && log(`${key}.getScriptVersion(${path}) = ${version}`)
+          __DEV__ && verbose(`${key}.getScriptVersion(${path}) = ${version}`)
         } else {
           version = fn(version)
         }
@@ -255,82 +276,60 @@ export default function init({ typescript: ts }: Modules) {
 
       override(info[key], 'getScriptSnapshot', (fn) => (path) => {
         if (isVirtualFile(path)) {
-          __DEV__ && log(`${key}.getScriptSnapshot(${path})`)
+          __DEV__ && verbose(`${key}.getScriptSnapshot(${path})`)
           return ts.ScriptSnapshot.fromString(
             context.getVirtualDocument(path)!.getText()
           )
         }
 
         if (isVueFile(path)) {
-          __DEV__ && log(`${key}.getScriptSnapshot(${path})`)
+          __DEV__ && verbose(`${key}.getScriptSnapshot(${path})`)
         }
 
         return fn(path)
       })
     }
     function patchProjectService() {
-      override(
-        info.project.projectService,
-        'getOrCreateScriptInfoWorker' as any,
-        (fn) => (
-          fileName: string,
-          currentDirectory: string,
-          openedByClient: boolean,
-          fileContent?: string,
-          scriptKind?: ts.ScriptKind,
-          hasMixedContent?: boolean,
-          hostToQueryFileExistsOn?: { fileExists(path: string): boolean }
-        ) => {
-          const scriptInfo = fn(
-            fileName,
-            currentDirectory,
-            openedByClient,
-            fileContent,
-            scriptKind,
-            hasMixedContent,
-            hostToQueryFileExistsOn
-          )
+      override(info.project.projectService, 'getScriptInfoForPath', (fn) => {
+        const skip = new Set<string>()
+        return (fileName) => {
+          let scriptInfo = fn(fileName)
 
           if (context.isVueFile(fileName)) {
-            patchScriptInfo(fileName, scriptInfo, fileContent)
+            if (!scriptInfo) {
+              if (skip.has(fileName.toString())) return scriptInfo
+              skip.add(fileName.toString())
+              scriptInfo = info.project.projectService.getOrCreateScriptInfoForNormalizedPath(
+                ts.server.toNormalizedPath(fileName),
+                false
+              )!
+              skip.delete(fileName.toString())
+            }
+            patchScriptInfo(fileName, scriptInfo)
           }
-
-          return scriptInfo
-        }
-      )
-
-      override(
-        info.project.projectService,
-        'getScriptInfoForPath',
-        (fn) => (fileName) => {
-          const scriptInfo = fn(fileName)
-
-          __DEV__ &&
-            (context.isVueFile(fileName) || context.isVirtualFile(fileName)) &&
-            log(
-              `project.projectService.getScriptInfoForPath(fileName=${fileName}) = ${typeof scriptInfo}`
-            )
 
           if (!scriptInfo && context.isVirtualFile(fileName)) {
-            info.project.projectService.getOrCreateScriptInfoForNormalizedPath(
-              ts.server.toNormalizedPath(
+            info.project.projectService.getScriptInfoForPath(
+              info.project.projectService.toPath(
                 context.getFileNameFromVirtualFileName(fileName)
-              ),
-              false
+              )
             )
 
-            const retry = fn(fileName)
+            const virtual = fn(fileName)
 
-            log(
-              `project.projectService.getScriptInfoForPath(fileName=${fileName}) = ${typeof retry} [retry]`
-            )
+            if (virtual) {
+              __DEV__ &&
+                log(
+                  `project.projectService.getScriptInfoForPath(fileName=${virtual.fileName})`
+                )
+            }
 
-            return retry
+            return virtual
           }
 
           return scriptInfo
         }
-      )
+      })
     }
 
     function patchScriptInfo(
@@ -347,12 +346,9 @@ export default function init({ typescript: ts }: Modules) {
           configurable: false,
           value: true,
         })
-
         __DEV__ &&
           log(
-            `patch ScriptInfo (fileName=${
-              scriptInfo.fileName
-            }) = ${scriptInfo.isScriptOpen()}`
+            `project.projectService.getScriptInfoForPath(fileName=${scriptInfo.fileName})`
           )
 
         const uri = URI.file(scriptInfo.fileName).toString()
@@ -366,84 +362,21 @@ export default function init({ typescript: ts }: Modules) {
           store.delete(uri)
         }
 
-        const document = VueTextDocument.create(uri, 'vue', 0, fileContent)!
-        store.set(uri, document)
-
-        const editContent = scriptInfo.editContent.bind(scriptInfo)
-        scriptInfo.editContent = function (start, end, text) {
-          __DEV__ &&
-            log(
-              `ScriptInfo.editContent(fileName=${scriptInfo.fileName}, start=${start}, end=${end}, text=${text})`
-            )
-
-          const range = {
-            start: document.positionAt(start),
-            end: document.positionAt(end),
-          }
-          editContent(start, end, text)
-          const lengths: Record<string, number> = {}
-          document.forTS().forEach((virtual) => {
-            lengths[virtual.fsPath] = virtual.getText().length
-          })
-
-          const version = getLastNumberFromVersion(
-            scriptInfo.getLatestVersion()
-          )
-
-          VueTextDocument.update(document, [{ range, text }], version)
-
-          document.forTS().forEach((virtual) =>
-            forVirtualDocument(virtual, (scriptInfo) => {
-              scriptInfo.editContent(
-                0,
-                lengths[virtual.fsPath],
-                virtual.getText()
-              )
-            })
-          )
-        }
-
-        const open = scriptInfo.open.bind(scriptInfo)
-        scriptInfo.open = function (newText) {
-          open(newText)
-
-          __DEV__ && log(`ScriptInfo.open(fileName=${scriptInfo.fileName})`)
-          document.forTS().forEach((document) =>
-            forVirtualDocument(
-              document,
-              (scriptInfo) => scriptInfo.open(document.getText()) // Maybe ??
-            )
-          )
-        }
-
-        const close = scriptInfo.close.bind(scriptInfo)
-        scriptInfo.close = function (fileExists) {
-          close(fileExists)
-
-          __DEV__ && log(`ScriptInfo.close(fileName=${scriptInfo.fileName})`)
-
-          document
-            .forTS()
-            .forEach((document) =>
-              forVirtualDocument(document, (scriptInfo) =>
-                scriptInfo.close(fileExists)
-              )
-            )
-        }
-
-        const isOpen = scriptInfo.isScriptOpen()
         const { projectService } = info.project
-        document.forTS().forEach((virtual) => {
-          __DEV__ &&
-            log(
-              `project.projectService.getOrCreateScriptInfoForNormalizedPath(fileName=${virtual.fsPath})`
-            )
+        const document = VueTextDocument.create(uri, 'vue', 0, fileContent)!
+        const isOpen = scriptInfo.isScriptOpen()
+        const project = scriptInfo.isOrphan()
+          ? projectService.getDefaultProjectForFile(scriptInfo.fileName, false)
+          : scriptInfo.getDefaultProject()
+        store.set(uri, document)
+        const related = document.forTS().map((virtual) => {
           const normalizedPath = ts.server.toNormalizedPath(virtual.fsPath)
           const path = projectService.toPath(normalizedPath)
+          const scriptKind = languageIdToScriptKind(virtual.languageId)
           const scriptInfo = new ts.server.ScriptInfo(
             info.serverHost,
             normalizedPath,
-            languageIdToScriptKind(virtual.languageId),
+            scriptKind,
             false,
             path,
             // @ts-ignore
@@ -455,30 +388,105 @@ export default function init({ typescript: ts }: Modules) {
           // @ts-ignore
           projectService.filenameToScriptInfoVersion.delete(scriptInfo.path)
 
+          __DEV__ &&
+            log(
+              `project.projectService.getScriptInfoForPath(fileName=${scriptInfo.fileName})`
+            )
+
+          if (project) scriptInfo.attachToProject(project)
+
           if (!isOpen) {
             // @ts-ignore
             projectService.watchClosedScriptInfo(scriptInfo)
           } else {
             // @ts-ignore
             projectService.stopWatchingScriptInfo(scriptInfo)
-            scriptInfo.open(virtual.getText())
+            if (project) {
+              projectService.openClientFile(virtual.fsPath)
+              project.addRoot(scriptInfo, normalizedPath)
+            } else {
+              info.project.addRoot(scriptInfo, normalizedPath)
+            }
           }
+
+          return scriptInfo
         })
 
-        if (isOpen) {
-          const projectPath = ts.server.toNormalizedPath(
-            scriptInfo.getDefaultProject().getCurrentDirectory()
-          )
-          document.forTS().forEach((virtual) => {
-            info.project.projectService.openClientFileWithNormalizedPath(
-              ts.server.toNormalizedPath(virtual.fsPath),
-              undefined,
-              undefined,
-              false,
-              projectPath
+        override(
+          scriptInfo,
+          'editContent',
+          (editContent) => (start, end, text) => {
+            __DEV__ &&
+              log(
+                `ScriptInfo.editContent(fileName=${scriptInfo.fileName}, start=${start}, end=${end}, text=${text})`
+              )
+
+            const range = {
+              start: document.positionAt(start),
+              end: document.positionAt(end),
+            }
+            editContent(start, end, text)
+            const lengths: Record<string, number> = {}
+            document.forTS().forEach((virtual) => {
+              lengths[virtual.fsPath] = virtual.getText().length
+            })
+
+            const version = getLastNumberFromVersion(
+              scriptInfo.getLatestVersion()
             )
-          })
-        }
+
+            VueTextDocument.update(document, [{ range, text }], version)
+
+            document.forTS().forEach((virtual) =>
+              forVirtualDocument(virtual, (scriptInfo) => {
+                scriptInfo.editContent(
+                  0,
+                  lengths[virtual.fsPath],
+                  virtual.getText()
+                )
+              })
+            )
+          }
+        )
+
+        override(scriptInfo, 'attachToProject', (fn) => (project) => {
+          const ok = fn(project)
+
+          if (ok) {
+            related.forEach((scriptInfo) => scriptInfo.attachToProject(project))
+          }
+
+          return ok
+        })
+
+        override(scriptInfo, 'detachFromProject', (fn) => (project) => {
+          fn(project)
+
+          related.forEach((scriptInfo) => scriptInfo.detachFromProject(project))
+        })
+
+        override(scriptInfo, 'open', (fn) => (newText) => {
+          fn(newText)
+
+          related.forEach((scriptInfo) =>
+            scriptInfo.open(
+              context.getVirtualDocument(scriptInfo.fileName)!.getText()
+            )
+          )
+        })
+
+        override(scriptInfo, 'close', (fn) => (fileExists) => {
+          fn(fileExists)
+
+          related.forEach((scriptInfo) =>
+            scriptInfo.close(!!context.getVirtualDocument(scriptInfo.fileName))
+          )
+        })
+
+        override(scriptInfo, 'detachAllProjects', (fn) => () => {
+          fn()
+          related.forEach((scriptInfo) => scriptInfo.detachAllProjects())
+        })
       }
     }
 
@@ -497,7 +505,7 @@ export default function init({ typescript: ts }: Modules) {
       case 'javascript':
         return ts.ScriptKind.JS
       case 'vue':
-        return ts.ScriptKind.External
+        return ts.ScriptKind.Deferred
     }
     return ts.ScriptKind.Unknown
   }

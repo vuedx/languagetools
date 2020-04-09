@@ -5,7 +5,7 @@ export function mayBeRelativeFileName(
   containingFile: string,
   fileName: string
 ) {
-  if (fileName.startsWith('..')) {
+  if (String(fileName).startsWith('..')) {
     return Path.join('.', Path.relative(Path.dirname(containingFile), fileName))
   }
 
@@ -13,7 +13,7 @@ export function mayBeRelativeFileName(
 }
 
 export function mayBeVirtualFileName(fileName: string) {
-  if (isVirtualFile(fileName)) {
+  if (isVirtualFile(String(fileName))) {
     return fileName.substr(0, fileName.lastIndexOf(virtualFileNameSep))
   }
 

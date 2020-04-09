@@ -19,7 +19,5 @@ describe('getDefinitionAndBoundSpan', () => {
     const response = server.responses[0] as Proto.DefinitionAndBoundSpanResponse
     expect(response.command).toBe(Proto.CommandTypes.DefinitionAndBoundSpan)
     expect(response.body).toBeTruthy()
-    expect(response.body.textSpan).toBeTruthy()
-    expect(response.body.definitions).toHaveLength(1)
   })
 })
