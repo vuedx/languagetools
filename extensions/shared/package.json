@@ -1,0 +1,9 @@
+{
+  "name": "@vuedx/extensions-shared",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@vuedx/vue-virtual-textdocument": "workspace:^0.1.0-alpha.2",
+    "inversify": "^5.0.1"
+  }
+}

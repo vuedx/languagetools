@@ -11,7 +11,7 @@ import { Installable } from '../utils/installable'
 @injectable()
 export class DocumentService extends Installable {
   private readonly emitter = new vscode.EventEmitter<{ uri: vscode.Uri }>()
-  private readonly store = new AsyncDocumentStore(async uri => {
+  private readonly store = new AsyncDocumentStore(async (uri) => {
     const text = await vscode.workspace.openTextDocument(vscode.Uri.parse(uri))
     const doc = VueTextDocument.create(uri, 'vue', text.version, text.getText())
 
@@ -24,12 +24,12 @@ export class DocumentService extends Installable {
     return vscode.Disposable.from(
       this.store,
       this.emitter,
-      vscode.workspace.onDidChangeTextDocument(async event => {
+      vscode.workspace.onDidChangeTextDocument(async (event) => {
         const uri = event.document.uri.toString()
         if (this.store.has(uri) && isVueFile(uri)) {
           const document = await this.store.get(uri)
 
-          document!.all().forEach(document => {
+          document!.all().forEach((document) => {
             this.emitter.fire({ uri: vscode.Uri.parse(document.uri) })
           })
 
@@ -40,7 +40,7 @@ export class DocumentService extends Installable {
           )
         }
       }),
-      vscode.workspace.onDidOpenTextDocument(event => {
+      vscode.workspace.onDidOpenTextDocument((event) => {
         const uri = event.uri.toString()
 
         if (isVueFile(uri)) this.store.get(uri)

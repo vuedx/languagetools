@@ -13,20 +13,17 @@ const configurations = []
 const projectDir = __dirname
 const filter = process.env.FILTER || ''
 const isProd = process.env.BUILD === 'production'
-const packages = Fs.readdirSync(
-  Path.resolve(projectDir, './packages/@vuedx')
-).filter((pkg) => pkg.match(filter))
 
 const env = {
   __DEV__: isProd ? 'false' : 'process.env.NODE_ENV !== "production"',
   'process.env.NODE_ENV': isProd ? '"production"' : '"development"',
 }
 
+const packages = Fs.readdirSync(Path.resolve(projectDir, './packages/@vuedx'))
+const extensions = ['vue', 'vue-language-features']
+
 createConfig('packages/@vuedx', packages)
-createConfig(
-  '.',
-  ['extension'].filter((name) => name.match(filter))
-)
+createConfig('extensions', extensions)
 
 export default configurations
 
@@ -49,9 +46,13 @@ function createTs(pkgDir) {
     },
   })
 }
+
 function createConfig(dir, names, external = []) {
   names.forEach((name) => {
     const pkgDir = Path.resolve(projectDir, dir, name)
+
+    if (!pkgDir.match(filter)) return
+
     const outDir = Path.resolve(pkgDir, 'dist')
     const pkg = require(Path.resolve(pkgDir, 'package.json'))
 

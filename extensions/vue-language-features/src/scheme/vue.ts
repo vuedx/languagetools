@@ -1,8 +1,7 @@
-import { DocumentService } from '../services/documents'
 import vscode from 'vscode'
-
 import { injectable } from 'inversify'
-import { Installable } from '../utils/installable'
+import { Installable } from '@vuedx/extensions-shared/utils/installable'
+import { DocumentService } from '@vuedx/extensions-shared/services/documents'
 
 @injectable()
 export class VueVirtualDocumentProvider extends Installable

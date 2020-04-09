@@ -10,6 +10,7 @@ importers:
       '@types/node': 13.11.1
       jest: 25.3.0
       jest-expect-message: 1.0.2
+      minimist: 1.2.5
       npm-run-all: 4.1.5
       rollup: 2.3.4
       rollup-plugin-dts: 1.3.0_rollup@2.3.4+typescript@3.8.3
@@ -26,6 +27,7 @@ importers:
       '@types/node': ^13.11.1
       jest: ^25.3.0
       jest-expect-message: ^1.0.2
+      minimist: ^1.2.5
       npm-run-all: ^4.1.5
       rollup: ^2.3.4
       rollup-plugin-dts: ^1.3.0
@@ -39,18 +41,44 @@ importers:
     specifiers:
       typescript: ^3.8.3
       vue: ^3.0.0-alpha.8
-  extension:
+  extensions/shared:
     dependencies:
-      '@vuedx/typescript-plugin-vue': 'link:../packages/@vuedx/typescript-plugin-vue'
+      '@vuedx/vue-virtual-textdocument': 'link:../../packages/@vuedx/vue-virtual-textdocument'
+      inversify: 5.0.1
+    specifiers:
+      '@vuedx/vue-virtual-textdocument': 'workspace:^0.1.0-alpha.2'
+      inversify: ^5.0.1
+  extensions/vue:
     devDependencies:
-      '@vuedx/vue-virtual-textdocument': 'link:../packages/@vuedx/vue-virtual-textdocument'
+      '@vuedx/extensions-shared': 'link:../shared'
+      '@vuedx/vue-virtual-textdocument': 'link:../../packages/@vuedx/vue-virtual-textdocument'
       inversify: 5.0.1
       reflect-metadata: 0.1.13
       vscode: 1.1.36
       vue: 3.0.0-alpha.12
-      yaml: 1.8.2
+      yaml: 1.8.3
     specifiers:
-      '@vuedx/typescript-plugin-vue': 'workspace:*'
+      '@vuedx/extensions-shared': 'workspace:*'
+      '@vuedx/vue-virtual-textdocument': 'workspace:*'
+      inversify: ^5.0.1
+      reflect-metadata: ^0.1.13
+      vscode: ^1.1.36
+      vue: ^3.0.0-alpha.12
+      yaml: ^1.8.2
+  extensions/vue-language-features:
+    dependencies:
+      '@vuedx/typescript-plugin-vue': 0.1.0-alpha.2
+    devDependencies:
+      '@vuedx/extensions-shared': 'link:../shared'
+      '@vuedx/vue-virtual-textdocument': 'link:../../packages/@vuedx/vue-virtual-textdocument'
+      inversify: 5.0.1
+      reflect-metadata: 0.1.13
+      vscode: 1.1.36
+      vue: 3.0.0-alpha.12
+      yaml: 1.8.3
+    specifiers:
+      '@vuedx/extensions-shared': 'workspace:*'
+      '@vuedx/typescript-plugin-vue': ^0.1.0-alpha.2
       '@vuedx/vue-virtual-textdocument': 'workspace:*'
       inversify: ^5.0.1
       reflect-metadata: ^0.1.13
@@ -374,12 +402,12 @@ packages:
       '@babel/core': ^7.0.0-0
     resolution:
       integrity: sha512-KoK9ErH1MBlCPxV0VANkXW2/dw4vlbGDrFgz8bmUsBGYkFRcbRwMh6cIJubdPrkxRwuGdtCk0v/wPTKbQgBjkg==
-  /@babel/runtime/7.8.7:
+  /@babel/runtime/7.9.2:
     dependencies:
-      regenerator-runtime: 0.13.4
+      regenerator-runtime: 0.13.5
     dev: true
     resolution:
-      integrity: sha512-+AATMUFppJDw6aiR5NVPHqIQBlV/Pj8wY/EZH+lmvRdUo9xBaz/rF3alAwFJQavvKfeOlPE7oaaDHVbcySbCsg==
+      integrity: sha512-NE2DtOdufG7R5vnfQUTehdTfNycfUANEtCa9PssN9O/xmTzP4E08UI797ixaei6hBEVL9BI/PsdJS5x7mWoB9Q==
   /@babel/template/7.8.6:
     dependencies:
       '@babel/code-frame': 7.8.3
@@ -889,7 +917,7 @@ packages:
     dependencies:
       '@vue/runtime-core': 3.0.0-alpha.12
       '@vue/shared': 3.0.0-alpha.12
-      csstype: 2.6.10
+      csstype: 2.6.9
     dev: true
     resolution:
       integrity: sha512-G5JHfJfm/NX0hsoI/x3PNYqzv99B4Dryz9WU++WAIwM+VZLyTat0H6Q3jWdVeGm5h9tY/zr6UD7NokGRKuwsUw==
@@ -906,6 +934,10 @@ packages:
   /@vue/shared/3.0.0-alpha.9:
     resolution:
       integrity: sha512-34jsIMNwXJ6V6qlGx5ATw4YHTRxoKCyKN8MulRrUxo4BDhzEl1T1nsh6A9dsmJ8MGki/4MtYyxStTnPBQCLNfA==
+  /@vuedx/typescript-plugin-vue/0.1.0-alpha.2:
+    dev: false
+    resolution:
+      integrity: sha512-8N8mTHRMbznmBjah5j1I0lO+fuFTsGIpN0ezhC965cVa5WeIASwIe1Ssx1KSdES1IBsDWWDA0QuBhwLgyFnbbA==
   /abab/2.0.3:
     dev: true
     resolution:
@@ -1460,10 +1492,6 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-sEb3XFPx3jNnCAMtqrXPDeSgQr+jojtCeNf8cvMNMh1cG970+lljssvQDzPq6lmmJu2Vhqood/gtEomBiHOGnA==
-  /csstype/2.6.10:
-    dev: true
-    resolution:
-      integrity: sha512-D34BqZU4cIlMCY93rZHbrq9pjTAQJ3U8S8rfBqjwHxkGPThWFjzZDQpgMJY0QViLxth6ZKYiwFBo14RdN44U/w==
   /csstype/2.6.9:
     resolution:
       integrity: sha512-xz39Sb4+OaTsULgUERcCk+TJj8ylkL4aSVDQiX/ksxbELSqwkgt4d4RD7fovIdgJGSuNYqwZEiVjYY5l0ask+Q==
@@ -1495,12 +1523,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==
-  /debug/3.2.6:
-    dependencies:
-      ms: 2.1.2
-    dev: true
-    resolution:
-      integrity: sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
   /debug/4.1.1:
     dependencies:
       ms: 2.1.2
@@ -2153,7 +2175,7 @@ packages:
   /https-proxy-agent/2.2.4:
     dependencies:
       agent-base: 4.3.0
-      debug: 3.2.6
+      debug: 3.1.0
     dev: true
     engines:
       node: '>= 4.5.0'
@@ -2201,7 +2223,6 @@ packages:
     resolution:
       integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
   /inversify/5.0.1:
-    dev: true
     resolution:
       integrity: sha512-Ieh06s48WnEYGcqHepdsJUIJUXpwH5o5vodAX+DK2JA/gjy4EbEcQZxw+uFfzysmKjiLXGYwNG3qDZsKVMcINQ==
   /ip-regex/2.1.0:
@@ -3192,6 +3213,7 @@ packages:
   /mkdirp/0.5.1:
     dependencies:
       minimist: 0.0.8
+    deprecated: Legacy versions of mkdirp are no longer supported. Please update to mkdirp 1.x. (Note that the API surface has changed to use Promises in 1.x.)
     dev: true
     hasBin: true
     resolution:
@@ -3660,10 +3682,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==
-  /regenerator-runtime/0.13.4:
+  /regenerator-runtime/0.13.5:
     dev: true
     resolution:
-      integrity: sha512-plpwicqEzfEyTQohIKktWigcLzmNStMGwbOUbykx51/29Z3JOGYldaaNGK7ngNXV+UcoqvIMmloZ48Sr74sd+g==
+      integrity: sha512-ZS5w8CpKFinUzOwW3c83oPeVXoNsrLsaCoLtJvAClH135j/R77RuymhiSErhm2lKcwSCIpmvIWSbDkIfAqKQlA==
   /regex-not/1.0.2:
     dependencies:
       extend-shallow: 3.0.2
@@ -4663,14 +4685,14 @@ packages:
   /y18n/4.0.0:
     resolution:
       integrity: sha512-r9S/ZyXu/Xu9q1tYlpsLIsa3EeLXXk0VwlxqTcFRfg9EhMW+17kbt9G0NrgCmhGb5vT2hyhJZLfDGx+7+5Uj/w==
-  /yaml/1.8.2:
+  /yaml/1.8.3:
     dependencies:
-      '@babel/runtime': 7.8.7
+      '@babel/runtime': 7.9.2
     dev: true
     engines:
       node: '>= 6'
     resolution:
-      integrity: sha512-omakb0d7FjMo3R1D2EbTKVIk6dAVLRxFXdLZMEUToeAvuqgG/YuHMuQOZ5fgk+vQ8cx+cnGKwyg+8g8PNT0xQg==
+      integrity: sha512-X/v7VDnK+sxbQ2Imq4Jt2PRUsRsP7UcpSl3Llg6+NRRqWLIvxkMFYtH1FmvwNGYRKKPa+EPA4qDBlI9WVG1UKw==
   /yargs-parser/18.1.0:
     dependencies:
       camelcase: 5.3.1

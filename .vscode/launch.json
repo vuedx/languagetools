@@ -3,7 +3,7 @@
   "configurations": [
     {
       "type": "node",
-      "name": "vscode-jest-tests",
+      "name": "Test: TypeScript Plugin (current file)",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest",
       "args": [
@@ -21,44 +21,30 @@
       "disableOptimisticBPs": true
     },
     {
-      "name": "Launch File",
-      "program": "${file}",
-      "request": "launch",
-      "skipFiles": ["<node_internals>/**"],
-      "type": "pwa-node"
-    },
-    {
-      "name": "Launch Extension Host",
+      "name": "Extension: Vue",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "--extensionDevelopmentPath=${workspaceRoot}/extension",
+        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vue",
         "${workspaceRoot}/examples/simple"
       ],
       "sourceMaps": true,
       "enableSourceMapCaching": true,
-      "outFiles": [
-        "${workspaceRoot}/extension/dist/*.js",
-        "${workspaceRoot}/packages/@vuedx/language-server/dist/*.js"
-      ]
+      "outFiles": ["${workspaceRoot}/extensions/vue/dist/*.js"]
     },
     {
-      "name": "Attach to Language Server",
-      "port": 6010,
-      "request": "attach",
-      "type": "node",
+      "name": "Extension: Vue Language Features",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vue-language-features",
+        "${workspaceRoot}/examples/simple"
+      ],
       "sourceMaps": true,
-      "outFiles": [
-        "${workspaceFolder}/extension/dist/*.js",
-        "${workspaceFolder}/packages/@vuedx/language-server/dist/*.js"
-      ]
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Launch Extension",
-      "configurations": ["Launch Extension Host", "Attach to Language Server"]
+      "enableSourceMapCaching": true,
+      "outFiles": ["${workspaceRoot}/extensions/vue-language-features/dist/*.js"]
     }
   ]
 }

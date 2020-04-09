@@ -1,15 +1,15 @@
 {
   "private": true,
-  "name": "vue-language-features",
+  "preview": true,
+  "name": "vue",
   "publisher": "znck",
   "displayName": "Vue",
-  "version": "0.1.0-alpha.0",
-  "description": "Made with 💚 for Vue Developers.",
+  "version": "0.0.0",
+  "description": "Vue language grammar and syntax highlight. Made with 💚 for Vue Developers.",
   "icon": "logo.png",
   "main": "dist/extension.js",
   "activationEvents": [
     "onLanguage:vue",
-    "onCommand:vue.openVirtualFile",
     "onCommand:vue.generateGrammar"
   ],
   "scripts": {
@@ -90,16 +90,11 @@
     ],
     "commands": [
       {
-        "command": "vue.openVirtualFile",
-        "title": "Vue: Show virtual file"
-      },
-      {
         "command": "vue.generateGrammar",
         "title": "Vue: Refresh syntax highlighter"
       }
     ],
     "configuration": {
-      "title": "Vue Language Features",
       "properties": {
         "vue.blocks": {
           "type": "object",
@@ -118,30 +113,20 @@
           }
         }
       }
-    },
-    "typescriptServerPlugins": [
-      {
-        "name": "@vuedx/typescript-plugin-vue",
-        "enableForWorkspaceTypeScriptVersions": true,
-        "languages": [
-          "vue"
-        ]
-      }
-    ]
+    }
   },
   "bugs": {
     "url": "https://github.com/znck/vuedx/issues"
   },
   "homepage": "https://github.com/znck/vuedx/blob/master/extension#readme",
+  "extensionDependencies": ["znck.vue"],
   "devDependencies": {
+    "@vuedx/extensions-shared": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
-    "vscode": "^1.1.36",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13",
     "vue": "^3.0.0-alpha.12",
+    "vscode": "^1.1.36",
     "yaml": "^1.8.2"
-  },
-  "dependencies": {
-    "@vuedx/typescript-plugin-vue": "workspace:*"
   }
 }

@@ -8,9 +8,9 @@ node_modules/**
 # Project Files
 !dist
 !languages/*.json
-!scripts/*.js
+!scripts/generate-grammar.js
+!scripts/prepare-vue-grammar.js
 !syntaxes/*.json
-!syntaxes/*.yml
 !logo.png
 !readme.md
 !LICENSE

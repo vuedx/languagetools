@@ -1,11 +1,11 @@
+import { ConfigurationService } from '@vuedx/extensions-shared/services/configuration'
+import { DocumentService } from '@vuedx/extensions-shared/services/documents'
+import { Installable } from '@vuedx/extensions-shared/utils/installable'
 import { isVueFile } from '@vuedx/vue-virtual-textdocument'
-import { DocumentService } from 'extension/src/services/documents'
 import Fs from 'fs'
 import { inject, injectable } from 'inversify'
 import Path from 'path'
 import vscode from 'vscode'
-import { ConfigurationService } from '../services/configuration'
-import { Installable } from '../utils/installable'
 
 @injectable()
 export class GenerateGrammarCommand extends Installable {
@@ -31,13 +31,13 @@ export class GenerateGrammarCommand extends Installable {
         'vue.generateGrammar',
         this.onExecute.bind(this)
       ),
-      vscode.workspace.onDidOpenTextDocument(async event => {
+      vscode.workspace.onDidOpenTextDocument(async (event) => {
         const uri = event.uri.toString()
         if (isVueFile(uri)) {
           this.checkIfNewLanguage(uri)
         }
       }),
-      vscode.workspace.onDidChangeTextDocument(async event => {
+      vscode.workspace.onDidChangeTextDocument(async (event) => {
         const uri = event.document.uri.toString()
         if (isVueFile(uri)) {
           this.checkIfNewLanguage(uri)
@@ -52,7 +52,7 @@ export class GenerateGrammarCommand extends Installable {
 
     let shouldGenerate = false
 
-    doc.blocks.forEach(block => {
+    doc.blocks.forEach((block) => {
       if (block.lang && !/^(script|template|style)$/.test(block.type)) {
         if (!this.blocks[block.type]) {
           shouldGenerate = true

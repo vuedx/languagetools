@@ -1,4 +1,5 @@
 import vscode from 'vscode'
+
 export function stringifyUri(uri: vscode.Uri) {
   const str = uri.toString()
   if (str.includes('vue:/')) {
