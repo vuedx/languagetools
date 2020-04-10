@@ -1,5 +1,5 @@
 name: meta.block.__var_BLOCK__.vue
-begin: (<)(__var_BLOCK__)(?=(?:[^"'>]|"[^"]*"|'[^']')*lang="(?:__var_LANGUAGE_ALIASES__)")
+begin: ^(<)(__var_BLOCK__)(?=(?:[^"'>]|"[^"]*"|'[^']')*lang="(?:__var_LANGUAGE_ALIASES__)")
 beginCaptures:
   0: { name: meta.tag.open.vue }
   1: { name: punctuation.definition.tag.open.begin.vue }

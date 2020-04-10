@@ -45,8 +45,9 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
+        "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vue",
-        "${workspaceRoot}/examples/simple"
+        "${workspaceRoot}/extensions/vue/src/__fixtures__"
       ],
       "sourceMaps": true,
       "enableSourceMapCaching": true,
