@@ -2,7 +2,7 @@ import vscode from 'vscode'
 import { injectable } from 'inversify'
 import { Installable } from '../utils/installable'
 
-export interface DXVueConfiguration {
+export interface VueExtensionSettings {
   blocks: Record<
     string,
     {
@@ -14,8 +14,8 @@ export interface DXVueConfiguration {
 
 @injectable()
 export class ConfigurationService extends Installable {
-  private _config: DXVueConfiguration
-  private emitter = new vscode.EventEmitter<DXVueConfiguration>()
+  private _config: VueExtensionSettings
+  private emitter = new vscode.EventEmitter<VueExtensionSettings>()
 
   constructor() {
     super()
@@ -27,16 +27,14 @@ export class ConfigurationService extends Installable {
   }
 
   private read() {
-    return vscode.workspace
-      .getConfiguration()
-      .get<DXVueConfiguration>('vue')
+    return vscode.workspace.getConfiguration().get<VueExtensionSettings>('vue')
   }
 
   public install() {
     super.install()
     return vscode.Disposable.from(
       this.emitter,
-      vscode.workspace.onDidChangeConfiguration(event => {
+      vscode.workspace.onDidChangeConfiguration((event) => {
         if (event.affectsConfiguration('vue.blocks')) {
           this._config = this.prepare(this.read())
           this.emitter.fire(this.config)
@@ -47,11 +45,14 @@ export class ConfigurationService extends Installable {
 
   public readonly onConfigChange = this.emitter.event
 
-  public save(config: Partial<DXVueConfiguration>) {
-    vscode.workspace.getConfiguration().update('vue', config)
+  public save<K extends keyof VueExtensionSettings>(
+    name: K,
+    value: VueExtensionSettings[K]
+  ) {
+    return vscode.workspace.getConfiguration('vue').update(`${name}`, value, name === 'blocks')
   }
 
-  private prepare(config?: Partial<DXVueConfiguration>) {
+  private prepare(config?: Partial<VueExtensionSettings>) {
     return {
       ...config,
       blocks: {

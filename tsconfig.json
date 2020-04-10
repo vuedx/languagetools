@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
+    "module": "CommonJS",
     "target": "ES2018",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
@@ -22,6 +22,6 @@
     }
   },
   "compileOnSave": true,
-  "include": ["packages/**/*.ts", "types/*.d.ts", "extension/**/*.ts"],
+  "include": ["packages/**/*.ts", "types/*.d.ts", "extensions/**/*.ts", "packages/@vuedx/extensions-shared/runner.js"],
   "exclude": ["node_modules", "**/node_modules"]
 }

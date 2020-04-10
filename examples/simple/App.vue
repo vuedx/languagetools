@@ -33,3 +33,7 @@ function refactor(foo: any) {
     </p>
   </div>
 </template>
+
+<docs lang="md">
+# Heading
+</docs>

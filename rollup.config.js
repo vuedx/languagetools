@@ -29,6 +29,8 @@ export default configurations
 
 function createTs(pkgDir) {
   return ts({
+    include: [/\.ts$/],
+    exclude: [],
     check: false,
     tsconfigOverride: {
       compilerOptions: {

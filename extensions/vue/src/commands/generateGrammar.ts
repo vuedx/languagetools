@@ -12,6 +12,7 @@ export class GenerateGrammarCommand extends Installable {
   private readonly rootDir: string
   private isActive = false
   private blocks = JSON.parse(JSON.stringify(this.configuration.config.blocks))
+  private supported: Record<string, string> = {}
 
   public constructor(
     private readonly configuration: ConfigurationService,
@@ -20,7 +21,12 @@ export class GenerateGrammarCommand extends Installable {
   ) {
     super()
 
-    this.rootDir = context.extensionPath
+    this.rootDir = this.context.extensionPath
+    this.supported = require(Path.resolve(
+      this.context.extensionPath,
+      'scripts',
+      'supported.json'
+    ))
   }
 
   public install() {
@@ -37,8 +43,8 @@ export class GenerateGrammarCommand extends Installable {
           this.checkIfNewLanguage(uri)
         }
       }),
-      vscode.workspace.onDidChangeTextDocument(async (event) => {
-        const uri = event.document.uri.toString()
+      vscode.workspace.onDidSaveTextDocument(async (document) => {
+        const uri = document.uri.toString()
         if (isVueFile(uri)) {
           this.checkIfNewLanguage(uri)
         }
@@ -51,45 +57,72 @@ export class GenerateGrammarCommand extends Installable {
     const doc = (await this.documents.getVueDocument(uri))!
 
     let shouldGenerate = false
+    const blocks: { block: string; language: string }[] = []
 
     doc.blocks.forEach((block) => {
-      if (block.lang && !/^(script|template|style)$/.test(block.type)) {
+      if (
+        !/^(script|template|style)$/.test(block.type) &&
+        block.lang &&
+        block.lang in this.supported
+      ) {
         if (!this.blocks[block.type]) {
           shouldGenerate = true
           this.blocks[block.type] = {
             default: '',
             allowed: [block.lang],
           }
+          blocks.push({ block: block.type, language: block.lang })
         } else if (!this.blocks[block.type].allowed?.includes(block.lang)) {
           this.blocks[block.type] = {
             allowed: [],
             ...this.blocks[block.type],
           }
           this.blocks[block.type].allowed.push(block.lang)
+          blocks.push({ block: block.type, language: block.lang })
           shouldGenerate = true
         }
       }
     })
 
     if (shouldGenerate) {
-      this.generate(this.blocks)
+      this.generate(this.blocks, blocks)
     }
   }
 
   private async onExecute() {
-    return this.generate(this.configuration.config.blocks)
+    await this.generate(this.configuration.config.blocks)
+
+    const ans = await vscode.window.showInformationMessage(
+      'Vue language grammar re-generated. Reload window to apply changes?',
+      'Ignore',
+      'Reload'
+    )
+
+    if (ans === 'Reload') {
+      await vscode.commands.executeCommand('workbench.action.reloadWindow')
+    }
   }
 
   private async generate(
-    blocks: Record<string, { default: string; allowed: string[] }>
+    blocks: Record<string, { default: string; allowed: string[] }>,
+    changes: { block: string; language: string }[] = []
   ) {
     try {
       this.isActive = true
+      const current = JSON.parse(
+        Fs.readFileSync(Path.resolve(this.rootDir, 'scripts', 'config.json'), {
+          encoding: 'utf-8',
+        })
+      )
+
       Fs.writeFileSync(
         Path.resolve(this.rootDir, 'scripts', 'config.runtime.json'),
-        JSON.stringify(blocks)
+        JSON.stringify({ ...blocks, ...current })
       )
-      this.configuration.save({ blocks: blocks })
+
+      const { template, script, style, ...config } = blocks
+
+      await this.configuration.save('blocks', config)
 
       require(Path.resolve(
         this.rootDir,
@@ -97,14 +130,20 @@ export class GenerateGrammarCommand extends Installable {
         'generate-grammar.js'
       )).generate()
 
-      const ans = await vscode.window.showInformationMessage(
-        'Vue DX languages updated. Reload window to apply changes?',
-        'Ignore',
-        'Reload'
-      )
+      if (changes.length) {
+        const ans = await vscode.window.showInformationMessage(
+          'New block types found in vue files: \n' +
+            changes
+              .map((change) => `<${change.block} lang="${change.language}">`)
+              .join(', ') +
+            '. Reload window to apply changes?',
+          'Ignore',
+          'Reload'
+        )
 
-      if (ans === 'Reload') {
-        await vscode.commands.executeCommand('workbench.action.reloadWindow')
+        if (ans === 'Reload') {
+          await vscode.commands.executeCommand('workbench.action.reloadWindow')
+        }
       }
     } finally {
       this.isActive = false

@@ -95,18 +95,49 @@
       }
     ],
     "configuration": {
+      "title": "Vue",
       "properties": {
         "vue.blocks": {
+          "scope": "application",
           "type": "object",
-          "title": "SFC Blocks",
-          "additionalItems": {
-            "type": "object",
-            "properties": {
-              "allowed": {
-                "type": "array",
-                "title": "Allowed languages",
-                "items": {
-                  "type": "string"
+          "patternProperties": {
+            "^[A-Za-z][A-Za-z0-9-]*$": {
+              "type": "object",
+              "properties": {
+                "default": {
+                  "enum": [
+                    "",
+                    "javascript",
+                    "typescript",
+                    "css",
+                    "postcss",
+                    "scss",
+                    "sass",
+                    "stylus",
+                    "vue-html",
+                    "vue",
+                    "markdown",
+                    "html"
+                  ]
+                },
+                "allowed": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "javascript",
+                      "typescript",
+                      "css",
+                      "postcss",
+                      "scss",
+                      "sass",
+                      "stylus",
+                      "vue-html",
+                      "vue",
+                      "md",
+                      "markdown",
+                      "html"
+                    ]
+                  }
                 }
               }
             }
@@ -122,10 +153,14 @@
   "devDependencies": {
     "@vuedx/extensions-shared": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
+    "chai": "^4.2.0",
+    "fast-glob": "^3.2.2",
     "inversify": "^5.0.1",
+    "mocha": "^7.1.1",
     "reflect-metadata": "^0.1.13",
-    "vue": "^3.0.0-alpha.12",
     "vscode": "^1.1.36",
+    "vscode-test": "^1.3.0",
+    "vue": "^3.0.0-alpha.12",
     "yaml": "^1.8.2"
   }
 }

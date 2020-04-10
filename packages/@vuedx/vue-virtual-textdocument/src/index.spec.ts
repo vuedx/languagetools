@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 import {
   parseVirtualFileUri,
   isVueFile,
@@ -6,6 +8,7 @@ import {
   VueTextDocument,
   VirtualTextDocument,
 } from './index'
+
 
 describe('parseVirtualFileUri', () => {
   test.each([

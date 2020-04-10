@@ -1,8 +1,6 @@
-import {
-  compile,
-  getNodesWithRenderMappings,
-  ExpressionNodeWithJs,
-} from '../src'
+/// <reference types="jest" />
+
+import { compile, getNodesWithRenderMappings } from '../src'
 
 describe('compiler', () => {
   const result = compile(

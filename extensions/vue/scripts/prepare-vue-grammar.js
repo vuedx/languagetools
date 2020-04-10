@@ -61,19 +61,27 @@ const languages = {
     aliases: ['html', 'html5'],
   },
 }
-const languageToId = {}
 
+const languageToId = {}
 for (const language in languages) {
   languageToId[language] = language
-  languages[language].aliases.forEach(alias => (languageToId[alias] = language))
+  languages[language].aliases.forEach(
+    (alias) => (languageToId[alias] = language)
+  )
 }
 
 /** @type {Record<string, { default: keyof typeof languages, allowed: Array<keyof typeof languages>}} */
-const config = require(FS.existsSync(
-  Path.resolve(__dirname, 'config.runtime.json')
+const config = require(Path.resolve(
+  __dirname,
+  FS.existsSync(Path.resolve(__dirname, 'config.runtime.json'))
+    ? 'config.runtime.json'
+    : 'config.json'
+))
+
+FS.writeFileSync(
+  Path.resolve(__dirname, 'supported.json'),
+  JSON.stringify(languageToId, null, 2)
 )
-  ? './config.runtime.json'
-  : './config.json')
 
 module.exports = function generate(grammar) {
   const blockTemplate = FS.readFileSync(blockTemplateFile, { encoding: 'utf8' })

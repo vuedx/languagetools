@@ -5,5 +5,11 @@
   "dependencies": {
     "@vuedx/vue-virtual-textdocument": "workspace:^0.1.0-alpha.2",
     "inversify": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "fast-glob": "^3.2.2",
+    "mocha": "^7.1.1"
   }
 }

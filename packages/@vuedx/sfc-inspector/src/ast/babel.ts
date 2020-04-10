@@ -42,7 +42,7 @@ export function findVueComponentOptions(ast: File): ComponentOptionsPaths {
     }
   }
 
-  traverse(ast, {
+  traverse((ast as unknown) as any, {
     ExportDefaultDeclaration(node$) {
       result.default = node$
       const declaration$ = node$.get('declaration')
@@ -57,16 +57,15 @@ export function findVueComponentOptions(ast: File): ComponentOptionsPaths {
 }
 
 export function findObjectProperty(
-  objectPath: NodePath<ObjectExpression>,
+  object$: NodePath<ObjectExpression>,
   name: string
 ): NodePath<ObjectProperty> | null {
   return (
-    objectPath
-      .get('properties')
-      .find(
-        (property$): property$ is NodePath<ObjectProperty> =>
-          name === getObjectMemberName(property$)
-      ) || null
+    (object$.get('properties') as NodePath<any>[]).find(function (
+      property$
+    ): property$ is NodePath<ObjectProperty> {
+      return name === getObjectMemberName(property$)
+    }) || null
   )
 }
 
@@ -81,7 +80,7 @@ export function findObjectMethod(
   if (property$?.isObjectMethod()) {
     return property$
   } else if (property$?.isObjectMember()) {
-    const value$ = property$.get('value')
+    const value$ = property$.get('value') as NodePath<any>
     if (value$.isFunctionExpression()) {
       return value$
     } else if (value$.isArrowFunctionExpression()) {

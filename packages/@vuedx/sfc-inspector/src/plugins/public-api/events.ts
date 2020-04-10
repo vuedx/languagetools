@@ -8,6 +8,7 @@ import {
   InspectorContext,
 } from '../../interfaces'
 import { EventInfo } from '../../VueComponentInfo'
+import { BlockStatement } from '@vue/compiler-core'
 
 export function inspectEvents(
   script: EnhancedSFCScriptBlock,
@@ -24,7 +25,7 @@ function inspectDollorEmits(
 ) {
   if (paths.options) {
     traverse(
-      paths.options.node,
+      paths.options.node as any,
       {
         CallExpression(node$) {
           if (node$.isCallExpression()) {
@@ -75,7 +76,7 @@ function inspectAnnotationEmits(
   if (comments.length) {
     const ast = parseJSDoc(prepareDocComment(comments))
 
-    ast.tags.forEach(tag => {
+    ast.tags.forEach((tag) => {
       if (tag.title === 'emits' && tag.name) {
         context.addEvent({
           name: tag.name,
@@ -98,7 +99,7 @@ function inspectSetupEmits(
   const setup$ = findObjectMethod(paths.options, 'setup')
 
   if (setup$) {
-    const params = setup$.get('params')
+    const params = setup$.get('params') as NodePath<any>[]
 
     if (params.length >= 2) {
       const context$ = params[1]
@@ -106,7 +107,7 @@ function inspectSetupEmits(
       const isEmitExpression = createEmitExpressionChecker(context$)
 
       traverse(
-        setup$.node.body,
+        setup$.node.body as any,
         {
           CallExpression(node$) {
             if (isEmitExpression(node$)) {
@@ -118,7 +119,7 @@ function inspectSetupEmits(
             }
           },
         },
-        setup$.get('body').scope,
+        (setup$.get('body') as NodePath<BlockStatement>).scope,
         setup$
       )
     }
@@ -127,7 +128,7 @@ function inspectSetupEmits(
 
 function createEmitExpressionChecker(context$: NodePath<any>) {
   if (context$.isObjectPattern()) {
-    const emit$ = context$.get('properties').find(property$ => {
+    const emit$ = context$.get('properties').find((property$) => {
       if (property$.isObjectProperty()) {
         const key$ = property$.get('key')
 
@@ -155,7 +156,7 @@ function createEmitExpressionChecker(context$: NodePath<any>) {
 
     const rest$ = context$
       .get('properties')
-      .find(property$ => property$.isRestElement())
+      .find((property$) => property$.isRestElement())
 
     if (rest$?.isRestElement()) context$ = rest$.get('argument')
   }
@@ -213,7 +214,7 @@ function inspectCallExpressionArguments(
           prepareDocComment(payload$.node.leadingComments)
         )
 
-        tags.forEach(tag => {
+        tags.forEach((tag) => {
           if (tag.type) {
             event.type = {
               static: stringifyJSDocAST(tag.type),
@@ -239,7 +240,7 @@ function inspectCallExpressionArguments(
       }
     }
 
-    const statement$ = node$.findParent(node$ => node$.isStatement())
+    const statement$ = node$.findParent((node$) => node$.isStatement())
 
     if (statement$.node.leadingComments?.length) {
       event.description =
@@ -252,5 +253,5 @@ function inspectCallExpressionArguments(
 }
 
 function prepareDocComment(comments: readonly Comment[]): string {
-  return `/*${comments.map(comment => comment.value).join('\n')}*/`
+  return `/*${comments.map((comment) => comment.value).join('\n')}*/`
 }

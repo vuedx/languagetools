@@ -2,6 +2,25 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Test: Extension Vue",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/extensions/vue",
+        "--extensionTestsPath=${workspaceFolder}/packages/@vuedx/extensions-shared/runner.js",
+        "${workspaceFolder}/extensions/vue/src/__fixtures__"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/extensions/vue/dist/*.js"
+      ],
+      "env": {
+        "VSCODE_TEST_ROOT": "${workspaceFolder}/extensions/vue/src/__tests__",
+      }
+    },
+  
+    {
       "type": "node",
       "name": "Test: TypeScript Plugin (current file)",
       "request": "launch",

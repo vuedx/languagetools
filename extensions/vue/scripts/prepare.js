@@ -4,6 +4,10 @@ const YAML = require('yaml')
 
 const root = Path.resolve(__dirname, '../syntaxes')
 
+const runtimeConfigFile = Path.resolve(__dirname, 'config.runtime.json')
+
+FS.existsSync(runtimeConfigFile) && FS.unlinkSync(runtimeConfigFile)
+
 function getYamlFiles() {
   return FS.readdirSync(root)
     .filter((name) => /\.yml$/.test(name))

@@ -1,0 +1,20 @@
+{
+  "javascript": "javascript",
+  "js": "javascript",
+  "typescript": "typescript",
+  "ts": "typescript",
+  "css": "css",
+  "postcss": "postcss",
+  "pcss": "postcss",
+  "scss": "scss",
+  "sass": "sass",
+  "stylus": "stylus",
+  "styl": "stylus",
+  "vue-html": "vue-html",
+  "vhtml": "vue-html",
+  "vue": "vue",
+  "markdown": "markdown",
+  "md": "markdown",
+  "html": "html",
+  "html5": "html"
+}

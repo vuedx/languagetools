@@ -30,7 +30,9 @@ function inspectPropsOption(
   context: InspectorContext
 ) {
   if (paths.options) {
-    const props$ = findObjectProperty(paths.options, 'props')?.get('value')
+    const props$ = findObjectProperty(paths.options, 'props')?.get(
+      'value'
+    ) as unknown as NodePath<any>
 
     if (props$?.isArrayExpression()) {
       inspectArrayProps(props$, context)
@@ -44,7 +46,7 @@ function inspectArrayProps(
   props$: NodePath<ArrayExpression>,
   context: InspectorContext
 ) {
-  props$.get('elements').forEach(element$ => {
+  ;(props$.get('elements') as NodePath<any>[]).forEach((element$) => {
     if (element$.isStringLiteral()) {
       context.addProp({
         name: element$.node.value,
@@ -65,7 +67,7 @@ function inspectObjectProps(
   props$: NodePath<ObjectExpression>,
   context: InspectorContext
 ) {
-  props$.get('properties').forEach(property$ => {
+  ;(props$.get('properties') as NodePath<any>[]).forEach((property$) => {
     if (property$.isObjectProperty()) {
       const prop$ = property$.get('value')
       const prop: PropInfo = {
@@ -83,15 +85,15 @@ function inspectObjectProps(
       Object.assign(prop, findPropInfo(prop$))
 
       const comments = (property$.node.leadingComments || [])
-        .filter(comment => comment.value.startsWith('*'))
-        .map(comment => comment.value)
+        .filter((comment) => comment.value.startsWith('*'))
+        .map((comment) => comment.value)
 
       if (comments.length) {
         const ast = parseJSDoc(`/*${comments.join('\n')}*/`)
 
         prop.description = ast.description
 
-        ast.tags.forEach(tag => {
+        ast.tags.forEach((tag) => {
           if (tag.type) {
             if (tag.title === 'type') {
               prop.type.static = stringifyJSDocAST(tag.type)
@@ -118,7 +120,7 @@ function inspectDefineComponentGenericProps(
     if (typeParams$.isNodeType('TSTypeParameterInstantiation')) {
       const params = (typeParams$ as NodePath<
         TSTypeParameterInstantiation
-      >).get('params')
+      >).get('params') as NodePath<any>[]
 
       if (Array.isArray(params) && params.length) {
         const param$ = params[0]
@@ -126,7 +128,7 @@ function inspectDefineComponentGenericProps(
         if (param$.isNodeType('TSTypeLiteral')) {
           const type$ = param$ as NodePath<TSTypeLiteral>
 
-          type$.get('members').forEach(member$ => {
+          ;(type$.get('members') as NodePath<any>[]).forEach((member$) => {
             const annotation$ = member$.get('typeAnnotation') as NodePath<
               TSTypeAnnotation
             >
@@ -161,7 +163,7 @@ function findPropInfo(node$: NodePath<any>) {
   } else if (node$.isArrayExpression()) {
     const type = node$
       .get('elements')
-      .map(element$ =>
+      .map((element$) =>
         element$.isIdentifier()
           ? getTypeName(element$.node.name)
           : element$.isNullLiteral()
@@ -183,7 +185,7 @@ function findPropInfo(node$: NodePath<any>) {
 
     const required$ = findObjectProperty(node$, 'required')
     if (required$) {
-      const value$ = required$.get('value')
+      const value$ = required$.get('value') as NodePath<any>
       if (value$.isBooleanLiteral()) {
         prop.required = value$.node.value
       }
@@ -191,7 +193,7 @@ function findPropInfo(node$: NodePath<any>) {
 
     const default$ = findObjectProperty(node$, 'default')
     if (default$) {
-      const value$ = default$.get('value')
+      const value$ = default$.get('value') as NodePath<any>
 
       prop.default =
         value$.isFunctionExpression() || value$.isArrowFunctionExpression()

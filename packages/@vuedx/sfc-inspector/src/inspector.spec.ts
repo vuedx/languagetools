@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 import Path from 'path'
 import FS from 'fs'
 import { baseInspect } from './inspector'

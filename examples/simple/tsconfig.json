@@ -1,5 +1,5 @@
 {
   "compilerOptions": {
-    "rootDir": "."
+    "plugins": ["@vuedx/typescript-plugin-vue"]
   }
 }
