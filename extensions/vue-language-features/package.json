@@ -4,7 +4,7 @@
   "name": "vue-language-features",
   "publisher": "znck",
   "displayName": "Vue Language Features",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "Advanced language features for Vue files. Made with 💚 for Vue Developers.",
   "icon": "logo.png",
   "main": "dist/extension.js",

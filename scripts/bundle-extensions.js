@@ -70,7 +70,11 @@ function patchWorkspaceDependencies(pkgFile) {
 
   FS.writeFileSync(pkgFile, JSON.stringify(pkg))
 
-  const revert = () => FS.writeFileSync(pkgFile, contents)
+  const revert = () => {
+    const pkg = JSON.parse(contents)
+    pkg.version = getWorkspaceVersion(pkgFile)
+    FS.writeFileSync(pkgFile, JSON.stringify(pkg, null, 2))
+  }
 
   process.on('beforeExit', revert)
 
@@ -82,7 +86,9 @@ function patchWorkspaceDependencies(pkgFile) {
 }
 
 function getWorkspaceVersion(name) {
-  return require(Path.resolve(packagesDir, name, 'package.json')).version
+  return require(/[\\/]/.test(name)
+    ? name
+    : Path.resolve(packagesDir, name, 'package.json')).version
 }
 
 const { version = '', filter = '', publish = false } = require('minimist')(
