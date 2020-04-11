@@ -15,7 +15,9 @@ interface Modules {
 
 let store: DocumentStore<VueTextDocument>
 
-export default function init({ typescript: ts }: Modules) {
+export default function init({
+  typescript: ts,
+}: Modules): ts.server.PluginModule {
   function create(info: ts.server.PluginCreateInfo) {
     function log(...args: any[]) {
       if (__DEV__) {
@@ -31,22 +33,26 @@ export default function init({ typescript: ts }: Modules) {
       }
     }
 
-    store = store || new DocumentStore(
-      (uri) => {
-        const fileName = URI.parse(uri).fsPath
-        const content = info.serverHost.readFile(fileName) || ''
-        __DEV__ && console.log(`DocumentStore.load(file=${fileName})`)
+    store =
+      store ||
+      new DocumentStore(
+        (uri) => {
+          const fileName = URI.parse(uri).fsPath
+          const content = info.serverHost.readFile(fileName) || ''
+          __DEV__ && console.log(`DocumentStore.load(file=${fileName})`)
 
-        return VueTextDocument.create(uri, 'vue', 0, content)
-      },
-      (uri) => {
-        return URI.file(
-          info.project.projectService.toPath(URI.parse(uri).fsPath)
-        ).toString()
-      }
-    )
+          return VueTextDocument.create(uri, 'vue', 0, content)
+        },
+        (uri) => {
+          return URI.file(
+            info.project.projectService.toPath(URI.parse(uri).fsPath)
+          ).toString()
+        }
+      )
 
-    function verbose(messaeg: string) {}
+    function verbose(message: string) {
+      // return log(message)
+    }
 
     __DEV__ && log(`Create ts server with vue plugin...`)
     if (__DEV__) {
@@ -54,6 +60,21 @@ export default function init({ typescript: ts }: Modules) {
     }
 
     const context = new VueContext(store, { log })
+
+    // @ts-ignore
+    if (!info.project.__VUE__) {
+      // @ts-ignore
+      info.project.__VUE__ = true
+      info.project.projectService.setHostConfiguration({
+        extraFileExtensions: [
+          {
+            extension: 'vue',
+            isMixedContent: true,
+            scriptKind: ts.ScriptKind.Deferred,
+          },
+        ],
+      })
+    }
 
     function forVirtualDocument(
       document: VirtualTextDocument,
@@ -138,15 +159,24 @@ export default function init({ typescript: ts }: Modules) {
             redirectedReference,
             options
           ) {
+            const local = { ...options }
+            if (!local.paths) {
+              local.paths = {}
+            }
+            const skipLogging = context.isVirtualFile(containingFile)
+            if (context.isVirtualFile(containingFile)) {
+              containingFile = context.getFileNameFromVirtualFileName(
+                containingFile
+              )
+            }
             const containingDir = Path.dirname(containingFile)
             const perFolderCache = cache.getOrCreateCacheForDirectory(
               containingDir
             )
-            const moduleTypes = moduleNames.map(isVueFile)
             const forVueFiles: Array<
               ts.ResolvedModule | ts.ResolvedModuleFull | undefined
             > = moduleNames.map((moduleName) => {
-              if (isVueFile(moduleName)) {
+              if (isVueFile(moduleName) || moduleName in local.paths!) {
                 if (perFolderCache.has(moduleName)) {
                   return perFolderCache.get(moduleName)!.resolvedModule
                 }
@@ -158,9 +188,12 @@ export default function init({ typescript: ts }: Modules) {
                   {
                     ...info.serverHost,
                     fileExists(fileName) {
-                      fileName = fileName.endsWith('.vue.ts')
-                        ? fileName.substr(0, fileName.length - 3)
-                        : fileName
+                      if (info.serverHost.fileExists(fileName)) return true
+                      else if (fileName.endsWith('.vue.ts')) {
+                        return info.serverHost.fileExists(
+                          fileName.replace(/\.ts$/, '')
+                        )
+                      }
 
                       return info.serverHost.fileExists(fileName)
                     },
@@ -177,23 +210,21 @@ export default function init({ typescript: ts }: Modules) {
                     '.vue'
                   )
 
-                  if (info.serverHost.fileExists(fileName)) {
-                    const document = context
-                      .getVueDocument(fileName)!
-                      .getBlockDocument('script')!
+                  const document = context
+                    .getVueDocument(fileName)!
+                    .getBlockDocument('script')!
 
-                    const resolvedModule: ts.ResolvedModuleFull = {
-                      isExternalLibraryImport: moduleName.includes(
-                        'node_modules'
-                      ),
-                      resolvedFileName: document.fsPath,
-                      extension: fileNameToExtension(document.fsPath),
-                    }
-
-                    perFolderCache.set(moduleName, { resolvedModule })
-
-                    return resolvedModule
+                  const resolvedModule: ts.ResolvedModuleFull = {
+                    isExternalLibraryImport: moduleName.includes(
+                      'node_modules'
+                    ),
+                    resolvedFileName: document.fsPath,
+                    extension: fileNameToExtension(document.fsPath),
                   }
+
+                  perFolderCache.set(moduleName, { resolvedModule })
+
+                  return resolvedModule
                 }
               }
             })
@@ -207,15 +238,20 @@ export default function init({ typescript: ts }: Modules) {
 
             const result: Array<
               ts.ResolvedModule | ts.ResolvedModuleFull | undefined
-            > = moduleTypes.map((isVueFile, index) =>
-              isVueFile ? forVueFiles[index] : forAllFiles[index]
+            > = moduleNames.map(
+              (_, index) => forVueFiles[index] || forAllFiles[index]
             )
 
             if (
               __DEV__ &&
+              !skipLogging &&
               (forVueFiles.some(Boolean) || isVueFile(containingFile))
             ) {
-              log(`${key}.resolveModuleNames in ${containingFile}`)
+              log(
+                `${key}.resolveModuleNames in ${containingFile} = ${JSON.stringify(
+                  options
+                )}`
+              )
               info.project.projectService.logger.startGroup()
               moduleNames.forEach((moduleName, index) => {
                 log(`  ${moduleName} => ${result[index]?.resolvedFileName}`)
@@ -235,7 +271,9 @@ export default function init({ typescript: ts }: Modules) {
         const vue = result.filter(isVueFile)
         const virtual = result.filter(isVirtualFile)
 
-        virtual.forEach(file => result.push(context.getFileNameFromVirtualFileName(file)))
+        virtual.forEach((file) =>
+          result.push(context.getFileNameFromVirtualFileName(file))
+        )
         vue.forEach((fileName) => {
           context
             .getVueDocument(fileName)
@@ -370,7 +408,8 @@ export default function init({ typescript: ts }: Modules) {
           : VueTextDocument.create(uri, 'vue', 0, fileContent)!
 
         if (!store.has(uri)) {
-          __DEV__ && log(`document created while patching (fileName=${document.fsPath})`)
+          __DEV__ &&
+            log(`document created while patching (fileName=${document.fsPath})`)
           store.set(uri, document)
         }
 
@@ -532,7 +571,9 @@ export default function init({ typescript: ts }: Modules) {
     }
   }
 
-  return { create }
+  return {
+    create,
+  }
 }
 
 function getLastNumberFromVersion(version: string) {

@@ -1,7 +1,12 @@
 {
   "compilerOptions": {
     "rootDir": ".",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./aliased/*"],
+      "@foo": ["./aliased/example1.vue"],
+      "@bar": ["./aliased/example2.ts"]
+    }
   },
   "exclude": ["node_modules"]
 }
