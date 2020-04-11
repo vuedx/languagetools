@@ -1,8 +1,25 @@
-import Component, { Name, Foo } from './App.vue'
-import { bar, baz } from './bar'
 
-const foo = 4
-console.log(Name, bar)
+import { computed, defineComponent, ref, watch } from 'vue'
+import Bar, { Baz } from './Bar.vue'
+export const Name = 'name'
 
-console.log(foo + bar)
+export default defineComponent({
+  components: { Bar, Baz },
+  props: {
+    foo: String,
+    bar: Number,
+  },
+  setup(props) {
+    const bar = ref(props.foo)
+    const baz = computed(() => bar.value)
+    props.
+    watch(() => props.foo, foo => {
+      bar.value = props.foo
+    })
 
+    return {
+      foo: bar,
+      bar: props.bar,
+    }
+  },
+})

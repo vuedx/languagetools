@@ -1,9 +1,9 @@
 import ts from 'typescript'
-import { mayBeVirtualFileName } from '../utils'
+import { removeVirtualSuffixFromFileName } from '../utils'
 
 export function prepareNavgateToItems(result: ts.NavigateToItem[]) {
   result.forEach(item => {
-    item.fileName = mayBeVirtualFileName(item.fileName)
+    item.fileName = removeVirtualSuffixFromFileName(item.fileName)
   })
 
   return result

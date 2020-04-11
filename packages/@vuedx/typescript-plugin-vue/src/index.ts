@@ -1,11 +1,10 @@
 import {
-  DocumentStore,
   isVirtualFile,
   isVueFile,
   VirtualTextDocument,
   VueTextDocument,
+  DocumentStore,
 } from '@vuedx/vue-virtual-textdocument'
-import FS from 'fs'
 import Path from 'path'
 import { URI } from 'vscode-uri'
 import { VueContext, VueLanguageServer } from './server'
@@ -14,13 +13,7 @@ interface Modules {
   typescript: typeof import('typescript/lib/tsserverlibrary')
 }
 
-const store = new DocumentStore((uri) => {
-  const fileName = URI.parse(uri).fsPath
-  const content = FS.readFileSync(fileName, { encoding: 'utf8' }) || ''
-  __DEV__ && console.log(`DocumentStore.load(file=${fileName})`)
-
-  return VueTextDocument.create(uri, 'vue', 0, content)
-})
+let store: DocumentStore<VueTextDocument>
 
 export default function init({ typescript: ts }: Modules) {
   function create(info: ts.server.PluginCreateInfo) {
@@ -37,6 +30,21 @@ export default function init({ typescript: ts }: Modules) {
         )
       }
     }
+
+    store = store || new DocumentStore(
+      (uri) => {
+        const fileName = URI.parse(uri).fsPath
+        const content = info.serverHost.readFile(fileName) || ''
+        __DEV__ && console.log(`DocumentStore.load(file=${fileName})`)
+
+        return VueTextDocument.create(uri, 'vue', 0, content)
+      },
+      (uri) => {
+        return URI.file(
+          info.project.projectService.toPath(URI.parse(uri).fsPath)
+        ).toString()
+      }
+    )
 
     function verbose(messaeg: string) {}
 
@@ -225,7 +233,9 @@ export default function init({ typescript: ts }: Modules) {
       override(info[key], 'getScriptFileNames', (fn) => () => {
         const result = fn()
         const vue = result.filter(isVueFile)
+        const virtual = result.filter(isVirtualFile)
 
+        virtual.forEach(file => result.push(context.getFileNameFromVirtualFileName(file)))
         vue.forEach((fileName) => {
           context
             .getVueDocument(fileName)
@@ -258,16 +268,15 @@ export default function init({ typescript: ts }: Modules) {
       })
 
       override(info[key], 'getScriptVersion', (fn) => (path) => {
-        let version: string = '0'
+        let version: string
         if (isVueFile(path)) {
           version = fn(path)
           __DEV__ && verbose(`${key}.getScriptVersion(${path}) = ${version}`)
         } else if (isVirtualFile(path)) {
-          const doc = context.getVirtualDocument(path)!
-          version = 'Vue-' + doc.container.version + '-' + doc.version
+          version = fn(context.getFileNameFromVirtualFileName(path))
           __DEV__ && verbose(`${key}.getScriptVersion(${path}) = ${version}`)
         } else {
-          version = fn(version)
+          version = fn(path)
         }
 
         return version
@@ -356,13 +365,16 @@ export default function init({ typescript: ts }: Modules) {
 
           fileContent = snapshot.getText(0, snapshot.getLength())
         }
+        const document = store.has(uri)
+          ? store.get(uri)!
+          : VueTextDocument.create(uri, 'vue', 0, fileContent)!
 
-        if (store.has(uri)) {
-          store.delete(uri)
+        if (!store.has(uri)) {
+          __DEV__ && log(`document created while patching (fileName=${document.fsPath})`)
+          store.set(uri, document)
         }
 
         const { projectService } = info.project
-        const document = VueTextDocument.create(uri, 'vue', 0, fileContent)!
         const isOpen = scriptInfo.isScriptOpen()
         const project = scriptInfo.isOrphan()
           ? projectService.getDefaultProjectForFile(scriptInfo.fileName, false)
@@ -425,24 +437,17 @@ export default function init({ typescript: ts }: Modules) {
               end: document.positionAt(end),
             }
             editContent(start, end, text)
-            const lengths: Record<string, number> = {}
-            document.forTS().forEach((virtual) => {
-              lengths[virtual.fsPath] = virtual.getText().length
-            })
-
             const version = getLastNumberFromVersion(
               scriptInfo.getLatestVersion()
             )
 
             VueTextDocument.update(document, [{ range, text }], version)
-
             document.forTS().forEach((virtual) =>
-              forVirtualDocument(virtual, (scriptInfo) => {
-                scriptInfo.editContent(
-                  0,
-                  lengths[virtual.fsPath],
-                  virtual.getText()
-                )
+              forVirtualDocument(virtual, (currentScriptInfo) => {
+                currentScriptInfo.open(virtual.getText())
+                if (!scriptInfo.isScriptOpen()) {
+                  currentScriptInfo.close()
+                }
               })
             )
           }

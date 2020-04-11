@@ -1,10 +1,11 @@
 import 'reflect-metadata'
 import vscode from 'vscode'
 import { Container } from 'inversify'
-import { OpenVirtualFileCommand } from './commands/openVirtualFile'
-import { VueVirtualDocumentProvider } from './scheme/vue'
-import { DocumentService } from '@vuedx/extensions-shared/services/documents'
 import { ConfigurationService } from '@vuedx/extensions-shared/services/configuration'
+import { DocumentService } from '@vuedx/extensions-shared/services/documents'
+import { OpenVirtualFileCommand } from './commands/openVirtualFile'
+import { PatchTypeScriptCommand } from './commands/patchTypeScript'
+import { VueVirtualDocumentProvider } from './scheme/vue'
 
 export async function activate(context: vscode.ExtensionContext) {
   const container = new Container({ autoBindInjectable: true })
@@ -15,6 +16,7 @@ export async function activate(context: vscode.ExtensionContext) {
     container.get(ConfigurationService).install(),
     container.get(VueVirtualDocumentProvider).install(),
     container.get(OpenVirtualFileCommand).install(),
+    container.get(PatchTypeScriptCommand).install(),
     // clean container.
     new vscode.Disposable(() => container.unbindAll())
   )
@@ -22,5 +24,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const ts = vscode.extensions.getExtension(
     'vscode.typescript-language-features'
   )
-  if (ts && !ts.isActive) ts.activate()
+  if (ts) {
+    if (!ts.isActive) await ts.activate()
+  }
 }

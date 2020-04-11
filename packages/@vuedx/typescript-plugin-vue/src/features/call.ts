@@ -1,18 +1,16 @@
 import ts from 'typescript'
-import { mayBeVirtualFileName } from '../utils'
+import { removeVirtualSuffixFromFileName } from '../utils'
 
-export function prepareCallHierachy(
+export function prepareCallHierarchy(
   fileName: string,
-  result?: ts.CallHierarchyItem | ts.CallHierarchyItem[]
+  result: ts.CallHierarchyItem | ts.CallHierarchyItem[]
 ) {
-  if (!result) return
-
   if (Array.isArray(result)) {
     result.forEach(item => {
-      item.file = mayBeVirtualFileName(item.file)
+      item.file = removeVirtualSuffixFromFileName(item.file)
     })
   } else {
-    result.file = mayBeVirtualFileName(result.file)
+    result.file = removeVirtualSuffixFromFileName(result.file)
   }
 
   return result
@@ -23,7 +21,7 @@ export function prepareCallHierachyIncomingCalls(
   result: ts.CallHierarchyIncomingCall[]
 ) {
   result.forEach(item => {
-    item.from.file = mayBeVirtualFileName(item.from.file)
+    item.from.file = removeVirtualSuffixFromFileName(item.from.file)
   })
 
   return result
@@ -34,7 +32,7 @@ export function prepareCallHierachyOutgoingCalls(
   result: ts.CallHierarchyOutgoingCall[]
 ) {
   result.forEach(item => {
-    item.to.file = mayBeVirtualFileName(item.to.file)
+    item.to.file = removeVirtualSuffixFromFileName(item.to.file)
   })
 
   return result

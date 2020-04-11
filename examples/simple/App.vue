@@ -1,7 +1,6 @@
 <script lang="ts">
-import Bar, { Foo, Baz } from './Bar.vue'
-import { defineComponent, ref, computed } from 'vue'
-
+import { computed, defineComponent, ref, watch } from 'vue'
+import Bar, { Baz } from './Bar.vue'
 export const Name = 'name'
 
 export default defineComponent({
@@ -11,8 +10,13 @@ export default defineComponent({
     bar: Number,
   },
   setup(props) {
-    const foo = newLocal
-    const bar = refactor(foo)
+    const bar = ref(props.foo)
+    const baz = computed(() => bar.value)
+    props.foo + props.bar
+    
+    watch(() => props.foo, foo => {
+      bar.value = props.foo
+    })
 
     return {
       foo: bar,
@@ -20,10 +24,6 @@ export default defineComponent({
     }
   },
 })
-
-function refactor(foo: any) {
-  return computed(() => foo.value)
-}
 </script>
 
 <template>

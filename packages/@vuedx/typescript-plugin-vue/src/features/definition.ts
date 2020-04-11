@@ -1,75 +1,49 @@
 import ts from 'typescript'
-import { mayBeRelativeFileName, mayBeVirtualFileName } from '../utils'
+import { prepareDocumentSpan } from '../utils'
 
 export function prepareDefinitionAndBoundSpan(
   fileName: string,
-  result?: ts.DefinitionInfoAndBoundSpan
+  result: ts.DefinitionInfoAndBoundSpan
 ) {
-  if (!result) return result
+  result.definitions?.forEach(prepareDocumentSpan)
 
-  result.definitions?.forEach(definition => {
-    definition.fileName = mayBeRelativeFileName(
-      fileName,
-      mayBeVirtualFileName(definition.fileName)
-    )
-  })
+  return result
 }
 
 export function prepareDefinitionInfo(
   fileName: string,
-  result?: readonly ts.DefinitionInfo[]
+  result: readonly ts.DefinitionInfo[]
 ) {
-  if (!result) return result
-
-  result.forEach(definition => {
-    definition.fileName = mayBeRelativeFileName(
-      fileName,
-      mayBeVirtualFileName(definition.fileName)
-    )
-  })
+  result.forEach(prepareDocumentSpan)
 
   return result
 }
 
 export function prepareImplementationLocation(
   fileName: string,
-  result?: readonly ts.ImplementationLocation[]
+  result: readonly ts.ImplementationLocation[]
 ) {
-  if (!result) return result
-
-  result.forEach(implementation => {
-    implementation.fileName = mayBeVirtualFileName(implementation.fileName)
-  })
+  result.forEach(prepareDocumentSpan)
 
   return result
 }
 
-export function prepareReferenceEntry(
+export function prepareReferenceEntry<T extends ts.ReferenceEntry[] | readonly ts.ReferenceEntry[]>(
   fileName: string,
-  result?: ts.ReferenceEntry[]
-) {
-  if (!result) return result
-
-  result.forEach(entry => {
-    entry.fileName = mayBeVirtualFileName(entry.fileName)
-  })
+  result: T
+): T {
+  result.forEach(prepareDocumentSpan)
 
   return result
 }
 
 export function prepareReferenceSymbol(
   fileName: string,
-  result?: ts.ReferencedSymbol[]
+  result: ts.ReferencedSymbol[]
 ) {
-  if (!result) return result
-
-  result.forEach(symbol => {
-    symbol.definition.fileName = mayBeVirtualFileName(
-      symbol.definition.fileName
-    )
-    symbol.references.forEach(reference => {
-      reference.fileName = mayBeVirtualFileName(reference.fileName)
-    })
+  result.forEach((symbol) => {
+    prepareDocumentSpan(symbol.definition)
+    symbol.references.forEach(prepareDocumentSpan)
   })
 
   return result

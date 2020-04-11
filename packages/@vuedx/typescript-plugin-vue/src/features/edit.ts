@@ -1,5 +1,5 @@
 import ts from 'typescript'
-import { mayBeVirtualFileName } from '../utils'
+import { removeVirtualSuffixFromFileName } from '../utils'
 
 export function prepareTextChange(fileName: string, result: ts.TextChange[]) {
   return result
@@ -23,11 +23,11 @@ export function prepareRefactorEditInfo(
   result: ts.RefactorEditInfo
 ) {
   if (result.renameFilename) {
-    result.renameFilename = mayBeVirtualFileName(result.renameFilename)
+    result.renameFilename = removeVirtualSuffixFromFileName(result.renameFilename)
   }
 
   result.edits.forEach(edit => {
-    edit.fileName = mayBeVirtualFileName(edit.fileName)
+    edit.fileName = removeVirtualSuffixFromFileName(edit.fileName)
   })
 
   return result
@@ -38,7 +38,7 @@ export function prepareFileTextChanges(
   result: readonly ts.FileTextChanges[]
 ) {
   result.forEach(item => {
-    item.fileName = mayBeVirtualFileName(item.fileName)
+    item.fileName = removeVirtualSuffixFromFileName(item.fileName)
   })
 
   return result

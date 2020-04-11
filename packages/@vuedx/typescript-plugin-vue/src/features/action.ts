@@ -1,5 +1,5 @@
 import ts from 'typescript'
-import { mayBeVirtualFileName } from '../utils'
+import { removeVirtualSuffixFromFileName } from '../utils'
 
 export function prepareCodeFixAction(
   fileName: string,
@@ -8,7 +8,7 @@ export function prepareCodeFixAction(
   result.forEach(item => {
     item.changes.forEach(item => {
       // TODO: Can be new file!!!
-      item.fileName = mayBeVirtualFileName(fileName)
+      item.fileName = removeVirtualSuffixFromFileName(fileName)
     })
   })
 

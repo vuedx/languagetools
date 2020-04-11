@@ -1,7 +1,5 @@
 import ts from 'typescript'
-import { virtualFileNameSep } from '@vuedx/vue-virtual-textdocument'
-
-const virtualFileRegex = new RegExp(`(?<=\\.vue)${virtualFileNameSep}(script|template|style|customBlock|render)(__[0-9]+)?`, 'g')
+import { removeVirtualSuffixFromText } from '../utils'
 
 export function prepareSyntacticDiagnostics(
   fileName: string,
@@ -9,7 +7,7 @@ export function prepareSyntacticDiagnostics(
 ) {
   result.forEach((item) => {
     if (typeof item.messageText === 'string') {
-      item.messageText = item.messageText.replace(virtualFileRegex, '')
+      item.messageText = removeVirtualSuffixFromText(item.messageText)
     }
   })
 
@@ -22,7 +20,7 @@ export function prepareSuggestionDiagnostics(
 ) {
   result.forEach((item) => {
     if (typeof item.messageText === 'string') {
-      item.messageText = item.messageText.replace(virtualFileRegex, '')
+      item.messageText = removeVirtualSuffixFromText(item.messageText)
     }
   })
 
@@ -35,7 +33,7 @@ export function prepareSemanticDiagnostics(
 ) {
   result.forEach((item) => {
     if (typeof item.messageText === 'string') {
-      item.messageText = item.messageText.replace(virtualFileRegex, '')
+      item.messageText = removeVirtualSuffixFromText(item.messageText)
     }
   })
 

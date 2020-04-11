@@ -47,7 +47,8 @@ export type BlockSelector =
 export class VirtualTextDocument implements TextDocument {
   public constructor(
     private internal: TextDocument,
-    public readonly container: VueTextDocument
+    public readonly container: VueTextDocument,
+    public readonly selector: BlockSelector
   ) {}
 
   public readonly uriObject = URI.parse(this.internal.uri)
@@ -102,11 +103,13 @@ export class VirtualTextDocument implements TextDocument {
     uri: string,
     languageId: string,
     version: number,
-    content: string
+    content: string,
+    selector: BlockSelector
   ) {
     return new VirtualTextDocument(
       TextDocument.create(uri, languageId, version, content),
-      container
+      container,
+      selector
     )
   }
 
@@ -199,6 +202,12 @@ export class VueTextDocument implements TextDocument {
     )
   }
 
+  public documentAt(positionOrOffset: Position | number) {
+    const block = this.blockAt(positionOrOffset)
+
+    return block ? this.getBlockDocument(block) : undefined
+  }
+
   private parse() {
     const source = this.getText()
     const { descriptor, errors } = parseSFC(source, {
@@ -252,7 +261,8 @@ export class VueTextDocument implements TextDocument {
   private createBlockDocument(block: SFCBlock | null) {
     if (!block) return null
 
-    const id = stringifyQueryString(this.getSelectorFor(block))
+    const selector = this.getSelectorFor(block)
+    const id = stringifyQueryString(selector)
     const uri = this.getUriFor(block)
     const languageId = getLanguageIdForBlock(block)
 
@@ -273,7 +283,8 @@ export class VueTextDocument implements TextDocument {
       uri,
       languageId,
       this.version,
-      block.content
+      block.content,
+      selector
     )
   }
 
@@ -442,32 +453,33 @@ export function parseVirtualFileUri(fileNameOrUri: string) {
 }
 
 export class DocumentStore<T> {
-  private map = new Map<string, T>()
-  private lowerCaseNames = new Map<string, string>()
+  protected map = new Map<string, T>()
+  protected reverseUriMap = new Map<string, string>()
 
-  constructor(private resolve: (uri: string) => T | null) {}
+  constructor(
+    protected resolve: (uri: string) => T | null,
+    public normalize = (uri: string) => uri
+  ) {}
 
-  private normalizeUri(uri: string) {
-    const lower = uri.toLowerCase()
-
-    return this.lowerCaseNames.get(lower) || uri
+  protected getNormalizedUri(uri: string) {
+    return this.reverseUriMap.get(this.normalize(uri)) || uri
   }
 
   has(uri: string): boolean {
-    return this.map.has(this.normalizeUri(uri))
+    return this.map.has(this.getNormalizedUri(uri))
   }
 
   get(uri: string): T | null {
-    return this.map.get(this.normalizeUri(uri)) || this.loadSync(uri)
+    return this.map.get(this.getNormalizedUri(uri)) || this.loadSync(uri)
   }
 
   set(uri: string, document: T): void {
     this.map.set(uri, document)
-    this.lowerCaseNames.set(uri.toLowerCase(), uri)
+    this.reverseUriMap.set(uri.toLowerCase(), uri)
   }
 
   delete(uri: string) {
-    return this.map.delete(this.normalizeUri(uri))
+    return this.map.delete(this.getNormalizedUri(uri))
   }
 
   all(): string[] {
@@ -489,47 +501,25 @@ export class DocumentStore<T> {
   }
 }
 
-export class AsyncDocumentStore<T> {
-  private map = new Map<string, T>()
-
+export class AsyncDocumentStore<T> extends DocumentStore<T> {
   constructor(
-    private resolve: (uri: string) => Promise<T | null> | T | null,
-    private useCaseSensitiveFileNames = () => true
-  ) {}
-
-  private normalizeUri(uri: string) {
-    return this.useCaseSensitiveFileNames() ? uri : uri.toLowerCase()
+    resolve: (uri: string) => T | Promise<T | null> | null,
+    normalize = (uri: string) => uri
+  ) {
+    super(resolve as any, normalize)
   }
 
-  has(uri: string): boolean {
-    return this.map.has(this.normalizeUri(uri))
-  }
-
-  get(uri: string) {
-    return this.map.get(this.normalizeUri(uri)) || this.load(uri)
-  }
-
-  set(uri: string, document: T): void {
-    this.map.set(this.normalizeUri(uri), document)
-  }
-
-  delete(uri: string) {
-    return this.map.delete(this.normalizeUri(uri))
-  }
-
-  all(): string[] {
-    return Array.from(this.map.keys())
-  }
-
-  dispose() {
-    this.map.clear()
+  get(uri: string): T | null
+  get(uri: string): Promise<T | null>
+  get(uri: string): any {
+    return this.map.get(this.getNormalizedUri(uri)) || this.load(uri)
   }
 
   private async load(uri: string) {
     const document = await this.resolve(uri)
 
     if (document) {
-      this.map.set(this.normalizeUri(uri), document)
+      this.map.set(this.getNormalizedUri(uri), document)
     }
 
     return document

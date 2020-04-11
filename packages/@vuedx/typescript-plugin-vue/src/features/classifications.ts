@@ -1,12 +1,13 @@
 import ts from 'typescript'
-export function prepareEncodedSyntacticClassifications(
+
+export function prepareClassifiedSpans(
   fileName: string,
-  result: ts.Classifications
+  result: ts.ClassifiedSpan[]
 ) {
   return result
 }
 
-export function prepareEncodedSemanticClassifications(
+export function prepareClassifications(
   fileName: string,
   result: ts.Classifications
 ) {

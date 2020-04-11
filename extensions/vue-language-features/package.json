@@ -37,6 +37,10 @@
       {
         "command": "vue.openVirtualFile",
         "title": "Vue: Show virtual file"
+      },
+      {
+        "command": "vue.patchTypeScript",
+        "title": "Vue: Patch TypeScript extension"
       }
     ],
     "typescriptServerPlugins": [
@@ -53,7 +57,7 @@
     "url": "https://github.com/znck/vue-developer-experience/issues"
   },
   "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/vue-language-features#readme",
-  "extensionDependencies": ["znck.vue"],
+  "extensionDependencies": ["znck.vue", "vscode.typescript-language-features"],
   "devDependencies": {
     "@vuedx/extensions-shared": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",

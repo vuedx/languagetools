@@ -1,26 +1,17 @@
-import { mayBeRelativeFileName, mayBeVirtualFileName } from '../utils'
+import { removeVirtualSuffixFromText } from '../utils'
 
 export function prepareQuickInfo(
   fileName: string,
-  result?: ts.QuickInfo
+  result: ts.QuickInfo
 ): ts.QuickInfo | undefined {
-  if (!result) return result
-
-  result.displayParts?.forEach(part => {
-    if (part.kind === 'stringLiteral') {
-      part.text = JSON.stringify(
-        mayBeRelativeFileName(
-          fileName,
-          mayBeVirtualFileName(JSON.parse(part.text) as string)
-        )
-      )
-    }
+  result.displayParts?.forEach((part) => {
+    part.text = removeVirtualSuffixFromText(part.text)
   })
 
   return result
 }
 
-export function prepareTextSpan(fileName: string, result?: ts.TextSpan) {
+export function prepareTextSpan(fileName: string, result: ts.TextSpan) {
   return result
 }
 
