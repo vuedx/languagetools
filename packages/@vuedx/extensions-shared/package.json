@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/extensions-shared",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.3",
   "private": true,
   "dependencies": {
     "@vuedx/vue-virtual-textdocument": "workspace:^0.1.0-alpha.2",
