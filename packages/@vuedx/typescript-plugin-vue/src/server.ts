@@ -80,7 +80,7 @@ interface Chain<T> {
 function chain<T>(value?: T): Chain<T> {
   return {
     next(fn) {
-      if (value == undefined){
+      if (value == undefined) {
         return chain(undefined) as any
       }
 
@@ -91,7 +91,6 @@ function chain<T>(value?: T): Chain<T> {
 
         return chain(undefined)
       }
-
     },
     // @ts-ignore
     end(defaultValue) {
@@ -862,7 +861,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
         this.service.organizeImports(scope, formatOptions, preferences)
       )
       .next((results) => {
-        results.forEach(result => {
+        results.forEach((result) => {
           if (this.context.isVirtualFile(result.fileName)) {
             // TODO: Ensure offset padding for script blocks
 
@@ -890,35 +889,46 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     )
   }
 
+  static proxy: ts.LanguageService
+
   static create(
     context: VueContext,
     server: ts.LanguageService,
     typescript: typeof ts
   ) {
+    if (this.proxy) return this.proxy
+
     const instance = new VueLanguageServer(context, server, typescript)
     const proxy = Object.create(null)
     const keys = Object.keys(server) as (keyof ts.LanguageService)[]
 
     for (const key of keys) {
       proxy[key] =
-        key in instance
+        server[key] && key in instance
           ? (...args: any[]) => {
-              __DEV__ && console.log(`start server.${key}(${typeof args[0] === 'string' ? args[0] : ''})`)
+              __DEV__ &&
+                console.log(
+                  `start server.${key}(${
+                    typeof args[0] === 'string' ? args[0] : ''
+                  })`
+                )
 
               // @ts-ignore
               const result = instance[key].apply(instance, args)
 
-              __DEV__ && console.log(`end server.${key}(${typeof args[0] === 'string' ? args[0] : ''})`)
+              __DEV__ &&
+                console.log(
+                  `end server.${key}(${
+                    typeof args[0] === 'string' ? args[0] : ''
+                  })`
+                )
 
               return result
             }
-          : (...args: any[]) => {
-              // @ts-ignore
-              const result = server[key](...args)
-
-              return result
-            }
+          : server[key]
     }
+
+    this.proxy = proxy
 
     return proxy as ts.LanguageService
   }
