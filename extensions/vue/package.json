@@ -4,7 +4,7 @@
   "name": "vue",
   "publisher": "znck",
   "displayName": "Vue",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Vue language grammar and syntax highlight. Made with 💚 for Vue Developers.",
   "icon": "logo.png",
   "main": "dist/extension.js",
