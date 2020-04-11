@@ -86,7 +86,7 @@ function patchWorkspaceDependencies(pkgFile) {
 }
 
 function getWorkspaceVersion(name) {
-  return require(/[\\/]/.test(name)
+  return require(name.endsWith('package.json')
     ? name
     : Path.resolve(packagesDir, name, 'package.json')).version
 }

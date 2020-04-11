@@ -4,7 +4,7 @@
   "name": "vue-language-features",
   "publisher": "znck",
   "displayName": "Vue Language Features",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Advanced language features for Vue files. Made with 💚 for Vue Developers.",
   "icon": "logo.png",
   "main": "dist/extension.js",
@@ -57,7 +57,10 @@
     "url": "https://github.com/znck/vue-developer-experience/issues"
   },
   "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/vue-language-features#readme",
-  "extensionDependencies": ["znck.vue", "vscode.typescript-language-features"],
+  "extensionDependencies": [
+    "znck.vue",
+    "vscode.typescript-language-features"
+  ],
   "devDependencies": {
     "@vuedx/extensions-shared": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
