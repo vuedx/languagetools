@@ -12,7 +12,7 @@ export default defineComponent({
   setup(props) {
     const bar = ref(props.foo)
     const baz = computed(() => bar.value)
-    props.
+    props.bar
     watch(() => props.foo, foo => {
       bar.value = props.foo
     })
