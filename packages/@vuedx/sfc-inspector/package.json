@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/sfc-inspector",
-  "version": "0.1.0-alpha.4",
+  "version": "0.1.0-alpha.5",
   "description": "Extracts public API information from Vue component.",
   "main": "dist/sfc-inspector.js",
   "module": "dist/sfc-inspector.esm.js",
