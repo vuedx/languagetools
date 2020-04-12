@@ -327,7 +327,7 @@ export class VueTextDocument implements TextDocument {
     return uri.toString().replace(/^file/, 'vue');
   }
 
-  private getSelectorFor(block: SFCBlock | string | BlockSelector): BlockSelector {
+  public getSelectorFor(block: SFCBlock | string | BlockSelector): BlockSelector {
     if (!block) return { type: '', index: -1 };
 
     if (block === 'script') {

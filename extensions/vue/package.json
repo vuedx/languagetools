@@ -30,8 +30,7 @@
     "vscode": "^1.32.0"
   },
   "categories": [
-    "Programming Languages",
-    "Other"
+    "Programming Languages"
   ],
   "contributes": {
     "grammars": [

@@ -1,15 +1,15 @@
 import {
-  DocumentStore,
-  VueTextDocument,
-  isVueFile,
   asUri,
-  isVirtualFile,
+  DocumentStore,
   getContainingFile,
+  isVirtualFile,
+  isVueFile,
+  VirtualTextDocument,
+  VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument';
 import { URI } from 'vscode-uri';
 import { TS } from './interfaces';
 import { tryPatchMethod } from './patcher';
-import Path from 'path';
 
 class ProxyDocumentStore extends DocumentStore<VueTextDocument> {
   get(fileNameOrUri: string) {
@@ -33,7 +33,7 @@ export class PluginContext {
   public readonly store: DocumentStore<VueTextDocument>;
 
   public constructor(public readonly typescript: typeof TS, private info: TS.server.PluginCreateInfo) {
-    this.reload(info);
+    this.log(`Created new plugin context.`);
 
     this.store = new ProxyDocumentStore(
       (uri) => {
@@ -138,7 +138,7 @@ export class PluginContext {
     }
   }
 
-  protected reload(info: TS.server.PluginCreateInfo): void {
+  reload(info: TS.server.PluginCreateInfo): void {
     this.info = info;
     this.log(`Loading Vue plugin: ${info.project.getProjectName()}`);
 
@@ -153,22 +153,30 @@ function patchProjectService(context: PluginContext) {
 }
 
 function patchExtraFileExtensions(context: PluginContext) {
-  // TODO(NOTE): Accessing private property to get current host configuration to add .vue non-destructively.
-  const currentConfiguration: TS.server.HostConfiguration = (<any>context.projectService).hostConfiguration;
-
-  if (currentConfiguration.extraFileExtensions?.some((extension) => extension.extension === 'vue')) return;
-
-  context.log(`[patch] Add support for vue extension. (ProjectService)`);
-
   const extraFileExtensions: TS.server.HostConfiguration['extraFileExtensions'] = [
     { extension: 'vue', isMixedContent: true, scriptKind: context.typescript.ScriptKind.Deferred },
   ];
 
-  if (currentConfiguration.extraFileExtensions) {
-    extraFileExtensions.push(...currentConfiguration.extraFileExtensions);
+  tryPatchMethod(context.projectService, 'setHostConfiguration', (setHostConfiguration) => {
+    context.log(`[patch] Add support for vue extension. (ProjectService)`);
+    return (args) => {
+      if (args.extraFileExtensions) {
+        args.extraFileExtensions.push(...extraFileExtensions);
+      }
+
+      return setHostConfiguration(args);
+    };
+  });
+
+  if (
+    ((context.projectService as any).hostConfiguration as TS.server.HostConfiguration).extraFileExtensions?.some(
+      (ext) => ext.extension === 'vue'
+    )
+  ) {
+    return;
   }
 
-  context.projectService.setHostConfiguration({ extraFileExtensions });
+  context.projectService.setHostConfiguration({ extraFileExtensions: [] });
 }
 
 function patchLanguageServiceHost(context: PluginContext) {
@@ -181,26 +189,33 @@ function patchLanguageServiceHost(context: PluginContext) {
 function patchGetScriptFileNames(context: PluginContext) {
   tryPatchMethod(context.languageServiceHost, 'getScriptFileNames', (getScriptFileNames) => {
     context.log(`[patch] Override getScriptFileNames to expand .vue files to virtual files. (LanguageServerHost)`);
+    const previousVueFiles = new Set<string>();
 
     return () => {
-      const fileNames = getScriptFileNames().map((fileName) => {
+      const fileNames = [...getScriptFileNames(), ...previousVueFiles].map((fileName) => {
         if (isVueFile(fileName)) {
           const document = context.store.get(fileName);
 
-          return document
-            ? document.forTS().map((document) => {
-                const fileName = document.fsPath;
-                try {
-                  context.tryCreateScriptInfo(fileName);
-                } catch (error) {
-                  context.log(
-                    `[ERROR] Cannot create ScriptInfo for "${fileName}". Reason: ${error.message} ${error.stack}`
-                  );
-                }
+          if (document) {
+            if (!previousVueFiles.has(fileName)) previousVueFiles.add(fileName);
 
-                return fileName;
-              })
-            : [];
+            return document.forTS().map((document) => {
+              const fileName = document.fsPath;
+              try {
+                context.tryCreateScriptInfo(fileName);
+              } catch (error) {
+                context.log(
+                  `[ERROR] Cannot create ScriptInfo for "${fileName}". Reason: ${error.message} ${error.stack}`
+                );
+              }
+
+              return fileName;
+            });
+          } else {
+            previousVueFiles.delete(fileName);
+
+            return [];
+          }
         }
 
         return fileName;
@@ -257,7 +272,10 @@ function patchScriptSnapshot(context: PluginContext) {
 
     return (fileName) => {
       if (isVirtualFile(fileName)) {
-        fileName = getContainingFile(fileName);
+        const document = context.store.get(getContainingFile(fileName));
+        const virtual = document?.getBlockDocument(fileName);
+
+        return virtual ? 'Vue-' + virtual.version : '0';
       }
 
       return getScriptVersion(fileName);
@@ -265,16 +283,19 @@ function patchScriptSnapshot(context: PluginContext) {
   });
 }
 
+import Path from 'path';
 function patchModuleResolution(context: PluginContext) {
   tryPatchMethod(context.languageServiceHost, 'resolveModuleNames', (resolveModuleNames) => {
     context.log(`[patch] Override resolveModuleNames to resolve imports from .vue files. (LanguageServerHost)`);
-
+    const cache = context.typescript.createModuleResolutionCache(context.getCurrentDirectory(), (fileName) =>
+      context.typescript.server.toNormalizedPath(fileName)
+    );
     return (moduleNames, containingFile, reusedNames, redirectedReferences, options) => {
       if (isVueFile(containingFile)) throw new Error('A .vue file should not be part of TS program.');
-
       const containingDir = Path.dirname(containingFile);
-
+      const currentCache = cache.getOrCreateCacheForDirectory(containingDir);
       const vueModules: Array<TS.ResolvedModule | TS.ResolvedModuleFull | undefined> = moduleNames.map((moduleName) => {
+        if (currentCache.has(moduleName)) return currentCache.get(moduleName)!.resolvedModule;
         if (isVueFile(moduleName) || (options.paths && moduleName in options.paths)) {
           const result = context.typescript.resolveModuleName(
             moduleName,
@@ -283,6 +304,7 @@ function patchModuleResolution(context: PluginContext) {
             {
               ...context.serviceHost,
               fileExists(fileName) {
+                context.log(`try files => ${moduleName} :: ${fileName}`);
                 if (context.serviceHost.fileExists(fileName)) return true;
                 if (fileName.endsWith('.vue.ts')) {
                   fileName = fileName.replace(/\.ts$/, '');
@@ -307,6 +329,9 @@ function patchModuleResolution(context: PluginContext) {
                 resolvedFileName: document.fsPath,
                 extension: context.getExtension(document.fsPath),
               };
+              const result = { resolvedModule };
+
+              currentCache.set(moduleName, result);
 
               return resolvedModule;
             }
@@ -362,25 +387,32 @@ function patchWatchFile(context: PluginContext) {
 
 function patchScriptInfo(context: PluginContext, scriptInfo: TS.server.ScriptInfo) {
   tryPatchMethod(scriptInfo, 'editContent', (editContent) => {
-    context.log(`[patch] Override editContent of "${scriptInfo.fileName}" to sync virtual files. (ScriptInfo)`);
+    context.log(`[patch] Override editContent() of "${scriptInfo.fileName}" to sync virtual files. (ScriptInfo)`);
 
     return (start, end, newText) => {
       const document = context.store.get(scriptInfo.fileName);
       if (!document) throw new Error('VueTextDocument should exist for every ScriptInfo.');
+
       const range = { start: document.positionAt(start), end: document.positionAt(end) };
 
       editContent(start, end, newText);
-      VueTextDocument.update(document, [{ range, text: newText }], document.version + 1);
 
-      if (__DEV__) {
-        context.log(
-          `ScriptInfo.editContent(fileName=${scriptInfo.fileName}): Version = {vue: ${
-            document.version
-          }, info: ${scriptInfo.getLatestVersion()}} `
-        );
-      }
+      VueTextDocument.update(
+        document,
+        [{ range, text: newText }],
+        getLastNumberFromVersion(scriptInfo.getLatestVersion())
+      );
 
-      // TODO: Notify reload of virtual file ScriptInfo.
+      document.forTS().forEach((document: VirtualTextDocument) => {
+        context.projectService.getScriptInfo(document.fsPath)?.markContainingProjectsAsDirty();
+      });
     };
   });
+}
+
+function getLastNumberFromVersion(version: string) {
+  const parts = version.split(/[^0-9]+/);
+  const ver = parts.pop();
+
+  return Number(ver);
 }

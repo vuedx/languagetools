@@ -29,7 +29,7 @@ export default defineComponent({
 <template>
   <div>
     <p>
-      It works and stays in sync.
+      It works and stays in sync. {{ foo + bar }}
     </p>
   </div>
 </template>

@@ -119,15 +119,18 @@ export class VirtualFileSystemHelper {
     const document = this.getVueDocument(fileName);
     if (!document) return null;
 
-    return document.getBlockDocument(document.blockAt(position)) || null;
+    const virtual = document.documentAt(position);
+    if (!virtual) return null;
+
+    if (document.forTS().includes(virtual)) return virtual;
+
+    return null;
   }
 
   getFileNameAt(fileName: string, position: number, isRenderFunctionAllowed = false) {
     if (this.isVueFile(fileName)) {
-      // TODO: Only return script or render fileName
       const virtualFileName = this.getVirtualDocumentAt(fileName, position)?.fsPath;
-
-      __DEV__ && this.logger.log(`getFileNameAt(${fileName}, ${position}) = ${virtualFileName}`);
+      this.logger.log(`getFileNameAt("${fileName}", ${position}) = "${virtualFileName}"`);
 
       return virtualFileName;
     }
@@ -137,19 +140,15 @@ export class VirtualFileSystemHelper {
 
   getInnerFileNames(fileName: string, isRenderFunctionAllowed = false) {
     if (this.isVueFile(fileName)) {
-      // TODO: Only return script and render fileName
       const document = this.documents.get(fileName);
 
       if (!document) return [];
 
-      const innerFileNames = document.forTS().map((document) => document.fsPath);
+      const fileNames = document.forTS().map((document) => document.fsPath);
+      this.logger.log(`getInnerFileNames("${fileName}") = ${JSON.stringify(fileNames)}`);
 
-      __DEV__ && this.logger.log(`getInnerFileNames(${fileName}) = ${JSON.stringify(innerFileNames)}`);
-
-      return innerFileNames;
+      return fileNames;
     }
-
-    __DEV__ && this.logger.log(`getInnerFileNames(${fileName}) = [${fileName}]`);
 
     return [fileName];
   }
@@ -630,7 +629,12 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
   }
 
   decorate(languageService: TS.LanguageService) {
-    if (VUE_LANGUAGE_SERVER in languageService) return languageService;
+    if (VUE_LANGUAGE_SERVER in languageService) {
+      return languageService;
+    }
+
+    this.context.log(`[patch] Decorating TypeScript language server.`);
+
     const proxy = Object.create(null);
 
     proxy[VUE_LANGUAGE_SERVER] = true;
@@ -641,9 +645,9 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
         proxy[key] =
           languageService[key as keyof TS.LanguageService] && key in this
             ? (...args: any[]) => {
-                __DEV__ && console.log(`start server.${key}(${typeof args[0] === 'string' ? args[0] : ''})`);
+                this.context.log(`start server.${key}(${typeof args[0] === 'string' ? args[0] : ''})`);
                 const result = (this[key] as Function).apply(this, args);
-                __DEV__ && console.log(`end server.${key}(${typeof args[0] === 'string' ? args[0] : ''})`);
+                this.context.log(`end server.${key}(${typeof args[0] === 'string' ? args[0] : ''})`);
 
                 return result;
               }

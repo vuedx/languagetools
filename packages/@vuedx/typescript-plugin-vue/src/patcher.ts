@@ -3,7 +3,7 @@ const PATCHED_METHODS = Symbol('Vue Patched Methods');
 export function tryPatchMethod<T extends object, K extends keyof T>(
   target: T,
   methodName: K,
-  createOverride: (fn: T[K]) => T[K]
+  createOverride: (fn: T[K]) => T[K] extends undefined ? never : T[K]
 ) {
   const patched: K[] = (target as any)[PATCHED_METHODS] || ([] as K[]);
   if (patched.includes(methodName)) return;

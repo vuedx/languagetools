@@ -8,8 +8,8 @@
     "build:dev": "rollup -c",
     "build": "rollup -c --environment BUILD:production",
     "prepublishOnly": "npm run build",
-    "release": "pnpm recursive --filter ./packages exec npm version",
-    "postrelease": "pnpm run build && pnpm recursive --filter ./packages publish --access public --tag latest",
+    "release:packages": "pnpm recursive --filter ./packages exec npm version",
+    "postrelease:packages": "pnpm run build && pnpm recursive --filter ./packages publish --access public --tag latest",
     "release:extensions": "node scripts/bundle-extensions --publish"
   },
   "devDependencies": {
