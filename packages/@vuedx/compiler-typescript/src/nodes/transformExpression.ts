@@ -81,7 +81,7 @@ function processForExpression(
     node.loc.start.column + rightOffset,
     node.loc.start.offset + rightOffset,
     true
-  )
+  )[0]
 }
 
 function processSlotExpression(
@@ -89,7 +89,7 @@ function processSlotExpression(
   context: TransformContext
 ) {
   // @ts-ignore
-  node.node = parseExpression(
+  node.leftNode = parseExpression(
     node.content,
     context,
     node.loc.start.line,

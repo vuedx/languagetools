@@ -8,4 +8,7 @@ module.exports = {
       packageJson: 'package.json',
     },
   },
-}
+  moduleNameMapper: {
+    '@vuedx/(.+)$': '<rootDir>packages/@vuedx/$1/src/index.ts',
+  },
+};

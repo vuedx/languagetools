@@ -4,12 +4,13 @@ import {
   getContainingFile,
   isVirtualFile,
   isVueFile,
-  VirtualTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument';
+import Path from 'path';
 import { URI } from 'vscode-uri';
 import { TS } from './interfaces';
 import { tryPatchMethod } from './patcher';
+import { getLastNumberFromVersion, isNotNull } from './utils';
 
 class ProxyDocumentStore extends DocumentStore<VueTextDocument> {
   get(fileNameOrUri: string) {
@@ -41,7 +42,7 @@ export class PluginContext {
         this.log(`DocumentStore.load(fileName=${fileName})`);
         const content = this.typescript.sys.readFile(fileName) || '';
 
-        return VueTextDocument.create(uri, 'vue', 0, content);
+        return VueTextDocument.create(uri, 'vue', 0, content, 'javascript');
       },
       (uri) => {
         const fileName = URI.parse(uri).fsPath;
@@ -108,6 +109,16 @@ export class PluginContext {
     }
   }
 
+  public getSupportedVirtualDocumentFileNames(document: VueTextDocument) {
+    const fileNames = [document.getBlockDocumentFileName('script')!];
+
+    if (document.descriptor.template?.content) {
+      fileNames.push(document.getBlockDocumentFileName('render')!);
+    }
+
+    return fileNames;
+  }
+
   public tryCreateScriptInfo(fileName: string): void {
     if (isVirtualFile(fileName)) {
       const containingFileName = getContainingFile(fileName);
@@ -121,7 +132,6 @@ export class PluginContext {
       if (!containingScriptInfo) throw new Error('Cannot find ScriptInfo for containing document');
 
       patchScriptInfo(this, containingScriptInfo);
-
       const virtualDoc = document.getBlockDocument(fileName);
       if (!virtualDoc) throw new Error('Cannot find virtual document');
       const isOpen = containingScriptInfo.isScriptOpen();
@@ -199,8 +209,7 @@ function patchGetScriptFileNames(context: PluginContext) {
           if (document) {
             if (!previousVueFiles.has(fileName)) previousVueFiles.add(fileName);
 
-            return document.forTS().map((document) => {
-              const fileName = document.fsPath;
+            return context.getSupportedVirtualDocumentFileNames(document).map((fileName) => {
               try {
                 context.tryCreateScriptInfo(fileName);
               } catch (error) {
@@ -236,6 +245,7 @@ function patchFileExists(context: PluginContext) {
 
     return (fileName) => {
       if (isVirtualFile(fileName)) {
+        context.log(`LanguageServerHost.fileExists("${fileName}")`);
         fileName = getContainingFile(fileName);
       }
 
@@ -283,7 +293,6 @@ function patchScriptSnapshot(context: PluginContext) {
   });
 }
 
-import Path from 'path';
 function patchModuleResolution(context: PluginContext) {
   tryPatchMethod(context.languageServiceHost, 'resolveModuleNames', (resolveModuleNames) => {
     context.log(`[patch] Override resolveModuleNames to resolve imports from .vue files. (LanguageServerHost)`);
@@ -403,16 +412,9 @@ function patchScriptInfo(context: PluginContext, scriptInfo: TS.server.ScriptInf
         getLastNumberFromVersion(scriptInfo.getLatestVersion())
       );
 
-      document.forTS().forEach((document: VirtualTextDocument) => {
-        context.projectService.getScriptInfo(document.fsPath)?.markContainingProjectsAsDirty();
+      context.getSupportedVirtualDocumentFileNames(document).forEach((fileName) => {
+        context.projectService.getScriptInfo(fileName)?.markContainingProjectsAsDirty();
       });
     };
   });
-}
-
-function getLastNumberFromVersion(version: string) {
-  const parts = version.split(/[^0-9]+/);
-  const ver = parts.pop();
-
-  return Number(ver);
 }

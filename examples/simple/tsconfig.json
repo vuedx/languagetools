@@ -1,5 +1,4 @@
 {
   "compilerOptions": {
-    "plugins": ["@vuedx/typescript-plugin-vue"]
   }
 }

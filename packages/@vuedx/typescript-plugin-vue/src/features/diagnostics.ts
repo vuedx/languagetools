@@ -1,41 +1,52 @@
-import ts from 'typescript'
-import { removeVirtualSuffixFromText } from '../utils'
+import ts from 'typescript';
+import { removeVirtualSuffixFromText } from '../utils';
+import { RenderFunctionDocument } from '@vuedx/vue-virtual-textdocument';
+import { TS } from '../interfaces';
 
-export function prepareSyntacticDiagnostics(
-  fileName: string,
-  result: ts.DiagnosticWithLocation[]
-) {
-  result.forEach((item) => {
-    if (typeof item.messageText === 'string') {
-      item.messageText = removeVirtualSuffixFromText(item.messageText)
-    }
-  })
+export function prepareSyntacticDiagnostics(result: ts.DiagnosticWithLocation[]) {
+  result.forEach(prepareDiagnostic);
 
-  return result
+  return result;
 }
 
-export function prepareSuggestionDiagnostics(
-  fileName: string,
-  result: ts.DiagnosticWithLocation[]
-) {
-  result.forEach((item) => {
-    if (typeof item.messageText === 'string') {
-      item.messageText = removeVirtualSuffixFromText(item.messageText)
-    }
-  })
+export function remapSyntacticDiagnostics(result: ts.DiagnosticWithLocation[], document: RenderFunctionDocument) {
+  result.forEach(remapDiagnostic.bind(null, document));
 
-  return result
+  return result;
 }
 
-export function prepareSemanticDiagnostics(
-  fileName: string,
-  result: ts.Diagnostic[]
-) {
-  result.forEach((item) => {
-    if (typeof item.messageText === 'string') {
-      item.messageText = removeVirtualSuffixFromText(item.messageText)
-    }
-  })
+export function prepareSuggestionDiagnostics(result: ts.DiagnosticWithLocation[]) {
+  result.forEach(prepareDiagnostic);
 
-  return result
+  return result;
+}
+
+export function remapSuggestionDiagnostics(result: ts.DiagnosticWithLocation[], document: RenderFunctionDocument) {
+  result.forEach(remapDiagnostic.bind(null, document));
+
+  return result;
+}
+
+export function prepareSemanticDiagnostics(result: ts.Diagnostic[]) {
+  result.forEach(prepareDiagnostic);
+
+  return result;
+}
+
+export function remapSemanticDiagnosts(result: ts.Diagnostic[], document: RenderFunctionDocument) {
+  result.forEach(remapDiagnostic.bind(null, document));
+
+  return result;
+}
+
+function prepareDiagnostic(diagnostic: TS.Diagnostic) {
+  if (typeof diagnostic.messageText === 'string') {
+    diagnostic.messageText = removeVirtualSuffixFromText(diagnostic.messageText);
+  }
+}
+
+function remapDiagnostic(document: RenderFunctionDocument, diagnostic: TS.Diagnostic) {
+  if (diagnostic.start != null) {
+    diagnostic.start = document.getSourceOffsetAt(diagnostic.start);
+  }
 }

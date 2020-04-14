@@ -1,70 +1,60 @@
-import {
-  AsyncDocumentStore,
-  isVueFile,
-  parseVirtualFileUri,
-  VueTextDocument,
-} from '@vuedx/vue-virtual-textdocument'
-import { injectable } from 'inversify'
-import vscode from 'vscode'
-import { Installable } from '../utils/installable'
+import vscode from 'vscode';
+import { injectable } from 'inversify';
+import { AsyncDocumentStore, isVueFile, parseVirtualFileName, VueTextDocument } from '@vuedx/vue-virtual-textdocument';
+import { Installable } from '../utils/installable';
 
 @injectable()
 export class DocumentService extends Installable {
-  private readonly emitter = new vscode.EventEmitter<{ uri: vscode.Uri }>()
+  private readonly emitter = new vscode.EventEmitter<{ uri: vscode.Uri }>();
   private readonly store = new AsyncDocumentStore(async (uri) => {
-    const text = await vscode.workspace.openTextDocument(vscode.Uri.parse(uri))
-    const doc = VueTextDocument.create(uri, 'vue', text.version, text.getText())
+    const text = await vscode.workspace.openTextDocument(vscode.Uri.parse(uri));
+    const doc = VueTextDocument.create(uri, 'vue', text.version, text.getText());
 
-    return doc
-  })
+    return doc;
+  });
 
   public install() {
-    super.install()
+    super.install();
 
     return vscode.Disposable.from(
       this.store,
       this.emitter,
       vscode.workspace.onDidChangeTextDocument(async (event) => {
-        const uri = event.document.uri.toString()
-        if (this.store.has(uri) && isVueFile(uri)) {
-          const document = await this.store.get(uri)
+        const uri = event.document.uri.toString();
+        if (this.store.has(uri)) {
+          const document = await this.store.get(uri);
+          
+          VueTextDocument.update(document!, event.contentChanges, event.document.version);
 
           document!.all().forEach((document) => {
-            this.emitter.fire({ uri: vscode.Uri.parse(document.uri) })
-          })
-
-          VueTextDocument.update(
-            document!,
-            event.contentChanges,
-            event.document.version
-          )
+            this.emitter.fire({ uri: vscode.Uri.parse(document.uri) });
+          });
         }
       }),
       vscode.workspace.onDidOpenTextDocument((event) => {
-        const uri = event.uri.toString()
+        const uri = event.uri.toString();
 
-        if (isVueFile(uri)) this.store.get(uri)
+        if (isVueFile(uri)) this.store.get(uri);
       })
-    )
+    );
   }
 
   public async getVueDocument(uri: string) {
-    return this.store.get(uri)
+    return this.store.get(uri);
   }
 
   public async getVirtualDocument(uri: string) {
     try {
-      const { selector, uri: container } = parseVirtualFileUri(uri)!
+      const { selector, uri: container } = parseVirtualFileName(uri)!;
+      const document = await this.store.get(container);
 
-      return (
-        (await this.store.get(container))?.getBlockDocument(selector) || null
-      )
+      return document?.getBlockDocument(selector) || null;
     } catch {
-      return null
+      return null;
     }
   }
 
   public onDidChangeTextDocument(fn: (e: { uri: vscode.Uri }) => any) {
-    return this.emitter.event(fn)
+    return this.emitter.event(fn);
   }
 }

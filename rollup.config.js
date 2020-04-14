@@ -1,31 +1,31 @@
-const Path = require('path')
-const Fs = require('fs')
-const ts = require('rollup-plugin-typescript2')
-const node = require('@rollup/plugin-node-resolve')
-const commonjs = require('@rollup/plugin-commonjs')
-const alias = require('@rollup/plugin-alias')
-const json = require('@rollup/plugin-json')
-const replace = require('@rollup/plugin-replace')
-const dts = require('rollup-plugin-dts').default
+const Path = require('path');
+const Fs = require('fs');
+const ts = require('rollup-plugin-typescript2');
+const node = require('@rollup/plugin-node-resolve');
+const commonjs = require('@rollup/plugin-commonjs');
+const alias = require('@rollup/plugin-alias');
+const json = require('@rollup/plugin-json');
+const replace = require('@rollup/plugin-replace');
+const dts = require('rollup-plugin-dts').default;
 
 /** @type {import('rollup').RollupOptions[]} */
-const configurations = []
-const projectDir = __dirname
-const filter = process.env.FILTER || ''
-const isProd = process.env.BUILD === 'production'
+const configurations = [];
+const projectDir = __dirname;
+const filter = process.env.FILTER || '';
+const isProd = process.env.BUILD === 'production';
 
 const env = {
   __DEV__: isProd ? 'false' : 'process.env.NODE_ENV !== "production"',
   'process.env.NODE_ENV': isProd ? '"production"' : '"development"',
-}
+};
 
-const packages = Fs.readdirSync(Path.resolve(projectDir, './packages/@vuedx'))
-const extensions = ['vue', 'vue-language-features']
+const packages = Fs.readdirSync(Path.resolve(projectDir, './packages/@vuedx'));
+const extensions = ['vue', 'vue-language-features'];
 
-createConfig('packages/@vuedx', packages)
-createConfig('extensions', extensions)
+createConfig('packages/@vuedx', packages);
+createConfig('extensions', extensions);
 
-export default configurations
+export default configurations;
 
 function createTs(pkgDir) {
   return ts({
@@ -46,20 +46,20 @@ function createTs(pkgDir) {
       },
       include: ['src'],
     },
-  })
+  });
 }
 
 function createConfig(dir, names, external = []) {
   names.forEach((name) => {
-    const pkgDir = Path.resolve(projectDir, dir, name)
+    const pkgDir = Path.resolve(projectDir, dir, name);
 
-    if (!pkgDir.match(filter)) return
+    if (!pkgDir.match(filter)) return;
 
-    const outDir = Path.resolve(pkgDir, 'dist')
-    const pkg = require(Path.resolve(pkgDir, 'package.json'))
+    const outDir = Path.resolve(pkgDir, 'dist');
+    const pkg = require(Path.resolve(pkgDir, 'package.json'));
 
     if (Fs.existsSync(outDir)) {
-      Fs.rmdirSync(outDir, { recursive: true })
+      Fs.rmdirSync(outDir, { recursive: true });
     }
 
     try {
@@ -83,7 +83,38 @@ function createConfig(dir, names, external = []) {
           .concat(Object.keys(pkg.dependencies || {}))
           .concat(external),
         context: 'null',
-        plugins: [json(), node(), createTs(pkgDir), replace(env), commonjs()],
+        plugins: [
+          alias({
+            entries: [{ find: /@vue\/compiler-core$/, replacement: '@vue/compiler-core/dist/compiler-core.cjs' }],
+          }),
+          json(),
+          node(),
+          createTs(pkgDir),
+          replace(env),
+          replace({
+            "loadDep('@babel/parser')": "require('@babel/parser')",
+            "loadDep('estree-walker')": "require('estree-walker')",
+            "loadDep('source-map')": "require('source-map')",
+            delimiters: ['', ''],
+          }),
+          commonjs({
+            dynamicRequireTargets: ['@babel/types'],
+            namedExports: {
+              '@babel/types': [
+                'isCallExpression',
+                'isIdentifier',
+                'isBlockStatement',
+                'isArrayExpression',
+                'isObjectExpression',
+                'isMemberExpression',
+                'isConditionalExpression',
+                'isObjectProperty',
+                'isExportNamedDeclaration',
+                'isReturnStatement',
+              ],
+            },
+          }),
+        ],
         treeshake: {
           annotations: true,
           moduleSideEffects: false,
@@ -92,11 +123,11 @@ function createConfig(dir, names, external = []) {
         },
         onwarn(warning, fn) {
           if (warning.code === 'CIRCULAR_DEPENDENCY') {
-            if (/(inversify)/.test(warning.message)) return
+            if (/(inversify|VirtualTextDocument|@babel\/types)/.test(warning.message)) return;
           }
-          fn(warning)
+          fn(warning);
         },
-      }
+      };
 
       if (pkg.main) {
         configurations.push({
@@ -106,7 +137,7 @@ function createConfig(dir, names, external = []) {
             format: 'cjs',
             sourcemap: true,
           },
-        })
+        });
       }
 
       if (pkg.module) {
@@ -117,7 +148,7 @@ function createConfig(dir, names, external = []) {
             format: 'esm',
             sourcemap: true,
           },
-        })
+        });
       }
 
       if (pkg.types) {
@@ -128,11 +159,12 @@ function createConfig(dir, names, external = []) {
             format: 'esm',
             sourcemap: true,
           },
+          onwarn: options.onwarn,
           plugins: [dts()],
-        })
+        });
       }
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
-  })
+  });
 }
