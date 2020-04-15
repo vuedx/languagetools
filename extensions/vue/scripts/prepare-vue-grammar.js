@@ -5,13 +5,13 @@ const blockTemplateFile = Path.resolve(
   __dirname,
   '..',
   'syntaxes',
-  'block.template.json'
+  'block.template.yml.json'
 )
 const blockLanguageTemplateFile = Path.resolve(
   __dirname,
   '..',
   'syntaxes',
-  'block-language.template.json'
+  'block-language.template.yml.json'
 )
 
 const languages = {
