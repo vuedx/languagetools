@@ -28,9 +28,12 @@ export default defineComponent({
 
 <template>
   <div>
-    <p>
-      It works and stays in sync. {{ foo + bar }}
+    <p v-if="foo > 5">
+      {{ foo + bam }}
+      It works.
+      {{ foo + b  }}
     </p>
+    <Bar />
   </div>
 </template>
 

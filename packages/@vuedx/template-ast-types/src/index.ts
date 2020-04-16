@@ -12,10 +12,15 @@ import {
   SlotOutletNode,
   TemplateNode,
   TextNode,
+  RootNode,
 } from '@vue/compiler-core'
 
 export function isNode(node: any): node is Node {
   return node != null && typeof node === 'object' && 'type' in node
+}
+
+export function isRootNode(node: any): node is RootNode {
+  return isNode(node) && node.type === 0
 }
 
 export function isElementNode(node: any): node is ElementNode {

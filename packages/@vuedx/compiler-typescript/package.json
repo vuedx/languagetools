@@ -14,8 +14,8 @@
   "dependencies": {
     "@babel/parser": "^7.9.4",
     "@babel/types": "^7.9.0",
-    "@vue/compiler-core": "^3.0.0-alpha.12",
     "@vuedx/template-ast-types": "workspace:*",
+    "@vue/compiler-core": "^3.0.0-alpha.12",
     "lodash.camelcase": "^4.3.0"
   },
   "devDependencies": {

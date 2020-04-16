@@ -53,12 +53,22 @@
       },
       {
         "scopeName": "markdown.vue.codeblock",
-        "path": "./syntaxes/markdown.tmLanguage.json",
+        "path": "./syntaxes/markdown-vue.tmLanguage.json",
         "injectTo": [
           "text.html.markdown"
         ],
         "embeddedLanguages": {
           "meta.embedded.block.vue": "vue"
+        }
+      },
+      {
+        "scopeName": "markdown.vue-html.codeblock",
+        "path": "./syntaxes/markdown-vue-html.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.vue-html": "vue-html"
         }
       }
     ],
