@@ -30,7 +30,7 @@ describe('VirtualTextDocument', () => {
   });
 
   test(`render function is genterated`, () => {
-    expect(doc.getBlockDocument('render')!.getMappedConent()).toHaveLength(16);
+    expect(doc.getBlockDocument('render')!.getMappedConent()).toHaveLength(12);
   });
 
   test(`can find soure position from generated`, () => {

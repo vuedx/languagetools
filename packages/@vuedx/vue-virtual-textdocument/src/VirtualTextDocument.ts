@@ -142,7 +142,6 @@ export class RenderFunctionDocument extends VirtualTextDocument {
   public getGenteratedOffsetAt(offset: number): number | undefined {
     this.parse();
 
-    console.log('Searching in...\n' + this.getMappedConent().join('\n'))
     const range = this.ranges.find(([[start, end]]) => start <= offset && offset <= end);
     if (!range) return;
 
