@@ -15,6 +15,7 @@ import { Options } from './options';
 export * from '@vue/compiler-core';
 export * from './mapper';
 export * from './runtimeHelpers';
+export * from './interfaces';
 
 export function compile(source: string, options: Options): CodegenResult {
   const ast = baseParse(source, options);

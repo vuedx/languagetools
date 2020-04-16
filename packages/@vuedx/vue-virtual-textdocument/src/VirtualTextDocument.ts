@@ -1,9 +1,8 @@
+import { compile, getRenderNodes, RenderNode, RootNode } from '@vuedx/compiler-typescript';
+import Path from 'path';
 import { Position, Range, TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
-import Path from 'path';
 import { BlockSelector, VueTextDocument } from './VueTextDocument';
-import { compile, RootNode } from '@vuedx/compiler-typescript';
-import { getNodesWithRenderMappings, NodeWithJs } from '@vuedx/compiler-typescript';
 
 export class VirtualTextDocument implements TextDocument {
   public constructor(
@@ -84,7 +83,7 @@ export class VirtualTextDocument implements TextDocument {
 }
 
 type OffsetRange = [number, number];
-type MappedOffsetRange = [OffsetRange, OffsetRange];
+type MappedOffsetRange = [OffsetRange, OffsetRange] | [OffsetRange, OffsetRange, true];
 
 export class RenderFunctionDocument extends VirtualTextDocument {
   private ast?: RootNode;
@@ -96,8 +95,15 @@ export class RenderFunctionDocument extends VirtualTextDocument {
     this.refresh();
 
     if (this.ast) {
-      this.ranges = getNodesWithRenderMappings(this.ast).flatMap(this.getMappedRanges);
-      this.ranges.sort((a, b) => b[1][0] - a[1][0]);
+      this.ranges = getRenderNodes(this.ast).flatMap(this.getMappedRanges);
+      // sort such that last, smallest expression is first.
+      this.ranges.sort((a, b) => {
+        if (b[1][0] === a[1][0]) {
+          return a[1][1] - b[1][1]
+        }
+
+        return b[1][0] - a[1][0]
+      });
       this.defaultOffset = this.container.getBlock(this.selector)!.loc.start.offset;
       this.ast = undefined; // unset to prevent unnecessary re-processing.
     }
@@ -121,11 +127,11 @@ export class RenderFunctionDocument extends VirtualTextDocument {
     return this.internal.offsetAt(position);
   }
 
-  public getSourceOffsetAt(offset: number): number {
+  public getSourceOffsetAt(offset: number) {
     this.parse();
 
     const range = this.ranges.find(([, [start, end]]) => start <= offset && offset < end);
-    if (!range) return this.defaultOffset;
+    if (!range) return;
 
     const [original, generated] = range;
     const word = this.getText().substr(generated[0], 5);
@@ -133,13 +139,16 @@ export class RenderFunctionDocument extends VirtualTextDocument {
     return original[0] + (offset - generated[0] - coveredLength);
   }
 
-  public getGenteratedOffsetAt(offset: number): number {
+  public getGenteratedOffsetAt(offset: number): number | undefined {
     this.parse();
 
-    const range = this.ranges.find(([[start, end]]) => start <= offset && offset < end);
-    if (!range) return this.defaultOffset;
+    console.log('Searching in...\n' + this.getMappedConent().join('\n'))
+    const range = this.ranges.find(([[start, end]]) => start <= offset && offset <= end);
+    if (!range) return;
 
-    const [original, generated] = range;
+    const [original, generated, canInterpolate] = range;
+    if (!canInterpolate) return generated[0];
+
     const word = this.getText().substr(generated[0], 5);
     const coveredLength = word === '_ctx.' ? 5 : 0;
 
@@ -152,7 +161,7 @@ export class RenderFunctionDocument extends VirtualTextDocument {
     const template = this.container.getBlockDocument('template')!;
     const source = template.getText();
     const code = this.getText();
-    const c = Math.ceil(template.lineCount / 10);
+    const c = 2;
     function getRange(document: TextDocument, range: OffsetRange) {
       const start = document.positionAt(range[0]);
       const end = document.positionAt(range[1]);
@@ -173,35 +182,45 @@ export class RenderFunctionDocument extends VirtualTextDocument {
     );
   }
 
-  private getMappedRanges(node: NodeWithJs): MappedOffsetRange[] {
+  private getMappedRanges(node: RenderNode): MappedOffsetRange[] {
     const ranges: MappedOffsetRange[] = [];
-    if ('original' in node) {
-      ranges.push([
-        [node.original.start, node.original.end],
-        [node.jsNode.start, node.jsNode.end],
-      ]);
-    } else if ('jsNode' in node && node.loc) {
-      ranges.push([
-        [node.loc.start.offset, node.loc.end.offset],
-        [node.jsNode.start, node.jsNode.end],
-      ]);
-    }
 
-    if ('leftJsNode' in node) {
-      node.leftJsNode.forEach((jsNode, index) => {
-        const expNode = node.leftNode[index]!;
-        ranges.push([
-          [expNode.start, expNode.end],
-          [jsNode.start, jsNode.end],
-        ]);
-      });
-    }
-
-    if ('rightJsNode' in node) {
-      ranges.push([
-        [node.rightNode.start, node.rightNode.end],
-        [node.rightJsNode.start, node.rightJsNode.end],
-      ]);
+    switch (node.type) {
+      case 'v-for':
+        if (node.left.generated && node.left.generated.length === node.left.original.length) {
+          for (let i = node.left.generated.length - 1; i >= 0; --i) {
+            const original = node.left.original[i];
+            const generated = node.left.generated[i];
+            ranges.push([[original.start, original.end], [generated.start, generated.end], true]);
+          }
+        }
+        if (node.right.generated) {
+          const { original, generated } = node.right;
+          ranges.push([[original.start, original.end], [generated.start, generated.end], true]);
+        }
+        break;
+      case 'v-slot':
+      case 'v-on':
+        if (node.generated && node.generated.length === node.original.length) {
+          for (let i = node.generated.length - 1; i >= 0; --i) {
+            const original = node.original[i];
+            const generated = node.generated[i];
+            ranges.push([[original.start, original.end], [generated.start, generated.end], true]);
+          }
+        }
+        break;
+      case 'expression':
+        if (node.generated) {
+          const { original, generated } = node;
+          ranges.push([[original.start, original.end], [generated.start, generated.end], true]);
+        }
+        if (node.expressions) {
+          for (let i = node.expressions.generated.length - 1; i >= 0; --i) {
+            const original = node.expressions.original[i];
+            const generated = node.expressions.generated[i];
+            ranges.push([[original.start, original.end], [generated.start, generated.end], true]);
+          }
+        }
     }
 
     return ranges;

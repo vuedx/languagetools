@@ -9,10 +9,12 @@ export function prepareSyntacticDiagnostics(result: ts.DiagnosticWithLocation[])
   return result;
 }
 
-export function remapSyntacticDiagnostics(result: ts.DiagnosticWithLocation[], document: RenderFunctionDocument) {
-  result.forEach(remapDiagnostic.bind(null, document));
+export function remapSyntacticDiagnostics(result: ts.DiagnosticWithLocation[], document?: RenderFunctionDocument) {
+  if (document) {
+    return result.filter(remapDiagnostic.bind(null, document));
+  }
 
-  return result;
+  return [];
 }
 
 export function prepareSuggestionDiagnostics(result: ts.DiagnosticWithLocation[]) {
@@ -21,10 +23,12 @@ export function prepareSuggestionDiagnostics(result: ts.DiagnosticWithLocation[]
   return result;
 }
 
-export function remapSuggestionDiagnostics(result: ts.DiagnosticWithLocation[], document: RenderFunctionDocument) {
-  result.forEach(remapDiagnostic.bind(null, document));
+export function remapSuggestionDiagnostics(result: ts.DiagnosticWithLocation[], document?: RenderFunctionDocument) {
+  if (document) {
+    return result.filter(remapDiagnostic.bind(null, document));
+  }
 
-  return result;
+  return [];
 }
 
 export function prepareSemanticDiagnostics(result: ts.Diagnostic[]) {
@@ -33,10 +37,12 @@ export function prepareSemanticDiagnostics(result: ts.Diagnostic[]) {
   return result;
 }
 
-export function remapSemanticDiagnosts(result: ts.Diagnostic[], document: RenderFunctionDocument) {
-  result.forEach(remapDiagnostic.bind(null, document));
+export function remapSemanticDiagnosts(result: ts.Diagnostic[], document?: RenderFunctionDocument) {
+  if (document) {
+    return result.filter(remapDiagnostic.bind(null, document));
+  }
 
-  return result;
+  return [];
 }
 
 function prepareDiagnostic(diagnostic: TS.Diagnostic) {
@@ -47,6 +53,18 @@ function prepareDiagnostic(diagnostic: TS.Diagnostic) {
 
 function remapDiagnostic(document: RenderFunctionDocument, diagnostic: TS.Diagnostic) {
   if (diagnostic.start != null) {
-    diagnostic.start = document.getSourceOffsetAt(diagnostic.start);
+    let start = document.getSourceOffsetAt(diagnostic.start);
+    let end = document.getSourceOffsetAt(diagnostic.start + (diagnostic.length || 1) - 1);
+    if (start == null || end == null) {
+      // TODO: Handle it!!
+      return false
+    } else {
+      end += 1
+    }
+
+    diagnostic.start = start
+    diagnostic.length = end - start
   }
+
+  return true;
 }

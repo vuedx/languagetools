@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 
 import { compile } from '../src';
-import { getNodesWithRenderMappings } from '../src/mapper';
+import { getRenderNodes } from '../src/mapper';
 
 describe('compiler', () => {
   const result = compile(
@@ -54,7 +54,7 @@ describe('compiler', () => {
         components: {},
       });
 
-      const nodes = getNodesWithRenderMappings(ast);
+      const nodes = getRenderNodes(ast);
 
       return { code, nodes, ast };
     }

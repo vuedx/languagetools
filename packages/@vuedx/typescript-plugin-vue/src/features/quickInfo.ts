@@ -10,8 +10,15 @@ export function prepareQuickInfo(result: ts.QuickInfo): ts.QuickInfo | undefined
   return result;
 }
 
-export function remapQuickInfo(result: TS.QuickInfo, document: RenderFunctionDocument) {
-  result.textSpan.start = document.getSourceOffsetAt(result.textSpan.start);
+export function remapQuickInfo(result: TS.QuickInfo, document?: RenderFunctionDocument) {
+  if (document) {
+    const offset = document.getSourceOffsetAt(result.textSpan.start);
+    if (offset != null) {
+      result.textSpan.start = offset;
+
+      return result;
+    }
+  }
 }
 
 export function prepareTextSpan(fileName: string, result: ts.TextSpan) {

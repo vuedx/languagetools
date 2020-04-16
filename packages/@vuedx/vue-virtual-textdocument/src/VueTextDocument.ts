@@ -25,7 +25,7 @@ export class VueTextDocument implements TextDocument {
   private _fsPath?: string;
 
   private isDirty = true;
-  private documents: Record<string, VirtualTextDocument | null> = {};
+  private documents: Record<string, VirtualTextDocument> = {};
 
   public constructor(private internal: TextDocument, public readonly mode: LanguageMode = 'javascript') {}
 
@@ -104,14 +104,14 @@ export class VueTextDocument implements TextDocument {
     return Object.values(this.documents).filter(isNotNull);
   }
 
-  getBlockDocument(selector: typeof RENDER_FN): RenderFunctionDocument | null;
-  getBlockDocument(selector: { type: typeof TEMPLATE; render: true }): RenderFunctionDocument | null;
-  getBlockDocument(selector: typeof SCRIPT): VirtualTextDocument | null;
-  getBlockDocument(selector: typeof TEMPLATE): VirtualTextDocument | null;
-  getBlockDocument(selector: string): VirtualTextDocument | null;
-  getBlockDocument(selector: BlockSelector): VirtualTextDocument | null;
+  getBlockDocument(selector: typeof RENDER_FN): RenderFunctionDocument | undefined;
+  getBlockDocument(selector: { type: typeof TEMPLATE; render: true }): RenderFunctionDocument | undefined;
+  getBlockDocument(selector: typeof SCRIPT): VirtualTextDocument | undefined;
+  getBlockDocument(selector: typeof TEMPLATE): VirtualTextDocument | undefined;
+  getBlockDocument(selector: string): VirtualTextDocument | undefined;
+  getBlockDocument(selector: BlockSelector): VirtualTextDocument | undefined;
 
-  public getBlockDocument(rawSelector: BlockSelectorLike) {
+  public getBlockDocument(rawSelector: BlockSelectorLike): VirtualTextDocument | undefined {
     this.parse();
 
     const selector = this.getSelector(rawSelector);
@@ -128,7 +128,7 @@ export class VueTextDocument implements TextDocument {
             ? this.createRenderFunctionDocument(block as SFCTemplateBlock)
             : this.createBlockDocument(block);
 
-        this.documents[id] = document;
+        if (document) this.documents[id] = document;
       } else if (selector.type === 'script') {
         this.documents[id] = this.createScriptDocument();
       }
@@ -272,8 +272,6 @@ export class VueTextDocument implements TextDocument {
     if (block.content) {
       return RenderFunctionDocument.create(this, uri, this.getMode(), this.version, '', selector);
     }
-
-    return null;
   }
 
   private parse() {

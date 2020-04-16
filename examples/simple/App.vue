@@ -28,10 +28,10 @@ export default defineComponent({
 
 <template>
   <div>
-    <p>
+    <p v-if="foo > 5">
       {{ foo + bam }}
       It works.
-      {{ foo + b }} 
+      {{ foo + b  }}
     </p>
     <Bar />
   </div>

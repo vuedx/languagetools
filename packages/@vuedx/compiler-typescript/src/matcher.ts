@@ -1,8 +1,4 @@
-import { Node, ElementNode, DirectiveNode, findDir, SimpleExpressionNode } from '@vue/compiler-core';
-import { isTemplateNode, isSimpleExpressionNode, isInterpolationNode, isTextNode } from '@vuedx/template-ast-types';
-import assert from 'assert';
 import {
-  Node as BabelNode,
   ArrayExpression,
   ArrowFunctionExpression,
   BlockStatement,
@@ -16,10 +12,15 @@ import {
   isMemberExpression,
   isObjectExpression,
   isObjectProperty,
+  Node as BabelNode,
   ObjectExpression,
   ObjectProperty,
   ReturnStatement,
 } from '@babel/types';
+import { DirectiveNode, ElementNode, findDir, Node, SimpleExpressionNode } from '@vue/compiler-core';
+import { isInterpolationNode, isSimpleExpressionNode, isTemplateNode, isTextNode } from '@vuedx/template-ast-types';
+import assert from 'assert';
+import { JsNode, ExpressionRenderNode } from './interfaces';
 
 export function match(html: Node, parent: ElementNode, js: BabelNode) {
   if (isCallExpression(js) && isIdentifier(js.callee) && js.callee.name === '_h') {
@@ -31,15 +32,13 @@ export function match(html: Node, parent: ElementNode, js: BabelNode) {
       if (isCallExpression(items)) {
         const callee = items.callee as Identifier;
         assert(callee.name === '_renderList', `unexpected call expression: ${callee.name}`);
-        // @ts-ignore
-        // html.jsNode = items;
 
         const vFor = findDir(html as ElementNode, 'for') as DirectiveNode;
-        // @ts-ignore
-        vFor.exp.rightJsNode = items.arguments[0];
         const iterator = items.arguments[1] as ArrowFunctionExpression;
-        // @ts-ignore
-        vFor.exp.leftJsNode = iterator.params;
+        if (vFor.renderNode?.type === 'v-for') {
+          vFor.renderNode.right.generated = items.arguments[0] as JsNode;
+          vFor.renderNode.left.generated = iterator.params as JsNode[];
+        }
 
         assert(isBlockStatement(iterator.body));
         const nextJs = ((iterator.body as BlockStatement).body[0] as ReturnStatement).argument as CallExpression;
@@ -54,14 +53,9 @@ export function match(html: Node, parent: ElementNode, js: BabelNode) {
           match(html, parent, nextJs);
         }
       } else if (isArrayExpression(items)) {
-        // @ts-ignore
-        // html.jsNode = js;
         matchChildren(html as ElementNode, items);
       }
     } else {
-      // @ts-ignore
-      // html.jsNode = js;
-
       const [, props, children] = js.arguments;
 
       if (isObjectExpression(props)) {
@@ -78,33 +72,32 @@ export function match(html: Node, parent: ElementNode, js: BabelNode) {
     }
   } else if (isConditionalExpression(js)) {
     const vIf = findDir(html as ElementNode, /^(if|else-if)$/) as DirectiveNode;
-    // @ts-ignore
-    vIf.exp.jsNode = js.test;
-    match(html, parent, js.consequent);
 
+    if (vIf.exp?.renderNode?.type === 'expression') {
+      vIf.exp.renderNode.generated = js.test as JsNode;
+      // TODO: match sub expressions.
+    }
+
+    match(html, parent, js.consequent);
     const index = parent.children.indexOf(html as ElementNode);
     if (index >= 0 && index + 1 < parent.children.length) {
       match(parent.children[index + 1], parent, js.alternate);
     }
   } else if (isSimpleExpressionNode(html)) {
-    // @ts-ignore
-    html.jsNode = js;
-    // @ts-ignore
-    if (html.node && html.jsNode) {
-      // @ts-ignore
-      matchExpression(html, html.node, html.jsNode);
-      // @ts-ignore
-      delete html.node;
+    if (html.renderNode?.type === 'expression') {
+      html.renderNode.generated = js as JsNode;
+
+      matchExpression(html.renderNode, html.renderNode.original as BabelNode, html.renderNode.generated as BabelNode);
     }
   } else if (isInterpolationNode(html)) {
-    // @ts-ignore
-    if (js.arguments?.length) html.content.jsNode = js.arguments[0];
-    // @ts-ignore
-    if (html.content.node && html.content.jsNode) {
-      // @ts-ignore
-      matchExpression(html, html.content.node, html.content.jsNode);
-      // @ts-ignore
-      delete html.content.node;
+    if (html.content.renderNode?.type === 'expression') {
+      html.content.renderNode.generated = (isCallExpression(js) ? js.arguments[0] : js) as JsNode;
+
+      matchExpression(
+        html.content.renderNode,
+        html.content.renderNode.original as BabelNode,
+        html.content.renderNode.generated as BabelNode
+      );
     }
   } else if (isTextNode(html)) {
   } else {
@@ -116,8 +109,7 @@ function matchChildren(parent: ElementNode, children: ArrayExpression | ObjectEx
   if (isArrayExpression(children)) {
     let i = 0;
     for (let j = 0; j < children.elements.length; ++j) {
-      // @ts-ignore
-      while (i < parent.children.length && parent.children[i].jsNode) ++i;
+      while (i < parent.children.length && parent.children[i].renderNode) ++i;
       assert(i < parent.children.length);
       match(parent.children[i]!, parent, children.elements[j]!);
       ++i;
@@ -132,9 +124,8 @@ function matchChildren(parent: ElementNode, children: ArrayExpression | ObjectEx
       const slot = (value as CallExpression).arguments[0] as ArrowFunctionExpression;
       const slotChildren = slot.body as ArrayExpression;
 
-      if (vSlot) {
-        // @ts-ignore
-        vSlot.exp.leftJsNode = slot.params;
+      if (vSlot?.exp?.renderNode?.type === 'v-slot') {
+        vSlot.exp.renderNode.generated = slot.params as JsNode[];
       }
 
       matchChildren(parent, slotChildren);
@@ -149,13 +140,10 @@ function matchChildren(parent: ElementNode, children: ArrayExpression | ObjectEx
           const slot = (value as CallExpression).arguments[0] as ArrowFunctionExpression;
           const slotChildren = slot.body as ArrayExpression;
 
-          if (vSlot?.exp) {
-            // @ts-ignore
-            vSlot.exp.jsNode = slot.params;
-            // @ts-ignore
-            if (!vSlot.arg?.isStatic) {
-              // @ts-ignore
-              vSlot.arg.jsNode = key;
+          if (vSlot?.exp?.renderNode?.type === 'v-slot') {
+            vSlot.exp.renderNode.generated = slot.params as JsNode[];
+            if (vSlot.arg?.renderNode?.type === 'expression') {
+              vSlot.arg.renderNode.generated = key;
             }
           }
 
@@ -166,14 +154,12 @@ function matchChildren(parent: ElementNode, children: ArrayExpression | ObjectEx
   }
 }
 
-type ExpressionNodeWithJs = SimpleExpressionNode & {
-  children?: { original: BabelNode; jsNode: BabelNode }[];
-};
-function matchExpression(expression: ExpressionNodeWithJs, original: BabelNode, generated: BabelNode) {
-  expression.children = expression.children || [];
+function matchExpression(expression: ExpressionRenderNode, original: BabelNode, generated: BabelNode) {
+  expression.expressions = expression.expressions || { generated: [], original: [] };
 
   if (original.type === 'Identifier' && generated.type === 'MemberExpression') {
-    expression.children.push({ original, jsNode: generated });
+    expression.expressions.original.push(original as JsNode);
+    expression.expressions.generated.push(generated as JsNode);
   } else {
     for (const _key in original) {
       const key = _key as keyof BabelNode;

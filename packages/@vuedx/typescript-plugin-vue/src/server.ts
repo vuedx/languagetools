@@ -3,9 +3,8 @@ import {
   getContainingFile,
   isVirtualFile,
   isVueFile,
-  VueTextDocument,
   VIRTUAL_FILENAME_SEPARATOR,
-  RenderFunctionDocument,
+  VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument';
 import { PluginContext } from './context';
 import { prepareCodeFixAction } from './features/action';
@@ -17,10 +16,10 @@ import {
 import { prepareClassifications, prepareClassifiedSpans } from './features/classifications';
 import {
   prepareCompletionsEntryDetail,
-  prepareSymbol,
   prepareCompletionsInfo,
-  remapCompletionsInfo,
+  prepareSymbol,
   remapCompletionsEntryDetail,
+  remapCompletionsInfo,
 } from './features/completion';
 import {
   prepareDefinitionAndBoundSpan,
@@ -34,8 +33,8 @@ import {
   prepareSuggestionDiagnostics,
   prepareSyntacticDiagnostics,
   remapSemanticDiagnosts,
-  remapSyntacticDiagnostics,
   remapSuggestionDiagnostics,
+  remapSyntacticDiagnostics,
 } from './features/diagnostics';
 import { prepareApplicableRefactorInfo, prepareRefactorEditInfo } from './features/edit';
 import { prepareDocumentHighlights } from './features/highlights';
@@ -209,8 +208,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
         const diagnostics = this.service.getSyntacticDiagnostics(fileName);
 
         if (this.fileSystem.isRenderFunction(fileName)) {
-          const document = this.fileSystem.getRenderFunctionDocument(fileName);
-          if (document) remapSyntacticDiagnostics(diagnostics, document);
+          return remapSyntacticDiagnostics(diagnostics, this.fileSystem.getRenderFunctionDocument(fileName));
         }
 
         return diagnostics;
@@ -226,8 +224,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
         const diagnostics = this.service.getSemanticDiagnostics(fileName);
 
         if (this.fileSystem.isRenderFunction(fileName)) {
-          const document = this.fileSystem.getRenderFunctionDocument(fileName);
-          if (document) remapSemanticDiagnosts(diagnostics, document);
+          return remapSemanticDiagnosts(diagnostics, this.fileSystem.getRenderFunctionDocument(fileName));
         }
 
         return diagnostics;
@@ -243,8 +240,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
         const diagnostics = this.service.getSuggestionDiagnostics(fileName);
 
         if (this.fileSystem.isRenderFunction(fileName)) {
-          const document = this.fileSystem.getRenderFunctionDocument(fileName);
-          if (document) remapSuggestionDiagnostics(diagnostics, document);
+          return remapSuggestionDiagnostics(diagnostics, this.fileSystem.getRenderFunctionDocument(fileName));
         }
 
         return diagnostics;
@@ -288,20 +284,16 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     options: ts.GetCompletionsAtPositionOptions | undefined
   ): ts.WithMetadata<ts.CompletionInfo> | undefined {
     return chain(this.fileSystem.getFileNameAt(fileName, position, true))
-      .next((fileName) => {
-        const result = this.service.getCompletionsAtPosition(
-          fileName,
-          this.getPositionInGeneratedSource(fileName, position),
-          options
-        );
-
-        if (result && this.fileSystem.isRenderFunction(fileName)) {
-          const document = this.fileSystem.getRenderFunctionDocument(fileName);
-          if (document) remapCompletionsInfo(result, document);
-        }
-
-        return result;
-      })
+      .next((fileName) =>
+        chain(this.getPositionInGeneratedSource(fileName, position))
+          .next((position) => this.service.getCompletionsAtPosition(fileName, position, options))
+          .next((result) =>
+            this.fileSystem.isRenderFunction(fileName)
+              ? remapCompletionsInfo(result, this.fileSystem.getRenderFunctionDocument(fileName))
+              : result
+          )
+          .end()
+      )
       .next(prepareCompletionsInfo)
       .end();
   }
@@ -315,23 +307,18 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     preferences: ts.UserPreferences | undefined
   ): ts.CompletionEntryDetails | undefined {
     return chain(this.fileSystem.getFileNameAt(fileName, position, true))
-      .next((fileName) => {
-        const result = this.service.getCompletionEntryDetails(
-          fileName,
-          this.getPositionInGeneratedSource(fileName, position),
-          name,
-          formatOptions,
-          source,
-          preferences
-        );
-
-        if (result && this.fileSystem.isRenderFunction(fileName)) {
-          const document = this.fileSystem.getRenderFunctionDocument(fileName);
-          if (document) remapCompletionsEntryDetail(result, document);
-        }
-
-        return result;
-      })
+      .next((fileName) =>
+        chain(this.getPositionInGeneratedSource(fileName, position))
+          .next((position) =>
+            this.service.getCompletionEntryDetails(fileName, position, name, formatOptions, source, preferences)
+          )
+          .next((result) =>
+            this.fileSystem.isRenderFunction(fileName)
+              ? remapCompletionsEntryDetail(result, this.fileSystem.getRenderFunctionDocument(fileName))
+              : result
+          )
+          .end()
+      )
       .next(prepareCompletionsEntryDetail)
       .end();
   }
@@ -344,7 +331,9 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
   ): ts.Symbol | undefined {
     return chain(this.fileSystem.getFileNameAt(fileName, position, true))
       .next((fileName) =>
-        this.getCompletionEntrySymbol(fileName, this.getPositionInGeneratedSource(fileName, position), name, source)
+        chain(this.getPositionInGeneratedSource(fileName, position))
+          .next((position) => this.getCompletionEntrySymbol(fileName, position, name, source))
+          .end()
       )
       .next(prepareSymbol)
       .end();
@@ -352,38 +341,21 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
 
   getQuickInfoAtPosition(fileName: string, position: number): ts.QuickInfo | undefined {
     return chain(this.fileSystem.getFileNameAt(fileName, position, true))
-      .next((fileName) => {
-        if (this.fileSystem.isRenderFunction(fileName)) {
-          const document = this.fileSystem.getRenderFunctionDocument(fileName)!;
-          const template = document.container.getBlockDocument('template')!;
-          this.context.log(
-            `Try getQuickInfoAtPosition(${fileName})
-            \nOriginal:\n${template.getText().substr(position)}
-            \nMatched:\n${document.getText().substr(document.getGenteratedOffsetAt(position))}
-            \nSource:\n${template
-              .getText()
-              .split(/\n/)
-              .map((line, index) => `  ${index + 1}: ${line}`)
-              .join('\n')}
-            \nGenerated:\n${document
-              .getText()
-              .split(/\n/)
-              .map((line, index) => `  ${index + 1}: ${line}`)
-              .join('\n')}
-            \nMappings:\n  ${document.getMappedConent().join('\n  ')}`
-          );
-        }
-        const result = this.service.getQuickInfoAtPosition(
-          fileName,
-          this.getPositionInGeneratedSource(fileName, position)
-        );
-        if (result && this.fileSystem.isRenderFunction(fileName)) {
-          this.context.log(`getQuickInfoAtPosition(${fileName}) = ${JSON.stringify(result)}`);
-          const document = this.fileSystem.getRenderFunctionDocument(fileName);
-          if (document) remapQuickInfo(result, document);
-        }
-        return result;
-      })
+      .next((fileName) =>
+        chain(this.getPositionInGeneratedSource(fileName, position))
+          .next((newPosition) => {
+            this.context.log(`VueLanguageServer.getQuickInfoAtPosition(${position}) = ${newPosition}`)
+
+            return newPosition;
+          })
+          .next((position) => this.service.getQuickInfoAtPosition(fileName, position))
+          .next((result) =>
+            this.fileSystem.isRenderFunction(fileName)
+              ? remapQuickInfo(result, this.fileSystem.getRenderFunctionDocument(fileName))
+              : result
+          )
+          .end()
+      )
       .next(prepareQuickInfo)
       .end();
   }

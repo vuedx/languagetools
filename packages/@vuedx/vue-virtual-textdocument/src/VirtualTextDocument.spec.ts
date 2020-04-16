@@ -38,37 +38,37 @@ describe('VirtualTextDocument', () => {
     const render = doc.getBlockDocument('render')!;
     let offset = render.getText().indexOf('_ctx.foo.bar');
     {
-      const original = render.getSourceOffsetAt(offset);
+      const original = render.getSourceOffsetAt(offset)!;
       expect(source.substr(original, 7)).toBe('foo.bar');
     }
     {
-      const original = render.getSourceOffsetAt(offset + 5);
+      const original = render.getSourceOffsetAt(offset + 5)!;
       expect(source.substr(original, 7)).toBe('foo.bar');
     }
     {
-      const original = render.getSourceOffsetAt(offset + 9);
+      const original = render.getSourceOffsetAt(offset + 9)!;
       expect(source.substr(original, 3)).toBe('bar');
     }
     {
-      const original = render.getSourceOffsetAt(offset + 15);
+      const original = render.getSourceOffsetAt(offset + 15)!;
       expect(source.substr(original, 3)).toBe('bar');
     }
 
     offset = render.getText().indexOf('_ctx.foo.bar', offset + 1);
     {
-      const original = render.getSourceOffsetAt(offset);
+      const original = render.getSourceOffsetAt(offset)!;
       expect(source.substr(original, 7)).toBe('foo.bar');
     }
     {
-      const original = render.getSourceOffsetAt(offset + 5);
+      const original = render.getSourceOffsetAt(offset + 5)!;
       expect(source.substr(original, 7)).toBe('foo.bar');
     }
     {
-      const original = render.getSourceOffsetAt(offset + 9);
+      const original = render.getSourceOffsetAt(offset + 9)!;
       expect(source.substr(original, 3)).toBe('bar');
     }
     {
-      const original = render.getSourceOffsetAt(offset + 15);
+      const original = render.getSourceOffsetAt(offset + 15)!;
       expect(source.substr(original, 3)).toBe('bam');
     }
   });
@@ -79,15 +79,15 @@ describe('VirtualTextDocument', () => {
     const code = render.getText()
     const offset = source.indexOf('foo.bar');
     {
-      const original = render.getGenteratedOffsetAt(offset);
+      const original = render.getGenteratedOffsetAt(offset)!;
       expect(code.substr(original, 7)).toBe('foo.bar');
     }
     {
-      const original = render.getGenteratedOffsetAt(offset + 4);
+      const original = render.getGenteratedOffsetAt(offset + 4)!;
       expect(code.substr(original, 3)).toBe('bar');
     }
     {
-      const original = render.getGenteratedOffsetAt(offset + 10);
+      const original = render.getGenteratedOffsetAt(offset + 10)!;
       expect(code.substr(original, 3)).toBe('bar');
     }
   });
