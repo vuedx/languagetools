@@ -7,7 +7,7 @@ import {
   isInterpolationNode,
   isNode,
 } from '@vuedx/template-ast-types';
-import { RenderNode } from '../dist/compiler-typescript';
+import { RenderNode } from './interfaces';
 
 function findRenderNodes(node?: Node): RenderNode[] {
   const result: RenderNode[] = [];

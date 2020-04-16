@@ -4,7 +4,7 @@ interface AbstractRenderNode {
   type: string;
 }
 
-export interface JsNode extends Node {
+export type JsNode = Node & {
   start: number;
   end: number;
 }

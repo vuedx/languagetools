@@ -23,5 +23,5 @@
   },
   "compileOnSave": true,
   "include": ["packages/**/*.ts", "types/*.d.ts", "extensions/**/*.ts", "packages/@vuedx/extensions-shared/runner.js"],
-  "exclude": ["node_modules", "**/node_modules"]
+  "exclude": ["node_modules", "**/node_modules", "**/dist"]
 }
