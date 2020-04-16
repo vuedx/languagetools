@@ -13,7 +13,7 @@ import { findVueComponentOptions } from '../ast/babel'
 export function parseScriptBlock(
   block: SFCScriptBlock,
   { sourceFilename, onError }: BlockParserOptions
-) {
+): any {
   if (block.src) {
     onError(new Error(`External script block is not supported.`))
     return null
@@ -40,7 +40,7 @@ export function parseScriptBlock(
 export function parseTemplateBlock(
   block: SFCTemplateBlock,
   { sourceFilename, onError }: BlockParserOptions
-) {
+): any {
   if (block.src) {
     onError(new Error(`External template block is not supported.`))
     return null
