@@ -100,7 +100,7 @@ function createConfig(dir, names, external = []) {
           commonjs({
             dynamicRequireTargets: ['@babel/types'],
             namedExports: {
-              '@babel/types': [
+              'packages/@vuedx/compiler-typescript/node_modules/@babel/types/lib/index.js': [
                 'isCallExpression',
                 'isIdentifier',
                 'isBlockStatement',
