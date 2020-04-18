@@ -114,6 +114,7 @@ importers:
   packages/@vuedx/extensions-shared:
     dependencies:
       '@vuedx/vue-virtual-textdocument': 'link:../vue-virtual-textdocument'
+      inversify: 5.0.1
     devDependencies:
       '@types/chai': 4.2.11
       '@types/mocha': 7.0.2
@@ -124,6 +125,7 @@ importers:
       '@types/mocha': ^7.0.2
       '@vuedx/vue-virtual-textdocument': 'workspace:^0.1.0-alpha.2'
       fast-glob: ^3.2.2
+      inversify: ^5.0.1
       mocha: ^7.1.1
   packages/@vuedx/sfc-inspector:
     dependencies:
@@ -2366,7 +2368,6 @@ packages:
     resolution:
       integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
   /inversify/5.0.1:
-    dev: true
     resolution:
       integrity: sha512-Ieh06s48WnEYGcqHepdsJUIJUXpwH5o5vodAX+DK2JA/gjy4EbEcQZxw+uFfzysmKjiLXGYwNG3qDZsKVMcINQ==
   /ip-regex/2.1.0:
