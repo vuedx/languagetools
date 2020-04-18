@@ -117,7 +117,7 @@ function createConfig(dir, names, external = []) {
         ],
         treeshake: {
           annotations: true,
-          moduleSideEffects: false,
+          moduleSideEffects: (id, external) => id.includes('reflect-metadata'),
           unknownGlobalSideEffects: false,
           propertyReadSideEffects: false,
         },
