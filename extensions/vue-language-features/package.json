@@ -10,7 +10,6 @@
   "main": "dist/extension.js",
   "activationEvents": [
     "onLanguage:vue",
-    "onCommand:vue.patchTypeScript",
     "onCommand:vue.openVirtualFile"
   ],
   "scripts": {
@@ -37,10 +36,6 @@
       {
         "command": "vue.openVirtualFile",
         "title": "Vue: Show virtual file"
-      },
-      {
-        "command": "vue.patchTypeScript",
-        "title": "Vue: Patch TypeScript extension"
       }
     ],
     "menus": {
@@ -84,7 +79,47 @@
           "vue"
         ]
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Vue",
+      "properties": {
+        "typescript-plugins.suggest.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enabled/disable autocomplete suggestions.",
+          "scope": "resource"
+        },
+        "typescript-plugins.format.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable default TypeScript/JavaScript formatter.",
+          "scope": "window"
+        },
+        "typescript-plugins.implementationsCodeLens.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable implementations CodeLens. This CodeLens shows the implementers of an interface.",
+          "scope": "window"
+        },
+        "typescript-plugins.suggest.completeJSDocs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable suggestion to complete JSDoc comments.",
+          "scope": "resource"
+        },
+        "typescript-plugins.referencesCodeLens.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable references CodeLens in TypeScript/JavaScript files.",
+          "scope": "window"
+        },
+        "typescript-plugins.autoClosingTags": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable automatic closing of JSX tags. Requires using TypeScript 3.0 or newer in the workspace."
+        }
+      }
+    }
   },
   "bugs": {
     "url": "https://github.com/znck/vue-developer-experience/issues"
