@@ -59,19 +59,6 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vue-language-features",
-        "${workspaceRoot}/examples/simple"
-      ],
-      "sourceMaps": true,
-      "enableSourceMapCaching": true,
-      "outFiles": ["${workspaceRoot}/extensions/vue-language-features/dist/*.js"]
-    },
-    {
-      "name": "Launch Extension",
-      "type": "extensionHost",
-      "request": "launch",
-      "runtimeExecutable": "${execPath}",
-      "args": [
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vue",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vue-language-features",

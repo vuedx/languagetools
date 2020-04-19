@@ -21,6 +21,23 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const ts = vscode.extensions.getExtension('vscode.typescript-language-features');
   if (ts) {
+    revertPatch(ts.extensionPath);
+
     if (!ts.isActive) await ts.activate();
+  }
+}
+
+import Path from 'path';
+import FS from 'fs';
+/**
+ * This is needed to revert old patched extensions.
+ */
+function revertPatch(dirName: string) {
+  const fileName = Path.resolve(dirName, 'dist', 'extension.js');
+  const backupFileName = Path.resolve(dirName, 'dist', 'extension.js.original');
+
+  if (FS.existsSync(backupFileName)) {
+    FS.writeFileSync(fileName, FS.readFileSync(backupFileName));
+    FS.unlinkSync(backupFileName);
   }
 }
