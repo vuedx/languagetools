@@ -1,12 +1,5 @@
 import { Node, RootNode } from '@vue/compiler-core';
-import {
-  isCompoundExpressionNode,
-  isRootNode,
-  isDirectiveNode,
-  isElementNode,
-  isInterpolationNode,
-  isNode,
-} from '@vuedx/template-ast-types';
+import { isDirectiveNode, isElementNode, isInterpolationNode, isNode, isRootNode } from '@vuedx/template-ast-types';
 import { RenderNode } from './interfaces';
 
 function findRenderNodes(node?: Node): RenderNode[] {

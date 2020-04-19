@@ -19,7 +19,7 @@ export default defineComponent({
     })
 
     return {
-      foo: bar,
+      dummy: bar,
       bar: props.bar,
     }
   },
@@ -28,12 +28,12 @@ export default defineComponent({
 
 <template>
   <div>
-    <p v-if="foo > 5">
-      {{ foo + bam }}
+    <p v-if="dummy > 5">
+      {{ dummy + bam }}
       It works.
-      {{ foo + b  }}
+      {{ dummy + bar }}
     </p>
-    <Bar />
+    <Bar :foo="5" />
   </div>
 </template>
 

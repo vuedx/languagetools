@@ -36,10 +36,10 @@ import {
   remapSuggestionDiagnostics,
   remapSyntacticDiagnostics,
 } from './features/diagnostics';
-import { prepareApplicableRefactorInfo, prepareRefactorEditInfo } from './features/edit';
+import { prepareApplicableRefactorInfo, prepareRefactorEditInfo, remapTextSpan } from './features/edit';
 import { prepareDocumentHighlights } from './features/highlights';
 import { prepareQuickInfo, remapQuickInfo } from './features/quickInfo';
-import { prepareRenameInfo, prepareRenameLocation } from './features/rename';
+import { prepareRenameInfo } from './features/rename';
 import { prepareSignatureHelpItems } from './features/signature';
 import { TS } from './interfaces';
 import { removeVirtualSuffixFromFileName } from './utils';
@@ -228,7 +228,11 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
         const diagnostics = this.service.getSemanticDiagnostics(fileName);
 
         if (this.fileSystem.isRenderFunction(fileName)) {
-          this.context.log(`${this.context.projectService.getScriptInfo(fileName)?.getLatestVersion()} => ${fileName}`)
+          this.context.log(
+            `${this.context.projectService.getScriptInfo(fileName)?.getLatestVersion()} has ${
+              diagnostics.length
+            } => ${fileName}`
+          );
           return remapSemanticDiagnosts(diagnostics, this.fileSystem.getRenderFunctionDocument(fileName));
         }
 
@@ -237,7 +241,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     );
 
     if (this.fileSystem.isVueFile(fileName)) {
-      this.context.log(`${this.context.projectService.getScriptInfo(fileName)?.getLatestVersion()} => ${fileName}`)
+      this.context.log(`${this.context.projectService.getScriptInfo(fileName)?.getLatestVersion()} => ${fileName}`);
     }
 
     return prepareSemanticDiagnostics(diagnostics);
@@ -391,6 +395,11 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
   getRenameInfo(fileName: string, position: number, options?: ts.RenameInfoOptions | undefined): ts.RenameInfo {
     return chain(this.fileSystem.getFileNameAt(fileName, position))
       .next((fileName) => this.service.getRenameInfo(fileName, position, options))
+      .next((info) => {
+        this.context.log(`server.getRenameInfo() =>  ${JSON.stringify(info, null, 2)}`);
+
+        return info;
+      })
       .next((info) => prepareRenameInfo(fileName, info))
       .end({ canRename: false, localizedErrorMessage: '' });
   }
@@ -413,7 +422,26 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
             providePrefixAndSuffixTextForRename
           )!
       )
-      .next((locations) => prepareRenameLocation(fileName, locations))
+      .next((locations) => {
+        this.context.log(`server.findRenameLocations() =>  ${JSON.stringify(locations, null, 2)}`);
+
+        return locations;
+      })
+      .next((locations) =>
+        locations.filter((location) => {
+          const fileName = location.fileName;
+          location.fileName = removeVirtualSuffixFromFileName(location.fileName);
+          if (location.originalFileName) {
+            location.originalFileName = removeVirtualSuffixFromFileName(location.originalFileName);
+          }
+
+          if (this.fileSystem.isRenderFunction(fileName)) {
+            return remapTextSpan(location.textSpan, this.fileSystem.getRenderFunctionDocument(fileName)!);
+          }
+
+          return true;
+        })
+      )
       .end();
   }
 

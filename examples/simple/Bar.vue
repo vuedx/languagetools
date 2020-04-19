@@ -1,24 +1,23 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue'
 export const Baz = 5
+
 export default defineComponent({
   props: {
     foo: String,
-    bar: Number,
+    bar: Number
   },
   setup(props) {
     const val = ref<string>('foo x bar')
-    const di = computed(() => props)
-    const di = computed(() => props.bar)
+    const ex = computed(() => props.foo)
 
     return {
-      bar: props.bar in props,
+      isBar: props.bar in props,
     }
-  },
-  components: {},
+  }
 })
 </script>
 
 <template>
-  <div />
+  <div>{{ foo }} {{ bar }} </div>
 </template>

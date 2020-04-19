@@ -4,15 +4,14 @@ import {
   getContainingFile,
   isVirtualFile,
   isVueFile,
-  VueTextDocument,
   parseVirtualFileName,
   VIRTUAL_FILENAME_SEPARATOR,
+  VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument';
-import Path from 'path';
 import { URI } from 'vscode-uri';
 import { TS } from './interfaces';
 import { tryPatchMethod } from './patcher';
-import { getLastNumberFromVersion, isNotNull } from './utils';
+import { getLastNumberFromVersion } from './utils';
 
 class ProxyDocumentStore extends DocumentStore<VueTextDocument> {
   get(fileNameOrUri: string) {
@@ -120,44 +119,47 @@ export class PluginContext {
     return fileNames;
   }
 
-  private tryEnsureProject(scriptInfo: TS.server.ScriptInfo) {
-    try {
-      if (scriptInfo.containingProjects.length) return;
-      // this.projectService.getScriptInfoEnsuringProjectsUptoDate
-    } catch (error) {
-      this.log(`Cannot find project for "${scriptInfo.fileName}". Reason: ${error.message} ${error.stack}`);
+  private watchers = new Map<string, TS.FileWatcherCallback[]>();
+  public watchVirtualFile(fileName: string, callback: TS.FileWatcherCallback) {
+    if (__DEV__) {
+      if (!isVirtualFile(fileName)) throw new Error('Only virtual files can be watched.');
     }
+
+    if (!this.watchers.has(fileName)) {
+      this.watchers.set(fileName, []);
+    }
+
+    this.watchers.get(fileName)?.push(callback);
+  }
+
+  public triggerVirtualFileWatchers(fileName: string, event: TS.FileWatcherEventKind) {
+    this.watchers.get(fileName)?.forEach((callback) => {
+      try {
+        callback(fileName, event);
+      } catch (error) {
+        this.error(error);
+      }
+    });
+  }
+
+  public stopVirtualFileWatcher(fileName: string, callback: TS.FileWatcherCallback) {
+    if (!this.watchers.has(fileName)) return;
+
+    const watchers = this.watchers.get(fileName)!;
+    watchers.splice(watchers.indexOf(callback), 1);
   }
 
   public tryCreateScriptInfo(fileName: string): void {
     try {
       if (isVirtualFile(fileName)) {
-        const containingFileName = getContainingFile(fileName);
-        const document = this.store.get(containingFileName);
-        if (!document) throw new Error('Cannot find containing document');
-
-        const containingScriptInfo = this.projectService.getOrCreateScriptInfoForNormalizedPath(
-          this.typescript.server.toNormalizedPath(containingFileName),
-          false
+        this.store.get(getContainingFile(fileName)); // Trigger VueTextDocument creation.
+        patchScriptInfo(
+          this,
+          this.projectService.getOrCreateScriptInfoForNormalizedPath(
+            this.typescript.server.toNormalizedPath(getContainingFile(fileName)),
+            false
+          )!
         );
-        if (!containingScriptInfo) throw new Error('Cannot find ScriptInfo for containing document');
-        this.tryEnsureProject(containingScriptInfo);
-
-        patchScriptInfo(this, containingScriptInfo);
-        const virtualDoc = document.getBlockDocument(fileName);
-        if (!virtualDoc) throw new Error('Cannot find virtual document');
-        const isOpen = containingScriptInfo.isScriptOpen();
-        const scriptInfo = this.projectService.getOrCreateScriptInfoForNormalizedPath(
-          this.typescript.server.toNormalizedPath(fileName),
-          isOpen,
-          isOpen ? virtualDoc.getText() : undefined,
-          this.getScriptKind(fileName),
-          false,
-          { fileExists: this.languageServiceHost.fileExists! }
-        );
-
-        if (!scriptInfo) throw new Error('Cannot find ScriptInfo for virtual document');
-        this.tryEnsureProject(scriptInfo);
       }
     } catch (error) {
       this.log(`[ERROR] Cannot create ScriptInfo for "${fileName}". Reason: ${error.message} ${error.stack}`);
@@ -180,7 +182,7 @@ function patchProjectService(context: PluginContext) {
 
 function patchExtraFileExtensions(context: PluginContext) {
   const extraFileExtensions: TS.server.HostConfiguration['extraFileExtensions'] = [
-    { extension: 'vue', isMixedContent: true, scriptKind: context.typescript.ScriptKind.Deferred },
+    { extension: 'vue', isMixedContent: false, scriptKind: context.typescript.ScriptKind.Deferred },
   ];
 
   tryPatchMethod(context.projectService, 'setHostConfiguration', (setHostConfiguration) => {
@@ -208,6 +210,7 @@ function patchExtraFileExtensions(context: PluginContext) {
 function patchLanguageServiceHost(context: PluginContext) {
   patchGetScriptFileNames(context);
   patchFileExists(context);
+  patchReadFile(context);
   patchScriptSnapshot(context);
   patchModuleResolution(context);
 }
@@ -252,8 +255,8 @@ function patchGetScriptFileNames(context: PluginContext) {
 }
 
 function patchFileExists(context: PluginContext) {
-  tryPatchMethod(context.languageServiceHost, 'fileExists', (fileExists = context.typescript.sys.fileExists) => {
-    context.log(`[patch] Override fileExists to check containing file for virtual files. (LanguageServerHost)`);
+  tryPatchMethod(context.serviceHost, 'fileExists', (fileExists = context.typescript.sys.fileExists) => {
+    context.log(`[patch] Override fileExists to check containing file for virtual files. (ServiceHost)`);
 
     return (fileName) => {
       if (isVirtualFile(fileName)) {
@@ -274,47 +277,55 @@ function patchFileExists(context: PluginContext) {
   });
 }
 
+function patchReadFile(context: PluginContext) {
+  tryPatchMethod(context.serviceHost, 'readFile', (readFile) => {
+    context.log(`[patch] Override readFile to check containing file for virtual files. (ServiceHost)`);
+
+    return (fileName) => {
+      if (isVirtualFile(fileName)) {
+        context.log(`host.readFile("${fileName}")`);
+        return context.store.get(getContainingFile(fileName))?.getBlockDocument(fileName)?.getText();
+      }
+
+      return readFile ? readFile(fileName) : context.typescript.sys.readFile(fileName);
+    };
+  });
+}
+
 function patchScriptSnapshot(context: PluginContext) {
-  tryPatchMethod(context.languageServiceHost, 'getScriptSnapshot', (getScriptSnapshot) => {
-    context.log(
-      `[patch] Override getScriptSnapshot to create a snapshot of the virtual file content. (LanguageServerHost)`
-    );
-
-    return (fileName) => {
-      if (isVirtualFile(fileName)) {
-        const containingFileName = getContainingFile(fileName);
-        const document = context.store.get(containingFileName);
-        if (!document) return;
-
-        const virtualDoc = document.getBlockDocument(fileName);
-        if (!virtualDoc) return;
-
-        return context.typescript.ScriptSnapshot.fromString(virtualDoc.getText());
-      }
-
-      return getScriptSnapshot(fileName);
-    };
-  });
-  tryPatchMethod(context.languageServiceHost, 'getScriptVersion', (getScriptVersion) => {
-    context.log(
-      `[patch] Override getScriptVersion to fetch version of the containing file for virtual files. (LanguageServerHost)`
-    );
-
-    return (fileName) => {
-      if (isVirtualFile(fileName)) {
-        const scriptInfo = context.projectService.getScriptInfo(getContainingFile(fileName));
-        const document = context.store.get(getContainingFile(fileName))?.getBlockDocument(fileName);
-
-        if (scriptInfo?.isScriptOpen()) {
-          return `Vue-${scriptInfo.getLatestVersion()}`;
-        }
-
-        return document ? 'Vue-' + document.version : '0';
-      }
-
-      return getScriptVersion(fileName);
-    };
-  });
+  // tryPatchMethod(context.languageServiceHost, 'getScriptSnapshot', (getScriptSnapshot) => {
+  //   context.log(
+  //     `[patch] Override getScriptSnapshot to create a snapshot of the virtual file content. (LanguageServerHost)`
+  //   );
+  //   return (fileName) => {
+  //     if (isVirtualFile(fileName)) {
+  //       const containingFileName = getContainingFile(fileName);
+  //       const document = context.store.get(containingFileName);
+  //       if (!document) return;
+  //       const virtualDoc = document.getBlockDocument(fileName);
+  //       if (!virtualDoc) return;
+  //       context.log(`host.getScriptSnapshot("${fileName}") = ${virtualDoc.version}`);
+  //       return context.typescript.ScriptSnapshot.fromString(virtualDoc.getText());
+  //     }
+  //     return getScriptSnapshot(fileName);
+  //   };
+  // });
+  // tryPatchMethod(context.languageServiceHost, 'getScriptVersion', (getScriptVersion) => {
+  //   context.log(
+  //     `[patch] Override getScriptVersion to fetch version of the containing file for virtual files. (LanguageServerHost)`
+  //   );
+  //   return (fileName) => {
+  //     if (isVirtualFile(fileName)) {
+  //       const scriptInfo = context.projectService.getScriptInfo(getContainingFile(fileName));
+  //       const document = context.store.get(getContainingFile(fileName))?.getBlockDocument(fileName);
+  //       if (scriptInfo?.isScriptOpen()) {
+  //         return `Vue-${scriptInfo.getLatestVersion()}`;
+  //       }
+  //       return document ? 'Vue-' + document.version : '0';
+  //     }
+  //     return getScriptVersion(fileName);
+  //   };
+  // });
 }
 
 function patchModuleResolution(context: PluginContext) {
@@ -363,7 +374,10 @@ function patchWatchFile(context: PluginContext) {
     context.log(`[patch] Override watchFile to watch virtual files. (ServiceHost)`);
 
     return (fileName, callback, pollingInterval, options) => {
-      if (isVirtualFile(fileName)) {
+      const shouldPatchWatcher = isVirtualFile(fileName);
+      if (shouldPatchWatcher) {
+        context.watchVirtualFile(fileName, callback);
+
         const originalFileName = fileName;
         const originalCallback = callback;
 
@@ -371,12 +385,25 @@ function patchWatchFile(context: PluginContext) {
         callback = (_, eventKind) => originalCallback(originalFileName, eventKind);
       }
 
-      return watchFile(fileName, callback, pollingInterval, options);
+      const watcher = watchFile(fileName, callback, pollingInterval, options);
+
+      if (shouldPatchWatcher) {
+        return {
+          close() {
+            watcher.close();
+            context.stopVirtualFileWatcher(fileName, callback);
+          },
+        };
+      }
+
+      return watcher;
     };
   });
 }
 
 function patchScriptInfo(context: PluginContext, scriptInfo: TS.server.ScriptInfo) {
+  if (!scriptInfo) throw new Error('ScriptInfo is required.');
+
   tryPatchMethod(scriptInfo, 'editContent', (editContent) => {
     context.log(`[patch] Override editContent() of "${scriptInfo.fileName}" to sync virtual files. (ScriptInfo)`);
 
@@ -385,58 +412,21 @@ function patchScriptInfo(context: PluginContext, scriptInfo: TS.server.ScriptInf
       if (!document) throw new Error('VueTextDocument should exist for every ScriptInfo.');
 
       const range = { start: document.positionAt(start), end: document.positionAt(end) };
-
       editContent(start, end, newText);
-
+      const preVirtuals = context.getSupportedVirtualDocumentFileNames(document);
       VueTextDocument.update(
         document,
         [{ range, text: newText }],
         getLastNumberFromVersion(scriptInfo.getLatestVersion())
       );
+      const curVirtuals = context.getSupportedVirtualDocumentFileNames(document);
 
-      context.getSupportedVirtualDocumentFileNames(document).forEach((fileName) => {
-        context.projectService.getScriptInfo(fileName)?.markContainingProjectsAsDirty();
+      curVirtuals.forEach((fileName) => {
+        context.triggerVirtualFileWatchers(fileName, context.typescript.FileWatcherEventKind.Changed);
       });
-    };
-  });
-
-  tryPatchMethod(scriptInfo, 'open', (open) => {
-    context.log(
-      `[patch] Override open() of "${scriptInfo.fileName}" to mark project dirty to reload virtual files. (ScriptInfo)`
-    );
-
-    return (newText) => {
-      open(newText);
-
-      if (newText) {
-        const document = context.store.get(scriptInfo.fileName);
-        if (document) {
-          VueTextDocument.update(document, [{ text: newText }], document.version + 1);
-          context.getSupportedVirtualDocumentFileNames(document).forEach((fileName) => {
-            context.projectService.getScriptInfo(fileName)?.markContainingProjectsAsDirty();
-          });
-        }
-      }
-    };
-  });
-
-  tryPatchMethod(scriptInfo, 'close', (close) => {
-    context.log(
-      `[patch] Override close() of "${scriptInfo.fileName}" to mark project dirty to reload virtual files. (ScriptInfo)`
-    );
-
-    return (fileExits) => {
-      close(fileExits);
-
-      if (fileExits) {
-        const document = context.store.get(scriptInfo.fileName);
-        if (document) {
-          context.store.delete(document.fsPath);
-          context.getSupportedVirtualDocumentFileNames(document).forEach((fileName) => {
-            context.projectService.getScriptInfo(fileName)?.markContainingProjectsAsDirty();
-          });
-        }
-      }
+      preVirtuals.filter(fileName => !curVirtuals.includes(fileName)).forEach(fileName => {
+        context.triggerVirtualFileWatchers(fileName, context.typescript.FileWatcherEventKind.Deleted);
+      })
     };
   });
 }

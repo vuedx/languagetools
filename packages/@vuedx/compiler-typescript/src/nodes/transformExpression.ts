@@ -13,6 +13,7 @@ export const transformExpression: NodeTransform = (node, context) => {
         if (prop.arg) {
           processExpression((prop.arg as unknown) as SimpleExpressionNode, context, true);
         }
+        
         if (prop.exp) {
           if (prop.name === 'for') {
             processForExpression((prop.exp as unknown) as SimpleExpressionNode, context);

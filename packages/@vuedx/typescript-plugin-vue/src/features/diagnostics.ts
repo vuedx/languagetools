@@ -54,16 +54,15 @@ function prepareDiagnostic(diagnostic: TS.Diagnostic) {
 function remapDiagnostic(document: RenderFunctionDocument, diagnostic: TS.Diagnostic) {
   if (diagnostic.start != null) {
     let start = document.getSourceOffsetAt(diagnostic.start);
-    let end = document.getSourceOffsetAt(diagnostic.start + (diagnostic.length || 1) - 1);
+    let end = diagnostic.length ? document.getSourceOffsetAt(diagnostic.start + diagnostic.length - 1) : start;
     if (start == null || end == null) {
-      // TODO: Handle it!!
-      return false
-    } else {
-      end += 1
+      return true;
+    } else if (diagnostic.length) {
+      end += 1;
     }
 
-    diagnostic.start = start
-    diagnostic.length = end - start
+    diagnostic.start = start;
+    diagnostic.length = end - start;
   }
 
   return true;

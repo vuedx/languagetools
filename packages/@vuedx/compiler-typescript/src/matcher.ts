@@ -18,7 +18,14 @@ import {
   ReturnStatement,
 } from '@babel/types';
 import { DirectiveNode, ElementNode, findDir, Node, SimpleExpressionNode } from '@vue/compiler-core';
-import { isInterpolationNode, isSimpleExpressionNode, isTemplateNode, isTextNode } from '@vuedx/template-ast-types';
+import {
+  isInterpolationNode,
+  isSimpleExpressionNode,
+  isTemplateNode,
+  isTextNode,
+  isAttributeNode,
+  isDirectiveNode,
+} from '@vuedx/template-ast-types';
 import assert from 'assert';
 import { JsNode, ExpressionRenderNode } from './interfaces';
 
@@ -60,8 +67,46 @@ export function match(html: Node, parent: ElementNode, js: BabelNode) {
 
       if (isObjectExpression(props)) {
         props.properties.forEach((property) => {
-          if (isMemberExpression(property)) {
-            // TODO: Match props.
+          if (isObjectProperty(property)) {
+            const { key, computed } = property;
+            if (computed) return; // already mapped to expression.
+            if (!isIdentifier(key)) return; // unknown pattern
+            const name = key.name;
+            for (const prop of (html as ElementNode).props) {
+              if (isAttributeNode(prop)) {
+                if (prop.name === name) {
+                  prop.renderNode = {
+                    type: 'expression',
+                    original: {
+                      ...key,
+                      loc: prop.loc,
+                      start: prop.loc.start.offset,
+                      end: prop.loc.end.offset,
+                    },
+                    generated: key as JsNode,
+                  };
+
+                  break;
+                }
+              } else {
+                if (isSimpleExpressionNode(prop.arg)) {
+                  if (prop.arg.isStatic && prop.arg.content === name) {
+                    prop.renderNode = {
+                      type: 'expression',
+                      original: {
+                        ...key,
+                        loc: prop.arg.loc,
+                        start: prop.arg.loc.start.offset,
+                        end: prop.arg.loc.end.offset,
+                      },
+                      generated: key as JsNode,
+                    };
+  
+                    break;
+                  }
+                }
+              }
+            }
           }
         });
       }

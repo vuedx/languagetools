@@ -3,6 +3,7 @@ import Path from 'path';
 import { Position, Range, TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import { BlockSelector, VueTextDocument } from './VueTextDocument';
+import { isVueFile, VIRTUAL_FILENAME_SEPARATOR } from './helpers';
 
 export class VirtualTextDocument implements TextDocument {
   public constructor(
