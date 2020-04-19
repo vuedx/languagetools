@@ -115,6 +115,7 @@ importers:
     dependencies:
       '@vuedx/vue-virtual-textdocument': 'link:../vue-virtual-textdocument'
       inversify: 5.0.1
+      reflect-metadata: 0.1.13
     devDependencies:
       '@types/chai': 4.2.11
       '@types/mocha': 7.0.2
@@ -127,6 +128,7 @@ importers:
       fast-glob: ^3.2.2
       inversify: ^5.0.1
       mocha: ^7.1.1
+      reflect-metadata: ^0.1.13
   packages/@vuedx/sfc-inspector:
     dependencies:
       '@babel/code-frame': 7.8.3
@@ -3938,7 +3940,6 @@ packages:
     resolution:
       integrity: sha512-v1SEYUOXXdbBZK8ZuNgO4TBjamPsiSgcFr0aP+tEKpQZK8vooEUqV6nm6Cv502mX4NF2EfsnVqtNAHG+/6Ur1Q==
   /reflect-metadata/0.1.13:
-    dev: true
     resolution:
       integrity: sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==
   /regenerator-runtime/0.13.5:
