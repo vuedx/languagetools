@@ -10,7 +10,6 @@
   "main": "dist/extension.js",
   "activationEvents": [
     "onLanguage:vue",
-    "onCommand:vue.patchTypeScript",
     "onCommand:vue.openVirtualFile"
   ],
   "scripts": {
@@ -37,10 +36,6 @@
       {
         "command": "vue.openVirtualFile",
         "title": "Vue: Show virtual file"
-      },
-      {
-        "command": "vue.patchTypeScript",
-        "title": "Vue: Patch TypeScript extension"
       }
     ],
     "menus": {
