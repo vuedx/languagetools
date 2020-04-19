@@ -100,7 +100,7 @@ function createConfig(dir, names, external = []) {
           commonjs({
             dynamicRequireTargets: ['@babel/types'],
             namedExports: {
-              '@babel/types': [
+              'packages/@vuedx/compiler-typescript/node_modules/@babel/types/lib/index.js': [
                 'isCallExpression',
                 'isIdentifier',
                 'isBlockStatement',
@@ -117,7 +117,7 @@ function createConfig(dir, names, external = []) {
         ],
         treeshake: {
           annotations: true,
-          moduleSideEffects: false,
+          moduleSideEffects: (id, external) => id.includes('reflect-metadata'),
           unknownGlobalSideEffects: false,
           propertyReadSideEffects: false,
         },
