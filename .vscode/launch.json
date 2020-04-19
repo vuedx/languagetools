@@ -37,7 +37,12 @@
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "disableOptimisticBPs": true
+      "autoAttachChildProcesses": true,
+      "sourceMaps": true,
+      "disableOptimisticBPs": false,
+      "outFiles": [
+        "${workspaceFolder}/packages/@vuedx/typescript-plugin-vue/dist/*.js"
+      ],
     },
     {
       "name": "Extension: Vue",

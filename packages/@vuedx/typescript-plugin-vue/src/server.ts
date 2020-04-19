@@ -148,8 +148,6 @@ export class VirtualFileSystemHelper {
         virtualFileName = document.getBlockDocumentFileName('render')!;
       }
 
-      this.logger.log(`VueLanguageServer.getFileNameAt("${fileName}") = ${virtualFileName}`);
-
       return virtualFileName;
     }
 
@@ -169,8 +167,6 @@ export class VirtualFileSystemHelper {
       if (isRenderFunctionAllowed && document.descriptor.template?.content) {
         fileNames.push(document.getBlockDocumentFileName('render')!);
       }
-
-      this.logger.log(`VueLanguageServer.getInnerFileNames("${fileName}") = ${fileNames}`);
 
       return fileNames;
     }
@@ -196,8 +192,16 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return position;
   }
 
+  prevProgram?: TS.Program;
   getProgram() {
     const program = this.service.getProgram();
+
+    if (!program) {
+      this.context.log('Unxpected undefined program.');
+      return this.prevProgram;
+    }
+
+    this.prevProgram = program;
 
     return program;
   }
@@ -224,12 +228,17 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
         const diagnostics = this.service.getSemanticDiagnostics(fileName);
 
         if (this.fileSystem.isRenderFunction(fileName)) {
+          this.context.log(`${this.context.projectService.getScriptInfo(fileName)?.getLatestVersion()} => ${fileName}`)
           return remapSemanticDiagnosts(diagnostics, this.fileSystem.getRenderFunctionDocument(fileName));
         }
 
         return diagnostics;
       })
     );
+
+    if (this.fileSystem.isVueFile(fileName)) {
+      this.context.log(`${this.context.projectService.getScriptInfo(fileName)?.getLatestVersion()} => ${fileName}`)
+    }
 
     return prepareSemanticDiagnostics(diagnostics);
   }
@@ -343,11 +352,6 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return chain(this.fileSystem.getFileNameAt(fileName, position, true))
       .next((fileName) =>
         chain(this.getPositionInGeneratedSource(fileName, position))
-          .next((newPosition) => {
-            this.context.log(`VueLanguageServer.getQuickInfoAtPosition(${position}) = ${newPosition}`)
-
-            return newPosition;
-          })
           .next((position) => this.service.getQuickInfoAtPosition(fileName, position))
           .next((result) =>
             this.fileSystem.isRenderFunction(fileName)
@@ -747,9 +751,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
         proxy[key] =
           languageService[key as keyof TS.LanguageService] && key in this
             ? (...args: any[]) => {
-                this.context.log(`start server.${key}(${typeof args[0] === 'string' ? args[0] : ''})`);
                 const result = (this[key] as Function).apply(this, args);
-                this.context.log(`end server.${key}(${typeof args[0] === 'string' ? args[0] : ''})`);
 
                 return result;
               }
