@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/template-ast-types",
-  "version": "0.1.0-alpha.11",
+  "version": "0.1.0-alpha.12",
   "description": "Helper functions for Vue template AST",
   "main": "dist/template-ast-types.js",
   "module": "dist/template-ast-types.esm.js",
