@@ -3,6 +3,7 @@
   "version": "0.1.0-alpha.8",
   "description": "TypeScript plugin for Vue",
   "main": "dist/typescript-plugin-vue.js",
+  "types": "dist/typescript-plugin-vue.d.ts",
   "private": false,
   "scripts": {},
   "keywords": [],

@@ -34,9 +34,10 @@ class ProxyDocumentStore extends DocumentStore<VueTextDocument> {
 export class PluginContext {
   public readonly store: DocumentStore<VueTextDocument>;
 
-  public constructor(public readonly typescript: typeof TS, private info: TS.server.PluginCreateInfo) {
-    this.log(`Created new plugin context.`);
+  private _projectService!: TS.server.ProjectService;
+  private _serverHost!: TS.server.ServerHost;
 
+  public constructor(public readonly typescript: typeof TS) {
     this.store = new ProxyDocumentStore(
       (uri) => {
         const fileName = URI.parse(uri).fsPath;
@@ -53,26 +54,23 @@ export class PluginContext {
   }
 
   public get serviceHost() {
-    return this.info.serverHost;
-  }
-
-  public get languageServiceHost() {
-    return this.info.languageServiceHost;
+    return this._serverHost;
   }
 
   public get projectService() {
-    return this.info.project.projectService;
+    return this._projectService;
   }
 
   public log(message: string): void {
-    this.projectService.logger.info(`Vue.js:: ${message}`);
-  }
-  public error(message: Error): void {
-    this.projectService.logger.msg(`Vue.js:: ${message} ${message.stack}`, this.typescript.server.Msg.Err);
+    if (this.projectService) {
+      this.projectService.logger.info(`Vue.js:: ${message}`);
+    }
   }
 
-  public getCurrentDirectory() {
-    return this.info.project.getCurrentDirectory();
+  public error(message: Error): void {
+    if (this.projectService) {
+      this.projectService.logger.msg(`Vue.js:: ${message} ${message.stack}`, this.typescript.server.Msg.Err);
+    }
   }
 
   public getScriptKind(fileName: string): TS.ScriptKind {
@@ -166,13 +164,15 @@ export class PluginContext {
     }
   }
 
-  reload(info: TS.server.PluginCreateInfo): void {
-    this.info = info;
+  load(info: TS.server.PluginCreateInfo): void {
     this.log(`Loading Vue plugin: ${info.project.getProjectName()}`);
+
+    this._serverHost = info.serverHost;
+    this._projectService = info.project.projectService;
 
     patchProjectService(this);
     patchServiceHost(this);
-    patchLanguageServiceHost(this);
+    patchLanguageServiceHost(this, info.languageServiceHost);
   }
 }
 
@@ -188,8 +188,14 @@ function patchExtraFileExtensions(context: PluginContext) {
   tryPatchMethod(context.projectService, 'setHostConfiguration', (setHostConfiguration) => {
     context.log(`[patch] Add support for vue extension. (ProjectService)`);
     return (args) => {
+      context.log(`[------------->] setting extraFileExtensions`);
+      const current = ((context.projectService as any).hostConfiguration as TS.server.HostConfiguration)
+        .extraFileExtensions;
+
       if (args.extraFileExtensions) {
         args.extraFileExtensions.push(...extraFileExtensions);
+      } else if (!current || !current.some((ext) => ext.extension === 'vue')) {
+        args.extraFileExtensions = [...extraFileExtensions];
       }
 
       return setHostConfiguration(args);
@@ -207,16 +213,14 @@ function patchExtraFileExtensions(context: PluginContext) {
   context.projectService.setHostConfiguration({ extraFileExtensions: [] });
 }
 
-function patchLanguageServiceHost(context: PluginContext) {
-  patchGetScriptFileNames(context);
-  patchFileExists(context);
-  patchReadFile(context);
-  patchScriptSnapshot(context);
-  patchModuleResolution(context);
+function patchLanguageServiceHost(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {
+  patchGetScriptFileNames(context, languageServiceHost);
+  patchScriptSnapshot(context, languageServiceHost);
+  patchModuleResolution(context, languageServiceHost);
 }
 
-function patchGetScriptFileNames(context: PluginContext) {
-  tryPatchMethod(context.languageServiceHost, 'getScriptFileNames', (getScriptFileNames) => {
+function patchGetScriptFileNames(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {
+  tryPatchMethod(languageServiceHost, 'getScriptFileNames', (getScriptFileNames) => {
     context.log(`[patch] Override getScriptFileNames to expand .vue files to virtual files. (LanguageServerHost)`);
     const previousVueFiles = new Set<string>();
 
@@ -292,7 +296,7 @@ function patchReadFile(context: PluginContext) {
   });
 }
 
-function patchScriptSnapshot(context: PluginContext) {
+function patchScriptSnapshot(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {
   // tryPatchMethod(context.languageServiceHost, 'getScriptSnapshot', (getScriptSnapshot) => {
   //   context.log(
   //     `[patch] Override getScriptSnapshot to create a snapshot of the virtual file content. (LanguageServerHost)`
@@ -328,8 +332,8 @@ function patchScriptSnapshot(context: PluginContext) {
   // });
 }
 
-function patchModuleResolution(context: PluginContext) {
-  tryPatchMethod(context.languageServiceHost, 'resolveModuleNames', (resolveModuleNames) => {
+function patchModuleResolution(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {
+  tryPatchMethod(languageServiceHost, 'resolveModuleNames', (resolveModuleNames) => {
     context.log(`[patch] Override resolveModuleNames to resolve imports from .vue files. (LanguageServerHost)`);
 
     return (moduleNames, containingFile, reusedNames, redirectedReferences, options) => {
@@ -367,6 +371,8 @@ function patchModuleResolution(context: PluginContext) {
 
 function patchServiceHost(context: PluginContext) {
   patchWatchFile(context);
+  patchFileExists(context);
+  patchReadFile(context);
 }
 
 function patchWatchFile(context: PluginContext) {
@@ -424,9 +430,11 @@ function patchScriptInfo(context: PluginContext, scriptInfo: TS.server.ScriptInf
       curVirtuals.forEach((fileName) => {
         context.triggerVirtualFileWatchers(fileName, context.typescript.FileWatcherEventKind.Changed);
       });
-      preVirtuals.filter(fileName => !curVirtuals.includes(fileName)).forEach(fileName => {
-        context.triggerVirtualFileWatchers(fileName, context.typescript.FileWatcherEventKind.Deleted);
-      })
+      preVirtuals
+        .filter((fileName) => !curVirtuals.includes(fileName))
+        .forEach((fileName) => {
+          context.triggerVirtualFileWatchers(fileName, context.typescript.FileWatcherEventKind.Deleted);
+        });
     };
   });
 }

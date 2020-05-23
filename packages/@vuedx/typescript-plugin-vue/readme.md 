@@ -1,3 +1,7 @@
 # TypeScript plugin for Vue
 
 Purpose of this plugin is to provide TypeScript like features in `.vue` files and support `.vue` as module.
+
+## Known Issues
+
+- Virtual files are not removed from inferred project when they are assigned to configured project.

@@ -81,6 +81,7 @@ function createConfig(dir, names, external = []) {
           'os',
         ]
           .concat(Object.keys(pkg.dependencies || {}))
+          .concat(pkg.build && pkg.build.external ? pkg.build.external : [])
           .concat(external),
         context: 'null',
         plugins: [

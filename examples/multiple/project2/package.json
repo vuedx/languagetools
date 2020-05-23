@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "dependencies": {
+    "typescript": "^3.8.3",
+    "vue": "^3.0.0-alpha.8"
+  },
+  "version": "0.1.0-alpha.0"
+}
