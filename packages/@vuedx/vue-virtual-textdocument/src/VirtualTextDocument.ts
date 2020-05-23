@@ -1,9 +1,9 @@
-import { compile, getRenderNodes, RenderNode, RootNode } from '@vuedx/compiler-typescript';
+import { compile, RenderNode } from '@vuedx/compiler-typescript';
 import Path from 'path';
-import { Position, Range, TextDocument } from 'vscode-languageserver-textdocument';
+import { SourceMapConsumer, Position as SourceMapPosition } from 'source-map';
+import { Position as TextDocumentPosition, Range, TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import { BlockSelector, VueTextDocument } from './VueTextDocument';
-import { isVueFile, VIRTUAL_FILENAME_SEPARATOR } from './helpers';
 
 export class VirtualTextDocument implements TextDocument {
   public constructor(
@@ -50,7 +50,7 @@ export class VirtualTextDocument implements TextDocument {
     return this.internal.positionAt(offset);
   }
 
-  public offsetAt(position: Position) {
+  public offsetAt(position: TextDocumentPosition) {
     this.refresh();
 
     return this.internal.offsetAt(position);
@@ -87,28 +87,9 @@ type OffsetRange = [number, number];
 type MappedOffsetRange = [OffsetRange, OffsetRange] | [OffsetRange, OffsetRange, true];
 
 export class RenderFunctionDocument extends VirtualTextDocument {
-  private ast?: RootNode;
-  private ranges: MappedOffsetRange[] = [];
+  private consumer?: SourceMapConsumer;
   private globalComponents: Record<string, string> = {};
-  private defaultOffset = Number.NaN;
-
-  private parse() {
-    this.refresh();
-
-    if (this.ast) {
-      this.ranges = getRenderNodes(this.ast).flatMap(this.getMappedRanges);
-      // sort such that last, smallest expression is first.
-      this.ranges.sort((a, b) => {
-        if (b[1][0] === a[1][0]) {
-          return a[1][1] - b[1][1];
-        }
-
-        return b[1][0] - a[1][0];
-      });
-      this.defaultOffset = this.container.getBlock(this.selector)!.loc.start.offset;
-      this.ast = undefined; // unset to prevent unnecessary re-processing.
-    }
-  }
+  private defaultOffset = 0;
 
   public getText(range?: Range) {
     this.refresh();
@@ -122,108 +103,51 @@ export class RenderFunctionDocument extends VirtualTextDocument {
     return this.internal.positionAt(offset);
   }
 
-  public offsetAt(position: Position) {
+  public offsetAt(position: TextDocumentPosition) {
     this.refresh();
 
     return this.internal.offsetAt(position);
   }
 
-  public getSourceOffsetAt(offset: number) {
-    this.parse();
+  public getSourceOffsetAt(offset: number): number {
+    this.refresh();
 
-    const range = this.ranges.find(([, [start, end]]) => start <= offset && offset < end);
-    if (!range) return;
+    if (this.consumer) {
+      const position = this.internal.positionAt(offset);
 
-    const [original, generated] = range;
-    const word = this.getText().substr(generated[0], 5);
-    const coveredLength = word === '_ctx.' ? Math.min(offset - generated[0], 5) : 0;
-    return original[0] + (offset - generated[0] - coveredLength);
-  }
-
-  public getGenteratedOffsetAt(offset: number): number | undefined {
-    this.parse();
-
-    const range = this.ranges.find(([[start, end]]) => start <= offset && offset <= end);
-    if (!range) return;
-
-    const [original, generated, canInterpolate] = range;
-    if (!canInterpolate) return generated[0];
-
-    const word = this.getText().substr(generated[0], 5);
-    const coveredLength = word === '_ctx.' ? 5 : 0;
-
-    return generated[0] + (offset - original[0] + coveredLength);
-  }
-
-  public getMappedConent() {
-    this.parse();
-
-    const template = this.container.getBlockDocument('template')!;
-    const source = template.getText();
-    const code = this.getText();
-    const c = 2;
-    function getRange(document: TextDocument, range: OffsetRange) {
-      const start = document.positionAt(range[0]);
-      const end = document.positionAt(range[1]);
-
-      return [
-        `${String(start.line + 1).padStart(c, ' ')}:${String(start.character + 1).padEnd(c, ' ')}`,
-        'to',
-        `${String(end.line + 1).padStart(c, ' ')}:${String(end.character + 1).padEnd(c, ' ')}`,
-      ].join(' ');
+      return this.container
+        .getBlockDocument('template')!
+        .offsetAt(this.sm_2_td(this.consumer.originalPositionFor(this.td_2_sm(position))));
     }
 
-    return this.ranges.map(([original, generated]) =>
-      [
-        `(${getRange(template, original)})..(${getRange(this, generated)}) ` +
-          source.substring(original[0], original[1]),
-        code.substring(generated[0], generated[1]),
-      ].join(' -> ')
-    );
+    return this.defaultOffset;
   }
 
-  private getMappedRanges(node: RenderNode): MappedOffsetRange[] {
-    const ranges: MappedOffsetRange[] = [];
+  public getGeneratedOffsetAt(offset: number): number {
+    this.refresh();
 
-    switch (node.type) {
-      case 'v-for':
-        if (node.left.generated && node.left.generated.length === node.left.original.length) {
-          for (let i = node.left.generated.length - 1; i >= 0; --i) {
-            const original = node.left.original[i];
-            const generated = node.left.generated[i];
-            ranges.push([[original.start, original.end], [generated.start, generated.end], true]);
-          }
-        }
-        if (node.right.generated) {
-          const { original, generated } = node.right;
-          ranges.push([[original.start, original.end], [generated.start, generated.end], true]);
-        }
-        break;
-      case 'v-slot':
-      case 'v-on':
-        if (node.generated && node.generated.length === node.original.length) {
-          for (let i = node.generated.length - 1; i >= 0; --i) {
-            const original = node.original[i];
-            const generated = node.generated[i];
-            ranges.push([[original.start, original.end], [generated.start, generated.end], true]);
-          }
-        }
-        break;
-      case 'expression':
-        if (node.generated) {
-          const { original, generated } = node;
-          ranges.push([[original.start, original.end], [generated.start, generated.end], true]);
-        }
-        if (node.expressions) {
-          for (let i = node.expressions.generated.length - 1; i >= 0; --i) {
-            const original = node.expressions.original[i];
-            const generated = node.expressions.generated[i];
-            ranges.push([[original.start, original.end], [generated.start, generated.end], true]);
-          }
-        }
+    if (this.consumer) {
+      const position = this.container.getBlockDocument('template')!.positionAt(offset);
+
+      return this.internal.offsetAt(
+        this.sm_2_td(
+          this.consumer.generatedPositionFor({
+            ...this.td_2_sm(position),
+            source: '', // TODO: Why this? And what is this?
+          })
+        )
+      );
     }
 
-    return ranges;
+    return 0;
+  }
+
+  private td_2_sm(position: TextDocumentPosition): SourceMapPosition {
+    return { line: position.line + 1, column: position.character + 1 };
+  }
+
+  private sm_2_td(position: SourceMapPosition): TextDocumentPosition {
+    return { line: position.line - 1, character: position.column - 1 };
   }
 
   private isDirty = true; // Required for first time.
@@ -234,7 +158,8 @@ export class RenderFunctionDocument extends VirtualTextDocument {
       const script = this.container.getBlock(this.container.getSelector('script'));
 
       if (template && template.content) {
-        const { code, ast } = compile(template.content, {
+        this.defaultOffset = template.loc.start.offset;
+        const { code, map } = compile(template.content, {
           components: {
             ...this.globalComponents,
             ...findComponents(script?.content || ''),
@@ -243,9 +168,11 @@ export class RenderFunctionDocument extends VirtualTextDocument {
           useJavaScript: this.languageId === 'javascript',
         });
 
-        this.ast = ast;
+        this.consumer = new SourceMapConsumer(map!);
         this.internal = TextDocument.update(this.internal, [{ text: code }], this.container.version);
       } else {
+        this.defaultOffset = 0;
+        this.consumer = undefined;
         this.internal = TextDocument.update(this.internal, [{ text: '' }], this.container.version);
       }
     }
@@ -273,7 +200,6 @@ export class RenderFunctionDocument extends VirtualTextDocument {
 }
 
 const ImportPathRegExp = /import\s+(?:{[^}]+}\s*,)?\s*([A-Z][A-Za-z0-9_$]+)\s*(?:,\s*{[^}]+}\s*)?from\s+(?:"([^"]+)"|'([^']+)')/g;
-
 function findComponents(source: string): Record<string, string> {
   const components: Record<string, string> = {};
 

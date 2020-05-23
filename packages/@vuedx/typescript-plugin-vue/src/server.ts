@@ -186,7 +186,7 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
   private getPositionInGeneratedSource(fileName: string, position: number) {
     if (this.fileSystem.isRenderFunction(fileName)) {
       const document = this.fileSystem.getRenderFunctionDocument(fileName);
-      if (document) return document.getGenteratedOffsetAt(position);
+      if (document) return document.getGeneratedOffsetAt(position);
     }
 
     return position;

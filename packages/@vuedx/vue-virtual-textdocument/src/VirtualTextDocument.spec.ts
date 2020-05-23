@@ -79,15 +79,15 @@ describe('VirtualTextDocument', () => {
     const code = render.getText()
     const offset = source.indexOf('foo.bar');
     {
-      const original = render.getGenteratedOffsetAt(offset)!;
+      const original = render.getGeneratedOffsetAt(offset)!;
       expect(code.substr(original, 7)).toBe('foo.bar');
     }
     {
-      const original = render.getGenteratedOffsetAt(offset + 4)!;
+      const original = render.getGeneratedOffsetAt(offset + 4)!;
       expect(code.substr(original, 3)).toBe('bar');
     }
     {
-      const original = render.getGenteratedOffsetAt(offset + 10)!;
+      const original = render.getGeneratedOffsetAt(offset + 10)!;
       expect(code.substr(original, 3)).toBe('bar');
     }
   });
