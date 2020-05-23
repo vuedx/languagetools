@@ -30,11 +30,25 @@ export function compile(source: string, options: Options): CodegenResult {
   ) as ExportNamedDeclaration).declaration;
   const generated = (renderFn.body.body.find((statement) => isReturnStatement(statement)) as ReturnStatement).argument!;
 
-  transform(ast, {
-    nodeTransforms: [transformExpressionAlternate],
-  });
+  try {
+    transform(ast, {
+      nodeTransforms: [transformExpressionAlternate],
+    });
+  } catch (error) {
+    error.code = '@vudx/compiler-typescript/transform';
+    error.fileName = options.filename;
+    error.render = code
+    throw error;
+  }
 
-  match(ast, null as any, generated);
+  try {
+    match(ast, null as any, generated);
+  } catch (error) {
+    error.code = '@vudx/compiler-typescript/match';
+    error.fileName = options.filename;
+    error.render = code
+    throw error;
+  }
 
   return { code, ast, map };
 }

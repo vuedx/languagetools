@@ -100,10 +100,10 @@ export class RenderFunctionDocument extends VirtualTextDocument {
       // sort such that last, smallest expression is first.
       this.ranges.sort((a, b) => {
         if (b[1][0] === a[1][0]) {
-          return a[1][1] - b[1][1]
+          return a[1][1] - b[1][1];
         }
 
-        return b[1][0] - a[1][0]
+        return b[1][0] - a[1][0];
       });
       this.defaultOffset = this.container.getBlock(this.selector)!.loc.start.offset;
       this.ast = undefined; // unset to prevent unnecessary re-processing.

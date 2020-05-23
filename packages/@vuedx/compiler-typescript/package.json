@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/compiler-typescript",
-  "version": "0.1.0-alpha.9",
+  "version": "0.1.0-alpha.10",
   "description": "",
   "main": "dist/compiler-typescript.js",
   "module": "dist/compiler-typescript.esm.js",

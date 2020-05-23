@@ -8,6 +8,7 @@ const chalk = require('chalk');
 
 const categories = ['Warning', 'Error', 'Suggestion', 'Message'];
 const colors = [chalk.yellow, chalk.red, chalk.green, chalk.blueBright];
+let directory = process.cwd();
 
 const fileCache = {};
 /**
@@ -84,26 +85,31 @@ function normalizeFileName(fileName) {
 
 const range = 2;
 function generateCodeFrame(source, start = 0, end = source.length, color = chalk.red) {
+  if (!Number.isInteger(start)) return '';
+  if (!Number.isInteger(end)) end = start + 1;
+
   const lines = source.split(/\r?\n/);
   let count = 0;
   const res = [];
+  const width = String(lines.length).length;
+  const getLine = (line) => String(line).padStart(width) + ' | ';
   for (let i = 0; i < lines.length; i++) {
     count += lines[i].length + 1;
     if (count >= start) {
       for (let j = i - range; j <= i + range || end > count; j++) {
         if (j < 0 || j >= lines.length) continue;
         const line = j + 1;
-        res.push(`${chalk.gray(line)}${' '.repeat(3 - String(line).length)}${chalk.gray('|')}  ${lines[j]}`);
+        res.push(`${chalk.gray(getLine(line))}  ${lines[j]}`);
         const lineLength = lines[j].length;
         if (j === i) {
           // push underline
           const pad = start - (count - lineLength) + 1;
           const length = Math.max(1, end > count ? lineLength - pad : end - start);
-          res.push(chalk.gray(`   |  `) + ' '.repeat(pad) + color('^'.repeat(length)));
+          res.push(chalk.gray(getLine('')) + ' '.repeat(pad) + color('^'.repeat(Math.max(length, 0))));
         } else if (j > i) {
           if (end > count) {
             const length = Math.max(Math.min(end - count, lineLength), 1);
-            res.push(chalk.gray(`   |  `) + color('^'.repeat(length)));
+            res.push(chalk.gray(getLine('')) + color('^'.repeat(Math.max(0, length))));
           }
           count += lineLength + 1;
         }
@@ -151,11 +157,7 @@ Options
     process.exit(0);
   }
 
-  const directory = argv[0]
-    ? Path.isAbsolute(argv[0])
-      ? argv[0]
-      : Path.resolve(process.cwd(), argv[0])
-    : process.cwd();
+  directory = argv[0] ? (Path.isAbsolute(argv[0]) ? argv[0] : Path.resolve(process.cwd(), argv[0])) : process.cwd();
 
   if (!FS.existsSync(directory)) {
     console.error(`Cannot find directory: "${process.argv[2]}"`);

@@ -5,28 +5,38 @@ import { isInterpolationNode, isElementNode, isDirectiveNode } from '@vuedx/temp
 import { JsNode } from '../interfaces';
 
 export const transformExpression: NodeTransform = (node, context) => {
-  if (isInterpolationNode(node)) {
-    processExpression(node.content as SimpleExpressionNode, context);
-  } else if (isElementNode(node)) {
-    node.props.forEach((prop) => {
-      if (isDirectiveNode(prop)) {
-        if (prop.arg) {
-          processExpression((prop.arg as unknown) as SimpleExpressionNode, context, true);
-        }
-        
-        if (prop.exp) {
-          if (prop.name === 'for') {
-            processForExpression((prop.exp as unknown) as SimpleExpressionNode, context);
-          } else if (prop.name === 'slot') {
-            processSlotExpression((prop.exp as unknown) as SimpleExpressionNode, context);
-          } else if (prop.name === 'on') {
-            processOnExpression((prop.exp as unknown) as SimpleExpressionNode, context);
-          } else {
-            processExpression((prop.exp as unknown) as SimpleExpressionNode, context);
+  try {
+    if (isInterpolationNode(node)) {
+      processExpression(node.content as SimpleExpressionNode, context);
+    } else if (isElementNode(node)) {
+      node.props.forEach((prop) => {
+        if (isDirectiveNode(prop)) {
+          try {
+            if (prop.arg) {
+              processExpression((prop.arg as unknown) as SimpleExpressionNode, context, true);
+            }
+
+            if (prop.exp) {
+              if (prop.name === 'for') {
+                processForExpression((prop.exp as unknown) as SimpleExpressionNode, context);
+              } else if (prop.name === 'slot') {
+                processSlotExpression((prop.exp as unknown) as SimpleExpressionNode, context);
+              } else if (prop.name === 'on') {
+                processOnExpression((prop.exp as unknown) as SimpleExpressionNode, context);
+              } else {
+                processExpression((prop.exp as unknown) as SimpleExpressionNode, context);
+              }
+            }
+          } catch (error) {
+            error.ast = { ...error.ast, prop };
+            throw error;
           }
         }
-      }
-    });
+      });
+    }
+  } catch (error) {
+    error.ast = { ...error.ast, node };
+    throw error;
   }
 };
 
@@ -38,15 +48,15 @@ function processForExpression(node: SimpleExpressionNode, context: TransformCont
   if (!inMatch) return;
 
   const [, LHS, RHS] = inMatch;
-  const rawJHSExp = LHS.trim().replace(stripParensRE, '').trim();
-  const leftOffset = LHS.indexOf(rawJHSExp);
+  const rawLHSExp = LHS.trim().replace(stripParensRE, '').trim();
+  const leftOffset = LHS.indexOf(rawLHSExp);
   const rightOffset = exp.indexOf(RHS, LHS.length);
 
   node.renderNode = {
     type: 'v-for',
     left: {
       original: parseExpression(
-        rawJHSExp,
+        rawLHSExp,
         context,
         node.loc.start.line,
         node.loc.start.column + leftOffset,
@@ -61,7 +71,7 @@ function processForExpression(node: SimpleExpressionNode, context: TransformCont
         node.loc.start.line,
         node.loc.start.column + rightOffset,
         node.loc.start.offset + rightOffset,
-        true
+        false
       )[0],
     },
   };
