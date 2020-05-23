@@ -36,7 +36,7 @@ export function getDiagnostics(directory: string, logging = false) {
       server
         .getProgram()
         ?.getSourceFiles()
-        .map((sourceFile) => sourceFile.fileName.replace(/____(script|render)\.[tj]s$/, ''))
+        .map((sourceFile) => sourceFile?.fileName?.replace(/____(script|render)\.[tj]s$/, ''))
         .filter((fileName) => !/node_modules/.test(fileName))
     )
   );

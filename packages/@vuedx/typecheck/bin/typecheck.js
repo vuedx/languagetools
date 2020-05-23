@@ -23,7 +23,8 @@ function readFile(fileName) {
  * @param {import('typescript').Diagnostic} diagnostic
  */
 function printDiagnostics(diagnostic, root = true) {
-  const fileName = diagnostic.file.fileName.replace(/____(script|render)\.[tj]s$/, '');
+  if (!diagnostic.file) return;
+  const fileName = normalizeFileName(diagnostic.file.fileName);
   const source = readFile(fileName);
   const color = colors[diagnostic.category];
   const name = categories[diagnostic.category];
@@ -70,11 +71,15 @@ function jsonEncodeDiagnostics(diagnostic) {
     JSON.stringify(
       diagnostic,
       (key, value) => {
-        return key === 'file' ? value.fileName.replace(/____(script|render)\.[tj]s$/, '') : value;
+        return key === 'file' && value ? normalizeFileName(value.fileName) : value;
       },
       2
     )
   );
+}
+
+function normalizeFileName(fileName) {
+  return typeof fileName === 'string' ? fileName.replace(/____(script|render)\.[tj]s$/, '') : fileName;
 }
 
 const range = 2;
@@ -126,14 +131,14 @@ function relative(fileName, position) {
 
   return relativeFileName;
 }
+function main() {
+  const { json = false, verbose = false, vue = false, help = false, _: argv } = parseArgs(process.argv.slice(2), {
+    boolean: ['json', 'verbose', 'vue', 'help'],
+  });
 
-const { json = false, verbose = false, vue = false, help = false, _: argv } = parseArgs(process.argv.slice(2), {
-  boolean: ['json', 'verbose', 'vue', 'help'],
-});
-
-if (help) {
-  console.log(
-    `
+  if (help) {
+    console.log(
+      `
 Usage: typecheck <options> [directory]
 
 Options
@@ -142,36 +147,50 @@ Options
     --verbose   print debug output (on stderr) 
     --help      display help
 `.trim()
-  );
-  process.exit(0);
-}
-
-const directory = argv[0] ? (Path.isAbsolute(argv[0]) ? argv[0] : Path.resolve(process.cwd(), argv[0])) : process.cwd();
-
-if (!FS.existsSync(directory)) {
-  console.error(`Cannot find directory: "${process.argv[2]}"`);
-  process.exit(1);
-}
-
-if (!FS.statSync(directory).isDirectory()) {
-  console.error(`Expecting a directory, but "${process.argv[2]}" is not a directory.`);
-  process.exit(1);
-}
-
-if (json) {
-  jsonEncodeDiagnostics(checker.getDiagnostics(directory, verbose));
-} else {
-  let result = checker.getDiagnostics(directory, verbose);
-  if (vue) {
-    result = result.filter((item) => item.fileName.endsWith('.vue'));
+    );
+    process.exit(0);
   }
 
-  result.forEach((sourceFile) => {
-    const fileName = relative(sourceFile.fileName);
-    console.log(chalk.bold(chalk.yellow(`${fileName}\n${'='.repeat(fileName.length)}`)));
-    sourceFile.syntacticDiagnostics.forEach((diagnostic) => printDiagnostics(diagnostic));
-    sourceFile.semanticDiagnostics.forEach((diagnostic) => printDiagnostics(diagnostic));
-    sourceFile.suggestionDiagnostics.forEach((diagnostic) => printDiagnostics(diagnostic));
-    console.log();
-  });
+  const directory = argv[0]
+    ? Path.isAbsolute(argv[0])
+      ? argv[0]
+      : Path.resolve(process.cwd(), argv[0])
+    : process.cwd();
+
+  if (!FS.existsSync(directory)) {
+    console.error(`Cannot find directory: "${process.argv[2]}"`);
+    process.exit(1);
+  }
+
+  if (!FS.statSync(directory).isDirectory()) {
+    console.error(`Expecting a directory, but "${process.argv[2]}" is not a directory.`);
+    process.exit(1);
+  }
+
+  if (json) {
+    jsonEncodeDiagnostics(checker.getDiagnostics(directory, verbose));
+  } else {
+    let result = checker.getDiagnostics(directory, verbose);
+    if (vue) {
+      result = result.filter((item) => item.fileName.endsWith('.vue'));
+    }
+
+    result.forEach((sourceFile) => {
+      const fileName = relative(sourceFile.fileName);
+      console.log(chalk.bold(chalk.yellow(`${fileName}\n${'='.repeat(fileName.length)}`)));
+      sourceFile.syntacticDiagnostics.forEach((diagnostic) => printDiagnostics(diagnostic));
+      sourceFile.semanticDiagnostics.forEach((diagnostic) => printDiagnostics(diagnostic));
+      sourceFile.suggestionDiagnostics.forEach((diagnostic) => printDiagnostics(diagnostic));
+      console.log();
+    });
+  }
+}
+
+try {
+  main();
+} catch (error) {
+  console.log(
+    chalk.green('Unexpected error. Please report 👉 https://github.com/znck/vue-developer-experience/issues/new')
+  );
+  console.error(error);
 }
