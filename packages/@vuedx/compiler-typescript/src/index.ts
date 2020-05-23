@@ -37,7 +37,7 @@ export function compile(source: string, options: Options): CodegenResult {
   } catch (error) {
     error.code = '@vudx/compiler-typescript/transform';
     error.fileName = options.filename;
-    error.render = code
+    error.render = code;
     throw error;
   }
 
@@ -46,7 +46,7 @@ export function compile(source: string, options: Options): CodegenResult {
   } catch (error) {
     error.code = '@vudx/compiler-typescript/match';
     error.fileName = options.filename;
-    error.render = code
+    error.render = code;
     throw error;
   }
 

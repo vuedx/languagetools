@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/compiler-typescript",
-  "version": "0.1.0-alpha.10",
+  "version": "0.1.0-alpha.11",
   "description": "",
   "main": "dist/compiler-typescript.js",
   "module": "dist/compiler-typescript.esm.js",
@@ -19,6 +19,9 @@
     "lodash.camelcase": "^4.3.0"
   },
   "devDependencies": {
-    "@types/lodash.camelcase": "^4.3.6"
+    "@types/lodash.camelcase": "^4.3.6",
+    "@vuedx/compiler-sfc": "workspace:^0.1.0-alpha.11",
+    "chalk": "^4.0.0",
+    "cli-highlight": "^2.1.4"
   }
 }

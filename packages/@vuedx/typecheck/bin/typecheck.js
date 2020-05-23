@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const checker = require('../dist/typecheck');
+const { generateCodeFrame } = require('@vuedx/compiler-sfc');
 const Path = require('path');
 const FS = require('fs');
 const parseArgs = require('minimist');
@@ -32,7 +33,9 @@ function printDiagnostics(diagnostic, root = true) {
   const pad = ' '.repeat(name.length + 1);
   console.log(`=> ${relative(fileName, diagnostic.start)}`);
   console.log(color(`${name} :: ${stringifyChain(pad, diagnostic.messageText)} (code ${diagnostic.code})`));
-  console.log(indent(generateCodeFrame(source, diagnostic.start, diagnostic.start + diagnostic.length, color)));
+  console.log(
+    indent(generateCodeFrame(source, diagnostic.start, diagnostic.start + diagnostic.length, color, chalk.gray))
+  );
   if (diagnostic.relatedInformation) {
     diagnostic.relatedInformation.forEach((information) => {
       if (information.file) {
@@ -81,43 +84,6 @@ function jsonEncodeDiagnostics(diagnostic) {
 
 function normalizeFileName(fileName) {
   return typeof fileName === 'string' ? fileName.replace(/____(script|render)\.[tj]s$/, '') : fileName;
-}
-
-const range = 2;
-function generateCodeFrame(source, start = 0, end = source.length, color = chalk.red) {
-  if (!Number.isInteger(start)) return '';
-  if (!Number.isInteger(end)) end = start + 1;
-
-  const lines = source.split(/\r?\n/);
-  let count = 0;
-  const res = [];
-  const width = String(lines.length).length;
-  const getLine = (line) => String(line).padStart(width) + ' | ';
-  for (let i = 0; i < lines.length; i++) {
-    count += lines[i].length + 1;
-    if (count >= start) {
-      for (let j = i - range; j <= i + range || end > count; j++) {
-        if (j < 0 || j >= lines.length) continue;
-        const line = j + 1;
-        res.push(`${chalk.gray(getLine(line))}  ${lines[j]}`);
-        const lineLength = lines[j].length;
-        if (j === i) {
-          // push underline
-          const pad = start - (count - lineLength) + 1;
-          const length = Math.max(1, end > count ? lineLength - pad : end - start);
-          res.push(chalk.gray(getLine('')) + ' '.repeat(pad) + color('^'.repeat(Math.max(length, 0))));
-        } else if (j > i) {
-          if (end > count) {
-            const length = Math.max(Math.min(end - count, lineLength), 1);
-            res.push(chalk.gray(getLine('')) + color('^'.repeat(Math.max(0, length))));
-          }
-          count += lineLength + 1;
-        }
-      }
-      break;
-    }
-  }
-  return res.join('\n');
 }
 
 /**

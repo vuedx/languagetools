@@ -118,12 +118,18 @@ importers:
       lodash.camelcase: 4.3.0
     devDependencies:
       '@types/lodash.camelcase': 4.3.6
+      '@vuedx/compiler-sfc': 'link:../compiler-sfc'
+      chalk: 4.0.0
+      cli-highlight: 2.1.4
     specifiers:
       '@babel/parser': ^7.9.4
       '@babel/types': ^7.9.0
       '@types/lodash.camelcase': ^4.3.6
       '@vue/compiler-core': ^3.0.0-alpha.12
+      '@vuedx/compiler-sfc': 'workspace:^0.1.0-alpha.11'
       '@vuedx/template-ast-types': 'workspace:*'
+      chalk: ^4.0.0
+      cli-highlight: ^2.1.4
       lodash.camelcase: ^4.3.0
   packages/@vuedx/extensions-shared:
     dependencies:
@@ -186,11 +192,13 @@ importers:
       '@vue/compiler-core': ^3.0.0-alpha.12
   packages/@vuedx/typecheck:
     dependencies:
+      '@vuedx/compiler-sfc': 'link:../compiler-sfc'
       '@vuedx/typescript-plugin-vue': 'link:../typescript-plugin-vue'
       chalk: 4.0.0
       minimist: 1.2.5
       typescript: 3.8.3
     specifiers:
+      '@vuedx/compiler-sfc': 'workspace:^0.1.0-alpha.11'
       '@vuedx/typescript-plugin-vue': 'workspace:*'
       chalk: ^4.0.0
       minimist: ^1.2.5
@@ -1078,7 +1086,6 @@ packages:
     resolution:
       integrity: sha512-9VGjrMsG1vePxcSweQsN20KY/c4zN0h9fLjqAbwbPfahM3t+NL+M9HC8xeXG2I8pX5NoamTGNuomEUFI7fcUjA==
   /any-promise/1.3.0:
-    dev: false
     resolution:
       integrity: sha1-q8av7tzqUugJzcA3au0845Y10X8=
   /anymatch/2.0.0:
@@ -1421,7 +1428,6 @@ packages:
     dependencies:
       ansi-styles: 4.2.1
       supports-color: 7.1.0
-    dev: false
     engines:
       node: '>=10'
     resolution:
@@ -1469,7 +1475,6 @@ packages:
       parse5: 5.1.1
       parse5-htmlparser2-tree-adapter: 5.1.1
       yargs: 15.3.1
-    dev: false
     engines:
       node: '>=8.0.0'
       npm: '>=5.0.0'
@@ -2312,7 +2317,6 @@ packages:
     resolution:
       integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
   /highlight.js/9.18.1:
-    dev: false
     resolution:
       integrity: sha512-OrVKYz70LHsnCgmbXctv/bfuvntIKDz177h0Co37DQ5jamGZLVmoCVMtjMtNZY3X9DrCcKfklHPNeA0uPZhSJg==
   /hosted-git-info/2.8.8:
@@ -3510,7 +3514,6 @@ packages:
       any-promise: 1.3.0
       object-assign: 4.1.1
       thenify-all: 1.6.0
-    dev: false
     resolution:
       integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==
   /nanomatch/1.2.13:
@@ -3632,7 +3635,6 @@ packages:
     resolution:
       integrity: sha512-fexhUFFPTGV8ybAtSIGbV6gOkSv8UtRbDBnAyLQw4QPKkgNlsH2ByPGtMUqdWkos6YCRmAqViwgZrJc/mRDzZQ==
   /object-assign/4.1.1:
-    dev: false
     engines:
       node: '>=0.10.0'
     resolution:
@@ -3777,7 +3779,6 @@ packages:
   /parse5-htmlparser2-tree-adapter/5.1.1:
     dependencies:
       parse5: 5.1.1
-    dev: false
     resolution:
       integrity: sha512-CF+TKjXqoqyDwHqBhFQ+3l5t83xYi6fVT1tQNg+Ye0JRLnTxWvIroCjEp1A0k4lneHNBGnICUf0cfYVYGEazqw==
   /parse5/5.1.0:
@@ -3785,7 +3786,6 @@ packages:
     resolution:
       integrity: sha512-fxNG2sQjHvlVAYmzBZS9YlDp6PTSSDwa98vkD4QgVDDCAo84z5X1t5XyJQ62ImdLXx5NdIIfihey6xpum9/gRQ==
   /parse5/5.1.1:
-    dev: false
     resolution:
       integrity: sha512-ugq4DFI0Ptb+WWjAdOK16+u/nHfiIrcE+sh8kZMaM0WllQKLI9rOUq6c2b7cwPkXdzfQESqvoqK6ug7U/Yyzug==
   /pascalcase/0.1.1:
@@ -4626,7 +4626,6 @@ packages:
   /thenify-all/1.6.0:
     dependencies:
       thenify: 3.3.0
-    dev: false
     engines:
       node: '>=0.8'
     resolution:
@@ -4634,7 +4633,6 @@ packages:
   /thenify/3.3.0:
     dependencies:
       any-promise: 1.3.0
-    dev: false
     resolution:
       integrity: sha1-5p44obq+lpsBCCB5eLn2K4hgSDk=
   /throat/5.0.0:

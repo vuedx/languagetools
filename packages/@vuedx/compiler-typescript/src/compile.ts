@@ -48,10 +48,13 @@ export function compile(ast: RootNode, options: Options): CodegenResult {
         alreadyExecuted = true;
         context.helper(FRAGMENT);
         context.imports.add({ exp: '_Ctx', path: options.filename });
-        Object.entries(options.components).forEach(([name, path]) => {
+        Object.entries(options.components).forEach(([name, options]) => {
+          const isNamed = typeof options === 'object' && options.named;
           context.imports.add({
-            exp: `_component_${pascalCase(name)}`,
-            path: path,
+            exp: isNamed
+              ? `{ ${pascalCase(name)} as _component_${pascalCase(name)} }`
+              : `_component_${pascalCase(name)}`,
+            path: typeof options === 'string' ? options : options.path,
           });
         });
       },

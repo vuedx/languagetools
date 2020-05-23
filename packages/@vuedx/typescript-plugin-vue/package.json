@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/typescript-plugin-vue",
-  "version": "0.1.0-alpha.10",
+  "version": "0.1.0-alpha.11",
   "description": "TypeScript plugin for Vue",
   "main": "dist/typescript-plugin-vue.js",
   "types": "dist/typescript-plugin-vue.d.ts",

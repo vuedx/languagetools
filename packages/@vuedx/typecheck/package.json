@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/typecheck",
-  "version": "0.1.0-alpha.10",
+  "version": "0.1.0-alpha.11",
   "description": "TypeScript plugin for Vue",
   "main": "dist/typecheck.js",
   "bin": "bin/typecheck.js",
@@ -15,6 +15,7 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "dependencies": {
+    "@vuedx/compiler-sfc": "workspace:^0.1.0-alpha.11",
     "@vuedx/typescript-plugin-vue": "workspace:*",
     "chalk": "^4.0.0",
     "minimist": "^1.2.5",
