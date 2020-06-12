@@ -8,6 +8,7 @@ import {
   ErrorCodes,
   isMemberExpression,
   SimpleExpressionNode,
+  processExpression,
 } from '@vue/compiler-core';
 import { isSimpleExpressionNode } from '@vuedx/template-ast-types';
 import { capitalize, camelize, fnExpRE } from './helpers';
@@ -42,7 +43,11 @@ export const transformOn: DirectiveTransform = (dir, node, context, augmentor) =
       const isInlineStatement = !(isMemberExp || fnExpRE.test(exp.content));
       const hasMultipleStatements = exp.content.includes(';');
 
-      if (isInlineStatement) {
+      context.addIdentifiers(`$event`);
+      exp = processExpression(exp, context, false, hasMultipleStatements);
+      context.removeIdentifiers(`$event`);
+
+      if (isInlineStatement || isMemberExp) {
         exp = createCompoundExpression([
           `$event => ${hasMultipleStatements ? '{' : '('}`,
           exp,
