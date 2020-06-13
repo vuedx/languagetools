@@ -47,7 +47,7 @@ export function compile(ast: RootNode, options: Options): CodegenResult {
         context = _context;
         alreadyExecuted = true;
         context.helper(FRAGMENT);
-        context.imports.add({ exp: '_Ctx', path: options.filename });
+        context.imports.add({ exp: 'type _Ctx', path: options.filename });
         Object.entries(options.components).forEach(([name, options]) => {
           const isNamed = typeof options === 'object' && options.named;
           context.imports.add({

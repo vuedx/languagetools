@@ -13,7 +13,7 @@ describe('compiler', () => {
   );
 
   test('provides type annotation for _ctx', () => {
-    expect(result.code).toEqual(expect.stringContaining(`import _Ctx from './example.vue'`));
+    expect(result.code).toEqual(expect.stringContaining(`import type _Ctx from './example.vue'`));
     expect(result.code).toEqual(expect.stringContaining(`function render(_ctx: InstanceType<typeof _Ctx>)`));
   });
 
