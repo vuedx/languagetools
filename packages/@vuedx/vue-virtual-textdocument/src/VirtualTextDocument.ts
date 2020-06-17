@@ -123,17 +123,18 @@ export class RenderFunctionDocument extends VirtualTextDocument {
     return this.defaultOffset;
   }
 
-  public getGeneratedOffsetAt(offset: number): number {
+  public getGeneratedOffsetAt(offset: number, length = 1): number {
     this.refresh();
 
     if (this.consumer) {
-      const position = this.container.getBlockDocument('template')!.positionAt(offset);
+      const template = this.container.getBlockDocument('template')!;
+      const position = template.positionAt(offset);
 
       return this.internal.offsetAt(
         this.sm_2_td(
           this.consumer.generatedPositionFor({
             ...this.td_2_sm(position),
-            source: '', // TODO: Why this? And what is this?
+            source: template.getText().substr(offset, length),
           })
         )
       );

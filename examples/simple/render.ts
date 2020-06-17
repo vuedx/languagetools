@@ -1,29 +1,14 @@
-import { defineComponent, ref, computed, Fragment as _Fragment, toDisplayString as _toDisplayString, h as _h } from "vue"
+import { Fragment as _Fragment, h as _h } from "vue"
 import _Ctx from './App.vue'
-
-export interface Props {
-  foo?: string
-  bar?: number
-}
-
-const _component_Bar = defineComponent<Props>(
- (props) => {
-    const val = ref<string>('foo x bar')
-    const ex = computed(() => props.foo)
-
-    return {
-      isBar: props.bar in props,
-    }
-  }
-)
+import _component_Bar from './Bar.vue'
 
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return _h(_Fragment, [
     _h("div", {}, [
       (_ctx.dummy > 5)
-        ? _h("p", {}, [_toDisplayString(_ctx.dummy + _ctx.bam), " It works. ", _toDisplayString(_ctx.dummy + _ctx.bar)])
+        ? _h("p", {}, [(_ctx.dummy + _ctx.bam), " It works. ", (_ctx.dummy + _ctx.bar + _ctx.ba)])
         : null,
-      _h(_component_Bar, { foo: 5 }, [])
+      _h(_component_Bar, { foo: 5 }, [Bar])
     ])
   ])
 }

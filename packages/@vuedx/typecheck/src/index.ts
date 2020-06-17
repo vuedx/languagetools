@@ -18,9 +18,9 @@ export function getDiagnostics(directory: string, logging = false) {
   });
 
   const configFile = ts.findConfigFile(directory, ts.sys.fileExists, 'tsconfig.json');
-  // @ts-ignore
+  // @ts-ignore - This would load Vue plugin and would prevent reload when actual project is created.
   projectService.createInferredProject(directory, true);
-  // @ts-ignore
+  // @ts-ignore - 
   const project: TypeScriptServer.ConfiguredProject = projectService.createLoadAndUpdateConfiguredProject(configFile)!;
   const server = project.getLanguageService();
 

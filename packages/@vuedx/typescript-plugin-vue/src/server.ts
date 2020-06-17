@@ -183,10 +183,10 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     this.fileSystem = new VirtualFileSystemHelper(context.store, context);
   }
 
-  private getPositionInGeneratedSource(fileName: string, position: number) {
+  private getPositionInGeneratedSource(fileName: string, position: number, length = 1) {
     if (this.fileSystem.isRenderFunction(fileName)) {
       const document = this.fileSystem.getRenderFunctionDocument(fileName);
-      if (document) return document.getGeneratedOffsetAt(position);
+      if (document) return document.getGeneratedOffsetAt(position, length);
     }
 
     return position;

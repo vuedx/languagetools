@@ -73,40 +73,6 @@ export class PluginContext {
     }
   }
 
-  public getScriptKind(fileName: string): TS.ScriptKind {
-    const extension = fileName.substr(fileName.lastIndexOf('.'));
-    switch (extension) {
-      case '.ts':
-        return this.typescript.ScriptKind.TS;
-      case '.tsx':
-        return this.typescript.ScriptKind.TSX;
-      case '.js':
-        return this.typescript.ScriptKind.JS;
-      case '.jsx':
-        return this.typescript.ScriptKind.JSX;
-      case '.json':
-        return this.typescript.ScriptKind.JSON;
-      default:
-        return this.typescript.ScriptKind.Unknown;
-    }
-  }
-
-  public getExtension(fileName: string): TS.Extension {
-    const extension = fileName.substr(fileName.lastIndexOf('.'));
-    switch (extension) {
-      case '.ts':
-        return this.typescript.Extension.Ts;
-      case '.tsx':
-        return this.typescript.Extension.Tsx;
-      case '.js':
-        return this.typescript.Extension.Js;
-      case '.jsx':
-        return this.typescript.Extension.Jsx;
-      default:
-        throw new Error(`Unsupported extension: ${extension}`);
-    }
-  }
-
   public getSupportedVirtualDocumentFileNames(document: VueTextDocument) {
     const fileNames = [document.getBlockDocumentFileName('script')!];
 
@@ -164,7 +130,7 @@ export class PluginContext {
     }
   }
 
-  load(info: TS.server.PluginCreateInfo): void {
+  public load(info: TS.server.PluginCreateInfo): void {
     this.log(`Loading Vue plugin: ${info.project.getProjectName()}`);
 
     this._serverHost = info.serverHost;
@@ -215,7 +181,6 @@ function patchExtraFileExtensions(context: PluginContext) {
 
 function patchLanguageServiceHost(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {
   patchGetScriptFileNames(context, languageServiceHost);
-  patchScriptSnapshot(context, languageServiceHost);
   patchModuleResolution(context, languageServiceHost);
 }
 
@@ -294,42 +259,6 @@ function patchReadFile(context: PluginContext) {
       return readFile ? readFile(fileName) : context.typescript.sys.readFile(fileName);
     };
   });
-}
-
-function patchScriptSnapshot(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {
-  // tryPatchMethod(context.languageServiceHost, 'getScriptSnapshot', (getScriptSnapshot) => {
-  //   context.log(
-  //     `[patch] Override getScriptSnapshot to create a snapshot of the virtual file content. (LanguageServerHost)`
-  //   );
-  //   return (fileName) => {
-  //     if (isVirtualFile(fileName)) {
-  //       const containingFileName = getContainingFile(fileName);
-  //       const document = context.store.get(containingFileName);
-  //       if (!document) return;
-  //       const virtualDoc = document.getBlockDocument(fileName);
-  //       if (!virtualDoc) return;
-  //       context.log(`host.getScriptSnapshot("${fileName}") = ${virtualDoc.version}`);
-  //       return context.typescript.ScriptSnapshot.fromString(virtualDoc.getText());
-  //     }
-  //     return getScriptSnapshot(fileName);
-  //   };
-  // });
-  // tryPatchMethod(context.languageServiceHost, 'getScriptVersion', (getScriptVersion) => {
-  //   context.log(
-  //     `[patch] Override getScriptVersion to fetch version of the containing file for virtual files. (LanguageServerHost)`
-  //   );
-  //   return (fileName) => {
-  //     if (isVirtualFile(fileName)) {
-  //       const scriptInfo = context.projectService.getScriptInfo(getContainingFile(fileName));
-  //       const document = context.store.get(getContainingFile(fileName))?.getBlockDocument(fileName);
-  //       if (scriptInfo?.isScriptOpen()) {
-  //         return `Vue-${scriptInfo.getLatestVersion()}`;
-  //       }
-  //       return document ? 'Vue-' + document.version : '0';
-  //     }
-  //     return getScriptVersion(fileName);
-  //   };
-  // });
 }
 
 function patchModuleResolution(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {

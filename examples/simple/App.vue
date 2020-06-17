@@ -31,7 +31,7 @@ export default defineComponent({
     <p v-if="dummy > 5">
       {{ dummy + bam }}
       It works.
-      {{ dummy + bar }}
+      {{ dummy + bar + ba }}
     </p>
     <Bar :foo="5" />
   </div>
