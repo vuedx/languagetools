@@ -1,0 +1,21 @@
+{
+  "name": "@vuedx/story",
+  "version": "0.1.0-alpha.12",
+  "description": "",
+  "main": "dist/story.js",
+  "module": "dist/story.esm.js",
+  "types": "dist/story.d.ts",
+  "bin": "bin/story.js",
+  "keywords": [],
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^3.9.5",
+    "vue": "^3.0.0-beta.15",
+    "@vuedx/sfc-inspector": "link:../sfc-inspector"
+  }
+}

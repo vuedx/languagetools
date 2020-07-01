@@ -5,6 +5,8 @@ import { InspectorOptions } from './interfaces'
 import { ComponentPublicAPIInspectorPlugin } from './plugins/public-api'
 import { VueComponentInfo } from './VueComponentInfo'
 
+export { VueComponentInfo } from './VueComponentInfo'
+
 export async function inspect(
   fileName: string,
   options: Partial<InspectorOptions> = {}
