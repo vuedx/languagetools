@@ -6,7 +6,6 @@
   "module": "dist/sfc-inspector.esm.js",
   "types": "dist/sfc-inspector.d.ts",
   "bin": "bin/sfc-inspector.js",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/znck/vue-developer-experience.git"
