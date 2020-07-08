@@ -1,0 +1,25 @@
+{
+  "name": "@vuedx/stories-ui",
+  "version": "0.1.0-alpha.12",
+  "description": "",
+  "main": "dist/stories-ui.js",
+  "module": "dist/stories-ui.esm.js",
+  "keywords": [],
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "dependencies": {
+    "@vuedx/stories": "workspace:^0.1.0-alpha.12",
+    "vue": "^3.0.0-beta.19"
+  },
+  "devDependencies": {
+    "@vue/compiler-sfc": "^3.0.0-beta.19",
+    "@vuedx/stories-vite": "workspace:^0.1.0-alpha.12"
+  },
+  "scripts": {
+    "dev": "vite serve"
+  }
+}

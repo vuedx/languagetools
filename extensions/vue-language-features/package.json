@@ -134,9 +134,10 @@
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13",
+    "typescript": "^3.9.6",
+    "vscode": "^1.1.36",
     "vue": "^3.0.0-alpha.12",
-    "yaml": "^1.8.2",
-    "vscode": "^1.1.36"
+    "yaml": "^1.8.2"
   },
   "dependencies": {
     "@vuedx/typescript-plugin-vue": "workspace:*"

@@ -1,7 +1,8 @@
 const Path = require('path');
 const Fs = require('fs');
 const ts = require('rollup-plugin-typescript2');
-const node = require('@rollup/plugin-node-resolve');
+const vue = require('rollup-plugin-vue');
+const node = require('@rollup/plugin-node-resolve').default;
 const commonjs = require('@rollup/plugin-commonjs');
 const alias = require('@rollup/plugin-alias');
 const json = require('@rollup/plugin-json');
@@ -19,7 +20,7 @@ const env = {
   'process.env.NODE_ENV': isProd ? '"production"' : '"development"',
 };
 
-const packages = Fs.readdirSync(Path.resolve(projectDir, './packages/@vuedx'));
+const packages = Fs.readdirSync(Path.resolve(projectDir, './packages/@vuedx')).filter((name) => !name.startsWith('.'));
 const extensions = ['vue', 'vue-language-features'];
 
 createConfig('packages/@vuedx', packages);
@@ -32,19 +33,12 @@ function createTs(pkgDir) {
     include: [/\.ts$/],
     exclude: [],
     check: false,
+    tsconfig: Path.resolve(pkgDir, 'tsconfig.json'),
     tsconfigOverride: {
       compilerOptions: {
         module: 'ESNext',
-        target: 'ES2018',
-        baseUrl: '.',
-        rootDir: pkgDir,
-        paths: {},
-        experimentalDecorators: true,
-        emitDecoratorMetadata: true,
         sourceMap: true,
-        declaration: false,
       },
-      include: ['src'],
     },
   });
 }
@@ -85,11 +79,10 @@ function createConfig(dir, names, external = []) {
           .concat(external),
         context: 'null',
         plugins: [
-          alias({
-            entries: [{ find: /@vue\/compiler-core$/, replacement: '@vue/compiler-core/dist/compiler-core.cjs' }],
-          }),
           json(),
           node(),
+          commonjs(),
+          vue(),
           createTs(pkgDir),
           replace(env),
           replace({
@@ -97,23 +90,6 @@ function createConfig(dir, names, external = []) {
             "loadDep('estree-walker')": "require('estree-walker')",
             "loadDep('source-map')": "require('source-map')",
             delimiters: ['', ''],
-          }),
-          commonjs({
-            dynamicRequireTargets: ['@babel/types'],
-            namedExports: {
-              'packages/@vuedx/compiler-typescript/node_modules/@babel/types/lib/index.js': [
-                'isCallExpression',
-                'isIdentifier',
-                'isBlockStatement',
-                'isArrayExpression',
-                'isObjectExpression',
-                'isMemberExpression',
-                'isConditionalExpression',
-                'isObjectProperty',
-                'isExportNamedDeclaration',
-                'isReturnStatement',
-              ],
-            },
           }),
         ],
         treeshake: {
@@ -155,13 +131,23 @@ function createConfig(dir, names, external = []) {
       if (pkg.types) {
         configurations.push({
           input: options.input,
+          external: options.external,
           output: {
             file: Path.resolve(pkgDir, pkg.types),
             format: 'esm',
             sourcemap: true,
           },
           onwarn: options.onwarn,
-          plugins: [dts()],
+          plugins: [
+            // node({
+            //   mainFields: ['types', 'typings'],
+            //   extensions: ['.d.ts'],
+            //   customResolveOptions: {
+            //     moduleDirectory: ['node_modules/@types', 'node_modules'],
+            //   },
+            // }),
+            dts(),
+          ],
         });
       }
     } catch (e) {

@@ -14,7 +14,7 @@
   "license": "MIT",
   "devDependencies": {
     "@vuedx/vue-virtual-textdocument": "workspace:*",
-    "typescript": "^3.8.3",
+    "typescript": "^3.9.6",
     "vscode-uri": "^2.1.1"
   }
 }

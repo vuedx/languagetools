@@ -45,7 +45,8 @@
     "@types/babel__code-frame": "^7.0.1",
     "@types/babel__generator": "^7.6.1",
     "@types/babel__traverse": "^7.0.9",
-    "@types/doctrine": "^0.0.3"
+    "@types/doctrine": "^0.0.3",
+    "typescript": "^3.9.6"
   },
   "scripts": {
     "build": "tsdx build --target node"

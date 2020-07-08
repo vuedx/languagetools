@@ -1,7 +1,7 @@
 {
   "private": true,
   "devDependencies": {
-    "typescript": "^3.8.3",
+    "typescript": "^3.9.6",
     "vue": "^3.0.0-alpha.9"
   },
   "version": "0.1.0-alpha.12"

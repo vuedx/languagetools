@@ -5,6 +5,7 @@ import {
   NodeTypes,
   SourceLocation,
   TextModes,
+  Namespace,
 } from '@vue/compiler-core'
 import { RawSourceMap, SourceMapGenerator } from 'source-map'
 import { generateCodeFrame } from './codeframe'
@@ -78,20 +79,21 @@ export function parse(
 
   const errors: CompilerError[] = []
   const ast = baseParse(source, {
-    // there are no components at SFC parsing level
-    isNativeTag: () => true,
-    // preserve all whitespaces
-    isPreTag: () => true,
-    getTextMode: (tag, _ns, parent) => {
-      // all top level elements except <template> are parsed as raw text
-      // containers
+    isNativeTag() {
+      return true
+    },
+    isPreTag() {
+      return true
+    },
+    // @ts-ignore - DTS false positive fail.
+    getTextMode(tag, _ns, parent) {
       if (!parent && tag !== 'template') {
         return TextModes.RAWTEXT
       } else {
         return TextModes.DATA
       }
     },
-    onError: (e) => {
+    onError(e) {
       errors.push(e)
     },
   })
@@ -212,12 +214,12 @@ function createBlock(
         block.src = p.value && p.value.content
       } else if (type === 'style') {
         if (p.name === 'scoped') {
-          ;(block as SFCStyleBlock).scoped = true
+          ; (block as SFCStyleBlock).scoped = true
         } else if (p.name === 'module') {
-          ;(block as SFCStyleBlock).module = attrs[p.name]
+          ; (block as SFCStyleBlock).module = attrs[p.name]
         }
       } else if (type === 'template' && p.name === 'functional') {
-        ;(block as SFCTemplateBlock).functional = true
+        ; (block as SFCTemplateBlock).functional = true
       }
     }
   })
