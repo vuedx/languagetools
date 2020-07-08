@@ -2,6 +2,7 @@ const Path = require('path');
 const Fs = require('fs');
 const ts = require('rollup-plugin-typescript2');
 const vue = require('rollup-plugin-vue');
+const postcss = require('rollup-plugin-postcss');
 const node = require('@rollup/plugin-node-resolve').default;
 const commonjs = require('@rollup/plugin-commonjs');
 const alias = require('@rollup/plugin-alias');
@@ -83,6 +84,7 @@ function createConfig(dir, names, external = []) {
           node(),
           commonjs(),
           vue(),
+          postcss(),
           createTs(pkgDir),
           replace(env),
           replace({

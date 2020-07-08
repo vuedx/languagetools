@@ -12,9 +12,11 @@
   ],
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "@vuedx/vue-virtual-textdocument": "workspace:*",
-    "typescript": "^3.9.6",
     "vscode-uri": "^2.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^3.9.6"
   }
 }
