@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/stories",
-  "version": "0.1.0-alpha.12",
+  "version": "0.1.0-alpha.13",
   "description": "",
   "main": "dist/stories.js",
   "module": "dist/stories.esm.js",
