@@ -12,7 +12,8 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "devDependencies": {
-    "@vue/compiler-core": "^3.0.0-alpha.12",
-    "source-map": "0.6"
+    "@vue/compiler-core": "^3.0.0-beta.19",
+    "source-map": "0.6",
+    "typescript": "^3.9.6"
   }
 }

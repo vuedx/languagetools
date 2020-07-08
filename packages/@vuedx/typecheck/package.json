@@ -18,12 +18,14 @@
     "@vuedx/compiler-sfc": "workspace:^0.1.0-alpha.11",
     "@vuedx/typescript-plugin-vue": "workspace:*",
     "chalk": "^4.0.0",
-    "minimist": "^1.2.5",
-    "typescript": "^3.8.3"
+    "minimist": "^1.2.5"
   },
   "build": {
     "external": [
       "typescript/lib/tsserverlibrary"
     ]
+  },
+  "devDependencies": {
+    "typescript": "^3.9.6"
   }
 }

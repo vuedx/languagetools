@@ -22,6 +22,7 @@
     "@types/lodash.camelcase": "^4.3.6",
     "@vuedx/compiler-sfc": "workspace:^0.1.0-alpha.11",
     "chalk": "^4.0.0",
-    "cli-highlight": "^2.1.4"
+    "cli-highlight": "^2.1.4",
+    "typescript": "^3.9.6"
   }
 }

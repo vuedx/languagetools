@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
-    "target": "ES2018",
+    "module": "ESNext",
+    "target": "ESNext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -16,12 +16,12 @@
     "sourceMap": true,
     "declaration": true,
     "baseUrl": ".",
-    "lib": ["ESNext"],
-    "paths": {
-      "@vuedx/*": ["packages/@vuedx/*/src/index.ts"]
-    }
+    "lib": [
+      "ESNext"
+    ],
   },
   "compileOnSave": true,
-  "include": ["packages/**/*.ts", "types/*.d.ts", "extensions/**/*.ts", "packages/@vuedx/extensions-shared/runner.js"],
-  "exclude": ["node_modules", "**/node_modules", "**/dist"]
+  "include": [
+    "src/**/*.ts"
+  ]
 }
