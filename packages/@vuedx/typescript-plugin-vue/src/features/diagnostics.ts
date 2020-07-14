@@ -55,7 +55,7 @@ function remapDiagnostic(document: RenderFunctionDocument, diagnostic: TS.Diagno
   if (diagnostic.start != null) {
     let start = document.getSourceOffsetAt(diagnostic.start);
     let end = diagnostic.length ? document.getSourceOffsetAt(diagnostic.start + diagnostic.length - 1) : start;
-    if (start == null || end == null) {
+    if (!Number.isInteger(start) || !Number.isInteger(end)) {
       return true;
     } else if (diagnostic.length) {
       end += 1;

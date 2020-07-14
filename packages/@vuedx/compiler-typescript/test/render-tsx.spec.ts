@@ -10,7 +10,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _h('div', {}, ['foo'])
+      return <div>foo</div>
     }
     `,
   },
@@ -24,7 +24,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _component_Foo from './Foo.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _h(_component_Foo, {}, { default: () => ['foo'], })
+      return <_component_Foo>{{ default: () => ['foo'] }}</_component_Foo>
     }
     `,
   },
@@ -43,7 +43,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import { Foo as _component_Foo } from 'foo-components'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _h(_component_Foo, {}, { default: () => ['foo'] })
+      return <_component_Foo>{{ default: () => ['foo'] }}</_component_Foo>
     }
     `,
   },
@@ -51,13 +51,13 @@ const samples: Array<{ name: string; template: string; render: string; component
     name: 'Unresolved/Global Component',
     template: `<Foo>foo</Foo>`,
     render: `
-    import { resolveComponent as _resolveComponent, h as _h } from 'vue'
+    import { h as _h, resolveComponent as _resolveComponent } from 'vue'
     import _Ctx from './component.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
       const _component_Foo = _resolveComponent('Foo')
 
-      return _h(_component_Foo, {}, { default: () => ['foo'] })
+      return <_component_Foo>{{ default: () => ['foo'] }}</_component_Foo>
     }
     `,
   },
@@ -69,7 +69,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _h('web-component', {}, ['foo'])
+      return <web-component>foo</web-component>
     }
     `,
   },
@@ -86,10 +86,12 @@ const samples: Array<{ name: string; template: string; render: string; component
     export function render(_ctx: InstanceType<typeof _Ctx>) {
       const _component_Foo = _resolveComponent('Foo')
 
-      return _h(_Fragment, [
-        _h('input', { type: 'text' }, []),
-        _h(_component_Foo, { type: 'text' }, {}),
-      ])
+      return (
+        <_Fragment>
+          <input {...{ type: "text" }}></input>
+          <_component_Foo {...{ type: "text" }}></_component_Foo>
+        </_Fragment>
+      )
     }
     `,
   },
@@ -103,7 +105,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue'
     
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _h('input', { onFocus: () => {} }, [])
+      return <input {...{ onFocus: () => {} }}></input>
     }
     `,
   },
@@ -119,12 +121,9 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue'
     
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _h('div', { 
-        style: _ctx.style,
-        [_ctx.key]: _ctx.value,
-        onHover: _ctx.handleHover,
-        ['on' + _ctx.event]: _ctx.handleEvent,
-      }, [_ctx.hello, ' world '])
+      return <div {...{ style: _ctx.style, [_ctx.key]: _ctx.value, onHover: _ctx.handleHover, ['on' + _ctx.event]: _ctx.handleEvent }}>
+        {_ctx.hello} world{' '}
+      </div>
     }
     `,
   },
@@ -136,10 +135,10 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _h('input', {
+      return <input {...{
         modelValue: _ctx.foo,
         'onUpdate:modelValue': $event => (_ctx.foo = $event)
-      }, [])
+      }}></input>
     }
     `,
   },
@@ -151,9 +150,9 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _h('input', {
+      return <input {...{
         onFocus: $event => (_ctx.bar = $event)
-      }, [])
+      }}></input>
     }
     `,
   },
@@ -165,12 +164,12 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _h('div', {
+      return <div {...{
         style: [
           'color: red',
           _ctx.isVisible ?  null : { display: 'none' },
         ],
-      }, [])
+      }}></div>
     }
     `,
   },
@@ -186,8 +185,8 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _ctx.foo ? _h('div', {}, ['A']) :
-             _ctx.bar ? _h('div', {}, ['B']) : _h('div', {}, ['C'])
+      return _ctx.foo ? <div>A</div> :
+             _ctx.bar ? <div>B</div> : <div>C</div>
     }
     `,
   },
@@ -201,7 +200,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _ctx.foo ? _h('div', {}, ['A']) : null
+      return _ctx.foo ? <div>A</div> : null
     }
     `,
   },
@@ -209,12 +208,12 @@ const samples: Array<{ name: string; template: string; render: string; component
     name: 'Convert v-for to renderList',
     template: `<div v-for="(item, index) of items">{{ item }} {{ other }}</div>`,
     render: `
-    import { renderList as _renderList, Fragment as _Fragment, h as _h } from 'vue'
+    import {  h as _h, renderList as _renderList, Fragment as _Fragment } from 'vue'
     import _Ctx from './component.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
       return _h(_Fragment, _renderList(_ctx.items, (item, index) => {
-        return _h('div', {}, [item, ' ', _ctx.other])
+        return <div>{item} {_ctx.other}</div>
       }))
     }
     `,
@@ -230,10 +229,12 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _h(_Fragment, [
-        _h('div', {}, [_ctx.foo]),
-        _h('div', {}, [_ctx.foo]),
-      ])
+      return (
+        <_Fragment>
+          <div>{_ctx.foo}</div>
+          <div>{_ctx.foo}</div>
+        </_Fragment>
+      )
     }
     `,
   },
@@ -277,7 +278,7 @@ import { format } from 'prettier';
 
 describe('compile/typescript', () => {
   test.each(samples.map((sample) => [sample.name, sample] as const))('%s', (_, sample) => {
-    const result = compile(sample.template, { filename: '/foo/bar/component.vue', components: sample.components });
+    const result = compile(sample.template, { filename: '/foo/bar/component.vue', components: sample.components, useJsx: true });
 
     const actual = prepare(result.code);
     const expected = prepare(sample.render);

@@ -1,8 +1,11 @@
-import { NodeTransform } from '@vue/compiler-core';
+import { NodeTransform, createCompoundExpression } from '@vue/compiler-core';
 import { isInterpolationNode } from '@vuedx/template-ast-types';
+import { Options } from '../options';
 
-export const transformInterpolationExpression: NodeTransform = (node, context) => {
-  if (isInterpolationNode(node)) {
-    context.replaceNode(node.content as any);
-  }
-};
+export function createTransformInterpolationExpression(options: Options): NodeTransform {
+  return function transform(node, context) {
+    if (isInterpolationNode(node)) {
+      context.replaceNode(options.useJsx ? createCompoundExpression(['{', node.content, '}']) : (node.content as any));
+    }
+  };
+}

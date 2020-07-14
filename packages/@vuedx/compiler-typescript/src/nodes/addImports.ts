@@ -1,6 +1,7 @@
 import type { Options } from '../options';
 import { NodeTransform } from '@vue/compiler-core';
 import { pascalCase } from '../pascalCase';
+import { H } from '../runtimeHelpers';
 
 export function createImportTransformer(options: Options): NodeTransform {
   let done = false;
@@ -8,12 +9,13 @@ export function createImportTransformer(options: Options): NodeTransform {
   return function addImports(_, context) {
     if (done) return;
 
-    if (options.useJavaScript) {
-    } else {
-      context.imports.add({
-        exp: 'type _Ctx',
-        path: `./${options.filename.split(/[/\\]/).pop()}`,
-      });
+    context.imports.add({
+      exp: '_Ctx',
+      path: `./${options.filename.split(/[/\\]/).pop()}`,
+    });
+
+    if (options.useJsx) {
+      context.helper(H);
     }
 
     if (options.components) {

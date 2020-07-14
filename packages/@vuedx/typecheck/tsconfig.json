@@ -1,27 +1,5 @@
 {
-  "compilerOptions": {
-    "module": "ESNext",
-    "target": "ESNext",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "noImplicitAny": true,
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "rootDir": ".",
-    "strict": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "resolveJsonModule": true,
-    "sourceMap": true,
-    "declaration": true,
-    "baseUrl": ".",
-    "lib": [
-      "ESNext"
-    ],
-  },
+  "extends": "../../../tsconfig.json",
   "compileOnSave": true,
-  "include": [
-    "src/**/*.ts"
-  ]
+  "include": ["src/**/*.ts"]
 }

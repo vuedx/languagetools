@@ -30,8 +30,12 @@ export class VueVirtualDocumentProvider extends Installable implements vscode.Te
       uri = uri.replace(/^vue:/, 'vue://');
     }
 
-    const document = await this.documents.getVirtualDocument(uri);
+    try {
+      const document = await this.documents.getVirtualDocument(uri);
 
-    return document?.getText();
+      return document?.getText();
+    } catch (error) {
+      return `/*\nError: ${error.message}\n${error.stack}\n*/`;
+    }
   }
 }

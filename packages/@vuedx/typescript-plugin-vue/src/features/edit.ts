@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import { removeVirtualSuffixFromFileName } from '../utils';
 import { TS } from '../interfaces';
-import { RenderFunctionDocument } from 'packages/@vuedx/vue-virtual-textdocument/src';
+import { RenderFunctionDocument } from '@vuedx/vue-virtual-textdocument';
 
 export function prepareTextChange(fileName: string, result: ts.TextChange[]) {
   return result;
@@ -37,8 +37,8 @@ export function prepareFileTextChanges(fileName: string, result: readonly ts.Fil
 export function remapTextSpan(span: TS.TextSpan, document: RenderFunctionDocument) {
   if (span.start != null) {
     let start = document.getSourceOffsetAt(span.start);
-    let end = span.length ? document.getSourceOffsetAt(span.start + span.length - 1) : start;
-    if (start == null || end == null) {
+    let end = span.length ? document.getSourceOffsetAt(span.start + span.length - 1) + 1 : start;
+    if (!Number.isInteger(start) || !Number.isInteger(end)) {
       return false;
     } else if (span.length) {
       end += 1;

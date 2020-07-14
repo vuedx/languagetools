@@ -50,7 +50,7 @@ function isNumber(any: any): any is number {
 
 function flat<T>(items: (T | T[])[]): T[] {
   if (typeof Array.prototype.flat === 'function') {
-    return items.flat(Infinity);
+    return items.flat(Infinity) as T[];
   }
 
   const result: T[] = [];

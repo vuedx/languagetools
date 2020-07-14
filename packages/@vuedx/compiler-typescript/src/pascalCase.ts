@@ -1,4 +1,4 @@
-import * as  camelCase from 'lodash.camelcase';
+import camelCase from 'lodash.camelcase';
 
 export function pascalCase(name: string) {
   name = camelCase(name);

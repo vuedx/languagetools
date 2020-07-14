@@ -9,6 +9,5 @@ export * from './runtimeHelpers';
 export function compile(source: string, options: Options): CodegenResult {
   const ast = baseParse(source, options);
   const { code, map } = baseCompile(ast, options);
-
   return { code, ast, map };
 }

@@ -1,4 +1,4 @@
-import { NodeTransform } from '@vue/compiler-core';
+import { NodeTransform, createInterpolation } from '@vue/compiler-core';
 import { isDirectiveNode, isElementNode } from '@vuedx/template-ast-types';
 
 export const transformTextAndHTML: NodeTransform = (node) => {
@@ -8,7 +8,7 @@ export const transformTextAndHTML: NodeTransform = (node) => {
     );
 
     if (isDirectiveNode(directive) && directive.exp) {
-      node.children = [directive.exp as any];
+      node.children = [createInterpolation(directive.exp.loc.source, directive.exp.loc)];
     }
   }
 };

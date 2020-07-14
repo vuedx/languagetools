@@ -1,6 +1,6 @@
-import { compile, RenderNode } from '@vuedx/compiler-typescript';
+import { compile } from '@vuedx/compiler-typescript';
 import Path from 'path';
-import { SourceMapConsumer, Position as SourceMapPosition } from 'source-map';
+import { Position as SourceMapPosition, SourceMapConsumer } from 'source-map';
 import { Position as TextDocumentPosition, Range, TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import { BlockSelector, VueTextDocument } from './VueTextDocument';
@@ -83,13 +83,10 @@ export class VirtualTextDocument implements TextDocument {
   }
 }
 
-type OffsetRange = [number, number];
-type MappedOffsetRange = [OffsetRange, OffsetRange] | [OffsetRange, OffsetRange, true];
-
 export class RenderFunctionDocument extends VirtualTextDocument {
   private consumer?: SourceMapConsumer;
-  private globalComponents: Record<string, string> = {};
-  private defaultOffset = 0;
+  private globalComponents: Record<string, { source: string; named?: boolean }> = {};
+  private defaultOffset = Number.NaN;
 
   public getText(range?: Range) {
     this.refresh();
@@ -114,10 +111,13 @@ export class RenderFunctionDocument extends VirtualTextDocument {
 
     if (this.consumer) {
       const position = this.internal.positionAt(offset);
+      const originalPosition = this.sm_2_td(this.consumer.originalPositionFor(this.td_2_sm(position)));
 
-      return this.container
-        .getBlockDocument('template')!
-        .offsetAt(this.sm_2_td(this.consumer.originalPositionFor(this.td_2_sm(position))));
+      if (!Number.isInteger(originalPosition.line) || !Number.isInteger(originalPosition.character)) {
+        return this.defaultOffset;
+      }
+
+      return this.container.getBlockDocument('template')!.offsetAt(originalPosition);
     }
 
     return this.defaultOffset;
@@ -128,19 +128,22 @@ export class RenderFunctionDocument extends VirtualTextDocument {
 
     if (this.consumer) {
       const template = this.container.getBlockDocument('template')!;
-      const position = template.positionAt(offset);
-
-      return this.internal.offsetAt(
-        this.sm_2_td(
-          this.consumer.generatedPositionFor({
-            ...this.td_2_sm(position),
-            source: template.getText().substr(offset, length),
-          })
-        )
+      const originalPosition = template.positionAt(offset);
+      const position = this.sm_2_td(
+        this.consumer.generatedPositionFor({
+          ...this.td_2_sm(originalPosition),
+          source: template.getText().substr(offset, length),
+        })
       );
+
+      if (!Number.isInteger(position.line) || !Number.isInteger(position.character)) {
+        return this.defaultOffset;
+      }
+
+      return this.internal.offsetAt(position);
     }
 
-    return 0;
+    return this.defaultOffset;
   }
 
   private td_2_sm(position: TextDocumentPosition): SourceMapPosition {
@@ -169,10 +172,10 @@ export class RenderFunctionDocument extends VirtualTextDocument {
           useJavaScript: this.languageId === 'javascript',
         });
 
-        this.consumer = new SourceMapConsumer(map!);
+        if (map) this.consumer = new SourceMapConsumer(map);
         this.internal = TextDocument.update(this.internal, [{ text: code }], this.container.version);
       } else {
-        this.defaultOffset = 0;
+        this.defaultOffset = Number.NaN;
         this.consumer = undefined;
         this.internal = TextDocument.update(this.internal, [{ text: '' }], this.container.version);
       }
@@ -186,7 +189,7 @@ export class RenderFunctionDocument extends VirtualTextDocument {
     version: number,
     content: string,
     selector: BlockSelector,
-    globalComponents: Record<string, string> = {}
+    globalComponents: Record<string, { source: string; named?: boolean }> = {}
   ) {
     const document = new RenderFunctionDocument(
       TextDocument.create(uri, languageId, version, content),
@@ -201,8 +204,8 @@ export class RenderFunctionDocument extends VirtualTextDocument {
 }
 
 const ImportPathRegExp = /import\s+(?:{[^}]+}\s*,)?\s*([A-Z][A-Za-z0-9_$]+)\s*(?:,\s*{[^}]+}\s*)?from\s+(?:"([^"]+)"|'([^']+)')/g;
-function findComponents(source: string): Record<string, string> {
-  const components: Record<string, string> = {};
+function findComponents(source: string): Record<string, { source: string; named?: boolean }> {
+  const components: Record<string, { source: string; named?: boolean }> = {};
 
   const iterator = source.matchAll(ImportPathRegExp);
 
@@ -210,7 +213,9 @@ function findComponents(source: string): Record<string, string> {
     const match = iterator.next();
     if (match.done) break;
 
-    components[match.value[1]] = match.value[2] || match.value[3];
+    components[match.value[1]] = {
+      source: match.value[2] || match.value[3],
+    };
   }
 
   return components;

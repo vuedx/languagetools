@@ -39,6 +39,9 @@ function createTs(pkgDir) {
       compilerOptions: {
         module: 'ESNext',
         sourceMap: true,
+        baseUrl: pkgDir,
+        declaration: false,
+        paths: {},
       },
     },
   });
@@ -141,14 +144,12 @@ function createConfig(dir, names, external = []) {
           },
           onwarn: options.onwarn,
           plugins: [
-            // node({
-            //   mainFields: ['types', 'typings'],
-            //   extensions: ['.d.ts'],
-            //   customResolveOptions: {
-            //     moduleDirectory: ['node_modules/@types', 'node_modules'],
-            //   },
-            // }),
-            dts(),
+            dts({
+              compilerOptions: {
+                baseUrl: pkgDir,
+                paths: {},
+              },
+            }),
           ],
         });
       }
