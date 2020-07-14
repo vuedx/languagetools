@@ -141,7 +141,7 @@ importers:
     dependencies:
       '@babel/parser': 7.9.4
       '@babel/types': 7.9.0
-      '@vue/compiler-core': 3.0.0-alpha.12
+      '@vue/compiler-core': 3.0.0-beta.20
       '@vuedx/template-ast-types': 'link:../template-ast-types'
       lodash.camelcase: 4.3.0
     devDependencies:
@@ -149,17 +149,19 @@ importers:
       '@vuedx/compiler-sfc': 'link:../compiler-sfc'
       chalk: 4.0.0
       cli-highlight: 2.1.4
+      prettier: 2.0.5
       typescript: 3.9.6
     specifiers:
       '@babel/parser': ^7.9.4
       '@babel/types': ^7.9.0
       '@types/lodash.camelcase': ^4.3.6
-      '@vue/compiler-core': ^3.0.0-alpha.12
+      '@vue/compiler-core': ^3.0.0-beta.20
       '@vuedx/compiler-sfc': 'workspace:^0.1.0-alpha.11'
       '@vuedx/template-ast-types': 'workspace:*'
       chalk: ^4.0.0
       cli-highlight: ^2.1.4
       lodash.camelcase: ^4.3.0
+      prettier: ^2.0.5
       typescript: ^3.9.6
   packages/@vuedx/extensions-shared:
     dependencies:
@@ -257,11 +259,11 @@ importers:
       vite: ^1.0.0-beta.11
   packages/@vuedx/template-ast-types:
     dependencies:
-      '@vue/compiler-core': 3.0.0-alpha.12
+      '@vue/compiler-core': 3.0.0-beta.20
     devDependencies:
       typescript: 3.9.6
     specifiers:
-      '@vue/compiler-core': ^3.0.0-alpha.12
+      '@vue/compiler-core': ^3.0.0-beta.20
       typescript: ^3.9.6
   packages/@vuedx/typecheck:
     dependencies:
@@ -665,7 +667,7 @@ packages:
   /@babel/types/7.10.4:
     dependencies:
       '@babel/helper-validator-identifier': 7.10.4
-      lodash: 4.17.15
+      lodash: 4.17.19
       to-fast-properties: 2.0.0
     resolution:
       integrity: sha512-UTCFOxC3FsFHb7lkRMVvgLzaRVamXuAs2Tz4wajva4WxtVY82eZeaUBtC2Zt95FU9TiznuC0Zk35tsim8jeVpg==
@@ -1295,6 +1297,16 @@ packages:
       source-map: 0.6.1
     resolution:
       integrity: sha512-GWOJGDn3Ci/dJfiIkE1lBNXYrWhCe+j8tcTGVctriBF0d7ciWZ1G4r65SidYgwrvv9QpbroR5YVSv2XnOEwqHQ==
+  /@vue/compiler-core/3.0.0-beta.20:
+    dependencies:
+      '@babel/parser': 7.10.4
+      '@babel/types': 7.10.4
+      '@vue/shared': 3.0.0-beta.20
+      estree-walker: 0.8.1
+      source-map: 0.6.1
+    dev: false
+    resolution:
+      integrity: sha512-ZMMMD4GMZXrwJFBzdn3v+VcrrGofqrP7gfJ5ie/3p2sIEVAfsI0qwIb/DCezWt/Cm3viMJiTpv4SINPGK4xM8Q==
   /@vue/compiler-dom/3.0.0-alpha.12:
     dependencies:
       '@vue/compiler-core': 3.0.0-alpha.12
@@ -1403,6 +1415,10 @@ packages:
   /@vue/shared/3.0.0-beta.19:
     resolution:
       integrity: sha512-LDW+oDcVFoFHCR8V2vkOz+s/GZUtu9Wi3W5IwsFgTaV62YfCBF1gT57Ee1PAawDnMvzg86UhMkBaLIUly9waRw==
+  /@vue/shared/3.0.0-beta.20:
+    dev: false
+    resolution:
+      integrity: sha512-Ttuh2Kib8aelCm0J0M31z7ajHYWI3DOj59sbAh8ZuwIn8l5sKUmDUkxry2n3gYJ5s3uV3xhFCLQs1THtsg1/qA==
   /abab/2.0.3:
     dev: true
     resolution:
@@ -4778,6 +4794,9 @@ packages:
   /lodash/4.17.15:
     resolution:
       integrity: sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
+  /lodash/4.17.19:
+    resolution:
+      integrity: sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
   /log-symbols/3.0.0:
     dependencies:
       chalk: 2.4.2
@@ -5971,6 +5990,13 @@ packages:
       node: '>= 0.8.0'
     resolution:
       integrity: sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=
+  /prettier/2.0.5:
+    dev: true
+    engines:
+      node: '>=10.13.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-7PtVymN48hGcO4fGjybyBSIWDsLU4H4XlvOHfq91pz9kkGlonzwTfYkaIEwiRg/dAJF9YlbsduBAgtYLi+8cFg==
   /pretty-format/25.5.0:
     dependencies:
       '@jest/types': 25.5.0
