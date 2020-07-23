@@ -21,5 +21,11 @@
     "paths": {
       "@vuedx/*": ["*/src/index.ts"]
     }
-  }
+  },
+  "include": [
+    "types/*",
+    "packages/@vuedx/*/src",
+    "packages/@vuedx/extensions-shared",
+  ],
+  "exclude": ["examples/**"]
 }

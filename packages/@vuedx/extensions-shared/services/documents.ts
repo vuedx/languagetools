@@ -1,3 +1,4 @@
+// @ts-ignore
 import vscode from 'vscode';
 import { injectable } from 'inversify';
 import { AsyncDocumentStore, isVueFile, parseVirtualFileName, VueTextDocument } from '@vuedx/vue-virtual-textdocument';
@@ -24,7 +25,7 @@ export class DocumentService extends Installable {
         if (this.store.has(uri)) {
           const document = await this.store.get(uri);
           
-          VueTextDocument.update(document!, event.contentChanges, event.document.version);
+        VueTextDocument.update(document!, event.contentChanges, event.document.version);
 
           document!.all().forEach((document) => {
             this.emitter.fire({ uri: vscode.Uri.parse(document.uri) });
@@ -48,7 +49,7 @@ export class DocumentService extends Installable {
       const { selector, uri: container } = parseVirtualFileName(uri)!;
       const document = await this.store.get(container);
 
-      return document?.getBlockDocument(selector) || null;
+      return document?.getDocument(selector) || null;
     } catch {
       return null;
     }

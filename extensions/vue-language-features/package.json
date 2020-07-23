@@ -133,13 +133,13 @@
     "@vuedx/extensions-shared": "workspace:*",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13",
-    "typescript": "^3.9.6",
-    "vscode": "^1.1.36",
-    "vue": "^3.0.0-alpha.12",
-    "yaml": "^1.8.2"
+    "typescript": "^3.9.7",
+    "vscode": "^1.1.37",
+    "vue": "^3.0.0-rc.4",
+    "yaml": "^1.10.0"
   },
   "dependencies": {
-    "@vuedx/vue-virtual-textdocument": "workspace:*",
-    "@vuedx/typescript-plugin-vue": "workspace:*"
+    "@vuedx/typescript-plugin-vue": "workspace:*",
+    "@vuedx/vue-virtual-textdocument": "workspace:*"
   }
 }

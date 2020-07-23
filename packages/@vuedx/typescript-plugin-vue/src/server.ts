@@ -43,6 +43,7 @@ import { prepareRenameInfo } from './features/rename';
 import { prepareSignatureHelpItems } from './features/signature';
 import { TS } from './interfaces';
 import { removeVirtualSuffixFromFileName } from './utils';
+import { tryPatchMethod } from './patcher';
 
 function isNumber(any: any): any is number {
   return typeof any === 'number';
@@ -183,25 +184,27 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     this.fileSystem = new VirtualFileSystemHelper(context.store, context);
   }
 
-  private getPositionInGeneratedSource(fileName: string, position: number, length = 1) {
+  private getPositionInGeneratedSource(fileName: string, position: number) {
     if (this.fileSystem.isRenderFunction(fileName)) {
       const document = this.fileSystem.getRenderFunctionDocument(fileName);
-      if (document) return document.getGeneratedOffsetAt(position, length);
+      if (document) return document.getGeneratedOffsetAt(position);
     }
 
     return position;
   }
 
-  prevProgram?: TS.Program;
   getProgram() {
     const program = this.service.getProgram();
 
-    if (!program) {
-      this.context.log('Unxpected undefined program.');
-      return this.prevProgram;
-    }
+   if (program) tryPatchMethod(program, 'getSourceFile', fn => fileName => {
+      let sourceFile = fn(fileName)
 
-    this.prevProgram = program;
+      if (!sourceFile && isVirtualFile(fileName)) {
+        this.context.log(`THIS SHOULD NOT BE HAPPENING ${fileName}`)
+      }
+
+      return sourceFile
+    })
 
     return program;
   }
@@ -212,7 +215,24 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
         const diagnostics = this.service.getSyntacticDiagnostics(fileName);
 
         if (this.fileSystem.isRenderFunction(fileName)) {
-          return remapSyntacticDiagnostics(diagnostics, this.fileSystem.getRenderFunctionDocument(fileName));
+          const document = this.fileSystem.getRenderFunctionDocument(fileName);
+          const result = remapSyntacticDiagnostics(diagnostics, document);
+
+          if (document?.errors.length) {
+            const file = this.getProgram()!.getSourceFile(fileName)!;
+            document.errors.forEach((error) => {
+              diagnostics.push({
+                code: -1,
+                messageText: error.messageText,
+                start: error.start,
+                length: error.length,
+                category: 1,
+                file: file,
+              });
+            });
+          }
+
+          return result;
         }
 
         return diagnostics;
@@ -299,7 +319,20 @@ export class VueLanguageServer implements Partial<ts.LanguageService> {
     return chain(this.fileSystem.getFileNameAt(fileName, position, true))
       .next((fileName) =>
         chain(this.getPositionInGeneratedSource(fileName, position))
-          .next((position) => this.service.getCompletionsAtPosition(fileName, position, options))
+          .next((position) => // TODO: Implement render context + context at position.
+            this.service.getCompletionsAtPosition(
+              fileName,
+              position,
+              this.fileSystem.isRenderFunction(fileName)
+                ? {
+                    ...options,
+                    includeInsertTextCompletions: false,
+                    includeCompletionsForModuleExports: false,
+                    includeExternalModuleExports: false,
+                  }
+                : options
+            )
+          )
           .next((result) =>
             this.fileSystem.isRenderFunction(fileName)
               ? remapCompletionsInfo(result, this.fileSystem.getRenderFunctionDocument(fileName))

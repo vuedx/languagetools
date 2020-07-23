@@ -159,18 +159,18 @@
     "url": "https://github.com/znck/vue-developer-experience/issues"
   },
   "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/vue#readme",
-  "devDependencies": {
+  "dependencies": {
     "@vuedx/extensions-shared": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "chai": "^4.2.0",
-    "fast-glob": "^3.2.2",
+    "fast-glob": "^3.2.4",
     "inversify": "^5.0.1",
-    "mocha": "^7.1.1",
+    "mocha": "^7.2.0",
     "reflect-metadata": "^0.1.13",
-    "typescript": "^3.9.6",
-    "vscode": "^1.1.36",
-    "vscode-test": "^1.3.0",
-    "vue": "^3.0.0-alpha.12",
-    "yaml": "^1.8.2"
+    "typescript": "^3.9.7",
+    "vscode": "^1.1.37",
+    "vscode-test": "^1.4.0",
+    "vue": "^3.0.0-rc.4",
+    "yaml": "^1.10.0"
   }
 }

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 const checker = require('../dist/typecheck');
-const { generateCodeFrame } = require('@vuedx/compiler-sfc');
 const Path = require('path');
 const FS = require('fs');
 const parseArgs = require('minimist');
 const chalk = require('chalk');
+const generateCodeFrame = checker.generateCodeFrame;
 
 const categories = ['Warning', 'Error', 'Suggestion', 'Message'];
 const colors = [chalk.yellow, chalk.red, chalk.green, chalk.blueBright];
@@ -41,8 +41,8 @@ function printDiagnostics(diagnostic, root = true) {
       if (information.file) {
         printDiagnostics(information, false);
       } else if (information.messageText) {
-        const msg = stringifyChain(information.messageText);
-        if (msg.trim()) console.log(color(pad + '-> ' + msg));
+        const msg = stringifyChain(pad, information.messageText);
+        if (msg.trim()) console.log(color(msg));
       }
     });
   }

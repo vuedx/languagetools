@@ -3,15 +3,15 @@
   "version": "0.1.0-alpha.13",
   "private": true,
   "dependencies": {
-    "@vuedx/vue-virtual-textdocument": "workspace:^0.1.0-alpha.2",
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
-    "fast-glob": "^3.2.2",
-    "mocha": "^7.1.1",
-    "typescript": "^3.9.6"
+    "fast-glob": "^3.2.4",
+    "mocha": "^7.2.0",
+    "typescript": "^3.9.7"
   }
 }

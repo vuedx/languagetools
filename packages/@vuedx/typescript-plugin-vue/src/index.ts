@@ -2,15 +2,15 @@ import FS from 'fs';
 import Path from 'path';
 import { PluginContext } from './context';
 import { Modules, TS } from './interfaces';
-import { VueLanguageServer } from './server';
+import { RoutingLanguageServer } from './servers/routing';
 
 let context: PluginContext;
-let server: VueLanguageServer;
+let server: RoutingLanguageServer;
 
 export default function init({ typescript }: Modules): TS.server.PluginModule {
   if (!context) {
     context = new PluginContext(typescript);
-    server = new VueLanguageServer(context);
+    server = new RoutingLanguageServer(context);
   }
 
   return {

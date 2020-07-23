@@ -1,6 +1,6 @@
 {
+  "include": ["src/"],
   "compilerOptions": {
-    "jsx": "preserve",
-    "jsxFactory": "_h",
+    "jsx": "preserve"
   }
 }

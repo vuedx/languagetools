@@ -31,12 +31,13 @@ export class OpenVirtualFileCommand extends Installable {
     const position = editor.selection.start;
 
     const container = await this.documents.getVueDocument(uri);
-    const block = container?.blockAt(position);
-    const document =
-      block?.type === 'template' ? container?.getBlockDocument('render') : container?.documentAt(position);
+    if (!container) return
+    const block = container.blockAt(position);
+    let document =
+      block?.type === 'template' ? container.getDocument('_render') : container.documentAt(position);
 
     if (!document) {
-      return vscode.window.showInformationMessage('There is no virtual document at cursor.');
+      document = container.getDocument('_module')!
     }
 
     const virtualUri = vscode.Uri.parse(document.uri);

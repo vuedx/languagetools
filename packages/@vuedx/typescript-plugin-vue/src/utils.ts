@@ -1,36 +1,39 @@
-import ts from 'typescript';
-import { isVirtualFile, VIRTUAL_FILENAME_SEPARATOR } from '@vuedx/vue-virtual-textdocument';
+import {
+  getContainingFile,
+  isVirtualFile,
+  parseVirtualFileName,
+  RenderFunctionTextDocument,
+  RENDER_SELECTOR,
+  VirtualTextDocument,
+} from '@vuedx/vue-virtual-textdocument';
+import { PluginContext } from './context';
 
-export function removeVirtualSuffixFromFileName(fileName: string) {
-  if (isVirtualFile(String(fileName))) {
-    return fileName.substr(0, fileName.lastIndexOf(VIRTUAL_FILENAME_SEPARATOR));
+export function createServerHelper(context: PluginContext) {
+  function getDocument(fileName: string) {
+    return isVirtualFile(fileName)
+      ? context.store.get(getContainingFile(fileName))?.getDocument(fileName)
+      : context.store.get(fileName);
   }
 
-  return fileName;
-}
+  function getDocumentAt(fileName: string, position: number) {
+    const document = context.store.get(fileName)!; // The file should exist.
+    const block = document.blockAt(position);
+    if (!block) return;
 
-const virtualFileRegex = new RegExp(
-  `(?<=\\.vue)${VIRTUAL_FILENAME_SEPARATOR}(script|template|style|customBlock|render)(__[0-9]+)?(\\.[A-Za-z0-9_-]+)?`,
-  'g'
-);
-export function removeVirtualSuffixFromText(text: string) {
-  return text.replace(virtualFileRegex, '');
-}
+    if (block.type === 'template') {
+      return document.getDocument(RENDER_SELECTOR);
+    }
 
-export function prepareDocumentSpan(span: ts.DocumentSpan) {
-  span.fileName = removeVirtualSuffixFromFileName(span.fileName);
-  if (span.originalFileName) {
-    span.originalFileName = removeVirtualSuffixFromFileName(span.originalFileName);
+    return document.getDocument(document.getBlockSelector(block)!);
   }
-}
 
-export function getLastNumberFromVersion(version: string) {
-  const parts = version.split(/[^0-9]+/);
-  const ver = parts.pop();
+  function isRenderFunctionDocument(document: unknown): document is RenderFunctionTextDocument {
+    return (document as VirtualTextDocument)?.selector.type === RENDER_SELECTOR;
+  }
 
-  return Number(ver);
-}
+  function isRenderFunctionFileName(fileName: string): boolean {
+    return isVirtualFile(fileName) && parseVirtualFileName(fileName)?.selector.type === RENDER_SELECTOR;
+  }
 
-export function isNotNull<T>(value: T | null | undefined): value is T {
-  return value != null;
+  return { getDocument, getDocumentAt, isRenderFunctionDocument, isRenderFunctionFileName };
 }

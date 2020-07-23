@@ -1,4 +1,4 @@
-import TS from "typescript/lib/tsserverlibrary";
+import TS from 'typescript/lib/tsserverlibrary';
 
 export { TS };
 export interface Modules {

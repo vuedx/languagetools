@@ -5,7 +5,6 @@
   "main": "dist/template-ast-types.js",
   "module": "dist/template-ast-types.esm.js",
   "types": "dist/template-ast-types.d.ts",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/znck/vue-developer-experience.git"
@@ -25,9 +24,9 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
-    "@vue/compiler-core": "^3.0.0-beta.20"
+    "@vue/compiler-core": "^3.0.0-rc.4"
   },
   "devDependencies": {
-    "typescript": "^3.9.6"
+    "typescript": "^3.9.7"
   }
 }

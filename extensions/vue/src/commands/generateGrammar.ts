@@ -52,7 +52,7 @@ export class GenerateGrammarCommand extends Installable {
     let shouldGenerate = false;
     const blocks: { block: string; language: string }[] = [];
 
-    doc.blocks.forEach((block) => {
+    doc.descriptor.customBlocks.forEach((block) => {
       if (!/^(script|template|style)$/.test(block.type) && block.lang && block.lang in this.supported) {
         if (!this.blocks[block.type]) {
           shouldGenerate = true;

@@ -4,7 +4,6 @@
   "description": "Extracts public API information from Vue component.",
   "main": "dist/sfc-inspector.js",
   "module": "dist/sfc-inspector.esm.js",
-  "types": "dist/sfc-inspector.d.ts",
   "bin": "bin/sfc-inspector.js",
   "repository": {
     "type": "git",
@@ -27,27 +26,10 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
-    "@babel/code-frame": "^7.8.3",
-    "@babel/generator": "^7.9.5",
-    "@babel/parser": "^7.9.4",
-    "@babel/traverse": "^7.9.5",
-    "@babel/types": "^7.9.5",
-    "@vue/compiler-core": "^3.0.0-alpha.12",
-    "@vuedx/compiler-sfc": "workspace:*",
-    "cli-highlight": "^2.1.4",
-    "commander": "^4.1.1",
-    "doctrine": "^3.0.0",
-    "fast-glob": "^3.2.2",
-    "hash-sum": "^2.0.0"
+    "@babel/parser": "^7.10.5",
+    "@babel/types": "^7.10.5"
   },
   "devDependencies": {
-    "@types/babel__code-frame": "^7.0.1",
-    "@types/babel__generator": "^7.6.1",
-    "@types/babel__traverse": "^7.0.9",
-    "@types/doctrine": "^0.0.3",
-    "typescript": "^3.9.6"
-  },
-  "scripts": {
-    "build": "tsdx build --target node"
+    "typescript": "^3.9.7"
   }
 }

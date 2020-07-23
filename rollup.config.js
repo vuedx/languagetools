@@ -31,18 +31,15 @@ export default configurations;
 
 function createTs(pkgDir) {
   return ts({
-    include: [/\.ts$/],
-    exclude: [],
-    check: false,
-    tsconfig: Path.resolve(pkgDir, 'tsconfig.json'),
+    check: true,
+    tsconfig: Path.resolve(__dirname, 'tsconfig.json'),
     tsconfigOverride: {
       compilerOptions: {
-        module: 'ESNext',
         sourceMap: true,
-        baseUrl: pkgDir,
         declaration: false,
-        paths: {},
+        declarationMap: false,
       },
+      exclude: ['**/test/**', 'examples/**'],
     },
   });
 }
@@ -77,6 +74,7 @@ function createConfig(dir, names, external = []) {
           'url',
           'util',
           'os',
+          'crypto',
         ]
           .concat(Object.keys(pkg.dependencies || {}))
           .concat(pkg.build && pkg.build.external ? pkg.build.external : [])
@@ -118,6 +116,7 @@ function createConfig(dir, names, external = []) {
             file: Path.resolve(pkgDir, pkg.main),
             format: 'cjs',
             sourcemap: true,
+            exports: 'auto',
           },
         });
       }
@@ -143,14 +142,7 @@ function createConfig(dir, names, external = []) {
             sourcemap: true,
           },
           onwarn: options.onwarn,
-          plugins: [
-            dts({
-              compilerOptions: {
-                baseUrl: pkgDir,
-                paths: {},
-              },
-            }),
-          ],
+          plugins: [dts({})],
         });
       }
     } catch (e) {

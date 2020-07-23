@@ -2,15 +2,15 @@
   "private": true,
   "name": "example",
   "dependencies": {
-    "vue": "^3.0.0-beta.19"
+    "vue": "^3.0.0-rc.4"
   },
   "devDependencies": {
-    "@vue/compiler-sfc": "^3.0.0-beta.19",
-    "@vuedx/stories": "workspace:^0.1.0-alpha.12",
-    "@vuedx/stories-ui": "workspace:^0.1.0-alpha.12",
-    "@vuedx/stories-vite": "workspace:^0.1.0-alpha.12",
-    "typescript": "^3.9.6",
-    "vite": "^1.0.0-beta.11"
+    "@vue/compiler-sfc": "^3.0.0-rc.4",
+    "@vuedx/stories": "workspace:^0.1.0-alpha.13",
+    "@vuedx/stories-ui": "workspace:^0.1.0-alpha.13",
+    "@vuedx/stories-vite": "workspace:^0.1.0-alpha.13",
+    "typescript": "^3.9.7",
+    "vite": "^1.0.0-rc.3"
   },
   "scripts": {
     "dev": "stories"
