@@ -27,7 +27,10 @@
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
     "@babel/parser": "^7.10.5",
-    "@babel/types": "^7.10.5"
+    "@babel/traverse": "^7.11.0",
+    "@babel/types": "^7.10.5",
+    "@vue/compiler-core": "^3.0.0-rc.5",
+    "@vue/compiler-sfc": "^3.0.0-rc.5"
   },
   "devDependencies": {
     "typescript": "^3.9.7"
