@@ -14,8 +14,8 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "dependencies": {
-    "@vue/compiler-sfc": "^3.0.0-rc.5",
     "@vue/compiler-core": "^3.0.0-rc.5",
+    "@vue/compiler-sfc": "^3.0.0-rc.5",
     "@vuedx/compiler-tsx": "workspace:*",
     "@vuedx/sfc-inspector": "workspace:*",
     "vscode-languageserver-textdocument": "^1.0.1",
