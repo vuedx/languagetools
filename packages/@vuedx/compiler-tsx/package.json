@@ -12,8 +12,8 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "dependencies": {
-    "@babel/parser": "^7.10.5",
-    "@babel/types": "^7.10.5",
+    "@babel/parser": "^7.11.0",
+    "@babel/types": "^7.11.0",
     "@vue/compiler-core": "^3.0.0-rc.4",
     "@vuedx/template-ast-types": "workspace:*",
     "lodash.camelcase": "^4.3.0"

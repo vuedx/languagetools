@@ -38,8 +38,8 @@ export function createAnalyzer(plugins: Plugin[], options: Partial<Context['pars
     return context.component.info();
   }
 
-  function analyzeScript(content: string, fileName?: string) {
-    return analyze(`<script>${content}</script>`, fileName);
+  function analyzeScript(content: string, fileName: string = 'component.js') {
+    return analyze(`<script lang="${fileName.split('.').pop()}">${content}</script>`, fileName);
   }
 
   function analyzeTemplate(content: string, fileName?: string) {

@@ -132,8 +132,8 @@ importers:
       yaml: ^1.10.0
   packages/@vuedx/compiler-tsx:
     dependencies:
-      '@babel/parser': 7.10.5
-      '@babel/types': 7.10.5
+      '@babel/parser': 7.11.0
+      '@babel/types': 7.11.0
       '@vue/compiler-core': 3.0.0-rc.4
       '@vuedx/template-ast-types': 'link:../template-ast-types'
       lodash.camelcase: 4.3.0
@@ -144,8 +144,8 @@ importers:
       prettier: 2.0.5
       typescript: 3.9.7
     specifiers:
-      '@babel/parser': ^7.10.5
-      '@babel/types': ^7.10.5
+      '@babel/parser': ^7.11.0
+      '@babel/types': ^7.11.0
       '@types/lodash.camelcase': ^4.3.6
       '@vue/compiler-core': ^3.0.0-rc.4
       '@vuedx/template-ast-types': 'workspace:*'

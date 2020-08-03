@@ -1,6 +1,7 @@
-import { parse, SFCParseOptions, SFCBlock, SFCStyleBlock } from '@vue/compiler-sfc';
+import { parse, SFCBlock, SFCParseOptions, SFCStyleBlock } from '@vue/compiler-sfc';
 import { CodegenResult, compile, ComponentImport } from '@vuedx/compiler-tsx';
-import { TextDocument, TextDocumentContentChangeEvent, Position } from 'vscode-languageserver-textdocument';
+import { ComponentsOptionAnalyzer, createAnalyzer, ScriptBlockAnalyzer } from '@vuedx/sfc-inspector';
+import { Position, TextDocument, TextDocumentContentChangeEvent } from 'vscode-languageserver-textdocument';
 import {
   BlockSelector,
   INTERNAL_MODULE_SELECTOR,
@@ -14,20 +15,20 @@ import {
 } from '../types';
 import {
   asUri,
+  binarySearch,
   getBlockLanguage,
   getLanguageExtension,
+  isNotNull,
+  isNumber,
+  isOffsetInBlock,
   isString,
   parseVirtualFileName,
   relativeVirtualImportPath,
   VIRTUAL_FILENAME_SEPARATOR,
-  binarySearch,
-  isNotNull,
-  isOffsetInBlock,
-  isNumber,
 } from '../utils';
 import { ProxyTextDocument } from './proxy';
-import { processScript } from '@vuedx/sfc-inspector';
 
+const analyzer = createAnalyzer([ScriptBlockAnalyzer, ComponentsOptionAnalyzer]);
 const replaceRE = /./g;
 const parseSFC: typeof parse = /*#__PURE__*/ (source, options) => {
   const result = parse(source, options);
@@ -35,7 +36,12 @@ const parseSFC: typeof parse = /*#__PURE__*/ (source, options) => {
   // @vue/compiler-sfc does not pads template.
   if (result.descriptor.template?.content) {
     const { template } = result.descriptor;
-    template.content = source.substr(0, template.loc.start.offset).replace(replaceRE, ' ') + template.content;
+    // @ts-ignore
+    if (!template.__padded__) {
+      // @ts-ignore
+      template.__padded__ = true;
+      template.content = source.substr(0, template.loc.start.offset).replace(replaceRE, ' ') + template.content;
+    }
   }
 
   return result;
@@ -169,7 +175,9 @@ class InternalModuleTextDocument extends VirtualTextDocument {
 
 export class RenderFunctionTextDocument extends VirtualTextDocument {
   private result!: CodegenResult;
+  private originalRange: [number, number] = [0, 0];
   private originalMappings: CodegenResult['mappings'] = [];
+  private generatedRange: [number, number] = [0, 0];
   private generatedMappings: CodegenResult['mappings'] = [];
 
   public get ast(): CodegenResult['ast'] {
@@ -177,20 +185,31 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   }
 
   public getOriginalOffsetAt(offset: number) {
-    const mapping = binarySearch(this.originalMappings, ([start, length]) => {
-      if (start <= offset && offset <= start + length) return 0;
-      return start - offset;
-    });
+    this.refresh();
+    const [start, end] = this.generatedRange;
+    const g = this.positionAt(offset);
 
-    if (mapping) {
-      const covered = offset - mapping[0];
-      const prefix = Math.min(mapping[4], covered);
-      const offsetInSource = covered - prefix;
-      // ignore _ctx. if there
-      return {
-        offset: mapping[2] + offsetInSource,
-        length: Math.max(1, mapping[3] - offsetInSource),
-      };
+    if (start <= offset && offset <= end) {
+      const mapping = binarySearch(this.originalMappings, ([start, length]) => {
+        if (start <= offset && offset <= start + length) return 0;
+        return start - offset;
+      });
+
+      if (mapping) {
+        const offsetInSource = offset - mapping[0];
+        const o = this.container.getDocument('template').positionAt(mapping[2] + offsetInSource);
+
+        console.log(
+          `VirtualTextDocument:: render ${g.line + 1}:${g.character + 1} = template ${o.line + 1}:${
+            o.character + 1
+          } of ${this.container.fsPath}`
+        );
+
+        return {
+          offset: mapping[2] + offsetInSource,
+          length: Math.max(1, mapping[3] - offsetInSource),
+        };
+      }
     }
   }
 
@@ -203,36 +222,52 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   }
 
   public getGeneratedOffsetAt(offset: number) {
-    const mapping = binarySearch(this.generatedMappings, ([, , start, length]) => {
-      if (start <= offset && offset <= start + length) return 0;
-      return start - offset;
-    });
+    this.refresh();
+    const [start, end] = this.originalRange;
 
-    if (mapping) {
-      const covered = offset - mapping[2];
-      const offsetInGenerated = covered + mapping[4];
-      // ignore _ctx. if there
-      return {
-        offset: mapping[0] + offsetInGenerated,
-        length: Math.max(1, mapping[1] - offsetInGenerated),
-      };
+    const o = this.container.getDocument('template').positionAt(offset);
+
+    if (start <= offset && offset <= end) {
+      const mapping = binarySearch(this.generatedMappings, ([, , start, length]) => {
+        if (start <= offset && offset <= start + length) return 0;
+        return start - offset;
+      });
+
+      if (mapping) {
+        const offsetInGenerated = offset - mapping[2];
+        const g = this.positionAt(mapping[0] + offsetInGenerated);
+        console.log(
+          `VirtualTextDocument:: template ${o.line + 1}:${o.character + 1} = render ${g.line + 1}:${
+            g.character + 1
+          } of ${this.container.fsPath}`
+        );
+        return {
+          offset: mapping[0] + offsetInGenerated,
+          length: Math.max(1, mapping[1] - offsetInGenerated),
+        };
+      }
     }
   }
 
   public getAllGeneratedOffsetsAt(offset: number) {
-    const mappings = this.generatedMappings.filter(([, , start, length]) => {
-      return start <= offset && offset <= start + length;
-    });
+    this.refresh();
+    const [start, end] = this.originalRange;
 
-    return mappings.map((mapping) => {
-      const covered = mapping[2] <= offset && offset <= mapping[2] + mapping[3] ? offset - mapping[2] : 0;
-      const offsetInGenerated = covered + mapping[4];
-      // ignore _ctx. if there
-      return {
-        offset: mapping[0] + offsetInGenerated,
-        length: Math.max(1, mapping[1] - offsetInGenerated),
-      };
-    });
+    if (start <= offset && offset <= end) {
+      const mappings = this.generatedMappings.filter(([, , start, length]) => {
+        return start <= offset && offset <= start + length;
+      });
+
+      return mappings.map((mapping) => {
+        const offsetInGenerated = mapping[2] <= offset && offset <= mapping[2] + mapping[3] ? offset - mapping[2] : 0;
+        return {
+          offset: mapping[0] + offsetInGenerated,
+          length: Math.max(1, mapping[1] - offsetInGenerated),
+        };
+      });
+    }
+
+    return [];
   }
 
   protected refresh() {
@@ -247,6 +282,10 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
           [{ text: `\n/* ${error.message} ${error.stack} */ \n` }],
           this.container.version
         );
+        this.originalRange = [0, 0];
+        this.originalMappings = [];
+        this.generatedRange = [0, 0];
+        this.generatedMappings = [];
       }
     }
   }
@@ -262,13 +301,15 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
         components: this.getLocalComponents(),
       });
 
+      this.originalRange = [template.loc.start.offset, template.loc.end.offset];
       this.originalMappings = this.result.mappings.slice();
+      this.generatedRange = [this.result.code.indexOf('/*@@vue:start*/'), this.result.code.indexOf('/*@@vue:end*/')];
       this.generatedMappings = this.result.mappings.slice();
 
       this.originalMappings.sort((a, b) => a[2] - b[2]);
       this.generatedMappings.sort((a, b) => a[0] - b[0]);
 
-      return this.result.code;
+      return this.result.code + `\n// Version ${this.doc.version}`;
     }
   }
 
@@ -276,9 +317,17 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     const { script } = this.container.descriptor;
 
     if (script && script.content) {
-      const result = processScript(script.content);
+      const result = analyzer.analyzeScript(script.content, 'component.ts');
+      const map: Record<string, ComponentImport> = {};
+      result.components.forEach((component) => {
+        map[component.name] = {
+          path: component.source.moduleName,
+          named: !!component.source.exportName,
+          name: component.source.exportName,
+        };
+      });
 
-      return result.components;
+      return map;
     }
   }
 
@@ -510,6 +559,9 @@ export class VueTextDocument extends ProxyTextDocument {
   }
 
   public static update(document: VueTextDocument, changes: TextDocumentContentChangeEvent[], version: number) {
+    console.log(
+      `VueTextDocument:: ${document.fsPath} ${document.version} ---> ${version} ===> ${JSON.stringify(changes)}`
+    );
     document.doc = TextDocument.update(document.doc, changes, version);
     document.isDirty = true;
     document.documents.forEach((document) => {

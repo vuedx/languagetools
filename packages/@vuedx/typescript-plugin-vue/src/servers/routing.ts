@@ -1,9 +1,9 @@
+import { isVirtualFile, isVueFile, VirtualTextDocument } from '@vuedx/vue-virtual-textdocument';
 import { PluginContext } from '../context';
 import { TS } from '../interfaces';
+import { CreateLanguageServiceOptions } from '../types';
 import { createServerHelper } from '../utils';
 import { createVueLanguageServer } from './vue';
-import { isVueFile } from 'vue-virtual-textdocument/src';
-import { CreateLanguageServiceOptions } from '../types';
 
 const VUE_LANGUAGE_SERVER = Symbol('Vue Language Server');
 
@@ -85,21 +85,65 @@ function createLanguageServiceRouter(options: CreateLanguageServiceOptions): TS.
     'isValidBraceCompletionAtPosition',
   ];
 
-  const proxy: TS.LanguageService = {
-    ...options.service,
+  function getTextSpan(document: VirtualTextDocument, span: TS.TextSpan): TS.TextSpan | null {
+    if (options.helpers.isRenderFunctionDocument(document)) {
+      const result = document.getOriginalOffsetAt(span.start);
+      if (result) return { start: result.offset, length: result.length };
+
+      return null;
+    }
+
+    return span;
+  }
+
+  const proxy: Partial<TS.LanguageService> = {
     organizeImports(scope, formatOptions, preferences) {
       return choose(scope.fileName).organizeImports(scope, formatOptions, preferences);
+    },
+    findRenameLocations(fileName, position, findInStrings, findInComments) {
+      return choose(fileName)
+        .findRenameLocations(fileName, position, findInStrings, findInComments)
+        ?.map((item) => {
+          options.context.log('xxx.findRenameLocations ' + JSON.stringify(item));
+          if (isVirtualFile(item.fileName)) {
+            item.originalContextSpan = item.contextSpan;
+            item.originalTextSpan = item.textSpan;
+            item.originalFileName = item.fileName;
+            const virtual = options.helpers.getDocument(item.fileName) as VirtualTextDocument;
+
+            item.fileName = virtual.container.fsPath;
+            const textSpan = getTextSpan(virtual, item.textSpan);
+            if (!textSpan) return;
+
+            item.textSpan = textSpan;
+            if (item.contextSpan) {
+              const contextSpan = getTextSpan(virtual, item.contextSpan);
+              if (!contextSpan) return;
+
+              item.contextSpan = contextSpan;
+            }
+          }
+
+          return item;
+        })
+        .filter(isNotNull);
     },
   };
 
   methods.forEach((name) => {
-    // @ts-ignore
-    proxy[name] = function (fileName: string): any {
-      const service = choose(fileName);
+    if (!(name in proxy)) {
       // @ts-ignore
-      return service[name]!.apply(service, arguments);
-    };
+      proxy[name] = function (fileName: string): any {
+        const service = choose(fileName);
+        // @ts-ignore
+        return service[name]!.apply(service, arguments);
+      };
+    }
   });
 
-  return proxy;
+  return proxy as any;
+}
+
+export function isNotNull<T>(value: T | null | undefined): value is T {
+  return value != null;
 }

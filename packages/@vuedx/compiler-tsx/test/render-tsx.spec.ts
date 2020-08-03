@@ -9,7 +9,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue?internal'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <div>foo</div>
+      return /*@@vue:start*/ <div>foo</div>/*@@vue:end*/
     }
     `,
   },
@@ -22,7 +22,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import Foo from './Foo.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <Foo>{{ default: () => <>foo</> }}</Foo>
+      return /*@@vue:start*/ <Foo>{{ default: () => <>foo</> }}</Foo>/*@@vue:end*/
     }
     `,
   },
@@ -40,7 +40,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import { Foo } from 'foo-components'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <Foo>{{ default: () => <>foo</> }}</Foo>
+      return /*@@vue:start*/ <Foo>{{ default: () => <>foo</> }}</Foo>/*@@vue:end*/
     }
     `,
   },
@@ -51,7 +51,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue?internal'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <Foo>{{ default: () => <>foo</> }}</Foo>
+      return /*@@vue:start*/ <Foo>{{ default: () => <>foo</> }}</Foo>/*@@vue:end*/
     }
     `,
   },
@@ -62,7 +62,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue?internal'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <web-component>foo</web-component>
+      return /*@@vue:start*/ <web-component>foo</web-component>/*@@vue:end*/
     }
     `,
   },
@@ -76,12 +76,12 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue?internal'
     
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return (
+      return /*@@vue:start*/ (
         <>
           <input type="text" />
           <Foo type="text" />
         </>
-      )
+      )/*@@vue:end*/
     }
     `,
   },
@@ -94,7 +94,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue?internal'
     
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <input  onFocus={() => {}} />
+      return /*@@vue:start*/ <input  onFocus={() => {}} />/*@@vue:end*/
     }
     `,
   },
@@ -108,10 +108,10 @@ const samples: Array<{ name: string; template: string; render: string; component
     render: `
     import _Ctx from './component.vue?internal'
     
-    export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <div  style={_ctx.style} {...{[_ctx.key]: _ctx.value}} onHover={_ctx.handleHover} {...{['on' + _ctx.event]: _ctx.handleEvent}}>
-        {_ctx.hello} world{' '}
-      </div>
+    export function render({style, key, value, handleHover, event, handleEvent, hello}: InstanceType<typeof _Ctx>) {
+      return /*@@vue:start*/ <div  style={style} {...{[key]: value}} onHover={handleHover} {...{[event]: handleEvent}}>
+        {hello} world{' '}
+      </div>/*@@vue:end*/
     }
     `,
   },
@@ -121,8 +121,8 @@ const samples: Array<{ name: string; template: string; render: string; component
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <input modelValue={_ctx.foo} {...{'onUpdate:modelValue': $event => (_ctx.foo = $event)}} />
+    export function render({foo}: InstanceType<typeof _Ctx>) {
+      return /*@@vue:start*/ <input modelValue={foo} {...{'onUpdate:modelValue': $event => (foo = $event)}} />/*@@vue:end*/
     }
     `,
   },
@@ -132,8 +132,8 @@ const samples: Array<{ name: string; template: string; render: string; component
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <input checked={_ctx.foo} {...{'onUpdate:checked': $event => (_ctx.foo = $event)}} />
+    export function render({foo}: InstanceType<typeof _Ctx>) {
+      return /*@@vue:start*/ <input checked={foo} {...{'onUpdate:checked': $event => (foo = $event)}} />/*@@vue:end*/
     }
     `,
   },
@@ -143,8 +143,8 @@ const samples: Array<{ name: string; template: string; render: string; component
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <input {...{[_ctx.checked]: _ctx.foo}} {...{['onUpdate:'+_ctx.checked]: $event => (_ctx.foo = $event)}} />
+    export function render({checked, foo}: InstanceType<typeof _Ctx>) {
+      return /*@@vue:start*/ <input {...{[checked]: foo}} {...{['onUpdate:'+checked]: $event => (foo = $event)}} />/*@@vue:end*/
     }
     `,
   },
@@ -154,8 +154,8 @@ const samples: Array<{ name: string; template: string; render: string; component
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <input onFocus={$event => (_ctx.bar = $event)} />
+    export function render({ bar }: InstanceType<typeof _Ctx>) {
+      return /*@@vue:start*/ <input onFocus={$event => (bar = $event)} />/*@@vue:end*/
     }
     `,
   },
@@ -165,8 +165,8 @@ const samples: Array<{ name: string; template: string; render: string; component
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return <div style="color: red" __directiveShow={[_ctx.isVisible]}></div>
+    export function render({isVisible}: InstanceType<typeof _Ctx>) {
+      return /*@@vue:start*/ <div style="color: red" __directive_show_1={[isVisible]}></div>/*@@vue:end*/
     }
     `,
   },
@@ -180,9 +180,14 @@ const samples: Array<{ name: string; template: string; render: string; component
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _ctx.foo ? <div>A</div> :
-             _ctx.bar ? <div>B</div> : <div>C</div>
+    export function render({foo, bar}: InstanceType<typeof _Ctx>) {
+      return /*@@vue:start*/ (
+        <>
+          <div __directive_if_0={[foo]}>A</div>
+          <div __directive_else-if_0={[bar]}>B</div>
+          <div __directive_else_0={[]}>C</div>
+        </>
+      )/*@@vue:end*/
     }
     `,
   },
@@ -194,8 +199,8 @@ const samples: Array<{ name: string; template: string; render: string; component
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _ctx.foo ? <div>A</div> : null
+    export function render({foo}: InstanceType<typeof _Ctx>) {
+      return /*@@vue:start*/ <div __directive_if_0={[foo]}>A</div>/*@@vue:end*/
     }
     `,
   },
@@ -206,10 +211,10 @@ const samples: Array<{ name: string; template: string; render: string; component
     import { renderList as _renderList } from 'vue'
     import _Ctx from './component.vue?internal'
 
-    export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return _renderList(_ctx.items, (item, index) => {
-        return <div>{item} {_ctx.other}</div>
-      })
+    export function render({ items, other }: InstanceType<typeof _Ctx>) {
+      return /*@@vue:start*/ _renderList(items, (item, index) => {
+        return <div>{item} {other}</div>
+      })/*@@vue:end*/
     }
     `,
   },
@@ -222,13 +227,13 @@ const samples: Array<{ name: string; template: string; render: string; component
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return (
+    export function render({foo}: InstanceType<typeof _Ctx>) {
+      return /*@@vue:start*/ (
         <>
-          <div __directiveText={[_ctx.foo]}/>
-          <div __directiveHtml={[_ctx.foo]}/>
+          <div __directive_text_0={[foo]}/>
+          <div __directive_html_0={[foo]}/>
         </>
-      )
+      )/*@@vue:end*/
     }
     `,
   },
@@ -241,13 +246,13 @@ const samples: Array<{ name: string; template: string; render: string; component
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return (
+    export function render({exp, arg}: InstanceType<typeof _Ctx>) {
+      return /*@@vue:start*/ (
         <>
-          <div __directiveKnown_arg={[_ctx.exp]} />
-          <div __directiveUnknown__arg_={[_ctx.arg, _ctx.exp]} />
+          <div __directive_known_0={[exp]} />
+          <div __directive_unknown_0={[arg, exp]} />
         </>
-      )
+      )/*@@vue:end*/
     }
     `,
   },
@@ -257,27 +262,20 @@ import { compile } from '../src';
 import { format } from 'prettier';
 
 describe('compile/tsx', () => {
-  test.each(samples.map((sample, index) => [index + 1 + '', sample.name, sample] as const))('%s. %s', (_, __, sample) => {
-    const result = compile(sample.template, {
-      filename: '/foo/bar/component.vue',
-      components: sample.components,
-    });
+  test.each(samples.map((sample, index) => [index + 1 + '', sample.name, sample] as const))(
+    '%s. %s',
+    (_, __, sample) => {
+      const result = compile(sample.template, {
+        filename: '/foo/bar/component.vue',
+        components: sample.components,
+      });
 
-    const actual = prepare(result.code);
-    const expected = prepare(sample.render);
+      const actual = prepare(result.code);
+      const expected = prepare(sample.render);
 
-    expect(actual).toEqual(expected);
-
-    expect(result.expressions.map((args) => sample.template.substr(...args))).toMatchSnapshot();
-    expect(
-      result.mappings.map(
-        ([generatedOffset, generatedLength, sourceOffset, sourceLength]) =>
-          sample.template.substr(sourceOffset, sourceLength).padEnd(16, ' ') +
-          '  => ' +
-          result.code.substr(generatedOffset, generatedLength)
-      )
-    ).toMatchSnapshot();
-  });
+      expect(actual).toEqual(expected);
+    }
+  );
 });
 
 function prepare(source: string) {

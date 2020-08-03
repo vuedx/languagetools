@@ -1,31 +1,30 @@
 import {
-  WITH_CTX,
-  createCompoundExpression,
-  createSimpleExpression,
-  ElementNode,
-  NodeTransform,
-  TransformContext,
   buildSlots,
-  createFunctionExpression,
   CompoundExpressionNode,
-  SlotsExpression,
+  createCompoundExpression,
+  createFunctionExpression,
+  createSimpleExpression,
   DynamicSlotsExpression,
+  ElementNode,
+  isSimpleIdentifier,
+  NodeTransform,
+  SlotsExpression,
   TemplateChildNode,
-  isMemberExpression,
-  processExpression,
+  TransformContext,
+  WITH_CTX,
 } from '@vue/compiler-core';
 import {
   isAttributeNode,
   isComponentNode,
   isElementNode,
-  isSimpleExpressionNode,
-  isTextNode,
   isForNode,
   isIfNode,
-  isInterpolationNode,
+  isSimpleExpressionNode,
+  isTextNode,
 } from '@vuedx/template-ast-types';
 import { Options } from '../types';
-import { createLoc, camelCase, pascalCase } from '../utils';
+import { createLoc, pascalCase } from '../utils';
+import camelCase from 'lodash.camelcase';
 
 export function createElementTransform(options: Required<Options>): NodeTransform {
   let isImportAdded = false;
@@ -37,6 +36,7 @@ export function createElementTransform(options: Required<Options>): NodeTransfor
       });
       isImportAdded = true;
     }
+
     if (!isElementNode(node)) return;
     if (isComponentNode(node)) {
       let name = node.tag;
@@ -103,125 +103,84 @@ export function createElementTransform(options: Required<Options>): NodeTransfor
   };
 }
 
-const fnExpRE = /^([\w$_]+|\([^)]*?\))\s*=>|^function(?:\s+[\w$]+)?\s*\(/;
 function getJSXAttributes(node: ElementNode, context: TransformContext) {
-  const attributes = node.props.map((prop) => {
-    if (isAttributeNode(prop)) {
-      const name = createSimpleExpression(prop.name, false, createLoc(prop.loc, 0, prop.name.length), false);
-      if (!prop.value) return [name];
-      return [' ', name, '=', createSimpleExpression(prop.value.loc.source, false, prop.value.loc, false)];
-    } else if (prop.name === 'bind') {
-      if (!prop.arg) return [' {...(', prop.exp!, ')}']; // v-bind="exp"
-      let exp = prop.exp || createSimpleExpression('true', false, undefined, false);
-
-      if (isSimpleExpressionNode(prop.arg)) {
-        if (prop.arg.isStatic || prop.arg.isConstant) {
-          prop.arg.isStatic = prop.arg.isConstant = false;
-          return [' ', createCompoundExpression([prop.arg, '={', exp, '}'])];
+  const result: any[] = [];
+  node.props.forEach((dir, index) => {
+    if (isAttributeNode(dir)) {
+      result.push(' ', createSimpleExpression(dir.name, false, createLoc(dir.loc, 0, dir.name.length)));
+      if (dir.value) {
+        result.push('=', createSimpleExpression(dir.value.loc.source, false, dir.value.loc));
+      }
+    } else if ('bind' === dir.name) {
+      if (isSimpleExpressionNode(dir.arg)) {
+        if (dir.arg.isStatic) {
+          dir.arg.isStatic = false;
+          result.push(' ', dir.arg);
+          if (dir.exp) result.push('={', dir.exp, '}');
+        } else {
+          result.push(' {...({[', dir.arg, ']: ');
+          if (dir.exp) result.push(dir.exp);
+          else result.push('true');
+          result.push('})}');
         }
+      } else if (dir.exp) {
+        result.push(' {...(', dir.exp, ')}');
       }
+    } else if ('on' === dir.name) {
+      const exp = isSimpleExpressionNode(dir.exp)
+        ? isSimpleIdentifier(dir.exp.content)
+          ? [dir.exp]
+          : dir.exp.content.includes('$event')
+          ? ['$event =>', dir.exp]
+          : ['() => ', dir.exp]
+        : ['() => {}'];
 
-      prop.arg.loc = createLoc(prop.arg.loc, 1, prop.arg.loc.source.length - 2)!;
-
-      return [' {...{', '[', prop.arg, ']:', exp, '}}'];
-    } else if (prop.name === 'on') {
-      if (!prop.arg) return [' {...(', prop.exp!, ')}']; // v-on="exp"
-      let exp = prop.exp;
-
-      if (isSimpleExpressionNode(exp)) {
-        if (!exp.content.trim()) exp = undefined;
-        else {
-          const isMemberExp = isMemberExpression(exp.content);
-          const isInlineStatement = !(isMemberExp || fnExpRE.test(exp.content));
-          const hasMultipleStatements = exp.content.includes(';');
-
-          context.addIdentifiers('$event');
-          exp = processExpression(exp, context);
-          context.removeIdentifiers('$event');
-
-          if (isInlineStatement) {
-            exp = createCompoundExpression([
-              `$event => ${hasMultipleStatements ? '{' : '('}`,
-              exp,
-              hasMultipleStatements ? '}' : ')',
-            ]);
-          }
-        }
-      }
-
-      if (!exp) exp = createCompoundExpression(['() => {}']);
-
-      if (isSimpleExpressionNode(prop.arg) && prop.arg.isStatic) {
-        return [
-          ' ',
-          createSimpleExpression(camelCase('on-' + prop.arg.content), false, prop.arg.loc, false),
-          '={',
-          exp!,
-          '}',
-        ];
-      }
-
-      prop.arg.loc = createLoc(prop.arg.loc, 1, prop.arg.loc.source.length - 2)!;
-
-      // What to do here?
-      return [' {...{', '[', `'on'+`, prop.arg, ']:', exp!, '}}'];
-    } else if (prop.name === 'model') {
-      if (!prop.exp) return [];
-      const exp = createCompoundExpression(['$event => (', prop.exp, ' = $event)']);
-      if (!prop.arg) {
-        return [createCompoundExpression([' modelValue={', prop.exp!, `} {...{'onUpdate:modelValue': `, exp, `}}`])];
-      }
-
-      if (isSimpleExpressionNode(prop.arg) && prop.arg.isStatic) {
-        return [
-          createCompoundExpression([
-            ' ',
-            prop.arg.content,
+      result.push(' ');
+      if (isSimpleExpressionNode(dir.arg)) {
+        if (dir.arg.isStatic) {
+          result.push(
+            createSimpleExpression(camelCase('on-' + dir.arg.content), false, dir.arg.loc),
             '={',
-            prop.exp!,
-            `} {...{'onUpdate:${prop.arg.content}': `,
-            exp,
-            `}}`,
-          ]),
-        ];
-      }
-
-      prop.arg.loc = createLoc(prop.arg.loc, 1, prop.arg.loc.source.length - 2)!;
-
-      return [
-        createCompoundExpression([
-          ' {...{[',
-          prop.arg,
-          ']: ',
-          prop.exp!,
-          `}} {...{['onUpdate:' + `,
-          prop.arg,
-          `]: `,
-          exp,
-          `}}`,
-        ]),
-      ];
-    } else {
-      let name = '__directive' + pascalCase(prop.name);
-      const args: any[] = [];
-      if (prop.arg) {
-        name += '_' + prop.arg.loc.source.replace(/[^a-z0-9_]/gi, '_');
-        if (!isSimpleExpressionNode(prop.arg) || !prop.arg.isStatic) {
-          prop.arg.loc = createLoc(prop.arg.loc, 1, prop.arg.loc.source.length - 2)!;
-          args.push(prop.arg, ',');
+            ...exp,
+            '}'
+          );
+        } else {
+          result.push('{...({[', dir.arg, ']: ', ...exp, '})}');
         }
+      } else if (dir.exp) {
+        result.push('{...(', dir.exp, ')}');
       }
-      if (prop.exp) {
-        args.push(prop.exp, ',');
+    } else if (dir.name === 'model') {
+      const exp = dir.exp || 'null';
+
+      result.push(' ');
+      if (isSimpleExpressionNode(dir.arg)) {
+        if (dir.arg.isStatic) {
+          result.push(dir.arg, '={', exp, '}');
+        } else {
+          result.push('{...({[', dir.arg, ']: ', exp, '})}');
+        }
+      } else {
+        result.push('modelValue={', exp, '}');
       }
 
-      return [' ', name, '={[', ...args, ']}'];
+      result.push(' ');
+      const arg = isSimpleExpressionNode(dir.arg)
+        ? dir.arg.isStatic
+          ? ["'", 'onUpdate:' + dir.arg.content, "'"]
+          : [`['onUpdate:' + `, dir.arg, `]`]
+        : [`'onUpdate:modelValue'`];
+      result.push(`{...({`, ...arg, ': $event => ', exp, ' = $event', '})}');
+      if (isSimpleExpressionNode(dir.arg)) dir.arg.isStatic = false;
+    } else {
+      result.push(` __directive_${dir.name}_${index}={[`);
+      if (isSimpleExpressionNode(dir.arg) && !dir.arg.isStatic) result.push(dir.arg, ',');
+      if (dir.exp) result.push(dir.exp, ',');
+      result.push(']}');
     }
-
-    return [];
   });
 
-  return attributes.flat(1);
+  return result;
 }
 
 function getChildren(node: ElementNode, context: TransformContext) {

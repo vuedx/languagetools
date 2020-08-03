@@ -10,10 +10,12 @@ export function createVueLanguageServer(options: CreateLanguageServiceOptions): 
   function choose(document: VirtualTextDocument) {
     return h.isRenderFunctionDocument(document) ? template : script;
   }
-  function getTextSpan(document: VirtualTextDocument, span: TS.TextSpan): TS.TextSpan {
+  function getTextSpan(document: VirtualTextDocument, span: TS.TextSpan): TS.TextSpan | null {
     if (h.isRenderFunctionDocument(document)) {
       const result = document.getOriginalOffsetAt(span.start);
       if (result) return { start: result.offset, length: result.length };
+
+      return null;
     }
 
     return span;
@@ -38,27 +40,7 @@ export function createVueLanguageServer(options: CreateLanguageServiceOptions): 
       const document = h.getDocumentAt(fileName, position);
       if (!document) return;
 
-      return choose(document)
-        .findRenameLocations(document.fsPath, position, findInStrings, findInComments)
-        ?.map((item) => {
-          options.context.log('xxx.findRenameLocations ' + JSON.stringify(item));
-
-          if (isVirtualFile(item.fileName)) {
-            item.originalContextSpan = item.contextSpan;
-            item.originalTextSpan = item.textSpan;
-            item.originalFileName = item.fileName;
-
-            const virtual = h.getDocument(item.fileName) as VirtualTextDocument;
-
-            item.fileName = virtual.container.fsPath;
-            item.textSpan = getTextSpan(virtual, item.textSpan);
-            if (item.contextSpan) item.contextSpan = getTextSpan(virtual, item.contextSpan);
-          }
-
-          options.context.log('yyy.findRenameLocations ' + JSON.stringify(item));
-
-          return item;
-        });
+      return choose(document).findRenameLocations(document.fsPath, position, findInStrings, findInComments);
     },
 
     getApplicableRefactors(fileName, positionOrRange, preferences) {

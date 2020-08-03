@@ -50,7 +50,6 @@ export class PluginContext {
     this.store = new ProxyDocumentStore(
       (uri) => {
         const fileName = URI.parse(uri).fsPath;
-        // TODO: Use content from openFiles.
         const content = this.typescript.sys.readFile(fileName) || '';
         return VueTextDocument.create(uri, 'vue', 0, content);
       },
@@ -200,6 +199,20 @@ function patchExtraFileExtensions(context: PluginContext) {
 function patchLanguageServiceHost(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {
   patchGetScriptFileNames(context, languageServiceHost);
   patchModuleResolution(context, languageServiceHost);
+  tryPatchMethod(languageServiceHost, 'getScriptVersion', (getScriptVersion) => (fileName) => {
+    if (isVirtualFile(fileName)) return getScriptVersion(getContainingFile(fileName));
+    return getScriptVersion(fileName);
+  });
+  tryPatchMethod(languageServiceHost, 'getScriptSnapshot', (getScriptSnapshot) => (fileName) => {
+    if (isVueFile(fileName)) {
+      const document = context.store.get(fileName);
+      if (document) {
+        return context.typescript.ScriptSnapshot.fromString(document.getDocument('_module').getText());
+      }
+    }
+
+    return getScriptSnapshot(fileName);
+  });
 }
 
 function patchGetScriptFileNames(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {
@@ -357,9 +370,9 @@ function patchScriptInfo(context: PluginContext, scriptInfo: TS.server.ScriptInf
     return (start, end, newText) => {
       const document = context.store.get(scriptInfo.fileName);
       if (!document) throw new Error('VueTextDocument should exist for every ScriptInfo.');
-
       const range = { start: document.positionAt(start), end: document.positionAt(end) };
       editContent(start, end, newText);
+      context.log(`UPDATE ${scriptInfo.getLatestVersion()} ==> ${scriptInfo.fileName} ${start}:${end} ${newText}`);
       VueTextDocument.update(
         document,
         [{ range, text: newText }],

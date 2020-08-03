@@ -1,11 +1,11 @@
 import { parse } from '@babel/parser';
 import traverse, { NodePath } from '@babel/traverse';
-import { isIdentifier, ObjectExpression } from '@babel/types';
+import { isIdentifier, ObjectExpression, ObjectMember, ExportDefaultDeclaration, CallExpression } from '@babel/types';
 import { SFCScriptBlock } from '@vue/compiler-sfc';
 import { Context, Plugin, ScriptAnalyzerContext } from '../types';
 import { isNotNull } from '../utilities';
 
-export const blockScriptAnalyzer: Plugin = {
+export const ScriptBlockAnalyzer: Plugin = {
   blocks: {
     script: (block, ctx) => {
       if (block.content) {
@@ -25,7 +25,11 @@ export function createScriptContext(content: string, context: Context, block?: S
     loc: { start: { offset: 0, line: 1, column: 1 }, end: { offset: 0, line: 1, column: 1 }, source: content },
   };
 
-  const plugins = context.parsers.babel.plugins || [];
+  const plugins = context.parsers.babel.plugins?.slice() || [];
+
+  if (script.lang === 'ts' && !plugins.includes('typescript')) {
+    plugins.push('typescript');
+  }
 
   const ast = parse(content, {
     ...context.parsers.babel,
@@ -93,12 +97,12 @@ function processScript(context: ScriptAnalyzerContext) {
 
     properties$.forEach((property$) => {
       if (property$.isObjectMember()) {
-        const { key } = property$.node;
+        const { key } = property$.node as ObjectMember;
 
         if (isIdentifier(key)) {
           const name = key.name;
           optionsByNameHandlers.forEach((options) => {
-            const fn = options[name];
+            const fn = options[name] as any;
 
             if (fn) {
               try {
@@ -124,18 +128,20 @@ function processScript(context: ScriptAnalyzerContext) {
     exit(path) {
       call(exitHandlers, path);
     },
-    ExportDefaultDeclaration(path) {
+    ExportDefaultDeclaration(path: NodePath<ExportDefaultDeclaration>) {
       if (context.mode === 'setup') return;
-      const declaration$ = path.get('declaration');
+      const d$ = path.get('declaration');
       /**
        * Matches:
        * export default {}
        */
-      if (declaration$.isObjectExpression()) {
-        call(declarationHandlers, declaration$);
-        call(optionsHandlers, declaration$);
-        processOptions(declaration$);
-      } else if (declaration$.isCallExpression()) {
+      if (d$.isObjectExpression()) {
+        const declaration$: NodePath<ObjectExpression> = d$ as any;
+        call(declarationHandlers, declaration$ as any);
+        call(optionsHandlers, declaration$ as any);
+        processOptions(declaration$ as any);
+      } else if (d$.isCallExpression()) {
+        const declaration$: NodePath<CallExpression> = d$ as any;
         /**
          * Matches:
          * export default fn(...)
@@ -154,9 +160,9 @@ function processScript(context: ScriptAnalyzerContext) {
              * Matches:
              * export default defineComponent({ ... })
              */
-            call(declarationHandlers, declaration$);
-            call(optionsHandlers, options$);
-            processOptions(options$);
+            call(declarationHandlers, declaration$ as any);
+            call(optionsHandlers, options$ as any);
+            processOptions(options$ as any);
           } else if (options$.isFunctionExpression() || options$.isArrowFunctionExpression()) {
             /**
              * Matches:
@@ -170,5 +176,3 @@ function processScript(context: ScriptAnalyzerContext) {
     },
   });
 }
-
-

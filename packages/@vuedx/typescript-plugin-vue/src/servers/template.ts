@@ -67,7 +67,7 @@ export function createTemplateLanguageServer({
       const document = getRenderDoc(fileName);
       const offset = document.getGeneratedOffsetAt(position)?.offset;
 
-      if (isNumber(offset) && document.findExpression(position)) {
+      if (isNumber(offset)) {
         return service.findRenameLocations(fileName, offset, findInStrings, findInComments);
       }
 

@@ -1,22 +1,21 @@
 import {
   baseParse,
   CompilerOptions,
-  transform,
-  trackVForSlotScopes,
   createCompoundExpression,
-  generate,
-  OPEN_BLOCK,
   CREATE_BLOCK,
   CREATE_VNODE,
   FRAGMENT,
-  transformExpression,
+  generate,
+  OPEN_BLOCK,
+  trackVForSlotScopes,
+  transform,
 } from '@vue/compiler-core';
 import { isDirectiveNode, isElementNode, isInterpolationNode, isSimpleExpressionNode } from '@vuedx/template-ast-types';
 import { createElementTransform } from './transforms/transformElement';
-import { CodegenResult, ComponentImport, Options } from './types';
-import { transformIf } from './transforms/transformIf';
-import { transformFor } from './transforms/transformFor';
 import { createInterpolationTransform } from './transforms/transformInterpolation';
+import { CodegenResult, ComponentImport, Options } from './types';
+import { createExpressionTracker } from './transforms/transformExpression';
+import { createTransformFor } from './transforms/transformFor';
 export * from './types';
 
 const components: Record<string, ComponentImport> = {};
@@ -30,6 +29,7 @@ export function compile(template: string, options: Options & CompilerOptions): C
       ...options.components,
     },
   };
+  const identifiers = new Set<string>();
 
   transform(ast, {
     ...options,
@@ -58,10 +58,9 @@ export function compile(template: string, options: Options & CompilerOptions): C
       },
 
       createElementTransform(config),
-      transformIf,
-      transformFor,
+      createTransformFor((id) => identifiers.add(id)),
       trackVForSlotScopes,
-      transformExpression,
+      createExpressionTracker((id) => identifiers.add(id)),
       createInterpolationTransform(config),
     ],
   });
@@ -72,30 +71,28 @@ export function compile(template: string, options: Options & CompilerOptions): C
   });
 
   if (ast.children.length > 1) {
-    ast.codegenNode = createCompoundExpression(['<>', ...ast.children, '</>'] as any);
+    ast.codegenNode = createCompoundExpression(['/*@@vue:start*/<>', ...ast.children, '</>/*@@vue:end*/'] as any);
   } else {
-    ast.codegenNode = ast.children[0];
+    ast.codegenNode = createCompoundExpression(['/*@@vue:start*/', ...ast.children, '/*@@vue:end*/'] as any);
   }
   const mappings: Array<[number, number, number, number, number]> = [];
   const result = generate(ast, {
-    sourceMap: true,
     ...options,
+    sourceMap: true,
     mode: 'module',
     onContextCreated(context) {
       const push = context.push;
       context.push = (code, node) => {
         if (isSimpleExpressionNode(node) && node.loc && node.loc.start.offset < node.loc.end.offset) {
-          mappings.push([
-            context.offset,
-            node.content.length,
-            node.loc.start.offset,
-            node.loc.source.length,
-            node.content.startsWith('_ctx.') ? 5 : 0,
-          ]);
+          mappings.push([context.offset, node.content.length, node.loc.start.offset, node.loc.source.length, 0]);
         }
 
         if (code.startsWith('function render(_ctx, _cache')) {
-          push(`function render(_ctx: InstanceType<typeof _Ctx>) {`);
+          push(
+            `function render(${
+              identifiers.size ? `{${Array.from(identifiers).join(', ')}}` : '_ctx'
+            }: InstanceType<typeof _Ctx>) {`
+          );
         } else {
           push(code, node);
         }

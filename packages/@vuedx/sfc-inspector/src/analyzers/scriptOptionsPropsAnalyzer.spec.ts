@@ -1,6 +1,6 @@
 import { createAnalyzer } from '../analyzer';
-import { blockScriptAnalyzer as ScriptBlockAnalyzer } from './blockScriptAnalyzer';
-import { PropsOptionsAnalyzer } from './scriptOptionsPropsAnalyzer';
+import { ScriptBlockAnalyzer as ScriptBlockAnalyzer } from './ScriptBlockAnalyzer';
+import { PropsOptionsAnalyzer } from './ScriptOptionsPropsAnalyzer';
 
 describe('script/options/props', () => {
   const analyzer = createAnalyzer([ScriptBlockAnalyzer, PropsOptionsAnalyzer]);
