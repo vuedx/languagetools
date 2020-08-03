@@ -197,19 +197,12 @@ function patchExtraFileExtensions(context: PluginContext) {
 function patchLanguageServiceHost(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {
   patchGetScriptFileNames(context, languageServiceHost);
   patchModuleResolution(context, languageServiceHost);
-  tryPatchMethod(languageServiceHost, 'getScriptVersion', (getScriptVersion) => (fileName) => {
-    if (isVirtualFile(fileName)) return getScriptVersion(getContainingFile(fileName));
-    return getScriptVersion(fileName);
-  });
-  tryPatchMethod(languageServiceHost, 'getScriptSnapshot', (getScriptSnapshot) => (fileName) => {
-    if (isVueFile(fileName)) {
-      const document = context.store.get(fileName);
-      if (document) {
-        return context.typescript.ScriptSnapshot.fromString(document.getDocument('_module').getText());
-      }
-    }
+  tryPatchMethod(languageServiceHost, 'getCompilationSettings', (getCompilationSettings) => () => {
+    const settings = getCompilationSettings();
 
-    return getScriptSnapshot(fileName);
+    settings.jsx = context.typescript.JsxEmit.Preserve;
+
+    return settings;
   });
 }
 

@@ -6,7 +6,7 @@ const hash = require('hash-sum')
 const Path = require('path')
 const FS = require('fs')
 const program = require('commander')
-const { inspect } = require('..')
+const { inspect } = require('../dist/analyze')
 const { codeFrameColumns } = require('@babel/code-frame')
 const { highlight } = require('cli-highlight')
 

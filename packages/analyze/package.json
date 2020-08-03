@@ -1,10 +1,10 @@
 {
-  "name": "@vuedx/sfc-inspector",
+  "name": "@vuedx/analyze",
   "version": "0.1.3",
   "description": "Extracts public API information from Vue component.",
-  "main": "dist/sfc-inspector.js",
-  "module": "dist/sfc-inspector.esm.js",
-  "bin": "bin/sfc-inspector.js",
+  "main": "dist/analyze.js",
+  "module": "dist/analyze.esm.js",
+  "bin": "bin/analyze.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/znck/vue-developer-experience.git"
@@ -15,7 +15,7 @@
   ],
   "keywords": [
     "vue",
-    "sfc-inpector",
+    "static analyzer",
     "docgen",
     "documentation"
   ],

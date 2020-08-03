@@ -13,11 +13,12 @@ import {
   traverse,
   traverseFast,
 } from '@babel/types';
-import { isSimpleIdentifier, NodeTransform, TransformContext } from '@vue/compiler-core';
+import { isSimpleIdentifier, NodeTransform, TransformContext, findDir } from '@vue/compiler-core';
 import { isDirectiveNode, isElementNode, isInterpolationNode, isSimpleExpressionNode } from '@vuedx/template-ast-types';
 
 export function createExpressionTracker(addIdentifer: (identifer: string) => void): NodeTransform {
   return (node, context) => {
+    const localIdentifiers = new Set<string>();
     if (isInterpolationNode(node)) {
       if (isSimpleExpressionNode(node.content) && !node.content.isStatic) {
         trackIdentifiers(node.content.content, context, addIdentifer);
@@ -27,6 +28,22 @@ export function createExpressionTracker(addIdentifer: (identifer: string) => voi
         if (isDirectiveNode(dir)) {
           if (isSimpleExpressionNode(dir.arg) && !dir.arg.isStatic) {
             trackIdentifiers(dir.arg.content, context, addIdentifer);
+          }
+
+          const slot = findDir(node, 'slot');
+
+          if (slot) {
+            if (isSimpleExpressionNode(slot.exp) && !slot.exp.isStatic) {
+              trackIdentifiers(
+                slot.exp.content,
+                context,
+                (identifier) => {
+                  localIdentifiers.add(identifier);
+                  context.addIdentifiers(identifier);
+                },
+                dir.name === 'slot'
+              );
+            }
           }
 
           switch (dir.name) {
@@ -39,15 +56,21 @@ export function createExpressionTracker(addIdentifer: (identifer: string) => voi
                 context.removeIdentifiers('$event');
               }
               break;
+            case 'slot':
+              break;
             default: {
               if (isSimpleExpressionNode(dir.exp) && !dir.exp.isStatic) {
-                trackIdentifiers(dir.exp.content, context, addIdentifer, dir.name === 'slot');
+                trackIdentifiers(dir.exp.content, context, addIdentifer);
               }
             }
           }
         }
       });
     }
+
+    return () => {
+      localIdentifiers.forEach((identifier) => context.removeIdentifiers(identifier));
+    };
   };
 }
 

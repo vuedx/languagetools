@@ -1,5 +1,6 @@
 import ts, { server as TypeScriptServer, DiagnosticWithLocation, Diagnostic } from 'typescript/lib/tsserverlibrary'; // TODO: Load from current directory.
 import Path from 'path';
+import { getContainingFile, isVirtualFile, isVueFile, parseVirtualFileName } from '@vuedx/vue-virtual-textdocument';
 
 export function generateCodeFrame(
   source: string,
@@ -42,6 +43,8 @@ export function generateCodeFrame(
 }
 
 export function getDiagnostics(directory: string, logging = false) {
+  const pluginFile = require.resolve('@vuedx/typescript-plugin-vue');
+  console.log(`Loading plugin from ${pluginFile}`);
   const serverHost = getServerHost(ts);
   const projectService = new ts.server.ProjectService({
     host: serverHost,
@@ -53,14 +56,14 @@ export function getDiagnostics(directory: string, logging = false) {
     useSingleInferredProject: true,
     useInferredProjectPerProjectRoot: true,
     allowLocalPluginLoads: true,
-    globalPlugins: ['@vuedx/typescript-plugin-vue'],
+    globalPlugins: [pluginFile],
     pluginProbeLocations: [process.cwd(), Path.resolve(__dirname, '..'), Path.resolve(__dirname, '../..')],
   });
 
   const configFile = ts.findConfigFile(directory, ts.sys.fileExists, 'tsconfig.json');
   // @ts-ignore - This would load Vue plugin and would prevent reload when actual project is created.
   projectService.createInferredProject(directory, true);
-  // @ts-ignore - 
+  // @ts-ignore -
   const project: TypeScriptServer.ConfiguredProject = projectService.createLoadAndUpdateConfiguredProject(configFile)!;
   const server = project.getLanguageService();
 
@@ -74,29 +77,29 @@ export function getDiagnostics(directory: string, logging = false) {
   const fileNames = Array.from(
     new Set(
       server
-        .getProgram()
-        ?.getSourceFiles()
-        .map((sourceFile) => sourceFile?.fileName?.replace(/____(script|render)\.[tj]s$/, ''))
+        .getProgram()!
+        .getSourceFiles()
+        .map((sourceFile) => sourceFile?.fileName)
+        .filter(Boolean)
         .filter((fileName) => !/node_modules/.test(fileName))
+        .map((fileName) => (isVirtualFile(fileName) ? getContainingFile(fileName) : fileName))
     )
   );
 
   fileNames.forEach((fileName) => {
-    if (!/node_modules/.test(fileName)) {
-      const diagnostic = {
-        fileName: fileName,
-        semanticDiagnostics: server.getSemanticDiagnostics(fileName),
-        syntacticDiagnostics: server.getSyntacticDiagnostics(fileName),
-        suggestionDiagnostics: server.getSuggestionDiagnostics(fileName),
-      };
+    const diagnostic = {
+      fileName: getContainingFile(fileName),
+      semanticDiagnostics: server.getSemanticDiagnostics(fileName),
+      syntacticDiagnostics: server.getSyntacticDiagnostics(fileName),
+      suggestionDiagnostics: server.getSuggestionDiagnostics(fileName),
+    };
 
-      if (
-        diagnostic.semanticDiagnostics.length ||
-        diagnostic.syntacticDiagnostics.length ||
-        diagnostic.suggestionDiagnostics.length
-      ) {
-        diagnostics.push(diagnostic);
-      }
+    if (
+      diagnostic.semanticDiagnostics.length ||
+      diagnostic.syntacticDiagnostics.length ||
+      diagnostic.suggestionDiagnostics.length
+    ) {
+      diagnostics.push(diagnostic);
     }
   });
 

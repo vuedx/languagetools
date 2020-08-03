@@ -113,9 +113,9 @@ function getJSXAttributes(node: ElementNode, context: TransformContext) {
       }
     } else if ('bind' === dir.name) {
       if (isSimpleExpressionNode(dir.arg)) {
-        if (dir.arg.isStatic) {
+        if (dir.arg.isStatic || dir.arg.content === 'key') {
           dir.arg.isStatic = false;
-          result.push(' ', dir.arg);
+          result.push(' ', dir.arg.content === 'class' ? 'className' : dir.arg);
           if (dir.exp) result.push('={', dir.exp, '}');
         } else {
           result.push(' {...({[', dir.arg, ']: ');

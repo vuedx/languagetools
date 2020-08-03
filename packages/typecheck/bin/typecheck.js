@@ -26,7 +26,7 @@ function readFile(fileName) {
  */
 function printDiagnostics(diagnostic, root = true) {
   if (!diagnostic.file) return;
-  const fileName = normalizeFileName(diagnostic.file.fileName);
+  const fileName = diagnostic.file.fileName;
   const source = readFile(fileName);
   const color = colors[diagnostic.category];
   const name = categories[diagnostic.category];
@@ -75,22 +75,18 @@ function jsonEncodeDiagnostics(diagnostic) {
     JSON.stringify(
       diagnostic,
       (key, value) => {
-        return key === 'file' && value ? normalizeFileName(value.fileName) : value;
+        return key === 'file' && value ? value.fileName : value;
       },
       2
     )
   );
 }
 
-function normalizeFileName(fileName) {
-  return typeof fileName === 'string' ? fileName.replace(/____(script|render)\.[tj]s$/, '') : fileName;
-}
-
 /**
  *
  * @param {string} fileName
  */
-function relative(fileName, position) {
+function relative(fileName, position = null) {
   let relativeFileName = Path.relative(directory, fileName);
   relativeFileName = relativeFileName.startsWith('.') ? relativeFileName : '.' + Path.sep + relativeFileName;
 

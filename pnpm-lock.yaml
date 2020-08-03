@@ -74,6 +74,22 @@ importers:
       vscode-test: ^1.4.0
       vue: ^3.0.0-rc.5
       yaml: ^1.10.0
+  packages/analyze:
+    dependencies:
+      '@babel/parser': 7.11.0
+      '@babel/traverse': 7.11.0
+      '@babel/types': 7.11.0
+      '@vue/compiler-core': 3.0.0-rc.5
+      '@vue/compiler-sfc': 3.0.0-rc.5
+    devDependencies:
+      typescript: 3.9.7
+    specifiers:
+      '@babel/parser': ^7.10.5
+      '@babel/traverse': ^7.11.0
+      '@babel/types': ^7.10.5
+      '@vue/compiler-core': ^3.0.0-rc.5
+      '@vue/compiler-sfc': ^3.0.0-rc.5
+      typescript: ^3.9.7
   packages/compiler-tsx:
     dependencies:
       '@babel/parser': 7.11.0
@@ -98,22 +114,6 @@ importers:
       lodash.camelcase: ^4.3.0
       prettier: ^2.0.5
       typescript: ^3.9.7
-  packages/sfc-inspector:
-    dependencies:
-      '@babel/parser': 7.11.0
-      '@babel/traverse': 7.11.0
-      '@babel/types': 7.11.0
-      '@vue/compiler-core': 3.0.0-rc.5
-      '@vue/compiler-sfc': 3.0.0-rc.5
-    devDependencies:
-      typescript: 3.9.7
-    specifiers:
-      '@babel/parser': ^7.10.5
-      '@babel/traverse': ^7.11.0
-      '@babel/types': ^7.10.5
-      '@vue/compiler-core': ^3.0.0-rc.5
-      '@vue/compiler-sfc': ^3.0.0-rc.5
-      typescript: ^3.9.7
   packages/template-ast-types:
     dependencies:
       '@vue/compiler-core': 3.0.0-rc.4
@@ -127,6 +127,7 @@ importers:
       '@vue/compiler-core': 3.0.0-rc.5
       '@vue/compiler-sfc': 3.0.0-rc.5
       '@vuedx/typescript-plugin-vue': 'link:../typescript-plugin-vue'
+      '@vuedx/vue-virtual-textdocument': 'link:../vue-virtual-textdocument'
       chalk: 4.1.0
       minimist: 1.2.5
     devDependencies:
@@ -135,6 +136,7 @@ importers:
       '@vue/compiler-core': '*'
       '@vue/compiler-sfc': '*'
       '@vuedx/typescript-plugin-vue': 'workspace:*'
+      '@vuedx/vue-virtual-textdocument': 'workspace:*'
       chalk: ^4.1.0
       minimist: ^1.2.5
       typescript: ^3.9.7
@@ -153,8 +155,8 @@ importers:
     dependencies:
       '@vue/compiler-core': 3.0.0-rc.5
       '@vue/compiler-sfc': 3.0.0-rc.5
+      '@vuedx/analyze': 'link:../analyze'
       '@vuedx/compiler-tsx': 'link:../compiler-tsx'
-      '@vuedx/sfc-inspector': 'link:../sfc-inspector'
       vscode-languageserver-textdocument: 1.0.1
       vscode-uri: 2.1.2
     devDependencies:
@@ -162,8 +164,8 @@ importers:
     specifiers:
       '@vue/compiler-core': ^3.0.0-rc.5
       '@vue/compiler-sfc': ^3.0.0-rc.5
+      '@vuedx/analyze': 'workspace:*'
       '@vuedx/compiler-tsx': 'workspace:*'
-      '@vuedx/sfc-inspector': 'workspace:*'
       typescript: ^3.9.7
       vscode-languageserver-textdocument: ^1.0.1
       vscode-uri: ^2.1.2

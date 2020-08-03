@@ -1,6 +1,6 @@
 import { parse, SFCBlock, SFCParseOptions, SFCStyleBlock } from '@vue/compiler-sfc';
 import { CodegenResult, compile, ComponentImport } from '@vuedx/compiler-tsx';
-import { ComponentsOptionAnalyzer, createAnalyzer, ScriptBlockAnalyzer } from '@vuedx/sfc-inspector';
+import { ComponentsOptionAnalyzer, createAnalyzer, ScriptBlockAnalyzer } from '@vuedx/analyze';
 import { Position, TextDocument, TextDocumentContentChangeEvent } from 'vscode-languageserver-textdocument';
 import {
   BlockSelector,

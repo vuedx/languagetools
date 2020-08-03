@@ -9,6 +9,7 @@ import {
   OPEN_BLOCK,
   trackVForSlotScopes,
   transform,
+  trackSlotScopes,
 } from '@vue/compiler-core';
 import { isDirectiveNode, isElementNode, isInterpolationNode, isSimpleExpressionNode } from '@vuedx/template-ast-types';
 import { createElementTransform } from './transforms/transformElement';
@@ -57,10 +58,9 @@ export function compile(template: string, options: Options & CompilerOptions): C
         }
       },
 
-      createElementTransform(config),
       createTransformFor((id) => identifiers.add(id)),
-      trackVForSlotScopes,
       createExpressionTracker((id) => identifiers.add(id)),
+      createElementTransform(config),
       createInterpolationTransform(config),
     ],
   });

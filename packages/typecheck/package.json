@@ -17,6 +17,7 @@
     "@vue/compiler-core": "*",
     "@vue/compiler-sfc": "*",
     "@vuedx/typescript-plugin-vue": "workspace:*",
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
     "chalk": "^4.1.0",
     "minimist": "^1.2.5"
   },
