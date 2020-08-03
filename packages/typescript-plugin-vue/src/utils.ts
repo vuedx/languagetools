@@ -17,7 +17,11 @@ export function createServerHelper(context: PluginContext) {
   }
 
   function getVueDocument(fileName: string) {
-    return isVueFile(fileName) ? context.store.get(fileName) : null;
+    return isVueFile(fileName)
+      ? context.store.get(fileName)
+      : isVirtualFile(fileName)
+      ? context.store.get(getContainingFile(fileName))
+      : null;
   }
 
   function getDocumentAt(fileName: string, position: number) {
@@ -41,4 +45,7 @@ export function createServerHelper(context: PluginContext) {
   }
 
   return { getDocument, getDocumentAt, getVueDocument, isRenderFunctionDocument, isRenderFunctionFileName };
+}
+export function isNotNull<T>(value: T | null | undefined): value is T {
+  return value != null;
 }

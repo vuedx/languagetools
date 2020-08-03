@@ -9,9 +9,9 @@ import {
 import { PluginContext } from '../context';
 import { TS } from '../interfaces';
 import { CreateLanguageServiceOptions } from '../types';
-import { createServerHelper } from '../utils';
+import { createServerHelper, isNotNull } from '../utils';
 import { createVueLanguageServer } from './vue';
-
+import * as Path from 'path';
 const VUE_LANGUAGE_SERVER = Symbol('Vue Language Server');
 
 export class RoutingLanguageServer {
@@ -103,10 +103,172 @@ function createLanguageServiceRouter(options: CreateLanguageServiceOptions): TS.
     return span;
   }
 
+  const VIRTUAL_FILE_SUFFIX_RE = new RegExp(
+    `(?<=\.vue)${VIRTUAL_FILENAME_SEPARATOR}([A-Za-z_][A-Za-z0-9_-]*)(\\.[jt]sx?)?`,
+    'g'
+  );
+
+  function getComponentName(fileName?: string) {
+    if (!fileName || !isVueFile(fileName)) return;
+    const baseName = Path.basename(fileName);
+
+    return baseName.substr(0, baseName.length - 4);
+  }
+  const COMPONENT_TYPE_RE = /'ComponentPublicInstance<.*?ComponentOptionsBase<...>>'/g;
+  const REPLACE = {
+    virtualFile: (messageText: string) => messageText.replace(VIRTUAL_FILE_SUFFIX_RE, ''),
+    componentType: (fileName: string | undefined, messageText: string) => {
+      const component = getComponentName(fileName);
+      return component ? messageText.replace(COMPONENT_TYPE_RE, `vue component '${component}'`) : messageText;
+    },
+  };
+  function applyReplacements(fileName: string | undefined, messageText: string): string;
+  function applyReplacements(
+    fileName: string | undefined,
+    messageText: TS.DiagnosticMessageChain
+  ): TS.DiagnosticMessageChain;
+  function applyReplacements(
+    fileName: string | undefined,
+    messageText: string | TS.DiagnosticMessageChain
+  ): string | TS.DiagnosticMessageChain;
+  function applyReplacements(
+    fileName: string | undefined,
+    messageText: string | TS.DiagnosticMessageChain
+  ): string | TS.DiagnosticMessageChain {
+    if (typeof messageText === 'string') {
+      return REPLACE.componentType(fileName, REPLACE.virtualFile(messageText));
+    } else {
+      messageText.messageText = applyReplacements(fileName, messageText.messageText);
+
+      return messageText;
+    }
+  }
+
+  function isVirtualSourceFile(file?: TS.SourceFile): file is TS.SourceFile {
+    return !!file && isVirtualFile(file.fileName);
+  }
+
   const proxy: Partial<TS.LanguageService> = {
     organizeImports(scope, formatOptions, preferences) {
-      return choose(scope.fileName).organizeImports(scope, formatOptions, preferences);
+      return choose(scope.fileName)
+        .organizeImports(scope, formatOptions, preferences)
+        .map((change) => {
+          if (isVirtualFile(change.fileName)) change.fileName = getContainingFile(change.fileName);
+
+          return change;
+        });
     },
+
+    getQuickInfoAtPosition(fileName, position) {
+      const info = choose(fileName).getQuickInfoAtPosition(fileName, position);
+
+      if (info?.displayParts) {
+        info.displayParts = info.displayParts
+          .map((part) => {
+            part.text = applyReplacements(fileName, part.text);
+
+            return part;
+          })
+          .filter(isNotNull);
+      }
+
+      if (info?.documentation) {
+        info.documentation = info.documentation
+          .map((part) => {
+            part.text = applyReplacements(fileName, part.text);
+
+            return part;
+          })
+          .filter(isNotNull);
+      }
+
+      return info;
+    },
+
+    getSemanticDiagnostics(fileName) {
+      const diagnostics = choose(fileName).getSemanticDiagnostics(fileName);
+      const program = options.service.getProgram();
+
+      return diagnostics
+        .map((diagnostic) => {
+          if (isVirtualSourceFile(diagnostic.file)) {
+            diagnostic.file = { ...diagnostic.file, fileName: getContainingFile(diagnostic.file.fileName) };
+          }
+
+          diagnostic.messageText = applyReplacements(fileName, diagnostic.messageText);
+
+          if (diagnostic.relatedInformation) {
+            diagnostic.relatedInformation = diagnostic.relatedInformation.map((info) => {
+              info.messageText = applyReplacements(fileName, info.messageText);
+              if (isVirtualSourceFile(info.file)) {
+                info.file = program?.getSourceFile(getContainingFile(info.file.fileName));
+              }
+
+              return info;
+            });
+          }
+
+          return diagnostic;
+        })
+        .filter(isNotNull);
+    },
+
+    getSyntacticDiagnostics(fileName) {
+      const diagnostics = choose(fileName).getSyntacticDiagnostics(fileName);
+      const program = options.service.getProgram();
+
+      return diagnostics
+        .map((diagnostic) => {
+          if (isVirtualSourceFile(diagnostic.file)) {
+            diagnostic.file = { ...diagnostic.file, fileName: getContainingFile(diagnostic.file.fileName) };
+          }
+
+          diagnostic.messageText = applyReplacements(fileName, diagnostic.messageText);
+
+          if (diagnostic.relatedInformation) {
+            diagnostic.relatedInformation = diagnostic.relatedInformation.map((info) => {
+              info.messageText = applyReplacements(fileName, info.messageText);
+              if (isVirtualSourceFile(info.file)) {
+                info.file = program?.getSourceFile(getContainingFile(info.file.fileName));
+              }
+
+              return info;
+            });
+          }
+
+          return diagnostic;
+        })
+        .filter(isNotNull);
+    },
+
+    getSuggestionDiagnostics(fileName) {
+      const diagnostics = choose(fileName).getSuggestionDiagnostics(fileName);
+      const program = options.service.getProgram();
+
+      return diagnostics
+        .map((diagnostic) => {
+          if (isVirtualSourceFile(diagnostic.file)) {
+            diagnostic.file = { ...diagnostic.file, fileName: getContainingFile(diagnostic.file.fileName) };
+          }
+
+          diagnostic.messageText = applyReplacements(fileName, diagnostic.messageText);
+
+          if (diagnostic.relatedInformation) {
+            diagnostic.relatedInformation = diagnostic.relatedInformation.map((info) => {
+              info.messageText = applyReplacements(fileName, info.messageText);
+              if (isVirtualSourceFile(info.file)) {
+                info.file = { ...info.file, fileName: getContainingFile(info.file.fileName) };
+              }
+
+              return info;
+            });
+          }
+
+          return diagnostic;
+        })
+        .filter(isNotNull);
+    },
+
     findRenameLocations(fileName, position, findInStrings, findInComments) {
       return choose(fileName)
         .findRenameLocations(fileName, position, findInStrings, findInComments)
@@ -180,8 +342,4 @@ function createLanguageServiceRouter(options: CreateLanguageServiceOptions): TS.
   });
 
   return proxy as any;
-}
-
-export function isNotNull<T>(value: T | null | undefined): value is T {
-  return value != null;
 }

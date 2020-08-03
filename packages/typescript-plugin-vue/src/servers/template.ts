@@ -2,6 +2,8 @@ import { isNumber, RenderFunctionTextDocument, VirtualTextDocument } from '@vued
 import { TS } from '../interfaces';
 import { CreateLanguageServiceOptions } from '../types';
 import { noop } from './noop';
+import { isNotNull } from '../utils';
+import QuickLRU from 'quick-lru';
 
 export function createTemplateLanguageServer({
   helpers: h,
@@ -25,8 +27,111 @@ export function createTemplateLanguageServer({
     return span;
   }
 
+  const cache = new QuickLRU<string, any>({ maxSize: 1000 });
+
   return {
     ...noop,
+
+    getQuickInfoAtPosition(fileName, position) {
+      const document = getRenderDoc(fileName);
+      if (!document) return;
+
+      const loc = document.getGeneratedOffsetAt(position);
+      if (!loc) return;
+      const result = service.getQuickInfoAtPosition(fileName, loc.offset);
+
+      if (result) {
+        const textSpan = getTextSpan(document, result.textSpan);
+
+        if (textSpan) {
+          result.textSpan = textSpan;
+
+          return result;
+        }
+      }
+    },
+
+    getSemanticDiagnostics(fileName) {
+      const document = getRenderDoc(fileName);
+      if (!document) return [];
+
+      const key = `getSemanticDiagnostics::${document.version}::${fileName}`;
+
+      if (cache.has(key)) return cache.get(key);
+
+      const diagnostics = service
+        .getSemanticDiagnostics(fileName)
+        .map((diagnostic) => {
+          if (Number.isInteger(diagnostic.start)) {
+            const position = document.findExpression(diagnostic.start!, diagnostic.length || 1);
+            context.log(
+              `TRY RENDER => ${diagnostic.file?.fileName} --- ${diagnostic.messageText} -- ${JSON.stringify(position)}`
+            );
+            if (!position) return;
+
+            diagnostic.start = position.offset;
+            diagnostic.length = position.length;
+          }
+
+          return diagnostic;
+        })
+        .filter(isNotNull);
+
+      cache.set(key, diagnostics);
+
+      return diagnostics;
+    },
+
+    getSuggestionDiagnostics(fileName) {
+      const document = getRenderDoc(fileName);
+      if (!document) return [];
+
+      const key = `getSuggestionDiagnostics::${document.version}::${fileName}`;
+      if (cache.has(key)) return cache.get(key);
+
+      const diagnostics = service
+        .getSuggestionDiagnostics(fileName)
+        .map((diagnostic) => {
+          if (Number.isInteger(diagnostic.start)) {
+            const position = document.findExpression(diagnostic.start!, diagnostic.length || 1);
+
+            if (!position) return;
+
+            diagnostic.start = position.offset;
+            diagnostic.length = position.length;
+          }
+
+          return diagnostic;
+        })
+        .filter(isNotNull);
+      cache.set(key, diagnostics);
+      return diagnostics;
+    },
+
+    getSyntacticDiagnostics(fileName) {
+      const document = getRenderDoc(fileName);
+      if (!document) return [];
+
+      const key = `getSyntacticDiagnostics::${document.version}::${fileName}`;
+      if (cache.has(key)) return cache.get(key);
+      const diagnostics = service
+        .getSyntacticDiagnostics(fileName)
+        .map((diagnostic) => {
+          if (Number.isInteger(diagnostic.start)) {
+            const position = document.findExpression(diagnostic.start!, diagnostic.length || 1);
+
+            if (!position) return;
+
+            diagnostic.start = position.offset;
+            diagnostic.length = position.length;
+          }
+
+          return diagnostic;
+        })
+        .filter(isNotNull);
+      cache.set(key, diagnostics);
+      return diagnostics;
+    },
 
     getRenameInfo(fileName, position, options) {
       const document = getRenderDoc(fileName);

@@ -1,22 +1,17 @@
-import { defineComponent } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
+
 
 const _Ctx = defineComponent({
   props: {
-    hello: String,
+    example: String
   },
-  setup() {
-    return { 
-      style: 'color: red', 
-      handleHover: (event: MouseEvent) => console.log(event) 
+  setup(props) {
+    return {
+      isFoo: props.example in props,
     }
   }
 })
 
-
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return (
-    <div style={_ctx.style} onMouseover={_ctx.handleHover}>
-      {_ctx.hello} world
-    </div>
-  );
+export function render({bar, isFoo}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<div>{bar} {isFoo}</div>/*@@vue:end*/
 }

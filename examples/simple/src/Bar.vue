@@ -2,7 +2,7 @@
 import { defineComponent, ref, computed } from 'vue'
 
 interface Props {
-  test?: string
+  hello?: string
 }
 
 export default defineComponent<Props>({

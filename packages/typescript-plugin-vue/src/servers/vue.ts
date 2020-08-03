@@ -23,6 +23,68 @@ export function createVueLanguageServer(options: CreateLanguageServiceOptions): 
 
   return {
     ...noop,
+
+    organizeImports(scope, formatOptions, preferences) {
+      const document = h.getVueDocument(scope.fileName);
+      if (!document) return [];
+
+      const virtual = document.getDocument('scriptSetup') || document.getDocument('script');
+
+      return script.organizeImports({ ...scope, fileName: virtual.fsPath }, formatOptions, preferences);
+    },
+
+    getSemanticDiagnostics(fileName) {
+      const document = h.getVueDocument(fileName);
+      const diagnostics: TS.Diagnostic[] = [];
+      if (document) {
+        ['script', '_render'].forEach((selector) => {
+          const virtual = document.getDocument(selector);
+
+          if (virtual) {
+            const results = choose(virtual).getSemanticDiagnostics(virtual.fsPath);
+            diagnostics.push(...results);
+          }
+        });
+      }
+
+      return diagnostics;
+    },
+
+    getQuickInfoAtPosition(fileName, position) {
+      const document = h.getDocumentAt(fileName, position);
+      if (document) return choose(document).getQuickInfoAtPosition(document.fsPath, position);
+    },
+
+    getSuggestionDiagnostics(fileName) {
+      const document = h.getVueDocument(fileName);
+
+      const diagnostics: TS.DiagnosticWithLocation[] = [];
+      if (document) {
+        ['script', '_render'].forEach((selector) => {
+          const virtual = document.getDocument(selector);
+
+          if (virtual) diagnostics.push(...choose(virtual).getSuggestionDiagnostics(virtual.fsPath));
+        });
+      }
+
+      return diagnostics;
+    },
+
+    getSyntacticDiagnostics(fileName) {
+      const document = h.getVueDocument(fileName);
+
+      const diagnostics: TS.DiagnosticWithLocation[] = [];
+      if (document) {
+        ['script', '_render'].forEach((selector) => {
+          const virtual = document.getDocument(selector);
+
+          if (virtual) diagnostics.push(...choose(virtual).getSyntacticDiagnostics(virtual.fsPath));
+        });
+      }
+
+      return diagnostics;
+    },
+
     getRenameInfo(fileName, position, options) {
       const document = h.getDocumentAt(fileName, position);
 

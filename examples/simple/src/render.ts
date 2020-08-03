@@ -1,6 +1,6 @@
 import { h as _h, renderList as _renderList, Fragment as _Fragment } from "vue"
 import _Ctx from './App.vue'
-import _component_Bar from './NewBar.vue'
+import _component_Bar from './Bar.vue'
 
 
 export function render(_ctx: InstanceType<typeof _Ctx>) {

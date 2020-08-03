@@ -179,6 +179,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   private originalMappings: CodegenResult['mappings'] = [];
   private generatedRange: [number, number] = [0, 0];
   private generatedMappings: CodegenResult['mappings'] = [];
+  private expressionsMap: Record<string, [number, number]> = {};
 
   public get ast(): CodegenResult['ast'] {
     return this.result.ast;
@@ -187,7 +188,6 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   public getOriginalOffsetAt(offset: number) {
     this.refresh();
     const [start, end] = this.generatedRange;
-    const g = this.positionAt(offset);
 
     if (start <= offset && offset <= end) {
       const mapping = binarySearch(this.originalMappings, ([start, length]) => {
@@ -197,13 +197,6 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
 
       if (mapping) {
         const offsetInSource = offset - mapping[0];
-        const o = this.container.getDocument('template').positionAt(mapping[2] + offsetInSource);
-
-        console.log(
-          `VirtualTextDocument:: render ${g.line + 1}:${g.character + 1} = template ${o.line + 1}:${
-            o.character + 1
-          } of ${this.container.fsPath}`
-        );
 
         return {
           offset: mapping[2] + offsetInSource,
@@ -213,19 +206,16 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     }
   }
 
-  public findExpression(offset: number) {
-    const expression = this.result.expressions.find((item) => item[0] <= offset && offset <= item[0] + item[1]);
+  public findExpression(offset: number, length: number) {
+    const text = this.getText().substr(offset, length);
+    const expression = this.expressionsMap[text.trim()];
 
-    if (expression) {
-      return { start: expression[0], length: expression[1] };
-    }
+    if (expression) return { offset: expression[0], length: expression[1] };
   }
 
   public getGeneratedOffsetAt(offset: number) {
     this.refresh();
     const [start, end] = this.originalRange;
-
-    const o = this.container.getDocument('template').positionAt(offset);
 
     if (start <= offset && offset <= end) {
       const mapping = binarySearch(this.generatedMappings, ([, , start, length]) => {
@@ -235,12 +225,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
 
       if (mapping) {
         const offsetInGenerated = offset - mapping[2];
-        const g = this.positionAt(mapping[0] + offsetInGenerated);
-        console.log(
-          `VirtualTextDocument:: template ${o.line + 1}:${o.character + 1} = render ${g.line + 1}:${
-            g.character + 1
-          } of ${this.container.fsPath}`
-        );
+
         return {
           offset: mapping[0] + offsetInGenerated,
           length: Math.max(1, mapping[1] - offsetInGenerated),
@@ -304,10 +289,19 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
       this.originalRange = [template.loc.start.offset, template.loc.end.offset];
       this.originalMappings = this.result.mappings.slice();
       this.generatedRange = [this.result.code.indexOf('/*@@vue:start*/'), this.result.code.indexOf('/*@@vue:end*/')];
-      this.generatedMappings = this.result.mappings.slice();
+      this.generatedMappings = this.result.mappings.filter(
+        (m) => this.generatedRange[0] <= m[0] && m[1] <= this.generatedRange[1]
+      );
 
       this.originalMappings.sort((a, b) => a[2] - b[2]);
       this.generatedMappings.sort((a, b) => a[0] - b[0]);
+
+      this.expressionsMap = {};
+      const code = this.result.code;
+
+      this.generatedMappings.forEach((p) => {
+        this.expressionsMap[code.substr(p[0], p[1])] = [p[2], p[3]];
+      });
 
       return this.result.code + `\n// Version ${this.doc.version}`;
     }

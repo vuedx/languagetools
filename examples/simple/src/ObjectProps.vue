@@ -15,5 +15,5 @@ export default defineComponent({
 </script>
 
 <template>
-  <div>{{ example }} {{ isFoo }} </div>
+  <div>{{ bar }} {{ isFoo }} </div>
 </template>

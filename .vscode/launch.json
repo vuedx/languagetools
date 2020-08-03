@@ -52,7 +52,7 @@
       "args": [
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode",
-        "${workspaceRoot}/extensions/vscode/src/__fixtures__"
+        "${workspaceRoot}/examples"
       ],
       "sourceMaps": true,
       "enableSourceMapCaching": true,

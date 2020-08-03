@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Bar from './NewBar.vue'
+import Bar from './Bar.vue'
 
 export default defineComponent({
   components: { Bar },

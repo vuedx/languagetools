@@ -48,7 +48,7 @@ export function createElementTransform(options: Required<Options>): NodeTransfor
       }
 
       const component = options.components[name];
-      if (component) {
+      if (component && !context.identifiers[name]) {
         context.imports.add({
           exp: component.named ? `{ ${component.name ? component.name + ' as ' : ''}${name} }` : name,
           path: component.path,

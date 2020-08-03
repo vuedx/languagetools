@@ -242,10 +242,11 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/vscode#readme",
   "dependencies": {
-    "@vuedx/vue-virtual-textdocument": "workspace:*",
     "@vuedx/typescript-plugin-vue": "workspace:*",
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
     "inversify": "^5.0.1",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "vue": "^3.0.0-rc.5"
   },
   "devDependencies": {
     "@types/vscode": "^1.47.0",

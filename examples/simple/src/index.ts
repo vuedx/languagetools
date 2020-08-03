@@ -1,6 +1,6 @@
 
 import { h, computed, defineComponent, ref, watch } from 'vue'
-import Bar, { Baz } from './NewBar.vue'
+import Bar, { Baz } from './Bar.vue'
 export const Name = 'name'
 
 const Ctx = defineComponent({
