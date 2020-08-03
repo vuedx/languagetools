@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/typecheck",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript plugin for Vue",
   "main": "dist/typecheck.js",
   "bin": "bin/typecheck.js",
