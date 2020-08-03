@@ -14,8 +14,8 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "dependencies": {
-    "@vue/compiler-sfc": "*",
     "@vue/compiler-core": "*",
+    "@vue/compiler-sfc": "*",
     "@vuedx/typescript-plugin-vue": "workspace:*",
     "chalk": "^4.1.0",
     "minimist": "^1.2.5"
