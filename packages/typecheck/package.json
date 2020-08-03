@@ -5,7 +5,6 @@
   "main": "dist/typecheck.js",
   "bin": "bin/typecheck.js",
   "types": "dist/typecheck.d.ts",
-  "private": true,
   "scripts": {},
   "keywords": [],
   "files": [
