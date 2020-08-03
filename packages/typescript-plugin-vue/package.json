@@ -1,0 +1,25 @@
+{
+  "name": "@vuedx/typescript-plugin-vue",
+  "version": "0.1.0",
+  "description": "TypeScript plugin for Vue",
+  "main": "dist/typescript-plugin-vue.js",
+  "types": "dist/typescript-plugin-vue.d.ts",
+  "private": false,
+  "scripts": {},
+  "keywords": [],
+  "files": [
+    "dist"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "dependencies": {
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
+    "vscode-uri": "^2.1.2",
+    "typescript": "^3.9.7"
+  },
+  "build": {
+    "external": [
+      "consolidate"
+    ]
+  }
+}

@@ -9,9 +9,8 @@
     "build": "rollup -c --environment BUILD:production",
     "prepublishOnly": "npm run build",
     "beta:release:packages": "npm run release:packages -- prerelease",
-    "release:packages": "pnpm recursive --filter ./packages exec npm version",
-    "postrelease:packages": "pnpm run build && pnpm recursive --filter ./packages publish --access public --tag latest",
-    "release:extensions": "node scripts/bundle-extensions --publish"
+    "release:packages": "pnpm recursive exec npm version",
+    "postrelease:packages": "pnpm run build && git commit -am 'chore: release' && pnpm recursive publish --access public --tag latest"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.1",

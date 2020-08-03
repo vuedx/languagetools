@@ -1,27 +1,21 @@
 {
+  "include": ["src"],
   "compilerOptions": {
     "module": "ESNext",
     "target": "ES2018",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "noImplicitAny": true,
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "strict": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "resolveJsonModule": true,
     "sourceMap": true,
-    "declaration": true,
-    "lib": ["ES2020"],
+    "declaration": false,
+    "lib": ["ESNext"],
 
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@vuedx/*": ["packages/*/src/index.ts"]
+      "@/*": ["src/*"]
     }
-  },
-  "include": ["types/*", "packages/*/src/**/*"],
-  "exclude": ["examples/**"]
+  }
 }

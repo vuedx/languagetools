@@ -1,14 +1,13 @@
-const Path = require('path');
-const Fs = require('fs');
-const ts = require('rollup-plugin-typescript2');
-const vue = require('rollup-plugin-vue');
-const postcss = require('rollup-plugin-postcss');
-const node = require('@rollup/plugin-node-resolve').default;
-const commonjs = require('@rollup/plugin-commonjs');
-const alias = require('@rollup/plugin-alias');
-const json = require('@rollup/plugin-json');
-const replace = require('@rollup/plugin-replace');
-const dts = require('rollup-plugin-dts').default;
+import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
+import node from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
+import * as Fs from 'fs';
+import * as Path from 'path';
+import dts from 'rollup-plugin-dts';
+import postcss from 'rollup-plugin-postcss';
+import ts from 'rollup-plugin-typescript2';
+import vue from 'rollup-plugin-vue';
 
 /** @type {import('rollup').RollupOptions[]} */
 const configurations = [];
@@ -21,11 +20,9 @@ const env = {
   'process.env.NODE_ENV': isProd ? '"production"' : '"development"',
 };
 
-const packages = Fs.readdirSync(Path.resolve(projectDir, './packages/@vuedx')).filter((name) => !name.startsWith('.'));
-const extensions = ['vue', 'vue-language-features'];
+const packages = Fs.readdirSync(Path.resolve(projectDir, './packages')).filter((name) => !name.startsWith('.'));
 
-createConfig('packages/@vuedx', packages);
-createConfig('extensions', extensions);
+createConfig('packages', packages);
 
 export default configurations;
 
@@ -62,9 +59,6 @@ function createConfig(dir, names, external = []) {
       const options = {
         input: Path.relative(projectDir, Path.resolve(pkgDir, 'src/index.ts')),
         external: [
-          // VS Code
-          'vscode',
-          'postcss',
           // Node
           'path',
           'fs',
@@ -100,12 +94,6 @@ function createConfig(dir, names, external = []) {
           moduleSideEffects: (id, external) => id.includes('reflect-metadata'),
           unknownGlobalSideEffects: false,
           propertyReadSideEffects: false,
-        },
-        onwarn(warning, fn) {
-          if (warning.code === 'CIRCULAR_DEPENDENCY') {
-            if (/(inversify|VirtualTextDocument|@babel\/types)/.test(warning.message)) return;
-          }
-          fn(warning);
         },
       };
 

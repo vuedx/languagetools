@@ -2,21 +2,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Test: Extension Vue",
+      "name": "Test: VS Code Extension",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
         "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceFolder}/extensions/vue",
+        "--extensionDevelopmentPath=${workspaceFolder}/extensions/vscode",
         "--extensionTestsPath=${workspaceFolder}/packages/@vuedx/extensions-shared/runner.js",
-        "${workspaceFolder}/extensions/vue/src/__fixtures__"
+        "${workspaceFolder}/extensions/vscode/src/__fixtures__"
       ],
       "outFiles": [
-        "${workspaceFolder}/extensions/vue/dist/*.js"
+        "${workspaceFolder}/extensions/vscode/dist/*.js"
       ],
       "env": {
-        "VSCODE_TEST_ROOT": "${workspaceFolder}/extensions/vue/src/__tests__",
+        "VSCODE_TEST_ROOT": "${workspaceFolder}/extensions/vscode/src/__tests__",
       }
     },
   
@@ -45,33 +45,18 @@
       ],
     },
     {
-      "name": "Extension: Vue",
+      "name": "Extension: VS Code",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
         "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vue",
-        "${workspaceRoot}/extensions/vue/src/__fixtures__"
+        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode",
+        "${workspaceRoot}/extensions/vscode/src/__fixtures__"
       ],
       "sourceMaps": true,
       "enableSourceMapCaching": true,
-      "outFiles": ["${workspaceRoot}/extensions/vue/dist/*.js"]
+      "outFiles": ["${workspaceRoot}/extensions/vscode/dist/*.js"]
     },
-    {
-      "name": "Extension: Vue Language Features",
-      "type": "extensionHost",
-      "request": "launch",
-      "runtimeExecutable": "${execPath}",
-      "args": [
-        "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vue",
-        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vue-language-features",
-        "${workspaceRoot}/examples/simple"
-      ],
-      "sourceMaps": true,
-      "enableSourceMapCaching": true,
-      "outFiles": ["${workspaceRoot}/extensions/vue-language-features/dist/*.js"]
-    }
   ]
 }

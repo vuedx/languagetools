@@ -1,12 +1,12 @@
 import { h as _h, renderList as _renderList, Fragment as _Fragment } from "vue"
 import _Ctx from './App.vue'
-import _component_Bar from './Bar.vue'
+import _component_Bar from './NewBar.vue'
 
 
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return _h("div", {}, [
-    (_ctx.dummy)
-      ? _h("p", {}, [_ctx.dummy + _ctx.bam, " It works. ", _ctx.dummy + _ctx.value + _ctx.value + _ctx.foo + _ctx.$el])
+    (_ctx.bar)
+      ? _h("p", {}, [_ctx.bar + _ctx.bam, " It works. ", _ctx.bar + _ctx.value + _ctx.value + _ctx.foo + _ctx.$el])
       : null,
     _h(_component_Bar, {
       foo: 5,

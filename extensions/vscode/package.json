@@ -1,0 +1,261 @@
+{
+  "private": true,
+  "preview": true,
+  "name": "vue",
+  "publisher": "znck",
+  "displayName": "Vue",
+  "version": "0.0.9",
+  "description": "Vue language grammar and syntax highlight. Made with 💚 for Vue Developers.",
+  "icon": "logo.png",
+  "main": "dist/extension.js",
+  "activationEvents": [
+    "onLanguage:vue",
+    "onCommand:vue.generateGrammar"
+  ],
+  "scripts": {
+    "build:grammar": "node scripts/prepare && node scripts/build-grammar",
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/znck/vue-developer-experience"
+  },
+  "keywords": [
+    "vue",
+    "vetur"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.47.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "grammars": [
+      {
+        "language": "vue",
+        "scopeName": "source.vue",
+        "path": "./syntaxes/vue.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.javascript": "javascript",
+          "meta.embedded.block.typescript": "typescript"
+        }
+      },
+      {
+        "language": "vue-html",
+        "scopeName": "text.html.vue-html",
+        "path": "./syntaxes/vue-html.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.js": "javascript"
+        }
+      },
+      {
+        "scopeName": "markdown.vue.codeblock",
+        "path": "./syntaxes/markdown-vue.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.vue": "vue"
+        }
+      },
+      {
+        "scopeName": "markdown.vue-html.codeblock",
+        "path": "./syntaxes/markdown-vue-html.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.vue-html": "vue-html"
+        }
+      }
+    ],
+    "languages": [
+      {
+        "id": "vue",
+        "aliases": [
+          "Vue"
+        ],
+        "extensions": [
+          ".vue"
+        ],
+        "configuration": "./languages/vue-language-configuration.json"
+      },
+      {
+        "id": "vue-html",
+        "aliases": [
+          "Vue HTML",
+          "vhtml",
+          "vhtm"
+        ],
+        "extensions": [
+          ".vue-html",
+          ".vhtml"
+        ],
+        "configuration": "./languages/vue-html-language-configuration.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "vue.generateGrammar",
+        "title": "Vue: Refresh syntax highlighter"
+      },
+      {
+        "command": "vue.openVirtualFile",
+        "title": "Vue: Show virtual file"
+      }
+    ],
+    "configuration": {
+      "title": "Vue",
+      "properties": {
+        "vue.blocks": {
+          "scope": "application",
+          "type": "object",
+          "patternProperties": {
+            "^[A-Za-z][A-Za-z0-9-]*$": {
+              "type": "object",
+              "properties": {
+                "default": {
+                  "enum": [
+                    "",
+                    "javascript",
+                    "typescript",
+                    "css",
+                    "postcss",
+                    "scss",
+                    "sass",
+                    "stylus",
+                    "vue-html",
+                    "vue",
+                    "markdown",
+                    "html"
+                  ]
+                },
+                "allowed": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "javascript",
+                      "typescript",
+                      "css",
+                      "postcss",
+                      "scss",
+                      "sass",
+                      "stylus",
+                      "vue-html",
+                      "vue",
+                      "md",
+                      "markdown",
+                      "html"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "vue.suggest.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enabled/disable autocomplete suggestions.",
+          "scope": "resource"
+        },
+        "vue.format.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable default TypeScript/JavaScript formatter.",
+          "scope": "window"
+        },
+        "vue.implementationsCodeLens.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable implementations CodeLens. This CodeLens shows the implementers of an interface.",
+          "scope": "window"
+        },
+        "vue.suggest.completeJSDocs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable suggestion to complete JSDoc comments.",
+          "scope": "resource"
+        },
+        "vue.referencesCodeLens.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable references CodeLens in TypeScript/JavaScript files.",
+          "scope": "window"
+        },
+        "vue.autoClosingTags": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable automatic closing of JSX tags. Requires using TypeScript 3.0 or newer in the workspace."
+        }
+      }
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "vue.openVirtualFile",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.reloadProjects",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.goToProjectConfig",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.selectTypeScriptVersion",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.openTsServerLog",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.restartTsServer",
+          "when": "editorLangId == vue"
+        }
+      ]
+    },
+    "breakpoints": [
+      {
+        "language": "vue"
+      }
+    ],
+    "typescriptServerPlugins": [
+      {
+        "name": "@vuedx/typescript-plugin-vue",
+        "enableForWorkspaceTypeScriptVersions": true,
+        "configNamespace": "vue",
+        "languages": [
+          "vue"
+        ]
+      }
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/znck/vue-developer-experience/issues"
+  },
+  "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/vscode#readme",
+  "dependencies": {
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
+    "@vuedx/typescript-plugin-vue": "workspace:*",
+    "inversify": "^5.0.1",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.47.0",
+    "chai": "^4.2.0",
+    "fast-glob": "^3.2.4",
+    "mocha": "^7.2.0",
+    "rollup": "^2.23.0",
+    "rollup-plugin-typescript2": "^0.27.1",
+    "typescript": "^3.9.7",
+    "vscode-test": "^1.4.0",
+    "yaml": "^1.10.0"
+  }
+}

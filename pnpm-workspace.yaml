@@ -1,5 +1,2 @@
 packages:
-  - "packages/@vuedx/*"
-  - "packages/@vuedx/typescript-plugin-vue/tests/e2e/project"
-  - "examples/**"
-  - "extensions/*"
+  - 'packages/*'
