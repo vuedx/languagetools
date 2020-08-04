@@ -128,7 +128,7 @@ function getJSXAttributes(node: ElementNode, context: TransformContext) {
       }
     } else if ('on' === dir.name) {
       const exp = isSimpleExpressionNode(dir.exp)
-        ? isSimpleIdentifier(dir.exp.content)
+        ? isSimpleIdentifier(dir.exp.content.trim())
           ? [dir.exp]
           : dir.exp.content.includes('$event')
           ? ['$event =>', dir.exp]

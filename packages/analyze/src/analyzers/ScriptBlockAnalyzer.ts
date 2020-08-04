@@ -1,9 +1,16 @@
 import { parse } from '@babel/parser';
 import traverse, { NodePath } from '@babel/traverse';
-import { isIdentifier, ObjectExpression, ObjectMember, ExportDefaultDeclaration, CallExpression } from '@babel/types';
+import {
+  isIdentifier,
+  ObjectExpression,
+  ObjectMember,
+  ExportDefaultDeclaration,
+  CallExpression,
+  ObjectMethod,
+} from '@babel/types';
 import { SFCScriptBlock } from '@vue/compiler-sfc';
 import { Context, Plugin, ScriptAnalyzerContext } from '../types';
-import { isNotNull } from '../utilities';
+import { isNotNull, createSourceRange } from '../utilities';
 
 export const ScriptBlockAnalyzer: Plugin = {
   blocks: {
@@ -96,13 +103,20 @@ function processScript(context: ScriptAnalyzerContext) {
 
   function processOptions(options$: NodePath<ObjectExpression>) {
     const properties$ = options$.get('properties') as NodePath[];
-
+    context.component.addOption('', { loc: createSourceRange(context, options$.node) });
     properties$.forEach((property$) => {
       if (property$.isObjectMember()) {
         const { key } = property$.node as ObjectMember;
 
         if (isIdentifier(key)) {
           const name = key.name;
+          context.component.addOption(name, {
+            loc: createSourceRange(
+              context,
+              property$.isObjectProperty() ? property$.node.value : (property$.node as ObjectMethod).body
+            ),
+          });
+
           optionsByNameHandlers.forEach((options) => {
             const fn = options[name] as any;
 
@@ -150,7 +164,7 @@ function processScript(context: ScriptAnalyzerContext) {
          */
         const { callee, arguments: args } = declaration$.node;
         const args$ = declaration$.get('arguments');
-        let options$ = (Array.isArray(args$) ? args$[0] : args$) as unknown as NodePath;
+        let options$ = ((Array.isArray(args$) ? args$[0] : args$) as unknown) as NodePath;
 
         /**
          * Matches:

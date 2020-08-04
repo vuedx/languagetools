@@ -156,6 +156,7 @@ importers:
       '@vuedx/analyze': 'link:../analyze'
       '@vuedx/template-ast-types': 'link:../template-ast-types'
       '@vuedx/vue-virtual-textdocument': 'link:../vue-virtual-textdocument'
+      de-indent: 1.0.2
       quick-lru: 5.1.1
       typescript: 3.9.7
       vscode-uri: 2.1.2
@@ -164,6 +165,7 @@ importers:
       '@vuedx/analyze': 'workspace:^0.1.4'
       '@vuedx/template-ast-types': 'workspace:*'
       '@vuedx/vue-virtual-textdocument': 'workspace:*'
+      de-indent: ^1.0.2
       quick-lru: ^5.1.1
       typescript: ^3.9.7
       vscode-uri: ^2.1.2
@@ -1954,6 +1956,10 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-X5eWTSXO/BJmpdIKCRuKUgSCgAN0OwliVK3yPKbwIWU1Tdw5BRajxlzMidvh+gwko9AfQ9zIj52pzF91Q3YAvQ==
+  /de-indent/1.0.2:
+    dev: false
+    resolution:
+      integrity: sha1-sgOOhG3DO6pXlhKNCAS0VbjB4h0=
   /debug/2.6.9:
     dependencies:
       ms: 2.0.0

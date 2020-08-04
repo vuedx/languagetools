@@ -8,3 +8,18 @@ export interface Modules {
 export type PatchedFunction<T> = T & {
   __VUE__: boolean;
 };
+
+export interface PluginConfig {
+  features: {
+    diagnostics: boolean | Array<'semantic' | 'syntactic' | 'suggestion'>;
+    organizeImports: boolean;
+    quickInfo: boolean;
+    rename: boolean;
+    refactor: boolean;
+  };
+  directories: Array<{
+    kind: 'component' | 'composition-function';
+    name: string;
+    path: string;
+  }>;
+}

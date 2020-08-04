@@ -269,6 +269,21 @@ function createLanguageServiceRouter(options: CreateLanguageServiceOptions): TS.
         .filter(isNotNull);
     },
 
+    getRenameInfo(fileName, position, options) {
+      const result = choose(fileName).getRenameInfo(fileName, position, options);
+
+      if (result.canRename) {
+        if (result.fileToRename && isVirtualFile(result.fileToRename)) {
+          result.fileToRename = getContainingFile(result.fileToRename);
+        }
+
+        result.displayName = REPLACE.virtualFile(result.displayName)
+        result.fullDisplayName = REPLACE.virtualFile(result.fullDisplayName)
+      }
+
+      return result;
+    },
+
     findRenameLocations(fileName, position, findInStrings, findInComments) {
       return choose(fileName)
         .findRenameLocations(fileName, position, findInStrings, findInComments)
@@ -298,6 +313,7 @@ function createLanguageServiceRouter(options: CreateLanguageServiceOptions): TS.
         })
         .filter(isNotNull);
     },
+
     getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences) {
       const suffix = '.vue' + VIRTUAL_FILENAME_SEPARATOR + '_module';
       return choose(oldFilePath)
@@ -328,6 +344,10 @@ function createLanguageServiceRouter(options: CreateLanguageServiceOptions): TS.
           return edit;
         })
         .filter(isNotNull);
+    },
+
+    getApplicableRefactors(fileName, positionOrRange, preferences) {
+      return choose(fileName).getApplicableRefactors(fileName, positionOrRange, preferences);
     },
   };
 

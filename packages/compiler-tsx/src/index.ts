@@ -7,21 +7,26 @@ import {
   FRAGMENT,
   generate,
   OPEN_BLOCK,
-  trackVForSlotScopes,
-  transform,
-  trackSlotScopes,
+
+  transform
 } from '@vue/compiler-core';
 import { isDirectiveNode, isElementNode, isInterpolationNode, isSimpleExpressionNode } from '@vuedx/template-ast-types';
+import { withScope } from './scope';
 import { createElementTransform } from './transforms/transformElement';
-import { createInterpolationTransform } from './transforms/transformInterpolation';
-import { CodegenResult, ComponentImport, Options } from './types';
 import { createExpressionTracker } from './transforms/transformExpression';
 import { createTransformFor } from './transforms/transformFor';
+import { createInterpolationTransform } from './transforms/transformInterpolation';
+import { CodegenResult, ComponentImport, Options } from './types';
 export * from './types';
+
+function clone(obj: object) {
+  return JSON.parse(JSON.stringify(obj));
+}
 
 const components: Record<string, ComponentImport> = {};
 export function compile(template: string, options: Options & CompilerOptions): CodegenResult {
   const ast = baseParse(template, options);
+  const astCopy = clone(ast);
   const expressions: Array<[number, number]> = [];
   const config: Required<Options> = {
     ...options,
@@ -102,6 +107,7 @@ export function compile(template: string, options: Options & CompilerOptions): C
 
   return {
     ...result,
+    ast: withScope(astCopy),
     mappings,
     expressions,
   };

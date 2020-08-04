@@ -11,7 +11,7 @@ import {
   parseVirtualFileName,
 } from '@vuedx/vue-virtual-textdocument';
 import { URI } from 'vscode-uri';
-import { TS } from './interfaces';
+import { TS, PluginConfig } from './interfaces';
 import { tryPatchMethod } from './patcher';
 
 function getLastNumberFromVersion(version: string) {
@@ -39,9 +39,24 @@ class ProxyDocumentStore extends DocumentStore<VueTextDocument> {
   }
 }
 
+function getConfig(config: Partial<PluginConfig> = {}): PluginConfig {
+  return {
+    ...config,
+    features: {
+      diagnostics: ['semantic', 'suggestion', 'suggestion'],
+      organizeImports: true,
+      quickInfo: true,
+      rename: true,
+      refactor: true,
+      ...config.features,
+    },
+    directories: [{ kind: 'component', name: 'components', path: 'src/components' }],
+  };
+}
+
 export class PluginContext {
   public readonly store: DocumentStore<VueTextDocument>;
-
+  private _config: PluginConfig = getConfig();
   private _projectService!: TS.server.ProjectService;
   private _serverHost!: TS.server.ServerHost;
 
@@ -61,6 +76,10 @@ export class PluginContext {
     );
   }
 
+  public get config(): Readonly<PluginConfig> {
+    return this._config;
+  }
+
   public get serviceHost() {
     return this._serverHost;
   }
@@ -73,6 +92,13 @@ export class PluginContext {
     if (this.projectService) {
       this.projectService.logger.info(`Vue.js:: ${message}`);
     }
+  }
+
+  public createVueDocument(fileName: string, content: string) {
+    const uri = URI.file(fileName).toString();
+    const document = VueTextDocument.create(uri, 'vue', 0, content);
+    this.store.set(uri, document);
+    return document;
   }
 
   public error(message: Error): void {
@@ -149,10 +175,15 @@ export class PluginContext {
 
     this._serverHost = info.serverHost;
     this._projectService = info.project.projectService;
+    this.setConfig(info.config);
 
     patchProjectService(this);
     patchServiceHost(this);
     patchLanguageServiceHost(this, info.languageServiceHost);
+  }
+
+  public setConfig(config: Partial<PluginConfig>) {
+    this._config = getConfig(config);
   }
 }
 
@@ -191,7 +222,7 @@ function patchExtraFileExtensions(context: PluginContext) {
   }
 
   // Enable .vue after enhancing the language server.
-  context.projectService.setHostConfiguration({ extraFileExtensions: [] })
+  context.projectService.setHostConfiguration({ extraFileExtensions: [] });
 }
 
 function patchLanguageServiceHost(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {

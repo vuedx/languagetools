@@ -10,6 +10,6 @@ module.exports = {
     },
   },
   moduleNameMapper: {
-    '@vuedx/(.+)$': '<rootDir>packages/@vuedx/$1/src/index.ts',
+    '@vuedx/(.+)$': '<rootDir>packages/$1/src/index.ts',
   },
 };

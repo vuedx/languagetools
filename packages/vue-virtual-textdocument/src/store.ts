@@ -15,6 +15,7 @@ export class DocumentStore<T> {
     this.map.set(uri, document);
     this.reverseUriMap.set(uri.toLowerCase(), uri);
   }
+  
   delete(uri: string) {
     return this.map.delete(this.getNormalizedUri(uri));
   }

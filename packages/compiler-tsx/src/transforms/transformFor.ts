@@ -15,7 +15,7 @@ import { isSimpleExpressionNode } from '@vuedx/template-ast-types';
 import { createLoc } from '../utils';
 import { trackIdentifiers } from './transformExpression';
 
-const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
+export const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
 export function createTransformFor(addIdentifer: (value: string) => void): NodeTransform {
   return createStructuralDirectiveTransform(/^for$/, (node, dir, context) => {
     let exp: any;

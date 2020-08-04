@@ -20,7 +20,7 @@ export interface ImportSource extends Addressable {
   localName: string;
 }
 
-export interface ComponentRegistration extends Addressable {
+export interface ComponentRegistrationInfo extends Addressable {
   name: string;
   aliases: string[];
   kind: 'local';
@@ -74,14 +74,19 @@ export interface PropInfo extends Taggable, Addressable {
 }
 
 export interface ComponentInfo {
+  components: ComponentRegistrationInfo[];
   props: PropInfo[];
-  components: ComponentRegistration[];
+  options: ComponentOptionsInfo;
+}
+
+export interface ComponentOptionsInfo extends Addressable {
+  properties: Record<string, Addressable>;
 }
 
 export interface ComponentInfoFactory {
   addProp(name: string, options?: Partial<PropInfo>): ComponentInfoFactory;
   addLocalComponent(name: string, source: ImportSource, loc?: SourceRange): ComponentInfoFactory;
-
+  addOption(name: string, address: Addressable): ComponentInfoFactory;
   info(): ComponentInfo;
 }
 
@@ -89,6 +94,10 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
   const component: ComponentInfo = {
     props: [],
     components: [],
+    options: {
+      loc: {} as any,
+      properties: {},
+    },
   };
 
   const factory: ComponentInfoFactory = {
@@ -117,6 +126,15 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
     addLocalComponent(name, source, loc = null as any) {
       // TODO: Create aliases. If name is PascalCase then allow kebab-case too.
       component.components.push({ name, aliases: [name], kind: 'local', source, loc });
+
+      return factory;
+    },
+    addOption(name, address) {
+      if (!name) {
+        component.options.loc = address.loc;
+      } else {
+        component.options.properties[name] = address;
+      }
 
       return factory;
     },

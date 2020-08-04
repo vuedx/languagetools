@@ -24,6 +24,12 @@ export default function init({ typescript }: Modules): TS.server.PluginModule {
         return server.decorate(info.languageService);
       }
     },
+
+    onConfigurationChanged(config) {
+      if (context) {
+        context.setConfig(config);
+      }
+    },
   };
 }
 

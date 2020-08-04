@@ -11,9 +11,9 @@ import {
   Node,
   ObjectMember,
   traverse,
-  traverseFast,
+  traverseFast
 } from '@babel/types';
-import { isSimpleIdentifier, NodeTransform, TransformContext, findDir } from '@vue/compiler-core';
+import { findDir, isSimpleIdentifier, NodeTransform, TransformContext } from '@vue/compiler-core';
 import { isDirectiveNode, isElementNode, isInterpolationNode, isSimpleExpressionNode } from '@vuedx/template-ast-types';
 
 export function createExpressionTracker(addIdentifer: (identifer: string) => void): NodeTransform {
@@ -82,7 +82,7 @@ const KNOWN_IDENTIFIERS = new Set(
   ).split(',')
 );
 
-function isKnownIdentifier(value: string) {
+export function isKnownIdentifier(value: string) {
   return KNOWN_IDENTIFIERS.has(value) || /^(true|false|null|this)$/.test(value);
 }
 
@@ -153,15 +153,15 @@ export function trackIdentifiers(
   });
 }
 
-function isStaticProperty(node: Node): node is ObjectMember {
+export function isStaticProperty(node: Node): node is ObjectMember {
   return isObjectMember(node) && node.computed === false;
 }
 
-function isStaticPropertyKey(node: Node, parent: Node) {
+export function isStaticPropertyKey(node: Node, parent: Node) {
   return isStaticProperty(parent) && parent.key === node;
 }
 
-function shouldTrack(identifier: Identifier, parent: Node) {
+export function shouldTrack(identifier: Identifier, parent: Node) {
   if (
     !(
       isFunction(parent) &&

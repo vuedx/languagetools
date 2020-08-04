@@ -86,42 +86,38 @@ function traverseSimpleImpl<T>(
   if (exit) exit(node, ancestors, state);
 }
 
-export function traverseDepth<T>(
-  node: object,
+export function traverseEvery<T>(
+  node: Node,
   enter: (node: Node, ancestors: TraversalAncestors, state: T) => boolean,
   state?: any,
   ancestors: TraversalAncestors = []
 ): void {
-  if (!isNode(node)) return;
-
+  if (!isNode(node)) return
   const keys = VISITOR_KEYS[node.type];
   if (!keys) return;
 
   if (enter(node, ancestors, state)) {
     for (const key of keys) {
       const subNode = node[key];
-
       if (Array.isArray(subNode)) {
         for (let i = 0; i < subNode.length; i++) {
           const child = subNode[i];
-          if (!child) continue;
-
-          ancestors.push({
-            node,
-            key,
-            index: i,
-          });
-          traverseDepth(child, enter, state, ancestors);
-          ancestors.pop();
+          if (isNode(child)) {
+            ancestors.push({
+              node,
+              key,
+              index: i,
+            });
+            traverseEvery(child, enter, state, ancestors);
+            ancestors.pop();
+          }
         }
       } else if (isNode(subNode)) {
         ancestors.push({
           node,
           key,
         });
-
-        traverseDepth(subNode, enter, state, ancestors);
-
+        traverseEvery(subNode, enter, state, ancestors);
         ancestors.pop();
       }
     }
