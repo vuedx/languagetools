@@ -28,7 +28,7 @@ export default configurations;
 
 function createTs(pkgDir) {
   return ts({
-    check: true,
+    check: false,
     tsconfig: Path.resolve(__dirname, 'tsconfig.json'),
     tsconfigOverride: {
       compilerOptions: {
@@ -53,26 +53,32 @@ function createConfig(dir, names, external = []) {
     if (Fs.existsSync(outDir)) {
       Fs.rmdirSync(outDir, { recursive: true });
     }
-
+    const deps = new Set(
+      [
+        // Node
+        'path',
+        'fs',
+        'events',
+        'querystring',
+        'assert',
+        'url',
+        'util',
+        'os',
+        'crypto',
+      ]
+        .concat(Object.keys(pkg.dependencies || {}))
+        .concat(pkg.build && pkg.build.external ? pkg.build.external : [])
+        .concat(external)
+    );
     try {
       /** @type {import('rollup').RollupOptions} */
       const options = {
         input: Path.relative(projectDir, Path.resolve(pkgDir, 'src/index.ts')),
-        external: [
-          // Node
-          'path',
-          'fs',
-          'events',
-          'querystring',
-          'assert',
-          'url',
-          'util',
-          'os',
-          'crypto',
-        ]
-          .concat(Object.keys(pkg.dependencies || {}))
-          .concat(pkg.build && pkg.build.external ? pkg.build.external : [])
-          .concat(external),
+        external(source) {
+          if (deps.has(source)) return true;
+          if (isProd) return false;
+          return !source.startsWith('/') && !source.startsWith('.') && !source.startsWith('@/');
+        },
         context: 'null',
         plugins: [
           json(),

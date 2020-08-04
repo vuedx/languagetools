@@ -99,10 +99,34 @@ export function createVueLanguageServer(options: CreateLanguageServiceOptions): 
     },
 
     findRenameLocations(fileName, position, findInStrings, findInComments) {
-      const document = h.getDocumentAt(fileName, position);
+      const document = h.getVueDocument(fileName);
       if (!document) return;
+      const block = document.blockAt(position);
+      if (!block) return;
+      const result: TS.RenameLocation[] = [];
+      if (block.type === 'template' || block.type === 'script') {
+        const fromTemplate = template.findRenameLocations(
+          document.getDocumentFileName('_render')!,
+          position,
+          findInStrings,
+          findInComments
+        );
+        if (fromTemplate) result.push(...fromTemplate);
+      }
+     
+      if (block.type === 'script') {
+        const fromScript = template.findRenameLocations(
+          document.getDocumentFileName('script')!,
+          position,
+          findInStrings,
+          findInComments
+        );
+        if (fromScript) result.push(...fromScript);
+      }
 
-      return choose(document).findRenameLocations(document.fsPath, position, findInStrings, findInComments);
+      result.sort((a, b) => a.textSpan.start - b.textSpan.start);
+
+      return result;
     },
 
     getApplicableRefactors(fileName, positionOrRange, preferences) {

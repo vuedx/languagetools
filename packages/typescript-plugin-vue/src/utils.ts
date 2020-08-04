@@ -46,6 +46,16 @@ export function createServerHelper(context: PluginContext) {
 
   return { getDocument, getDocumentAt, getVueDocument, isRenderFunctionDocument, isRenderFunctionFileName };
 }
+
 export function isNotNull<T>(value: T | null | undefined): value is T {
   return value != null;
+}
+
+export function computeIdentifierReplacement(source: string, identifer: string) {
+  const RE = new RegExp(`\\b${identifer}\\b`);
+  const match = RE.exec(source);
+
+  if (!match) return { prefixText: source, suffixText: '' };
+
+  return { prefixText: source.substr(0, match.index), suffixText: source.substr(match.index + match[0].length) };
 }

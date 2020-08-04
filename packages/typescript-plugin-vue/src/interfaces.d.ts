@@ -2,9 +2,9 @@ import TS from 'typescript/lib/tsserverlibrary';
 
 export { TS };
 export interface Modules {
-  typescript: TS;
+  typescript: typeof TS;
 }
 
-export interface PatchedFunction<T> extends T {
+export type PatchedFunction<T> = T & {
   __VUE__: boolean;
-}
+};

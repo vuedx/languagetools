@@ -34,12 +34,14 @@ export function createScriptContext(content: string, context: Context, block?: S
   const ast = parse(content, {
     ...context.parsers.babel,
     plugins: Array.from(new Set(plugins)),
+    ranges: true,
   });
 
   return {
     ...context,
     mode: script.setup ? 'setup' : 'module',
     ast: ast,
+    source: content,
     block: script,
   };
 }
@@ -93,7 +95,7 @@ function processScript(context: ScriptAnalyzerContext) {
   }
 
   function processOptions(options$: NodePath<ObjectExpression>) {
-    const properties$ = options$.get('properties');
+    const properties$ = options$.get('properties') as NodePath[];
 
     properties$.forEach((property$) => {
       if (property$.isObjectMember()) {
@@ -121,14 +123,14 @@ function processScript(context: ScriptAnalyzerContext) {
     });
   }
 
-  traverse(context.ast, {
+  traverse(context.ast as any, {
     enter(path) {
-      call(enterHandlers, path);
+      call(enterHandlers, path as any);
     },
     exit(path) {
-      call(exitHandlers, path);
+      call(exitHandlers, path as any);
     },
-    ExportDefaultDeclaration(path: NodePath<ExportDefaultDeclaration>) {
+    ExportDefaultDeclaration(path) {
       if (context.mode === 'setup') return;
       const d$ = path.get('declaration');
       /**
@@ -148,7 +150,7 @@ function processScript(context: ScriptAnalyzerContext) {
          */
         const { callee, arguments: args } = declaration$.node;
         const args$ = declaration$.get('arguments');
-        let options$ = Array.isArray(args$) ? args$[0] : args$;
+        let options$ = (Array.isArray(args$) ? args$[0] : args$) as unknown as NodePath;
 
         /**
          * Matches:
@@ -163,7 +165,7 @@ function processScript(context: ScriptAnalyzerContext) {
             call(declarationHandlers, declaration$ as any);
             call(optionsHandlers, options$ as any);
             processOptions(options$ as any);
-          } else if (options$.isFunctionExpression() || options$.isArrowFunctionExpression()) {
+          } else if (options$.isArrowFunctionExpression() || options$.isFunctionExpression()) {
             /**
              * Matches:
              * export default defineComponent(() => {...})

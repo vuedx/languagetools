@@ -1,10 +1,28 @@
-export interface ImportSource {
-  moduleName: string;
-  exportName?: string;
+export interface SourceLocation {
+  offset: number;
+  line: number;
+  column: number;
 }
 
-export interface ComponentRegistration {
+export interface SourceRange {
+  source: string;
+  start: SourceLocation;
+  end: SourceLocation;
+}
+
+export interface Addressable {
+  loc: SourceRange;
+}
+
+export interface ImportSource extends Addressable {
+  moduleName: string;
+  exportName?: string;
+  localName: string;
+}
+
+export interface ComponentRegistration extends Addressable {
   name: string;
+  aliases: string[];
   kind: 'local';
   source: ImportSource;
 }
@@ -47,7 +65,7 @@ export interface Taggable {
   tags: TagInfo[];
 }
 
-export interface PropInfo extends Taggable {
+export interface PropInfo extends Taggable, Addressable {
   name: string;
   description: string;
   required: boolean;
@@ -62,7 +80,7 @@ export interface ComponentInfo {
 
 export interface ComponentInfoFactory {
   addProp(name: string, options?: Partial<PropInfo>): ComponentInfoFactory;
-  addLocalComponent(name: string, source: ImportSource): ComponentInfoFactory;
+  addLocalComponent(name: string, source: ImportSource, loc?: SourceRange): ComponentInfoFactory;
 
   info(): ComponentInfo;
 }
@@ -89,14 +107,16 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
           required: false,
           type: [{ kind: 'expression', imports: [], expression: 'any' }],
           defaultValue: null,
+          loc: null as any,
           ...options,
         });
       }
 
       return factory;
     },
-    addLocalComponent(name, source) {
-      component.components.push({ name, kind: 'local', source });
+    addLocalComponent(name, source, loc = null as any) {
+      // TODO: Create aliases. If name is PascalCase then allow kebab-case too.
+      component.components.push({ name, aliases: [name], kind: 'local', source, loc });
 
       return factory;
     },

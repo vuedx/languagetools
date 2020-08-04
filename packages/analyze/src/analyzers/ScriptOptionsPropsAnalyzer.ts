@@ -1,15 +1,8 @@
 import { NodePath } from '@babel/traverse';
-import {
-  isStringLiteral,
-  ObjectMember,
-  ObjectProperty,
-  isIdentifier,
-  isObjectProperty,
-  isBooleanLiteral,
-} from '@babel/types';
-import { TypeInfo, PropInfo } from '../component';
+import { isBooleanLiteral, isIdentifier, isObjectProperty, isStringLiteral, ObjectMember } from '@babel/types';
+import { PropInfo, TypeInfo } from '../component';
 import { Plugin } from '../types';
-import { isNotNull } from '../utilities';
+import { createSourceRange, isNotNull } from '../utilities';
 
 export const PropsOptionsAnalyzer: Plugin = {
   options: {
@@ -24,7 +17,7 @@ export const PropsOptionsAnalyzer: Plugin = {
             const value$ = property$.get('value') as NodePath;
             if (key$.isIdentifier()) {
               const name = key$.node.name;
-              context.component.addProp(name);
+              context.component.addProp(name, { loc: createSourceRange(context, property$.node) });
 
               if (value$.isIdentifier()) {
                 const type = getTypeInfo(value$);
@@ -53,7 +46,7 @@ export const PropsOptionsAnalyzer: Plugin = {
       } else if (props$.isArrayExpression()) {
         props$.node.elements.forEach((element) => {
           if (isStringLiteral(element)) {
-            context.component.addProp(element.value);
+            context.component.addProp(element.value, { loc: createSourceRange(context, element) });
           }
         });
       }
@@ -94,7 +87,7 @@ function toObjectExpressionMap(path$: NodePath): Record<string, NodePath<ObjectM
         const key = property$.node.key;
 
         if (isIdentifier(key)) {
-          map[key.name] = property$;
+          map[key.name] = property$ as any;
         }
       }
     });

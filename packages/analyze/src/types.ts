@@ -36,6 +36,7 @@ export interface Context {
 export interface ScriptAnalyzerContext extends Context {
   mode: 'module' | 'setup';
   ast: File;
+  source: string;
   block: SFCScriptBlock;
 }
 

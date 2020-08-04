@@ -1,7 +1,8 @@
 import { Binding, NodePath } from '@babel/traverse';
-import { isIdentifier, isObjectExpression, isObjectProperty, ObjectProperty, ImportDeclaration } from '@babel/types';
-import { Plugin } from '../types';
+import { ImportDeclaration, isIdentifier, isObjectExpression, isObjectProperty, ObjectProperty } from '@babel/types';
 import { ImportSource } from '../component';
+import { Plugin, ScriptAnalyzerContext } from '../types';
+import { createSourceRange } from '../utilities';
 
 export const ComponentsOptionAnalyzer: Plugin = {
   options: {
@@ -15,8 +16,8 @@ export const ComponentsOptionAnalyzer: Plugin = {
               const name = getComponentName(declaration.key);
               if (name) {
                 if (isIdentifier(declaration.value)) {
-                  const info = resolveComponentInformation(path$.scope.getBinding(declaration.value.name));
-                  if (info) ctx.component.addLocalComponent(name, info);
+                  const info = resolveComponentInformation(path$.scope.getBinding(declaration.value.name), ctx);
+                  if (info) ctx.component.addLocalComponent(name, info, createSourceRange(ctx, declaration));
                 }
               }
             }
@@ -31,26 +32,37 @@ function getComponentName(key: ObjectProperty['key']) {
   if (isIdentifier(key)) return key.name;
 }
 
-function resolveComponentInformation(binding?: Binding): ImportSource | undefined {
+function resolveComponentInformation(
+  binding: Binding | undefined,
+  context: ScriptAnalyzerContext
+): ImportSource | undefined {
   if (!binding) return;
 
   switch (binding.kind) {
-    case 'module': {
-      const path$ = binding.path as NodePath
-      if (path$.isImportSpecifier()) {
-        const node = path$.node;
-        const parent = path$.parent as ImportDeclaration;
+    case 'module':
+      {
+        const path$ = (binding.path as unknown) as NodePath;
+        if (path$.isImportDefaultSpecifier()) {
+          const node = path$.node;
+          const parent = path$.parent as ImportDeclaration;
 
-        return { moduleName: parent.source.value, exportName: node.imported.name };
-      } 
-      // @ts-ignore TS2339
-      else if (path$.isImportDefaultSpecifier()) {
-        // @ts-ignore TS2339
-        const parent = path$.parent as ImportDeclaration;
+          return {
+            moduleName: parent.source.value,
+            localName: node.local.name,
+            loc: createSourceRange(context, parent),
+          };
+        } else if (path$.isImportSpecifier()) {
+          const node = path$.node;
+          const parent = path$.parent as ImportDeclaration;
 
-        return { moduleName: parent.source.value };
+          return {
+            moduleName: parent.source.value,
+            exportName: node.imported.name,
+            localName: node.local.name,
+            loc: createSourceRange(context, parent),
+          };
+        }
       }
       break;
-    }
   }
 }

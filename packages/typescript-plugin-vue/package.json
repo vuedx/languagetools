@@ -13,6 +13,9 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "dependencies": {
+    "@vue/compiler-core": "^3.0.0-rc.5",
+    "@vuedx/analyze": "workspace:^0.1.4",
+    "@vuedx/template-ast-types": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "quick-lru": "^5.1.1",
     "typescript": "^3.9.7",

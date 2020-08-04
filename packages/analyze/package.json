@@ -26,11 +26,16 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
+    "@babel/code-frame": "^7.10.4",
     "@babel/parser": "^7.10.5",
     "@babel/traverse": "^7.11.0",
     "@babel/types": "^7.10.5",
     "@vue/compiler-core": "^3.0.0-rc.5",
-    "@vue/compiler-sfc": "^3.0.0-rc.5"
+    "@vue/compiler-sfc": "^3.0.0-rc.5",
+    "cli-highlight": "^2.1.4",
+    "commander": "^6.0.0",
+    "fast-glob": "^3.2.4",
+    "hash-sum": "^2.0.0"
   },
   "devDependencies": {
     "typescript": "^3.9.7"

@@ -273,7 +273,7 @@ function createLanguageServiceRouter(options: CreateLanguageServiceOptions): TS.
       return choose(fileName)
         .findRenameLocations(fileName, position, findInStrings, findInComments)
         ?.map((item) => {
-          options.context.log('xxx.findRenameLocations ' + JSON.stringify(item));
+          options.context.log('try.findRenameLocations ' + JSON.stringify(item));
           if (isVirtualFile(item.fileName)) {
             item.originalContextSpan = item.contextSpan;
             item.originalTextSpan = item.textSpan;
@@ -292,6 +292,7 @@ function createLanguageServiceRouter(options: CreateLanguageServiceOptions): TS.
               item.contextSpan = contextSpan;
             }
           }
+          options.context.log('ok.findRenameLocations ' + JSON.stringify(item));
 
           return item;
         })

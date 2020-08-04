@@ -191,7 +191,7 @@ function patchExtraFileExtensions(context: PluginContext) {
   }
 
   // Enable .vue after enhancing the language server.
-  setTimeout(() => context.projectService.setHostConfiguration({ extraFileExtensions: [] }), 0);
+  context.projectService.setHostConfiguration({ extraFileExtensions: [] })
 }
 
 function patchLanguageServiceHost(context: PluginContext, languageServiceHost: TS.LanguageServiceHost) {

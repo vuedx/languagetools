@@ -1,9 +1,39 @@
-import { isNumber, RenderFunctionTextDocument, VirtualTextDocument } from '@vuedx/vue-virtual-textdocument';
+import { ComponentInfo, createFullAnalyzer } from '@vuedx/analyze';
+import {
+  isElementNode,
+  isSimpleExpressionNode,
+  isComponentNode,
+  isPlainElementNode,
+  traverseFast,
+} from '@vuedx/template-ast-types';
+import {
+  isNumber,
+  RenderFunctionTextDocument,
+  VirtualTextDocument,
+  VueTextDocument,
+  isVirtualFile,
+  getContainingFile,
+} from '@vuedx/vue-virtual-textdocument';
+import QuickLRU from 'quick-lru';
+import { findTemplateNodeAt } from '../ast-ops';
 import { TS } from '../interfaces';
 import { CreateLanguageServiceOptions } from '../types';
+import { isNotNull, computeIdentifierReplacement } from '../utils';
 import { noop } from './noop';
-import { isNotNull } from '../utils';
-import QuickLRU from 'quick-lru';
+import * as Path from 'path';
+
+function createCachedAnalyzer() {
+  const cache = new QuickLRU<string, ComponentInfo>({ maxSize: 1000 });
+  const analyzer = createFullAnalyzer([], { babel: { plugins: ['typescript', 'jsx'] } });
+
+  return (document: VueTextDocument) => {
+    const key = `${document.version}::${document.fsPath}`;
+    if (cache.has(key)) return cache.get(key)!;
+    const info = analyzer.analyze(document.getText(), document.fsPath);
+    cache.set(key, info);
+    return info;
+  };
+}
 
 export function createTemplateLanguageServer({
   helpers: h,
@@ -28,6 +58,7 @@ export function createTemplateLanguageServer({
   }
 
   const cache = new QuickLRU<string, any>({ maxSize: 1000 });
+  const getComponentInfo = createCachedAnalyzer();
 
   return {
     ...noop,
@@ -135,31 +166,55 @@ export function createTemplateLanguageServer({
 
     getRenameInfo(fileName, position, options) {
       const document = getRenderDoc(fileName);
-      const template = getTemplateDoc(fileName);
-      const offset = document.getGeneratedOffsetAt(position)?.offset;
+      const { node, ancestors } = findTemplateNodeAt(document.ast, position);
 
-      if (isNumber(offset)) {
-        const result = service.getRenameInfo(fileName, offset, options);
-
-        if (result.canRename) {
-          result.triggerSpan = getTextSpan(document, result.triggerSpan);
-
-          const prefix = template.getText(result.triggerSpan.start - 1, 1);
-
-          if (result.displayName === '$event') {
-            return {
-              canRename: false,
-              localizedErrorMessage: '$event is builtin variable, it cannot be renamed.',
-            };
-          } else if (prefix === ':' || prefix === '@') {
-            return {
-              canRename: false,
-              localizedErrorMessage: (prefix === ':' ? 'Prop/attribute' : 'Event name') + ' renaming is not supported.',
-            };
+      if (isSimpleExpressionNode(node)) {
+        const offset = document.getGeneratedOffsetAt(position)?.offset;
+        if (isNumber(offset)) {
+          const result = service.getRenameInfo(fileName, offset, options);
+          if (result.canRename) {
+            result.triggerSpan = getTextSpan(document, result.triggerSpan);
+            if (result.displayName === '$event') {
+              return {
+                canRename: false,
+                localizedErrorMessage: '$event is builtin variable, it cannot be renamed.',
+              };
+            }
           }
-        }
 
-        return result;
+          return result;
+        }
+      } else if (isComponentNode(node)) {
+        const info = getComponentInfo(document.container);
+        const tagName = node.tag;
+        const component = info.components.find((component) => component.aliases.includes(tagName));
+        if (component) {
+          // TODO: Resolve path with TS.
+          return {
+            canRename: true,
+            displayName: tagName,
+            fullDisplayName: tagName,
+            kind: context.typescript.ScriptElementKind.unknown,
+            kindModifiers: 'tagName',
+            triggerSpan: {
+              start: node.loc.start.offset + 1,
+              length: node.tag.length,
+            },
+            fileToRename: undefined,
+          };
+        }
+      } else if (isPlainElementNode(node)) {
+        return {
+          canRename: true,
+          displayName: node.tag,
+          fullDisplayName: node.tag,
+          kind: context.typescript.ScriptElementKind.unknown,
+          kindModifiers: 'tagName',
+          triggerSpan: {
+            start: node.loc.start.offset + 1,
+            length: node.tag.length,
+          },
+        };
       }
 
       return {
@@ -170,13 +225,147 @@ export function createTemplateLanguageServer({
 
     findRenameLocations(fileName, position, findInStrings, findInComments) {
       const document = getRenderDoc(fileName);
-      const offset = document.getGeneratedOffsetAt(position)?.offset;
+      const { node, ancestors } = findTemplateNodeAt(document.ast, position);
+      const edits: TS.RenameLocation[] = [];
 
-      if (isNumber(offset)) {
-        return service.findRenameLocations(fileName, offset, findInStrings, findInComments);
+      if (!node) {
+        // TODO: Handle renames in script block.
+        return;
       }
 
-      return undefined;
+      if (isSimpleExpressionNode(node)) {
+        const offset = document.getGeneratedOffsetAt(position)?.offset;
+
+        if (isNumber(offset)) {
+          return service.findRenameLocations(fileName, offset, findInStrings, findInComments);
+        }
+      }
+
+      if (isPlainElementNode(node)) {
+        edits.push({
+          fileName: document.container.fsPath,
+          textSpan: { start: node.loc.start.offset + 1, length: node.tag.length },
+        });
+
+        if (!node.isSelfClosing) {
+          edits.push({
+            fileName: document.container.fsPath,
+            textSpan: {
+              start: node.loc.start.offset + node.loc.source.lastIndexOf('</' + node.tag) + 2,
+              length: node.tag.length,
+            },
+          });
+        }
+      } else if (isComponentNode(node)) {
+        const info = getComponentInfo(document.container);
+        const tagName = node.tag;
+        const component = info.components.find((component) => component.aliases.includes(tagName));
+        if (component) {
+          const importText = component.source.loc.source;
+
+          // local name in import statement
+          const importReplacement = computeIdentifierReplacement(importText, component.source.localName);
+
+          const scriptFileName = document.container.getDocumentFileName('script');
+          let otherEdits: TS.RenameLocation[] = [];
+
+          // find edit for local name except in import statement.
+          if (scriptFileName) {
+            const { prefixText } = computeIdentifierReplacement(component.loc.source, component.source.localName);
+            const fromScript = service.findRenameLocations(
+              scriptFileName,
+              component.loc.start.offset + prefixText.length,
+              findInStrings,
+              findInComments
+            );
+            const start = component.source.loc.start.offset;
+            const end = component.source.loc.end.offset;
+            const vueFileName = document.container.fsPath;
+            if (fromScript) {
+              otherEdits.push(
+                ...fromScript.filter(
+                  (edit) =>
+                    getContainingFile(edit.fileName) === vueFileName &&
+                    !edit.fileName.endsWith('_render.tsx') &&
+                    (edit.textSpan.start < start || end < edit.textSpan.start)
+                )
+              );
+            }
+          }
+
+          if (component.source.exportName && !importReplacement.prefixText.trim().endsWith(' as')) {
+            importReplacement.prefixText = importReplacement.prefixText + component.source.exportName + ' as ';
+          }
+
+          edits.push({
+            fileName: document.container.fsPath,
+            textSpan: { start: component.source.loc.start.offset, length: importText.length },
+            ...importReplacement,
+          });
+
+          // if component is registered with an alias.
+          if (component.source.localName !== component.name) {
+            edits.push({
+              fileName: document.container.fsPath,
+              textSpan: { start: component.loc.start.offset, length: component.loc.source.length },
+              ...computeIdentifierReplacement(component.loc.source, component.name),
+            });
+          }
+
+          // other components using same import
+          info.components
+            .filter(
+              (current) =>
+                current.name !== component.name &&
+                current.source.moduleName === component.source.moduleName &&
+                current.source.exportName === component.source.exportName &&
+                current.source.localName === component.source.localName
+            )
+            .forEach((component) => {
+              if (component.source.localName === component.name) {
+                const start = component.loc.start.offset;
+                otherEdits = otherEdits.filter((edit) => edit.textSpan.start !== start);
+
+                edits.push({
+                  fileName: document.container.fsPath,
+                  textSpan: { start: component.loc.start.offset, length: component.loc.source.length },
+                  prefixText: /[a-z$_][a-z0-9$_]+/i.test(component.name)
+                    ? component.name + ': '
+                    : `'${component.name}': `,
+                });
+              }
+            });
+
+          traverseFast(document.ast, (node) => {
+            if (isComponentNode(node)) {
+              if (component.aliases.includes(node.tag)) {
+                edits.push({
+                  fileName: document.container.fsPath,
+                  textSpan: { start: node.loc.start.offset + 1, length: node.tag.length },
+                });
+
+                if (!node.isSelfClosing) {
+                  edits.push({
+                    fileName: document.container.fsPath,
+                    textSpan: {
+                      start: node.loc.start.offset + node.loc.source.lastIndexOf('</' + node.tag) + 2,
+                      length: node.tag.length,
+                    },
+                  });
+                }
+              }
+            }
+          });
+
+          edits.push(...otherEdits);
+        }
+      }
+
+      return edits;
+    },
+
+    getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences) {
+      return [];
     },
 
     getApplicableRefactors(fileName, positionOrRange, preferences) {

@@ -24,7 +24,7 @@
 	},
 	"homepage": "https://github.com/znck/vue-developer-experience#readme",
 	"dependencies": {
-		"@vue/compiler-core": "^3.0.0-rc.4"
+		"@vue/compiler-core": "^3.0.0-rc.5"
 	},
 	"devDependencies": {
 		"typescript": "^3.9.7"

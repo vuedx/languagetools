@@ -1,20 +1,33 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Bar from './Bar.vue'
+import { Bar as TestComp } from './components'
 
 export default defineComponent({
-  components: { Bar },
-  setup() {
-    return { bar: 1 }
+  components: {
+    Foo: TestComp,
+    TestComp,
+    'foo-bar': TestComp
+  },
+  props: {
+    foo: String,
+    bar: {
+      type: String,
+      required: true
+    }
   }
 })
 </script>
 
 <template>
-  <Bar v-if="bar" :test="5"  #default="{ test }">
-      {{ test }}
-  </Bar>
-  <Bar v-else :test="5"  #default="{ test }">
-      {{ test }}
-  </Bar>
+  <Foo>
+      <TestComp>
+        <foo-bar />
+      </TestComp>
+      <TestComp>
+        <foo-bar />
+      </TestComp>
+      <TestComp>
+        <foo-bar />
+      </TestComp>
+  </Foo>
 </template>
