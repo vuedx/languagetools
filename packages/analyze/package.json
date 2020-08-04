@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/analyze",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Extracts public API information from Vue component.",
   "main": "dist/analyze.js",
   "module": "dist/analyze.esm.js",
