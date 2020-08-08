@@ -9,7 +9,7 @@ expect.addSnapshotSerializer({
 });
 
 describe('VueVirtualDocument/baseline', () => {
-  const dir = Path.resolve(__dirname, '../../typescript-plugin-vue/tests/e2e/project/src');
+  const dir = Path.resolve(__dirname, '../../typescript-plugin-vue/tests/e2e/projects');
   const fileNames = glob('**/*.vue', {
     cwd: dir,
     absolute: false,

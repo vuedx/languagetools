@@ -4,7 +4,7 @@ import { createLanguageServerForTest } from '../../server';
 import Path from 'path';
 import { getTextRanges } from '../helpers';
 
-const baseDir = Path.resolve(__dirname, '../../project/src/rename/element-tag');
+const baseDir = Path.resolve(__dirname, '../../projects/rename-element-tag/src');
 
 describe('rename/element-tag', () => {
   let server!: TestVueServer;

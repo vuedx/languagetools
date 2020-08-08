@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`VueVirtualDocument/baseline rename/component-tag/FooBar.vue 1`] = `
+exports[`VueVirtualDocument/baseline rename-component-tag/src/FooBar.vue 1`] = `
 import _Ctx from './FooBar.vue?internal'
 
 
@@ -10,7 +10,7 @@ export function render(_ctx: InstanceType<typeof _Ctx>) {
 // Version 0
 `;
 
-exports[`VueVirtualDocument/baseline rename/component-tag/error-in-script.vue 1`] = `
+exports[`VueVirtualDocument/baseline rename-component-tag/src/error-in-script.vue 1`] = `
 import _Ctx from './error-in-script.vue?internal'
 
 
@@ -28,7 +28,7 @@ export function render(_ctx: InstanceType<typeof _Ctx>) {
 // Version 0
 `;
 
-exports[`VueVirtualDocument/baseline rename/component-tag/script-template.vue 1`] = `
+exports[`VueVirtualDocument/baseline rename-component-tag/src/script-template.vue 1`] = `
 import _Ctx from './script-template.vue?internal'
 import FooBar from './FooBar.vue'
 import Foo from './template.vue'
@@ -52,7 +52,7 @@ export function render(_ctx: InstanceType<typeof _Ctx>) {
 // Version 0
 `;
 
-exports[`VueVirtualDocument/baseline rename/component-tag/template.vue 1`] = `
+exports[`VueVirtualDocument/baseline rename-component-tag/src/template.vue 1`] = `
 import _Ctx from './template.vue?internal'
 
 
@@ -64,7 +64,7 @@ export function render(_ctx: InstanceType<typeof _Ctx>) {
 // Version 0
 `;
 
-exports[`VueVirtualDocument/baseline rename/component-tag/template-script.vue 1`] = `
+exports[`VueVirtualDocument/baseline rename-component-tag/src/template-script.vue 1`] = `
 import _Ctx from './template-script.vue?internal'
 import FooBar from './FooBar.vue'
 import Foo from './template.vue'
@@ -88,7 +88,7 @@ export function render(_ctx: InstanceType<typeof _Ctx>) {
 // Version 0
 `;
 
-exports[`VueVirtualDocument/baseline rename/element-tag/fixture.vue 1`] = `
+exports[`VueVirtualDocument/baseline rename-element-tag/src/fixture.vue 1`] = `
 import _Ctx from './fixture.vue?internal'
 
 

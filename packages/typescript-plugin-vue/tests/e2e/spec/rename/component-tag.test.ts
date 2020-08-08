@@ -4,7 +4,7 @@ import Proto from 'typescript/lib/protocol';
 import { createLanguageServerForTest, TestVueServer } from '../../server';
 import { getTextRanges } from '../helpers';
 
-const baseDir = Path.resolve(__dirname, '../../project/src/rename/component-tag');
+const baseDir = Path.resolve(__dirname, '../../projects/rename-component-tag/src');
 
 describe('rename/component-tag', () => {
   let server!: TestVueServer;
