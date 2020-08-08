@@ -35,5 +35,5 @@
     "tslib": "^2.0.0",
     "typescript": "^3.9.7"
   },
-  "version": "0.1.4"
+  "version": "0.2.0"
 }
