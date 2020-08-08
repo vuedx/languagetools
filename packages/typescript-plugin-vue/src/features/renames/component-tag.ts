@@ -9,7 +9,7 @@ export const RenameComponentTag: RenameProvider = {
   version: '*',
   canRename(config, fileName, position, options) {
     const { node, document } = config.helpers.findNodeAtPosition(fileName, position);
-    if (isComponentNode(node) && isPositionInTagName(position, node)) {
+    if (isComponentNode(node) && isPositionInTagName(position, node) && document) {
       const info = config.helpers.getComponentInfo(document.container);
       const name = node.tag;
       const component = info.components.find((component) => component.name === name);
@@ -23,7 +23,7 @@ export const RenameComponentTag: RenameProvider = {
       ) {
         // Ask to rename file instead.
         const newPosition = component.source.loc.start.offset + component.source.loc.source.lastIndexOf(name);
-        const result = config.service.getRenameInfo(document.container.getDocumentFileName('script'), newPosition, {
+        const result = config.service.getRenameInfo(document.container.getDocumentFileName('script')!, newPosition, {
           allowRenameOfImportPath: true,
         });
 
@@ -67,7 +67,7 @@ export const RenameComponentTag: RenameProvider = {
   },
   applyRename(config, fileName, position, findInStrings, findInComments) {
     const { node, document } = config.helpers.findNodeAtPosition(fileName, position);
-    if (isComponentNode(node) && isPositionInTagName(position, node)) {
+    if (isComponentNode(node) && isPositionInTagName(position, node) && document) {
       const info = config.helpers.getComponentInfo(document.container);
       const name = node.tag;
       const component = info.components.find((component) => component.name === name);
@@ -83,7 +83,7 @@ export const RenameComponentTag: RenameProvider = {
         // Ask to rename file instead.
         return config.service
           .findRenameLocations(
-            document.container.getDocumentFileName('script'),
+            document.container.getDocumentFileName('script')!,
             newPosition,
             findInStrings,
             findInComments
@@ -105,7 +105,7 @@ export const RenameComponentTag: RenameProvider = {
           else {
             const { prefixText } = computeIdentifierReplacement(component.loc.source, component.source.localName);
             const locations = config.service.findRenameLocations(
-              document.container.getDocumentFileName('script'),
+              document.container.getDocumentFileName('script')!,
               component.loc.start.offset + prefixText.length,
               findInStrings,
               findInComments
@@ -145,26 +145,28 @@ export const RenameComponentTag: RenameProvider = {
           // TODO: Support <component /> block.
         }
 
-        traverseFast(document.ast, (node) => {
-          if (isComponentNode(node)) {
-            if (component.aliases.includes(node.tag)) {
-              renameLocations.push({
-                fileName: document.container.fsPath,
-                textSpan: { start: node.loc.start.offset + 1, length: node.tag.length },
-              });
-
-              if (!node.isSelfClosing) {
+        if (document.ast) {
+          traverseFast(document.ast, (node) => {
+            if (isComponentNode(node)) {
+              if (component.aliases.includes(node.tag)) {
                 renameLocations.push({
                   fileName: document.container.fsPath,
-                  textSpan: {
-                    start: node.loc.start.offset + node.loc.source.lastIndexOf('</' + node.tag) + 2,
-                    length: node.tag.length,
-                  },
+                  textSpan: { start: node.loc.start.offset + 1, length: node.tag.length },
                 });
+
+                if (!node.isSelfClosing) {
+                  renameLocations.push({
+                    fileName: document.container.fsPath,
+                    textSpan: {
+                      start: node.loc.start.offset + node.loc.source.lastIndexOf('</' + node.tag) + 2,
+                      length: node.tag.length,
+                    },
+                  });
+                }
               }
             }
-          }
-        });
+          });
+        }
       }
 
       return renameLocations;
@@ -200,26 +202,28 @@ export const RenameComponentTag: RenameProvider = {
                 const textChanges: TS.TextChange[] = [];
 
                 // update tags in template
-                traverseFast(document.ast, (node) => {
-                  if (isComponentNode(node)) {
-                    if (component.aliases.includes(node.tag)) {
-                      textChanges.push({
-                        newText: newName,
-                        span: { start: node.loc.start.offset + 1, length: node.tag.length },
-                      });
-
-                      if (!node.isSelfClosing) {
+                if (document.ast) {
+                  traverseFast(document.ast, (node) => {
+                    if (isComponentNode(node)) {
+                      if (component.aliases.includes(node.tag)) {
                         textChanges.push({
                           newText: newName,
-                          span: {
-                            start: node.loc.start.offset + node.loc.source.lastIndexOf('</' + node.tag) + 2,
-                            length: node.tag.length,
-                          },
+                          span: { start: node.loc.start.offset + 1, length: node.tag.length },
                         });
+
+                        if (!node.isSelfClosing) {
+                          textChanges.push({
+                            newText: newName,
+                            span: {
+                              start: node.loc.start.offset + node.loc.source.lastIndexOf('</' + node.tag) + 2,
+                              length: node.tag.length,
+                            },
+                          });
+                        }
                       }
                     }
-                  }
-                });
+                  });
+                }
 
                 fileTextChanges.push({ fileName, textChanges: textChanges });
               }

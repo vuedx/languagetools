@@ -24,7 +24,7 @@ export const RenameElementTag: RenameProvider = {
   },
   applyRename(config, fileName, position) {
     const { node, document } = config.helpers.findNodeAtPosition(fileName, position);
-    if (isPlainElementNode(node) && isPositionInTagName(position, node)) {
+    if (isPlainElementNode(node) && isPositionInTagName(position, node) && document) {
       const locations: TS.RenameLocation[] = [
         {
           fileName: document.container.fsPath,

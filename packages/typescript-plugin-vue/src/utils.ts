@@ -34,8 +34,8 @@ export function createServerHelper(context: PluginContext) {
 
   function findNodeAtPosition(fileName: string, position: number) {
     const document = getRenderDoc(fileName);
-    if (document) return { document, ...findTemplateNodeAt(document.ast, position) };
-    else return { node: null, ancestors: [], document };
+    if (document?.ast) return { document: document!, ...findTemplateNodeAt(document.ast, position) };
+    else return { node: null, ancestors: [], document: null };
   }
 
   function getDocument(fileName: string) {

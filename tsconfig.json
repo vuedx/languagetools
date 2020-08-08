@@ -3,6 +3,7 @@
     "module": "ESNext",
     "target": "ES2018",
     "moduleResolution": "node",
+    "strict": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "sourceMap": true,

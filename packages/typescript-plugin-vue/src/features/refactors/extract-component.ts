@@ -1,6 +1,7 @@
 import { ComponentInfo } from '@vuedx/analyze';
 import { isComponentNode, isDirectiveNode, isSimpleExpressionNode, traverseFast } from '@vuedx/template-ast-types';
 import { RenderFunctionTextDocument, VueTextDocument } from '@vuedx/vue-virtual-textdocument';
+// @ts-ignore - no types in module
 import deIndent from 'de-indent';
 import Path from 'path';
 import { TS } from '../../interfaces';
@@ -193,9 +194,11 @@ function findNodes(
   document: RenderFunctionTextDocument,
   position: number | TS.TextRange
 ) {
-  return typeof position === 'number'
-    ? config.helpers.findTemplateNodesIn(document.ast, position, position)
-    : config.helpers.findTemplateNodesIn(document.ast, position.pos, position.end);
+  return document.ast
+    ? typeof position === 'number'
+      ? config.helpers.findTemplateNodesIn(document.ast, position, position)
+      : config.helpers.findTemplateNodesIn(document.ast, position.pos, position.end)
+    : [];
 }
 
 function getImportEditForComponent(document: VueTextDocument, info: ComponentInfo, fileName: string) {
@@ -212,7 +215,7 @@ function getImportEditForComponent(document: VueTextDocument, info: ComponentInf
       span: { start: script.loc.start.offset, length: 0 },
     });
     const options = info.options;
-    if (options.properties) {
+    if (options?.properties) {
       const components = options.properties['components'];
       if (components) {
         const start = components.loc.start.offset + 1;
@@ -225,7 +228,7 @@ function getImportEditForComponent(document: VueTextDocument, info: ComponentInf
         const start = options.loc.start.offset + 1;
         const padding = getPaddingLength(options.loc.source, 1);
         changes.push({
-          newText: components.loc.source.substr(1, padding) + `\ncomponents: { ${name} },`,
+          newText: options.loc.source.substr(1, padding) + `\ncomponents: { ${name} },`,
           span: { start, length: 0 },
         });
       } else {

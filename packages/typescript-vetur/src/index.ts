@@ -15,7 +15,7 @@ export default function init(options: Modules): any {
 
   return {
     ...plugin,
-    create(options) {
+    create(options: any) {
       options.config = config;
 
       return plugin.create(options);

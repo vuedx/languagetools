@@ -26,7 +26,7 @@ class Scope {
     return this.identifiers.filter((identifier) => this.getBinding(identifier) === null);
   }
 
-  public getBinding(identifier: string) {
+  public getBinding(identifier: string): null | Node {
     if (identifier in this.bindings) return this.bindings[identifier];
     if (this.parent) {
       return (this.bindings[identifier] = this.parent.getBinding(identifier));

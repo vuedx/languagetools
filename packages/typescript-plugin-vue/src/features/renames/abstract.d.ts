@@ -26,5 +26,5 @@ export interface RenameProvider {
     newFileName: string,
     options: TS.FormatCodeSettings,
     preferences: TS.UserPreferences
-  ): TS.FileTextChanges[];
+  ): TS.FileTextChanges[]|undefined;
 }

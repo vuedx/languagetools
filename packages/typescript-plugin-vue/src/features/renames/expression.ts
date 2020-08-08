@@ -7,7 +7,7 @@ export const RenameExpression: RenameProvider = {
   canRename(config, fileName, position, preferences) {
     const { node, document } = config.helpers.findNodeAtPosition(fileName, position);
 
-    if (isSimpleExpressionNode(node)) {
+    if (isSimpleExpressionNode(node) && document) {
       const mappedPosition = document.getGeneratedOffsetAt(position);
 
       if (mappedPosition?.offset) {
@@ -37,7 +37,7 @@ export const RenameExpression: RenameProvider = {
   applyRename(config, fileName, position, findInStrings, findInComments) {
     const { node, document } = config.helpers.findNodeAtPosition(fileName, position);
 
-    if (isSimpleExpressionNode(node)) {
+    if (isSimpleExpressionNode(node) && document) {
       const mappedPosition = document.getGeneratedOffsetAt(position);
 
       if (mappedPosition?.offset) {

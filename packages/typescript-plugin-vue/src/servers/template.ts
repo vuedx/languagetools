@@ -120,7 +120,7 @@ export function createTemplateLanguageServer(config: LanguageServiceOptions): TS
       return diagnostics;
     },
 
-    getRenameInfo(fileName, position, preferences) {
+    getRenameInfo(fileName, position, preferences = {}) {
       for (const provider of RENAME_PROVIDERS) {
         const result = provider.canRename(config, fileName, position, preferences);
         if (result) return result;
@@ -150,7 +150,7 @@ export function createTemplateLanguageServer(config: LanguageServiceOptions): TS
       return [];
     },
 
-    getApplicableRefactors(fileName, position, preferences) {
+    getApplicableRefactors(fileName, position, preferences = {}) {
       const refactors: TS.ApplicableRefactorInfo[] = [];
 
       for (const provider of REFACTOR_PROVIDERS) {
@@ -162,7 +162,7 @@ export function createTemplateLanguageServer(config: LanguageServiceOptions): TS
       return refactors;
     },
 
-    getEditsForRefactor(fileName, formatOptions, positionOrRange, refactorName, actionName, preferences) {
+    getEditsForRefactor(fileName, formatOptions, positionOrRange, refactorName, actionName, preferences = {}) {
       for (const provider of REFACTOR_PROVIDERS) {
         const result = provider.applyRefactor(
           config,
