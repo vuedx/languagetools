@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/typescript-vetur",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "TypeScript plugin for Vue (Vetur Mode)",
   "main": "dist/typescript-vetur.js",
   "private": false,
