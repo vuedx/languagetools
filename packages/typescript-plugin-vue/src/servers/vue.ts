@@ -1,9 +1,8 @@
-import { isNumber, VirtualTextDocument, isVirtualFile, isVueFile } from '@vuedx/vue-virtual-textdocument';
-import { TS, PluginConfig } from '../interfaces';
+import { isNumber, isVirtualFile, isVueFile, VirtualTextDocument } from '@vuedx/vue-virtual-textdocument';
+import { PluginConfig, TS } from '../interfaces';
 import { LanguageServiceOptions } from '../types';
 import { noop } from './noop';
 import { createTemplateLanguageServer } from './template';
-import { getComponentName } from '../utils';
 
 type GetElementType<T> = T extends (infer U)[] ? U : T;
 export function createVueLanguageServer(options: LanguageServiceOptions): TS.LanguageService {
@@ -21,17 +20,6 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
 
   function choose(document: VirtualTextDocument) {
     return h.isRenderFunctionDocument(document) ? template : script;
-  }
-
-  function getTextSpan(document: VirtualTextDocument, span: TS.TextSpan): TS.TextSpan | null {
-    if (h.isRenderFunctionDocument(document)) {
-      const result = document.getOriginalOffsetAt(span.start);
-      if (result) return { start: result.offset, length: result.length };
-
-      return null;
-    }
-
-    return span;
   }
 
   return {
@@ -119,7 +107,7 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
       if (!document) {
         return {
           canRename: false,
-          localizedErrorMessage: 'Cannot find file',
+          localizedErrorMessage: 'Cannot find this Vue file.',
         };
       }
 
@@ -133,8 +121,9 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
       if (!document) return;
       const block = document.blockAt(position);
       if (!block) return;
+
       const result: TS.RenameLocation[] = [];
-      if (block.type === 'template' || block.type === 'script') {
+      if (block.type === 'template') {
         const fromTemplate = template.findRenameLocations(
           document.getDocumentFileName('_render')!,
           position,
@@ -145,7 +134,7 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
       }
 
       if (block.type === 'script') {
-        const fromScript = template.findRenameLocations(
+        const fromScript = script.findRenameLocations(
           document.getDocumentFileName('script')!,
           position,
           findInStrings,
@@ -162,33 +151,35 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
     getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences) {
       if (!isFeatureEnabled('rename')) return [];
 
+      console.log('FileRenamed > ' + oldFilePath);
       const document = h.getVueDocument(oldFilePath);
-      const result: TS.FileTextChanges[] = [];
+      const fileTextChanges: TS.FileTextChanges[] = [];
+      const visited = new Set<string>();
 
       if (document) {
-        const doc = document.getDocument('_module');
-        result.push(
-          ...script.getEditsForFileRename(
-            doc.fsPath,
-            doc.fsPath.replace(oldFilePath, newFilePath),
-            formatOptions,
-            preferences
-          )
+        const component = document.getDocument('_module');
+        const currentChanges = script.getEditsForFileRename(
+          component.fsPath,
+          component.fsPath.replace(oldFilePath, newFilePath),
+          formatOptions,
+          preferences
         );
+        console.log('Files Affected By Rename > ' + JSON.stringify(currentChanges.map(item => item.fileName)));
 
-        const visited = new Set<string>();
-        result.forEach((item) => {
+        fileTextChanges.push(...currentChanges);
+
+        currentChanges.forEach((item) => {
           if (isVirtualFile(item.fileName) || isVueFile(item.fileName)) {
             const render = h.getVueDocument(item.fileName)?.getDocument('_render');
             if (render && !visited.has(render.fsPath)) {
               visited.add(render.fsPath);
-              result.push(...template.getEditsForFileRenameIn(render.fsPath, oldFilePath, newFilePath));
+              fileTextChanges.push(...template.getEditsForFileRenameIn(render.fsPath, oldFilePath, newFilePath));
             }
           }
         });
       }
 
-      return result;
+      return fileTextChanges;
     },
 
     getApplicableRefactors(fileName, positionOrRange, preferences) {

@@ -190,7 +190,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     const [start, end] = this.generatedRange;
 
     if (start <= offset && offset <= end) {
-      const mapping = binarySearch(this.originalMappings, ([start, length]) => {
+      const mapping = binarySearch(this.generatedMappings, ([start, length]) => {
         if (start <= offset && offset <= start + length) return 0;
         return start - offset;
       });
@@ -218,7 +218,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     const [start, end] = this.originalRange;
 
     if (start <= offset && offset <= end) {
-      const mapping = binarySearch(this.generatedMappings, ([, , start, length]) => {
+      const mapping = binarySearch(this.originalMappings, ([, , start, length]) => {
         if (start <= offset && offset <= start + length) return 0;
         return start - offset;
       });

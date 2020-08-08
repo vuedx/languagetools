@@ -128,7 +128,7 @@ export function createTemplateLanguageServer(config: LanguageServiceOptions): TS
 
       return {
         canRename: false,
-        localizedErrorMessage: '',
+        localizedErrorMessage: 'You cannot rename this element.',
       };
     },
 

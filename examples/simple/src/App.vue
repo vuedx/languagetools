@@ -1,21 +1,20 @@
 <script lang="ts">
+import FooComponent from './FooComponent.vue';
 import Foo from './Foo.vue';
 import { defineComponent, ref } from 'vue';
 import Bar from './Bar.vue';
 
 export default defineComponent({
   components: {
+    FooComponent,
     Foo,
     Bar
   },
-  props: {
-    count: Number
-  },
-  setup() {
+  setup(props: { count: number }) {
     return {
       items: [] as string[],
-      foo: ref(''),
-      bar: ref(''),
+      newFoo: ref(''),
+      newBar: ref(''),
     }
   }
 })
@@ -23,12 +22,12 @@ export default defineComponent({
 
 <template>
   <div>
-    {{ count * 2 }}
+    {{ count }}
 
-    <Bar v-for="(item, index) of items">
-      <div :id="item">
-        <Foo :index="index" :item="item" :count="count" v-model:foo="foo" v-model:bar="bar"/>="bar" />
-      </div>
+    <Bar v-for="(newItem, ind) of items">
+      <FooComponent :item="newItem" :index="ind" :count="count" v-model:foo="newFoo" v-model:bar="newBar"/>
+
+       {{ newBar  }}
     </Bar>
   </div>
 </template>

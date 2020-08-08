@@ -24,48 +24,37 @@ describe('VirtualTextDocument', () => {
   });
 
   test(`render function is genterated`, () => {
-    expect(doc.getDocument(RENDER_SELECTOR)!.getText()).toEqual(
-      expect.stringContaining(`export function render(`)
-    );
+    expect(doc.getDocument(RENDER_SELECTOR)!.getText()).toEqual(expect.stringContaining(`export function render(`));
   });
 
   test(`can find soure position from generated`, () => {
     const source = doc.descriptor.template!.content;
     const render = doc.getDocument(RENDER_SELECTOR)!;
-    let offset = render.getText().indexOf('_ctx.foo.bar');
+    const start = render.getText().indexOf('/*@@vue:start*/')
+    let offset = render.getText().indexOf('foo.bar', start);
     {
       const original = render.getOriginalOffsetAt(offset)!.offset;
       expect(source.substr(original, 7)).toBe('foo.bar');
     }
+    
     {
-      const original = render.getOriginalOffsetAt(offset + 5)!.offset;
-      expect(source.substr(original, 7)).toBe('foo.bar');
-    }
-    {
-      const original = render.getOriginalOffsetAt(offset + 9)!.offset;
-      expect(source.substr(original, 3)).toBe('bar');
-    }
-    {
-      const original = render.getOriginalOffsetAt(offset + 15)!.offset;
+      const original = render.getOriginalOffsetAt(offset + 4)!.offset;
       expect(source.substr(original, 3)).toBe('bar');
     }
 
-    offset = render.getText().indexOf('_ctx.foo.bar', offset + 1);
+    offset = render.getText().indexOf('foo.bar', offset + 1);
     {
       const original = render.getOriginalOffsetAt(offset)!.offset;
       expect(source.substr(original, 7)).toBe('foo.bar');
     }
     {
-      const original = render.getOriginalOffsetAt(offset + 5)!.offset;
-      expect(source.substr(original, 7)).toBe('foo.bar');
-    }
-    {
-      const original = render.getOriginalOffsetAt(offset + 9)!.offset;
+      const original = render.getOriginalOffsetAt(offset + 4)!.offset;
       expect(source.substr(original, 3)).toBe('bar');
     }
+
     {
-      const original = render.getOriginalOffsetAt(offset + 15)!.offset;
-      expect(source.substr(original, 3)).toBe('bam');
+      const original = render.getOriginalOffsetAt(render.getText().indexOf('foos', start))!.offset;
+      expect(source.substr(original, 4)).toBe('foos');
     }
   });
 

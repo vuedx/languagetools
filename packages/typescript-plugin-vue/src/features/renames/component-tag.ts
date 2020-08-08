@@ -129,6 +129,8 @@ export const RenameComponentTag: RenameProvider = {
           }
         });
       }
+
+      return renameLocations;
     }
     return undefined;
   },

@@ -316,6 +316,7 @@ function createLanguageServiceRouter(options: LanguageServiceOptions): TS.Langua
 
     getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences) {
       const suffix = '.vue' + VIRTUAL_FILENAME_SEPARATOR + '_module';
+      console.log('FileRenamed > ' + oldFilePath);
       return choose(oldFilePath)
         .getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences)
         .map((edit) => {

@@ -212,23 +212,25 @@ function getImportEditForComponent(document: VueTextDocument, info: ComponentInf
       span: { start: script.loc.start.offset, length: 0 },
     });
     const options = info.options;
-    const components = options.properties['components'];
-    if (components) {
-      const start = components.loc.start.offset + 1;
-      const padding = getPaddingLength(components.loc.source, 1);
-      changes.push({
-        newText: components.loc.source.substr(1, padding) + `${name},`,
-        span: { start, length: 0 },
-      });
-    } else if (options) {
-      const start = options.loc.start.offset + 1;
-      const padding = getPaddingLength(options.loc.source, 1);
-      changes.push({
-        newText: components.loc.source.substr(1, padding) + `\ncomponents: { ${name} },`,
-        span: { start, length: 0 },
-      });
-    } else {
-      // TODO: convert setup() to object
+    if (options.properties) {
+      const components = options.properties['components'];
+      if (components) {
+        const start = components.loc.start.offset + 1;
+        const padding = getPaddingLength(components.loc.source, 1);
+        changes.push({
+          newText: components.loc.source.substr(1, padding) + `${name},`,
+          span: { start, length: 0 },
+        });
+      } else if (options) {
+        const start = options.loc.start.offset + 1;
+        const padding = getPaddingLength(options.loc.source, 1);
+        changes.push({
+          newText: components.loc.source.substr(1, padding) + `\ncomponents: { ${name} },`,
+          span: { start, length: 0 },
+        });
+      } else {
+        // TODO: convert setup() to object
+      }
     }
   } else {
     const newText = `<component src="./${Path.relative(Path.dirname(document.fsPath), fileName)}" />\n\n`;
