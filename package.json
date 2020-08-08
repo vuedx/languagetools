@@ -8,10 +8,10 @@
     "watch": "rollup -c --environment BUILD:production --watch",
     "build": "rollup -c --environment BUILD:production",
     "prepublishOnly": "npm run build",
-    "beta:release:packages": "npm run release:packages -- prerelease",
-    "prerelease:packages": "tsc --noEmit",
-    "release:packages": "pnpm recursive exec npm version",
-    "postrelease:packages": "pnpm run build && git commit -am 'chore: release' && pnpm recursive publish --access public --tag latest"
+    "beta:release": "npm run release -- prerelease",
+    "prerelease": "tsc --noEmit",
+    "release": "pnpm recursive exec npm version",
+    "postrelease": "pnpm run build && git commit -am 'chore: release' && pnpm recursive publish --access public --tag latest"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.1",
