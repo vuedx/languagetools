@@ -59,6 +59,7 @@ export class PluginContext {
   private _config: PluginConfig = getConfig();
   private _projectService!: TS.server.ProjectService;
   private _serverHost!: TS.server.ServerHost;
+  public readonly moduleResolutionHistory = new Map<string, Map<string, string>>();
 
   public constructor(public readonly typescript: typeof TS) {
     this.typescript.setSourceMapRange;
@@ -92,6 +93,10 @@ export class PluginContext {
     if (this.projectService) {
       this.projectService.logger.info(`Vue.js:: ${message}`);
     }
+  }
+
+  public getVueVersion(fileName: string) {
+    return '3.0.0';
   }
 
   public createVueDocument(fileName: string, content: string) {
@@ -335,21 +340,20 @@ function patchModuleResolution(context: PluginContext, languageServiceHost: TS.L
         ? resolveModuleNames(newModuleNames, containingFile, reusedNames, redirectedReferences, options)
         : [];
 
-      result.map((resolved) => {
+      const history = new Map<string, string>();
+      result.map((resolved, index) => {
         if (resolved && isVirtualFile(resolved.resolvedFileName)) {
+          history.set(moduleNames[index], getContainingFile(resolved.resolvedFileName));
           context.tryCreateScriptInfo(resolved.resolvedFileName); // Load vue file now to avoid filename case insensitivity issues.
         }
       });
 
-      if (false) {
-        if (isVirtualFile(containingFile)) {
-          context.log(`LanguageServerHost.resolveModuleNames in ${containingFile} = ${JSON.stringify(options)}`);
-          context.projectService.logger.startGroup();
-          moduleNames.forEach((moduleName, index) => {
-            context.log(`  ${moduleName} => ${result[index]?.resolvedFileName}`);
-          });
-          context.projectService.logger.endGroup();
-        }
+      if (
+        history.size &&
+        isVirtualFile(containingFile) &&
+        containingFile.endsWith('.vue' + VIRTUAL_FILENAME_SEPARATOR + '_render.tsx')
+      ) {
+        context.moduleResolutionHistory.set(containingFile, history);
       }
 
       return result;

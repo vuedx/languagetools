@@ -1,17 +1,43 @@
+import { ComponentInfo, createFullAnalyzer } from '@vuedx/analyze';
 import {
   getContainingFile,
   isVirtualFile,
+  isVueFile,
   parseVirtualFileName,
   RenderFunctionTextDocument,
   RENDER_SELECTOR,
   VirtualTextDocument,
-  isVueFile,
+  VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument';
-import { PluginContext } from './context';
-import * as Path from 'path';
 import * as FS from 'fs';
+import * as Path from 'path';
+import QuickLRU from 'quick-lru';
+import { PluginContext } from './context';
+import { findTemplateElementNodeAt, findTemplateNodeAt, findTemplateNodeFor, findTemplateNodesIn } from './ast-ops';
+import { TS } from './interfaces';
+
+function createCachedAnalyzer() {
+  const cache = new QuickLRU<string, ComponentInfo>({ maxSize: 1000 });
+  const analyzer = createFullAnalyzer([], { babel: { plugins: ['typescript', 'jsx'] } });
+
+  return (document: VueTextDocument) => {
+    const key = `${document.version}::${document.fsPath}`;
+    if (cache.has(key)) return cache.get(key)!;
+    const info = analyzer.analyze(document.getText(), document.fsPath);
+    cache.set(key, info);
+    return info;
+  };
+}
 
 export function createServerHelper(context: PluginContext) {
+  const getComponentInfo = createCachedAnalyzer();
+
+  function findNodeAtPosition(fileName: string, position: number) {
+    const document = getRenderDoc(fileName);
+    if (document) return { document, ...findTemplateNodeAt(document.ast, position) };
+    else return { node: null, ancestors: [], document };
+  }
+
   function getDocument(fileName: string) {
     return isVirtualFile(fileName)
       ? context.store.get(getContainingFile(fileName))?.getDocument(fileName)
@@ -46,7 +72,35 @@ export function createServerHelper(context: PluginContext) {
     return isVirtualFile(fileName) && parseVirtualFileName(fileName)?.selector.type === RENDER_SELECTOR;
   }
 
-  return { getDocument, getDocumentAt, getVueDocument, isRenderFunctionDocument, isRenderFunctionFileName };
+  function getRenderDoc(fileName: string): RenderFunctionTextDocument | undefined {
+    if (isVirtualFile(fileName)) return getVueDocument(fileName)?.getDocument('_render');
+    return getVueDocument(fileName)?.getDocument('_render');
+  }
+
+  function getTextSpan(document: VirtualTextDocument, span: TS.TextSpan): TS.TextSpan {
+    if (isRenderFunctionDocument(document)) {
+      const result = document.getOriginalOffsetAt(span.start);
+      if (result) return { start: result.offset, length: result.length };
+    }
+
+    return span;
+  }
+
+  return {
+    findNodeAtPosition,
+    findTemplateElementNodeAt,
+    findTemplateNodeAt,
+    findTemplateNodeFor,
+    findTemplateNodesIn,
+    getComponentInfo,
+    getDocument,
+    getDocumentAt,
+    getRenderDoc,
+    getTextSpan,
+    getVueDocument,
+    isRenderFunctionDocument,
+    isRenderFunctionFileName,
+  };
 }
 
 export function isNotNull<T>(value: T | null | undefined): value is T {
@@ -75,7 +129,7 @@ export function findNearestComponentsDir(fileName: string, rootDir: string = '/'
   return null;
 }
 
-function isDirectory(dir: string) { 
+function isDirectory(dir: string) {
   const isDir = FS.existsSync(dir) && FS.statSync(dir).isDirectory();
 
   return isDir;
@@ -83,7 +137,7 @@ function isDirectory(dir: string) {
 
 export function getPaddingLength(source: string, offset: number = 0) {
   source = source.substr(offset);
-  const match = /^[ ]+/m.exec(source);
+  const match = /^[\s\r\n]+/m.exec(source);
 
   return match ? match[0].length : 0;
 }

@@ -22,10 +22,16 @@ class Scope {
     return Array.from(Object.keys(this.bindings));
   }
 
-  public getBinding(identifer: string) {
-    if (identifer in this.bindings) return this.bindings[identifer];
+  public get globals() {
+    return this.identifiers.filter((identifier) => this.getBinding(identifier) === null);
+  }
+
+  public getBinding(identifier: string) {
+    if (identifier in this.bindings) return this.bindings[identifier];
     if (this.parent) {
-      return (this.bindings[identifer] = this.parent.getBinding(identifer));
+      return (this.bindings[identifier] = this.parent.getBinding(identifier));
+    } else {
+      this.bindings[identifier] = null;
     }
 
     return null;
@@ -43,38 +49,44 @@ declare module '@vue/compiler-core' {
 }
 
 export function withScope(ast: RootNode) {
-  traverse(ast, (node, ancestors) => {
-    const scope = (node.scope = new Scope(ancestors[ancestors.length - 1]?.node.scope));
+  ast.scope = new Scope(null);
 
-    if (isSimpleExpressionNode(node)) {
-      if (!node.scope) {
+  traverse(ast, (node, ancestors) => {
+    const parent = ancestors[ancestors.length - 1]?.node || ast;
+    const scope = (node.scope = node.scope || new Scope(parent.scope));
+
+    if (isSimpleExpressionNode(node) && !node.isStatic) {
+      if (!parent || !(isDirectiveNode(parent) && ['slot', 'for'].includes(parent.name) && parent.exp === node)) {
         getIdentifiers(node.content).forEach((identifier) => scope.getBinding(identifier));
       }
     } else if (isElementNode(node)) {
       node.props.forEach((prop) => {
         if (isDirectiveNode(prop)) {
+          const directiveScope = (prop.scope = prop.scope || new Scope(scope));
           if (prop.name === 'slot') {
             if (isSimpleExpressionNode(prop.exp)) {
-              const local = (prop.exp.scope = new Scope(scope));
+              const localScope = (prop.exp.scope = new Scope(directiveScope));
               const content = prop.exp.content.trim();
 
               getIdentifiers(`(${content}) => {}`).forEach((identifier) => {
                 scope.setBinding(identifier, node);
-                local.getBinding(identifier);
+                localScope.getBinding(identifier);
               });
             }
           } else if (prop.name === 'for') {
             if (isSimpleExpressionNode(prop.exp)) {
-              const local = (prop.exp.scope = new Scope(scope));
+              const localScope = (prop.exp.scope = new Scope(directiveScope));
               const match = forAliasRE.exec(prop.exp.content);
               if (match) {
                 const [, LHS, RHS] = match;
                 getIdentifiers(RHS).forEach((identifier) => {
-                  scope.getBinding(identifier);
-                  local.getBinding(identifier);
+                  localScope.getBinding(identifier);
                 });
 
-                getIdentifiers(`${LHS} => {}`).forEach((identifier) => scope.setBinding(identifier, node));
+                getIdentifiers(`${LHS} => {}`).forEach((identifier) => {
+                  scope.setBinding(identifier, node);
+                  localScope.getBinding(identifier);
+                });
               }
             }
           }

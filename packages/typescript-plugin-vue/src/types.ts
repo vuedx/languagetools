@@ -4,7 +4,7 @@ import { createServerHelper } from './utils';
 
 export type ServerHelper = ReturnType<typeof createServerHelper>;
 
-export interface CreateLanguageServiceOptions {
+export interface LanguageServiceOptions {
   context: PluginContext;
   helpers: ServerHelper;
   service: TS.LanguageService;

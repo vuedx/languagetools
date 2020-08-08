@@ -5,7 +5,7 @@
     "test:unit": "jest",
     "test:ts": "TEST_ENV=jest jest --runInBand --config ./jest.e2e.config.js",
     "test:ext": "node scripts/run-extension-tests.js",
-    "build:dev": "rollup -c",
+    "watch": "rollup -c --environment BUILD:production --watch",
     "build": "rollup -c --environment BUILD:production",
     "prepublishOnly": "npm run build",
     "beta:release:packages": "npm run release:packages -- prerelease",

@@ -23,7 +23,7 @@ export interface ImportSource extends Addressable {
 export interface ComponentRegistrationInfo extends Addressable {
   name: string;
   aliases: string[];
-  kind: 'local';
+  kind: 'script';
   source: ImportSource;
 }
 
@@ -123,9 +123,9 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
 
       return factory;
     },
-    addLocalComponent(name, source, loc = null as any) {
+    addLocalComponent(name, source, loc = null as any, kind: ComponentRegistrationInfo['kind'] = 'script') {
       // TODO: Create aliases. If name is PascalCase then allow kebab-case too.
-      component.components.push({ name, aliases: [name], kind: 'local', source, loc });
+      component.components.push({ name, aliases: [name], kind, source, loc });
 
       return factory;
     },

@@ -11,7 +11,7 @@ import {
   Node,
   ObjectMember,
   traverse,
-  traverseFast
+  traverseFast,
 } from '@babel/types';
 import { findDir, isSimpleIdentifier, NodeTransform, TransformContext } from '@vue/compiler-core';
 import { isDirectiveNode, isElementNode, isInterpolationNode, isSimpleExpressionNode } from '@vuedx/template-ast-types';
@@ -48,6 +48,7 @@ export function createExpressionTracker(addIdentifer: (identifer: string) => voi
 
           switch (dir.name) {
             case 'for':
+            case 'slot':
               break;
             case 'on':
               if (isSimpleExpressionNode(dir.exp) && !dir.exp.isStatic) {
@@ -56,10 +57,8 @@ export function createExpressionTracker(addIdentifer: (identifer: string) => voi
                 context.removeIdentifiers('$event');
               }
               break;
-            case 'slot':
-              break;
             default: {
-              if (isSimpleExpressionNode(dir.exp) && !dir.exp.isStatic) {
+              if (isSimpleExpressionNode(dir.exp)) {
                 trackIdentifiers(dir.exp.content, context, addIdentifer);
               }
             }

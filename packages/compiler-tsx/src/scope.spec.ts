@@ -7,4 +7,10 @@ describe('scope', () => {
 
     withScope(ast)
   })
+  
+  test('should set scope for model', () => {
+    const ast = baseParse('<div v-for="(foo, index) of foos">{{ foo * 2 }}<input v-model="bar" /></div>')
+
+    withScope(ast)
+  })
 })

@@ -1,12 +1,12 @@
 import { isNumber, VirtualTextDocument, isVirtualFile, isVueFile } from '@vuedx/vue-virtual-textdocument';
 import { TS, PluginConfig } from '../interfaces';
-import { CreateLanguageServiceOptions } from '../types';
+import { LanguageServiceOptions } from '../types';
 import { noop } from './noop';
 import { createTemplateLanguageServer } from './template';
 import { getComponentName } from '../utils';
 
 type GetElementType<T> = T extends (infer U)[] ? U : T;
-export function createVueLanguageServer(options: CreateLanguageServiceOptions): TS.LanguageService {
+export function createVueLanguageServer(options: LanguageServiceOptions): TS.LanguageService {
   const template = createTemplateLanguageServer(options);
   const { helpers: h, service: script, context } = options;
 

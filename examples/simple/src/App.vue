@@ -1,33 +1,34 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { Bar as TestComp } from './components'
+import Foo from './Foo.vue';
+import { defineComponent, ref } from 'vue';
+import Bar from './Bar.vue';
 
 export default defineComponent({
   components: {
-    Foo: TestComp,
-    TestComp,
-    'foo-bar': TestComp
+    Foo,
+    Bar
   },
   props: {
-    foo: String,
-    bar: {
-      type: String,
-      required: true
+    count: Number
+  },
+  setup() {
+    return {
+      items: [] as string[],
+      foo: ref(''),
+      bar: ref(''),
     }
   }
 })
 </script>
 
 <template>
-  <Foo>
-      <TestComp>
-        <foo-bar />
-      </TestComp>
-      <TestComp>
-        <foo-bar />
-      </TestComp>
-      <TestComp>
-        <foo-bar />
-      </TestComp>
-  </Foo>
+  <div>
+    {{ count * 2 }}
+
+    <Bar v-for="(item, index) of items">
+      <div :id="item">
+        <Foo :index="index" :item="item" :count="count" v-model:foo="foo" v-model:bar="bar"/>="bar" />
+      </div>
+    </Bar>
+  </div>
 </template>

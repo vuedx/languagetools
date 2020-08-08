@@ -8,7 +8,7 @@ import {
 } from '@vuedx/vue-virtual-textdocument';
 import { PluginContext } from '../context';
 import { TS } from '../interfaces';
-import { CreateLanguageServiceOptions } from '../types';
+import { LanguageServiceOptions } from '../types';
 import { createServerHelper, isNotNull } from '../utils';
 import { createVueLanguageServer } from './vue';
 import * as Path from 'path';
@@ -35,7 +35,7 @@ export class RoutingLanguageServer {
   }
 }
 
-function createLanguageServiceRouter(options: CreateLanguageServiceOptions): TS.LanguageService {
+function createLanguageServiceRouter(options: LanguageServiceOptions): TS.LanguageService {
   const vue = createVueLanguageServer(options);
   const ts = options.service;
 

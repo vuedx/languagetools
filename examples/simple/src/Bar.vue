@@ -1,19 +1,3 @@
-<script lang="ts">
-import { defineComponent, ref, computed } from 'vue'
-
-interface Props {
-  hello?: string
-}
-
-export default defineComponent<Props>({
-  setup(props) {
-    return {
-      isFoo: props.test in props,
-    }
-  }
-})
-</script>
-
 <template>
-  <div>{{ test }} {{ isFoo }} </div>
+  <div>Hello World!</div>
 </template>

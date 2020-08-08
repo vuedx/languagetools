@@ -113,7 +113,7 @@ function processScript(context: ScriptAnalyzerContext) {
           context.component.addOption(name, {
             loc: createSourceRange(
               context,
-              property$.isObjectProperty() ? property$.node.value : (property$.node as ObjectMethod).body
+              property$.isObjectProperty() ? property$.node.value : property$.node
             ),
           });
 
