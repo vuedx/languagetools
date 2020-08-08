@@ -162,13 +162,18 @@ importers:
       vscode-uri: 2.1.2
     specifiers:
       '@vue/compiler-core': ^3.0.0-rc.5
-      '@vuedx/analyze': 'workspace:^0.1.4'
+      '@vuedx/analyze': 'workspace:*'
       '@vuedx/template-ast-types': 'workspace:*'
       '@vuedx/vue-virtual-textdocument': 'workspace:*'
       de-indent: ^1.0.2
       quick-lru: ^5.1.1
       typescript: ^3.9.7
       vscode-uri: ^2.1.2
+  packages/typescript-vetur:
+    dependencies:
+      '@vuedx/typescript-plugin-vue': 'link:../typescript-plugin-vue'
+    specifiers:
+      '@vuedx/typescript-plugin-vue': 'workspace:*'
   packages/vue-virtual-textdocument:
     dependencies:
       '@vue/compiler-core': 3.0.0-rc.5

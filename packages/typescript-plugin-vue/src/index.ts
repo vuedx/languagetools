@@ -7,6 +7,8 @@ import { RoutingLanguageServer } from './servers/routing';
 let context: PluginContext;
 let server: RoutingLanguageServer;
 
+export { PluginConfig, Modules } from './interfaces';
+
 export default function init({ typescript }: Modules): TS.server.PluginModule {
   if (!context) {
     context = new PluginContext(typescript);

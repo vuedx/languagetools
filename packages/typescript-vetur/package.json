@@ -1,0 +1,18 @@
+{
+  "name": "@vuedx/typescript-vetur",
+  "version": "0.2.0",
+  "description": "TypeScript plugin for Vue (Vetur Mode)",
+  "main": "dist/typescript-vetur.js",
+  "private": false,
+  "scripts": {},
+  "keywords": [],
+  "files": [
+    "dist"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "dependencies": {
+    "@vuedx/typescript-plugin-vue": "workspace:*"
+  },
+  "build": {}
+}

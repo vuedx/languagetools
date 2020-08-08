@@ -14,7 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "@vue/compiler-core": "^3.0.0-rc.5",
-    "@vuedx/analyze": "workspace:^0.1.4",
+    "@vuedx/analyze": "workspace:*",
     "@vuedx/template-ast-types": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "de-indent": "^1.0.2",
