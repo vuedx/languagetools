@@ -181,8 +181,8 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   private generatedMappings: CodegenResult['mappings'] = [];
   private expressionsMap: Record<string, [number, number]> = {};
 
-  public get ast(): CodegenResult['ast'] {
-    return this.result.ast;
+  public get ast(): CodegenResult['ast'] | undefined {
+    if (this.result) return this.result.ast
   }
 
   public getOriginalOffsetAt(offset: number) {
@@ -261,6 +261,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
       try {
         this.doc = TextDocument.update(this.doc, [{ text: this.generate() }], this.container.version);
       } catch (error) {
+        console.log(error)
         // skip invalid template state
         this.doc = TextDocument.update(
           this.doc,

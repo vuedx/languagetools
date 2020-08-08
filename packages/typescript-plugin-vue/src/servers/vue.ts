@@ -25,22 +25,11 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
   return {
     ...noop,
 
-    organizeImports(scope, formatOptions, preferences) {
-      if (!isFeatureEnabled('organizeImports')) return [];
-
-      const document = h.getVueDocument(scope.fileName);
-      if (document) {
-        const virtual = document.getDocument('scriptSetup') || document.getDocument('script');
-        if (virtual) {
-          return script.organizeImports({ ...scope, fileName: virtual.fsPath }, formatOptions, preferences);
-        }
-      }
-
-      return [];
-    },
-
     getSemanticDiagnostics(fileName) {
-      if (!isFeatureEnabled('diagnostics', 'semantic')) return [];
+      if (!isFeatureEnabled('diagnostics', 'semantic')) {
+        console.log('>>> semantic diagnostics are disabled');
+        return [];
+      }
 
       const document = h.getVueDocument(fileName);
       const diagnostics: TS.Diagnostic[] = [];
@@ -50,6 +39,7 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
 
           if (virtual) {
             const results = choose(virtual).getSemanticDiagnostics(virtual.fsPath);
+            console.log('>>>  diagnostics for ' + virtual.fsPath);
             diagnostics.push(...results);
           }
         });
@@ -58,16 +48,11 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
       return diagnostics;
     },
 
-    getQuickInfoAtPosition(fileName, position) {
-      if (!isFeatureEnabled('quickInfo')) return;
-
-      // TODO: Provide better quick info for components and props.
-      const document = h.getDocumentAt(fileName, position);
-      if (document) return choose(document).getQuickInfoAtPosition(document.fsPath, position);
-    },
-
     getSuggestionDiagnostics(fileName) {
-      if (!isFeatureEnabled('diagnostics', 'suggestion')) return [];
+      if (!isFeatureEnabled('diagnostics', 'suggestion')) {
+        console.log('>>> suggestion diagnostics suggestion are disabled');
+        return [];
+      }
 
       const document = h.getVueDocument(fileName);
 
@@ -84,7 +69,10 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
     },
 
     getSyntacticDiagnostics(fileName) {
-      if (!isFeatureEnabled('diagnostics', 'syntactic')) return [];
+      if (!isFeatureEnabled('diagnostics', 'syntactic')) {
+        return [];
+      }
+
       const document = h.getVueDocument(fileName);
 
       const diagnostics: TS.DiagnosticWithLocation[] = [];
@@ -99,6 +87,27 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
       return diagnostics;
     },
 
+    organizeImports(scope, formatOptions, preferences) {
+      if (!isFeatureEnabled('organizeImports')) return [];
+
+      const document = h.getVueDocument(scope.fileName);
+      if (document) {
+        const virtual = document.getDocument('scriptSetup') || document.getDocument('script');
+        if (virtual) {
+          return script.organizeImports({ ...scope, fileName: virtual.fsPath }, formatOptions, preferences);
+        }
+      }
+
+      return [];
+    },
+
+    getQuickInfoAtPosition(fileName, position) {
+      if (!isFeatureEnabled('quickInfo')) return;
+
+      // TODO: Provide better quick info for components and props.
+      const document = h.getDocumentAt(fileName, position);
+      if (document) return choose(document).getQuickInfoAtPosition(document.fsPath, position);
+    },
     getRenameInfo(fileName, position, options) {
       if (!isFeatureEnabled('rename')) return { canRename: false, localizedErrorMessage: 'Rename feature disabled.' };
 
@@ -117,6 +126,7 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
     findRenameLocations(fileName, position, findInStrings, findInComments) {
       if (!isFeatureEnabled('rename')) return [];
 
+      console.log('Not a FileRenamed > ' + fileName);
       const document = h.getVueDocument(fileName);
       if (!document) return;
       const block = document.blockAt(position);
@@ -164,7 +174,7 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
           formatOptions,
           preferences
         );
-        console.log('Files Affected By Rename > ' + JSON.stringify(currentChanges.map(item => item.fileName)));
+        console.log('Files Affected By Rename > ' + JSON.stringify(currentChanges.map((item) => item.fileName)));
 
         fileTextChanges.push(...currentChanges);
 

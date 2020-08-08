@@ -43,7 +43,7 @@ function getConfig(config: Partial<PluginConfig> = {}): PluginConfig {
   return {
     ...config,
     features: {
-      diagnostics: ['semantic', 'suggestion', 'suggestion'],
+      diagnostics: ['semantic', 'suggestion', 'syntactic'],
       organizeImports: true,
       quickInfo: true,
       rename: true,

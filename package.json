@@ -3,8 +3,7 @@
   "scripts": {
     "test": "run-s test:*",
     "test:unit": "jest",
-    "test:ts": "TEST_ENV=jest jest --runInBand --config ./jest.e2e.config.js",
-    "test:ext": "node scripts/run-extension-tests.js",
+    "test:ts": "TEST_ENV=jest jest --config ./jest.e2e.config.js",
     "watch": "rollup -c --environment BUILD:production --watch",
     "build": "rollup -c --environment BUILD:production",
     "prepublishOnly": "npm run build",

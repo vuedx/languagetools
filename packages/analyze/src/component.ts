@@ -73,10 +73,16 @@ export interface PropInfo extends Taggable, Addressable {
   defaultValue: ValueInfo | null;
 }
 
+export interface SyntaxError {
+  message: string;
+  loc: SourceLocation;
+}
+
 export interface ComponentInfo {
   components: ComponentRegistrationInfo[];
   props: PropInfo[];
-  options: ComponentOptionsInfo;
+  options?: ComponentOptionsInfo;
+  errors: SyntaxError[];
 }
 
 export interface ComponentOptionsInfo extends Addressable {
@@ -84,6 +90,7 @@ export interface ComponentOptionsInfo extends Addressable {
 }
 
 export interface ComponentInfoFactory {
+  addError(message: string, loc: SourceLocation): ComponentInfoFactory;
   addProp(name: string, options?: Partial<PropInfo>): ComponentInfoFactory;
   addLocalComponent(name: string, source: ImportSource, loc?: SourceRange): ComponentInfoFactory;
   addOption(name: string, address: Addressable): ComponentInfoFactory;
@@ -94,13 +101,15 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
   const component: ComponentInfo = {
     props: [],
     components: [],
-    options: {
-      loc: {} as any,
-      properties: {},
-    },
+    errors: [],
   };
 
   const factory: ComponentInfoFactory = {
+    addError(message, loc) {
+      component.errors.push({ message, loc });
+
+      return factory;
+    },
     addProp(name, options = {}) {
       const index = component.props.findIndex((prop) => prop.name === name);
 
@@ -131,8 +140,12 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
     },
     addOption(name, address) {
       if (!name) {
-        component.options.loc = address.loc;
+        component.options = {
+          ...address,
+          properties: {},
+        };
       } else {
+        if (!component.options) throw new Error('Cannot set option location without setting options');
         component.options.properties[name] = address;
       }
 

@@ -42,6 +42,8 @@ export function createScriptContext(content: string, context: Context, block?: S
     ...context.parsers.babel,
     plugins: Array.from(new Set(plugins)),
     ranges: true,
+    // @ts-ignore
+    errorRecovery: true,
   });
 
   return {
@@ -54,6 +56,15 @@ export function createScriptContext(content: string, context: Context, block?: S
 }
 
 function processScript(context: ScriptAnalyzerContext) {
+  // @ts-ignore
+  if (context.ast.errors?.length) {
+    // @ts-ignore
+    context.ast.errors.forEach((error: any) =>
+      context.component.addError(error.message, { ...error.loc, offset: error.pos })
+    );
+    return;
+  }
+
   const enterHandlers = context.plugins
     .map((plugin) => {
       if (plugin.babel) {
@@ -111,10 +122,7 @@ function processScript(context: ScriptAnalyzerContext) {
         if (isIdentifier(key)) {
           const name = key.name;
           context.component.addOption(name, {
-            loc: createSourceRange(
-              context,
-              property$.isObjectProperty() ? property$.node.value : property$.node
-            ),
+            loc: createSourceRange(context, property$.isObjectProperty() ? property$.node.value : property$.node),
           });
 
           optionsByNameHandlers.forEach((options) => {

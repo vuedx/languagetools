@@ -54,7 +54,9 @@ export class TestVueServer {
 
     this.onExit = new Promise((resolve, reject) => {
       this.server.on('exit', (code) => resolve(code || 0));
-      this.server.on('error', (error) => reject(error));
+      this.server.on('error', (error) => {
+        reject(error);
+      });
     });
 
     const pid = this.server.pid;

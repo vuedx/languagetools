@@ -19,14 +19,14 @@ describe('script/options/components', () => {
     expect(info.components).toHaveLength(2);
     expect(info.components[0]).toMatchObject({
       name: 'Foo',
-      kind: 'local',
+      kind: 'script',
       source: {
         moduleName: './foo.vue',
       },
     });
     expect(info.components[1]).toMatchObject({
       name: 'Bar',
-      kind: 'local',
+      kind: 'script',
       source: {
         moduleName: 'external-library',
         exportName: 'Bar',
@@ -49,14 +49,14 @@ describe('script/options/components', () => {
     expect(info.components).toHaveLength(2);
     expect(info.components[0]).toMatchObject({
       name: 'Foo',
-      kind: 'local',
+      kind: 'script',
       source: {
         moduleName: './foo.vue',
       },
     });
     expect(info.components[1]).toMatchObject({
       name: 'Bar',
-      kind: 'local',
+      kind: 'script',
       source: {
         moduleName: 'external-library',
         exportName: 'Bar',
@@ -78,14 +78,14 @@ describe('script/options/components', () => {
     expect(info.components).toHaveLength(2);
     expect(info.components[0]).toMatchObject({
       name: 'MyFoo',
-      kind: 'local',
+      kind: 'script',
       source: {
         moduleName: './foo.vue',
       },
     });
     expect(info.components[1]).toMatchObject({
       name: 'MyBar',
-      kind: 'local',
+      kind: 'script',
       source: {
         moduleName: 'external-library',
         exportName: 'Bar',

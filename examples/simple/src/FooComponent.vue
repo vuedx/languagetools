@@ -1,9 +1,9 @@
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 import Foo from './Foo.vue'
 export default defineComponent({
-  props: ['item', 'index', 'count', 'foo', 'bar'],
-  components: {Foo, },
+  setup(props: { bar: string }) {},
+  components: { Foo },
 })
 </script>
 

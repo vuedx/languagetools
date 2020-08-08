@@ -7,23 +7,41 @@ import { RenameProvider } from './abstract';
 
 export const RenameComponentTag: RenameProvider = {
   version: '*',
-  canRename(config, fileName, position) {
+  canRename(config, fileName, position, options) {
     const { node, document } = config.helpers.findNodeAtPosition(fileName, position);
     if (isComponentNode(node) && isPositionInTagName(position, node)) {
       const info = config.helpers.getComponentInfo(document.container);
       const name = node.tag;
       const component = info.components.find((component) => component.name === name);
 
-      let fileToRename: string | undefined = undefined;
       if (
         component &&
+        component.kind === 'script' &&
         !component.source.exportName &&
         component.source.moduleName.endsWith('.vue') &&
         getComponentName(component.source.moduleName) === name
       ) {
-        fileToRename = component.source.moduleName = config.context.moduleResolutionHistory
-          .get(fileName)
-          ?.get(component.source.moduleName);
+        // Ask to rename file instead.
+        const newPosition = component.source.loc.start.offset + component.source.loc.source.lastIndexOf(name);
+        const result = config.service.getRenameInfo(document.container.getDocumentFileName('script'), newPosition, {
+          allowRenameOfImportPath: true,
+        });
+
+        if (result.canRename) {
+          if (node.isSelfClosing || position < node.loc.start.offset + node.tag.length + 1) {
+            result.triggerSpan = {
+              start: node.loc.start.offset + 1,
+              length: node.tag.length,
+            };
+          } else {
+            result.triggerSpan = {
+              start: node.loc.start.offset + node.loc.source.lastIndexOf('</') + 2,
+              length: node.tag.length,
+            };
+          }
+        }
+
+        return result;
       }
 
       if (!component) {
@@ -39,7 +57,7 @@ export const RenameComponentTag: RenameProvider = {
         fullDisplayName: node.tag,
         kind: config.context.typescript.ScriptElementKind.unknown,
         kindModifiers: 'componentTagName',
-        fileToRename,
+        fileToRename: undefined,
         triggerSpan: {
           start: node.loc.start.offset + 1,
           length: node.tag.length,
@@ -53,55 +71,74 @@ export const RenameComponentTag: RenameProvider = {
       const info = config.helpers.getComponentInfo(document.container);
       const name = node.tag;
       const component = info.components.find((component) => component.name === name);
-
+      if (
+        component &&
+        component.kind === 'script' &&
+        !component.source.exportName &&
+        component.source.moduleName.endsWith('.vue') &&
+        getComponentName(component.source.moduleName) === name
+      ) {
+        const newPosition = component.source.loc.start.offset + component.source.loc.source.lastIndexOf(name);
+        console.log('Apply Rename Hijacked');
+        // Ask to rename file instead.
+        return config.service
+          .findRenameLocations(
+            document.container.getDocumentFileName('script'),
+            newPosition,
+            findInStrings,
+            findInComments
+          )
+          ?.slice();
+      }
       const renameLocations: TS.RenameLocation[] = [];
       if (component) {
         if (component.kind === 'script') {
-          const { prefixText } = computeIdentifierReplacement(component.loc.source, component.source.localName);
-          const locations = config.service.findRenameLocations(
-            document.container.getDocumentFileName('script'),
-            component.loc.start.offset + prefixText.length,
-            findInStrings,
-            findInComments
-          );
-          const start = component.source.loc.start.offset;
-          const end = component.source.loc.end.offset;
-          if (locations) {
-            const vueFileName = document.container.fsPath;
-            locations.forEach((location) => {
-              if (
-                isVirtualFile(location.fileName) &&
-                getContainingFile(location.fileName) === vueFileName &&
-                !location.fileName.endsWith('_render.tsx') &&
-                (location.textSpan.start < start || end < location.textSpan.start)
-              ) {
-                // rename locations except in render file and component registration location.
-                renameLocations.push(location);
-              }
-            });
-          }
-
-          const importReplacement = computeIdentifierReplacement(
-            component.source.loc.source,
-            component.source.localName
-          );
-          // add alias to named import.
-          if (component.source.exportName && !importReplacement.prefixText.trim().endsWith(' as')) {
-            importReplacement.prefixText = importReplacement.prefixText + component.source.exportName + ' as ';
-          }
-
-          renameLocations.unshift({
-            fileName: document.container.fsPath,
-            textSpan: { start: component.source.loc.start.offset, length: component.source.loc.source.length },
-            ...importReplacement,
-          });
-
           // if component is registered with an alias, then update to reflect in template.
           if (component.source.localName !== component.name) {
             renameLocations.push({
               fileName: document.container.fsPath,
               textSpan: { start: component.loc.start.offset, length: component.loc.source.length },
               ...computeIdentifierReplacement(component.loc.source, component.name),
+            });
+          }
+          // update the import statement.
+          else {
+            const { prefixText } = computeIdentifierReplacement(component.loc.source, component.source.localName);
+            const locations = config.service.findRenameLocations(
+              document.container.getDocumentFileName('script'),
+              component.loc.start.offset + prefixText.length,
+              findInStrings,
+              findInComments
+            );
+            const start = component.source.loc.start.offset;
+            const end = component.source.loc.end.offset;
+            if (locations) {
+              const vueFileName = document.container.fsPath;
+              locations.forEach((location) => {
+                if (
+                  isVirtualFile(location.fileName) &&
+                  getContainingFile(location.fileName) === vueFileName &&
+                  !location.fileName.endsWith('_render.tsx') &&
+                  (location.textSpan.start < start || end < location.textSpan.start)
+                ) {
+                  // rename locations except in render file and component registration location.
+                  renameLocations.push(location);
+                }
+              });
+            }
+            const importReplacement = computeIdentifierReplacement(
+              component.source.loc.source,
+              component.source.localName
+            );
+            // add alias to named import.
+            if (component.source.exportName && !importReplacement.prefixText.trim().endsWith(' as')) {
+              importReplacement.prefixText = importReplacement.prefixText + component.source.exportName + ' as ';
+            }
+
+            renameLocations.unshift({
+              fileName: document.container.fsPath,
+              textSpan: { start: component.source.loc.start.offset, length: component.source.loc.source.length },
+              ...importReplacement,
             });
           }
         } else {

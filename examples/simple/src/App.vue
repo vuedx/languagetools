@@ -25,7 +25,7 @@ export default defineComponent({
     {{ count }}
 
     <Bar v-for="(newItem, ind) of items">
-      <FooComponent :item="newItem" :index="ind" :count="count" v-model:foo="newFoo" v-model:bar="newBar"/>
+      <FooComponent :item="newItem" :bar="1" />
 
        {{ newBar  }}
     </Bar>

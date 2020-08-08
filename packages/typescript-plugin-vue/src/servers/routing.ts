@@ -35,9 +35,9 @@ export class RoutingLanguageServer {
   }
 }
 
-function createLanguageServiceRouter(options: LanguageServiceOptions): TS.LanguageService {
-  const vue = createVueLanguageServer(options);
-  const ts = options.service;
+function createLanguageServiceRouter(config: LanguageServiceOptions): TS.LanguageService {
+  const vue = createVueLanguageServer(config);
+  const ts = config.service;
 
   function choose(fileName: string) {
     return isVueFile(fileName) ? vue : ts;
@@ -93,7 +93,7 @@ function createLanguageServiceRouter(options: LanguageServiceOptions): TS.Langua
   ];
 
   function getTextSpan(document: VirtualTextDocument, span: TS.TextSpan): TS.TextSpan | null {
-    if (options.helpers.isRenderFunctionDocument(document)) {
+    if (config.helpers.isRenderFunctionDocument(document)) {
       const result = document.getOriginalOffsetAt(span.start);
       if (result) return { start: result.offset, length: result.length };
 
@@ -187,7 +187,7 @@ function createLanguageServiceRouter(options: LanguageServiceOptions): TS.Langua
 
     getSemanticDiagnostics(fileName) {
       const diagnostics = choose(fileName).getSemanticDiagnostics(fileName);
-      const program = options.service.getProgram();
+      const program = config.service.getProgram();
 
       return diagnostics
         .map((diagnostic) => {
@@ -215,7 +215,7 @@ function createLanguageServiceRouter(options: LanguageServiceOptions): TS.Langua
 
     getSyntacticDiagnostics(fileName) {
       const diagnostics = choose(fileName).getSyntacticDiagnostics(fileName);
-      const program = options.service.getProgram();
+      const program = config.service.getProgram();
 
       return diagnostics
         .map((diagnostic) => {
@@ -243,7 +243,7 @@ function createLanguageServiceRouter(options: LanguageServiceOptions): TS.Langua
 
     getSuggestionDiagnostics(fileName) {
       const diagnostics = choose(fileName).getSuggestionDiagnostics(fileName);
-      const program = options.service.getProgram();
+      const program = config.service.getProgram();
 
       return diagnostics
         .map((diagnostic) => {
@@ -272,28 +272,29 @@ function createLanguageServiceRouter(options: LanguageServiceOptions): TS.Langua
     getRenameInfo(fileName, position, options) {
       const result = choose(fileName).getRenameInfo(fileName, position, options);
 
+      config.context.log(JSON.stringify(result));
+
       if (result.canRename) {
         if (result.fileToRename && isVirtualFile(result.fileToRename)) {
           result.fileToRename = getContainingFile(result.fileToRename);
         }
 
-        result.displayName = REPLACE.virtualFile(result.displayName)
-        result.fullDisplayName = REPLACE.virtualFile(result.fullDisplayName)
+        result.displayName = REPLACE.virtualFile(result.displayName);
+        result.fullDisplayName = REPLACE.virtualFile(result.fullDisplayName);
       }
 
       return result;
     },
 
     findRenameLocations(fileName, position, findInStrings, findInComments) {
-      return choose(fileName)
+      const result = choose(fileName)
         .findRenameLocations(fileName, position, findInStrings, findInComments)
         ?.map((item) => {
-          options.context.log('try.findRenameLocations ' + JSON.stringify(item));
           if (isVirtualFile(item.fileName)) {
             item.originalContextSpan = item.contextSpan;
             item.originalTextSpan = item.textSpan;
             item.originalFileName = item.fileName;
-            const virtual = options.helpers.getDocument(item.fileName) as VirtualTextDocument;
+            const virtual = config.helpers.getDocument(item.fileName) as VirtualTextDocument;
 
             item.fileName = virtual.container.fsPath;
             const textSpan = getTextSpan(virtual, item.textSpan);
@@ -307,11 +308,14 @@ function createLanguageServiceRouter(options: LanguageServiceOptions): TS.Langua
               item.contextSpan = contextSpan;
             }
           }
-          options.context.log('ok.findRenameLocations ' + JSON.stringify(item));
 
           return item;
         })
         .filter(isNotNull);
+
+      config.context.log(JSON.stringify(result));
+
+      return result;
     },
 
     getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences) {

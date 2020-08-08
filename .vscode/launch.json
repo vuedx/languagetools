@@ -12,37 +12,27 @@
         "--extensionTestsPath=${workspaceFolder}/packages/@vuedx/extensions-shared/runner.js",
         "${workspaceFolder}/extensions/vscode/src/__fixtures__"
       ],
-      "outFiles": [
-        "${workspaceFolder}/extensions/vscode/dist/*.js"
-      ],
+      "outFiles": ["${workspaceFolder}/extensions/vscode/dist/*.js"],
       "env": {
-        "VSCODE_TEST_ROOT": "${workspaceFolder}/extensions/vscode/src/__tests__",
+        "VSCODE_TEST_ROOT": "${workspaceFolder}/extensions/vscode/src/__tests__"
       }
     },
-  
+
     {
       "type": "node",
       "name": "Test: TypeScript Plugin (current file)",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest",
-      "args": [
-        "--runInBand",
-        "--config",
-        "${workspaceFolder}/jest.e2e.config.js",
-        "${fileBasename}"
-      ],
+      "args": ["--runInBand", "--config", "${workspaceFolder}/jest.e2e.debug.config.js", "${fileBasename}"],
       "env": {
         "CI": "vscode-jest-tests"
       },
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "autoAttachChildProcesses": true,
       "sourceMaps": true,
-      "disableOptimisticBPs": false,
-      "outFiles": [
-        "${workspaceFolder}/packages/@vuedx/typescript-plugin-vue/dist/*.js"
-      ],
+      "disableOptimisticBPs": true,
+      "outFiles": ["${workspaceFolder}/packages/@vuedx/typescript-plugin-vue/dist/*.js"]
     },
     {
       "name": "Extension: VS Code",
@@ -52,11 +42,11 @@
       "args": [
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode",
-        "${workspaceRoot}/examples/simple"
+        "/Users/znck/Workspace/Experiments/vite-app"
       ],
       "sourceMaps": true,
       "enableSourceMapCaching": true,
       "outFiles": ["${workspaceRoot}/extensions/vscode/dist/*.js"]
-    },
+    }
   ]
 }

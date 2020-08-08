@@ -26,5 +26,8 @@
     "external": [
       "consolidate"
     ]
+  },
+  "devDependencies": {
+    "vscode-languageserver-textdocument": "^1.0.1"
   }
 }

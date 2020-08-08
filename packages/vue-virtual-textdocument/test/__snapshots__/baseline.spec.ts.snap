@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VueVirtualDocument/baseline rename/component-tag/FooBar.vue 1`] = `
+import _Ctx from './FooBar.vue?internal'
+
+
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<div/>/*@@vue:end*/
+}
+// Version 0
+`;
+
+exports[`VueVirtualDocument/baseline rename/component-tag/error-in-script.vue 1`] = `
+import _Ctx from './error-in-script.vue?internal'
+
+
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<div><Foo>{{
+    default: () => (<><Bar>{{
+      default: () => (<><Baz>{{
+        default: () => (<><GlobalComponent1>{{
+          default: () => (<><div/><GlobalComponent2/><Foo/><Bar/><Baz/></>)
+        }}</GlobalComponent1></>)
+      }}</Baz></>)
+    }}</Bar></>)
+  }}</Foo></div>/*@@vue:end*/
+}
+// Version 0
+`;
+
+exports[`VueVirtualDocument/baseline rename/component-tag/script-template.vue 1`] = `
+import _Ctx from './script-template.vue?internal'
+import FooBar from './FooBar.vue'
+import Foo from './template.vue'
+import { Transition as Bar } from 'vue'
+import { Fragment as Baz } from 'vue'
+
+
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<FooBar>{{
+    default: () => (<><Foo>{{
+      default: () => (<><Bar>{{
+        default: () => (<><Baz>{{
+          default: () => (<><GlobalComponent1>{{
+            default: () => (<><FooBar/><GlobalComponent2/><Foo/><Bar/><Baz/></>)
+          }}</GlobalComponent1></>)
+        }}</Baz></>)
+      }}</Bar></>)
+    }}</Foo></>)
+  }}</FooBar>/*@@vue:end*/
+}
+// Version 0
+`;
+
+exports[`VueVirtualDocument/baseline rename/component-tag/template.vue 1`] = `
+import _Ctx from './template.vue?internal'
+
+
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<div><GlobalComponent1>{{
+    default: () => (<><div/><GlobalComponent2/></>)
+  }}</GlobalComponent1></div>/*@@vue:end*/
+}
+// Version 0
+`;
+
+exports[`VueVirtualDocument/baseline rename/component-tag/template-script.vue 1`] = `
+import _Ctx from './template-script.vue?internal'
+import FooBar from './FooBar.vue'
+import Foo from './template.vue'
+import { Transition as Bar } from 'vue'
+import { Fragment as Baz } from 'vue'
+
+
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<FooBar>{{
+    default: () => (<><Foo>{{
+      default: () => (<><Bar>{{
+        default: () => (<><Baz>{{
+          default: () => (<><GlobalComponent1>{{
+            default: () => (<><FooBar/><GlobalComponent2/><Foo/><Bar/><Baz/></>)
+          }}</GlobalComponent1></>)
+        }}</Baz></>)
+      }}</Bar></>)
+    }}</Foo></>)
+  }}</FooBar>/*@@vue:end*/
+}
+// Version 0
+`;
+
+exports[`VueVirtualDocument/baseline rename/element-tag/fixture.vue 1`] = `
+import _Ctx from './fixture.vue?internal'
+
+
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<main><header>Title</header><section><p>Example</p><input type="text"/></section></main>/*@@vue:end*/
+}
+// Version 0
+`;

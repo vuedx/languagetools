@@ -109,7 +109,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     import _Ctx from './component.vue?internal'
     
     export function render({style, key, value, handleHover, event, handleEvent, hello}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <div  style={style} {...{[key]: value}} onHover={handleHover} {...{[event]: handleEvent}}>
+      return /*@@vue:start*/ <div  style={style} key={value} onHover={handleHover} {...{[event]: handleEvent}}>
         {hello} world{' '}
       </div>/*@@vue:end*/
     }
