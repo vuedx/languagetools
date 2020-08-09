@@ -4,6 +4,7 @@ module.exports = {
   setupFilesAfterEnv: ['jest-expect-message'],
   testMatch: ['**/*.spec.ts'],
   globals: {
+    __DEV__: true,
     'ts-jest': {
       packageJson: 'package.json',
       diagnostics: false,

@@ -20,20 +20,20 @@ export function createExpressionTracker(addIdentifer: (identifer: string) => voi
   return (node, context) => {
     const localIdentifiers = new Set<string>();
     if (isInterpolationNode(node)) {
-      if (isSimpleExpressionNode(node.content) && !node.content.isStatic) {
+      if (isSimpleExpressionNode(node.content) && !node.content.isStatic && node.content.content.trim()) {
         trackIdentifiers(node.content.content, context, addIdentifer);
       }
     } else if (isElementNode(node)) {
       node.props.forEach((dir) => {
         if (isDirectiveNode(dir)) {
-          if (isSimpleExpressionNode(dir.arg) && !dir.arg.isStatic) {
+          if (isSimpleExpressionNode(dir.arg) && !dir.arg.isStatic && dir.arg.content.trim()) {
             trackIdentifiers(dir.arg.content, context, addIdentifer);
           }
 
           const slot = findDir(node, 'slot');
 
           if (slot) {
-            if (isSimpleExpressionNode(slot.exp) && !slot.exp.isStatic) {
+            if (isSimpleExpressionNode(slot.exp) && !slot.exp.isStatic && slot.exp.content.trim()) {
               trackIdentifiers(
                 slot.exp.content,
                 context,
@@ -51,14 +51,14 @@ export function createExpressionTracker(addIdentifer: (identifer: string) => voi
             case 'slot':
               break;
             case 'on':
-              if (isSimpleExpressionNode(dir.exp) && !dir.exp.isStatic) {
+              if (isSimpleExpressionNode(dir.exp) && !dir.exp.isStatic && dir.exp.content.trim()) {
                 context.addIdentifiers('$event');
                 trackIdentifiers(dir.exp.content, context, addIdentifer, false, true);
                 context.removeIdentifiers('$event');
               }
               break;
             default: {
-              if (isSimpleExpressionNode(dir.exp)) {
+              if (isSimpleExpressionNode(dir.exp) && dir.exp.content.trim()) {
                 trackIdentifiers(dir.exp.content, context, addIdentifer);
               }
             }

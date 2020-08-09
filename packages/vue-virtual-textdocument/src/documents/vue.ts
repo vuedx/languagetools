@@ -94,7 +94,9 @@ class VueModuleTextDocument extends VirtualTextDocument {
     if (this.isDirty || this.doc.version !== this.container.version) {
       this.isDirty = false;
       const scriptFile = this.container.getDocumentFileName(SCRIPT_BLOCK_SELECTOR);
-      const scriptSetupFile = this.container.getDocumentFileName(SCRIPT_SETUP_BLOCK_SELECTOR);
+      const scriptSetupFile = this.container.descriptor.script?.setup
+        ? this.container.getDocumentFileName(SCRIPT_SETUP_BLOCK_SELECTOR)
+        : null;
       const renderFile = this.container.getDocumentFileName(RENDER_SELECTOR);
 
       const lines: string[] = [];
@@ -141,7 +143,9 @@ class InternalModuleTextDocument extends VirtualTextDocument {
     if (this.isDirty || this.doc.version !== this.container.version) {
       this.isDirty = false;
       const scriptFile = this.container.getDocumentFileName(SCRIPT_BLOCK_SELECTOR);
-      const scriptSetupFile = this.container.getDocumentFileName(SCRIPT_SETUP_BLOCK_SELECTOR);
+      const scriptSetupFile = this.container.descriptor.script?.setup
+        ? this.container.getDocumentFileName(SCRIPT_SETUP_BLOCK_SELECTOR)
+        : null;
 
       const lines: string[] = [];
 
@@ -152,7 +156,9 @@ class InternalModuleTextDocument extends VirtualTextDocument {
         lines.push(`const component = defineComponent(() => options)`);
       } else if (scriptFile) {
         const path = relativeVirtualImportPath(scriptFile);
-        lines.push(`import component from '${path}'`);
+        lines.push(`import { defineComponent } from 'vue'`);
+        lines.push(`import script from '${path}'`);
+        lines.push(`const component = defineComponent(script)`);
       } else {
         lines.push(`import { defineComponent } from 'vue'`);
         lines.push(`const component = defineComponent({})`);
@@ -182,7 +188,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   private expressionsMap: Record<string, [number, number]> = {};
 
   public get ast(): CodegenResult['ast'] | undefined {
-    if (this.result) return this.result.ast
+    if (this.result) return this.result.ast;
   }
 
   public getOriginalOffsetAt(offset: number) {
@@ -261,8 +267,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
       try {
         this.doc = TextDocument.update(this.doc, [{ text: this.generate() }], this.container.version);
       } catch (error) {
-        console.log(error)
-        // skip invalid template state
+        // This is very unlikely to happen as compiler is very error tolerant.
         this.doc = TextDocument.update(
           this.doc,
           [{ text: `\n/* ${error.message} ${error.stack} */ \n` }],
@@ -304,7 +309,11 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
         this.expressionsMap[code.substr(p[0], p[1])] = [p[2], p[3]];
       });
 
-      return this.result.code + `\n// Version ${this.doc.version}`;
+      if (__DEV__) {
+        return this.result.code + `\n// Version ${this.container.version}\n`;
+      }
+
+      return this.result.code;
     }
   }
 
@@ -312,14 +321,19 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     const { script } = this.container.descriptor;
 
     if (script && script.content) {
+      // TODO: Cache this.
       const result = analyzer.analyzeScript(script.content, 'component.ts');
       const map: Record<string, ComponentImport> = {};
       result.components.forEach((component) => {
-        map[component.name] = {
+        const result = {
           path: component.source.moduleName,
           named: !!component.source.exportName,
           name: component.source.exportName,
         };
+
+        component.aliases.forEach((name) => {
+          map[name] = result;
+        });
       });
 
       return map;
@@ -539,13 +553,13 @@ export class VueTextDocument extends ProxyTextDocument {
 
   protected parse() {
     if (!this.isDirty) return;
-
     this.isDirty = false;
     const source = this.getText();
     try {
       this.sfc = parseSFC(source, this.options);
     } catch {
       // -- skip invalid state.
+      // TODO: Catch errors.
     }
   }
 
@@ -554,13 +568,12 @@ export class VueTextDocument extends ProxyTextDocument {
   }
 
   public static update(document: VueTextDocument, changes: TextDocumentContentChangeEvent[], version: number) {
-    console.log(
-      `VueTextDocument:: ${document.fsPath} ${document.version} ---> ${version} ===> ${JSON.stringify(changes)}`
-    );
     document.doc = TextDocument.update(document.doc, changes, version);
     document.isDirty = true;
     document.documents.forEach((document) => {
       if (document) document.markDirty();
     });
+
+    return document;
   }
 }

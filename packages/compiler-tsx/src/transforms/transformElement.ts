@@ -39,14 +39,7 @@ export function createElementTransform(options: Required<Options>): NodeTransfor
 
     if (!isElementNode(node)) return;
     if (isComponentNode(node)) {
-      let name = node.tag;
-
-      if (node.tag in options.components) {
-        name = node.tag;
-      } else if (pascalCase(node.tag) in options.components) {
-        name = pascalCase(node.tag);
-      }
-
+      const name = node.tag;
       const component = options.components[name];
       if (component && !context.identifiers[name]) {
         context.imports.add({
@@ -58,13 +51,7 @@ export function createElementTransform(options: Required<Options>): NodeTransfor
     }
 
     return () => {
-      let name: string = '';
-
-      if (node.tag in options.components) {
-        name = node.tag;
-      } else if (pascalCase(node.tag) in options.components) {
-        name = pascalCase(node.tag);
-      }
+      let name: string = isComponentNode(node) ? pascalCase(node.tag) : node.tag;
 
       const startTag = name
         ? createSimpleExpression(

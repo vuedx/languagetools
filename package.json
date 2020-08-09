@@ -4,7 +4,7 @@
     "test": "run-s test:*",
     "test:unit": "jest",
     "test:ts": "TEST_ENV=jest jest --config ./jest.e2e.config.js",
-    "watch": "rollup -c --environment BUILD:production --watch",
+    "watch": "rollup -c --environment BUILD:development --watch",
     "build": "rollup -c --environment BUILD:production",
     "prepublishOnly": "npm run build",
     "beta:release": "npm run release -- prerelease",

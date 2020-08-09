@@ -95,7 +95,9 @@ describe('rename/component-tag', () => {
       expected.fill('Foo', 0, 5);
 
       expect(changes.map((change) => change.text)).toEqual(expected);
-      expect(changes[3]).toEqual({ prefixText: 'import ', text: 'Foo', suffixText: ` from './template.vue';` });
+      expect(changes).toEqual(
+        expect.arrayContaining([{ prefixText: 'import ', text: 'Foo', suffixText: ` from './template.vue';` }])
+      );
 
       const info = getRenameInfo();
       expect(info.displayName).toBe('Foo');
@@ -114,7 +116,9 @@ describe('rename/component-tag', () => {
       expected.fill('Foo', 0, 5);
 
       expect(changes.map((change) => change.text)).toEqual(expected);
-      expect(changes[3]).toEqual({ prefixText: 'import ', text: 'Foo', suffixText: ` from './template.vue';` });
+      expect(changes).toEqual(
+        expect.arrayContaining([{ prefixText: 'import ', text: 'Foo', suffixText: ` from './template.vue';` }])
+      );
 
       const info = getRenameInfo();
       expect(info.displayName).toBe('Foo');
@@ -133,7 +137,9 @@ describe('rename/component-tag', () => {
       expected.fill('Foo', 0, 5);
 
       expect(changes.map((change) => change.text)).toEqual(expected);
-      expect(changes[0]).toEqual({ prefixText: 'import ', text: 'Foo', suffixText: ` from './template.vue';` });
+      expect(changes).toEqual(
+        expect.arrayContaining([{ prefixText: 'import ', text: 'Foo', suffixText: ` from './template.vue';` }])
+      );
 
       const info = getRenameInfo();
       expect(info.displayName).toBe('Foo');
@@ -152,7 +158,9 @@ describe('rename/component-tag', () => {
       expected.fill('Foo', 0, 5);
 
       expect(changes.map((change) => change.text)).toEqual(expected);
-      expect(changes[0]).toEqual({ prefixText: 'import ', text: 'Foo', suffixText: ` from './template.vue';` });
+      expect(changes).toEqual(
+        expect.arrayContaining([{ prefixText: 'import ', text: 'Foo', suffixText: ` from './template.vue';` }])
+      );
 
       const info = getRenameInfo();
       expect(info.displayName).toBe('Foo');
@@ -259,11 +267,15 @@ describe('rename/component-tag', () => {
       expected.fill('Bar', 0, 5);
 
       expect(changes.map((change) => change.text)).toEqual(expected);
-      expect(changes[3]).toEqual({
-        prefixText: 'import { Transition as ',
-        text: 'Bar',
-        suffixText: `, Fragment } from 'vue';`,
-      });
+      expect(changes).toEqual(
+        expect.arrayContaining([
+          {
+            prefixText: 'import { Transition as ',
+            text: 'Bar',
+            suffixText: `, Fragment } from 'vue';`,
+          },
+        ])
+      );
 
       const info = getRenameInfo();
       expect(info.displayName).toBe('Bar');
@@ -282,11 +294,15 @@ describe('rename/component-tag', () => {
       expected.fill('Bar', 0, 5);
 
       expect(changes.map((change) => change.text)).toEqual(expected);
-      expect(changes[3]).toEqual({
-        prefixText: 'import { Transition as ',
-        text: 'Bar',
-        suffixText: `, Fragment } from 'vue';`,
-      });
+      expect(changes).toEqual(
+        expect.arrayContaining([
+          {
+            prefixText: 'import { Transition as ',
+            text: 'Bar',
+            suffixText: `, Fragment } from 'vue';`,
+          },
+        ])
+      );
 
       const info = getRenameInfo();
       expect(info.displayName).toBe('Bar');
@@ -305,11 +321,15 @@ describe('rename/component-tag', () => {
       expected.fill('Bar', 0, 5);
 
       expect(changes.map((change) => change.text)).toEqual(expected);
-      expect(changes[0]).toEqual({
-        prefixText: 'import { Transition as ',
-        text: 'Bar',
-        suffixText: `, Fragment } from 'vue';`,
-      });
+      expect(changes).toEqual(
+        expect.arrayContaining([
+          {
+            prefixText: 'import { Transition as ',
+            text: 'Bar',
+            suffixText: `, Fragment } from 'vue';`,
+          },
+        ])
+      );
 
       const info = getRenameInfo();
       expect(info.displayName).toBe('Bar');
@@ -328,11 +348,15 @@ describe('rename/component-tag', () => {
       expected.fill('Bar', 0, 5);
 
       expect(changes.map((change) => change.text)).toEqual(expected);
-      expect(changes[0]).toEqual({
-        prefixText: 'import { Transition as ',
-        text: 'Bar',
-        suffixText: `, Fragment } from 'vue';`,
-      });
+      expect(changes).toEqual(
+        expect.arrayContaining([
+          {
+            prefixText: 'import { Transition as ',
+            text: 'Bar',
+            suffixText: `, Fragment } from 'vue';`,
+          },
+        ])
+      );
 
       const info = getRenameInfo();
       expect(info.displayName).toBe('Bar');

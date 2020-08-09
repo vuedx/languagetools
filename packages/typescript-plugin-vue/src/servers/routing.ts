@@ -90,7 +90,11 @@ function createLanguageServiceRouter(config: LanguageServiceOptions): TS.Languag
     'provideCallHierarchyIncomingCalls',
     'provideCallHierarchyOutgoingCalls',
     'isValidBraceCompletionAtPosition',
-  ];
+    'applyCodeActionCommand',
+    'getNonBoundSourceFile',
+    'getSourceMapper',
+    'clearSourceMapperCache',
+  ] as any;
 
   function getTextSpan(document: VirtualTextDocument, span: TS.TextSpan): TS.TextSpan | null {
     if (config.helpers.isRenderFunctionDocument(document)) {
@@ -149,6 +153,30 @@ function createLanguageServiceRouter(config: LanguageServiceOptions): TS.Languag
   }
 
   const proxy: Partial<TS.LanguageService> = {
+    dispose() {
+      // TODO: Clear Vue files in memory.
+      config.service.dispose();
+    },
+    cleanupSemanticCache() {
+      config.service.cleanupSemanticCache();
+    },
+    getCompilerOptionsDiagnostics() {
+      return config.service.getCompilerOptionsDiagnostics();
+    },
+    getSyntacticClassifications(fileName, span) {
+      return config.service.getSyntacticClassifications(fileName, span);
+    },
+    getCombinedCodeFix(scope, fixId, formatOptions, preferences) {
+      return config.service.getCombinedCodeFix(scope, fixId, formatOptions, preferences);
+    },
+    getProgram() {
+      return config.service.getProgram();
+    },
+    toLineColumnOffset(fileName, position) {
+      return config.service.toLineColumnOffset
+        ? config.service.toLineColumnOffset(fileName, position)
+        : { line: 0, character: 0 };
+    },
     organizeImports(scope, formatOptions, preferences) {
       return choose(scope.fileName)
         .organizeImports(scope, formatOptions, preferences)
@@ -327,7 +355,6 @@ function createLanguageServiceRouter(config: LanguageServiceOptions): TS.Languag
 
     getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences) {
       const suffix = '.vue' + VIRTUAL_FILENAME_SEPARATOR + '_module';
-      console.log('FileRenamed > ' + oldFilePath);
       return choose(oldFilePath)
         .getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences)
         .map((edit) => {
@@ -395,10 +422,6 @@ function createLanguageServiceRouter(config: LanguageServiceOptions): TS.Languag
           return true;
         });
 
-        for (const fileTextChanges of Object.values(editsByFileName)) {
-          fileTextChanges.textChanges.sort((a, b) => a.span.start - b.span.start);
-        }
-
         result.edits.push(...Object.values<TS.FileTextChanges>(editsByFileName));
       }
 
@@ -411,9 +434,14 @@ function createLanguageServiceRouter(config: LanguageServiceOptions): TS.Languag
     if (!(name in proxy)) {
       // @ts-ignore
       proxy[name] = function (fileName: string): any {
-        const service = choose(fileName);
-        // @ts-ignore
-        return service[name]!.apply(service, arguments);
+        if (typeof fileName === 'string') {
+          const service = choose(fileName);
+          // @ts-ignore
+          return service[name]!.apply(service, arguments);
+        } else {
+          // @ts-ignore
+          return config.service[name] ? config.service[name]!.apply(config.service, arguments) : undefined;
+        }
       };
     }
   });

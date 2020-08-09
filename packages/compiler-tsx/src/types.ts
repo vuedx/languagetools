@@ -1,4 +1,4 @@
-import { CodegenResult as Result, CompilerOptions } from '@vue/compiler-core';
+import { CodegenResult as Result, CompilerOptions, CompilerError } from '@vue/compiler-core';
 
 export interface ComponentImport {
   path: string;
@@ -12,6 +12,8 @@ export interface Options {
 }
 
 export interface CodegenResult extends Result {
+  errors: CompilerError[];
+
   /**
    * Positions of expressions.
    *

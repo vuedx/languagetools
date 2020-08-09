@@ -7,8 +7,8 @@ import {
   FRAGMENT,
   generate,
   OPEN_BLOCK,
-
-  transform
+  transform,
+  CompilerError,
 } from '@vue/compiler-core';
 import { isDirectiveNode, isElementNode, isInterpolationNode, isSimpleExpressionNode } from '@vuedx/template-ast-types';
 import { withScope } from './scope';
@@ -36,6 +36,7 @@ export function compile(template: string, options: Options & CompilerOptions): C
     },
   };
   const identifiers = new Set<string>();
+  const errors: CompilerError[] = [];
 
   transform(ast, {
     ...options,
@@ -68,6 +69,9 @@ export function compile(template: string, options: Options & CompilerOptions): C
       createElementTransform(config),
       createInterpolationTransform(config),
     ],
+    onError(error) {
+      errors.push(error);
+    },
   });
 
   [OPEN_BLOCK, CREATE_BLOCK, CREATE_VNODE, FRAGMENT].forEach((helper) => {
@@ -110,5 +114,6 @@ export function compile(template: string, options: Options & CompilerOptions): C
     ast: withScope(astCopy),
     mappings,
     expressions,
+    errors,
   };
 }

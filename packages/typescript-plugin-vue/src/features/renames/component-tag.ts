@@ -79,7 +79,6 @@ export const RenameComponentTag: RenameProvider = {
         getComponentName(component.source.moduleName) === name
       ) {
         const newPosition = component.source.loc.start.offset + component.source.loc.source.lastIndexOf(name);
-        console.log('Apply Rename Hijacked');
         // Ask to rename file instead.
         return config.service
           .findRenameLocations(

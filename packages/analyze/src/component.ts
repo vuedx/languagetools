@@ -1,3 +1,5 @@
+import { isKebabCase, kebabCase } from './utilities';
+
 export interface SourceLocation {
   offset: number;
   line: number;
@@ -141,8 +143,7 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
       return factory;
     },
     addLocalComponent(name, source, loc = null as any, kind: ComponentRegistrationInfo['kind'] = 'script') {
-      // TODO: Create aliases. If name is PascalCase then allow kebab-case too.
-      component.components.push({ name, aliases: [name], kind, source, loc });
+      component.components.push({ name, aliases: [name], kind, source, loc }); // Vue 3 — Component names are PascalCase.
 
       return factory;
     },

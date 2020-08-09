@@ -66,7 +66,6 @@ export function findTemplateNodesIn(ast: RootNode, start: number, end: number): 
   const a = findTemplateElementNodeAt(ast, start);
   const b = findTemplateElementNodeAt(ast, end);
   if (!a.node || !b.node) return [];
-  console.log('MATCH IN TEMPLATE ?>>>>>' + JSON.stringify({ a: a.node.loc.source, b: b.node.loc.source }));
   if (a.node === b.node) return [a.node];
   if (!a.ancestors.length || !b.ancestors.length) return [];
 

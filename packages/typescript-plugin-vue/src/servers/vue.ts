@@ -19,6 +19,20 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
   }
 
   function choose(document: VirtualTextDocument) {
+    const scriptInfo = context.projectService.getScriptInfo(document.fsPath);
+    const snapshot = scriptInfo?.getSnapshot();
+    context.log(
+      'Incoming request for ' +
+        document.fsPath +
+        ' :: ' +
+        scriptInfo?.getLatestVersion() +
+        '\n' +
+        snapshot?.getText(0, snapshot?.getLength())
+    );
+
+    const internal = document.container.getDocument('_internal');
+    context.log('Incoming request for ' + internal.fsPath + ' :: ' + internal.version + '\n' + internal.getText());
+
     return h.isRenderFunctionDocument(document) ? template : script;
   }
 
@@ -27,7 +41,6 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
 
     getSemanticDiagnostics(fileName) {
       if (!isFeatureEnabled('diagnostics', 'semantic')) {
-        console.log('>>> semantic diagnostics are disabled');
         return [];
       }
 
@@ -39,7 +52,6 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
 
           if (virtual) {
             const results = choose(virtual).getSemanticDiagnostics(virtual.fsPath);
-            console.log('>>>  diagnostics for ' + virtual.fsPath);
             diagnostics.push(...results);
           }
         });
@@ -50,7 +62,6 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
 
     getSuggestionDiagnostics(fileName) {
       if (!isFeatureEnabled('diagnostics', 'suggestion')) {
-        console.log('>>> suggestion diagnostics suggestion are disabled');
         return [];
       }
 
@@ -92,7 +103,7 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
 
       const document = h.getVueDocument(scope.fileName);
       if (document) {
-        const virtual = document.getDocument('scriptSetup') || document.getDocument('script');
+        const virtual = document.getDocument('script') || document.getDocument('scriptSetup');
         if (virtual) {
           return script.organizeImports({ ...scope, fileName: virtual.fsPath }, formatOptions, preferences);
         }
@@ -125,8 +136,6 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
 
     findRenameLocations(fileName, position, findInStrings, findInComments) {
       if (!isFeatureEnabled('rename')) return [];
-
-      console.log('Not a FileRenamed > ' + fileName);
       const document = h.getVueDocument(fileName);
       if (!document) return;
       const block = document.blockAt(position);
@@ -153,15 +162,11 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
         if (fromScript) result.push(...fromScript);
       }
 
-      result.sort((a, b) => a.textSpan.start - b.textSpan.start);
-
       return result;
     },
 
     getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences) {
       if (!isFeatureEnabled('rename')) return [];
-
-      console.log('FileRenamed > ' + oldFilePath);
       const document = h.getVueDocument(oldFilePath);
       const fileTextChanges: TS.FileTextChanges[] = [];
       const visited = new Set<string>();
@@ -174,7 +179,6 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
           formatOptions,
           preferences
         );
-        console.log('Files Affected By Rename > ' + JSON.stringify(currentChanges.map((item) => item.fileName)));
 
         fileTextChanges.push(...currentChanges);
 

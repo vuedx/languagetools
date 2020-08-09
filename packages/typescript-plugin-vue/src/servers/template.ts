@@ -51,9 +51,6 @@ export function createTemplateLanguageServer(config: LanguageServiceOptions): TS
         .map((diagnostic) => {
           if (Number.isInteger(diagnostic.start)) {
             const position = document.findExpression(diagnostic.start!, diagnostic.length || 1);
-            context.log(
-              `TRY RENDER => ${diagnostic.file?.fileName} --- ${diagnostic.messageText} -- ${JSON.stringify(position)}`
-            );
             if (!position) return;
 
             diagnostic.start = position.offset;

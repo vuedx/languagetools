@@ -59,7 +59,6 @@ export class PluginContext {
   private _config: PluginConfig = getConfig();
   private _projectService!: TS.server.ProjectService;
   private _serverHost!: TS.server.ServerHost;
-  public readonly moduleResolutionHistory = new Map<string, Map<string, string>>();
 
   public constructor(public readonly typescript: typeof TS) {
     this.typescript.setSourceMapRange;
@@ -144,7 +143,7 @@ export class PluginContext {
         callback(fileName, baseEvent);
       });
     } else {
-      watchers.forEach((watchers) => {
+      watchers.forEach((watchers, fileName) => {
         watchers.forEach((callback) => {
           callback(fileName, baseEvent);
         });
@@ -340,20 +339,25 @@ function patchModuleResolution(context: PluginContext, languageServiceHost: TS.L
         ? resolveModuleNames(newModuleNames, containingFile, reusedNames, redirectedReferences, options)
         : [];
 
-      const history = new Map<string, string>();
-      result.map((resolved, index) => {
+      result.forEach(resolved => {
         if (resolved && isVirtualFile(resolved.resolvedFileName)) {
-          history.set(moduleNames[index], getContainingFile(resolved.resolvedFileName));
-          context.tryCreateScriptInfo(resolved.resolvedFileName); // Load vue file now to avoid filename case insensitivity issues.
+          context.tryCreateScriptInfo(resolved.resolvedFileName) // Trigger .vue script info creation.
         }
-      });
+      })
 
-      if (
-        history.size &&
-        isVirtualFile(containingFile) &&
-        containingFile.endsWith('.vue' + VIRTUAL_FILENAME_SEPARATOR + '_render.tsx')
-      ) {
-        context.moduleResolutionHistory.set(containingFile, history);
+      if (__DEV__) {
+        if (!/node_modules/.test(containingFile)) {
+          context.log(
+            `Module resolution in ${containingFile} :: ` +
+              JSON.stringify(
+                moduleNames.map(
+                  (name, index) => `${name} => ${newModuleNames[index]} => ${result[index]?.resolvedFileName}`
+                ),
+                null,
+                2
+              )
+          );
+        }
       }
 
       return result;
@@ -372,6 +376,10 @@ function patchWatchFile(context: PluginContext) {
     context.log(`[patch] Override watchFile to watch virtual files. (ServiceHost)`);
 
     return (fileName, callback, pollingInterval, options) => {
+      if (__DEV__) {
+        context.log(`host.watchFile("${fileName}")`);
+      }
+
       if (isVirtualFile(fileName)) {
         context.watchVirtualFile(fileName, callback);
 
@@ -390,6 +398,16 @@ function patchWatchFile(context: PluginContext) {
 function patchScriptInfo(context: PluginContext, scriptInfo: TS.server.ScriptInfo) {
   if (!scriptInfo) throw new Error('ScriptInfo is required.');
 
+  function triggerFileUpdate(fileName: string) {
+    const scriptInfo = context.projectService.getScriptInfo(fileName);
+
+    if (scriptInfo) {
+      if (__DEV__) context.log(`Taint ${fileName}`);
+      // @ts-ignore - internal method but it's better for performance compared to it's public counter part `reloadFromFile()`.
+      scriptInfo.delayReloadNonMixedContentFile();
+    } else if (__DEV__) context.log(`Cannot find scriptInfo for ${fileName}`);
+  }
+
   tryPatchMethod(scriptInfo, 'editContent', (editContent) => {
     context.log(`[patch] Override editContent() of "${scriptInfo.fileName}" to sync virtual files. (ScriptInfo)`);
 
@@ -398,13 +416,16 @@ function patchScriptInfo(context: PluginContext, scriptInfo: TS.server.ScriptInf
       if (!document) throw new Error('VueTextDocument should exist for every ScriptInfo.');
       const range = { start: document.positionAt(start), end: document.positionAt(end) };
       editContent(start, end, newText);
-      context.log(`UPDATE ${scriptInfo.getLatestVersion()} ==> ${scriptInfo.fileName} ${start}:${end} ${newText}`);
+
       VueTextDocument.update(
         document,
         [{ range, text: newText }],
         getLastNumberFromVersion(scriptInfo.getLatestVersion())
-      );
-      context.triggerVirtualFileWatchers(scriptInfo.fileName, context.typescript.FileWatcherEventKind.Changed);
+      )
+        .all()
+        .forEach((document) => triggerFileUpdate(document.fsPath));
+
+      // context.triggerVirtualFileWatchers(scriptInfo.fileName, context.typescript.FileWatcherEventKind.Changed);
     };
   });
 }

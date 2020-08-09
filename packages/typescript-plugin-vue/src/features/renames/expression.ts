@@ -1,6 +1,6 @@
+import { isSimpleExpressionNode } from '@vuedx/template-ast-types';
+import { TS } from '../../interfaces';
 import { RenameProvider } from './abstract';
-import { isSimpleExpressionNode } from 'packages/template-ast-types/src';
-import { getContainingFile } from 'packages/vue-virtual-textdocument/src';
 
 export const RenameExpression: RenameProvider = {
   version: '*',
@@ -41,22 +41,12 @@ export const RenameExpression: RenameProvider = {
       const mappedPosition = document.getGeneratedOffsetAt(position);
 
       if (mappedPosition?.offset) {
-        const result = config.service
-          .findRenameLocations(fileName, mappedPosition.offset, findInStrings, findInComments)
-          ?.slice();
-
-        console.log(
-          'Try renaming expression in ' +
-            fileName +
-            ' source =>\n' +
-            document.getText() +
-            '\n at ' +
-            document.getText().substr(mappedPosition.offset, mappedPosition.length) +
-            ' result ' +
-            JSON.stringify(result)
-        );
-
-        return result;
+        return config.service.findRenameLocations(
+          fileName,
+          mappedPosition.offset,
+          findInStrings,
+          findInComments
+        ) as TS.RenameLocation[];
       }
     }
   },
