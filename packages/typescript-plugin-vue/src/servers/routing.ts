@@ -281,6 +281,13 @@ function createLanguageServiceRouter(config: LanguageServiceOptions): TS.Languag
 
         result.displayName = REPLACE.virtualFile(result.displayName);
         result.fullDisplayName = REPLACE.virtualFile(result.fullDisplayName);
+
+        if (
+          result.kind === config.context.typescript.ScriptElementKind.moduleElement &&
+          result.displayName.endsWith('.vue')
+        ) {
+          result.triggerSpan.length -= 4;
+        }
       }
 
       return result;
@@ -353,6 +360,50 @@ function createLanguageServiceRouter(config: LanguageServiceOptions): TS.Languag
 
     getApplicableRefactors(fileName, positionOrRange, preferences) {
       return choose(fileName).getApplicableRefactors(fileName, positionOrRange, preferences);
+    },
+
+    getEditsForRefactor(fileName, formatOptions, positionOrRange, refactorName, actionName, preferences) {
+      const result = choose(fileName).getEditsForRefactor(
+        fileName,
+        formatOptions,
+        positionOrRange,
+        refactorName,
+        actionName,
+        preferences
+      );
+
+      const editsByFileName: Record<
+        string,
+        { fileName: string; isNewFile?: boolean; textChanges: TS.TextChange[] }
+      > = {};
+
+      if (result) {
+        result.edits = result.edits.filter((edit) => {
+          if (isVirtualFile(edit.fileName) || isVueFile(edit.fileName)) {
+            edit.fileName = getContainingFile(edit.fileName);
+
+            if (!(edit.fileName in editsByFileName)) {
+              editsByFileName[edit.fileName] = { isNewFile: false, fileName: edit.fileName, textChanges: [] };
+            }
+            editsByFileName[edit.fileName].textChanges.push(...edit.textChanges);
+            editsByFileName[edit.fileName].isNewFile =
+              editsByFileName[edit.fileName].isNewFile || edit.isNewFile === true;
+
+            return false;
+          }
+
+          return true;
+        });
+
+        for (const fileTextChanges of Object.values(editsByFileName)) {
+          fileTextChanges.textChanges.sort((a, b) => a.span.start - b.span.start);
+        }
+
+        result.edits.push(...Object.values<TS.FileTextChanges>(editsByFileName));
+      }
+
+      config.context.log(JSON.stringify(result, null, 2));
+      return result;
     },
   };
 

@@ -6,7 +6,7 @@ import deIndent from 'de-indent';
 import Path from 'path';
 import { TS } from '../../interfaces';
 import { LanguageServiceOptions } from '../../types';
-import { getComponentName, getFilenameForNewComponent, getPaddingLength, indent, isNotNull } from '../../utils';
+import { getComponentName, getFilenameForNewComponent, getPaddingLength, indent } from '../../utils';
 import { RefactorProvider } from './abstract';
 
 export const RefactorExtractComponent: RefactorProvider = {
@@ -84,13 +84,21 @@ export const RefactorExtractComponent: RefactorProvider = {
         actionName === ':current'
           ? Path.dirname(fileName)
           : config.context.config.directories.find((directory) => directory.path)!.path;
+      const info = config.helpers.getComponentInfo(document.container);
       const directoryName = Path.isAbsolute(path) ? path : Path.resolve(project.getCurrentDirectory(), path);
-      const componentFileName = getFilenameForNewComponent(config.context, directoryName);
+      const componentFileName = getFilenameForNewComponent(
+        config.context,
+        directoryName,
+        new Set(info.components.map((component) => component.name))
+      );
       const nodes = findNodes(config, document, position);
       const identifiers = Array.from(
         new Set(nodes.flatMap((node) => node.scope.identifiers.filter((id) => node.scope.getBinding(id) !== node)))
       );
-      const template = nodes.map((node) => node.loc.source).join('');
+      const template = document.container
+        .getDocument('template')!
+        .getText()
+        .substring(nodes[0].loc.start.offset, nodes[nodes.length - 1].loc.end.offset);
       // TODO: detect types of props.
       const script: string[] = [`import { defineComponent } from 'vue'`];
       const components = new Set<string>();
@@ -107,7 +115,7 @@ export const RefactorExtractComponent: RefactorProvider = {
           }
         })
       );
-      const info = config.helpers.getComponentInfo(document.container);
+
       const options = {
         components: `components: {${info.components.reduce((text, { name, source }) => {
           if (components.has(name)) {
@@ -135,17 +143,28 @@ export const RefactorExtractComponent: RefactorProvider = {
         template
       )}\n</template>\n`;
 
-      const { name, changes, renameLocation } = getImportEditForComponent(document.container, info, componentFileName);
+      let { name, changes, renameLocation, isScript } = getImportEditForComponent(
+        document.container,
+        info,
+        componentFileName
+      );
 
-      changes.push({
+      const templateReplacement = {
         newText: `<${name} ${identifiers
           .map((identifer) => `${models.has(identifer) ? 'v-model' : ''}:${identifer}="${identifer}"`)
           .join(' ')}/>`,
         span: {
           start: nodes[0].loc.start.offset,
-          length: nodes.reduce((len, node) => len + node.loc.source.length, 0),
+          length: template.length,
         },
-      });
+      };
+
+      changes.push(templateReplacement);
+
+      // Template is before script, need to adjust rename trigger location.
+      if (isScript && templateReplacement.span.start < renameLocation) {
+        renameLocation = renameLocation - template.length + templateReplacement.newText.length;
+      }
 
       config.context.createVueDocument(componentFileName, code);
 
@@ -207,42 +226,71 @@ function getImportEditForComponent(document: VueTextDocument, info: ComponentInf
   const { script } = document.descriptor;
   const relativeFileName = `./${Path.relative(Path.dirname(document.fsPath), fileName)}`;
   let renameLocation = 0;
+  let isScript = false;
+
   if (script && !script.setup) {
+    isScript = true;
     const newText = `\nimport ${name} from '${relativeFileName}';`;
-    renameLocation = script.loc.start.offset + newText.indexOf(relativeFileName);
+    renameLocation = script.loc.start.offset + newText.indexOf(relativeFileName) + relativeFileName.length - 5;
     changes.push({
       newText,
       span: { start: script.loc.start.offset, length: 0 },
     });
-    const options = info.options;
-    if (options?.properties) {
-      const components = options.properties['components'];
-      if (components) {
-        const start = components.loc.start.offset + 1;
-        const padding = getPaddingLength(components.loc.source, 1);
-        changes.push({
-          newText: components.loc.source.substr(1, padding) + `${name},`,
-          span: { start, length: 0 },
-        });
-      } else if (options) {
-        const start = options.loc.start.offset + 1;
-        const padding = getPaddingLength(options.loc.source, 1);
-        changes.push({
-          newText: options.loc.source.substr(1, padding) + `\ncomponents: { ${name} },`,
-          span: { start, length: 0 },
-        });
-      } else {
-        // TODO: convert setup() to object
-      }
+
+    if (info.options?.properties['components']) {
+      const components = info.options.properties['components'];
+      const start = components.loc.start.offset + 1;
+      const padding = getPaddingLength(components.loc.source, 1);
+      changes.push({
+        newText: components.loc.source.substr(1, padding) + `${name},`,
+        span: { start, length: 0 },
+      });
+    } else if (info.options) {
+      const start = info.options.loc.start.offset + 1;
+      const padding = getPaddingLength(info.options.loc.source, 1);
+      changes.push({
+        newText: info.options.loc.source.substr(1, padding) + `components: { ${name} },`,
+        span: { start, length: 0 },
+      });
+    } else if (info.setup) {
+      changes.push(
+        {
+          newText: `{\n  components: { ${name} },\n setup: `,
+          span: { start: info.setup.loc.start.offset, length: 0 },
+        },
+        {
+          newText: `\n}`,
+          span: { start: info.setup.loc.end.offset, length: 0 },
+        }
+      );
+    } else {
+      changes.push({
+        newText: `\nexport default { components: { ${name} } };\n`,
+        span: { start: script.loc.end.offset, length: 0 },
+      });
     }
-  } else {
+  } else if (script?.setup) {
     const newText = `<component src="./${Path.relative(Path.dirname(document.fsPath), fileName)}" />\n\n`;
     renameLocation = newText.indexOf(relativeFileName);
     changes.push({
       newText,
       span: { start: 0, length: 0 },
     });
+  } else {
+    isScript = false;
+    const newText = `<script>\nimport ${name} from '${relativeFileName}';\nexport default { components: { ${name} } }\n</script>\n\n`;
+    renameLocation = newText.indexOf(relativeFileName) + relativeFileName.length - 5;
+    changes.push({
+      newText,
+      span: { start: 0, length: 0 },
+    });
+
+    // if <script></script>  is there, it should be removed.
+    const m = /^<script[^>]*><\/script>/m.exec(document.getText());
+    if (m) {
+      changes.push({ newText: '', span: { start: m.index, length: m[0].length } });
+    }
   }
 
-  return { name, changes, renameLocation };
+  return { name, changes, renameLocation, isScript };
 }

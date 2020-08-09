@@ -31,12 +31,12 @@ export const RenameComponentTag: RenameProvider = {
           if (node.isSelfClosing || position < node.loc.start.offset + node.tag.length + 1) {
             result.triggerSpan = {
               start: node.loc.start.offset + 1,
-              length: node.tag.length,
+              length: node.tag.length + 4, // Add extra length for .vue
             };
           } else {
             result.triggerSpan = {
               start: node.loc.start.offset + node.loc.source.lastIndexOf('</') + 2,
-              length: node.tag.length,
+              length: node.tag.length + 4, // Add extra length for .vue
             };
           }
         }

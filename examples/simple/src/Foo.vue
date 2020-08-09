@@ -1,9 +1,6 @@
 <script>
 import { defineComponent } from 'vue'
-export default defineComponent({
-  props: ['index', 'item', 'count', 'foo', 'bar'],
-  components: {},
-})
+export default defineComponent(function setup() {})
 </script>
 
 <template>

@@ -142,14 +142,17 @@ export function getPaddingLength(source: string, offset: number = 0) {
   return match ? match[0].length : 0;
 }
 
-export function getFilenameForNewComponent(context: PluginContext, directory: string) {
+export function getFilenameForNewComponent(context: PluginContext, directory: string, usedNames = new Set<string>()) {
+  let name = 'Component';
   let fileName = Path.join(directory, 'Component.vue');
   let index = 0;
+  
   if (context.serviceHost.directoryExists(directory)) {
     const files = new Set(context.serviceHost.readDirectory(directory, ['.vue'], [], [], 1));
 
-    while (files.has(fileName)) {
-      fileName = Path.join(directory, `Component${++index}.vue`);
+    while (files.has(fileName) || usedNames.has(name)) {
+      name = `Component${++index}`;
+      fileName = Path.join(directory, `${name}.vue`);
     }
   }
 

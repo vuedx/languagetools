@@ -188,6 +188,7 @@ function processScript(context: ScriptAnalyzerContext) {
             call(optionsHandlers, options$ as any);
             processOptions(options$ as any);
           } else if (options$.isArrowFunctionExpression() || options$.isFunctionExpression()) {
+            context.component.addSetup('', { loc: createSourceRange(context, options$.node) });
             /**
              * Matches:
              * export default defineComponent(() => {...})
