@@ -9,8 +9,8 @@ A set of tools for better developer experience.
 ## Packages
 
 - [VS Code extension](./extensions) — provides syntax highlight and language support for .vue files. We can't use vetur because it would interfere with the functionality of this project.
-- [TypeScript Plugin](./packages/@vuedx/typescript-plugin-vue) — enables TypeScript language server to understand .vue files.
-- [Vue Virtual TextDocument](./packages/@vuedx/vue-virtual-textdocument) — creates a virtual file system to represent blocks in SFC as files.
+- [TypeScript Plugin](./packages/typescript-plugin-vue) — enables TypeScript language server to understand .vue files.
+- [Vue Virtual TextDocument](./packages/vue-virtual-textdocument) — creates a virtual file system to represent blocks in SFC as files.
 
 ## Roadmap
 
