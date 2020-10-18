@@ -8,12 +8,14 @@ const args = '--max-old-space-size=1024'
 
 names.forEach((name) => {
   console.log()
-  console.log(`${name}: main,module`)
-  cp.execSync(`node ${args} ${bin} -c ${env},FILTER:${name},KIND:default`)
-
-  console.log()
   console.log(`${name}: types`)
   cp.execSync(`node ${args} ${bin} -c ${env},FILTER:${name},KIND:types`)
+})
+
+names.forEach((name) => {
+  console.log()
+  console.log(`${name}: main,module`)
+  cp.execSync(`node ${args} ${bin} -c ${env},FILTER:${name},KIND:default`)
 
   if (name === 'typescript-plugin-vue') {
     console.log()
