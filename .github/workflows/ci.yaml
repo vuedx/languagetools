@@ -27,12 +27,4 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - run: touch coverage/.nojekyll
-      - name: Store coverage
-        if: github.ref == 'master' || github.ref == 'refs/heads/master'
-        uses: JamesIves/github-pages-deploy-action@3.7.1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: coverage
-          CLEAN: true
+      - run: bash <(curl -s https://codecov.io/bash)
