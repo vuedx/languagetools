@@ -108,29 +108,6 @@ const config = [
     external: deps('./packages/analyze/package.json'),
   },
   {
-    input: 'packages/compiler-tsx/src/index.ts',
-    output: [
-      {
-        format: 'esm',
-        file: abs('./packages/compiler-tsx/dist/index.esm.js'),
-        preferConst: true,
-      },
-      {
-        format: 'cjs',
-        file: abs('./packages/compiler-tsx/dist/index.cjs.js'),
-        preferConst: true,
-      },
-    ],
-    plugins: [
-      define(),
-      typescript({
-        tsconfig: abs('./packages/compiler-tsx/tsconfig.build.json'),
-      }),
-    ],
-    external: deps('./packages/compiler-tsx/package.json'),
-  },
-
-  {
     input: 'packages/compiler-sfc/src/index.ts',
     output: [
       {
@@ -179,7 +156,72 @@ const config = [
       'url',
     ],
   },
-
+  {
+    input: 'packages/compiler-tsx/src/index.ts',
+    output: [
+      {
+        format: 'esm',
+        file: abs('./packages/compiler-tsx/dist/index.esm.js'),
+        preferConst: true,
+      },
+      {
+        format: 'cjs',
+        file: abs('./packages/compiler-tsx/dist/index.cjs.js'),
+        preferConst: true,
+      },
+    ],
+    plugins: [
+      define(),
+      typescript({
+        tsconfig: abs('./packages/compiler-tsx/tsconfig.build.json'),
+      }),
+    ],
+    external: deps('./packages/compiler-tsx/package.json'),
+  },
+  {
+    input: 'packages/typecheck/src/index.ts',
+    output: [
+      {
+        format: 'esm',
+        file: abs('./packages/typecheck/dist/index.esm.js'),
+        preferConst: true,
+      },
+      {
+        format: 'cjs',
+        file: abs('./packages/typecheck/dist/index.cjs.js'),
+        preferConst: true,
+      },
+    ],
+    plugins: [
+      define(),
+      typescript({
+        tsconfig: abs('./packages/typecheck/tsconfig.build.json'),
+      }),
+    ],
+    external: deps('./packages/typecheck/package.json'),
+  },
+  {
+    input: 'packages/template-ast-types/src/index.ts',
+    output: [
+      {
+        format: 'esm',
+        file: abs('./packages/template-ast-types/dist/index.esm.js'),
+        preferConst: true,
+      },
+      {
+        format: 'cjs',
+        file: abs('./packages/template-ast-types/dist/index.cjs.js'),
+        preferConst: true,
+      },
+    ],
+    plugins: [
+      define(),
+      typescript({
+        tsconfig: abs('./packages/template-ast-types/tsconfig.build.json'),
+      }),
+    ],
+    external: deps('./packages/template-ast-types/package.json'),
+  },
   {
     input: 'packages/typescript-plugin-vue/src/index.ts',
     output: [
@@ -250,28 +292,6 @@ const config = [
       }),
     ],
     external: deps('./packages/typescript-vetur/package.json'),
-  },
-  {
-    input: 'packages/template-ast-types/src/index.ts',
-    output: [
-      {
-        format: 'esm',
-        file: abs('./packages/template-ast-types/dist/index.esm.js'),
-        preferConst: true,
-      },
-      {
-        format: 'cjs',
-        file: abs('./packages/template-ast-types/dist/index.cjs.js'),
-        preferConst: true,
-      },
-    ],
-    plugins: [
-      define(),
-      typescript({
-        tsconfig: abs('./packages/template-ast-types/tsconfig.build.json'),
-      }),
-    ],
-    external: deps('./packages/template-ast-types/package.json'),
   },
   {
     input: 'packages/vue-virtual-textdocument/src/index.ts',
