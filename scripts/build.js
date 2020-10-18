@@ -16,10 +16,4 @@ names.forEach((name) => {
   console.log()
   console.log(`${name}: main,module`)
   cp.execSync(`node ${args} ${bin} -c ${env},FILTER:${name},KIND:default`)
-
-  if (name === 'typescript-plugin-vue') {
-    console.log()
-    console.log(`${name}: standalone`)
-    cp.execSync(`node ${args} ${bin} -c ${env},FILTER:${name},KIND:standalone`)
-  }
 })

@@ -1,11 +1,9 @@
 import resolve from '@rollup/plugin-node-resolve'
-import json from '@rollup/plugin-json'
-import commonjs from '@rollup/plugin-commonjs'
-import typescript from '@rollup/plugin-typescript'
 import replace from '@rollup/plugin-replace'
-import dts from 'rollup-plugin-dts'
+import typescript from '@rollup/plugin-typescript'
 import MagicString from 'magic-string'
 import Path from 'path'
+import dts from 'rollup-plugin-dts'
 
 function abs(fileName) {
   return Path.resolve(__dirname, fileName)
@@ -198,7 +196,11 @@ const config = [
         tsconfig: abs('./packages/typecheck/tsconfig.build.json'),
       }),
     ],
-    external: deps('./packages/typecheck/package.json'),
+    external: [
+      'typescript/lib/tsserverlibrary',
+      'path',
+      ...deps('./packages/typecheck/package.json'),
+    ],
   },
   {
     input: 'packages/template-ast-types/src/index.ts',
@@ -249,31 +251,6 @@ const config = [
       'fs',
       'perf_hooks',
     ],
-  },
-  {
-    input: 'packages/typescript-plugin-vue/src/index.ts',
-    output: {
-      format: 'cjs',
-      file: abs('./packages/typescript-plugin-vue/dist/standalone.cjs.js'),
-      preferConst: true,
-      exports: 'default',
-    },
-    plugins: [
-      define(),
-      typescript({
-        tsconfig: abs('./packages/typescript-plugin-vue/tsconfig.build.json'),
-      }),
-      resolve({ preferBuiltins: true }),
-      commonjs(),
-      json(),
-    ],
-    context: 'undefined',
-    external: ['path', 'fs', 'perf_hooks', 'tty', 'util', 'os'],
-    onwarn(warning, handle) {
-      if (['CIRCULAR_DEPENDENCY', 'THIS_IS_UNDEFINED'].includes(warning.code))
-        return
-      handle(warning)
-    },
   },
   {
     input: 'packages/typescript-vetur/src/index.ts',
