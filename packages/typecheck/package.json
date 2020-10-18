@@ -2,9 +2,9 @@
   "name": "@vuedx/typecheck",
   "version": "0.2.4-0",
   "description": "TypeScript plugin for Vue",
-  "main": "dist/typecheck.js",
+  "main": "dist/index.cjs.js",
   "bin": "bin/typecheck.js",
-  "types": "dist/typecheck.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {},
   "keywords": [],
   "files": [
@@ -14,19 +14,12 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "dependencies": {
-    "@vue/compiler-core": "*",
-    "@vue/compiler-sfc": "*",
     "@vuedx/typescript-plugin-vue": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "chalk": "^4.1.0",
     "minimist": "^1.2.5"
   },
-  "build": {
-    "external": [
-      "typescript/lib/tsserverlibrary"
-    ]
-  },
   "devDependencies": {
-    "typescript": "^3.9.7"
+    "typescript": "^4.0.3"
   }
 }

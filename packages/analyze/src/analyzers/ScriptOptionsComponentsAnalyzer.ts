@@ -1,5 +1,12 @@
 import { Binding, NodePath } from '@babel/traverse';
-import { ImportDeclaration, isIdentifier, isObjectExpression, isObjectProperty, ObjectProperty } from '@babel/types';
+import {
+  ImportDeclaration,
+  isIdentifier,
+  isObjectExpression,
+  isObjectProperty,
+  isStringLiteral,
+  ObjectProperty,
+} from '@babel/types';
 import { ImportSource } from '../component';
 import { Plugin, ScriptAnalyzerContext } from '../types';
 import { createSourceRange } from '../utilities';
@@ -57,7 +64,7 @@ function resolveComponentInformation(
 
           return {
             moduleName: parent.source.value,
-            exportName: node.imported.name,
+            exportName: isStringLiteral(node.imported) ? node.imported.value : node.imported.name,
             localName: node.local.name,
             loc: createSourceRange(context, parent),
           };

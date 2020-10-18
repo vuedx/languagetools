@@ -1,6 +1,6 @@
 import { PluginContext } from './context';
 import { TS } from './interfaces';
-import { createServerHelper } from './utils';
+import { createServerHelper } from './helpers/utils';
 
 export type ServerHelper = ReturnType<typeof createServerHelper>;
 

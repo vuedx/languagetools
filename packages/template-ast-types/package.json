@@ -2,9 +2,9 @@
 	"name": "@vuedx/template-ast-types",
 	"version": "0.2.4-0",
 	"description": "Helper functions for Vue template AST",
-	"main": "dist/template-ast-types.js",
-	"module": "dist/template-ast-types.esm.js",
-	"types": "dist/template-ast-types.d.ts",
+	"main": "dist/index.cjs.js",
+	"module": "dist/index.esm.js",
+	"types": "dist/index.d.ts",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/znck/vue-developer-experience.git"
@@ -24,9 +24,9 @@
 	},
 	"homepage": "https://github.com/znck/vue-developer-experience#readme",
 	"dependencies": {
-		"@vue/compiler-core": "^3.0.0-rc.5"
+		"@vue/compiler-core": "^3.0.0"
 	},
 	"devDependencies": {
-		"typescript": "^3.9.7"
+		"typescript": "^4.0.3"
 	}
 }

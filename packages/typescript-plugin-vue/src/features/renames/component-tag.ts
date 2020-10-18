@@ -1,18 +1,33 @@
-import { ComponentNode } from '@vue/compiler-core';
-import { isComponentNode, traverseFast } from '@vuedx/template-ast-types';
-import { getContainingFile, isVirtualFile, isVueFile } from '@vuedx/vue-virtual-textdocument';
-import { TS } from '../../interfaces';
-import { computeIdentifierReplacement, getComponentName } from '../../utils';
-import { RenameProvider } from './abstract';
+import { isComponentNode, t, traverseFast } from '@vuedx/template-ast-types'
+import {
+  getContainingFile,
+  isVirtualFile,
+  isVueFile,
+} from '@vuedx/vue-virtual-textdocument'
+import {
+  computeIdentifierReplacement,
+  getComponentName,
+} from '../../helpers/utils'
+import { TS } from '../../interfaces'
+import { RenameProvider } from './abstract'
 
 export const RenameComponentTag: RenameProvider = {
   version: '*',
   canRename(config, fileName, position, options) {
-    const { node, document } = config.helpers.findNodeAtPosition(fileName, position);
-    if (isComponentNode(node) && isPositionInTagName(position, node) && document) {
-      const info = config.helpers.getComponentInfo(document.container);
-      const name = node.tag;
-      const component = info.components.find((component) => component.name === name);
+    const { node, document } = config.helpers.findNodeAtPosition(
+      fileName,
+      position,
+    )
+    if (
+      isComponentNode(node) &&
+      isPositionInTagName(position, node) &&
+      document
+    ) {
+      const info = config.helpers.getComponentInfo(document.container)
+      const name = node.tag
+      const component = info.components.find(
+        (component) => component.name === name,
+      )
 
       if (
         component &&
@@ -22,33 +37,44 @@ export const RenameComponentTag: RenameProvider = {
         getComponentName(component.source.moduleName) === name
       ) {
         // Ask to rename file instead.
-        const newPosition = component.source.loc.start.offset + component.source.loc.source.lastIndexOf(name);
-        const result = config.service.getRenameInfo(document.container.getDocumentFileName('script')!, newPosition, {
-          allowRenameOfImportPath: true,
-        });
+        const newPosition =
+          component.source.loc.start.offset +
+          component.source.loc.source.lastIndexOf(name)
+        const result = config.service.getRenameInfo(
+          document.container.getDocumentFileName('script')!,
+          newPosition,
+          {
+            allowRenameOfImportPath: true,
+          },
+        )
 
         if (result.canRename) {
-          if (node.isSelfClosing || position < node.loc.start.offset + node.tag.length + 1) {
+          if (
+            node.isSelfClosing ||
+            position < node.loc.start.offset + node.tag.length + 1
+          ) {
             result.triggerSpan = {
               start: node.loc.start.offset + 1,
               length: node.tag.length + 4, // Add extra length for .vue
-            };
+            }
           } else {
             result.triggerSpan = {
-              start: node.loc.start.offset + node.loc.source.lastIndexOf('</') + 2,
+              start:
+                node.loc.start.offset + node.loc.source.lastIndexOf('</') + 2,
               length: node.tag.length + 4, // Add extra length for .vue
-            };
+            }
           }
         }
 
-        return result;
+        return result
       }
 
       if (!component) {
         return {
           canRename: false,
-          localizedErrorMessage: 'Global component (with unknown source file) cannot be renamed.',
-        };
+          localizedErrorMessage:
+            'Global component (with unknown source file) cannot be renamed.',
+        }
       }
 
       return {
@@ -62,15 +88,24 @@ export const RenameComponentTag: RenameProvider = {
           start: node.loc.start.offset + 1,
           length: node.tag.length,
         },
-      };
+      }
     }
   },
   applyRename(config, fileName, position, findInStrings, findInComments) {
-    const { node, document } = config.helpers.findNodeAtPosition(fileName, position);
-    if (isComponentNode(node) && isPositionInTagName(position, node) && document) {
-      const info = config.helpers.getComponentInfo(document.container);
-      const name = node.tag;
-      const component = info.components.find((component) => component.name === name);
+    const { node, document } = config.helpers.findNodeAtPosition(
+      fileName,
+      position,
+    )
+    if (
+      isComponentNode(node) &&
+      isPositionInTagName(position, node) &&
+      document
+    ) {
+      const info = config.helpers.getComponentInfo(document.container)
+      const name = node.tag
+      const component = info.components.find(
+        (component) => component.name === name,
+      )
       if (
         component &&
         component.kind === 'script' &&
@@ -78,67 +113,88 @@ export const RenameComponentTag: RenameProvider = {
         component.source.moduleName.endsWith('.vue') &&
         getComponentName(component.source.moduleName) === name
       ) {
-        const newPosition = component.source.loc.start.offset + component.source.loc.source.lastIndexOf(name);
+        const newPosition =
+          component.source.loc.start.offset +
+          component.source.loc.source.lastIndexOf(name)
         // Ask to rename file instead.
         return config.service
           .findRenameLocations(
             document.container.getDocumentFileName('script')!,
             newPosition,
             findInStrings,
-            findInComments
+            findInComments,
           )
-          ?.slice();
+          ?.slice()
       }
-      const renameLocations: TS.RenameLocation[] = [];
+      const renameLocations: TS.RenameLocation[] = []
       if (component) {
         if (component.kind === 'script') {
           // if component is registered with an alias, then update to reflect in template.
           if (component.source.localName !== component.name) {
             renameLocations.push({
               fileName: document.container.fsPath,
-              textSpan: { start: component.loc.start.offset, length: component.loc.source.length },
-              ...computeIdentifierReplacement(component.loc.source, component.name),
-            });
+              textSpan: {
+                start: component.loc.start.offset,
+                length: component.loc.source.length,
+              },
+              ...computeIdentifierReplacement(
+                component.loc.source,
+                component.name,
+              ),
+            })
           }
           // update the import statement.
           else {
-            const { prefixText } = computeIdentifierReplacement(component.loc.source, component.source.localName);
+            const { prefixText } = computeIdentifierReplacement(
+              component.loc.source,
+              component.source.localName,
+            )
             const locations = config.service.findRenameLocations(
               document.container.getDocumentFileName('script')!,
               component.loc.start.offset + prefixText.length,
               findInStrings,
-              findInComments
-            );
-            const start = component.source.loc.start.offset;
-            const end = component.source.loc.end.offset;
+              findInComments,
+            )
+            const start = component.source.loc.start.offset
+            const end = component.source.loc.end.offset
             if (locations) {
-              const vueFileName = document.container.fsPath;
+              const vueFileName = document.container.fsPath
               locations.forEach((location) => {
                 if (
                   isVirtualFile(location.fileName) &&
                   getContainingFile(location.fileName) === vueFileName &&
                   !location.fileName.endsWith('_render.tsx') &&
-                  (location.textSpan.start < start || end < location.textSpan.start)
+                  (location.textSpan.start < start ||
+                    end < location.textSpan.start)
                 ) {
                   // rename locations except in render file and component registration location.
-                  renameLocations.push(location);
+                  renameLocations.push(location)
                 }
-              });
+              })
             }
             const importReplacement = computeIdentifierReplacement(
               component.source.loc.source,
-              component.source.localName
-            );
+              component.source.localName,
+            )
             // add alias to named import.
-            if (component.source.exportName && !importReplacement.prefixText.trim().endsWith(' as')) {
-              importReplacement.prefixText = importReplacement.prefixText + component.source.exportName + ' as ';
+            if (
+              component.source.exportName &&
+              !importReplacement.prefixText.trim().endsWith(' as')
+            ) {
+              importReplacement.prefixText =
+                importReplacement.prefixText +
+                component.source.exportName +
+                ' as '
             }
 
             renameLocations.unshift({
               fileName: document.container.fsPath,
-              textSpan: { start: component.source.loc.start.offset, length: component.source.loc.source.length },
+              textSpan: {
+                start: component.source.loc.start.offset,
+                length: component.source.loc.source.length,
+              },
               ...importReplacement,
-            });
+            })
           }
         } else {
           // TODO: Support <component /> block.
@@ -150,55 +206,85 @@ export const RenameComponentTag: RenameProvider = {
               if (component.aliases.includes(node.tag)) {
                 renameLocations.push({
                   fileName: document.container.fsPath,
-                  textSpan: { start: node.loc.start.offset + 1, length: node.tag.length },
-                });
+                  textSpan: {
+                    start: node.loc.start.offset + 1,
+                    length: node.tag.length,
+                  },
+                })
 
                 if (!node.isSelfClosing) {
                   renameLocations.push({
                     fileName: document.container.fsPath,
                     textSpan: {
-                      start: node.loc.start.offset + node.loc.source.lastIndexOf('</' + node.tag) + 2,
+                      start:
+                        node.loc.start.offset +
+                        node.loc.source.lastIndexOf('</' + node.tag) +
+                        2,
                       length: node.tag.length,
                     },
-                  });
+                  })
                 }
               }
             }
-          });
+          })
         }
       }
 
-      return renameLocations;
+      return renameLocations
     }
-    return undefined;
+    return undefined
   },
-  applyFileRename(config, containerFile, oldFileName, newFileName, options, preferences) {
-    const fileTextChanges: TS.FileTextChanges[] = [];
+  applyFileRename(
+    config,
+    containerFile,
+    oldFileName,
+    newFileName,
+    options,
+    preferences,
+  ) {
+    const fileTextChanges: TS.FileTextChanges[] = []
     if (isVueFile(oldFileName)) {
-      const document = config.helpers.getRenderDoc(containerFile);
+      const document = config.helpers.getRenderDoc(containerFile)
 
       if (document) {
-        const name = getComponentName(oldFileName);
-        const newName = getComponentName(newFileName);
-        const info = config.helpers.getComponentInfo(document.container);
-        const component = info.components.find((component) => component.name === name);
+        const name = getComponentName(oldFileName)
+        const newName = getComponentName(newFileName)
+        const info = config.helpers.getComponentInfo(document.container)
+        const component = info.components.find(
+          (component) => component.name === name,
+        )
         if (component) {
-          const script = document.container.getDocument('script');
+          const script = document.container.getDocument('script')
           if (script) {
-            const position = Math.max(component.loc.end.offset - 2, component.loc.start.offset);
-            const renameInfo = config.service.getRenameInfo(script.fsPath, position);
+            const position = Math.max(
+              component.loc.end.offset - 2,
+              component.loc.start.offset,
+            )
+            const renameInfo = config.service.getRenameInfo(
+              script.fsPath,
+              position,
+            )
             if (renameInfo.canRename) {
-              const edits = config.service.findRenameLocations(script.fsPath, position, false, false);
+              const edits = config.service.findRenameLocations(
+                script.fsPath,
+                position,
+                false,
+                false,
+              )
               if (edits) {
-                const fileName = document.container.fsPath;
+                const fileName = document.container.fsPath
                 fileTextChanges.push({
                   fileName: fileName,
                   textChanges: edits
-                    .filter((edit) => isVirtualFile(edit.fileName) && getContainingFile(edit.fileName) === fileName)
+                    .filter(
+                      (edit) =>
+                        isVirtualFile(edit.fileName) &&
+                        getContainingFile(edit.fileName) === fileName,
+                    )
                     .map((edit) => ({ span: edit.textSpan, newText: newName })),
-                });
+                })
 
-                const textChanges: TS.TextChange[] = [];
+                const textChanges: TS.TextChange[] = []
 
                 // update tags in template
                 if (document.ast) {
@@ -207,24 +293,30 @@ export const RenameComponentTag: RenameProvider = {
                       if (component.aliases.includes(node.tag)) {
                         textChanges.push({
                           newText: newName,
-                          span: { start: node.loc.start.offset + 1, length: node.tag.length },
-                        });
+                          span: {
+                            start: node.loc.start.offset + 1,
+                            length: node.tag.length,
+                          },
+                        })
 
                         if (!node.isSelfClosing) {
                           textChanges.push({
                             newText: newName,
                             span: {
-                              start: node.loc.start.offset + node.loc.source.lastIndexOf('</' + node.tag) + 2,
+                              start:
+                                node.loc.start.offset +
+                                node.loc.source.lastIndexOf('</' + node.tag) +
+                                2,
                               length: node.tag.length,
                             },
-                          });
+                          })
                         }
                       }
                     }
-                  });
+                  })
                 }
 
-                fileTextChanges.push({ fileName, textChanges: textChanges });
+                fileTextChanges.push({ fileName, textChanges: textChanges })
               }
             }
           }
@@ -232,15 +324,16 @@ export const RenameComponentTag: RenameProvider = {
       }
     }
 
-    if (fileTextChanges.length) return fileTextChanges;
+    if (fileTextChanges.length) return fileTextChanges
   },
-};
+}
 
-function isPositionInTagName(position: number, node: ComponentNode) {
+function isPositionInTagName(position: number, node: t.ComponentNode) {
   return (
     // In start tag.
     position <= node.loc.start.offset + node.tag.length ||
     // In end tag.
-    (!node.isSelfClosing && node.loc.start.offset + node.loc.source.lastIndexOf('</') <= position)
-  );
+    (!node.isSelfClosing &&
+      node.loc.start.offset + node.loc.source.lastIndexOf('</') <= position)
+  )
 }

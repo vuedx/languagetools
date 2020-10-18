@@ -1,4 +1,4 @@
-import { VueTextDocument, VirtualTextDocument } from '../src/documents/vue';
+import { VueTextDocument, VirtualTextDocument } from '../src/documents/VueTextDocument';
 import { parseVirtualFileName } from '../src/utils';
 
 describe('VueTextDocument', () => {

@@ -17,7 +17,7 @@ import {
   SFCScriptBlock,
   SFCStyleBlock,
   SFCTemplateBlock,
-} from '@vue/compiler-sfc';
+} from '@vuedx/compiler-sfc';
 import { ComponentInfoFactory } from './component';
 
 export interface Context {

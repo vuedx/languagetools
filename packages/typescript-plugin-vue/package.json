@@ -2,8 +2,8 @@
   "name": "@vuedx/typescript-plugin-vue",
   "version": "0.2.4-0",
   "description": "TypeScript plugin for Vue",
-  "main": "dist/typescript-plugin-vue.js",
-  "types": "dist/typescript-plugin-vue.d.ts",
+  "main": "dist/index.cjs.js",
+  "types": "dist/index.d.ts",
   "private": false,
   "scripts": {},
   "keywords": [],
@@ -13,21 +13,16 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "dependencies": {
-    "@vue/compiler-core": "^3.0.0-rc.5",
     "@vuedx/analyze": "workspace:*",
     "@vuedx/template-ast-types": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "de-indent": "^1.0.2",
     "quick-lru": "^5.1.1",
-    "typescript": "^3.9.7",
     "vscode-uri": "^2.1.2"
   },
-  "build": {
-    "external": [
-      "consolidate"
-    ]
-  },
   "devDependencies": {
-    "vscode-languageserver-textdocument": "^1.0.1"
+    "typescript": "^4.0.3",
+    "vscode-languageserver-textdocument": "^1.0.1",
+    "@vuedx/compiler-tsx": "workspace:*"
   }
 }

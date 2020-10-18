@@ -1,4 +1,4 @@
 export * from './utils';
 export * from './types';
 export * from './store';
-export * from './documents/vue';
+export * from './documents/VueTextDocument';

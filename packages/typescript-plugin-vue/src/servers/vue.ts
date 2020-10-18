@@ -1,155 +1,194 @@
-import { isNumber, isVirtualFile, isVueFile, VirtualTextDocument } from '@vuedx/vue-virtual-textdocument';
-import { PluginConfig, TS } from '../interfaces';
-import { LanguageServiceOptions } from '../types';
-import { noop } from './noop';
-import { createTemplateLanguageServer } from './template';
+import {
+  isNumber,
+  isVirtualFile,
+  isVueFile,
+  VirtualTextDocument,
+} from '@vuedx/vue-virtual-textdocument'
+import { wrapInTrace } from '../helpers/logger'
+import { PluginConfig, TS } from '../interfaces'
+import { LanguageServiceOptions } from '../types'
+import { noop } from './noop'
+import { createTemplateLanguageServer } from './template'
 
-type GetElementType<T> = T extends (infer U)[] ? U : T;
-export function createVueLanguageServer(options: LanguageServiceOptions): TS.LanguageService {
-  const template = createTemplateLanguageServer(options);
-  const { helpers: h, service: script, context } = options;
+type GetElementType<T> = T extends (infer U)[] ? U : T
+export function createVueLanguageServer(
+  options: LanguageServiceOptions,
+): TS.LanguageService {
+  const template = createTemplateLanguageServer(options)
+  const { helpers: h, service: script, context } = options
 
   function isFeatureEnabled<K extends keyof PluginConfig['features']>(
     featureName: K,
-    checkFor: boolean | GetElementType<PluginConfig['features'][K]> = true
+    checkFor: boolean | GetElementType<PluginConfig['features'][K]> = true,
   ): boolean {
-    const feature = context.config.features[featureName];
+    const feature = context.config.features[featureName]
 
-    return Array.isArray(feature) ? feature.includes(checkFor) : feature === checkFor;
+    return Array.isArray(feature)
+      ? feature.includes(checkFor)
+      : feature === checkFor
   }
 
   function choose(document: VirtualTextDocument) {
-    const scriptInfo = context.projectService.getScriptInfo(document.fsPath);
-    const snapshot = scriptInfo?.getSnapshot();
+    const scriptInfo = context.projectService.getScriptInfo(document.fsPath)
+    const snapshot = scriptInfo?.getSnapshot()
     context.log(
       'Incoming request for ' +
         document.fsPath +
         ' :: ' +
         scriptInfo?.getLatestVersion() +
         '\n' +
-        snapshot?.getText(0, snapshot?.getLength())
-    );
+        snapshot?.getText(0, snapshot?.getLength()),
+    )
 
-    const internal = document.container.getDocument('_internal');
-    context.log('Incoming request for ' + internal.fsPath + ' :: ' + internal.version + '\n' + internal.getText());
+    const internal = document.container.getDocument('_internal')
+    context.log(
+      'Incoming request for ' +
+        internal.fsPath +
+        ' :: ' +
+        internal.version +
+        '\n' +
+        internal.getText(),
+    )
 
-    return h.isRenderFunctionDocument(document) ? template : script;
+    return h.isRenderFunctionDocument(document) ? template : script
   }
 
-  return {
+  return wrapInTrace('VueLanguageServer', {
     ...noop,
 
     getSemanticDiagnostics(fileName) {
       if (!isFeatureEnabled('diagnostics', 'semantic')) {
-        return [];
+        return []
       }
 
-      const document = h.getVueDocument(fileName);
-      const diagnostics: TS.Diagnostic[] = [];
+      const document = h.getVueDocument(fileName)
+      const diagnostics: TS.Diagnostic[] = []
       if (document) {
-        ['script', '_render'].forEach((selector) => {
-          const virtual = document.getDocument(selector);
+        ;['script', '_render'].forEach((selector) => {
+          const virtual = document.getDocument(selector)
 
           if (virtual) {
-            const results = choose(virtual).getSemanticDiagnostics(virtual.fsPath);
-            diagnostics.push(...results);
+            const results = choose(virtual).getSemanticDiagnostics(
+              virtual.fsPath,
+            )
+            diagnostics.push(...results)
           }
-        });
+        })
       }
 
-      return diagnostics;
+      return diagnostics
     },
 
     getSuggestionDiagnostics(fileName) {
       if (!isFeatureEnabled('diagnostics', 'suggestion')) {
-        return [];
+        return []
       }
 
-      const document = h.getVueDocument(fileName);
+      const document = h.getVueDocument(fileName)
 
-      const diagnostics: TS.DiagnosticWithLocation[] = [];
+      const diagnostics: TS.DiagnosticWithLocation[] = []
       if (document) {
-        ['script', '_render'].forEach((selector) => {
-          const virtual = document.getDocument(selector);
+        ;['script', '_render'].forEach((selector) => {
+          const virtual = document.getDocument(selector)
 
-          if (virtual) diagnostics.push(...choose(virtual).getSuggestionDiagnostics(virtual.fsPath));
-        });
+          if (virtual)
+            diagnostics.push(
+              ...choose(virtual).getSuggestionDiagnostics(virtual.fsPath),
+            )
+        })
       }
 
-      return diagnostics;
+      return diagnostics
     },
 
     getSyntacticDiagnostics(fileName) {
       if (!isFeatureEnabled('diagnostics', 'syntactic')) {
-        return [];
+        return []
       }
 
-      const document = h.getVueDocument(fileName);
+      const document = h.getVueDocument(fileName)
 
-      const diagnostics: TS.DiagnosticWithLocation[] = [];
+      const diagnostics: TS.DiagnosticWithLocation[] = []
       if (document) {
-        ['script', '_render'].forEach((selector) => {
-          const virtual = document.getDocument(selector);
+        ;['script', '_render'].forEach((selector) => {
+          const virtual = document.getDocument(selector)
 
-          if (virtual) diagnostics.push(...choose(virtual).getSyntacticDiagnostics(virtual.fsPath));
-        });
+          if (virtual)
+            diagnostics.push(
+              ...choose(virtual).getSyntacticDiagnostics(virtual.fsPath),
+            )
+        })
       }
 
-      return diagnostics;
+      return diagnostics
     },
 
     organizeImports(scope, formatOptions, preferences) {
-      if (!isFeatureEnabled('organizeImports')) return [];
+      if (!isFeatureEnabled('organizeImports')) return []
 
-      const document = h.getVueDocument(scope.fileName);
+      const document = h.getVueDocument(scope.fileName)
       if (document) {
-        const virtual = document.getDocument('script') || document.getDocument('scriptSetup');
+        const virtual =
+          document.getDocument('script') || document.getDocument('scriptSetup')
         if (virtual) {
-          return script.organizeImports({ ...scope, fileName: virtual.fsPath }, formatOptions, preferences);
+          return script.organizeImports(
+            { ...scope, fileName: virtual.fsPath },
+            formatOptions,
+            preferences,
+          )
         }
       }
 
-      return [];
+      return []
     },
 
     getQuickInfoAtPosition(fileName, position) {
-      if (!isFeatureEnabled('quickInfo')) return;
+      if (!isFeatureEnabled('quickInfo')) return
 
       // TODO: Provide better quick info for components and props.
-      const document = h.getDocumentAt(fileName, position);
-      if (document) return choose(document).getQuickInfoAtPosition(document.fsPath, position);
+      const document = h.getDocumentAt(fileName, position)
+      if (document)
+        return choose(document).getQuickInfoAtPosition(
+          document.fsPath,
+          position,
+        )
     },
-    getRenameInfo(fileName, position, options) {
-      if (!isFeatureEnabled('rename')) return { canRename: false, localizedErrorMessage: 'Rename feature disabled.' };
 
-      const document = h.getDocumentAt(fileName, position);
+    getRenameInfo(fileName, position, options) {
+      if (!isFeatureEnabled('rename'))
+        return {
+          canRename: false,
+          localizedErrorMessage: 'Rename feature disabled.',
+        }
+
+      const document = h.getDocumentAt(fileName, position)
 
       if (!document) {
         return {
           canRename: false,
           localizedErrorMessage: 'Cannot find this Vue file.',
-        };
+        }
       }
 
-      return choose(document).getRenameInfo(document.fsPath, position, options);
+      return choose(document).getRenameInfo(document.fsPath, position, options)
     },
 
     findRenameLocations(fileName, position, findInStrings, findInComments) {
-      if (!isFeatureEnabled('rename')) return [];
-      const document = h.getVueDocument(fileName);
-      if (!document) return;
-      const block = document.blockAt(position);
-      if (!block) return;
+      if (!isFeatureEnabled('rename')) return []
+      const document = h.getVueDocument(fileName)
+      if (!document) return
+      const block = document.blockAt(position)
+      if (!block) return
 
-      const result: TS.RenameLocation[] = [];
+      const result: TS.RenameLocation[] = []
       if (block.type === 'template') {
         const fromTemplate = template.findRenameLocations(
           document.getDocumentFileName('_render')!,
           position,
           findInStrings,
-          findInComments
-        );
-        if (fromTemplate) result.push(...fromTemplate);
+          findInComments,
+        )
+        if (fromTemplate) result.push(...fromTemplate)
       }
 
       if (block.type === 'script') {
@@ -157,63 +196,99 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
           document.getDocumentFileName('script')!,
           position,
           findInStrings,
-          findInComments
-        );
-        if (fromScript) result.push(...fromScript);
+          findInComments,
+        )
+        if (fromScript) result.push(...fromScript)
       }
 
-      return result;
+      return result
     },
 
-    getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences) {
-      if (!isFeatureEnabled('rename')) return [];
-      const document = h.getVueDocument(oldFilePath);
-      const fileTextChanges: TS.FileTextChanges[] = [];
-      const visited = new Set<string>();
+    getEditsForFileRename(
+      oldFilePath,
+      newFilePath,
+      formatOptions,
+      preferences,
+    ) {
+      if (!isFeatureEnabled('rename')) return []
+      const document = h.getVueDocument(oldFilePath)
+      const fileTextChanges: TS.FileTextChanges[] = []
+      const visited = new Set<string>()
 
       if (document) {
-        const component = document.getDocument('_module');
+        const component = document.getDocument('_module')
         const currentChanges = script.getEditsForFileRename(
           component.fsPath,
           component.fsPath.replace(oldFilePath, newFilePath),
           formatOptions,
-          preferences
-        );
+          preferences,
+        )
 
-        fileTextChanges.push(...currentChanges);
+        fileTextChanges.push(...currentChanges)
 
         currentChanges.forEach((item) => {
           if (isVirtualFile(item.fileName) || isVueFile(item.fileName)) {
-            const render = h.getVueDocument(item.fileName)?.getDocument('_render');
+            const render = h
+              .getVueDocument(item.fileName)
+              ?.getDocument('_render')
             if (render && !visited.has(render.fsPath)) {
-              visited.add(render.fsPath);
-              fileTextChanges.push(...template.getEditsForFileRenameIn(render.fsPath, oldFilePath, newFilePath));
+              visited.add(render.fsPath)
+              fileTextChanges.push(
+                ...template.getEditsForFileRenameIn(
+                  render.fsPath,
+                  oldFilePath,
+                  newFilePath,
+                ),
+              )
             }
           }
-        });
+        })
       }
 
-      return fileTextChanges;
+      return fileTextChanges
     },
 
     getApplicableRefactors(fileName, positionOrRange, preferences) {
-      if (!isFeatureEnabled('refactor')) return [];
+      if (!isFeatureEnabled('refactor')) return []
 
-      const document = h.getDocumentAt(fileName, isNumber(positionOrRange) ? positionOrRange : positionOrRange.pos);
-      const document2 = h.getDocumentAt(fileName, isNumber(positionOrRange) ? positionOrRange : positionOrRange.end);
+      const document = h.getDocumentAt(
+        fileName,
+        isNumber(positionOrRange) ? positionOrRange : positionOrRange.pos,
+      )
+      const document2 = h.getDocumentAt(
+        fileName,
+        isNumber(positionOrRange) ? positionOrRange : positionOrRange.end,
+      )
 
       if (document && document === document2) {
-        return choose(document).getApplicableRefactors(document.fsPath, positionOrRange, preferences);
+        return choose(document).getApplicableRefactors(
+          document.fsPath,
+          positionOrRange,
+          preferences,
+        )
       }
 
-      return [];
+      return []
     },
 
-    getEditsForRefactor(fileName, formatOptions, positionOrRange, refactorName, actionName, preferences) {
-      if (!isFeatureEnabled('refactor')) return;
+    getEditsForRefactor(
+      fileName,
+      formatOptions,
+      positionOrRange,
+      refactorName,
+      actionName,
+      preferences,
+    ) {
+      if (!isFeatureEnabled('refactor')) return
 
-      const document = h.getDocumentAt(fileName, isNumber(positionOrRange) ? positionOrRange : positionOrRange.pos);
-      const document2 = h.getDocumentAt(fileName, isNumber(positionOrRange) ? positionOrRange : positionOrRange.end);
+      const document = h.getDocumentAt(
+        fileName,
+        isNumber(positionOrRange) ? positionOrRange : positionOrRange.pos,
+      )
+      const document2 = h.getDocumentAt(
+        fileName,
+        isNumber(positionOrRange) ? positionOrRange : positionOrRange.end,
+      )
 
       if (document && document === document2) {
         return choose(document).getEditsForRefactor(
@@ -222,9 +297,19 @@ export function createVueLanguageServer(options: LanguageServiceOptions): TS.Lan
           positionOrRange,
           refactorName,
           actionName,
-          preferences
-        );
+          preferences,
+        )
       }
     },
-  };
+
+    getDefinitionAndBoundSpan(fileName, position) {
+      const document = h.getDocumentAt(fileName, position)
+
+      if (document) {
+        return choose(document).getDefinitionAndBoundSpan(document.fsPath, position)
+      }
+
+      return undefined
+    },
+  })
 }

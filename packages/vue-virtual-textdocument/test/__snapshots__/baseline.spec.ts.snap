@@ -1,104 +1,92 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`VueVirtualDocument/baseline rename-component-tag/src/FooBar.vue 1`] = `
-import _Ctx from './FooBar.vue?internal'
+exports[`VueVirtualDocument/baseline javascript/src/App.vue 1`] = `
+import _Ctx from './App.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
 
 
 export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<div/>/*@@vue:end*/
+  return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
 }
 // Version 0
 
 `;
 
-exports[`VueVirtualDocument/baseline rename-component-tag/src/error-in-script.vue 1`] = `
-import _Ctx from './error-in-script.vue?internal'
+exports[`VueVirtualDocument/baseline javascript/src/components/HelloWorld.vue 1`] = `
+import _Ctx from './HelloWorld.vue?internal'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<div><Foo>{{
-    default: () => (<><Bar>{{
-      default: () => (<><Baz>{{
-        default: () => (<><GlobalComponent1>{{
-          default: () => (<><div/><GlobalComponent2/><Foo/><Bar/><Baz/></>)
-        }}</GlobalComponent1></>)
-      }}</Baz></>)
-    }}</Bar></>)
-  }}</Foo></div>/*@@vue:end*/
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
 }
 // Version 0
 
 `;
 
-exports[`VueVirtualDocument/baseline rename-component-tag/src/script-template.vue 1`] = `
-import _Ctx from './script-template.vue?internal'
-import FooBar from './FooBar.vue'
-import Foo from './template.vue'
-import { Transition as Bar } from 'vue'
-import { Fragment as Baz } from 'vue'
+exports[`VueVirtualDocument/baseline javascript-with-config/src/App.vue 1`] = `
+import _Ctx from './App.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
 
 
 export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<FooBar>{{
-    default: () => (<><Foo>{{
-      default: () => (<><Bar>{{
-        default: () => (<><Baz>{{
-          default: () => (<><GlobalComponent1>{{
-            default: () => (<><FooBar/><GlobalComponent2/><Foo/><Bar/><Baz/></>)
-          }}</GlobalComponent1></>)
-        }}</Baz></>)
-      }}</Bar></>)
-    }}</Foo></>)
-  }}</FooBar>/*@@vue:end*/
+  return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
 }
 // Version 0
 
 `;
 
-exports[`VueVirtualDocument/baseline rename-component-tag/src/template.vue 1`] = `
-import _Ctx from './template.vue?internal'
+exports[`VueVirtualDocument/baseline javascript-with-config/src/components/HelloWorld.vue 1`] = `
+import _Ctx from './HelloWorld.vue?internal'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<div><GlobalComponent1>{{
-    default: () => (<><div/><GlobalComponent2/></>)
-  }}</GlobalComponent1></div>/*@@vue:end*/
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
 }
 // Version 0
 
 `;
 
-exports[`VueVirtualDocument/baseline rename-component-tag/src/template-script.vue 1`] = `
-import _Ctx from './template-script.vue?internal'
-import FooBar from './FooBar.vue'
-import Foo from './template.vue'
-import { Transition as Bar } from 'vue'
-import { Fragment as Baz } from 'vue'
+exports[`VueVirtualDocument/baseline typescript/src/App.vue 1`] = `
+import _Ctx from './App.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
 
 
 export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<FooBar>{{
-    default: () => (<><Foo>{{
-      default: () => (<><Bar>{{
-        default: () => (<><Baz>{{
-          default: () => (<><GlobalComponent1>{{
-            default: () => (<><FooBar/><GlobalComponent2/><Foo/><Bar/><Baz/></>)
-          }}</GlobalComponent1></>)
-        }}</Baz></>)
-      }}</Bar></>)
-    }}</Foo></>)
-  }}</FooBar>/*@@vue:end*/
+  return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
 }
 // Version 0
 
 `;
 
-exports[`VueVirtualDocument/baseline rename-element-tag/src/fixture.vue 1`] = `
-import _Ctx from './fixture.vue?internal'
+exports[`VueVirtualDocument/baseline typescript/src/components/HelloWorld.vue 1`] = `
+import _Ctx from './HelloWorld.vue?internal'
+
+
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
+}
+// Version 0
+
+`;
+
+exports[`VueVirtualDocument/baseline typescript-with-config/src/App.vue 1`] = `
+import _Ctx from './App.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
 
 
 export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<main><header>Title</header><section><p>Example</p><input type="text"/></section></main>/*@@vue:end*/
+  return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
+}
+// Version 0
+
+`;
+
+exports[`VueVirtualDocument/baseline typescript-with-config/src/components/HelloWorld.vue 1`] = `
+import _Ctx from './HelloWorld.vue?internal'
+
+
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
 }
 // Version 0
 

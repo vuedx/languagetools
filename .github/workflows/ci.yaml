@@ -1,0 +1,38 @@
+name: CI
+
+on: [push, pull_request]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14.9.0'
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v1.2.0
+        with:
+          version: 5.5.4
+          run_install: |
+            - args: [--frozen-lockfile, --silent]
+      - name: Build
+        run: pnpm run build
+      - name: Test
+        run: pnpm test
+
+      - run: touch coverage/.nojekyll
+      - name: Store coverage
+        if: github.ref == 'master' || github.ref == 'refs/heads/master'
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: coverage
+          CLEAN: true

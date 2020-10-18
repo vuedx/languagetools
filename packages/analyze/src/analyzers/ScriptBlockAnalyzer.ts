@@ -1,16 +1,10 @@
 import { parse } from '@babel/parser';
 import traverse, { NodePath } from '@babel/traverse';
-import {
-  isIdentifier,
-  ObjectExpression,
-  ObjectMember,
-  ExportDefaultDeclaration,
-  CallExpression,
-  ObjectMethod,
-} from '@babel/types';
-import { SFCScriptBlock } from '@vue/compiler-sfc';
+import type * as t from '@babel/types';
+import { isIdentifier } from '@babel/types';
+import { SFCScriptBlock } from '@vuedx/compiler-sfc';
 import { Context, Plugin, ScriptAnalyzerContext } from '../types';
-import { isNotNull, createSourceRange } from '../utilities';
+import { createSourceRange, isNotNull } from '../utilities';
 
 export const ScriptBlockAnalyzer: Plugin = {
   blocks: {
@@ -112,12 +106,12 @@ function processScript(context: ScriptAnalyzerContext) {
     });
   }
 
-  function processOptions(options$: NodePath<ObjectExpression>) {
-    const properties$ = options$.get('properties') as NodePath[];
+  function processOptions(options$: NodePath<t.ObjectExpression>) {
+    const properties$ = options$.get('properties') as NodePath<t.ObjectExpression['properties'][0]>[];
     context.component.addOption('', { loc: createSourceRange(context, options$.node) });
     properties$.forEach((property$) => {
       if (property$.isObjectMember()) {
-        const { key } = property$.node as ObjectMember;
+        const { key } = property$.node;
 
         if (isIdentifier(key)) {
           const name = key.name;
@@ -145,32 +139,32 @@ function processScript(context: ScriptAnalyzerContext) {
     });
   }
 
-  traverse(context.ast as any, {
-    enter(path) {
-      call(enterHandlers, path as any);
+  traverse(context.ast, {
+    enter(path: NodePath<t.Node>) {
+      call(enterHandlers, path);
     },
-    exit(path) {
-      call(exitHandlers, path as any);
+    exit(path: NodePath<t.Node>) {
+      call(exitHandlers, path);
     },
-    ExportDefaultDeclaration(path) {
+    ExportDefaultDeclaration(path: NodePath<t.ExportDefaultDeclaration>) {
       if (context.mode === 'setup') return;
-      const d$ = path.get('declaration');
+      const d$ = path.get('declaration') as NodePath<t.ExportDefaultDeclaration['declaration']>;
       /**
        * Matches:
        * export default {}
        */
       if (d$.isObjectExpression()) {
-        const declaration$: NodePath<ObjectExpression> = d$ as any;
-        call(declarationHandlers, declaration$ as any);
-        call(optionsHandlers, declaration$ as any);
-        processOptions(declaration$ as any);
+        const declaration$ = d$ as NodePath<t.ObjectExpression>;
+        call(declarationHandlers, declaration$ as NodePath<t.Node>);
+        call(optionsHandlers, declaration$);
+        processOptions(declaration$);
       } else if (d$.isCallExpression()) {
-        const declaration$: NodePath<CallExpression> = d$ as any;
+        const declaration$ = d$ as NodePath<t.CallExpression>;
         /**
          * Matches:
          * export default fn(...)
          */
-        const { callee, arguments: args } = declaration$.node;
+        const { callee } = declaration$.node;
         const args$ = declaration$.get('arguments');
         let options$ = ((Array.isArray(args$) ? args$[0] : args$) as unknown) as NodePath;
 

@@ -2,9 +2,9 @@
   "name": "@vuedx/compiler-tsx",
   "version": "0.2.4-0",
   "description": "",
-  "main": "dist/compiler-tsx.js",
-  "module": "dist/compiler-tsx.esm.js",
-  "types": "dist/compiler-tsx.d.ts",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "keywords": [],
   "files": [
     "dist"
@@ -12,9 +12,9 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "dependencies": {
-    "@babel/parser": "^7.11.0",
-    "@babel/types": "^7.11.0",
-    "@vue/compiler-core": "^3.0.0-rc.5",
+    "@babel/parser": "7.12.3",
+    "@babel/types": "7.12.1",
+    "@vue/compiler-core": "^3.0.1",
     "@vuedx/template-ast-types": "workspace:*",
     "lodash.camelcase": "^4.3.0"
   },
@@ -23,6 +23,6 @@
     "chalk": "^4.1.0",
     "cli-highlight": "^2.1.4",
     "prettier": "^2.0.5",
-    "typescript": "^3.9.7"
+    "typescript": "^4.0.3"
   }
 }

@@ -1,21 +1,15 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "module": "ESNext",
-    "target": "ES2018",
-    "moduleResolution": "node",
-    "strict": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "sourceMap": true,
-    "declaration": true,
-    "lib": ["ES2020"],
-
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
       "@vuedx/*": ["packages/*/src/index.ts"]
     }
   },
-  "include": ["types/*", "packages/*/src/**/*"],
-  "exclude": ["examples/**"]
+  "include": ["types/*.ts", "packages/*/src/**/*.ts", "test/"],
+  "exclude": ["examples/**"],
+  "typeAcquisition": {
+    "enable": false
+  }
 }

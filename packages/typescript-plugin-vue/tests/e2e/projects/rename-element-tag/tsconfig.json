@@ -1,7 +1,0 @@
-{
-  "include": ["src"],
-  "compilerOptions": {
-    "noLib": true,
-    "noResolve": true
-  }
-}

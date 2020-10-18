@@ -1,0 +1,39 @@
+{
+  "filename": "component.vue",
+  "source": "<template>\n  <div>Hellow</div>\n</template>\n",
+  "template": {
+    "type": "template",
+    "content": "\n  <div>Hellow</div>\n",
+    "loc": {
+      "source": "\n  <div>Hellow</div>\n",
+      "start": {
+        "column": 11,
+        "line": 1,
+        "offset": 10
+      },
+      "end": {
+        "column": 1,
+        "line": 3,
+        "offset": 31
+      }
+    },
+    "attrs": {},
+    "map": {
+      "version": 3,
+      "sources": [
+        "component.vue"
+      ],
+      "names": [],
+      "mappings": ";EACE,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC",
+      "file": "component.vue",
+      "sourceRoot": "",
+      "sourcesContent": [
+        "<template>\n  <div>Hellow</div>\n</template>\n"
+      ]
+    }
+  },
+  "script": null,
+  "scriptSetup": null,
+  "styles": [],
+  "customBlocks": []
+}

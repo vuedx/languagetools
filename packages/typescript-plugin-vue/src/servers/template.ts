@@ -1,7 +1,7 @@
 import QuickLRU from 'quick-lru';
 import { TS } from '../interfaces';
 import { LanguageServiceOptions } from '../types';
-import { isNotNull } from '../utils';
+import { isNotNull } from '../helpers/utils';
 import { noop } from './noop';
 import { RENAME_PROVIDERS } from '../features/renames';
 import { REFACTOR_PROVIDERS } from '../features/refactors';

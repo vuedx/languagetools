@@ -12,7 +12,7 @@ import {
 } from '@vuedx/vue-virtual-textdocument';
 import { URI } from 'vscode-uri';
 import { TS, PluginConfig } from './interfaces';
-import { tryPatchMethod } from './patcher';
+import { tryPatchMethod } from './helpers/patcher';
 
 function getLastNumberFromVersion(version: string) {
   const parts = version.split(/[^0-9]+/);

@@ -1,6 +1,5 @@
 import { RenameProvider } from './abstract';
-import { isTemplateNode, isPlainElementNode } from '@vuedx/template-ast-types';
-import { PlainElementNode } from '@vue/compiler-core';
+import { t, isTemplateNode, isPlainElementNode } from '@vuedx/template-ast-types';
 import { LanguageServiceOptions } from '../../types';
 import { TS } from '../../interfaces';
 
@@ -50,7 +49,7 @@ export const RenameElementTag: RenameProvider = {
   },
 };
 
-function isPositionInTagName(position: number, node: PlainElementNode) {
+function isPositionInTagName(position: number, node: t.PlainElementNode) {
   return (
     // In start tag.
     position <= node.loc.start.offset + node.tag.length ||

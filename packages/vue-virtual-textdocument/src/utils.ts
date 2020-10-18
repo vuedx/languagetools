@@ -1,4 +1,4 @@
-import { SFCBlock } from '@vue/compiler-sfc';
+import { SFCBlock } from '@vuedx/compiler-sfc';
 import { URI } from 'vscode-uri';
 import { Selector } from './types';
 

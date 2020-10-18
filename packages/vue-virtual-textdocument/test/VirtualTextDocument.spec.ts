@@ -1,5 +1,8 @@
-import { RenderFunctionTextDocument as RenderFunctionDocument, VueTextDocument } from '../src/documents/vue';
-import { RENDER_SELECTOR } from '../src/types';
+import {
+  RenderFunctionTextDocument as RenderFunctionDocument,
+  VueTextDocument,
+} from '../src/documents/VueTextDocument'
+import { RENDER_SELECTOR } from '../src/types'
 
 describe('VirtualTextDocument', () => {
   const doc = VueTextDocument.create(
@@ -16,64 +19,70 @@ describe('VirtualTextDocument', () => {
       '  <Bar v-slot="{ foo }"> {{ foo + bar }} </Bar>', // Line 3
       '</template>', // Line 4
       '<script lang="ts">export default {}</script>',
-    ].join('\n')
-  );
+    ].join('\n'),
+  )
 
   test(`render function document is created`, () => {
-    expect(doc.getDocument(RENDER_SELECTOR)).toBeInstanceOf(RenderFunctionDocument);
-  });
+    expect(doc.getDocument(RENDER_SELECTOR)).toBeInstanceOf(
+      RenderFunctionDocument,
+    )
+  })
 
   test(`render function is genterated`, () => {
-    expect(doc.getDocument(RENDER_SELECTOR)!.getText()).toEqual(expect.stringContaining(`export function render(`));
-  });
+    expect(doc.getDocument(RENDER_SELECTOR)!.getText()).toEqual(
+      expect.stringContaining(`export function render(`),
+    )
+  })
 
   test(`can find soure position from generated`, () => {
-    const source = doc.descriptor.template!.content;
-    const render = doc.getDocument(RENDER_SELECTOR)!;
+    const source = doc.descriptor.template!.content
+    const render = doc.getDocument(RENDER_SELECTOR)!
     const start = render.getText().indexOf('/*@@vue:start*/')
-    let offset = render.getText().indexOf('foo.bar', start);
+    let offset = render.getText().indexOf('foo.bar', start)
     {
-      const original = render.getOriginalOffsetAt(offset)!.offset;
-      expect(source.substr(original, 7)).toBe('foo.bar');
-    }
-    
-    {
-      const original = render.getOriginalOffsetAt(offset + 4)!.offset;
-      expect(source.substr(original, 3)).toBe('bar');
-    }
-
-    offset = render.getText().indexOf('foo.bar', offset + 1);
-    {
-      const original = render.getOriginalOffsetAt(offset)!.offset;
-      expect(source.substr(original, 7)).toBe('foo.bar');
-    }
-    {
-      const original = render.getOriginalOffsetAt(offset + 4)!.offset;
-      expect(source.substr(original, 3)).toBe('bar');
+      const original = render.getOriginalOffsetAt(offset)!.offset
+      expect(source.substr(original, 7)).toBe('foo.bar')
     }
 
     {
-      const original = render.getOriginalOffsetAt(render.getText().indexOf('foos', start))!.offset;
-      expect(source.substr(original, 4)).toBe('foos');
+      const original = render.getOriginalOffsetAt(offset + 4)!.offset
+      expect(source.substr(original, 3)).toBe('bar')
     }
-  });
+
+    offset = render.getText().indexOf('foo.bar', offset + 1)
+    {
+      const original = render.getOriginalOffsetAt(offset)!.offset
+      expect(source.substr(original, 7)).toBe('foo.bar')
+    }
+    {
+      const original = render.getOriginalOffsetAt(offset + 4)!.offset
+      expect(source.substr(original, 3)).toBe('bar')
+    }
+
+    {
+      const original = render.getOriginalOffsetAt(
+        render.getText().indexOf('foos', start),
+      )!.offset
+      expect(source.substr(original, 4)).toBe('foos')
+    }
+  })
 
   test(`can find generated position from source`, () => {
-    const source = doc.descriptor.template!.content;
-    const render = doc.getDocument(RENDER_SELECTOR)!;
-    const code = render.getText();
-    const offset = source.indexOf('foo.bar');
+    const source = doc.descriptor.template!.content
+    const render = doc.getDocument(RENDER_SELECTOR)!
+    const code = render.getText()
+    const offset = source.indexOf('foo.bar')
     {
-      const original = render.getGeneratedOffsetAt(offset)!.offset;
-      expect(code.substr(original, 7)).toBe('foo.bar');
+      const original = render.getGeneratedOffsetAt(offset)!.offset
+      expect(code.substr(original, 7)).toBe('foo.bar')
     }
     {
-      const original = render.getGeneratedOffsetAt(offset + 4)!.offset;
-      expect(code.substr(original, 3)).toBe('bar');
+      const original = render.getGeneratedOffsetAt(offset + 4)!.offset
+      expect(code.substr(original, 3)).toBe('bar')
     }
     {
-      const original = render.getGeneratedOffsetAt(offset + 10)!.offset;
-      expect(code.substr(original, 3)).toBe('bar');
+      const original = render.getGeneratedOffsetAt(offset + 10)!.offset
+      expect(code.substr(original, 3)).toBe('bar')
     }
-  });
-});
+  })
+})

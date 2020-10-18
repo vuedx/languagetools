@@ -1,6 +1,6 @@
-import ts, { server as TypeScriptServer, DiagnosticWithLocation, Diagnostic } from 'typescript/lib/tsserverlibrary'; // TODO: Load from current directory.
+import { getContainingFile, isVirtualFile } from '@vuedx/vue-virtual-textdocument';
 import Path from 'path';
-import { getContainingFile, isVirtualFile, isVueFile, parseVirtualFileName } from '@vuedx/vue-virtual-textdocument';
+import ts, { Diagnostic, DiagnosticWithLocation, server as TypeScriptServer } from 'typescript/lib/tsserverlibrary'; // TODO: Load from current directory.
 
 export function generateCodeFrame(
   source: string,

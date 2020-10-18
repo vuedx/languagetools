@@ -1,5 +1,5 @@
 import { Context, Plugin } from './types';
-import { parse, SFCBlock } from '@vue/compiler-sfc';
+import { parse, SFCBlock } from '@vuedx/compiler-sfc';
 import { createComponentInfoFactory } from './component';
 
 const parsers: Context['parsers'] = {

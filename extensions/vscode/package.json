@@ -246,7 +246,7 @@
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13",
-    "vue": "^3.0.0-rc.5"
+    "vue": "^3.0.0"
   },
   "devDependencies": {
     "@types/vscode": "^1.47.0",
@@ -255,7 +255,7 @@
     "mocha": "^7.2.0",
     "rollup": "^2.23.0",
     "rollup-plugin-typescript2": "^0.27.1",
-    "typescript": "^3.9.7",
+    "typescript": "^4.0.3",
     "vscode-test": "^1.4.0",
     "yaml": "^1.10.0"
   }

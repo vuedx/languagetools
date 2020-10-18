@@ -1,8 +1,0 @@
-{
-  "include": ["src/"],
-  "compilerOptions": {
-    "jsx": "preserve",
-    "noImplicitAny": true,
-    "strict": true
-  }
-}

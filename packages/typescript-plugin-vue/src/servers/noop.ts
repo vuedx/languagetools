@@ -1,131 +1,168 @@
-import { TS } from '../interfaces';
+import type { TS } from '../interfaces'
 
 export const noop: TS.LanguageService = {
+  toggleLineComment(fileName, textRange) {
+    return []
+  },
+
+  toggleMultilineComment(fileName, textRange) {
+    return []
+  },
+
+  commentSelection(fileName, textRange) {
+    return []
+  },
+
+  uncommentSelection(fileName, textRange) {
+    return []
+  },
+
   getRenameInfo(fileName, position, options) {
     return {
       canRename: false,
       localizedErrorMessage: 'Not implemented.',
-    };
+    }
   },
 
   findRenameLocations(fileName, position, findInStrings, findInComments) {
-    return undefined;
+    return undefined
   },
 
   getApplicableRefactors(fileName, positionOrRange, preferences) {
-    return [];
+    return []
   },
 
   getBraceMatchingAtPosition(fileName, position) {
-    return [];
+    return []
   },
 
   getBreakpointStatementAtPosition(fileName, position) {
-    return undefined;
+    return undefined
   },
 
-  getCodeFixesAtPosition(fileName, start, end, errorCodes, formatOptions, preferences) {
-    return [];
+  getCodeFixesAtPosition(
+    fileName,
+    start,
+    end,
+    errorCodes,
+    formatOptions,
+    preferences,
+  ) {
+    return []
   },
 
   getCombinedCodeFix(scope, fixId, formatOptions, preferences) {
     return {
       changes: [],
-    };
+    }
   },
 
   getCompilerOptionsDiagnostics() {
-    return [];
+    return []
   },
 
-  getCompletionEntryDetails(fileName, position, entryName, formatOptions, source, preferences) {
-    return undefined;
+  getCompletionEntryDetails(
+    fileName,
+    position,
+    entryName,
+    formatOptions,
+    source,
+    preferences,
+  ) {
+    return undefined
   },
 
   getCompletionEntrySymbol(fileName, position, name, source) {
-    return undefined;
+    return undefined
   },
 
   getCompletionsAtPosition(fileName, position, options) {
-    return undefined;
+    return undefined
   },
 
   getDefinitionAndBoundSpan(fileName, position) {
-    return undefined;
+    return undefined
   },
 
   getDefinitionAtPosition(fileName, position) {
-    return undefined;
+    return undefined
   },
 
   getDocCommentTemplateAtPosition(fileName, position) {
-    return undefined;
+    return undefined
   },
 
   getDocumentHighlights(fileName, position, filesToSearch) {
-    return undefined;
+    return undefined
   },
 
   getEditsForFileRename(oldFilePath, newFilePath, formatOptions, preferences) {
-    return [];
+    return []
   },
 
-  getEditsForRefactor(fileName, formatOptions, positionOrRange, refactorName, actionName, preferences) {
-    return undefined;
+  getEditsForRefactor(
+    fileName,
+    formatOptions,
+    positionOrRange,
+    refactorName,
+    actionName,
+    preferences,
+  ) {
+    return undefined
   },
 
   getEmitOutput(fileName) {
-    return { outputFiles: [], emitSkipped: true };
+    return { outputFiles: [], emitSkipped: true }
   },
 
   getEncodedSemanticClassifications(fileName, span) {
     return {
       spans: [],
       endOfLineState: 0,
-    };
+    }
   },
 
   getEncodedSyntacticClassifications(fileName, span) {
     return {
       spans: [],
       endOfLineState: 0,
-    };
+    }
   },
 
   getFormattingEditsAfterKeystroke(fileName, position, key, options) {
-    return [];
+    return []
   },
 
   getFormattingEditsForDocument(fileName, options) {
-    return [];
+    return []
   },
 
   getFormattingEditsForRange(fileName, start, end, options) {
-    return [];
+    return []
   },
 
   getImplementationAtPosition(fileName, position) {
-    return undefined;
+    return undefined
   },
 
   getIndentationAtPosition(fileName, position, options) {
-    return 0;
+    return 0
   },
 
   getJsxClosingTagAtPosition(fileName, position) {
-    return undefined;
+    return undefined
   },
 
   getNameOrDottedNameSpan(fileName, startPos, endPos) {
-    return undefined;
+    return undefined
   },
 
   getNavigateToItems(searchValue) {
-    return [];
+    return []
   },
 
   getNavigationBarItems(fileName) {
-    return [];
+    return []
   },
 
   getNavigationTree(fileName) {
@@ -135,102 +172,102 @@ export const noop: TS.LanguageService = {
       kindModifiers: 'component',
       spans: [],
       nameSpan: undefined,
-    };
+    }
   },
 
   getOccurrencesAtPosition(fileName, position) {
-    return undefined;
+    return undefined
   },
 
   getOutliningSpans(fileName) {
-    return [];
+    return []
   },
 
   getQuickInfoAtPosition(fileName, position) {
-    return undefined;
+    return undefined
   },
 
   getReferencesAtPosition(fileName, position) {
-    return undefined;
+    return undefined
   },
 
   getSemanticClassifications(fileName, span) {
-    return [];
+    return []
   },
 
   getSemanticDiagnostics(fileName) {
-    return [];
+    return []
   },
 
   getSignatureHelpItems(fileName, position, options) {
-    return undefined;
+    return undefined
   },
 
   getSmartSelectionRange(fileName, position) {
     return {
       textSpan: { start: position, length: 0 },
-    };
+    }
   },
 
   getSpanOfEnclosingComment(fileName, position, onlyMultiLine) {
-    return undefined;
+    return undefined
   },
 
   getSuggestionDiagnostics(fileName) {
-    return [];
+    return []
   },
 
   getSyntacticClassifications(fileName, span) {
-    return [];
+    return []
   },
 
   getSyntacticDiagnostics(fileName) {
-    return [];
+    return []
   },
 
   getTodoComments(fileName, descriptors) {
-    return [];
+    return []
   },
 
   getTypeDefinitionAtPosition(fileName, position) {
-    return [];
+    return []
   },
 
   findReferences(fileName, position) {
-    return undefined;
+    return undefined
   },
 
   prepareCallHierarchy(fileName, position) {
-    return undefined;
+    return undefined
   },
 
   provideCallHierarchyIncomingCalls(fileName, position) {
-    return [];
+    return []
   },
 
   provideCallHierarchyOutgoingCalls(fileName, position) {
-    return [];
+    return []
   },
 
   isValidBraceCompletionAtPosition(fileName, position, openingBrace) {
-    return false;
+    return false
   },
 
   organizeImports(scope, formatOptions, preferences) {
-    return [];
+    return []
   },
 
   getProgram() {
-    throw new Error('Not Implemented');
+    throw new Error('Not Implemented')
   },
 
   cleanupSemanticCache() {
-    throw new Error('Not Implemented');
+    throw new Error('Not Implemented')
   },
   dispose() {
-    throw new Error('Not Implemented');
+    throw new Error('Not Implemented')
   },
   applyCodeActionCommand() {
-    return Promise.reject('Not Implemented');
+    return Promise.reject('Not Implemented')
   },
-};
+}
