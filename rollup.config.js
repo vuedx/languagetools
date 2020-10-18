@@ -300,22 +300,26 @@ const config = [
 ]
 
 export default config
-  .filter(
-    (config) =>
-      typeof config.input === 'string' &&
-      config.input.match(process.env.FILTER ?? ''),
-  )
-  .filter((config) =>
-    process.env.TYPES != 'no'
-      ? true
-      : Array.isArray(config.output) || !config.output.file?.endsWith('.d.ts'),
-  )
-  .filter((config) =>
-    process.env.STANDALONE == 'yes'
-      ? true
-      : Array.isArray(config.output) ||
-        !config.output.file?.includes('standalone'),
-  )
+  .filter((config) => input(config).match(process.env.FILTER ?? ''))
+  .filter((config) => kind(config).match(process.env.KIND ?? 'default'))
+
+/**
+ * @param {import('rollup').RollupOptions} config
+ */
+function kind(config) {
+  if (Array.isArray(config.output)) return 'default'
+  if (config.output.file.endsWith('.d.ts')) return 'types'
+  if (config.output.file.includes('standalone')) return 'standalone'
+  return 'none'
+}
+
+/**
+ * @param {import('rollup').RollupOptions} config
+ */
+function input(config) {
+  if (typeof config.input === 'string') return config.input
+  return ''
+}
 
 /**
  * @returns {import('rollup').Plugin}

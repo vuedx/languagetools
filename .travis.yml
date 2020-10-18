@@ -21,5 +21,5 @@ before_install:
 install:
   - pnpm install
 script:
-  - pnpm run build
+  - node scripts/build.js
   - pnpm test

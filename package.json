@@ -1,9 +1,12 @@
 {
   "private": true,
+  "engines": {
+    "node": ">=14.0"
+  },
   "scripts": {
     "test": "jest",
     "watch": "rollup -c --environment BUILD:development --watch",
-    "build": "rollup -c --environment BUILD:production,STANDALONE:yes",
+    "build": "rollup -c --environment BUILD:production",
     "prepublishOnly": "npm run build",
     "beta:release": "npm run release -- prerelease",
     "prerelease": "tsc --noEmit",

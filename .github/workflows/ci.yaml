@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2-beta
         with:
-          node-version: '14.9.0'
+          node-version: '14.14.0'
       - name: Setup PNPM
         uses: pnpm/action-setup@v1.2.0
         with:
@@ -23,7 +23,7 @@ jobs:
           run_install: |
             - args: [--frozen-lockfile, --silent]
       - name: Build
-        run: pnpm run build
+        run: node scripts/build.js
       - name: Test
         run: pnpm test
 
