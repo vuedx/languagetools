@@ -23,7 +23,7 @@ describe('quickinfo', () => {
       },
     })
   })
-
+  afterEach(async () => await server.flush())
   afterAll(async () => await server.close())
 
   const sources = [

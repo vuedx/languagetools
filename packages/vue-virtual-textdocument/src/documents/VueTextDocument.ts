@@ -309,10 +309,6 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
         this.expressionsMap[code.substr(p[0], p[1])] = [p[2], p[3]];
       });
 
-      if (__DEV__) {
-        return this.result.code + `\n// Version ${this.container.version}\n`;
-      }
-
       return this.result.code;
     }
   }

@@ -1,6 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`VueVirtualDocument/baseline feature-quickinfo/src/Javascript.vue 1`] = ``;
+exports[`VueVirtualDocument/baseline feature-quickinfo/src/Javascript.vue 1`] = `
+import _Ctx from './Javascript.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
+
+
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<HelloWorld name="Jane"/>/*@@vue:end*/
+}
+`;
 
 exports[`VueVirtualDocument/baseline feature-quickinfo/src/Typescript.vue 1`] = `
 import _Ctx from './Typescript.vue?internal'
@@ -10,8 +18,6 @@ import HelloWorld from './components/HelloWorld.vue'
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<HelloWorld name="Jane"/>/*@@vue:end*/
 }
-// Version 0
-
 `;
 
 exports[`VueVirtualDocument/baseline feature-quickinfo/src/components/HelloWorld.vue 1`] = `
@@ -21,8 +27,6 @@ import _Ctx from './HelloWorld.vue?internal'
 export function render({name}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
 }
-// Version 0
-
 `;
 
 exports[`VueVirtualDocument/baseline javascript/src/App.vue 1`] = `
@@ -33,8 +37,6 @@ import HelloWorld from './components/HelloWorld.vue'
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
 }
-// Version 0
-
 `;
 
 exports[`VueVirtualDocument/baseline javascript/src/components/HelloWorld.vue 1`] = `
@@ -44,8 +46,6 @@ import _Ctx from './HelloWorld.vue?internal'
 export function render({name}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
 }
-// Version 0
-
 `;
 
 exports[`VueVirtualDocument/baseline javascript-with-config/src/App.vue 1`] = `
@@ -56,8 +56,6 @@ import HelloWorld from './components/HelloWorld.vue'
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
 }
-// Version 0
-
 `;
 
 exports[`VueVirtualDocument/baseline javascript-with-config/src/components/HelloWorld.vue 1`] = `
@@ -67,8 +65,6 @@ import _Ctx from './HelloWorld.vue?internal'
 export function render({name}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
 }
-// Version 0
-
 `;
 
 exports[`VueVirtualDocument/baseline typescript/src/App.vue 1`] = `
@@ -79,8 +75,6 @@ import HelloWorld from './components/HelloWorld.vue'
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
 }
-// Version 0
-
 `;
 
 exports[`VueVirtualDocument/baseline typescript/src/components/HelloWorld.vue 1`] = `
@@ -90,8 +84,6 @@ import _Ctx from './HelloWorld.vue?internal'
 export function render({name}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
 }
-// Version 0
-
 `;
 
 exports[`VueVirtualDocument/baseline typescript-with-config/src/App.vue 1`] = `
@@ -102,8 +94,6 @@ import HelloWorld from './components/HelloWorld.vue'
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
 }
-// Version 0
-
 `;
 
 exports[`VueVirtualDocument/baseline typescript-with-config/src/components/HelloWorld.vue 1`] = `
@@ -113,6 +103,4 @@ import _Ctx from './HelloWorld.vue?internal'
 export function render({name}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
 }
-// Version 0
-
 `;

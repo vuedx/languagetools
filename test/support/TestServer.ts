@@ -221,8 +221,13 @@ export class TestServer {
     }
   }
 
-  // Type definitions to pair event with messages.
+  public async flush(): Promise<void> {
+    this.responses.length = 0
+    this.events.length = 0
+    this.requests.length = 0
+  }
 
+  // Type definitions to pair event with messages.
   public async waitForIdle(): Promise<void> {
     await this.waitForEvent('requestCompleted')
   }

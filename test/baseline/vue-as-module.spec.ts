@@ -23,6 +23,7 @@ beforeAll(async () => {
     },
   })
 })
+afterEach(async () => await server.flush())
 afterAll(async () => await server.close())
 
 describe.each(projects)('project: %s', (project) => {
