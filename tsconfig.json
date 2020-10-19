@@ -4,7 +4,8 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@vuedx/*": ["packages/*/src/index.ts"]
+      "@vuedx/*": ["packages/*/src/index.ts"],
+      "test/*": ["test/*"]
     }
   },
   "include": ["types/*.ts", "packages/*/src/**/*.ts", "test/"],

@@ -7,7 +7,7 @@ module.exports = {
     __DEV__: true,
     'ts-jest': {
       packageJson: 'package.json',
-      tsconfig: 'tsconfig.base.json',
+      tsconfig: 'tsconfig.json',
     },
   },
   coverageReporters: ['json', 'lcov', 'text', 'clover', 'html-spa'],
@@ -18,6 +18,7 @@ module.exports = {
     '!**/dist/**',
   ],
   moduleNameMapper: {
-    '@vuedx/(.+)$': '<rootDir>packages/$1/src/index.ts',
+    '^@vuedx/(.+)$': '<rootDir>packages/$1/src/index.ts',
+    '^test/(.+)$': '<rootDir>test/$1',
   },
 }

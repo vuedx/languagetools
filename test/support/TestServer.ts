@@ -250,35 +250,39 @@ export class TestServer {
 
   public async sendCommand(
     command: 'configure' | Proto.CommandTypes.Configure,
-    args: Proto.ConfigureRequestArguments,
+    args: Proto.ConfigureRequest['arguments'],
   ): Promise<Proto.ConfigureResponse>
 
   public async sendCommand(
     command:
       | 'compilerOptionsForInferredProjects'
       | Proto.CommandTypes.CompilerOptionsForInferredProjects,
-    args: Proto.SetCompilerOptionsForInferredProjectsArgs,
+    args: Proto.SetCompilerOptionsForInferredProjectsRequest['arguments'],
   ): Promise<Proto.SetCompilerOptionsForInferredProjectsResponse>
 
   public async sendCommand(
     command: 'updateOpen' | Proto.CommandTypes.UpdateOpen,
-    args: Proto.UpdateOpenRequestArgs,
+    args: Proto.UpdateOpenRequest['arguments'],
   ): Promise<Proto.Response>
 
   public async sendCommand(
     command: 'geterr' | Proto.CommandTypes.Geterr,
-    args: Proto.GeterrRequestArgs,
+    args: Proto.GeterrRequest['arguments'],
   ): Promise<Proto.Response>
 
   public async sendCommand(
     command:
       | 'definitionAndBoundSpan'
       | Proto.CommandTypes.DefinitionAndBoundSpan,
-    args: Proto.FileLocationRequestArgs,
+    args: Proto.DefinitionAndBoundSpanRequest['arguments'],
   ): Promise<Proto.DefinitionAndBoundSpanResponse>
+
+  public async sendCommand(
+    command: 'quickinfo' | Proto.CommandTypes.Quickinfo,
+    args: Proto.QuickInfoRequest['arguments'],
+  ): Promise<Proto.QuickInfoResponse>
 
   public async sendCommand(command: string, args: any): Promise<any> {
     return this.sendRequest({ command, arguments: args }) as any
   }
-  
 }

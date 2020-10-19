@@ -1,5 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`VueVirtualDocument/baseline feature-quickinfo/src/Javascript.vue 1`] = ``;
+
+exports[`VueVirtualDocument/baseline feature-quickinfo/src/Typescript.vue 1`] = `
+import _Ctx from './Typescript.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
+
+
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<HelloWorld name="Jane"/>/*@@vue:end*/
+}
+// Version 0
+
+`;
+
+exports[`VueVirtualDocument/baseline feature-quickinfo/src/components/HelloWorld.vue 1`] = `
+import _Ctx from './HelloWorld.vue?internal'
+
+
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
+}
+// Version 0
+
+`;
+
 exports[`VueVirtualDocument/baseline javascript/src/App.vue 1`] = `
 import _Ctx from './App.vue?internal'
 import HelloWorld from './components/HelloWorld.vue'
