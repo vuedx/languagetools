@@ -210,6 +210,14 @@ importers:
       typescript: ^4.0.3
       vscode-languageserver-textdocument: ^1.0.1
       vscode-uri: ^2.1.2
+  samples/feature-goto-definition:
+    dependencies:
+      vue: 3.0.0
+    devDependencies:
+      typescript: 4.0.3
+    specifiers:
+      typescript: ^4.0.3
+      vue: ^3.0.0
   samples/feature-quickinfo:
     dependencies:
       vue: 3.0.0

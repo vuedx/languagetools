@@ -26,14 +26,14 @@ describe('quickinfo', () => {
   afterEach(async () => await server.flush())
   afterAll(async () => await server.close())
 
-  const sources = [
+  describe.each([
     'Javascript.vue',
+    'JavascriptSetup.vue',
     'Typescript.vue',
+    'TypescriptSetup.vue',
     'Javascript.jsx',
     'Typescript.tsx',
-  ]
-
-  describe.each(sources)('in %s', (source) => {
+  ])('in %s', (source) => {
     const file = abs(`src/${source}`)
 
     beforeAll(async () => {
@@ -85,6 +85,74 @@ describe('quickinfo', () => {
 
       expect(body?.displayString).toBe('(JSX attribute) name: string')
       expect(body?.kind).toBe('JSX attribute')
+    })
+  })
+
+  describe.each([
+    'Javascript.vue',
+    'JavascriptSetup.vue',
+    'Typescript.vue',
+    'TypescriptSetup.vue',
+  ])('in %s', (source) => {
+    const file = abs(`src/${source}`)
+
+    beforeAll(async () => {
+      await server.sendCommand('updateOpen', {
+        openFiles: [{ file, projectRootPath: projectPath }],
+      })
+    })
+
+    it('should show prop type in template (prop: String)', async () => {
+      const { body } = await server.sendCommand(
+        'quickinfo',
+        await findPositionIn(file, `Name: {{ name }}`, 'Name: {{ n'.length),
+      )
+
+      expect(body?.displayString).toBe('var name: string')
+    })
+
+    it('should show prop type in template (prop: { type: String })', async () => {
+      const { body } = await server.sendCommand(
+        'quickinfo',
+        await findPositionIn(file, `Email: {{ email }}`, 'Email: {{ e'.length),
+      )
+
+      expect(body?.displayString).toBe('var email: string')
+    })
+
+    it('should show prop type in template (prop: [String, Number])', async () => {
+      const { body } = await server.sendCommand(
+        'quickinfo',
+        await findPositionIn(file, `Code: {{ code }}`, 'Code: {{ c'.length),
+      )
+
+      expect(body?.displayString).toBe('var code: string | number')
+    })
+
+    it('should show ref type from setup', async () => {
+      const { body } = await server.sendCommand(
+        'quickinfo',
+        await findPositionIn(
+          file,
+          `FullName: {{ fullname }}`,
+          'FullName: {{ f'.length,
+        ),
+      )
+
+      expect(body?.displayString).toBe('var fullname: string')
+    })
+
+    it('should show values from setup', async () => {
+      const { body } = await server.sendCommand(
+        'quickinfo',
+        await findPositionIn(
+          file,
+          `AltCode: {{ altCode }}`,
+          'AltCode: {{ a'.length,
+        ),
+      )
+
+      expect(body?.displayString).toBe('var altCode: number')
     })
   })
 })

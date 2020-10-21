@@ -42,7 +42,7 @@
       "args": [
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode",
-        "/Users/znck/Workspace/Experiments/veturpack/"
+        "${workspaceRoot}/samples/feature-quickinfo"
       ],
       "sourceMaps": true,
       "enableSourceMapCaching": true,

@@ -147,7 +147,6 @@ function processScript(context: ScriptAnalyzerContext) {
       call(exitHandlers, path);
     },
     ExportDefaultDeclaration(path: NodePath<t.ExportDefaultDeclaration>) {
-      if (context.mode === 'setup') return;
       const d$ = path.get('declaration') as NodePath<t.ExportDefaultDeclaration['declaration']>;
       /**
        * Matches:

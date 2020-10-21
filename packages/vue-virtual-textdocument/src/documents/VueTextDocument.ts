@@ -1,7 +1,20 @@
-import { ComponentsOptionAnalyzer, createAnalyzer, ScriptBlockAnalyzer } from '@vuedx/analyze';
-import { parse, SFCBlock, SFCParseOptions, SFCStyleBlock } from '@vuedx/compiler-sfc';
-import { CodegenResult, compile, ComponentImport } from '@vuedx/compiler-tsx';
-import { Position, TextDocument, TextDocumentContentChangeEvent } from 'vscode-languageserver-textdocument';
+import {
+  ComponentsOptionAnalyzer,
+  createAnalyzer,
+  ScriptBlockAnalyzer,
+} from '@vuedx/analyze'
+import {
+  parse,
+  SFCBlock,
+  SFCParseOptions,
+  SFCStyleBlock,
+} from '@vuedx/compiler-sfc'
+import { CodegenResult, compile, ComponentImport } from '@vuedx/compiler-tsx'
+import {
+  Position,
+  TextDocument,
+  TextDocumentContentChangeEvent,
+} from 'vscode-languageserver-textdocument'
 import {
   BlockSelector,
   INTERNAL_MODULE_SELECTOR,
@@ -12,7 +25,7 @@ import {
   Selector,
   SelectorLike,
   TEMPLATE_BLOCK_SELECTOR,
-} from '../types';
+} from '../types'
 import {
   asUri,
   binarySearch,
@@ -25,58 +38,68 @@ import {
   parseVirtualFileName,
   relativeVirtualImportPath,
   VIRTUAL_FILENAME_SEPARATOR,
-} from '../utils';
-import { ProxyTextDocument } from './ProxyTextDocument';
+} from '../utils'
+import { ProxyTextDocument } from './ProxyTextDocument'
 
-const analyzer = createAnalyzer([ScriptBlockAnalyzer, ComponentsOptionAnalyzer]);
-const replaceRE = /./g;
+const analyzer = createAnalyzer([ScriptBlockAnalyzer, ComponentsOptionAnalyzer])
+const replaceRE = /./g
 const parseSFC: typeof parse = /*#__PURE__*/ (source, options) => {
-  const result = parse(source, options);
+  const result = parse(source, options)
 
   // @vue/compiler-sfc does not pads template.
   if (result.descriptor.template?.content) {
-    const { template } = result.descriptor;
+    const { template } = result.descriptor
     // @ts-ignore - parse reuses
     if (!template.__padded__) {
       // @ts-ignore
-      template.__padded__ = true;
-      template.content = source.substr(0, template.loc.start.offset).replace(replaceRE, ' ') + template.content;
+      template.__padded__ = true
+      template.content =
+        source.substr(0, template.loc.start.offset).replace(replaceRE, ' ') +
+        template.content
     }
   }
 
-  return result;
-};
+  return result
+}
 
 interface CreateVirtualTextDocumentOptions<T extends Selector = Selector> {
-  container: VueTextDocument;
-  selector: T;
-  uri: string;
-  languageId: string;
-  version: number;
-  content: string;
+  container: VueTextDocument
+  selector: T
+  uri: string
+  languageId: string
+  version: number
+  content: string
 }
 
 export class VirtualTextDocument extends ProxyTextDocument {
-  public readonly container: VueTextDocument;
-  public readonly selector: Selector;
-  protected isDirty = true;
+  public readonly container: VueTextDocument
+  public readonly selector: Selector
+  protected isDirty = true
 
   public markDirty() {
-    this.isDirty = true;
+    this.isDirty = true
   }
 
-  protected constructor(container: VueTextDocument, selector: Selector, doc: TextDocument) {
-    super(doc);
+  protected constructor(
+    container: VueTextDocument,
+    selector: Selector,
+    doc: TextDocument,
+  ) {
+    super(doc)
 
-    this.container = container;
-    this.selector = selector;
+    this.container = container
+    this.selector = selector
   }
 
   protected refresh() {
     if (this.isDirty || this.doc.version !== this.container.version) {
-      this.isDirty = false;
-      const block = this.container.getBlock(this.selector as BlockSelector);
-      this.doc = TextDocument.update(this.doc, [{ text: block ? block.content : '' }], this.container.version);
+      this.isDirty = false
+      const block = this.container.getBlock(this.selector as BlockSelector)
+      this.doc = TextDocument.update(
+        this.doc,
+        [{ text: block ? block.content : '' }],
+        this.container.version,
+      )
     }
   }
 
@@ -84,328 +107,384 @@ export class VirtualTextDocument extends ProxyTextDocument {
     return new VirtualTextDocument(
       options.container,
       options.selector,
-      TextDocument.create(options.uri, options.languageId, options.version, options.content)
-    );
+      TextDocument.create(
+        options.uri,
+        options.languageId,
+        options.version,
+        options.content,
+      ),
+    )
   }
 }
 
 class VueModuleTextDocument extends VirtualTextDocument {
   protected refresh() {
     if (this.isDirty || this.doc.version !== this.container.version) {
-      this.isDirty = false;
-      const scriptFile = this.container.getDocumentFileName(SCRIPT_BLOCK_SELECTOR);
+      this.isDirty = false
+      const scriptFile = this.container.getDocumentFileName(
+        SCRIPT_BLOCK_SELECTOR,
+      )
       const scriptSetupFile = this.container.descriptor.script?.setup
         ? this.container.getDocumentFileName(SCRIPT_SETUP_BLOCK_SELECTOR)
-        : null;
-      const renderFile = this.container.getDocumentFileName(RENDER_SELECTOR);
+        : null
+      const renderFile = this.container.getDocumentFileName(RENDER_SELECTOR)
 
-      const lines: string[] = [];
+      const lines: string[] = []
 
       if (scriptSetupFile) {
-        const path = relativeVirtualImportPath(scriptSetupFile);
-        lines.push(`import * as options from '${path}'`);
+        const path = relativeVirtualImportPath(scriptSetupFile)
+        lines.push(`import * as options from '${path}'`)
       } else {
-        lines.push(`const options = {}`);
+        lines.push(`const options = {}`)
       }
 
       if (scriptFile) {
-        const path = relativeVirtualImportPath(scriptFile);
-        lines.push(`export * from '${path}'`);
-        lines.push(`import component from '${path}'`);
+        const path = relativeVirtualImportPath(scriptFile)
+        lines.push(`export * from '${path}'`)
+        lines.push(`import component from '${path}'`)
       } else {
-        lines.push(`import { defineComponent } from 'vue'`);
-        lines.push(`const component = defineComponent(options)`);
+        lines.push(`import { defineComponent } from 'vue'`)
+        lines.push(`const component = defineComponent(options)`)
       }
 
       if (renderFile) {
-        const path = relativeVirtualImportPath(renderFile);
-        lines.push(`import { render } from '${path}'`);
-        lines.push(`component.render = render`);
+        const path = relativeVirtualImportPath(renderFile)
+        lines.push(`import { render } from '${path}'`)
+        lines.push(`component.render = render`)
       }
 
-      lines.push(`export default component`);
+      lines.push(`export default component`)
 
-      this.doc = TextDocument.update(this.doc, [{ text: lines.join('\n') }], this.container.version);
+      this.doc = TextDocument.update(
+        this.doc,
+        [{ text: lines.join('\n') }],
+        this.container.version,
+      )
     }
   }
 
-  public static create(options: CreateVirtualTextDocumentOptions<{ type: typeof MODULE_SELECTOR }>) {
+  public static create(
+    options: CreateVirtualTextDocumentOptions<{ type: typeof MODULE_SELECTOR }>,
+  ) {
     return new VueModuleTextDocument(
       options.container,
       options.selector,
-      TextDocument.create(options.uri, options.languageId, -1, options.content)
-    );
+      TextDocument.create(options.uri, options.languageId, -1, options.content),
+    )
   }
 }
 
 class InternalModuleTextDocument extends VirtualTextDocument {
   protected refresh() {
     if (this.isDirty || this.doc.version !== this.container.version) {
-      this.isDirty = false;
-      const scriptFile = this.container.getDocumentFileName(SCRIPT_BLOCK_SELECTOR);
-      const scriptSetupFile = this.container.descriptor.script?.setup
+      this.isDirty = false
+      const scriptFile = this.container.getDocumentFileName(
+        SCRIPT_BLOCK_SELECTOR,
+      )
+      const scriptSetupFile = this.container.descriptor.scriptSetup
         ? this.container.getDocumentFileName(SCRIPT_SETUP_BLOCK_SELECTOR)
-        : null;
+        : null
 
-      const lines: string[] = [];
+      const lines: string[] = []
 
       if (scriptSetupFile) {
-        const path = relativeVirtualImportPath(scriptSetupFile);
-        lines.push(`import { defineComponent } from 'vue'`);
-        lines.push(`import * as options from '${path}'`);
-        lines.push(`const component = defineComponent(() => options)`);
+        const path = relativeVirtualImportPath(scriptSetupFile)
+        lines.push(`import { defineComponent } from 'vue'`)
+        lines.push(`import options from '${path}'`)
+        lines.push(`import * as setup from '${path}'`)
+        lines.push(`export * from '${path}'`)
+        lines.push(`const component = defineComponent({ ...options, setup: () => setup })`)
       } else if (scriptFile) {
-        const path = relativeVirtualImportPath(scriptFile);
-        lines.push(`import { defineComponent } from 'vue'`);
-        lines.push(`import script from '${path}'`);
-        lines.push(`const component = defineComponent(script)`);
+        const path = relativeVirtualImportPath(scriptFile)
+        lines.push(`import script from '${path}'`)
+        if (scriptFile.endsWith('.js')) {
+          lines.push(`import { defineComponent } from 'vue'`)
+          lines.push(`const component = defineComponent(script)`)
+        } else {
+          lines.push(`const component = script`)
+        }
       } else {
-        lines.push(`import { defineComponent } from 'vue'`);
-        lines.push(`const component = defineComponent({})`);
+        lines.push(`import { defineComponent } from 'vue'`)
+        lines.push(`const component = defineComponent({})`)
       }
 
-      lines.push(`export default component`);
+      lines.push(`export default component`)
 
-      this.doc = TextDocument.update(this.doc, [{ text: lines.join('\n') }], this.container.version);
+      this.doc = TextDocument.update(
+        this.doc,
+        [{ text: lines.join('\n') }],
+        this.container.version,
+      )
     }
   }
 
-  public static create(options: CreateVirtualTextDocumentOptions<{ type: typeof INTERNAL_MODULE_SELECTOR }>) {
+  public static create(
+    options: CreateVirtualTextDocumentOptions<{
+      type: typeof INTERNAL_MODULE_SELECTOR
+    }>,
+  ) {
     return new InternalModuleTextDocument(
       options.container,
       options.selector,
-      TextDocument.create(options.uri, options.languageId, -1, options.content)
-    );
+      TextDocument.create(options.uri, options.languageId, -1, options.content),
+    )
   }
 }
 
 export class RenderFunctionTextDocument extends VirtualTextDocument {
-  private result!: CodegenResult;
-  private originalRange: [number, number] = [0, 0];
-  private originalMappings: CodegenResult['mappings'] = [];
-  private generatedRange: [number, number] = [0, 0];
-  private generatedMappings: CodegenResult['mappings'] = [];
-  private expressionsMap: Record<string, [number, number]> = {};
+  private result!: CodegenResult
+  private originalRange: [number, number] = [0, 0]
+  private originalMappings: CodegenResult['mappings'] = []
+  private generatedRange: [number, number] = [0, 0]
+  private generatedMappings: CodegenResult['mappings'] = []
+  private expressionsMap: Record<string, [number, number]> = {}
 
   public get ast(): CodegenResult['ast'] | undefined {
-    if (this.result) return this.result.ast;
+    if (this.result) return this.result.ast
   }
 
   public getOriginalOffsetAt(offset: number) {
-    this.refresh();
-    const [start, end] = this.generatedRange;
+    this.refresh()
+    const [start, end] = this.generatedRange
 
     if (start <= offset && offset <= end) {
-      const mapping = binarySearch(this.generatedMappings, ([start, length]) => {
-        if (start <= offset && offset <= start + length) return 0;
-        return start - offset;
-      });
+      const mapping = binarySearch(
+        this.generatedMappings,
+        ([start, length]) => {
+          if (start <= offset && offset <= start + length) return 0
+          return start - offset
+        },
+      )
 
       if (mapping) {
-        const offsetInSource = offset - mapping[0];
+        const offsetInSource = offset - mapping[0]
 
         return {
           offset: mapping[2] + offsetInSource,
           length: Math.max(1, mapping[3] - offsetInSource),
-        };
+        }
       }
     }
   }
 
   public findExpression(offset: number, length: number) {
-    const text = this.getText().substr(offset, length);
-    const expression = this.expressionsMap[text.trim()];
+    const text = this.getText().substr(offset, length)
+    const expression = this.expressionsMap[text.trim()]
 
-    if (expression) return { offset: expression[0], length: expression[1] };
+    if (expression) return { offset: expression[0], length: expression[1] }
   }
 
   public getGeneratedOffsetAt(offset: number) {
-    this.refresh();
-    const [start, end] = this.originalRange;
+    this.refresh()
+    const [start, end] = this.originalRange
 
     if (start <= offset && offset <= end) {
-      const mapping = binarySearch(this.originalMappings, ([, , start, length]) => {
-        if (start <= offset && offset <= start + length) return 0;
-        return start - offset;
-      });
+      const mapping = binarySearch(
+        this.originalMappings,
+        ([, , start, length]) => {
+          if (start <= offset && offset <= start + length) return 0
+          return start - offset
+        },
+      )
 
       if (mapping) {
-        const offsetInGenerated = offset - mapping[2];
+        const offsetInGenerated = offset - mapping[2]
 
         return {
           offset: mapping[0] + offsetInGenerated,
           length: Math.max(1, mapping[1] - offsetInGenerated),
-        };
+        }
       }
     }
   }
 
   public getAllGeneratedOffsetsAt(offset: number) {
-    this.refresh();
-    const [start, end] = this.originalRange;
+    this.refresh()
+    const [start, end] = this.originalRange
 
     if (start <= offset && offset <= end) {
       const mappings = this.generatedMappings.filter(([, , start, length]) => {
-        return start <= offset && offset <= start + length;
-      });
+        return start <= offset && offset <= start + length
+      })
 
       return mappings.map((mapping) => {
-        const offsetInGenerated = mapping[2] <= offset && offset <= mapping[2] + mapping[3] ? offset - mapping[2] : 0;
+        const offsetInGenerated =
+          mapping[2] <= offset && offset <= mapping[2] + mapping[3]
+            ? offset - mapping[2]
+            : 0
         return {
           offset: mapping[0] + offsetInGenerated,
           length: Math.max(1, mapping[1] - offsetInGenerated),
-        };
-      });
+        }
+      })
     }
 
-    return [];
+    return []
   }
 
   protected refresh() {
     if (this.isDirty || this.doc.version !== this.container.version) {
-      this.isDirty = false;
+      this.isDirty = false
       try {
-        this.doc = TextDocument.update(this.doc, [{ text: this.generate() }], this.container.version);
+        this.doc = TextDocument.update(
+          this.doc,
+          [{ text: this.generate() }],
+          this.container.version,
+        )
       } catch (error) {
         // This is very unlikely to happen as compiler is very error tolerant.
         this.doc = TextDocument.update(
           this.doc,
           [{ text: `\n/* ${error.message} ${error.stack} */ \n` }],
-          this.container.version
-        );
-        this.originalRange = [0, 0];
-        this.originalMappings = [];
-        this.generatedRange = [0, 0];
-        this.generatedMappings = [];
+          this.container.version,
+        )
+        this.originalRange = [0, 0]
+        this.originalMappings = []
+        this.generatedRange = [0, 0]
+        this.generatedMappings = []
       }
     }
   }
 
   protected generate() {
-    const { template } = this.container.descriptor;
+    const { template } = this.container.descriptor
 
     if (!template) {
-      return '';
+      return ''
     } else {
       this.result = compile(template.content, {
         filename: this.container.fsPath,
         components: this.getLocalComponents(),
-      });
+      })
 
-      this.originalRange = [template.loc.start.offset, template.loc.end.offset];
-      this.originalMappings = this.result.mappings.slice();
-      this.generatedRange = [this.result.code.indexOf('/*@@vue:start*/'), this.result.code.indexOf('/*@@vue:end*/')];
+      this.originalRange = [template.loc.start.offset, template.loc.end.offset]
+      this.originalMappings = this.result.mappings.slice()
+      this.generatedRange = [
+        this.result.code.indexOf('/*@@vue:start*/'),
+        this.result.code.indexOf('/*@@vue:end*/'),
+      ]
       this.generatedMappings = this.result.mappings.filter(
-        (m) => this.generatedRange[0] <= m[0] && m[1] <= this.generatedRange[1]
-      );
+        (m) => this.generatedRange[0] <= m[0] && m[1] <= this.generatedRange[1],
+      )
 
-      this.originalMappings.sort((a, b) => a[2] - b[2]);
-      this.generatedMappings.sort((a, b) => a[0] - b[0]);
+      this.originalMappings.sort((a, b) => a[2] - b[2])
+      this.generatedMappings.sort((a, b) => a[0] - b[0])
 
-      this.expressionsMap = {};
-      const code = this.result.code;
+      this.expressionsMap = {}
+      const code = this.result.code
 
       this.generatedMappings.forEach((p) => {
-        this.expressionsMap[code.substr(p[0], p[1])] = [p[2], p[3]];
-      });
+        this.expressionsMap[code.substr(p[0], p[1])] = [p[2], p[3]]
+      })
 
-      return this.result.code;
+      return this.result.code
     }
   }
 
   protected getLocalComponents(): Record<string, ComponentImport> | undefined {
-    const { script } = this.container.descriptor;
+    const { script } = this.container.descriptor
 
     if (script && script.content) {
       // TODO: Cache this.
-      const result = analyzer.analyzeScript(script.content, 'component.ts');
-      const map: Record<string, ComponentImport> = {};
+      const result = analyzer.analyzeScript(script.content, 'component.ts')
+      const map: Record<string, ComponentImport> = {}
       result.components.forEach((component) => {
         const result = {
           path: component.source.moduleName,
           named: !!component.source.exportName,
           name: component.source.exportName,
-        };
+        }
 
         component.aliases.forEach((name) => {
-          map[name] = result;
-        });
-      });
+          map[name] = result
+        })
+      })
 
-      return map;
+      return map
     }
   }
 
-  public static create(options: CreateVirtualTextDocumentOptions<{ type: typeof RENDER_SELECTOR }>) {
+  public static create(
+    options: CreateVirtualTextDocumentOptions<{ type: typeof RENDER_SELECTOR }>,
+  ) {
     return new RenderFunctionTextDocument(
       options.container,
       options.selector,
-      TextDocument.create(options.uri, options.languageId, options.version, options.content)
-    );
+      TextDocument.create(
+        options.uri,
+        options.languageId,
+        options.version,
+        options.content,
+      ),
+    )
   }
 }
 
 export class VueTextDocument extends ProxyTextDocument {
-  private isDirty = true;
-  private sfc!: ReturnType<typeof parse>;
-  private options: SFCParseOptions;
-  private documents = new Map<string, VirtualTextDocument | undefined>();
+  private isDirty = true
+  private sfc!: ReturnType<typeof parse>
+  private options: SFCParseOptions
+  private documents = new Map<string, VirtualTextDocument | undefined>()
 
   constructor(doc: TextDocument, options?: SFCParseOptions) {
-    super(doc);
+    super(doc)
 
     this.options = {
       ...options,
       filename: this.fsPath,
       sourceMap: false,
       pad: 'space',
-    };
+    }
   }
 
   public get descriptor() {
-    this.parse();
-    return this.sfc.descriptor;
+    this.parse()
+    return this.sfc.descriptor
   }
 
   public all() {
-    return Array.from(this.documents.values()).filter(isNotNull);
+    return Array.from(this.documents.values()).filter(isNotNull)
   }
 
   public getBlock(selector: BlockSelector) {
     switch (selector.type) {
       case SCRIPT_BLOCK_SELECTOR:
-        return this.descriptor.script;
+        return this.descriptor.script
       case SCRIPT_SETUP_BLOCK_SELECTOR:
-        return this.descriptor.scriptSetup;
+        return this.descriptor.scriptSetup
       case TEMPLATE_BLOCK_SELECTOR:
-        return this.descriptor.template;
+        return this.descriptor.template
       default:
         if ('index' in selector) {
-          const blocks = selector.type === 'style' ? this.descriptor.styles : this.descriptor.customBlocks;
-          return blocks[selector.index];
+          const blocks =
+            selector.type === 'style'
+              ? this.descriptor.styles
+              : this.descriptor.customBlocks
+          return blocks[selector.index]
         }
     }
   }
 
   public blockAt(position: Position | number) {
-    const offset = isNumber(position) ? position : this.offsetAt(position);
-    const descriptor = this.descriptor;
+    const offset = isNumber(position) ? position : this.offsetAt(position)
+    const descriptor = this.descriptor
 
-    if (isOffsetInBlock(offset, descriptor.template)) return descriptor.template;
-    if (isOffsetInBlock(offset, descriptor.script)) return descriptor.script;
-    if (isOffsetInBlock(offset, descriptor.scriptSetup)) return descriptor.scriptSetup;
+    if (isOffsetInBlock(offset, descriptor.template)) return descriptor.template
+    if (isOffsetInBlock(offset, descriptor.script)) return descriptor.script
+    if (isOffsetInBlock(offset, descriptor.scriptSetup))
+      return descriptor.scriptSetup
 
     return (
       descriptor.styles.find(isOffsetInBlock.bind(null, offset)) ||
       descriptor.customBlocks.find(isOffsetInBlock.bind(null, offset))
-    );
+    )
   }
 
   public documentAt(position: Position | number) {
-    const block = this.blockAt(position);
+    const block = this.blockAt(position)
 
     if (block) {
-      return this.getDocument(this.getBlockSelector(block)!);
+      return this.getDocument(this.getBlockSelector(block)!)
     }
   }
 
@@ -413,76 +492,82 @@ export class VueTextDocument extends ProxyTextDocument {
     switch (block.type) {
       case 'script':
         if ('setup' in block) {
-          return { type: SCRIPT_SETUP_BLOCK_SELECTOR };
+          return { type: SCRIPT_SETUP_BLOCK_SELECTOR }
         } else {
-          return { type: SCRIPT_BLOCK_SELECTOR };
+          return { type: SCRIPT_BLOCK_SELECTOR }
         }
       case 'template':
-        return { type: TEMPLATE_BLOCK_SELECTOR };
+        return { type: TEMPLATE_BLOCK_SELECTOR }
       case 'style': {
-        const index = this.descriptor.styles.indexOf(block as SFCStyleBlock);
-        if (index >= 0) return { type: 'style', index };
-        break;
+        const index = this.descriptor.styles.indexOf(block as SFCStyleBlock)
+        if (index >= 0) return { type: 'style', index }
+        break
       }
       default: {
-        const index = this.descriptor.customBlocks.indexOf(block as SFCStyleBlock);
-        if (index >= 0) return { type: 'customBlocks', index };
-        break;
+        const index = this.descriptor.customBlocks.indexOf(
+          block as SFCStyleBlock,
+        )
+        if (index >= 0) return { type: 'customBlocks', index }
+        break
       }
     }
   }
 
   public getDocumentFileName(selectorLike: SelectorLike) {
-    const selector: Selector = isString(selectorLike) ? { type: selectorLike } : selectorLike;
-    const id = this.getDocumentId(selector);
-    const ext = getLanguageExtension(this.getDocumentLanguage(selector));
+    const selector: Selector = isString(selectorLike)
+      ? { type: selectorLike }
+      : selectorLike
+    const id = this.getDocumentId(selector)
+    const ext = getLanguageExtension(this.getDocumentLanguage(selector))
 
-    if (!ext) return;
+    if (!ext) return
 
-    return this.fsPath + VIRTUAL_FILENAME_SEPARATOR + id + '.' + ext;
+    return this.fsPath + VIRTUAL_FILENAME_SEPARATOR + id + '.' + ext
   }
 
-  public getDocument(selector: typeof RENDER_SELECTOR): RenderFunctionTextDocument;
-  public getDocument(selector: SelectorLike): VirtualTextDocument;
-  public getDocument(selector: string): VirtualTextDocument;
+  public getDocument(
+    selector: typeof RENDER_SELECTOR,
+  ): RenderFunctionTextDocument
+  public getDocument(selector: SelectorLike): VirtualTextDocument
+  public getDocument(selector: string): VirtualTextDocument
   public getDocument(selector: SelectorLike | string) {
-    this.parse();
+    this.parse()
 
     if (isString(selector)) {
       if (selector.includes('/') || selector.includes('\\')) {
-        const result = parseVirtualFileName(selector);
-        if (!result) return;
-        selector = result.selector;
+        const result = parseVirtualFileName(selector)
+        if (!result) return
+        selector = result.selector
       } else {
-        selector = { type: selector } as Selector;
+        selector = { type: selector } as Selector
       }
     }
 
-    const id = this.getDocumentId(selector);
+    const id = this.getDocumentId(selector)
 
     if (!this.documents.has(id)) {
       switch (selector.type) {
         case INTERNAL_MODULE_SELECTOR:
-          this.documents.set(id, this.createInternalModuleDocument());
-          break;
+          this.documents.set(id, this.createInternalModuleDocument())
+          break
         case MODULE_SELECTOR:
-          this.documents.set(id, this.createModuleDocument());
-          break;
+          this.documents.set(id, this.createModuleDocument())
+          break
         case RENDER_SELECTOR:
-          this.documents.set(id, this.createRenderDocument());
-          break;
+          this.documents.set(id, this.createRenderDocument())
+          break
         default:
-          this.documents.set(id, this.createBlockDocument(selector));
-          break;
+          this.documents.set(id, this.createBlockDocument(selector))
+          break
       }
     }
 
-    return this.documents.get(id);
+    return this.documents.get(id)
   }
 
   protected createBlockDocument(selector: BlockSelector) {
-    const block = this.getBlock(selector);
-    if (!block) return;
+    const block = this.getBlock(selector)
+    if (!block) return
 
     // TODO: handle src for <script>
 
@@ -493,7 +578,7 @@ export class VueTextDocument extends ProxyTextDocument {
       languageId: this.getDocumentLanguage(selector),
       version: this.version,
       content: block.content,
-    });
+    })
   }
 
   protected createInternalModuleDocument() {
@@ -504,7 +589,7 @@ export class VueTextDocument extends ProxyTextDocument {
       languageId: this.getDocumentLanguage({ type: INTERNAL_MODULE_SELECTOR }),
       version: this.version,
       content: '',
-    });
+    })
   }
 
   protected createModuleDocument() {
@@ -515,7 +600,7 @@ export class VueTextDocument extends ProxyTextDocument {
       languageId: this.getDocumentLanguage({ type: MODULE_SELECTOR }),
       version: this.version,
       content: '',
-    });
+    })
   }
 
   protected createRenderDocument() {
@@ -526,50 +611,63 @@ export class VueTextDocument extends ProxyTextDocument {
       languageId: this.getDocumentLanguage({ type: RENDER_SELECTOR }),
       version: this.version,
       content: '',
-    });
+    })
   }
 
   protected getDocumentLanguage(selector: Selector) {
     switch (selector.type) {
       case INTERNAL_MODULE_SELECTOR:
       case MODULE_SELECTOR:
-        return 'typescript';
+        return 'typescript'
       case RENDER_SELECTOR:
-        return 'typescriptreact';
+        return 'typescriptreact'
       default:
-        return getBlockLanguage(this.getBlock(selector));
+        return getBlockLanguage(this.getBlock(selector))
     }
   }
 
   protected getDocumentId(selector: Selector) {
-    if (isString(selector)) return selector;
-    if ('index' in selector) return selector.type + '__' + selector.index;
-    return selector.type;
+    if (isString(selector)) return selector
+    if ('index' in selector) return selector.type + '__' + selector.index
+    return selector.type
   }
 
   protected parse() {
-    if (!this.isDirty) return;
-    this.isDirty = false;
-    const source = this.getText();
+    if (!this.isDirty) return
+    this.isDirty = false
+    const source = this.getText()
     try {
-      this.sfc = parseSFC(source, this.options);
+      this.sfc = parseSFC(source, this.options)
     } catch {
       // -- skip invalid state.
       // TODO: Catch errors.
     }
   }
 
-  public static create(uri: string, languageId: string, version: number, content: string, options?: SFCParseOptions) {
-    return new VueTextDocument(TextDocument.create(uri, languageId, version, content), options);
+  public static create(
+    uri: string,
+    languageId: string,
+    version: number,
+    content: string,
+    options?: SFCParseOptions,
+  ) {
+    return new VueTextDocument(
+      TextDocument.create(uri, languageId, version, content),
+      options,
+    )
   }
 
-  public static update(document: VueTextDocument, changes: TextDocumentContentChangeEvent[], version: number) {
-    document.doc = TextDocument.update(document.doc, changes, version);
-    document.isDirty = true;
+  public static update(
+    document: VueTextDocument,
+    changes: TextDocumentContentChangeEvent[],
+    version: number,
+  ) {
+    document.doc = TextDocument.update(document.doc, changes, version)
+    document.isDirty = true
     document.documents.forEach((document) => {
-      if (document) document.markDirty();
-    });
+      if (document) document.markDirty()
+    })
 
-    return document;
+    return document
   }
 }
