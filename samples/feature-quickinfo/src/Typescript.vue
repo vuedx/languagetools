@@ -7,13 +7,13 @@ export default defineComponent({
   props: {
     name: String,
     email: { type: String },
-    code: [String, Number]
+    code: [String, Number],
   },
   setup() {
     const fullname = ref('')
 
     return { fullname, altCode: 1 }
-  }
+  },
 })
 </script>
 

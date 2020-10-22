@@ -1,12 +1,71 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`VueVirtualDocument/baseline feature-goto-definition/src/Javascript.vue 1`] = `
+import _Ctx from './Javascript.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
+
+
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-goto-definition/src/JavascriptSetup.vue 1`] = `
+import _Ctx from './JavascriptSetup.vue?internal'
+import { HelloWorld } from './JavascriptSetup.vue?internal'
+
+
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-goto-definition/src/Typescript.vue 1`] = `
+import _Ctx from './Typescript.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
+
+
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-goto-definition/src/TypescriptSetup.vue 1`] = `
+import _Ctx from './TypescriptSetup.vue?internal'
+import { HelloWorld } from './TypescriptSetup.vue?internal'
+
+
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-goto-definition/src/components/HelloWorld.vue 1`] = `
+import _Ctx from './HelloWorld.vue?internal'
+
+
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-quickinfo/src/Javascript.vue 1`] = `
 import _Ctx from './Javascript.vue?internal'
 import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<HelloWorld name="Jane"/>/*@@vue:end*/
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-quickinfo/src/JavascriptSetup.vue 1`] = `
+import _Ctx from './JavascriptSetup.vue?internal'
+import { HelloWorld } from './JavascriptSetup.vue?internal'
+
+
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
 }
 `;
 
@@ -15,8 +74,18 @@ import _Ctx from './Typescript.vue?internal'
 import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<HelloWorld name="Jane"/>/*@@vue:end*/
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-quickinfo/src/TypescriptSetup.vue 1`] = `
+import _Ctx from './TypescriptSetup.vue?internal'
+import { HelloWorld } from './TypescriptSetup.vue?internal'
+
+
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
 }
 `;
 
