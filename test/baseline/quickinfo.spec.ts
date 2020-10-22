@@ -1,5 +1,5 @@
 import Path from 'path'
-import { findPositionIn } from 'test/support/helpers'
+import { findPositionOrThrowIn } from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
 describe('quickinfo', () => {
@@ -45,7 +45,7 @@ describe('quickinfo', () => {
     it('should show resolved module path on hovering .vue import', async () => {
       const { body } = await server.sendCommand(
         'quickinfo',
-        await findPositionIn(file, `'./components/HelloWorld.vue'`, 3),
+        await findPositionOrThrowIn(file, `'./components/HelloWorld.vue'`, 3),
       )
 
       expect(body?.displayString).toBe(
@@ -58,7 +58,7 @@ describe('quickinfo', () => {
     it('should show resolved module path on hovering package import', async () => {
       const { body } = await server.sendCommand(
         'quickinfo',
-        await findPositionIn(file, `'vue'`, 3),
+        await findPositionOrThrowIn(file, `'vue'`, 3),
       )
 
       expect(body?.displayString).toEqual(
@@ -70,7 +70,7 @@ describe('quickinfo', () => {
     it('should show import name of local component on hovering component tag', async () => {
       const { body } = await server.sendCommand(
         'quickinfo',
-        await findPositionIn(file, `<HelloWorld `, 3),
+        await findPositionOrThrowIn(file, `<HelloWorld `, 3),
       )
 
       expect(body?.displayString).toBe('import HelloWorld')
@@ -80,7 +80,7 @@ describe('quickinfo', () => {
     it('should show prop type on hovering attribute', async () => {
       const { body } = await server.sendCommand(
         'quickinfo',
-        await findPositionIn(file, `name="Jane"`, 3),
+        await findPositionOrThrowIn(file, `name="Jane"`, 3),
       )
 
       expect(body?.displayString).toBe('(JSX attribute) name: string')
@@ -105,7 +105,11 @@ describe('quickinfo', () => {
     it('should show prop type in template (prop: String)', async () => {
       const { body } = await server.sendCommand(
         'quickinfo',
-        await findPositionIn(file, `Name: {{ name }}`, 'Name: {{ n'.length),
+        await findPositionOrThrowIn(
+          file,
+          `Name: {{ name }}`,
+          'Name: {{ n'.length,
+        ),
       )
 
       expect(body?.displayString).toBe('var name: string')
@@ -114,7 +118,11 @@ describe('quickinfo', () => {
     it('should show prop type in template (prop: { type: String })', async () => {
       const { body } = await server.sendCommand(
         'quickinfo',
-        await findPositionIn(file, `Email: {{ email }}`, 'Email: {{ e'.length),
+        await findPositionOrThrowIn(
+          file,
+          `Email: {{ email }}`,
+          'Email: {{ e'.length,
+        ),
       )
 
       expect(body?.displayString).toBe('var email: string')
@@ -123,7 +131,11 @@ describe('quickinfo', () => {
     it('should show prop type in template (prop: [String, Number])', async () => {
       const { body } = await server.sendCommand(
         'quickinfo',
-        await findPositionIn(file, `Code: {{ code }}`, 'Code: {{ c'.length),
+        await findPositionOrThrowIn(
+          file,
+          `Code: {{ code }}`,
+          'Code: {{ c'.length,
+        ),
       )
 
       expect(body?.displayString).toBe('var code: string | number')
@@ -132,7 +144,7 @@ describe('quickinfo', () => {
     it('should show ref type from setup', async () => {
       const { body } = await server.sendCommand(
         'quickinfo',
-        await findPositionIn(
+        await findPositionOrThrowIn(
           file,
           `FullName: {{ fullname }}`,
           'FullName: {{ f'.length,
@@ -145,7 +157,7 @@ describe('quickinfo', () => {
     it('should show values from setup', async () => {
       const { body } = await server.sendCommand(
         'quickinfo',
-        await findPositionIn(
+        await findPositionOrThrowIn(
           file,
           `AltCode: {{ altCode }}`,
           'AltCode: {{ a'.length,

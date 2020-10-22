@@ -193,7 +193,9 @@ class InternalModuleTextDocument extends VirtualTextDocument {
         lines.push(`import options from '${path}'`)
         lines.push(`import * as setup from '${path}'`)
         lines.push(`export * from '${path}'`)
-        lines.push(`const component = defineComponent({ ...options, setup: () => setup })`)
+        lines.push(
+          `const component = defineComponent({ ...options, setup: () => setup })`,
+        )
       } else if (scriptFile) {
         const path = relativeVirtualImportPath(scriptFile)
         lines.push(`import script from '${path}'`)
@@ -272,6 +274,13 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     const expression = this.expressionsMap[text.trim()]
 
     if (expression) return { offset: expression[0], length: expression[1] }
+  }
+
+  public isInGeneratedRange(offset: number) {
+    this.refresh()
+    const [start, end] = this.generatedRange
+
+    return start <= offset && offset <= end
   }
 
   public getGeneratedOffsetAt(offset: number) {

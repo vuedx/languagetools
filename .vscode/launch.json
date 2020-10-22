@@ -42,7 +42,7 @@
       "args": [
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode",
-        "${workspaceRoot}/samples/feature-quickinfo"
+        "${workspaceRoot}/samples/feature-goto-definition"
       ],
       "sourceMaps": true,
       "enableSourceMapCaching": true,

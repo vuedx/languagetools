@@ -1,8 +1,18 @@
-export async function findPositionIn(
+export async function findPositionOrThrowIn(
   file: string,
   text: string,
   offset: number = 0,
 ): Promise<{ file: string; line: number; offset: number }> {
+  const position = await findPositionIn(file, text, offset)
+  if (position == null) throw new Error(`"${text}" not found in "${file}"`)
+
+  return position
+}
+export async function findPositionIn(
+  file: string,
+  text: string,
+  offset: number = 0,
+): Promise<{ file: string; line: number; offset: number } | undefined> {
   const document = await getTextDocument(file)
   const index = document.getText().indexOf(text)
 
@@ -14,12 +24,6 @@ export async function findPositionIn(
       line: position.line + 1,
       offset: position.character + 1,
     }
-  }
-
-  return {
-    file,
-    line: 1,
-    offset: 1,
   }
 }
 

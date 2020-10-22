@@ -21,4 +21,5 @@ module.exports = {
     '^@vuedx/(.+)$': '<rootDir>packages/$1/src/index.ts',
     '^test/(.+)$': '<rootDir>test/$1',
   },
+  testTimeout: 30000,
 }

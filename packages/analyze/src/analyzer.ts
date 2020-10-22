@@ -50,7 +50,7 @@ export function createAnalyzer(plugins: Plugin[], options: Partial<Context['pars
 }
 
 function processSFC(context: Context) {
-  const { script, template, styles, customBlocks } = context.descriptor;
+  const { script, scriptSetup, template, styles, customBlocks } = context.descriptor;
 
   function call<T extends SFCBlock>(block: T) {
     const kind = block.type;
@@ -62,6 +62,7 @@ function processSFC(context: Context) {
   }
 
   if (script) call(script);
+  if (scriptSetup) call(scriptSetup);
   if (template) call(template);
   styles.forEach(call);
   customBlocks.forEach((block) => call(block));

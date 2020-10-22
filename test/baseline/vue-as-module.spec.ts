@@ -1,5 +1,5 @@
 import Path from 'path'
-import { findPositionIn } from 'test/support/helpers'
+import { findPositionOrThrowIn } from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
 const projects = [
@@ -48,7 +48,7 @@ describe.each(projects)('project: %s', (project) => {
 
     const { body: definitionAndBoundSpan } = await server.sendCommand(
       'definitionAndBoundSpan',
-      await findPositionIn(fileName, `'./App.vue'`, 3),
+      await findPositionOrThrowIn(fileName, `'./App.vue'`, 3),
     )
 
     expect(definitionAndBoundSpan.definitions).toHaveLength(1)
@@ -71,7 +71,7 @@ describe.each(projects)('project: %s', (project) => {
 
     const { body: definitionAndBoundSpan } = await server.sendCommand(
       'definitionAndBoundSpan',
-      await findPositionIn(fileName, `'./components/HelloWorld.vue'`, 3),
+      await findPositionOrThrowIn(fileName, `'./components/HelloWorld.vue'`, 3),
     )
 
     expect(definitionAndBoundSpan.definitions).toHaveLength(1)
