@@ -1,7 +1,12 @@
 /// <reference types="jest" />
-import { Options } from '../src/types';
+import { Options } from '../src/types'
 
-const samples: Array<{ name: string; template: string; render: string; components?: Options['components'] }> = [
+const samples: Array<{
+  name: string
+  template: string
+  render: string
+  components?: Options['components']
+}> = [
   {
     name: 'Render Context Type',
     template: `<div>foo</div>`,
@@ -49,6 +54,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     template: `<Foo>foo</Foo>`,
     render: `
     import _Ctx from './component.vue?internal'
+    import { Foo } from './component.vue?internal'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/ <Foo>{{ default: () => <>foo</> }}</Foo>/*@@vue:end*/
@@ -74,6 +80,7 @@ const samples: Array<{ name: string; template: string; render: string; component
     `,
     render: `
     import _Ctx from './component.vue?internal'
+    import { Foo } from './component.vue?internal'
     
     export function render(_ctx: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/ (
@@ -256,27 +263,28 @@ const samples: Array<{ name: string; template: string; render: string; component
     }
     `,
   },
-];
+]
 
-import { compile } from '../src';
-import { format } from 'prettier';
+import { compile } from '../src'
+import { format } from 'prettier'
 
 describe('compile/tsx', () => {
-  test.each(samples.map((sample, index) => [index + 1 + '', sample.name, sample] as const))(
-    '%s. %s',
-    (_, __, sample) => {
-      const result = compile(sample.template, {
-        filename: '/foo/bar/component.vue',
-        components: sample.components,
-      });
+  test.each(
+    samples.map(
+      (sample, index) => [index + 1 + '', sample.name, sample] as const,
+    ),
+  )('%s. %s', (_, __, sample) => {
+    const result = compile(sample.template, {
+      filename: '/foo/bar/component.vue',
+      components: sample.components,
+    })
 
-      const actual = prepare(result.code);
-      const expected = prepare(sample.render);
+    const actual = prepare(result.code)
+    const expected = prepare(sample.render)
 
-      expect(actual).toEqual(expected);
-    }
-  );
-});
+    expect(actual).toEqual(expected)
+  })
+})
 
 function prepare(source: string) {
   return format(trimIndent(source), {
@@ -285,9 +293,9 @@ function prepare(source: string) {
     semi: true,
     trailingComma: 'all',
     printWidth: 120,
-  });
+  })
 }
 
 function trimIndent(source: string) {
-  return source.replace(/([,{[(][\s]*)\n/g, (_, exp) => exp);
+  return source.replace(/([,{[(][\s]*)\n/g, (_, exp) => exp)
 }

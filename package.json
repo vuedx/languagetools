@@ -40,7 +40,8 @@
   "version": "0.2.4-0",
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "pre-push": "jest"
     }
   }
 }
