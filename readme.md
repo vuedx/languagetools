@@ -1,8 +1,8 @@
 # Vue Developer Experience 
 
-[![Build Status](https://travis-ci.org/znck/vue-developer-experience.svg?branch=master)](https://travis-ci.org/znck/vue-developer-experience)
+[![build](https://travis-ci.org/znck/vue-developer-experience.svg?branch=master)](https://travis-ci.org/znck/vue-developer-experience) ![CI](https://github.com/znck/vue-developer-experience/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/znck/vue-developer-experience/branch/master/graph/badge.svg?token=EF8TMXJK2D)](https://codecov.io/gh/znck/vue-developer-experience/)
 
-> Project Status: ⚠️ EXPERIMENTAL
+> Project Status: 🚨 Pre Alpha (alpha release target: 30 November 2020)
 
 A set of tools for better developer experience.
 
