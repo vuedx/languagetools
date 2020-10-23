@@ -36,7 +36,10 @@ function createCachedAnalyzer() {
   }
 }
 
-export function createServerHelper(context: PluginContext) {
+export function createServerHelper(
+  context: PluginContext,
+  languageService: TS.LanguageService,
+) {
   const getComponentInfo = createCachedAnalyzer()
 
   function findNodeAtPosition(fileName: string, position: number) {
@@ -108,6 +111,18 @@ export function createServerHelper(context: PluginContext) {
     return span
   }
 
+  function getResolvedModule(
+    fileName: string,
+    importSource: string,
+  ): TS.ResolvedModuleFull | undefined {
+    const program = languageService.getProgram()
+    const sourceFile = program?.getSourceFile(fileName) as any
+    const resolvedModules: Map<string, TS.ResolvedModuleFull> | undefined =
+      sourceFile?.resolvedModules
+
+    return resolvedModules?.get(importSource)
+  }
+
   return {
     findNodeAtPosition,
     findTemplateElementNodeAt,
@@ -122,6 +137,7 @@ export function createServerHelper(context: PluginContext) {
     getVueDocument,
     isRenderFunctionDocument,
     isRenderFunctionFileName,
+    getResolvedModule,
   }
 }
 

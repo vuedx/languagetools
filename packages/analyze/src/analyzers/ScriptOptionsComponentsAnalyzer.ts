@@ -5,7 +5,9 @@ import {
   isObjectExpression,
   isObjectProperty,
   isStringLiteral,
+  isExportSpecifier,
   ObjectProperty,
+  ExportSpecifier,
 } from '@babel/types'
 import { ImportSource } from '../component'
 import { Plugin, ScriptAnalyzerContext } from '../types'
@@ -16,7 +18,26 @@ export const ComponentsOptionAnalyzer: Plugin = {
     if (path$.isExportNamedDeclaration()) {
       const node = path$.node
       if (node.source?.value.endsWith('.vue') == true) {
-        // default export from component from .vue file
+        const specifier = node.specifiers.find(
+          (specifier) =>
+            isExportSpecifier(specifier) &&
+            isIdentifier(specifier.local) &&
+            specifier.local.name === 'default',
+        ) as ExportSpecifier | undefined
+
+        if (specifier != null) {
+          const name = getComponentName(specifier.exported) as string
+
+          ctx.component.addLocalComponent(
+            name,
+            {
+              moduleName: node.source.value,
+              localName: name,
+              loc: createSourceRange(ctx, node),
+            },
+            createSourceRange(ctx, node),
+          )
+        }
       }
     }
   },

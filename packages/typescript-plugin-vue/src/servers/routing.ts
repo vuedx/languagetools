@@ -25,7 +25,7 @@ export class RoutingLanguageServer {
     const proxy = createLanguageServiceRouter({
       context: this.context,
       service: languageService,
-      helpers: createServerHelper(this.context),
+      helpers: createServerHelper(this.context, languageService),
     })
 
     // @ts-ignore

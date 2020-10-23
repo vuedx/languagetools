@@ -156,5 +156,26 @@ describe('goto-definition', () => {
         offset: position?.offset,
       })
     })
+    it('should jump to component definition when ⌘+click prop of external component in template', async () => {
+      const { body } = await server.sendCommand(
+        'definitionAndBoundSpan',
+        await findPositionOrThrowIn(
+          file,
+          `<HelloWorld name=`,
+          '<HelloWorld n'.length,
+        ),
+      )
+
+      const helloFile = abs('src/components/HelloWorld.vue')
+      expect(body?.definitions).toHaveLength(1)
+      expect(body?.definitions[0].file).toBe(helloFile)
+
+      const position = await findPositionIn(helloFile, `name: {`)
+
+      expect(body?.definitions[0].start).toEqual({
+        line: position?.line,
+        offset: position?.offset,
+      })
+    })
   })
 })
