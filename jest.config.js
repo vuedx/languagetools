@@ -10,7 +10,8 @@ module.exports = {
       tsconfig: 'tsconfig.json',
     },
   },
-  coverageReporters: ['json', 'lcov', 'text', 'clover', 'html-spa'],
+  coverageReporters: ['none'],
+  coverageProvider: 'v8',
   collectCoverage: !!process.env.CI,
   collectCoverageFrom: [
     'packages/**/*.ts',

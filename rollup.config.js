@@ -92,11 +92,13 @@ const config = [
         format: 'esm',
         file: abs('./packages/analyze/dist/index.esm.js'),
         preferConst: true,
+        sourcemap: true,
       },
       {
         format: 'cjs',
         file: abs('./packages/analyze/dist/index.cjs.js'),
         preferConst: true,
+        sourcemap: true,
       },
     ],
     plugins: [
@@ -112,11 +114,13 @@ const config = [
         format: 'esm',
         file: abs('./packages/compiler-sfc/dist/index.esm.js'),
         preferConst: true,
+        sourcemap: true,
       },
       {
         format: 'cjs',
         file: abs('./packages/compiler-sfc/dist/index.cjs.js'),
         preferConst: true,
+        sourcemap: true,
       },
     ],
     plugins: [
@@ -161,11 +165,13 @@ const config = [
         format: 'esm',
         file: abs('./packages/compiler-tsx/dist/index.esm.js'),
         preferConst: true,
+        sourcemap: true,
       },
       {
         format: 'cjs',
         file: abs('./packages/compiler-tsx/dist/index.cjs.js'),
         preferConst: true,
+        sourcemap: true,
       },
     ],
     plugins: [
@@ -183,11 +189,13 @@ const config = [
         format: 'esm',
         file: abs('./packages/typecheck/dist/index.esm.js'),
         preferConst: true,
+        sourcemap: true,
       },
       {
         format: 'cjs',
         file: abs('./packages/typecheck/dist/index.cjs.js'),
         preferConst: true,
+        sourcemap: true,
       },
     ],
     plugins: [
@@ -209,11 +217,13 @@ const config = [
         format: 'esm',
         file: abs('./packages/template-ast-types/dist/index.esm.js'),
         preferConst: true,
+        sourcemap: true,
       },
       {
         format: 'cjs',
         file: abs('./packages/template-ast-types/dist/index.cjs.js'),
         preferConst: true,
+        sourcemap: true,
       },
     ],
     plugins: [
@@ -231,11 +241,13 @@ const config = [
         format: 'esm',
         file: abs('./packages/typescript-plugin-vue/dist/index.esm.js'),
         preferConst: true,
+        sourcemap: true,
       },
       {
         format: 'cjs',
         file: abs('./packages/typescript-plugin-vue/dist/index.cjs.js'),
         preferConst: true,
+        sourcemap: true,
         exports: 'default',
       },
     ],
@@ -259,6 +271,7 @@ const config = [
         format: 'cjs',
         file: abs('./packages/typescript-vetur/dist/index.cjs.js'),
         preferConst: true,
+        sourcemap: true,
         exports: 'default',
       },
     ],
@@ -277,11 +290,13 @@ const config = [
         format: 'esm',
         file: abs('./packages/vue-virtual-textdocument/dist/index.esm.js'),
         preferConst: true,
+        sourcemap: true,
       },
       {
         format: 'cjs',
         file: abs('./packages/vue-virtual-textdocument/dist/index.cjs.js'),
         preferConst: true,
+        sourcemap: true,
       },
     ],
     plugins: [
@@ -298,7 +313,7 @@ const config = [
 
 export default config
   .filter((config) => input(config).match(process.env.FILTER ?? ''))
-  .filter((config) => kind(config).match(process.env.KIND ?? 'default'))
+  .filter((config) => kind(config).match(process.env.KIND ?? ''))
 
 /**
  * @param {import('rollup').RollupOptions} config
