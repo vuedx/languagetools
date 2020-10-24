@@ -15,7 +15,8 @@ export function createVueLanguageServer(
   options: LanguageServiceOptions,
 ): TS.LanguageService {
   const template = createTemplateLanguageServer(options)
-  const { helpers: h, service: script, context } = options
+  const { helpers: h, service, context } = options
+  const script = wrapInTrace('ScriptLanguageServer', service)
 
   function isFeatureEnabled<K extends keyof PluginConfig['features']>(
     featureName: K,
@@ -29,27 +30,6 @@ export function createVueLanguageServer(
   }
 
   function choose(document: VirtualTextDocument) {
-    const scriptInfo = context.projectService.getScriptInfo(document.fsPath)
-    const snapshot = scriptInfo?.getSnapshot()
-    context.log(
-      'Incoming request for ' +
-        document.fsPath +
-        ' :: ' +
-        scriptInfo?.getLatestVersion() +
-        '\n' +
-        snapshot?.getText(0, snapshot?.getLength()),
-    )
-
-    const internal = document.container.getDocument('_internal')
-    context.log(
-      'Incoming request for ' +
-        internal.fsPath +
-        ' :: ' +
-        internal.version +
-        '\n' +
-        internal.getText(),
-    )
-
     return h.isRenderFunctionDocument(document) ? template : script
   }
 
@@ -142,7 +122,7 @@ export function createVueLanguageServer(
       return []
     },
 
-    getQuickInfoAtPosition(fileName, position) {
+    getQuickInfoAtPosition(fileName, position): TS.QuickInfo | undefined {
       if (!isFeatureEnabled('quickInfo')) return
 
       // TODO: Provide better quick info for components and props.
@@ -154,16 +134,16 @@ export function createVueLanguageServer(
         )
     },
 
-    getRenameInfo(fileName, position, options) {
-      if (!isFeatureEnabled('rename'))
+    getRenameInfo(fileName, position, options): TS.RenameInfo {
+      if (!isFeatureEnabled('rename')) {
         return {
           canRename: false,
           localizedErrorMessage: 'Rename feature disabled.',
         }
+      }
 
       const document = h.getDocumentAt(fileName, position)
-
-      if (!document) {
+      if (document == null) {
         return {
           canRename: false,
           localizedErrorMessage: 'Cannot find this Vue file.',
@@ -173,35 +153,23 @@ export function createVueLanguageServer(
       return choose(document).getRenameInfo(document.fsPath, position, options)
     },
 
-    findRenameLocations(fileName, position, findInStrings, findInComments) {
-      if (!isFeatureEnabled('rename')) return []
-      const document = h.getVueDocument(fileName)
-      if (!document) return
-      const block = document.blockAt(position)
-      if (!block) return
+    findRenameLocations(
+      fileName,
+      position,
+      findInStrings,
+      findInComments,
+    ): readonly TS.RenameLocation[] | undefined {
+      if (!isFeatureEnabled('rename')) return
 
-      const result: TS.RenameLocation[] = []
-      if (block.type === 'template') {
-        const fromTemplate = template.findRenameLocations(
-          document.getDocumentFileName('_render')!,
-          position,
-          findInStrings,
-          findInComments,
-        )
-        if (fromTemplate) result.push(...fromTemplate)
-      }
+      const document = h.getDocumentAt(fileName, position)
+      if (document == null) return
 
-      if (block.type === 'script') {
-        const fromScript = script.findRenameLocations(
-          document.getDocumentFileName('script')!,
-          position,
-          findInStrings,
-          findInComments,
-        )
-        if (fromScript) result.push(...fromScript)
-      }
-
-      return result
+      return choose(document).findRenameLocations(
+        document.fsPath,
+        position,
+        findInStrings,
+        findInComments,
+      )
     },
 
     getEditsForFileRename(
@@ -209,13 +177,14 @@ export function createVueLanguageServer(
       newFilePath,
       formatOptions,
       preferences,
-    ) {
+    ): TS.FileTextChanges[] {
       if (!isFeatureEnabled('rename')) return []
+
       const document = h.getVueDocument(oldFilePath)
       const fileTextChanges: TS.FileTextChanges[] = []
       const visited = new Set<string>()
 
-      if (document) {
+      if (document != null) {
         const component = document.getDocument('_module')
         const currentChanges = script.getEditsForFileRename(
           component.fsPath,
@@ -231,7 +200,7 @@ export function createVueLanguageServer(
             const render = h
               .getVueDocument(item.fileName)
               ?.getDocument('_render')
-            if (render && !visited.has(render.fsPath)) {
+            if (render != null && !visited.has(render.fsPath)) {
               visited.add(render.fsPath)
               fileTextChanges.push(
                 ...template.getEditsForFileRenameIn(
@@ -251,24 +220,26 @@ export function createVueLanguageServer(
     getApplicableRefactors(fileName, positionOrRange, preferences) {
       if (!isFeatureEnabled('refactor')) return []
 
-      const document = h.getDocumentAt(
-        fileName,
-        isNumber(positionOrRange) ? positionOrRange : positionOrRange.pos,
-      )
-      const document2 = h.getDocumentAt(
-        fileName,
-        isNumber(positionOrRange) ? positionOrRange : positionOrRange.end,
-      )
+      if (isNumber(positionOrRange)) {
+        const document = h.getDocumentAt(fileName, positionOrRange)
+        if (document == null) return []
 
-      if (document && document === document2) {
         return choose(document).getApplicableRefactors(
           document.fsPath,
           positionOrRange,
           preferences,
         )
-      }
+      } else {
+        const document1 = h.getDocumentAt(fileName, positionOrRange.pos)
+        const document2 = h.getDocumentAt(fileName, positionOrRange.end)
+        if (document1 == null || document1 !== document2) return []
 
-      return []
+        return choose(document1).getApplicableRefactors(
+          document1.fsPath,
+          positionOrRange,
+          preferences,
+        )
+      }
     },
 
     getEditsForRefactor(
@@ -302,14 +273,66 @@ export function createVueLanguageServer(
       }
     },
 
-    getDefinitionAndBoundSpan(fileName, position) {
+    getDocumentHighlights(
+      fileName: string,
+      position: number,
+      filesToSearch: string[],
+    ): TS.DocumentHighlights[] | undefined {
       const document = h.getDocumentAt(fileName, position)
 
-      if (document) {
-        return choose(document).getDefinitionAndBoundSpan(document.fsPath, position)
-      }
+      if (document != null && !h.isRenderFunctionDocument(document)) {
+        return script.getDocumentHighlights(
+          document.fsPath,
+          position,
+          filesToSearch
+            .map((fileName) => {
+              if (isVueFile(fileName)) {
+                const document = h.getVueDocument(fileName)
+                if (document == null) return
 
-      return undefined
+                const script =
+                  document.getDocument('script') ??
+                  document.getDocument('scriptSetup')
+                if (script == null) return
+
+                return script.fsPath
+              }
+
+              return fileName
+            })
+            .filter(Boolean) as string[],
+        )
+      }
+    },
+
+    getDefinitionAtPosition(
+      fileName: string,
+      position: number,
+    ): readonly TS.DefinitionInfo[] | undefined {
+      const document = h.getDocumentAt(fileName, position)
+
+      if (document != null) {
+        return choose(document).getDefinitionAtPosition(
+          document.fsPath,
+          position,
+        )
+      }
+    },
+
+    getDefinitionAndBoundSpan(
+      fileName: string,
+      position: number,
+    ): TS.DefinitionInfoAndBoundSpan | undefined {
+      if (!isFeatureEnabled('goto')) return
+
+      const document = h.getDocumentAt(fileName, position)
+
+      if (document != null) {
+        return choose(document).getDefinitionAndBoundSpan(
+          document.fsPath,
+          position,
+        )
+      }
     },
   })
 }

@@ -287,6 +287,11 @@ export class TestServer {
     args: Proto.QuickInfoRequest['arguments'],
   ): Promise<Proto.QuickInfoResponse>
 
+  public async sendCommand(
+    command: 'rename' | Proto.CommandTypes.Rename,
+    args: Proto.RenameRequest['arguments'],
+  ): Promise<Proto.RenameResponse>
+
   public async sendCommand(command: string, args: any): Promise<any> {
     return this.sendRequest({ command, arguments: args }) as any
   }

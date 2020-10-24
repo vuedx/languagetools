@@ -537,8 +537,8 @@ export class VueTextDocument extends ProxyTextDocument {
   public getDocument(
     selector: typeof RENDER_SELECTOR,
   ): RenderFunctionTextDocument
-  public getDocument(selector: SelectorLike): VirtualTextDocument
-  public getDocument(selector: string): VirtualTextDocument
+  public getDocument(selector: SelectorLike): VirtualTextDocument // TODO: Can return undefined
+  public getDocument(selector: string): VirtualTextDocument | undefined
   public getDocument(selector: SelectorLike | string) {
     this.parse()
 

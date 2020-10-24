@@ -4,7 +4,7 @@
     "node": ">=14.0"
   },
   "scripts": {
-    "test": "nyc jest",
+    "test": "jest",
     "coverage": "nyc --reporter=json --reporter=text-summary jest --coverage",
     "watch": "rollup -c --environment BUILD:development --watch",
     "build": "rollup -c --environment BUILD:production",

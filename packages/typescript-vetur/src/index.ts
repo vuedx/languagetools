@@ -1,4 +1,7 @@
-import createPlugin, { Modules, PluginConfig } from '@vuedx/typescript-plugin-vue';
+import createPlugin, {
+  Modules,
+  PluginConfig,
+} from '@vuedx/typescript-plugin-vue'
 
 const config: Partial<PluginConfig> = {
   features: {
@@ -7,18 +10,19 @@ const config: Partial<PluginConfig> = {
     quickInfo: false,
     rename: true,
     refactor: true,
+    goto: true,
   },
-};
+}
 
 export default function init(options: Modules): any {
-  const plugin = createPlugin(options);
+  const plugin = createPlugin(options)
 
   return {
     ...plugin,
     create(options: any) {
-      options.config = config;
+      options.config = config
 
-      return plugin.create(options);
+      return plugin.create(options)
     },
-  };
+  }
 }

@@ -12,6 +12,7 @@ import { LanguageServiceOptions } from '../types'
 import { createServerHelper, isNotNull } from '../helpers/utils'
 import { createVueLanguageServer } from './vue'
 import Path from 'path'
+import { wrapInTrace } from '../helpers/logger'
 const VUE_LANGUAGE_SERVER = Symbol('Vue Language Server')
 
 export class RoutingLanguageServer {
@@ -44,59 +45,6 @@ function createLanguageServiceRouter(
   function choose(fileName: string) {
     return isVueFile(fileName) ? vue : ts
   }
-
-  const methods: Array<keyof TS.LanguageService> = [
-    'getRenameInfo',
-    'findRenameLocations',
-    'getApplicableRefactors',
-    'getBraceMatchingAtPosition',
-    'getBreakpointStatementAtPosition',
-    'getCodeFixesAtPosition',
-    'getCompletionEntryDetails',
-    'getCompletionEntrySymbol',
-    'getCompletionsAtPosition',
-    'getDefinitionAndBoundSpan',
-    'getDefinitionAtPosition',
-    'getDocCommentTemplateAtPosition',
-    'getDocumentHighlights',
-    'getEditsForFileRename',
-    'getEditsForRefactor',
-    'getEmitOutput',
-    'getEncodedSemanticClassifications',
-    'getEncodedSyntacticClassifications',
-    'getFormattingEditsAfterKeystroke',
-    'getFormattingEditsForDocument',
-    'getFormattingEditsForRange',
-    'getImplementationAtPosition',
-    'getIndentationAtPosition',
-    'getJsxClosingTagAtPosition',
-    'getNameOrDottedNameSpan',
-    'getNavigateToItems',
-    'getNavigationBarItems',
-    'getNavigationTree',
-    'getOccurrencesAtPosition',
-    'getOutliningSpans',
-    'getQuickInfoAtPosition',
-    'getReferencesAtPosition',
-    'getSemanticClassifications',
-    'getSemanticClassifications',
-    'getSignatureHelpItems',
-    'getSmartSelectionRange',
-    'getSpanOfEnclosingComment',
-    'getSuggestionDiagnostics',
-    'getSyntacticDiagnostics',
-    'getTodoComments',
-    'getTypeDefinitionAtPosition',
-    'findReferences',
-    'prepareCallHierarchy',
-    'provideCallHierarchyIncomingCalls',
-    'provideCallHierarchyOutgoingCalls',
-    'isValidBraceCompletionAtPosition',
-    'applyCodeActionCommand',
-    'getNonBoundSourceFile',
-    'getSourceMapper',
-    'clearSourceMapperCache',
-  ] as any
 
   function getTextSpan(
     document: VirtualTextDocument,
@@ -166,383 +114,451 @@ function createLanguageServiceRouter(
     return !!file && isVirtualFile(file.fileName)
   }
 
-  const proxy: Partial<TS.LanguageService> = {
-    dispose() {
-      // TODO: Clear Vue files in memory.
-      config.service.dispose()
-    },
-    cleanupSemanticCache() {
-      config.service.cleanupSemanticCache()
-    },
-    getCompilerOptionsDiagnostics() {
-      return config.service.getCompilerOptionsDiagnostics()
-    },
-    getSyntacticClassifications(fileName, span) {
-      return config.service.getSyntacticClassifications(fileName, span)
-    },
-    getCombinedCodeFix(scope, fixId, formatOptions, preferences) {
-      return config.service.getCombinedCodeFix(
-        scope,
-        fixId,
-        formatOptions,
-        preferences,
-      )
-    },
-    getProgram() {
-      return config.service.getProgram()
-    },
-    toLineColumnOffset(fileName, position) {
-      return config.service.toLineColumnOffset
-        ? config.service.toLineColumnOffset(fileName, position)
-        : { line: 0, character: 0 }
-    },
-    organizeImports(scope, formatOptions, preferences) {
-      return choose(scope.fileName)
-        .organizeImports(scope, formatOptions, preferences)
-        .map((change) => {
-          if (isVirtualFile(change.fileName))
-            change.fileName = getContainingFile(change.fileName)
-
-          return change
-        })
-    },
-
-    getQuickInfoAtPosition(fileName, position) {
-      const info = choose(fileName).getQuickInfoAtPosition(fileName, position)
-
-      if (info?.displayParts) {
-        info.displayParts = info.displayParts
-          .map((part) => {
-            part.text = applyReplacements(fileName, part.text)
-
-            return part
-          })
-          .filter(isNotNull)
-      }
-
-      if (info?.documentation) {
-        info.documentation = info.documentation
-          .map((part) => {
-            part.text = applyReplacements(fileName, part.text)
-
-            return part
-          })
-          .filter(isNotNull)
-      }
-
-      return info
-    },
-
-    getSemanticDiagnostics(fileName) {
-      const diagnostics = choose(fileName).getSemanticDiagnostics(fileName)
-      const program = config.service.getProgram()
-
-      return diagnostics
-        .map((diagnostic) => {
-          if (isVirtualSourceFile(diagnostic.file)) {
-            diagnostic.file = {
-              ...diagnostic.file,
-              fileName: getContainingFile(diagnostic.file.fileName),
-            }
-          }
-
-          diagnostic.messageText = applyReplacements(
-            fileName,
-            diagnostic.messageText,
-          )
-
-          if (diagnostic.relatedInformation) {
-            diagnostic.relatedInformation = diagnostic.relatedInformation.map(
-              (info) => {
-                info.messageText = applyReplacements(fileName, info.messageText)
-                if (isVirtualSourceFile(info.file)) {
-                  info.file = program?.getSourceFile(
-                    getContainingFile(info.file.fileName),
-                  )
-                }
-
-                return info
-              },
-            )
-          }
-
-          return diagnostic
-        })
-        .filter(isNotNull)
-    },
-
-    getSyntacticDiagnostics(fileName) {
-      const diagnostics = choose(fileName).getSyntacticDiagnostics(fileName)
-      const program = config.service.getProgram()
-
-      return diagnostics
-        .map((diagnostic) => {
-          if (isVirtualSourceFile(diagnostic.file)) {
-            diagnostic.file = {
-              ...diagnostic.file,
-              fileName: getContainingFile(diagnostic.file.fileName),
-            }
-          }
-
-          diagnostic.messageText = applyReplacements(
-            fileName,
-            diagnostic.messageText,
-          )
-
-          if (diagnostic.relatedInformation) {
-            diagnostic.relatedInformation = diagnostic.relatedInformation.map(
-              (info) => {
-                info.messageText = applyReplacements(fileName, info.messageText)
-                if (isVirtualSourceFile(info.file)) {
-                  info.file = program?.getSourceFile(
-                    getContainingFile(info.file.fileName),
-                  )
-                }
-
-                return info
-              },
-            )
-          }
-
-          return diagnostic
-        })
-        .filter(isNotNull)
-    },
-
-    getSuggestionDiagnostics(fileName) {
-      const diagnostics = choose(fileName).getSuggestionDiagnostics(fileName)
-
-      return diagnostics
-        .map((diagnostic) => {
-          if (isVirtualSourceFile(diagnostic.file)) {
-            diagnostic.file = {
-              ...diagnostic.file,
-              fileName: getContainingFile(diagnostic.file.fileName),
-            }
-          }
-
-          diagnostic.messageText = applyReplacements(
-            fileName,
-            diagnostic.messageText,
-          )
-
-          if (diagnostic.relatedInformation) {
-            diagnostic.relatedInformation = diagnostic.relatedInformation.map(
-              (info) => {
-                info.messageText = applyReplacements(fileName, info.messageText)
-                if (isVirtualSourceFile(info.file)) {
-                  info.file = {
-                    ...info.file,
-                    fileName: getContainingFile(info.file.fileName),
-                  }
-                }
-
-                return info
-              },
-            )
-          }
-
-          return diagnostic
-        })
-        .filter(isNotNull)
-    },
-
-    getRenameInfo(fileName, position, options) {
-      const result = choose(fileName).getRenameInfo(fileName, position, options)
-
-      config.context.log(JSON.stringify(result))
-
-      if (result.canRename) {
-        if (result.fileToRename && isVirtualFile(result.fileToRename)) {
-          result.fileToRename = getContainingFile(result.fileToRename)
-        }
-
-        result.displayName = REPLACE.virtualFile(result.displayName)
-        result.fullDisplayName = REPLACE.virtualFile(result.fullDisplayName)
-
-        if (
-          result.kind ===
-            config.context.typescript.ScriptElementKind.moduleElement &&
-          result.displayName.endsWith('.vue')
-        ) {
-          result.triggerSpan.length -= 4
-        }
-      }
-
-      return result
-    },
-
-    findRenameLocations(fileName, position, findInStrings, findInComments) {
-      const result = choose(fileName)
-        .findRenameLocations(fileName, position, findInStrings, findInComments)
-        ?.map((item) => {
-          if (isVirtualFile(item.fileName)) {
-            item.originalContextSpan = item.contextSpan
-            item.originalTextSpan = item.textSpan
-            item.originalFileName = item.fileName
-            const virtual = config.helpers.getDocument(
-              item.fileName,
-            ) as VirtualTextDocument
-
-            item.fileName = virtual.container.fsPath
-            const textSpan = getTextSpan(virtual, item.textSpan)
-            if (!textSpan) return
-
-            item.textSpan = textSpan
-            if (item.contextSpan) {
-              const contextSpan = getTextSpan(virtual, item.contextSpan)
-              if (!contextSpan) return
-
-              item.contextSpan = contextSpan
-            }
-          }
-
-          return item
-        })
-        .filter(isNotNull)
-
-      config.context.log(JSON.stringify(result))
-
-      return result
-    },
-
-    getEditsForFileRename(
-      oldFilePath,
-      newFilePath,
-      formatOptions,
-      preferences,
-    ) {
-      const suffix = '.vue' + VIRTUAL_FILENAME_SEPARATOR + '_module'
-      return choose(oldFilePath)
-        .getEditsForFileRename(
-          oldFilePath,
-          newFilePath,
+  const proxy: Partial<TS.LanguageService> = wrapInTrace(
+    'RoutingLanguageServer',
+    {
+      ...config.service,
+      dispose() {
+        // TODO: Clear Vue files in memory.
+        config.service.dispose()
+      },
+      cleanupSemanticCache() {
+        config.service.cleanupSemanticCache()
+      },
+      getCompilerOptionsDiagnostics() {
+        return config.service.getCompilerOptionsDiagnostics()
+      },
+      getSyntacticClassifications(fileName, span) {
+        return config.service.getSyntacticClassifications(fileName, span)
+      },
+      getCombinedCodeFix(scope, fixId, formatOptions, preferences) {
+        return config.service.getCombinedCodeFix(
+          scope,
+          fixId,
           formatOptions,
           preferences,
         )
-        .map((edit) => {
-          if (isVirtualFile(edit.fileName)) {
-            const selector = parseVirtualFileName(edit.fileName)
+      },
+      getProgram() {
+        return config.service.getProgram()
+      },
+      toLineColumnOffset(fileName, position) {
+        return config.service.toLineColumnOffset
+          ? config.service.toLineColumnOffset(fileName, position)
+          : { line: 0, character: 0 }
+      },
+      organizeImports(scope, formatOptions, preferences) {
+        return choose(scope.fileName)
+          .organizeImports(scope, formatOptions, preferences)
+          .map((change) => {
+            if (isVirtualFile(change.fileName))
+              change.fileName = getContainingFile(change.fileName)
 
-            if (selector?.selector.type !== 'script') return
+            return change
+          })
+      },
 
-            edit.fileName = getContainingFile(edit.fileName)
-          }
+      getQuickInfoAtPosition(fileName, position) {
+        const info = choose(fileName).getQuickInfoAtPosition(fileName, position)
 
-          edit.textChanges = edit.textChanges
-            .map((change) => {
-              const index = change.newText.indexOf(suffix)
+        if (info?.displayParts) {
+          info.displayParts = info.displayParts
+            .map((part) => {
+              part.text = applyReplacements(fileName, part.text)
 
-              if (index >= 0) {
-                change.newText =
-                  change.newText.substr(0, index + 4) +
-                  change.newText.substr(index + suffix.length)
-              }
-
-              return change
+              return part
             })
             .filter(isNotNull)
+        }
 
-          if (!edit.textChanges.length) return
+        if (info?.documentation) {
+          info.documentation = info.documentation
+            .map((part) => {
+              part.text = applyReplacements(fileName, part.text)
 
-          return edit
-        })
-        .filter(isNotNull)
-    },
+              return part
+            })
+            .filter(isNotNull)
+        }
 
-    getApplicableRefactors(fileName, positionOrRange, preferences) {
-      return choose(fileName).getApplicableRefactors(
-        fileName,
-        positionOrRange,
+        return info
+      },
+
+      getSemanticDiagnostics(fileName) {
+        const diagnostics = choose(fileName).getSemanticDiagnostics(fileName)
+        const program = config.service.getProgram()
+
+        return diagnostics
+          .map((diagnostic) => {
+            if (isVirtualSourceFile(diagnostic.file)) {
+              diagnostic.file = {
+                ...diagnostic.file,
+                fileName: getContainingFile(diagnostic.file.fileName),
+              }
+            }
+
+            diagnostic.messageText = applyReplacements(
+              fileName,
+              diagnostic.messageText,
+            )
+
+            if (diagnostic.relatedInformation) {
+              diagnostic.relatedInformation = diagnostic.relatedInformation.map(
+                (info) => {
+                  info.messageText = applyReplacements(
+                    fileName,
+                    info.messageText,
+                  )
+                  if (isVirtualSourceFile(info.file)) {
+                    info.file = program?.getSourceFile(
+                      getContainingFile(info.file.fileName),
+                    )
+                  }
+
+                  return info
+                },
+              )
+            }
+
+            return diagnostic
+          })
+          .filter(isNotNull)
+      },
+
+      getSyntacticDiagnostics(fileName) {
+        const diagnostics = choose(fileName).getSyntacticDiagnostics(fileName)
+        const program = config.service.getProgram()
+
+        return diagnostics
+          .map((diagnostic) => {
+            if (isVirtualSourceFile(diagnostic.file)) {
+              diagnostic.file = {
+                ...diagnostic.file,
+                fileName: getContainingFile(diagnostic.file.fileName),
+              }
+            }
+
+            diagnostic.messageText = applyReplacements(
+              fileName,
+              diagnostic.messageText,
+            )
+
+            if (diagnostic.relatedInformation) {
+              diagnostic.relatedInformation = diagnostic.relatedInformation.map(
+                (info) => {
+                  info.messageText = applyReplacements(
+                    fileName,
+                    info.messageText,
+                  )
+                  if (isVirtualSourceFile(info.file)) {
+                    info.file = program?.getSourceFile(
+                      getContainingFile(info.file.fileName),
+                    )
+                  }
+
+                  return info
+                },
+              )
+            }
+
+            return diagnostic
+          })
+          .filter(isNotNull)
+      },
+
+      getSuggestionDiagnostics(fileName) {
+        const diagnostics = choose(fileName).getSuggestionDiagnostics(fileName)
+
+        return diagnostics
+          .map((diagnostic) => {
+            if (isVirtualSourceFile(diagnostic.file)) {
+              diagnostic.file = {
+                ...diagnostic.file,
+                fileName: getContainingFile(diagnostic.file.fileName),
+              }
+            }
+
+            diagnostic.messageText = applyReplacements(
+              fileName,
+              diagnostic.messageText,
+            )
+
+            if (diagnostic.relatedInformation) {
+              diagnostic.relatedInformation = diagnostic.relatedInformation.map(
+                (info) => {
+                  info.messageText = applyReplacements(
+                    fileName,
+                    info.messageText,
+                  )
+                  if (isVirtualSourceFile(info.file)) {
+                    info.file = {
+                      ...info.file,
+                      fileName: getContainingFile(info.file.fileName),
+                    }
+                  }
+
+                  return info
+                },
+              )
+            }
+
+            return diagnostic
+          })
+          .filter(isNotNull)
+      },
+
+      getRenameInfo(fileName, position, options) {
+        const result = choose(fileName).getRenameInfo(
+          fileName,
+          position,
+          options,
+        )
+
+        if (result.canRename) {
+          if (result.fileToRename && isVirtualFile(result.fileToRename)) {
+            result.fileToRename = getContainingFile(result.fileToRename)
+          }
+
+          result.displayName = REPLACE.virtualFile(result.displayName)
+          result.fullDisplayName = REPLACE.virtualFile(result.fullDisplayName)
+
+          if (
+            result.kind ===
+              config.context.typescript.ScriptElementKind.moduleElement &&
+            result.displayName.endsWith('.vue')
+          ) {
+            result.triggerSpan.length -= 4
+          }
+        }
+
+        return result
+      },
+
+      findRenameLocations(fileName, position, findInStrings, findInComments) {
+        const result = choose(fileName)
+          .findRenameLocations(
+            fileName,
+            position,
+            findInStrings,
+            findInComments,
+          )
+          ?.map((item) => {
+            if (isVirtualFile(item.fileName)) {
+              item.originalContextSpan = item.contextSpan
+              item.originalTextSpan = item.textSpan
+              item.originalFileName = item.fileName
+              const virtual = config.helpers.getDocument(
+                item.fileName,
+              ) as VirtualTextDocument
+
+              item.fileName = virtual.container.fsPath
+              const textSpan = getTextSpan(virtual, item.textSpan)
+              if (!textSpan) return
+
+              item.textSpan = textSpan
+              if (item.contextSpan) {
+                const contextSpan = getTextSpan(virtual, item.contextSpan)
+                if (!contextSpan) return
+
+                item.contextSpan = contextSpan
+              }
+            }
+
+            return item
+          })
+          .filter(isNotNull)
+
+        config.context.log(JSON.stringify(result))
+
+        return result
+      },
+
+      getEditsForFileRename(
+        oldFilePath,
+        newFilePath,
+        formatOptions,
         preferences,
-      )
-    },
+      ) {
+        const suffix = '.vue' + VIRTUAL_FILENAME_SEPARATOR + '_module'
+        return choose(oldFilePath)
+          .getEditsForFileRename(
+            oldFilePath,
+            newFilePath,
+            formatOptions,
+            preferences,
+          )
+          .map((edit) => {
+            if (isVirtualFile(edit.fileName)) {
+              const selector = parseVirtualFileName(edit.fileName)
 
-    getEditsForRefactor(
-      fileName,
-      formatOptions,
-      positionOrRange,
-      refactorName,
-      actionName,
-      preferences,
-    ) {
-      const result = choose(fileName).getEditsForRefactor(
+              if (selector?.selector.type !== 'script') return
+
+              edit.fileName = getContainingFile(edit.fileName)
+            }
+
+            edit.textChanges = edit.textChanges
+              .map((change) => {
+                const index = change.newText.indexOf(suffix)
+
+                if (index >= 0) {
+                  change.newText =
+                    change.newText.substr(0, index + 4) +
+                    change.newText.substr(index + suffix.length)
+                }
+
+                return change
+              })
+              .filter(isNotNull)
+
+            if (!edit.textChanges.length) return
+
+            return edit
+          })
+          .filter(isNotNull)
+      },
+
+      getApplicableRefactors(fileName, positionOrRange, preferences) {
+        return choose(fileName).getApplicableRefactors(
+          fileName,
+          positionOrRange,
+          preferences,
+        )
+      },
+
+      getEditsForRefactor(
         fileName,
         formatOptions,
         positionOrRange,
         refactorName,
         actionName,
         preferences,
-      )
+      ) {
+        const result = choose(fileName).getEditsForRefactor(
+          fileName,
+          formatOptions,
+          positionOrRange,
+          refactorName,
+          actionName,
+          preferences,
+        )
 
-      const editsByFileName: Record<
-        string,
-        { fileName: string; isNewFile?: boolean; textChanges: TS.TextChange[] }
-      > = {}
+        const editsByFileName: Record<
+          string,
+          {
+            fileName: string
+            isNewFile?: boolean
+            textChanges: TS.TextChange[]
+          }
+        > = {}
 
-      if (result) {
-        result.edits = result.edits.filter((edit) => {
-          if (isVirtualFile(edit.fileName) || isVueFile(edit.fileName)) {
-            edit.fileName = getContainingFile(edit.fileName)
+        if (result) {
+          result.edits = result.edits.filter((edit) => {
+            if (isVirtualFile(edit.fileName) || isVueFile(edit.fileName)) {
+              edit.fileName = getContainingFile(edit.fileName)
 
-            if (!(edit.fileName in editsByFileName)) {
-              editsByFileName[edit.fileName] = {
-                isNewFile: false,
-                fileName: edit.fileName,
-                textChanges: [],
+              if (!(edit.fileName in editsByFileName)) {
+                editsByFileName[edit.fileName] = {
+                  isNewFile: false,
+                  fileName: edit.fileName,
+                  textChanges: [],
+                }
               }
+              editsByFileName[edit.fileName].textChanges.push(
+                ...edit.textChanges,
+              )
+              editsByFileName[edit.fileName].isNewFile =
+                editsByFileName[edit.fileName].isNewFile ||
+                edit.isNewFile === true
+
+              return false
             }
-            editsByFileName[edit.fileName].textChanges.push(...edit.textChanges)
-            editsByFileName[edit.fileName].isNewFile =
-              editsByFileName[edit.fileName].isNewFile ||
-              edit.isNewFile === true
 
-            return false
-          }
+            return true
+          })
 
-          return true
-        })
-
-        result.edits.push(...Object.values<TS.FileTextChanges>(editsByFileName))
-      }
-
-      config.context.log(JSON.stringify(result, null, 2))
-      return result
-    },
-
-    getDefinitionAndBoundSpan(fileName, position) {
-      const result = choose(fileName).getDefinitionAndBoundSpan(
-        fileName,
-        position,
-      )
-
-      if (result?.definitions) {
-        result.definitions.forEach((definition) => {
-          if (isVirtualFile(definition.fileName)) {
-            definition.fileName = getContainingFile(definition.fileName)
-          }
-        })
-      }
-
-      return result
-    },
-  }
-
-  methods.forEach((name) => {
-    if (!(name in proxy)) {
-      // @ts-ignore
-      proxy[name] = function (fileName: string): any {
-        const fn = config.service[name] as any
-        if (typeof fileName === 'string') {
-          const service = choose(fileName)
-          // @ts-ignore
-          return fn.apply(service, arguments)
-        } else {
-          return fn.apply(config.service, arguments as any)
+          result.edits.push(
+            ...Object.values<TS.FileTextChanges>(editsByFileName),
+          )
         }
-      }
-    }
-  })
+
+        config.context.log(JSON.stringify(result, null, 2))
+        return result
+      },
+
+      getDefinitionAndBoundSpan(
+        fileName: string,
+        position: number,
+      ): TS.DefinitionInfoAndBoundSpan | undefined {
+        const result = choose(fileName).getDefinitionAndBoundSpan(
+          fileName,
+          position,
+        )
+
+        if (result?.definitions) {
+          result.definitions.forEach((definition) => {
+            if (isVirtualFile(definition.fileName)) {
+              definition.fileName = getContainingFile(definition.fileName)
+            }
+          })
+        }
+
+        return result
+      },
+
+      getDefinitionAtPosition(
+        fileName: string,
+        position: number,
+      ): readonly TS.DefinitionInfo[] | undefined {
+        const result = choose(fileName).getDefinitionAtPosition(
+          fileName,
+          position,
+        )
+
+        if (result != null) {
+          result.forEach((definitionInfo) => {
+            if (isVirtualFile(definitionInfo.fileName)) {
+              definitionInfo.fileName = getContainingFile(
+                definitionInfo.fileName,
+              )
+              definitionInfo.name = applyReplacements(
+                definitionInfo.fileName,
+                definitionInfo.name,
+              )
+            }
+          })
+        }
+
+        return result
+      },
+
+      getDocumentHighlights(
+        fileName: string,
+        position: number,
+        filesToSearch: string[],
+      ): TS.DocumentHighlights[] {
+        const result = choose(fileName).getDocumentHighlights(
+          fileName,
+          position,
+          filesToSearch,
+        )
+
+        if (result != null) {
+          result.forEach((highlights) => {
+            if (isVirtualFile(fileName)) {
+              highlights.fileName = getContainingFile(highlights.fileName)
+              highlights.highlightSpans.forEach((span) => {
+                if (span.fileName != null && isVirtualFile(span.fileName)) {
+                  span.fileName = getContainingFile(span.fileName)
+                }
+              })
+            }
+          })
+        }
+
+        return result ?? []
+      },
+    },
+  )
 
   return proxy as any
 }
