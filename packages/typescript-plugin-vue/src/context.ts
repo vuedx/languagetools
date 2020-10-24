@@ -62,6 +62,7 @@ export class PluginContext {
   private _config: PluginConfig = getConfig()
   private _projectService!: TS.server.ProjectService
   private _serverHost!: TS.server.ServerHost
+  public readonly _externalFiles = new WeakMap<TS.server.Project, string[]>()
 
   public constructor(public readonly typescript: typeof TS) {
     this.typescript.setSourceMapRange
@@ -99,6 +100,10 @@ export class PluginContext {
 
   public getVueVersion(fileName: string) {
     return '3.0.0'
+  }
+
+  public getExternalFiles(project: TS.server.Project): string[] {
+    return this._externalFiles.get(project) ?? []
   }
 
   public createVueDocument(fileName: string, content: string) {
@@ -288,7 +293,6 @@ function patchGetScriptFileNames(
       context.log(
         `[patch] Override getScriptFileNames to expand .vue files to virtual files. (LanguageServerHost)`,
       )
-      const previousVueFiles = new Set<string>()
 
       return () => {
         const fileNames = new Set<string>()
@@ -302,24 +306,41 @@ function patchGetScriptFileNames(
           context.projectService.logger.endGroup()
         }
 
-        ;[...getScriptFileNames(), ...previousVueFiles]
+        const vueFiles = new Set<string>()
+
+        getScriptFileNames()
           .map((fileName) =>
             isVirtualFile(fileName) ? getContainingFile(fileName) : fileName,
           )
           .forEach((fileName) => {
             if (isVueFile(fileName)) {
               const document = context.store.get(fileName)
-
               if (document) {
-                previousVueFiles.add(fileName)
+                vueFiles.add(fileName)
                 fileNames.add(document.getDocumentFileName(MODULE_SELECTOR)!)
-              } else {
-                previousVueFiles.delete(fileName)
               }
             } else {
               fileNames.add(fileName)
             }
           })
+
+        if (vueFiles.size > 0) {
+          const files = Array.from(vueFiles)
+          const projects = new Set(
+            files
+              .map((fileName) =>
+                context.projectService.getDefaultProjectForFile(
+                  context.typescript.server.toNormalizedPath(fileName),
+                  false,
+                ),
+              )
+              .filter(Boolean) as TS.server.Project[],
+          )
+
+          projects.forEach((project) => {
+            context._externalFiles.set(project, files)
+          })
+        }
 
         if (__DEV__) {
           context.log(`LanguageServerHost.getScriptFileNames`)
@@ -424,7 +445,7 @@ function patchModuleResolution(
           : []
 
         result.forEach((resolved) => {
-          if (resolved && isVirtualFile(resolved.resolvedFileName)) {
+          if (resolved != null && isVirtualFile(resolved.resolvedFileName)) {
             context.tryCreateScriptInfo(resolved.resolvedFileName) // Trigger .vue script info creation.
           }
         })
@@ -469,7 +490,7 @@ function patchWatchFile(context: PluginContext) {
       }
 
       if (isVirtualFile(fileName)) {
-        context.watchVirtualFile(fileName, callback)
+        context.watchVirtualFile(fileName, callback) // wrap callback instead.
 
         return {
           close() {
@@ -521,8 +542,6 @@ function patchScriptInfo(
       )
         .all()
         .forEach((document) => triggerFileUpdate(document.fsPath))
-
-      // context.triggerVirtualFileWatchers(scriptInfo.fileName, context.typescript.FileWatcherEventKind.Changed);
     }
   })
 }

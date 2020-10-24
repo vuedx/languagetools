@@ -234,6 +234,14 @@ importers:
     specifiers:
       typescript: ^4.0.3
       vue: ^3.0.0
+  samples/feature-rename:
+    dependencies:
+      vue: 3.0.0
+    devDependencies:
+      typescript: 4.0.3
+    specifiers:
+      typescript: ^4.0.3
+      vue: ^3.0.0
   samples/javascript:
     dependencies:
       vue: 3.0.0

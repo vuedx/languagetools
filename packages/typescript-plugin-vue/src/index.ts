@@ -1,28 +1,26 @@
-import { PluginContext } from './context';
-import { Modules, TS } from './interfaces';
-import { RoutingLanguageServer } from './servers/routing';
+import { PluginContext } from './context'
+import { Modules, TS } from './interfaces'
+import { RoutingLanguageServer } from './servers/routing'
 
-let context: PluginContext;
-let server: RoutingLanguageServer;
+let context: PluginContext
+let server: RoutingLanguageServer
 
-export type { Modules, PluginConfig } from './interfaces';
+export type { Modules, PluginConfig } from './interfaces'
 
 export default function init({ typescript }: Modules): TS.server.PluginModule {
-  if (!context) {
-    context = new PluginContext(typescript);
-    server = new RoutingLanguageServer(context);
-  }
+  context = context || new PluginContext(typescript)
+  server = server || new RoutingLanguageServer(context)
 
   return {
     create(info) {
-      context.load(info);
-      return server.decorate(info.languageService);
+      context.load(info)
+      return server.decorate(info.languageService)
     },
-
+    getExternalFiles(project) {
+      return context.getExternalFiles(project) ?? []
+    },
     onConfigurationChanged(config) {
-      if (context) {
-        context.setConfig(config);
-      }
+      context.setConfig(config)
     },
-  };
+  }
 }

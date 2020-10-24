@@ -23,7 +23,12 @@
       "name": "Test: TypeScript Plugin (current file)",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/jest/bin/jest",
-      "args": ["--runInBand", "--config", "${workspaceFolder}/jest.e2e.debug.config.js", "${fileBasename}"],
+      "args": [
+        "--runInBand",
+        "--config",
+        "${workspaceFolder}/jest.e2e.debug.config.js",
+        "${fileBasename}"
+      ],
       "env": {
         "CI": "vscode-jest-tests"
       },
@@ -32,7 +37,9 @@
       "internalConsoleOptions": "neverOpen",
       "sourceMaps": true,
       "disableOptimisticBPs": true,
-      "outFiles": ["${workspaceFolder}/packages/@vuedx/typescript-plugin-vue/dist/*.js"]
+      "outFiles": [
+        "${workspaceFolder}/packages/@vuedx/typescript-plugin-vue/dist/*.js"
+      ]
     },
     {
       "name": "Extension: VS Code",
@@ -42,7 +49,7 @@
       "args": [
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode",
-        "${workspaceRoot}/samples/feature-goto-definition"
+        "${workspaceRoot}/samples/feature-rename"
       ],
       "sourceMaps": true,
       "enableSourceMapCaching": true,

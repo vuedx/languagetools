@@ -78,6 +78,27 @@ describe('rename', () => {
         expect(body.info.triggerSpan.end.offset).toBe(
           position.offset + 'HelloWorld'.length,
         )
+
+        expect(body.locs.map((loc) => loc.file)).toEqual([
+          abs('src/Javascript.jsx'),
+          abs('src/Javascript.vue'),
+          abs('src/JavascriptSetup.vue'),
+          abs('src/Typescript.tsx'),
+          abs('src/Typescript.vue'),
+          abs('src/TypescriptSetup.vue'),
+        ])
+
+        await Promise.all(
+          body.locs.map(async (loc) => {
+            const position = await findPositionOrThrowIn(
+              loc.file,
+              `'./components/HelloWorld.vue'`,
+            )
+
+            expect(loc.locs).toHaveLength(1)
+            expect(loc.locs[0].start.line).toBe(position.line)
+          }),
+        )
       }
     })
   })

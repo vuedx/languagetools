@@ -344,21 +344,18 @@ function createLanguageServiceRouter(
           )
           ?.map((item) => {
             if (isVirtualFile(item.fileName)) {
-              item.originalContextSpan = item.contextSpan
-              item.originalTextSpan = item.textSpan
-              item.originalFileName = item.fileName
               const virtual = config.helpers.getDocument(
                 item.fileName,
               ) as VirtualTextDocument
 
               item.fileName = virtual.container.fsPath
               const textSpan = getTextSpan(virtual, item.textSpan)
-              if (!textSpan) return
+              if (textSpan == null) return
 
               item.textSpan = textSpan
               if (item.contextSpan) {
                 const contextSpan = getTextSpan(virtual, item.contextSpan)
-                if (!contextSpan) return
+                if (contextSpan == null) return
 
                 item.contextSpan = contextSpan
               }
@@ -374,11 +371,11 @@ function createLanguageServiceRouter(
       },
 
       getEditsForFileRename(
-        oldFilePath,
-        newFilePath,
-        formatOptions,
-        preferences,
-      ) {
+        oldFilePath: string,
+        newFilePath: string,
+        formatOptions: TS.FormatCodeOptions,
+        preferences: TS.UserPreferences,
+      ): readonly TS.FileTextChanges[] {
         const suffix = '.vue' + VIRTUAL_FILENAME_SEPARATOR + '_module'
         return choose(oldFilePath)
           .getEditsForFileRename(
@@ -389,9 +386,10 @@ function createLanguageServiceRouter(
           )
           .map((edit) => {
             if (isVirtualFile(edit.fileName)) {
-              const selector = parseVirtualFileName(edit.fileName)
-
-              if (selector?.selector.type !== 'script') return
+              const result = parseVirtualFileName(edit.fileName)
+              if (result == null) return
+              if (!['script', 'scriptSetup'].includes(result.selector.type))
+                return
 
               edit.fileName = getContainingFile(edit.fileName)
             }
