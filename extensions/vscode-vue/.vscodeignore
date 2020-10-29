@@ -3,3 +3,5 @@
 !scripts/
 !syntaxes/*.json
 !logo.png
+!readme.md
+!LICENSE
