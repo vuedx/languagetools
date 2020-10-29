@@ -1,7 +1,9 @@
 import { sync as glob } from 'fast-glob'
 import Path from 'path'
 import FS from 'fs'
+import { URI } from 'vscode-uri'
 import { VueTextDocument } from '../src/documents/VueTextDocument'
+import { asFilePath } from '../src/utils'
 
 expect.addSnapshotSerializer({
   test: (value) => typeof value === 'string',
@@ -21,8 +23,11 @@ describe('VueVirtualDocument/baseline', () => {
     const content = await FS.promises.readFile(fileName, {
       encoding: 'utf-8',
     })
+
+    const xxx = URI.file(fileName)
+
     const document = VueTextDocument.create(
-      `file://${fileName}`,
+      asFilePath(fileName),
       'vue',
       0,
       content,
@@ -31,3 +36,21 @@ describe('VueVirtualDocument/baseline', () => {
     expect(document.getDocument('_render')?.getText()).toMatchSnapshot()
   })
 })
+
+// describe('sss', () => {
+//   test('sssz',
+//     async (name) => {
+//       const fileName = Path.resolve(dir, name)
+//       const content = await FS.promises.readFile(fileName, {
+//         encoding: 'utf-8',
+//       })
+//       const document = VueTextDocument.create(
+//         `file://${fileName}`,
+//         'vue',
+//         0,
+//         content,
+//       )
+
+//       expect(document.getDocument('_render')?.getText()).toMatchSnapshot()
+//     }
+// })
