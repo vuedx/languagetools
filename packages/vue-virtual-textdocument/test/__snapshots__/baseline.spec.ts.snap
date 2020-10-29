@@ -12,6 +12,7 @@ export function render({decrease, one, increase, two, name, email, code}: Instan
 
 exports[`VueVirtualDocument/baseline feature-goto-definition/src/JavascriptSetup.vue 1`] = `
 import _Ctx from './JavascriptSetup.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
 
 
 export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
@@ -31,6 +32,7 @@ export function render({decrease, one, increase, two, name, email, code}: Instan
 
 exports[`VueVirtualDocument/baseline feature-goto-definition/src/TypescriptSetup.vue 1`] = `
 import _Ctx from './TypescriptSetup.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
 
 
 export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
@@ -59,6 +61,7 @@ export function render({name, email, code, fullname, altCode}: InstanceType<type
 
 exports[`VueVirtualDocument/baseline feature-quickinfo/src/JavascriptSetup.vue 1`] = `
 import _Ctx from './JavascriptSetup.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
 
 
 export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
@@ -78,6 +81,7 @@ export function render({name, email, code, fullname, altCode}: InstanceType<type
 
 exports[`VueVirtualDocument/baseline feature-quickinfo/src/TypescriptSetup.vue 1`] = `
 import _Ctx from './TypescriptSetup.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
 
 
 export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
@@ -106,6 +110,7 @@ export function render({decrease, one, increase, two, name, email, code}: Instan
 
 exports[`VueVirtualDocument/baseline feature-rename/src/JavascriptSetup.vue 1`] = `
 import _Ctx from './JavascriptSetup.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
 
 
 export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
@@ -125,6 +130,7 @@ export function render({decrease, one, increase, two, name, email, code}: Instan
 
 exports[`VueVirtualDocument/baseline feature-rename/src/TypescriptSetup.vue 1`] = `
 import _Ctx from './TypescriptSetup.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
 
 
 export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {

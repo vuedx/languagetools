@@ -418,11 +418,13 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   }
 
   protected getLocalComponents(): Record<string, ComponentImport> | undefined {
-    const { script } = this.container.descriptor
+    const { script, scriptSetup } = this.container.descriptor
 
-    if (script && script.content) {
+    const content = scriptSetup?.content ?? script?.content
+
+    if (content != null) {
       // TODO: Cache this.
-      const result = analyzer.analyzeScript(script.content, 'component.ts')
+      const result = analyzer.analyzeScript(content, 'component.ts')
       const map: Record<string, ComponentImport> = {}
       result.components.forEach((component) => {
         const result = {
