@@ -235,7 +235,7 @@ class InternalModuleTextDocument extends VirtualTextDocument {
 }
 
 export class RenderFunctionTextDocument extends VirtualTextDocument {
-  private result!: CodegenResult
+  private result!: CodegenResult & { template?: string }
   private originalRange: [number, number] = [0, 0]
   private originalMappings: CodegenResult['mappings'] = []
   private generatedRange: [number, number] = [0, 0]
@@ -244,6 +244,10 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
 
   public get ast(): CodegenResult['ast'] | undefined {
     if (this.result) return this.result.ast
+  }
+
+  public get parserErrors(): CodegenResult['errors'] {
+    return this.result?.errors ?? []
   }
 
   public getOriginalOffsetAt(offset: number) {
@@ -342,16 +346,28 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
           this.container.version,
         )
       } catch (error) {
-        // This is very unlikely to happen as compiler is very error tolerant.
+        const code = `\n/* ${error.message} ${error.stack} */ \n`
         this.doc = TextDocument.update(
           this.doc,
-          [{ text: `\n/* ${error.message} ${error.stack} */ \n` }],
+          [{ text: code }],
           this.container.version,
         )
+
+        if (error.loc == null) {
+          error.loc = this.container.descriptor.template?.loc
+        }
+
         this.originalRange = [0, 0]
         this.originalMappings = []
         this.generatedRange = [0, 0]
         this.generatedMappings = []
+        this.result = {
+          errors: [error],
+          code,
+          ast: null as any,
+          expressions: [],
+          mappings: [],
+        }
       }
     }
   }
@@ -361,11 +377,21 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
 
     if (!template) {
       return ''
+    } else if (this.result?.template === template.content) {
+      return this.result.code
     } else {
+      const errors: any[] = []
       this.result = compile(template.content, {
         filename: this.container.fsPath,
         components: this.getLocalComponents(),
+        onError: (error) => {
+          errors.push(error)
+        },
       })
+
+      this.result.template = template.content
+
+      this.result.errors.push(...errors)
 
       this.originalRange = [template.loc.start.offset, template.loc.end.offset]
       this.originalMappings = this.result.mappings.slice()

@@ -12,16 +12,20 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "dependencies": {
-    "@vue/compiler-core": "^3.0.1",
     "@babel/parser": "7.12.3",
     "@babel/types": "7.12.1",
+    "@vue/compiler-core": "^3.0.1",
     "@vuedx/template-ast-types": "workspace:*",
     "lodash.camelcase": "^4.3.0"
   },
   "devDependencies": {
     "@types/lodash.camelcase": "^4.3.6",
+    "@vuedx/analyze": "workspace:^0.2.4-0",
+    "@vuedx/compiler-sfc": "workspace:^0.0.0",
     "chalk": "^4.1.0",
     "cli-highlight": "^2.1.4",
+    "commander": "^6.2.0",
+    "fast-glob": "^3.2.4",
     "prettier": "^2.0.5",
     "typescript": "^4.0.3"
   }

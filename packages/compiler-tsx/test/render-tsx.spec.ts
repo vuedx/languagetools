@@ -54,7 +54,6 @@ const samples: Array<{
     template: `<Foo>foo</Foo>`,
     render: `
     import _Ctx from './component.vue?internal'
-    import { Foo } from './component.vue?internal'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/ <Foo>{{ default: () => <>foo</> }}</Foo>/*@@vue:end*/
@@ -80,7 +79,6 @@ const samples: Array<{
     `,
     render: `
     import _Ctx from './component.vue?internal'
-    import { Foo } from './component.vue?internal'
     
     export function render(_ctx: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/ (
