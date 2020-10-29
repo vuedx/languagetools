@@ -7,7 +7,7 @@ const files = [
   'node_modules/@vuedx/typescript-standalone/package.json',
 ]
 execSync(`mkdir -p tmp`, { cwd: workingDir })
-execSync(`tar -xf vue-language-features.vsix -C tmp`, { cwd: workingDir })
+execSync(`unzip vue-language-features.vsix -d tmp`, { cwd: workingDir })
 execSync(
   `mkdir -p tmp/extension/node_modules/@vuedx/typescript-standalone/dist`,
   { cwd: workingDir },

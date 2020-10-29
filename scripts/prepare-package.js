@@ -10,6 +10,8 @@ function s(num) {
   return `${num}`.padStart(2, '0')
 }
 
+const [v, build] = pkg.version.split('-')
+
 pkg.preview = true
 pkg.version = [
   s(today.getUTCFullYear()),
@@ -20,9 +22,14 @@ pkg.version = [
 const RELEASE_CHANNEL = process.env.RELEASE_CHANNEL || 'default'
 
 if (RELEASE_CHANNEL === 'insiders') {
+  pkg.version += String(Math.floor(today.getTime() / 1000) % 86400).padStart(
+    5,
+    '0',
+  )
   if (!pkg.name.endsWith('-insiders')) {
     pkg.preview = true
     pkg.name = `${pkg.name}-insiders`
+    pkg.displayName = `${pkg.displayName} (Insiders)`
   }
 }
 

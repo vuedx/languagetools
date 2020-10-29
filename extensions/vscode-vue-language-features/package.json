@@ -4,7 +4,7 @@
   "name": "vue-language-features",
   "publisher": "znck",
   "displayName": "Vue Language Features",
-  "version": "2020.10.29",
+  "version": "0.0.0",
   "description": "Enhanced TypeScript/JavaScript Support",
   "icon": "logo.png",
   "main": "dist/index.js",
