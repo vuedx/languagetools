@@ -8,4 +8,5 @@ This project uses [pnpm](https://pnpm.js.org/), if you don't have `pnpm` run `np
 2. Run development watching build - `pnpm run watch`
 3. Run `Extension: VS Code` launch task from VS Code debug panel
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/lVIhkSays9g" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+[![Development Setup Demo](https://img.youtube.com/vi/lVIhkSays9g/0.jpg)](https://www.youtube.com/watch?v=lVIhkSays9g)
