@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "private": false,
   "scripts": {
-    "build": "ncc build src/index.js"
+    "build": "ncc build src/index.js",
+    "watch": "ncc build --watch src/index.js"
   },
   "keywords": [],
   "files": [

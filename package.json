@@ -7,7 +7,13 @@
     "test": "jest",
     "coverage": "nyc --reporter=json --reporter=text-summary jest --coverage",
     "build": "rollup -c",
-    "watch": "rollup -c --environment BUILD:development --watch",
+    "build:dev": "rollup -c --environment BUILD:development",
+    "build:types": "rollup -c --environment BUILD:development,KIND:type",
+    "watch": "run-p -l watch:*",
+    "watch:bundle": "rollup -c --environment BUILD:development,KIND:bundle --watch",
+    "watch:vscode-vue": "pnpm recursive --filter ./extensions/vscode-vue/ run watch",
+    "watch:vscode-vlf": "pnpm recursive --filter ./extensions/vscode-vue-language-features/ run watch",
+    "watch:standalone": "pnpm recursive --filter @vuedx/typescript-standalone run watch",
     "ci:build": "node scripts/build"
   },
   "devDependencies": {

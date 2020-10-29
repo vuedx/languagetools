@@ -21,6 +21,7 @@
     "postbuild": "node ../../scripts/reset-package",
     "prerelease": "pnpm build",
     "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath ./vue.vsix",
+    "prewatch": "pnpm build:grammar",
     "watch": "ncc build --watch src/index.ts"
   },
   "repository": {

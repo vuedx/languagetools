@@ -12,8 +12,6 @@
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue-language-features",
         "/Users/znck/Workspace/Experiments/demo"
       ],
-      "sourceMaps": true,
-      "enableSourceMapCaching": true,
 
       "outFiles": [
         "${workspaceRoot}/extensions/vscode-vue/dist/*.js",
