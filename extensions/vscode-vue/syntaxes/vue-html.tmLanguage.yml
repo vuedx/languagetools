@@ -1,0 +1,525 @@
+# RegExp
+# buitldin directive: v-(text|html|show|if|else|else-if|for|on|bind|model|slot|pre|once|cloak)
+
+name: Vue HTML
+scopeName: text.html.vue-html
+fileTypes:
+  - vue-html
+  - vhtml
+
+patterns:
+  - include: '#children'
+
+repository:
+  children:
+    patterns:
+      - include: '#comment'
+      - include: '#interpolation'
+      - include: '#template'
+      - include: '#tag-self-closing'
+      - include: '#tag-open'
+      - include: '#entities'
+      - include: '#tag-close'
+
+  template:
+    patterns:
+      - name: meta.element.template.vue-html
+        begin: (<)(template)(?=([^\/>]|"[^"]*"|'[^']*')*\/>)
+        beginCaptures:
+          0: { name: meta.tag.self-closing.vue-html }
+          1: { name: punctuation.definition.tag.self-closing.begin.vue-html }
+          2: { name: entity.name.tag.vue-html }
+        end: (\/>)
+        endCaptures:
+          0: { name: meta.tag.self-closing.vue-html }
+          1: { name: punctuation.definition.tag.self-closing.end.vue-html }
+        contentName: meta.tag.self-closing.vue-html
+        patterns:
+          - include: '#directive'
+          - include: '#attribute'
+          - match: \s
+          - match: ([="'])
+            name: invalid.illegal.tag.open.character-not-allowed-here.vue-html
+      - begin: ((<)(template))
+        beginCaptures:
+          0: { name: meta.element.template.vue-html }
+          1: { name: meta.tag.open.vue-html }
+          2: { name: punctuation.definition.tag.open.begin.vue-html }
+          3: { name: entity.name.tag.vue-html }
+        end: (<\/)(template)(>)
+        endCaptures:
+          0: { name: meta.tag.close.vue-html }
+          1: { name: punctuation.definition.tag.close.begin.vue-html }
+          2: { name: entity.name.tag.vue-html }
+          3: { name: punctuation.definition.tag.close.end.vue-html }
+        patterns:
+          - name: meta.element.template.vue-html
+            end: (?=>)
+            patterns:
+              - include: '#directive'
+              - include: '#attribute'
+              - match: \s
+              - match: ([="'])
+                name: invalid.illegal.tag.open.character-not-allowed-here.vue-html
+          - begin: ((>))
+            beginCaptures:
+              0: { name: meta.element.template.vue-html }
+              1: { name: meta.tag.open.vue-html }
+              2: { name: punctuation.definition.tag.open.end.vue-html }
+            end: (?=<\/template\s*>)
+            patterns:
+              - include: '#children'
+
+  tag-self-closing:
+    name: meta.element.$2.vue-html
+    begin: (<)((?i)[a-z][^\s\f\/>]*)(?=([^\/>]|"[^"]*"|'[^']*')*\/>)
+    beginCaptures:
+      0: { name: meta.tag.self-closing.vue-html }
+      1: { name: punctuation.definition.tag.self-closing.begin.vue-html }
+      2: { name: entity.name.tag.vue-html }
+    end: (\/>)
+    endCaptures:
+      0: { name: meta.tag.self-closing.vue-html }
+      1: { name: punctuation.definition.tag.self-closing.end.vue-html }
+    contentName: meta.tag.self-closing.vue-html
+    patterns:
+      - include: '#directive'
+      - include: '#attribute'
+      - match: \s
+      - match: ([="'`<])
+        name: invalid.illegal.tag.open.character-not-allowed-here.vue-html
+
+  tag-open:
+    name: meta.element.$2.vue-html
+    begin: (<)((?i)[a-z][^\s\f\/>]*)
+    end: (>)
+    beginCaptures:
+      0: { name: meta.tag.open.vue-html }
+      1: { name: punctuation.definition.tag.open.begin.vue-html }
+      2: { name: entity.name.tag.vue-html }
+    endCaptures:
+      0: { name: meta.tag.open.vue-html }
+      1: { name: punctuation.definition.tag.open.end.vue-html }
+    patterns:
+      - include: '#directive'
+      - include: '#attribute'
+      - match: \s
+      - match: ([="'`<])
+        name: invalid.illegal.tag.open.character-not-allowed-here.vue-html
+
+  tag-close:
+    name: meta.element.$2.vue-html
+    begin: (<\/)([a-zA-Z][^\s\f\/>]*)
+    end: (>)
+    beginCaptures:
+      0: { name: meta.tag.close.vue-html }
+      1: { name: punctuation.definition.tag.close.begin.vue-html }
+      2: { name: entity.name.tag.vue-html }
+    endCaptures:
+      0: { name: meta.tag.close.vue-html }
+      1: { name: punctuation.definition.tag.close.end.vue-html }
+    patterns:
+      - match: \s
+      - match: ([^>])
+        name: invalid.illegal.tag.close.character-not-allowed-here.vue-html
+
+  interpolation:
+    patterns:
+      - match: ({{[\s]*}})
+        name: invalid.illegal.interpolation.missing-expression.vue-html
+      - name: meta.interpolation
+        begin: ({{)
+        end: (}})
+        beginCaptures:
+          1: { name: punctuation.definition.tag.interpolation.begin.vue-html }
+        endCaptures:
+          1: { name: punctuation.definition.tag.interpolation.end.vue-html }
+        patterns:
+          - name: meta.embedded.source.expression.js
+            include: source.js#expression
+
+  directive:
+    name: meta.directive.vue-html
+    patterns:
+      - include: '#invalid-directive-missing-value'
+      - include: '#invalid-directive-unexpected-value'
+      - include: '#invalid-directive-unexpected-argument'
+      - include: '#invalid-directive-unexpected-modifier'
+      - include: '#directive-builtin-rendering'
+      - include: '#directive-builtin-conditionals'
+      - include: '#directive-builtin-for'
+      - include: '#directive-builtin-bind'
+      - include: '#directive-builtin-on'
+      - include: '#directive-builtin-slot'
+      - include: '#directive-builtin-model'
+      - include: '#directive-builtin-others'
+      - include: '#directive-custom'
+
+  invalid-directive-missing-value:
+    name: invalid.illegal.directive.missing-value.vue-html
+    match: v-(text|html|show|if|else-if|for|on|bind|model)(?=[\s\/>])
+
+  invalid-directive-unxepected-value:
+    name: invalid.illegal.directive.missing-value.vue-html
+    match: v-(pre|once|cloak|else)(=)(("[^"]*")|('[^']*')|([^\s\/>]))*
+
+  invalid-directive-unexpected-modifier:
+    name: invalid.illegal.directive.unexpected-modifier.vue-html
+    match: v-(text|html|show|if|else|else-if|for|slot|pre|once|cloak)\.(("[^"]*")|('[^']*')|([^\s\/>]))*
+
+  invalid-directive-unexpected-argument:
+    name: invalid.illegal.directive.unexpected-argument.vue-html
+    match: v-(text|html|show|if|else|else-if|for|pre|once|cloak):(("[^"]*")|('[^']*')|([^\s\/>]))*
+
+  directive-builtin-rendering:
+    name: meta.directive.$2.vue-html
+    begin: (v-)(pre|cloak|once)
+    end: (?=[\s\/>])
+    beginCaptures:
+      0: { name: support.other.directive.builtin.vue-html }
+      1: { name: punctuation.definition.directive.prefix.vue-html }
+      2: { name: entity.name.directive.vue-html }
+
+  directive-builtin-conditionals:
+    patterns:
+      - name: meta.directive.$2.vue-html
+        begin: ((v-)(if|else-if))(=)
+        end: (?=[\s\/>])
+        beginCaptures:
+          0: { name: support.other.directive.builtin.vue-html }
+          1: { name: keyword.control.conditional.vue-html }
+          2: { name: punctuation.definition.directive.prefix.vue-html }
+          3: { name: entity.name.directive.vue-html }
+          4: { name: punctuation.separater.key-value.vue-html }
+        patterns:
+          - include: '#directive-expression'
+      - name: meta.directive.else.vue-html
+        begin: ((v-)(else))
+        end: (?=[\s\/>])
+        beginCaptures:
+          0: { name: support.other.directive.builtin.vue-html }
+          1: { name: keyword.control.conditional.vue-html }
+          2: { name: punctuation.definition.directive.prefix.vue-html }
+          3: { name: entity.name.directive.vue-html }
+
+  directive-builtin-for:
+    name: meta.directive.for.vue-html
+    begin: ((v-)(for))(=)
+    end: (?=[\s\/>])|(?<=["'])
+    beginCaptures:
+      0: { name: support.other.directive.builtin.vue-html }
+      1: { name: keyword.control.loop.vue-html }
+      2: { name: punctuation.definition.directive.prefix.vue-html }
+      3: { name: entity.name.directive.vue-html }
+      4: { name: punctuation.separater.key-value.vue-html }
+    patterns:
+      - include: '#directive-expression'
+
+  directive-builtin-bind:
+    name: meta.directive.bind.vue-html
+    patterns:
+      - name: meta.directive.bind.shorthand.vue-html
+        begin: (:)
+        end: (?=[\s\/>])|(?<=["'])
+        beginCaptures:
+          0: { name: support.other.directive.builtin.vue-html }
+          1: { name: keyword.operator.binding-shorthand.vue-html }
+        patterns:
+          - include: '#directive-argument'
+          - include: '#directive-modifier'
+          - begin: (=)
+            end: (?=[\s\/>])
+            beginCaptures:
+              1: { name: punctuation.separater.key-value.vue-html }
+            patterns:
+              - include: '#directive-expression'
+      - begin: ((v-)(bind))
+        end: (?=[\s\/>])|(?<=["'])
+        beginCaptures:
+          0: { name: support.other.directive.builtin.vue-html }
+          1: { name: keyword.other.binding.vue-html }
+          2: { name: punctuation.definition.directive.prefix.vue-html }
+          3: { name: entity.name.directive.vue-html }
+        patterns:
+          - include: '#directive-modifier'
+          - begin: (=)
+            end: (?=[\s\/>])
+            beginCaptures:
+              1: { name: punctuation.separater.key-value.vue-html }
+            patterns:
+              - include: '#directive-expression'
+          - begin: (:)
+            end: (?=[.\s\/>=])
+            beginCaptures:
+              1:
+                name: punctuation.definition.tag.directive.argument.begin.vue-html
+            patterns:
+              - include: '#directive-argument'
+
+  directive-builtin-on:
+    name: meta.directive.on.vue-html
+    patterns:
+      - name: meta.directive.on.shorthand.vue-html
+        begin: (@)
+        end: (?=[\s\/>])|(?<=["'])
+        beginCaptures:
+          0: { name: support.other.directive.builtin.vue-html }
+          1: { name: keyword.operator.event-handler-shorthand.vue-html }
+        patterns:
+          - include: '#directive-argument'
+          - include: '#directive-modifier'
+          - begin: (=)
+            end: (?=[\s\/>])
+            beginCaptures:
+              1: { name: punctuation.separater.key-value.vue-html }
+            patterns:
+              - include: '#directive-expression'
+      - begin: ((v-)(on))
+        end: (?=[\s\/>])|(?<=["'])
+        beginCaptures:
+          0: { name: support.other.directive.builtin.vue-html }
+          1: { name: keyword.other.event-handler.vue-html }
+          2: { name: punctuation.definition.directive.prefix.vue-html }
+          3: { name: entity.name.directive.vue-html }
+        patterns:
+          - include: '#directive-modifier'
+          - begin: (=)
+            end: (?=[\s\/>])
+            beginCaptures:
+              1: { name: punctuation.separater.key-value.vue-html }
+            patterns:
+              - include: '#directive-expression'
+          - begin: (:)
+            end: (?=[.\s\/>=])
+            beginCaptures:
+              1:
+                name: punctuation.definition.tag.directive.argument.begin.vue-html
+            patterns:
+              - include: '#directive-argument'
+
+  directive-builtin-slot:
+    name: meta.directive.slot.vue-html
+    patterns:
+      - name: meta.directive.slot.shorthand.vue-html
+        begin: (#)
+        end: (?=[\s\/>])|(?<=["'])
+        beginCaptures:
+          0: { name: support.other.directive.builtin.vue-html }
+          1: { name: keyword.operator.slot-shorthand.vue-html }
+        patterns:
+          - include: '#directive-argument'
+          - begin: (=)
+            end: (?=[\s\/>])
+            beginCaptures:
+              1: { name: punctuation.separater.key-value.vue-html }
+            patterns:
+              - include: '#directive-expression'
+      - begin: ((v-)(slot))
+        end: (?=[\s\/>])|(?<=["'])
+        beginCaptures:
+          0: { name: support.other.directive.builtin.vue-html }
+          1: { name: keyword.other.slot.vue-html }
+          2: { name: punctuation.definition.directive.prefix.vue-html }
+          3: { name: entity.name.directive.vue-html }
+        patterns:
+          - begin: (=)
+            end: (?=[\s\/>])
+            beginCaptures:
+              1: { name: punctuation.separater.key-value.vue-html }
+            patterns:
+              - include: '#directive-expression'
+          - begin: (:)
+            end: (?=[.\s\/>=])
+            beginCaptures:
+              1:
+                name: punctuation.definition.tag.directive.argument.begin.vue-html
+            patterns:
+              - include: '#directive-argument'
+
+  directive-builtin-model:
+    name: meta.directive.model.vue-html
+    patterns:
+      - begin: ((v-)(model))
+        end: (?=[\s\/>])|(?<=["'])
+        beginCaptures:
+          0: { name: support.other.directive.builtin.vue-html }
+          1: { name: keyword.other.model.vue-html }
+          2: { name: punctuation.definition.directive.prefix.vue-html }
+          3: { name: entity.name.directive.vue-html }
+        patterns:
+          - include: '#directive-modifier'
+          - begin: (=)
+            end: (?=[\s\/>])
+            patterns:
+              - include: '#directive-expression'
+          - begin: (:)
+            end: (?=[.\s\/>])
+            beginCaptures:
+              1:
+                name: punctuation.definition.tag.directive.argument.begin.vue-html
+            patterns:
+              - include: '#directive-argument'
+
+  directive-builtin-others:
+    name: meta.directive.$2.vue-html
+    begin: (v-)(show|text|html)(=)
+    end: (?=[\s\/>])
+    beginCaptures:
+      0: { name: support.other.directive.builtin.vue-html }
+      1: { name: punctuation.definition.directive.prefix.vue-html }
+      2: { name: entity.name.directive.vue-html }
+      3: { name: punctuation.separater.key-value.vue-html }
+
+  directive-custom:
+    name: meta.directive.$2.vue-html
+    begin: (v-)([a-z0-9-]+)
+    end: (?=[\s\/>])|(?<=["'])
+    beginCaptures:
+      0: { name: entity.other.attribute-name.vue-html }
+      1: { name: punctuation.definition.directive.prefix.vue-html }
+      2: { name: entity.name.directive.vue-html }
+    patterns:
+      - include: '#directive-modifier'
+      - begin: (=)
+        end: (?=[\s\/>])
+        patterns:
+          - include: '#directive-expression'
+      - begin: (:)
+        end: (?=[.\s\/>])
+        beginCaptures:
+          1:
+            name: punctuation.definition.tag.directive.argument.begin.vue-html
+        patterns:
+          - include: '#directive-argument'
+
+  directive-modifier:
+    patterns:
+      - name: meta.directive.modifier.vue-html
+        match: (\.)([^.\/>=\s]+)
+        captures:
+          0: { name: meta.directive.modifier.$2.vue-html }
+          1:
+            name: punctuation.definition.tag.directive.modifier.begin.vue-html
+          2: { name: variable.other.directive.modifier.vue-html }
+
+  directive-argument:
+    patterns:
+      - name: meta.directive.dynamic-argument.vue-html
+        begin: (\[)
+        end: (\])
+        beginCaptures:
+          0: { name: meta.brace.square.vue-html }
+          1:
+            name: punctuation.definition.tag.directive.dynamic-argument.begin.vue-html
+        endCaptures:
+          0: { name: meta.brace.square.vue-html }
+          1:
+            name: punctuation.definition.tag.directive.dynamic-argument.end.vue-html
+        patterns:
+          - name: meta.embedded.source.expression.js
+            while: (?=[^\]])
+            include: source.js#expression
+      - match: (?i)([a-z0-9-]+)
+        name: meta.directive.argument.vue-html
+        captures:
+          0: { name: variable.other.directive.argument.vue-html }
+
+  directive-expression:
+    patterns:
+      - match: ("[\s]*"|'[\s]*')
+        name: invalid.illegal.directive.missing-value.vue-html
+      - begin: (")
+        end: (")
+        beginCaptures:
+          1:
+            { name: punctuation.definition.string.quoted.double.begin.vue-html }
+        endCaptures:
+          1: { name: punctuation.definition.string.quoted.double.end.vue-html }
+        patterns:
+          - name: meta.embedded.source.expression.js
+            while: (?=[^"])
+            include: source.js#expression
+      - begin: (')
+        end: (')
+        beginCaptures:
+          1:
+            { name: punctuation.definition.string.single.double.begin.vue-html }
+        endCaptures:
+          1: { name: punctuation.definition.string.single.double.end.vue-html }
+        patterns:
+          - name: meta.embedded.source.expression.js
+            while: (?=[^'])
+            include: source.js#expression
+
+  attribute:
+    patterns:
+      - name: meta.attribute.$1.vue-html
+        begin: (?<=[^=])\b([a-zA-Z0-9:_-]+)(=)(?=["'])
+        beginCaptures:
+          1: { name: entity.other.attribute-name.vue-html }
+          2: { name: punctuation.separater.key-value.vue-html }
+        end: (?=\4[\s/>])
+        patterns:
+          - { include: '#string' }
+      - name: meta.attribute.$1.vue-html
+        match: (?<=[^=])\b([a-zA-Z0-9:_-]+)(=)([^\s\f\0"'`<>]+)
+        captures:
+          1: { name: entity.other.attribute-name.vue-html }
+          2: { name: punctuation.separater.key-value.vue-html }
+          3: { name: string.unquoted.vue-html }
+      - name: meta.attribute.$1.vue-html
+        match: (?<=[^=])\b([a-zA-Z0-9:_-]+)\b
+        captures:
+          1: { name: entity.other.attribute-name.vue-html }
+
+  string-quoted-double:
+    name: string.quoted.double.vue-html
+    begin: '(")'
+    beginCaptures:
+      1: { name: punctuation.definition.string.quoted.double.begin.vue-html }
+    end: '(")'
+    endCaptures:
+      1: { name: punctuation.definition.string.quoted.double.end.vue-html }
+    patterns:
+      - match: ([^"])
+
+  string-quoted-single:
+    name: string.quoted.single.vue-html
+    begin: "(')"
+    beginCaptures:
+      1: { name: punctuation.definition.string.quoted.single.begin.vue-html }
+    end: "(')"
+    endCaptures:
+      1: { name: punctuation.definition.string.quoted.single.end.vue-html }
+    patterns:
+      - match: ([^'])
+
+  string:
+    name: string.vue-html
+    patterns:
+      - { include: '#string-quoted-double' }
+      - { include: '#string-quoted-single' }
+
+  entities:
+    patterns:
+      - name: constant.character.entity.html
+        match: (&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)
+        captures:
+          '1': { name: punctuation.definition.entity.html }
+          '3': { name: punctuation.definition.entity.html }
+      - name: invalid.illegal.bad-ampersand.html
+        match: '&'
+
+  comment:
+    name: comment.block.html.vue-html
+    begin: <!--
+    end: -->
+    captures:
+      0: { name: punctuation.definition.comment.html }
+    patterns:
+      - match: \G-?>
+        name: invalid.illegal.characters-not-allowed-here.html
+      - match: <!--(?!>)|<!-(?=-->)
+        name: invalid.illegal.characters-not-allowed-here.html
+      - match: --!>
+        name: invalid.illegal.characters-not-allowed-here.html

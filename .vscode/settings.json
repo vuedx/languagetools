@@ -1,12 +1,4 @@
 {
-  "cSpell.words": [
-    "textdocument",
-    "vetur",
-    "vuedx"
-  ],
-  "grammarly.userWords": [
-    "textdocument",
-    "tsserver",
-    "znck"
-  ]
+  "cSpell.words": ["textdocument", "typecheck", "vetur", "vuedx"],
+  "grammarly.userWords": ["textdocument", "tsserver", "znck"]
 }

@@ -9,7 +9,7 @@
     }
   },
   "include": ["types/*.ts", "packages/*/src/**/*.ts", "test/"],
-  "exclude": ["examples/**"],
+  "exclude": ["examples/**", "**/node_modules/**", "extensions/**"],
   "typeAcquisition": {
     "enable": false
   }

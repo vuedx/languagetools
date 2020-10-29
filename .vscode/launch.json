@@ -2,58 +2,23 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Test: VS Code Extension",
-      "type": "extensionHost",
-      "request": "launch",
-      "runtimeExecutable": "${execPath}",
-      "args": [
-        "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceFolder}/extensions/vscode",
-        "--extensionTestsPath=${workspaceFolder}/packages/@vuedx/extensions-shared/runner.js",
-        "${workspaceFolder}/extensions/vscode/src/__fixtures__"
-      ],
-      "outFiles": ["${workspaceFolder}/extensions/vscode/dist/*.js"],
-      "env": {
-        "VSCODE_TEST_ROOT": "${workspaceFolder}/extensions/vscode/src/__tests__"
-      }
-    },
-
-    {
-      "type": "node",
-      "name": "Test: TypeScript Plugin (current file)",
-      "request": "launch",
-      "program": "${workspaceFolder}/node_modules/jest/bin/jest",
-      "args": [
-        "--runInBand",
-        "--config",
-        "${workspaceFolder}/jest.e2e.debug.config.js",
-        "${fileBasename}"
-      ],
-      "env": {
-        "CI": "vscode-jest-tests"
-      },
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "sourceMaps": true,
-      "disableOptimisticBPs": true,
-      "outFiles": [
-        "${workspaceFolder}/packages/@vuedx/typescript-plugin-vue/dist/*.js"
-      ]
-    },
-    {
       "name": "Extension: VS Code",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
         "--disable-extensions",
-        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode",
-        "${workspaceRoot}/samples/feature-rename"
+        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue",
+        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue-language-features",
+        "/Users/znck/Workspace/Experiments/demo"
       ],
       "sourceMaps": true,
       "enableSourceMapCaching": true,
-      "outFiles": ["${workspaceRoot}/extensions/vscode/dist/*.js"]
+
+      "outFiles": [
+        "${workspaceRoot}/extensions/vscode-vue/dist/*.js",
+        "${workspaceRoot}/extensions/vscode-vue-language-features/dist/*.js"
+      ]
     }
   ]
 }

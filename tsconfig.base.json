@@ -5,10 +5,12 @@
     "moduleResolution": "node",
     "strict": true,
     "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
 
     "lib": ["ES2020"]
   },
-  "exclude": ["node_modules"]
+  "exclude": ["**/node_modules/**"]
 }

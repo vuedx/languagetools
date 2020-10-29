@@ -1,135 +1,49 @@
+import commonjs from '@rollup/plugin-commonjs'
+import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import typescript from '@rollup/plugin-typescript'
+import builtIns from 'builtin-modules'
 import MagicString from 'magic-string'
 import Path from 'path'
 import dts from 'rollup-plugin-dts'
 
-function abs(fileName) {
-  return Path.resolve(__dirname, fileName)
-}
-
-function deps(fileName) {
-  return Array.from(Object.keys(require(abs(fileName)).dependencies ?? {}))
-}
-
-function define() {
-  const isProd = process.env.BUILD === 'production'
-  return replace({
-    __DEV__: JSON.stringify(!isProd),
-    __PROD__: JSON.stringify(isProd),
-  })
-}
-
 /** @type {import('rollup').RollupOptions[]} */
 const config = [
-  {
-    input: 'packages/analyze/src/index.ts',
-    output: { format: 'esm', file: abs('./packages/analyze/dist/index.d.ts') },
-    plugins: [dts()],
-  },
-  {
-    input: 'packages/compiler-sfc/src/index.ts',
-    output: {
-      format: 'esm',
-      file: abs('./packages/compiler-sfc/dist/index.d.ts'),
-    },
-    plugins: [dts()],
-  },
-  {
-    input: 'packages/compiler-tsx/src/entry.ts',
-    output: {
-      format: 'esm',
-      file: abs('./packages/compiler-tsx/dist/index.d.ts'),
-    },
-    plugins: [dts()],
-  },
-  {
-    input: 'packages/template-ast-types/src/index.ts',
-    output: {
-      format: 'esm',
-      file: abs('./packages/template-ast-types/dist/index.d.ts'),
-    },
-    plugins: [dts()],
-  },
-  {
-    input: 'packages/typecheck/src/index.ts',
-    output: {
-      format: 'esm',
-      file: abs('./packages/typecheck/dist/index.d.ts'),
-    },
-    plugins: [dts()],
-  },
-  {
-    input: 'packages/typescript-plugin-vue/src/index.ts',
-    output: {
-      format: 'esm',
-      file: abs('./packages/typescript-plugin-vue/dist/index.d.ts'),
-    },
-    plugins: [dts()],
-  },
-  {
-    input: 'packages/typescript-vetur/src/index.ts',
-    output: {
-      format: 'esm',
-      file: abs('./packages/typescript-vetur/dist/index.d.ts'),
-    },
-    plugins: [dts()],
-  },
-  {
-    input: 'packages/vue-virtual-textdocument/src/index.ts',
-    output: {
-      format: 'esm',
-      file: abs('./packages/vue-virtual-textdocument/dist/index.d.ts'),
-    },
-    plugins: [dts()],
-  },
+  type('compiler-sfc'),
+  type('analyze'),
+  { ...type('compiler-tsx'), input: abs('packages/compiler-tsx/src/entry.ts') },
+  type('template-ast-types'),
+  type('typecheck'),
+  type('typescript-plugin-vue'),
+  type('typescript-vetur'),
+  type('vue-virtual-textdocument'),
 
+  bundle('analyze'),
   {
-    input: 'packages/analyze/src/index.ts',
-    output: [
-      {
-        format: 'esm',
-        file: abs('./packages/analyze/dist/index.esm.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-      {
-        format: 'cjs',
-        file: abs('./packages/analyze/dist/index.cjs.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-    ],
-    plugins: [
-      define(),
-      typescript({ tsconfig: abs('./packages/analyze/tsconfig.build.json') }),
-    ],
-    external: deps('./packages/analyze/package.json'),
-  },
-  {
-    input: 'packages/compiler-sfc/src/index.ts',
-    output: [
-      {
-        format: 'esm',
-        file: abs('./packages/compiler-sfc/dist/index.esm.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-      {
-        format: 'cjs',
-        file: abs('./packages/compiler-sfc/dist/index.cjs.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-    ],
-    plugins: [
-      resolve({ mainFields: ['module', 'main'], preferBuiltins: true }),
-      typescript({
-        tsconfig: abs('./packages/compiler-sfc/tsconfig.build.json'),
-      }),
-      customCJS(),
-    ],
+    ...bundle(
+      'compiler-sfc',
+      [processVueSFC()],
+      [
+        '@babel/parser',
+        '@babel/types',
+        '@vue/compiler-dom',
+        '@vue/compiler-ssr',
+        'consolidate',
+        'estree-walker',
+        'lru-cache',
+        'hash-sum',
+        'magic-string',
+        'merge-source-map',
+        'path',
+        'postcss-modules',
+        'postcss-selector-parser',
+        'postcss',
+        'source-map',
+        'url',
+      ],
+    ),
+
     treeshake: {
       moduleSideEffects: () => false,
     },
@@ -137,178 +51,18 @@ const config = [
       if (warning.code === 'UNUSED_EXTERNAL_IMPORT') return
       warn(warning)
     },
-    external: [
-      '@vue/compiler-core',
-      'source-map',
-      'lru-cache',
-      '@babel/parser',
-      '@babel/types',
-      '@vue/compiler-dom',
-      '@vue/compiler-ssr',
-      '@vue/shared',
-      'consolidate',
-      'estree-walker',
-      'hash-sum',
-      'magic-string',
-      'merge-source-map',
-      'postcss',
-      'postcss-modules',
-      'postcss-selector-parser',
-      'path',
-      'url',
-    ],
   },
-  {
-    input: 'packages/compiler-tsx/src/index.ts',
-    output: [
-      {
-        format: 'esm',
-        file: abs('./packages/compiler-tsx/dist/index.esm.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-      {
-        format: 'cjs',
-        file: abs('./packages/compiler-tsx/dist/index.cjs.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-    ],
-    plugins: [
-      define(),
-      typescript({
-        tsconfig: abs('./packages/compiler-tsx/tsconfig.build.json'),
-      }),
-    ],
-    external: deps('./packages/compiler-tsx/package.json'),
-  },
-  {
-    input: 'packages/typecheck/src/index.ts',
-    output: [
-      {
-        format: 'esm',
-        file: abs('./packages/typecheck/dist/index.esm.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-      {
-        format: 'cjs',
-        file: abs('./packages/typecheck/dist/index.cjs.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-    ],
-    plugins: [
-      define(),
-      typescript({
-        tsconfig: abs('./packages/typecheck/tsconfig.build.json'),
-      }),
-    ],
-    external: [
-      'typescript/lib/tsserverlibrary',
-      'path',
-      ...deps('./packages/typecheck/package.json'),
-    ],
-  },
-  {
-    input: 'packages/template-ast-types/src/index.ts',
-    output: [
-      {
-        format: 'esm',
-        file: abs('./packages/template-ast-types/dist/index.esm.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-      {
-        format: 'cjs',
-        file: abs('./packages/template-ast-types/dist/index.cjs.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-    ],
-    plugins: [
-      define(),
-      typescript({
-        tsconfig: abs('./packages/template-ast-types/tsconfig.build.json'),
-      }),
-    ],
-    external: deps('./packages/template-ast-types/package.json'),
-  },
-  {
-    input: 'packages/typescript-plugin-vue/src/index.ts',
-    output: [
-      {
-        format: 'esm',
-        file: abs('./packages/typescript-plugin-vue/dist/index.esm.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-      {
-        format: 'cjs',
-        file: abs('./packages/typescript-plugin-vue/dist/index.cjs.js'),
-        preferConst: true,
-        sourcemap: true,
-        exports: 'default',
-      },
-    ],
-    plugins: [
-      define(),
-      typescript({
-        tsconfig: abs('./packages/typescript-plugin-vue/tsconfig.build.json'),
-      }),
-    ],
-    external: [
-      ...deps('./packages/typescript-plugin-vue/package.json'),
-      'path',
-      'fs',
-      'perf_hooks',
-    ],
-  },
-  {
-    input: 'packages/typescript-vetur/src/index.ts',
-    output: [
-      {
-        format: 'cjs',
-        file: abs('./packages/typescript-vetur/dist/index.cjs.js'),
-        preferConst: true,
-        sourcemap: true,
-        exports: 'default',
-      },
-    ],
-    plugins: [
-      define(),
-      typescript({
-        tsconfig: abs('./packages/typescript-vetur/tsconfig.build.json'),
-      }),
-    ],
-    external: deps('./packages/typescript-vetur/package.json'),
-  },
-  {
-    input: 'packages/vue-virtual-textdocument/src/index.ts',
-    output: [
-      {
-        format: 'esm',
-        file: abs('./packages/vue-virtual-textdocument/dist/index.esm.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-      {
-        format: 'cjs',
-        file: abs('./packages/vue-virtual-textdocument/dist/index.cjs.js'),
-        preferConst: true,
-        sourcemap: true,
-      },
-    ],
-    plugins: [
-      define(),
-      typescript({
-        tsconfig: abs(
-          './packages/vue-virtual-textdocument/tsconfig.build.json',
-        ),
-      }),
-    ],
-    external: deps('./packages/vue-virtual-textdocument/package.json'),
-  },
+  bundle('compiler-tsx'),
+  bundle('typecheck', [], ['typescript/lib/tsserverlibrary']),
+  bundle('template-ast-types'),
+  bundle('typescript-plugin-vue'),
+  bundle('typescript-vetur'),
+  bundle('vue-virtual-textdocument'),
+
+  standalone('typescript-plugin-vue'),
+
+  extension('vscode-vue'),
+  extension('vscode-vue-language-features'),
 ]
 
 export default config
@@ -316,12 +70,139 @@ export default config
   .filter((config) => kind(config).match(process.env.KIND ?? ''))
 
 /**
+ * @param {string} name
+ * @param {import('rollup').Plugin[]} [plugins]
+ * @param {string[]} external
+ * @returns {import('rollup').RollupOptions}
+ */
+function bundle(name, plugins = [], external = []) {
+  return {
+    input: `packages/${name}/src/index.ts`,
+    output: [
+      {
+        format: 'esm',
+        file: abs(`./packages/${name}/dist/index.esm.js`),
+        preferConst: true,
+        sourcemap: true,
+      },
+      {
+        format: 'cjs',
+        file: abs(`./packages/${name}/dist/index.cjs.js`),
+        preferConst: true,
+        sourcemap: true,
+        exports: 'auto',
+      },
+    ],
+    plugins: [
+      define(),
+      ...plugins,
+      resolve({ mainFields: ['module', 'main'], preferBuiltins: true }),
+      typescript({ tsconfig: abs(`./packages/${name}/tsconfig.build.json`) }),
+    ],
+    treeshake: {
+      moduleSideEffects: (id, external) => !external,
+    },
+    external: [
+      ...deps(`./packages/${name}/package.json`),
+      ...external,
+      ...builtIns,
+    ],
+  }
+}
+
+/**
+ * @param {string} name
+ * @param {import('rollup').Plugin[]} [plugins]
+ * @returns {import('rollup').RollupOptions}
+ */
+function standalone(name, plugins = []) {
+  return {
+    input: `packages/${name}/src/index.ts`,
+    output: {
+      format: 'cjs',
+      file: abs(`./packages/${name}/standalone.js`),
+      preferConst: true,
+      sourcemap: true,
+      exports: 'auto',
+    },
+    plugins: [
+      define(),
+      ...plugins,
+      resolve({ preferBuiltins: true }),
+      commonjs(),
+      json(),
+      typescript({ tsconfig: abs(`./packages/${name}/tsconfig.build.json`) }),
+    ],
+    treeshake: false,
+    moduleContext: () => 'undefined',
+    external: [...builtIns],
+    onwarn(warning, warn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') return
+      if (warning.code === 'CIRCULAR_DEPENDENCY') return
+      warn(warning)
+    },
+  }
+}
+
+/**
+ * @param {string} name
+ * @param {import('rollup').Plugin[]} [plugins]
+ * @returns {import('rollup').RollupOptions}
+ */
+function extension(name, plugins = []) {
+  return {
+    input: abs(`./extensions/${name}/src/index.ts`),
+    output: {
+      format: 'cjs',
+      file: abs(`./extensions/${name}/dist/index.js`),
+      preferConst: true,
+      sourcemap: true,
+      exports: 'auto',
+    },
+    plugins: [
+      define(),
+      ...plugins,
+      resolve({ preferBuiltins: true }),
+      commonjs({ transformMixedEsModules: true }),
+      json(),
+      typescript({ tsconfig: abs(`./extensions/${name}/tsconfig.build.json`) }),
+    ],
+    moduleContext: () => 'undefined',
+    external: [
+      'vscode',
+      ...builtIns,
+      ...deps(`./extensions/${name}/package.json`),
+    ],
+    onwarn(warning, warn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') return
+      warn(warning)
+    },
+    watch: { clearScreen: false },
+  }
+}
+
+/**
+ * @param {string} name
+ * @returns {import('rollup').RollupOptions}
+ */
+function type(name) {
+  return {
+    input: `packages/${name}/src/index.ts`,
+    output: {
+      format: 'esm',
+      file: abs(`./packages/${name}/dist/index.d.ts`),
+    },
+    plugins: [dts()],
+  }
+}
+
+/**
  * @param {import('rollup').RollupOptions} config
  */
 function kind(config) {
-  if (Array.isArray(config.output)) return 'default'
-  if (config.output.file.endsWith('.d.ts')) return 'types'
-  if (config.output.file.includes('standalone')) return 'standalone'
+  if (Array.isArray(config.output)) return 'bundle'
+  if (config.output.file.endsWith('.d.ts')) return 'type'
+  if (config.output.file.endsWith('standalone.js')) return 'standalone'
   return 'none'
 }
 
@@ -336,7 +217,7 @@ function input(config) {
 /**
  * @returns {import('rollup').Plugin}
  */
-function customCJS() {
+function processVueSFC() {
   return {
     name: 'VueSFC',
 
@@ -347,28 +228,56 @@ function customCJS() {
       })
 
       const RE_IMPORT = /var ([^ ]+) = require\('([^']+)'\);/g
-      const RE_EXPORT = /^exports\.([^\s]+) = ([^;]+);/gm
+      const RE_EXPORT_FROM = /(exports.[^ ]+ = )(require\('([^']+)'\))/g
+      const RE_EXPORT = /^exports\.([^\s]+) = ([A-Za-z0-9_$]+(?=;))?/gm
+      const RE_DEFAULT_EXPORT = /^module\.exports = ([A-Za-z0-9_$]+);/gm
       const RE_POSTCSS_PLUGINS = /^var ([^\s]+) = postcss/gm
-      const RE_DOM = /\scompiler = CompilerDOM__namespace\s/g
+      const RE_DOM = /\bcompiler = CompilerDOM__namespace\b/g
       const RE_LRU = /require\('lru-cache'\)/g
       const RE_MODULE = /Object\.defineProperty\(exports, '__esModule', \{ value: true \}\);/g
 
       let match
+
       while ((match = RE_IMPORT.exec(code))) {
+        const path = match[2]
+
         string.overwrite(
           match.index,
           match.index + match[0].length,
-          `import * as ${match[1]} from '${match[2]}';`,
+          `import * as ${match[1]} from '${path}';`,
         )
       }
-      while ((match = RE_EXPORT.exec(code))) {
+
+      while ((match = RE_EXPORT_FROM.exec(code))) {
+        const name = match[3].replace(/[^a-z0-9]/gi, '_')
+
         string.overwrite(
-          match.index,
-          match.index + match[0].length,
-          match[2].includes('.')
-            ? `export const ${match[1]} = ${match[2]};`
-            : `export { ${match[1]} };`,
+          match.index + match[1].length,
+          match.index + match[1].length + match[2].length,
+          `${name}`,
         )
+
+        string.prepend(`import * as ${name} from '${match[3]}'`)
+      }
+
+      while ((match = RE_EXPORT.exec(code))) {
+        const next = code.substr(match.index + match[0].length)
+
+        if (next.startsWith('supportsNullProto ?')) {
+          string.overwrite(
+            match.index,
+            match.index + match[0].length + (next.indexOf(';') + 1),
+            `export { ${match[1]} };`,
+          )
+        } else {
+          string.overwrite(
+            match.index,
+            match.index + match[0].length,
+            match[1] === match[2]
+              ? `export { ${match[1]} };`
+              : `export const ${match[1]} = `,
+          )
+        }
       }
       while ((match = RE_POSTCSS_PLUGINS.exec(code))) {
         string.overwrite(
@@ -382,19 +291,31 @@ function customCJS() {
         string.overwrite(
           match.index,
           match.index + match[0].length,
-          ` compiler = { compile: compilerCore.baseCompile, parse: compilerCore.baseParse } `,
+          ` compiler = { parse: compilerCore.baseParse } `,
+        )
+      }
+
+      while ((match = RE_DEFAULT_EXPORT.exec(code))) {
+        string.overwrite(
+          match.index,
+          match.index + match[0].length,
+          `export default ${match[1]}`,
         )
       }
 
       while ((match = RE_LRU.exec(code))) {
-        string.overwrite(match.index, match.index + match[0].length, `LRU$1`)
+        string.overwrite(
+          match.index,
+          match.index + match[0].length,
+          `LRUCache$1`,
+        )
       }
 
       while ((match = RE_MODULE.exec(code))) {
         string.overwrite(match.index, match.index + match[0].length, ``)
       }
 
-      string.prepend(`import LRU$1 from 'lru-cache';\n`)
+      string.prepend(`import LRUCache$1 from 'lru-cache';\n`)
 
       return {
         code: string.toString(),
@@ -402,4 +323,21 @@ function customCJS() {
       }
     },
   }
+}
+
+function abs(fileName) {
+  return Path.resolve(__dirname, fileName)
+}
+
+function deps(fileName) {
+  return Array.from(Object.keys(require(abs(fileName)).dependencies ?? {}))
+}
+
+function define() {
+  const BUILD = process.env.BUILD ?? 'production'
+  const isProd = BUILD === 'production'
+  return replace({
+    __DEV__: JSON.stringify(!isProd),
+    __PROD__: JSON.stringify(isProd),
+  })
 }

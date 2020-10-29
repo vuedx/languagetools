@@ -155,3 +155,7 @@ temp/
 *.vsix
 .vscode-test
 package-lock.json
+.todo.md
+
+# VS Code packages
+extensions/**/template/package.json

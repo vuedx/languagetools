@@ -6,6 +6,7 @@ import {
 import {
   parse,
   SFCBlock,
+  SFCDescriptor,
   SFCParseOptions,
   SFCStyleBlock,
 } from '@vuedx/compiler-sfc'
@@ -446,16 +447,16 @@ export class VueTextDocument extends ProxyTextDocument {
     }
   }
 
-  public get descriptor() {
+  public get descriptor(): SFCDescriptor {
     this.parse()
     return this.sfc.descriptor
   }
 
-  public all() {
+  public all(): VirtualTextDocument[] {
     return Array.from(this.documents.values()).filter(isNotNull)
   }
 
-  public getBlock(selector: BlockSelector) {
+  public getBlock(selector: BlockSelector): SFCBlock | null | undefined {
     switch (selector.type) {
       case SCRIPT_BLOCK_SELECTOR:
         return this.descriptor.script
@@ -474,7 +475,7 @@ export class VueTextDocument extends ProxyTextDocument {
     }
   }
 
-  public blockAt(position: Position | number) {
+  public blockAt(position: Position | number): SFCBlock | null | undefined {
     const offset = isNumber(position) ? position : this.offsetAt(position)
     const descriptor = this.descriptor
 
@@ -489,7 +490,9 @@ export class VueTextDocument extends ProxyTextDocument {
     )
   }
 
-  public documentAt(position: Position | number) {
+  public documentAt(
+    position: Position | number,
+  ): VirtualTextDocument | undefined {
     const block = this.blockAt(position)
 
     if (block) {
@@ -522,14 +525,12 @@ export class VueTextDocument extends ProxyTextDocument {
     }
   }
 
-  public getDocumentFileName(selectorLike: SelectorLike) {
+  public getDocumentFileName(selectorLike: SelectorLike): string {
     const selector: Selector = isString(selectorLike)
       ? { type: selectorLike }
       : selectorLike
     const id = this.getDocumentId(selector)
     const ext = getLanguageExtension(this.getDocumentLanguage(selector))
-
-    if (!ext) return
 
     return this.fsPath + VIRTUAL_FILENAME_SEPARATOR + id + '.' + ext
   }

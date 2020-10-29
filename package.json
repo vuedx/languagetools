@@ -6,13 +6,9 @@
   "scripts": {
     "test": "jest",
     "coverage": "nyc --reporter=json --reporter=text-summary jest --coverage",
+    "build": "rollup -c",
     "watch": "rollup -c --environment BUILD:development --watch",
-    "build": "rollup -c --environment BUILD:production",
-    "prepublishOnly": "npm run build",
-    "beta:release": "npm run release -- prerelease",
-    "prerelease": "tsc --noEmit",
-    "release": "pnpm recursive exec npm version",
-    "postrelease": "pnpm run build && git commit -am 'chore: release' && pnpm recursive publish --access public --tag latest"
+    "ci:build": "node scripts/build"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.1",
@@ -23,6 +19,7 @@
     "@rollup/plugin-typescript": "^6.0.0",
     "@types/jest": "^26.0.14",
     "@types/node": "^14.11.10",
+    "builtin-modules": "^3.1.0",
     "husky": "^4.3.0",
     "jest": "^26.5.3",
     "jest-expect-message": "^1.0.2",

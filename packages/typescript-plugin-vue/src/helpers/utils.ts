@@ -160,6 +160,9 @@ export function computeIdentifierReplacement(
   }
 }
 
+/**
+ * @deprecated - Do not depend on filesystem!
+ */
 export function findNearestComponentsDir(
   fileName: string,
   rootDir: string = '/',

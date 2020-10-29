@@ -1,0 +1,5 @@
+**
+!languages/
+!scripts/
+!syntaxes/*.json
+!logo.png

@@ -1,4 +1,4 @@
-export { parse } from '@vue/compiler-sfc';
+export { parse } from '@vue/compiler-sfc'
 export type {
   SFCBlock,
   SFCDescriptor,
@@ -6,4 +6,4 @@ export type {
   SFCScriptBlock,
   SFCStyleBlock,
   SFCTemplateBlock,
-} from '@vue/compiler-sfc';
+} from '@vue/compiler-sfc'

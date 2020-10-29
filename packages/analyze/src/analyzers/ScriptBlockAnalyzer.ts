@@ -1,35 +1,43 @@
-import { parse } from '@babel/parser';
-import traverse, { NodePath } from '@babel/traverse';
-import type * as t from '@babel/types';
-import { isIdentifier } from '@babel/types';
-import { SFCScriptBlock } from '@vuedx/compiler-sfc';
-import { Context, Plugin, ScriptAnalyzerContext } from '../types';
-import { createSourceRange, isNotNull } from '../utilities';
+import { parse } from '@babel/parser'
+import traverse, { NodePath } from '@babel/traverse'
+import type * as t from '@babel/types'
+import { isIdentifier } from '@babel/types'
+import { SFCScriptBlock } from '@vuedx/compiler-sfc'
+import { Context, Plugin, ScriptAnalyzerContext } from '../types'
+import { createSourceRange, isNotNull } from '../utilities'
 
 export const ScriptBlockAnalyzer: Plugin = {
   blocks: {
     script: (block, ctx) => {
       if (block.content) {
-        processScript(createScriptContext(block.content, ctx, block));
+        processScript(createScriptContext(block.content, ctx, block))
       }
     },
   },
-};
+}
 
-export function createScriptContext(content: string, context: Context, block?: SFCScriptBlock): ScriptAnalyzerContext {
+export function createScriptContext(
+  content: string,
+  context: Context,
+  block?: SFCScriptBlock,
+): ScriptAnalyzerContext {
   const script = block || {
     type: 'script',
     content: content,
     setup: false,
     attrs: {},
     // TODO: Create loc object as if javascript file.
-    loc: { start: { offset: 0, line: 1, column: 1 }, end: { offset: 0, line: 1, column: 1 }, source: content },
-  };
+    loc: {
+      start: { offset: 0, line: 1, column: 1 },
+      end: { offset: 0, line: 1, column: 1 },
+      source: content,
+    },
+  }
 
-  const plugins = context.parsers.babel.plugins?.slice() || [];
+  const plugins = context.parsers.babel.plugins?.slice() || []
 
   if (script.lang === 'ts' && !plugins.includes('typescript')) {
-    plugins.push('typescript');
+    plugins.push('typescript')
   }
 
   const ast = parse(content, {
@@ -38,7 +46,7 @@ export function createScriptContext(content: string, context: Context, block?: S
     ranges: true,
     // @ts-ignore
     errorRecovery: true,
-  });
+  })
 
   return {
     ...context,
@@ -46,7 +54,7 @@ export function createScriptContext(content: string, context: Context, block?: S
     ast: ast,
     source: content,
     block: script,
-  };
+  }
 }
 
 function processScript(context: ScriptAnalyzerContext) {
@@ -54,118 +62,137 @@ function processScript(context: ScriptAnalyzerContext) {
   if (context.ast.errors?.length) {
     // @ts-ignore
     context.ast.errors.forEach((error: any) =>
-      context.component.addError(error.message, { ...error.loc, offset: error.pos })
-    );
-    return;
+      context.component.addError(error.message, {
+        ...error.loc,
+        offset: error.pos,
+      }),
+    )
+    return
   }
 
   const enterHandlers = context.plugins
     .map((plugin) => {
       if (plugin.babel) {
         if (typeof plugin.babel === 'function') {
-          return plugin.babel;
+          return plugin.babel
         }
         if ('enter' in plugin.babel) {
-          return plugin.babel.enter;
+          return plugin.babel.enter
         }
       }
     })
-    .filter(isNotNull);
+    .filter(isNotNull)
 
   const exitHandlers = context.plugins
     .map((plugin) => {
       if (plugin.babel && 'exit' in plugin.babel) {
-        return plugin.babel.exit;
+        return plugin.babel.exit
       }
     })
-    .filter(isNotNull);
+    .filter(isNotNull)
 
   const setupHandlers = context.plugins
     .map((plugin) => plugin.setup)
     .filter(isNotNull)
-    .flat();
+    .flat()
   const optionsHandlers = context.plugins
     .map((plugin) => (Array.isArray(plugin.options) ? plugin.options : null))
     .filter(isNotNull)
-    .flat();
+    .flat()
   const optionsByNameHandlers = context.plugins
     .map((plugin) => (Array.isArray(plugin.options) ? null : plugin.options))
-    .filter(isNotNull);
+    .filter(isNotNull)
   const declarationHandlers = context.plugins
     .map((plugin) => plugin.declaration)
     .filter(isNotNull)
-    .flat();
+    .flat()
 
-  function call<T>(fns: ((node: T, context: ScriptAnalyzerContext) => void)[], node: T) {
+  function call<T>(
+    fns: ((node: T, context: ScriptAnalyzerContext) => void)[],
+    node: T,
+  ) {
     fns.forEach((fn) => {
       try {
-        fn(node, context);
+        fn(node, context)
       } catch {
         // TODO: Handle error.
       }
-    });
+    })
   }
 
   function processOptions(options$: NodePath<t.ObjectExpression>) {
-    const properties$ = options$.get('properties') as NodePath<t.ObjectExpression['properties'][0]>[];
-    context.component.addOption('', { loc: createSourceRange(context, options$.node) });
+    const properties$ = options$.get('properties') as NodePath<
+      t.ObjectExpression['properties'][0]
+    >[]
+    context.component.addOption('', {
+      loc: createSourceRange(context, options$.node),
+    })
     properties$.forEach((property$) => {
       if (property$.isObjectMember()) {
-        const { key } = property$.node;
+        const { key } = property$.node
 
         if (isIdentifier(key)) {
-          const name = key.name;
+          const name = key.name
           context.component.addOption(name, {
-            loc: createSourceRange(context, property$.isObjectProperty() ? property$.node.value : property$.node),
-          });
+            loc: createSourceRange(
+              context,
+              property$.isObjectProperty()
+                ? property$.node.value
+                : property$.node,
+            ),
+          })
 
           optionsByNameHandlers.forEach((options) => {
-            const fn = options[name] as any;
+            const fn = options[name] as any
 
             if (fn) {
               try {
-                fn(property$, context);
+                fn(property$, context)
               } catch {
                 // TODO: Handler error.
               }
             }
-          });
+          })
 
           if (property$.isObjectMethod() && name === 'setup') {
-            call(setupHandlers, property$ as any);
+            call(setupHandlers, property$ as any)
           }
         }
       }
-    });
+    })
   }
 
   traverse(context.ast, {
     enter(path: NodePath<t.Node>) {
-      call(enterHandlers, path);
+      call(enterHandlers, path)
     },
     exit(path: NodePath<t.Node>) {
-      call(exitHandlers, path);
+      call(exitHandlers, path)
     },
     ExportDefaultDeclaration(path: NodePath<t.ExportDefaultDeclaration>) {
-      const d$ = path.get('declaration') as NodePath<t.ExportDefaultDeclaration['declaration']>;
+      const d$ = path.get('declaration') as NodePath<
+        t.ExportDefaultDeclaration['declaration']
+      >
       /**
        * Matches:
        * export default {}
        */
       if (d$.isObjectExpression()) {
-        const declaration$ = d$ as NodePath<t.ObjectExpression>;
-        call(declarationHandlers, declaration$ as NodePath<t.Node>);
-        call(optionsHandlers, declaration$);
-        processOptions(declaration$);
+        const declaration$ = d$ as NodePath<t.ObjectExpression>
+        call(declarationHandlers, declaration$ as NodePath<t.Node>)
+        call(optionsHandlers, declaration$)
+        processOptions(declaration$)
       } else if (d$.isCallExpression()) {
-        const declaration$ = d$ as NodePath<t.CallExpression>;
+        const declaration$ = d$ as NodePath<t.CallExpression>
         /**
          * Matches:
          * export default fn(...)
          */
-        const { callee } = declaration$.node;
-        const args$ = declaration$.get('arguments');
-        let options$ = ((Array.isArray(args$) ? args$[0] : args$) as unknown) as NodePath;
+        const { callee } = declaration$.node
+        const args$ = declaration$.get('arguments')
+        let options$ = ((Array.isArray(args$)
+          ? args$[0]
+          : args$) as unknown) as NodePath
 
         /**
          * Matches:
@@ -177,20 +204,25 @@ function processScript(context: ScriptAnalyzerContext) {
              * Matches:
              * export default defineComponent({ ... })
              */
-            call(declarationHandlers, declaration$ as any);
-            call(optionsHandlers, options$ as any);
-            processOptions(options$ as any);
-          } else if (options$.isArrowFunctionExpression() || options$.isFunctionExpression()) {
-            context.component.addSetup('', { loc: createSourceRange(context, options$.node) });
+            call(declarationHandlers, declaration$ as any)
+            call(optionsHandlers, options$ as any)
+            processOptions(options$ as any)
+          } else if (
+            options$.isArrowFunctionExpression() ||
+            options$.isFunctionExpression()
+          ) {
+            context.component.addSetup('', {
+              loc: createSourceRange(context, options$.node),
+            })
             /**
              * Matches:
              * export default defineComponent(() => {...})
              * export default defineComponent(function setup() {...})
              */
-            call(setupHandlers, options$ as any);
+            call(setupHandlers, options$ as any)
           }
         }
       }
     },
-  });
+  })
 }

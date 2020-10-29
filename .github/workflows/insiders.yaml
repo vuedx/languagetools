@@ -1,0 +1,40 @@
+name: Insiders
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  default:
+    name: Insiders
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14.14.0'
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v1.2.0
+        with:
+          version: 5.5.4
+          run_install: |
+            - args: [--frozen-lockfile, --silent]
+
+      - name: Build Packages
+        run: |
+          node scripts/build.js
+          pnpm recursive --filter @vuedx/typescript-plugin-vue run build
+
+      - name: Publish Insiders Extension
+        run: |
+          pnpm recursive --filter ./extensions run release
+        env:
+          RELEASE_CHANNEL: insiders

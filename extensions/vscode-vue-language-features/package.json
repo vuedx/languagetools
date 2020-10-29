@@ -1,0 +1,142 @@
+{
+  "private": true,
+  "preview": false,
+  "name": "vue-language-features",
+  "publisher": "znck",
+  "displayName": "Vue Language Features",
+  "version": "0.0.0-0",
+  "description": "Enhanced TypeScript/JavaScript Support",
+  "icon": "logo.png",
+  "main": "dist/index.js",
+  "activationEvents": [
+    "onLanguage:vue"
+  ],
+  "scripts": {
+    "build": "pnpm build:bundle && pnpm build:prepare && pnpm build:vscode",
+    "build:bundle": "pnpm -w build -- --environment FILTER:vscode-vue-language-features/",
+    "build:prepare": "node build/prepare.js",
+    "build:vscode": "cd template && vsce package --out vue-language-features.vsix",
+    "prerelease": "pnpm build",
+    "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath ./template/vue-language-features.vsix",
+    "watch": "rollup -c ../rollup.config.js --environment FILTER:vscode-vue-language-features/ --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/znck/vue-developer-experience"
+  },
+  "keywords": [
+    "vue",
+    "typescript"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.47.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "vue.openVirtualFile",
+        "title": "Vue: Show virtual file"
+      }
+    ],
+    "configuration": {
+      "title": "Vue",
+      "properties": {
+        "vue.suggest.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enabled/disable autocomplete suggestions.",
+          "scope": "resource"
+        },
+        "vue.format.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable default TypeScript/JavaScript formatter.",
+          "scope": "window"
+        },
+        "vue.implementationsCodeLens.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable implementations CodeLens. This CodeLens shows the implementers of an interface.",
+          "scope": "window"
+        },
+        "vue.suggest.completeJSDocs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable suggestion to complete JSDoc comments.",
+          "scope": "resource"
+        },
+        "vue.referencesCodeLens.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable references CodeLens in TypeScript/JavaScript files.",
+          "scope": "window"
+        },
+        "vue.autoClosingTags": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable automatic closing of JSX tags. Requires using TypeScript 3.0 or newer in the workspace."
+        }
+      }
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "vue.openVirtualFile",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.reloadProjects",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.goToProjectConfig",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.selectTypeScriptVersion",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.openTsServerLog",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.restartTsServer",
+          "when": "editorLangId == vue"
+        }
+      ]
+    },
+    "typescriptServerPlugins": [
+      {
+        "name": "@vuedx/typescript-plugin-vue",
+        "enableForWorkspaceTypeScriptVersions": true,
+        "configNamespace": "vue",
+        "languages": [
+          "vue"
+        ]
+      }
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/znck/vue-developer-experience/issues"
+  },
+  "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/vscode#readme",
+  "dependencies": {
+    "@vuedx/typescript-plugin-vue": "workspace:*",
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
+    "inversify": "^5.0.1",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.3",
+    "vsce": "^1.81.1"
+  },
+  "bundleDependencies": [
+    "@vuedx/typescript-plugin-vue"
+  ]
+}

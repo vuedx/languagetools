@@ -10,7 +10,7 @@ import {
   RenderFunctionTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
-import deIndent from 'de-indent'
+import { deIndent } from './de-indent'
 import Path from 'path'
 import {
   getComponentName,
