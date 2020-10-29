@@ -53,4 +53,4 @@ jobs:
       - name: Build
         run: node scripts/build.js
       - name: Test
-        run: pnpm run coverage
+        run: pnpm test

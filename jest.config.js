@@ -12,7 +12,6 @@ module.exports = {
   },
   coverageReporters: ['none'],
   coverageProvider: 'v8',
-  collectCoverage: !!process.env.CI,
   collectCoverageFrom: [
     'packages/**/*.ts',
     '!**/node_modules/**',
