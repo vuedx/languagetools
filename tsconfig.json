@@ -8,7 +8,12 @@
       "test/*": ["test/*"]
     }
   },
-  "include": ["types/*.ts", "packages/*/src/**/*.ts", "test/"],
+  "include": [
+    "types/*.ts",
+    "packages/*/src/**/*.ts",
+    "test/",
+    "packages/typescript-standalone/src/index.js"
+  ],
   "exclude": ["examples/**", "**/node_modules/**", "extensions/**"],
   "typeAcquisition": {
     "enable": false

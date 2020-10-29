@@ -3,6 +3,7 @@ name: Insiders
 on:
   schedule:
     - cron: '0 3 * * 1'
+  workflow_dispatch:
 
 defaults:
   run:
@@ -31,7 +32,7 @@ jobs:
       - name: Build Packages
         run: |
           node scripts/build.js
-          pnpm recursive --filter @vuedx/typescript-plugin-vue run build
+          pnpm recursive --filter @vuedx/typescript-standalone run build
 
       - name: Publish Insiders Extension
         run: |

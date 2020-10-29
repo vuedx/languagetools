@@ -6,6 +6,7 @@ let context: PluginContext
 let server: RoutingLanguageServer
 
 export type { Modules, PluginConfig } from './interfaces'
+export type PluginModule = TS.server.PluginModule
 
 export default function init({ typescript }: Modules): TS.server.PluginModule {
   context = context || new PluginContext(typescript)

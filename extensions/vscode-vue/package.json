@@ -15,12 +15,13 @@
   "scripts": {
     "build": "pnpm build:grammar && pnpm build:bundle && pnpm build:prepare && pnpm build:vscode",
     "build:grammar": "node build/prepare-grammar && node build/grammar",
-    "build:bundle": "pnpm -w build -- --environment FILTER:vscode-vue/",
-    "build:prepare": "node build/prepare-package",
+    "build:bundle": "ncc build src/index.ts",
+    "build:prepare": "node ../../scripts/prepare-package",
     "build:vscode": "vsce package --out vue.vsix",
-    "postbuild": "node build/reset-package",
+    "postbuild": "node ../../scripts/reset-package",
     "prerelease": "pnpm build",
-    "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath ./vue.vsix"
+    "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath ./vue.vsix",
+    "watch": "ncc build --watch src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -165,16 +166,15 @@
     "url": "https://github.com/znck/vue-developer-experience/issues"
   },
   "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/vscode#readme",
-  "dependencies": {
-    "@vuedx/vue-virtual-textdocument": "workspace:*",
-    "inversify": "^5.0.1",
-    "reflect-metadata": "^0.1.13"
-  },
   "devDependencies": {
     "@types/vscode": "^1.50.0",
+    "@vercel/ncc": "^0.24.1",
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
     "fast-glob": "^3.2.4",
+    "inversify": "^5.0.1",
+    "reflect-metadata": "^0.1.13",
     "typescript": "^4.0.3",
-    "vsce": "^1.81.1",
+    "vsce": "1.81.0",
     "yaml": "^1.10.0"
   }
 }

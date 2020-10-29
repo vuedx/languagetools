@@ -1,7 +1,5 @@
-# Vue
+# Vue Language Features
 
-> ⚠️ Experimental
-
-This extension provides language grammar for `.vue` files.
+This extension provides advanced language features for `.vue` files.
 
 Made with 💚 for Vue Developers.

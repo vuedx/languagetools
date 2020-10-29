@@ -58,11 +58,6 @@ const config = [
   bundle('typescript-plugin-vue'),
   bundle('typescript-vetur'),
   bundle('vue-virtual-textdocument'),
-
-  standalone('typescript-plugin-vue'),
-
-  extension('vscode-vue'),
-  extension('vscode-vue-language-features'),
 ]
 
 export default config

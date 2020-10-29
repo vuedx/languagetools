@@ -22,11 +22,9 @@ export class GenerateGrammarCommand extends Installable {
     super()
 
     this.rootDir = this.context.extensionPath
-    this.supported = require(Path.resolve(
-      this.context.extensionPath,
-      'scripts',
-      'supported.json',
-    ))
+    this.supported = eval('require')(
+      Path.resolve(this.context.extensionPath, 'scripts', 'supported.json'),
+    )
   }
 
   public install() {

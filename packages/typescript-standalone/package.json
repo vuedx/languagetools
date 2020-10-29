@@ -1,0 +1,23 @@
+{
+  "name": "@vuedx/typescript-standalone",
+  "version": "0.2.4-0",
+  "description": "TypeScript plugin for Vue (Standalone Mode)",
+  "main": "dist/index.js",
+  "private": false,
+  "scripts": {
+    "build": "ncc build src/index.js"
+  },
+  "keywords": [],
+  "files": [
+    "dist"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "dependencies": {
+    "@vuedx/typescript-plugin-vue": "workspace:*"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.24.1",
+    "typescript": "^4.0.3"
+  }
+}
