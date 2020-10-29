@@ -34,7 +34,7 @@ export function basename(fileName: string) {
 }
 
 export function relativeVirtualImportPath(fileName: string) {
-  return `./${basename(fileName).replace(/\.[\w]+$/, '')}`
+  return `./${basename(fileName).replace(/\.[^.]+$/, '')}`
 }
 
 export function isVueFile(fileName: string) {

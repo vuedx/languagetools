@@ -1,5 +1,29 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/FeaturePropType.vue 1`] = `
+import _Ctx from './FeaturePropType.vue?internal'
+import PropTypeObject from './components/TypeScriptPropsOption.vue'
+
+
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><PropTypeObject/><PropTypeObject eventA={{ id: 1 }}/><PropTypeObject eventA={{ id: 'foo' }}/><PropTypeObject eventA={{ id: 1, foo: 'bar' }}/><PropTypeObject eventA={{ id: 1, foo: 'bar' }} eventB={{ id: 1, foo: 'bar' }}/></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/JavaScriptPropsOption.vue 1`] = ``;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/JavaScriptSetupPropsOption.vue 1`] = ``;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/TypeScriptPropsOption.vue 1`] = ``;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/TypeScriptPropsType.vue 1`] = ``;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/TypeScriptSetupPropsDeclare.vue 1`] = ``;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/TypeScriptSetupPropsOption.vue 1`] = ``;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/TypeScriptSetupPropsType.vue 1`] = ``;
+
 exports[`VueVirtualDocument/baseline feature-goto-definition/src/Javascript.vue 1`] = `
 import _Ctx from './Javascript.vue?internal'
 import HelloWorld from './components/HelloWorld.vue'
@@ -230,25 +254,6 @@ import HelloWorld from './components/HelloWorld.vue'
 
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
-}
-`;
-
-exports[`VueVirtualDocument/baseline typescript/src/components/FeaturePropType.vue 1`] = `
-import _Ctx from './FeaturePropType.vue?internal'
-import PropTypeObject from './FixturePropTypeObject.vue'
-
-
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><PropTypeObject/><PropTypeObject eventA={{ id: 1 }}/><PropTypeObject eventA={{ id: 'foo' }}/><PropTypeObject eventA={{ id: 1, foo: 'bar' }}/><PropTypeObject eventA={{ id: 1, foo: 'bar' }} eventB={{ id: 1, foo: 'bar' }}/></>/*@@vue:end*/
-}
-`;
-
-exports[`VueVirtualDocument/baseline typescript/src/components/FixturePropTypeObject.vue 1`] = `
-import _Ctx from './FixturePropTypeObject.vue?internal'
-
-
-export function render({event}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<>" Event: "{event.id}</>/*@@vue:end*/
 }
 `;
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import PropTypeObject from './FixturePropTypeObject.vue'
+import PropTypeObject from './components/TypeScriptPropsOption.vue'
 
 export default defineComponent({
   components: {
