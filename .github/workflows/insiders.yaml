@@ -39,3 +39,4 @@ jobs:
           pnpm recursive --filter ./extensions run release
         env:
           RELEASE_CHANNEL: insiders
+          VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
