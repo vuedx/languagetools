@@ -11,8 +11,7 @@ export default {
 }
 
 export const fullname = ref('')
-/** @type {number} */
-export const altCode = 1
+export const altCode = 1 + 0 // to prevent {altCode} from being infered as '1' instead of 'number'
 </script>
 
 <template>
