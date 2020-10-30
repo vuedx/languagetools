@@ -1,7 +1,5 @@
 <script setup>
-import { defineComponent } from 'vue'
-
-export default defineComponent({
+export default {
   props: {
     string: String,
     stringFull: {
@@ -87,5 +85,5 @@ export default defineComponent({
       type: [String, Number],
     },
   },
-})
+}
 </script>
