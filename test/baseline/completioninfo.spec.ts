@@ -4,7 +4,7 @@ import { TestServer } from 'test/support/TestServer'
 
 describe('completioninfo', () => {
   const projectPath = toNormalizedPath(
-    Path.resolve(__dirname, '../../samples/feature-completionInfo'),
+    Path.resolve(__dirname, '../../samples/feature-completions'),
   )
 
   function abs(fileName: string) {
@@ -44,12 +44,14 @@ describe('completioninfo', () => {
       })
     })
 
-    it('should show resolved module path on hovering .vue import', async () => {
+    it('should provide info on import', async () => {
       const { body } = await server.sendCommand(
         'completionInfo',
-        await findPositionOrThrowIn(file, `'./components/HelloWorld.vue'`, 3),
+        await findPositionOrThrowIn(file, `defineComponent`, 15),
       )
 
+      body?.entries.length === 3
+      debugger
       // expect(body?.displayString).toBe(
       //   `module "${abs('src/components/HelloWorld.vue')}"`,
       // )

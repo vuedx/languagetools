@@ -1,8 +1,8 @@
 <script>
-import { ref } from 'vue'
+import { ref, defineComponent } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
 
-export default {
+export default defineComponent({
   components: { HelloWorld },
   props: {
     name: String,
@@ -14,7 +14,7 @@ export default {
 
     return { fullname, altCode: 1 }
   },
-}
+})
 </script>
 
 <template>
