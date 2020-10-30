@@ -53,5 +53,6 @@ async function createTextDocument(file: string): Promise<TextDocument> {
 }
 
 export function toNormalizedPath(fileName: string): string {
-  return fileName.replace(/\\/g, '/')
+  const fsPath = URI.file(fileName).fsPath
+  return fsPath.replace(/\\/g, '/')
 }
