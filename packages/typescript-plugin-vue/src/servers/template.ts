@@ -24,6 +24,46 @@ export function createTemplateLanguageServer(
   return wrapInTrace('TemplateLanguageServer', {
     ...noop,
 
+    getCompletionEntryDetails(
+      fileName,
+      position,
+      entryName,
+      formatOptions,
+      source,
+      preferences,
+    ) {
+      const document = h.getRenderDoc(fileName)
+      if (!document) return
+
+      const loc = document.getGeneratedOffsetAt(position)
+      if (!loc) return
+
+      const result = service.getCompletionEntryDetails(
+        fileName,
+        loc.offset,
+        entryName,
+        formatOptions,
+        source,
+        preferences,
+      )
+      return result
+    },
+
+    getCompletionsAtPosition(fileName, position, options) {
+      const document = h.getRenderDoc(fileName)
+      if (!document) return
+
+      const loc = document.getGeneratedOffsetAt(position)
+      if (!loc) return
+
+      const result = service.getCompletionsAtPosition(
+        fileName,
+        loc.offset,
+        options,
+      )
+      return result
+    },
+
     getQuickInfoAtPosition(fileName, position) {
       const document = h.getRenderDoc(fileName)
       if (!document) return

@@ -246,6 +246,31 @@ function createLanguageServiceRouter(
           })
           .filter(isNotNull)
       },
+      getCompletionsAtPosition(fileName, position, options) {
+        return choose(fileName).getCompletionsAtPosition(
+          fileName,
+          position,
+          options,
+        )
+      },
+
+      getCompletionEntryDetails(
+        fileName,
+        position,
+        entryName,
+        formatOptions,
+        source,
+        preferences,
+      ) {
+        return choose(fileName).getCompletionEntryDetails(
+          fileName,
+          position,
+          entryName,
+          formatOptions,
+          source,
+          preferences,
+        )
+      },
 
       getSuggestionDiagnostics(fileName) {
         const diagnostics = choose(fileName).getSuggestionDiagnostics(fileName)

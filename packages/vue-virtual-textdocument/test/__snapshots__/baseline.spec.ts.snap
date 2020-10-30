@@ -1,5 +1,54 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`VueVirtualDocument/baseline feature-completions/src/Javascript.vue 1`] = `
+import _Ctx from './Javascript.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
+
+
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/JavascriptSetup.vue 1`] = `
+import _Ctx from './JavascriptSetup.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
+
+
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/Typescript.vue 1`] = `
+import _Ctx from './Typescript.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
+
+
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/TypescriptSetup.vue 1`] = `
+import _Ctx from './TypescriptSetup.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
+
+
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/components/HelloWorld.vue 1`] = `
+import _Ctx from './HelloWorld.vue?internal'
+
+
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/FeaturePropType.vue 1`] = `
 import _Ctx from './FeaturePropType.vue?internal'
 import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
