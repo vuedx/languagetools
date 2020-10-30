@@ -22,7 +22,7 @@
     "build:append": "node build/append-node-modules",
     "postbuild": "node ../../scripts/reset-package",
     "prerelease": "pnpm build",
-    "watch": "ncc build --watch src/index.ts",
+    "watch": "ncc build --source-map --no-source-map-register --watch src/index.ts",
     "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath vue-language-features.vsix"
   },
   "repository": {

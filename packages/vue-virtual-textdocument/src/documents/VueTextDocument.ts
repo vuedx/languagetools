@@ -232,7 +232,11 @@ class VueModuleTextDocument {
       transformer: (document) => {
         const { script, scriptSetup, template } = document.container.descriptor
 
-        const lines: string[] = [`import { defineComponent } from 'vue'`]
+        const lines: string[] = []
+        let scriptHasDefaultExport = false
+        let scriptMayHaveDefaultExport = false
+        let scriptSetupHasDefaultExport = false
+        let usesDefineComponent = false
         if (script != null) {
           const path = script.src
             ? script.src.replace(/\.([^.]+)$/, '')
@@ -240,33 +244,49 @@ class VueModuleTextDocument {
                 document.container.getDocumentFileName('script'),
               )
           lines.push(`export * from '${path}'`)
-          lines.push(`import * as script from '${path}'`)
-        } else {
-          lines.push(`const script = {}`)
+          lines.unshift(`import * as script from '${path}'`)
+          scriptHasDefaultExport = script.content.includes('export default ')
+          usesDefineComponent = script.content.includes(' defineComponent(')
+          scriptMayHaveDefaultExport = script.src != null
         }
 
         if (scriptSetup != null) {
           const path = relativeVirtualImportPath(
             document.container.getDocumentFileName('scriptSetup'),
           )
-          lines.push(`import * as scriptSetup from '${path}'`)
-        } else {
-          lines.push(`const scriptSetup = {}`)
+          lines.unshift(`import * as scriptSetup from '${path}'`)
+          scriptHasDefaultExport = scriptSetup.content.includes(
+            'export default ',
+          )
+          usesDefineComponent = scriptSetup.content.includes(
+            ' defineComponent(',
+          )
         }
 
-        lines.push(
-          `const component = scriptSetup.default ?? script.default ?? {}`,
-        )
+        if (scriptSetupHasDefaultExport) {
+          lines.push(`const component = scriptSetup.default`)
+        } else if (scriptHasDefaultExport || scriptMayHaveDefaultExport) {
+          lines.push(`const component = script.default`)
+        } else {
+          usesDefineComponent = true
+          lines.unshift(`import { defineComponent } from 'vue'`)
+          lines.push(`const component = defineComponent({})`)
+        }
 
         if (template != null) {
           const path = relativeVirtualImportPath(
             document.container.getDocumentFileName('_render'),
           )
-          lines.push(`import { render } from '${path}'`)
+          lines.unshift(`import { render } from '${path}'`)
           lines.push(`component.render = render`)
         }
 
-        lines.push(`export default component`)
+        if (usesDefineComponent) {
+          lines.push(`export default component`)
+        } else {
+          lines.unshift(`import { defineComponent } from 'vue'`)
+          lines.push(`export default defineComponent(component)`)
+        }
 
         return { code: lines.join('\n') }
       },
@@ -316,9 +336,11 @@ class InternalModuleTextDocument {
             ` defineComponent(`,
           )
           lines.push(`import script from '${path}'`)
-          lines.push(
-            `const component = ${hasDefineComponent} ? script : defineComponent(script)`,
-          )
+          if (hasDefineComponent) {
+            lines.push(`const component = script`)
+          } else {
+            lines.push(`const component = defineComponent(script)`)
+          }
         } else {
           lines.push(`import { defineComponent } from 'vue'`)
           lines.push(`const component = defineComponent({})`)
