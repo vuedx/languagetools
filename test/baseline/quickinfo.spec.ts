@@ -1,12 +1,14 @@
 import Path from 'path'
-import { findPositionOrThrowIn } from 'test/support/helpers'
+import { findPositionOrThrowIn, toNormalizedPath } from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
 describe('quickinfo', () => {
-  const projectPath = Path.resolve(__dirname, '../../samples/feature-quickinfo')
+  const projectPath = toNormalizedPath(
+    Path.resolve(__dirname, '../../samples/feature-quickinfo'),
+  )
 
   function abs(fileName: string) {
-    return Path.resolve(projectPath, fileName)
+    return toNormalizedPath(Path.resolve(projectPath, fileName))
   }
 
   let server: TestServer

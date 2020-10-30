@@ -51,3 +51,7 @@ async function createTextDocument(file: string): Promise<TextDocument> {
 
   return document
 }
+
+export function toNormalizedPath(fileName: string): string {
+  return fileName.replace(/\\/g, '/')
+}

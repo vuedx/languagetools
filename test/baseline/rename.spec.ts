@@ -1,12 +1,14 @@
 import Path from 'path'
-import { findPositionOrThrowIn } from 'test/support/helpers'
+import { findPositionOrThrowIn, toNormalizedPath } from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
 describe('rename', () => {
-  const projectPath = Path.resolve(__dirname, '../../samples/feature-rename')
+  const projectPath = toNormalizedPath(
+    Path.resolve(__dirname, '../../samples/feature-rename'),
+  )
 
   function abs(fileName: string) {
-    return Path.resolve(projectPath, fileName)
+    return toNormalizedPath(Path.resolve(projectPath, fileName))
   }
 
   let server: TestServer

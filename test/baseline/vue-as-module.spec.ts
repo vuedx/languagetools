@@ -1,5 +1,5 @@
 import Path from 'path'
-import { findPositionOrThrowIn } from 'test/support/helpers'
+import { findPositionOrThrowIn, toNormalizedPath } from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
 const projects = [
@@ -27,11 +27,13 @@ afterEach(async () => await server.flush())
 afterAll(async () => await server.close())
 
 describe.each(projects)('project: %s', (project) => {
-  const projectPath = Path.resolve(__dirname, '../../samples/', project)
+  const projectPath = toNormalizedPath(
+    Path.resolve(__dirname, '../../samples/', project),
+  )
   const ext = project.includes('javascript') ? 'js' : 'ts'
 
   function abs(fileName: string) {
-    return Path.resolve(projectPath, fileName)
+    return toNormalizedPath(Path.resolve(projectPath, fileName))
   }
 
   it('should resolve .vue import in .{js,ts} file', async () => {

@@ -1,15 +1,18 @@
 import Path from 'path'
-import { findPositionIn, findPositionOrThrowIn } from 'test/support/helpers'
+import {
+  findPositionIn,
+  findPositionOrThrowIn,
+  toNormalizedPath,
+} from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
 describe('goto-definition', () => {
-  const projectPath = Path.resolve(
-    __dirname,
-    '../../samples/feature-goto-definition',
+  const projectPath = toNormalizedPath(
+    Path.resolve(__dirname, '../../samples/feature-goto-definition'),
   )
 
   function abs(fileName: string) {
-    return Path.resolve(projectPath, fileName)
+    return toNormalizedPath(Path.resolve(projectPath, fileName))
   }
 
   let server: TestServer
