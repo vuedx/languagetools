@@ -41,7 +41,7 @@ export async function getTextDocument(file: string): Promise<TextDocument> {
 async function createTextDocument(file: string): Promise<TextDocument> {
   const content = await FS.readFile(file, { encoding: 'utf-8' })
   const document = TextDocument.create(
-    URI.parse(file).toString(),
+    URI.file(file).toString(),
     Path.extname(file),
     0,
     content,

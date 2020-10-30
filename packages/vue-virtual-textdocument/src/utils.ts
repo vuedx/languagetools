@@ -1,7 +1,7 @@
 import { SFCBlock } from '@vuedx/compiler-sfc'
+import Path from 'path'
 import { URI } from 'vscode-uri'
 import { Selector } from './types'
-import Path from 'path'
 
 export function isNotNull<T>(value: T | null | undefined): value is T {
   return value != null
@@ -61,12 +61,16 @@ export function asUri(fileName: string) {
   return uri
 }
 
-export function asFilePath(path: string) {
+export function asFsUri(path: string) {
   return URI.file(path).toString()
 }
 
+export function replaceSlashes(fileName: string) {
+  return fileName.replace(/\\/g, '/')
+}
+
 export function asFsPath(uri: string) {
-  return URI.parse(uri).fsPath
+  return replaceSlashes(URI.parse(uri).fsPath)
 }
 
 export function parseVirtualFileName(fileName: string) {
@@ -81,7 +85,7 @@ export function parseVirtualFileName(fileName: string) {
       .split('__')
 
     return {
-      uri: URI.file(container).toString(),
+      uri: asFsUri(container),
       selector: <Selector>(
         (index ? { type: block, index: parseInt(index, 10) } : { type: block })
       ),
