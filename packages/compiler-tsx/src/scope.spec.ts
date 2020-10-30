@@ -1,16 +1,32 @@
-import { baseParse } from "@vue/compiler-core"
-import { withScope } from "./scope"
+import { baseParse } from '@vue/compiler-core'
+import { withScope } from './scope'
 
 describe('scope', () => {
   test('should set scope', () => {
-    const ast = baseParse('<div v-for="(foo, index) of foos">{{ foo * 2 }}</div>')
+    const ast = baseParse(
+      '<div v-for="(foo, index) of foos">{{ foo * 2 }}</div>',
+    )
 
     withScope(ast)
+
+    expect(ast.scope.identifiers).toEqual(['foos'])
   })
-  
+
   test('should set scope for model', () => {
-    const ast = baseParse('<div v-for="(foo, index) of foos">{{ foo * 2 }}<input v-model="bar" /></div>')
+    const ast = baseParse(
+      '<div v-for="(foo, index) of foos">{{ foo * 2 }}<input v-model="bar" /></div>',
+    )
 
     withScope(ast)
+
+    expect(ast.scope.identifiers).toEqual(['foos', 'bar'])
+  })
+
+  test('inline object as prop', () => {
+    const ast = baseParse(`<div :data-example="{ foo: 'bar', id: 1 }" />`)
+
+    withScope(ast)
+
+    expect(ast.scope.identifiers).toEqual([])
   })
 })

@@ -34,7 +34,7 @@ export function basename(fileName: string) {
 }
 
 export function relativeVirtualImportPath(fileName: string) {
-  return `./${basename(fileName).replace(/\.[\w]+$/, '')}`
+  return `./${basename(fileName).replace(/\.[^.]+$/, '')}`
 }
 
 export function isVueFile(fileName: string) {
@@ -49,20 +49,20 @@ export function getContainingFile(fileName: string) {
   return fileName.split(VIRTUAL_FILENAME_SEPARATOR).shift()!
 }
 
-export function asUri(fileName: string) {
-  if (/^[a-z-]+:\/\//i.test(fileName)) return fileName
+export function asUri(fileNameOrUri: string) {
+  if (/^[a-z]{2,}:\//i.test(fileNameOrUri)) return fileNameOrUri
 
-  const uri = URI.file(fileName).toString()
+  const uri = URI.file(replaceSlashes(fileNameOrUri)).toString()
 
-  if (isVirtualFile(fileName)) {
+  if (isVirtualFile(fileNameOrUri)) {
     return uri.replace(/^[^:]+/, 'vue')
   }
 
   return uri
 }
 
-export function asFsUri(path: string) {
-  return URI.file(path).toString()
+export function asFsUri(fileName: string) {
+  return URI.file(fileName).toString()
 }
 
 export function replaceSlashes(fileName: string) {

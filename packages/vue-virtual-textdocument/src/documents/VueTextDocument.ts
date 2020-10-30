@@ -41,6 +41,11 @@ import {
   VIRTUAL_FILENAME_SEPARATOR,
 } from '../utils'
 import { ProxyTextDocument } from './ProxyTextDocument'
+import {
+  SourceMapConsumer,
+  RawSourceMap,
+  Position as SourceMapPosition,
+} from 'source-map'
 
 const analyzer = createAnalyzer([ScriptBlockAnalyzer, ComponentsOptionAnalyzer])
 const replaceRE = /./g
@@ -70,6 +75,15 @@ interface CreateVirtualTextDocumentOptions<T extends Selector = Selector> {
   languageId: string
   version: number
   content: string
+}
+interface BlockTransformResult {
+  code: string
+  map?: RawSourceMap
+}
+interface CreateTransformedBlockTextDocumentOptions<
+  T extends Selector = Selector
+> extends CreateVirtualTextDocumentOptions<T> {
+  transformer: (document: TransformedBlockTextDocument) => BlockTransformResult
 }
 
 export class VirtualTextDocument extends ProxyTextDocument {
@@ -118,124 +132,252 @@ export class VirtualTextDocument extends ProxyTextDocument {
   }
 }
 
-class VueModuleTextDocument extends VirtualTextDocument {
+export class TransformedBlockTextDocument extends VirtualTextDocument {
+  private consumer: SourceMapConsumer | null = null
+
+  protected constructor(
+    container: VueTextDocument,
+    selector: Selector,
+    transformed: TextDocument,
+    private source: TextDocument,
+    private readonly _transform: (
+      document: TransformedBlockTextDocument,
+    ) => BlockTransformResult,
+  ) {
+    super(container, selector, transformed)
+  }
+
+  private toTextDocumentPosition({
+    line,
+    column: character,
+  }: SourceMapPosition): Position {
+    return { line, character }
+  }
+
+  private toSourceMapPosition({
+    line,
+    character: column,
+  }: Position): SourceMapPosition {
+    return { line, column }
+  }
+
+  tryGetSourceOffset(offset: number): number | undefined {
+    if (this.consumer != null) {
+      return this.source.offsetAt(
+        this.toTextDocumentPosition(
+          this.consumer.originalPositionFor(
+            this.toSourceMapPosition(this.doc.positionAt(offset)),
+          ),
+        ),
+      )
+    }
+  }
+
+  tryGetGeneratedOffset(offset: number): number | undefined {
+    if (this.consumer != null) {
+      const generated = this.consumer.allGeneratedPositionsFor({
+        ...this.toSourceMapPosition(this.source.positionAt(offset)),
+        source: this.fsPath,
+      })
+
+      if (generated.length > 0) {
+        return this.doc.offsetAt(this.toTextDocumentPosition(generated[0]))
+      }
+    }
+  }
+
   protected refresh() {
     if (this.isDirty || this.doc.version !== this.container.version) {
       this.isDirty = false
-      const scriptFile = this.container.getDocumentFileName(
-        SCRIPT_BLOCK_SELECTOR,
-      )
-      const scriptSetupFile = this.container.descriptor.script?.setup
-        ? this.container.getDocumentFileName(SCRIPT_SETUP_BLOCK_SELECTOR)
-        : null
-      const renderFile = this.container.getDocumentFileName(RENDER_SELECTOR)
-
-      const lines: string[] = []
-
-      if (scriptSetupFile) {
-        const path = relativeVirtualImportPath(scriptSetupFile)
-        lines.push(`import * as options from '${path}'`)
-      } else {
-        lines.push(`const options = {}`)
+      const { code, map } = this.transform()
+      if (map != null) {
+        const block = this.container.getBlock(this.selector as BlockSelector)
+        this.source = TextDocument.update(
+          this.source,
+          [{ text: block ? block.content : '' }],
+          this.container.version,
+        )
+        this.consumer = new SourceMapConsumer(map)
       }
-
-      if (scriptFile) {
-        const path = relativeVirtualImportPath(scriptFile)
-        lines.push(`export * from '${path}'`)
-        lines.push(`import component from '${path}'`)
-      } else {
-        lines.push(`import { defineComponent } from 'vue'`)
-        lines.push(`const component = defineComponent(options)`)
-      }
-
-      if (renderFile) {
-        const path = relativeVirtualImportPath(renderFile)
-        lines.push(`import { render } from '${path}'`)
-        lines.push(`component.render = render`)
-      }
-
-      lines.push(`export default component`)
 
       this.doc = TextDocument.update(
         this.doc,
-        [{ text: lines.join('\n') }],
+        [{ text: code }],
         this.container.version,
       )
     }
   }
 
-  public static create(
-    options: CreateVirtualTextDocumentOptions<{ type: typeof MODULE_SELECTOR }>,
-  ) {
-    return new VueModuleTextDocument(
+  public transform(): BlockTransformResult {
+    return this._transform(this)
+  }
+
+  public static create(options: CreateTransformedBlockTextDocumentOptions) {
+    return new TransformedBlockTextDocument(
       options.container,
       options.selector,
+      TextDocument.create(options.uri, 'typescript', -1, ''),
       TextDocument.create(options.uri, options.languageId, -1, options.content),
+      options.transformer,
     )
   }
 }
 
-class InternalModuleTextDocument extends VirtualTextDocument {
-  protected refresh() {
-    if (this.isDirty || this.doc.version !== this.container.version) {
-      this.isDirty = false
-      const scriptFile = this.container.getDocumentFileName(
-        SCRIPT_BLOCK_SELECTOR,
-      )
-      const scriptSetupFile = this.container.descriptor.scriptSetup
-        ? this.container.getDocumentFileName(SCRIPT_SETUP_BLOCK_SELECTOR)
-        : null
+class VueModuleTextDocument {
+  public static create(
+    options: CreateVirtualTextDocumentOptions<{ type: typeof MODULE_SELECTOR }>,
+  ) {
+    return TransformedBlockTextDocument.create({
+      ...options,
+      transformer: (document) => {
+        const { script, scriptSetup, template } = document.container.descriptor
 
-      const lines: string[] = []
-
-      if (scriptSetupFile) {
-        const path = relativeVirtualImportPath(scriptSetupFile)
-        lines.push(`import { defineComponent } from 'vue'`)
-        lines.push(`import options from '${path}'`)
-        lines.push(`import * as setup from '${path}'`)
-        lines.push(`export * from '${path}'`)
-        lines.push(
-          `const component = defineComponent({ ...options, setup: () => setup })`,
-        )
-      } else if (scriptFile) {
-        const path = relativeVirtualImportPath(scriptFile)
-        lines.push(`import script from '${path}'`)
-        if (scriptFile.endsWith('.js')) {
-          lines.push(`import { defineComponent } from 'vue'`)
-          lines.push(`const component = defineComponent(script)`)
-        } else {
-          lines.push(`const component = script`)
+        const lines: string[] = []
+        let scriptHasDefaultExport = false
+        let scriptMayHaveDefaultExport = false
+        let scriptSetupHasDefaultExport = false
+        let usesDefineComponent = false
+        if (script != null) {
+          const path = script.src
+            ? script.src.replace(/\.([^.]+)$/, '')
+            : relativeVirtualImportPath(
+                document.container.getDocumentFileName('script'),
+              )
+          lines.push(`export * from '${path}'`)
+          lines.unshift(`import * as script from '${path}'`)
+          scriptHasDefaultExport = script.content.includes('export default ')
+          usesDefineComponent = script.content.includes(' defineComponent(')
+          scriptMayHaveDefaultExport = script.src != null
         }
-      } else {
-        lines.push(`import { defineComponent } from 'vue'`)
-        lines.push(`const component = defineComponent({})`)
-      }
 
-      lines.push(`export default component`)
+        if (scriptSetup != null) {
+          const path = relativeVirtualImportPath(
+            document.container.getDocumentFileName('scriptSetup'),
+          )
+          lines.unshift(`import * as scriptSetup from '${path}'`)
+          scriptHasDefaultExport = scriptSetup.content.includes(
+            'export default ',
+          )
+          usesDefineComponent = scriptSetup.content.includes(
+            ' defineComponent(',
+          )
+        }
 
-      this.doc = TextDocument.update(
-        this.doc,
-        [{ text: lines.join('\n') }],
-        this.container.version,
-      )
-    }
+        if (scriptSetupHasDefaultExport) {
+          lines.push(`const component = scriptSetup.default`)
+        } else if (scriptHasDefaultExport || scriptMayHaveDefaultExport) {
+          lines.push(`const component = script.default`)
+        } else {
+          usesDefineComponent = true
+          lines.unshift(`import { defineComponent } from 'vue'`)
+          lines.push(`const component = defineComponent({})`)
+        }
+
+        if (template != null) {
+          const path = relativeVirtualImportPath(
+            document.container.getDocumentFileName('_render'),
+          )
+          lines.unshift(`import { render } from '${path}'`)
+          lines.push(`component.render = render`)
+        }
+
+        if (usesDefineComponent) {
+          lines.push(`export default component`)
+        } else {
+          lines.unshift(`import { defineComponent } from 'vue'`)
+          lines.push(`export default defineComponent(component)`)
+        }
+
+        return { code: lines.join('\n') }
+      },
+    })
   }
+}
 
+class InternalModuleTextDocument {
   public static create(
     options: CreateVirtualTextDocumentOptions<{
       type: typeof INTERNAL_MODULE_SELECTOR
     }>,
   ) {
-    return new InternalModuleTextDocument(
-      options.container,
-      options.selector,
-      TextDocument.create(options.uri, options.languageId, -1, options.content),
-    )
+    return TransformedBlockTextDocument.create({
+      ...options,
+      transformer: (document) => {
+        const script = document.container.descriptor.script
+        const scriptSetup = document.container.descriptor.scriptSetup
+
+        const lines: string[] = []
+        lines.push(`import { defineComponent } from 'vue'`)
+        if (scriptSetup != null) {
+          const path = relativeVirtualImportPath(
+            document.container.getDocumentFileName('scriptSetup'),
+          )
+
+          lines.push(`import * as scriptSetup from '${path}'`)
+
+          const hasDefaultExport =
+            scriptSetup.content.includes('export default') === true
+
+          if (hasDefaultExport) {
+            lines.push(`import options from '${path}'`)
+          } else {
+            lines.push(`const options = {}`)
+          }
+
+          // TODO: Transform <script setup> and always import default from there!!
+          lines.push(
+            `const component = defineComponent({ ...options, setup: () => scriptSetup })`,
+          )
+        } else if (script != null) {
+          const path = relativeVirtualImportPath(
+            document.container.getDocumentFileName('script'),
+          )
+          const hasDefineComponent = script.content.includes(
+            ` defineComponent(`,
+          )
+          lines.push(`import script from '${path}'`)
+          if (hasDefineComponent) {
+            lines.push(`const component = script`)
+          } else {
+            lines.push(`const component = defineComponent(script)`)
+          }
+        } else {
+          lines.push(`import { defineComponent } from 'vue'`)
+          lines.push(`const component = defineComponent({})`)
+        }
+
+        lines.push(`export default component`)
+
+        return { code: lines.join('\n') }
+      },
+    })
   }
 }
 
+class ScriptSetupTextDocument {
+  public static create(
+    options: CreateVirtualTextDocumentOptions<{
+      type: typeof SCRIPT_SETUP_BLOCK_SELECTOR
+    }>,
+  ) {
+    return TransformedBlockTextDocument.create({
+      ...options,
+      transformer: (document) => {
+        const { scriptSetup } = document.container.descriptor
+        if (!scriptSetup) return { code: '' }
+
+        // TODO: Transform
+
+        return { code: scriptSetup.content }
+      },
+    })
+  }
+}
+
+// TODO: Support style variables type check.
+
 export class RenderFunctionTextDocument extends VirtualTextDocument {
-  private result!: CodegenResult
+  private result!: CodegenResult & { template?: string }
   private originalRange: [number, number] = [0, 0]
   private originalMappings: CodegenResult['mappings'] = []
   private generatedRange: [number, number] = [0, 0]
@@ -244,6 +386,10 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
 
   public get ast(): CodegenResult['ast'] | undefined {
     if (this.result) return this.result.ast
+  }
+
+  public get parserErrors(): CodegenResult['errors'] {
+    return this.result?.errors ?? []
   }
 
   public getOriginalOffsetAt(offset: number) {
@@ -342,16 +488,28 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
           this.container.version,
         )
       } catch (error) {
-        // This is very unlikely to happen as compiler is very error tolerant.
+        const code = `\n/* ${error.message} ${error.stack} */ \n`
         this.doc = TextDocument.update(
           this.doc,
-          [{ text: `\n/* ${error.message} ${error.stack} */ \n` }],
+          [{ text: code }],
           this.container.version,
         )
+
+        if (error.loc == null) {
+          error.loc = this.container.descriptor.template?.loc
+        }
+
         this.originalRange = [0, 0]
         this.originalMappings = []
         this.generatedRange = [0, 0]
         this.generatedMappings = []
+        this.result = {
+          errors: [error],
+          code,
+          ast: null as any,
+          expressions: [],
+          mappings: [],
+        }
       }
     }
   }
@@ -361,11 +519,21 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
 
     if (!template) {
       return ''
+    } else if (this.result?.template === template.content) {
+      return this.result.code
     } else {
+      const errors: any[] = []
       this.result = compile(template.content, {
         filename: this.container.fsPath,
         components: this.getLocalComponents(),
+        onError: (error) => {
+          errors.push(error)
+        },
       })
+
+      this.result.template = template.content
+
+      this.result.errors.push(...errors)
 
       this.originalRange = [template.loc.start.offset, template.loc.end.offset]
       this.originalMappings = this.result.mappings.slice()
@@ -392,11 +560,13 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   }
 
   protected getLocalComponents(): Record<string, ComponentImport> | undefined {
-    const { script } = this.container.descriptor
+    const { script, scriptSetup } = this.container.descriptor
 
-    if (script && script.content) {
+    const content = scriptSetup?.content ?? script?.content
+
+    if (content != null) {
       // TODO: Cache this.
-      const result = analyzer.analyzeScript(script.content, 'component.ts')
+      const result = analyzer.analyzeScript(content, 'component.ts')
       const map: Record<string, ComponentImport> = {}
       result.components.forEach((component) => {
         const result = {
@@ -578,17 +748,20 @@ export class VueTextDocument extends ProxyTextDocument {
   protected createBlockDocument(selector: BlockSelector) {
     const block = this.getBlock(selector)
     if (!block) return
-
-    // TODO: handle src for <script>
-
-    return VirtualTextDocument.create({
+    const options = {
       container: this,
       selector,
       uri: asUri(this.getDocumentFileName(selector)!),
       languageId: this.getDocumentLanguage(selector),
       version: this.version,
       content: block.content,
-    })
+    }
+
+    if (selector.type === SCRIPT_SETUP_BLOCK_SELECTOR) {
+      return ScriptSetupTextDocument.create({ ...options, selector })
+    } else {
+      return VirtualTextDocument.create(options)
+    }
   }
 
   protected createInternalModuleDocument() {

@@ -94,8 +94,6 @@ export function createServerHelper(
   function getRenderDoc(
     fileName: string,
   ): RenderFunctionTextDocument | undefined {
-    if (isVirtualFile(fileName))
-      return getVueDocument(fileName)?.getDocument('_render')
     return getVueDocument(fileName)?.getDocument('_render')
   }
 

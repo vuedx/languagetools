@@ -1,4 +1,3 @@
-import QuickLRU from 'quick-lru'
 import { GOTO_PROVIDERS } from '../features/goto'
 import { REFACTOR_PROVIDERS } from '../features/refactors'
 import { RENAME_PROVIDERS } from '../features/renames'
@@ -21,8 +20,6 @@ export function createTemplateLanguageServer(
   config: LanguageServiceOptions,
 ): TS.LanguageService & AdditionalFunctions {
   const { helpers: h, service, context } = config
-
-  const cache = new QuickLRU<string, any>({ maxSize: 1000 })
 
   return wrapInTrace('TemplateLanguageServer', {
     ...noop,
@@ -49,29 +46,54 @@ export function createTemplateLanguageServer(
       const document = h.getRenderDoc(fileName)
       if (!document) return []
 
-      const key = `getSemanticDiagnostics::${document.container.version}::${fileName}`
-
-      if (cache.has(key)) return cache.get(key)
+      context.log(`[DEBUG] CallInner "${document.fsPath}"`)
 
       const diagnostics = service
-        .getSemanticDiagnostics(fileName)
+        .getSemanticDiagnostics(document.fsPath)
         .map((diagnostic) => {
-          if (Number.isInteger(diagnostic.start)) {
-            const position = document.findExpression(
-              diagnostic.start!,
-              diagnostic.length || 1,
+          if (diagnostic.file && diagnostic.file.fileName != document.fsPath) {
+            throw new Error(
+              `Unexpected file "${diagnostic.file.fileName}" in diagnostics of "${document.fsPath}"`,
             )
-            if (!position) return
-
-            diagnostic.start = position.offset
-            diagnostic.length = position.length
           }
 
-          return diagnostic
+          if (diagnostic.start != null) {
+            if (document.isInGeneratedRange(diagnostic.start)) {
+              const position = document.getOriginalOffsetAt(diagnostic.start)
+
+              if (position == null) {
+                context.log(
+                  `Cannot find mapping at ${JSON.stringify(
+                    document.positionAt(diagnostic.start),
+                  )} in "${document.container.fsPath}"`,
+                )
+              } else {
+                context.log(
+                  `RenderMapping: ${JSON.stringify(
+                    document.positionAt(diagnostic.start),
+                  )} -> ${JSON.stringify(
+                    document.container
+                      .getDocument({ type: 'template' })
+                      .positionAt(position.offset),
+                  )} in "${diagnostic.file?.fileName}"`,
+                )
+              }
+
+              diagnostic.start = position?.offset ?? diagnostic.start
+
+              return diagnostic
+            } else {
+              context.log(
+                `Cannot find mapping at ${JSON.stringify(
+                  document.positionAt(diagnostic.start),
+                )} in "${document.container.fsPath}"`,
+              )
+            }
+          } else {
+            return diagnostic
+          }
         })
         .filter(isNotNull)
-
-      cache.set(key, diagnostics)
 
       return diagnostics
     },
@@ -80,28 +102,20 @@ export function createTemplateLanguageServer(
       const document = h.getRenderDoc(fileName)
       if (!document) return []
 
-      const key = `getSuggestionDiagnostics::${document.container.version}::${fileName}`
-      if (cache.has(key)) return cache.get(key)
-
       const diagnostics = service
-        .getSuggestionDiagnostics(fileName)
+        .getSuggestionDiagnostics(document.fsPath)
         .map((diagnostic) => {
-          if (Number.isInteger(diagnostic.start)) {
-            const position = document.findExpression(
-              diagnostic.start!,
-              diagnostic.length || 1,
-            )
-
-            if (!position) return
-
-            diagnostic.start = position.offset
-            diagnostic.length = position.length
+          if (document.isInGeneratedRange(diagnostic.start)) {
+            diagnostic.start =
+              document.getOriginalOffsetAt(diagnostic.start)?.offset ??
+              diagnostic.start
+            return diagnostic
           }
 
           return diagnostic
         })
         .filter(isNotNull)
-      cache.set(key, diagnostics)
+
       return diagnostics
     },
 
@@ -109,27 +123,40 @@ export function createTemplateLanguageServer(
       const document = h.getRenderDoc(fileName)
       if (!document) return []
 
-      const key = `getSyntacticDiagnostics::${document.container.version}::${fileName}`
-      if (cache.has(key)) return cache.get(key)
       const diagnostics = service
-        .getSyntacticDiagnostics(fileName)
+        .getSyntacticDiagnostics(document.fsPath)
         .map((diagnostic) => {
-          if (Number.isInteger(diagnostic.start)) {
-            const position = document.findExpression(
-              diagnostic.start!,
-              diagnostic.length || 1,
-            )
-
-            if (!position) return
-
-            diagnostic.start = position.offset
-            diagnostic.length = position.length
+          if (document.isInGeneratedRange(diagnostic.start)) {
+            diagnostic.start =
+              document.getOriginalOffsetAt(diagnostic.start)?.offset ??
+              diagnostic.start
+            return diagnostic
           }
-
-          return diagnostic
         })
         .filter(isNotNull)
-      cache.set(key, diagnostics)
+      if (document.parserErrors.length) {
+        const sourceFile = service.getProgram()?.getSourceFile(document.fsPath)
+        const block = document.container.getBlock({ type: 'template' })
+        if (sourceFile != null && block != null) {
+          const start = block.loc.start.offset
+          const length = block.loc.end.offset - start
+
+          document.parserErrors.forEach((error) => {
+            diagnostics.push({
+              category: context.typescript.DiagnosticCategory.Error,
+              code: error.code,
+              file: sourceFile,
+              source: error.loc?.source,
+              start: error.loc ? error.loc.start.offset : start,
+              length: error.loc
+                ? error.loc.end.offset - error.loc.start.offset
+                : length,
+              messageText: error.message,
+            })
+          })
+        }
+      }
+
       return diagnostics
     },
 

@@ -13,6 +13,7 @@ import {
 import { URI } from 'vscode-uri'
 import { TS, PluginConfig } from './interfaces'
 import { tryPatchMethod } from './helpers/patcher'
+import { wrapFn } from './helpers/logger'
 
 function getLastNumberFromVersion(version: string) {
   const parts = version.split(/[^0-9]+/)
@@ -122,69 +123,13 @@ export class PluginContext {
     }
   }
 
-  private watchers = new Map<string, Map<string, Set<TS.FileWatcherCallback>>>()
-  private getWatchers(fileName: string) {
-    const containingFile = isVirtualFile(fileName)
-      ? getContainingFile(fileName)
-      : fileName
-    if (!this.watchers.has(containingFile)) {
-      this.watchers.set(containingFile, new Map())
-    }
-
-    return this.watchers.get(containingFile)!
-  }
-
-  public watchVirtualFile(fileName: string, callback: TS.FileWatcherCallback) {
-    if (__DEV__) {
-      if (!isVirtualFile(fileName))
-        throw new Error('Only virtual files can be watched.')
-    }
-
-    const watchers = this.getWatchers(fileName)
-
-    if (!watchers.has(fileName)) {
-      watchers.set(fileName, new Set())
-    }
-
-    watchers.get(fileName)!.add(callback)
-  }
-
-  public triggerVirtualFileWatchers(
-    fileName: string,
-    baseEvent: TS.FileWatcherEventKind,
-  ) {
-    const watchers = this.getWatchers(fileName)
-
-    if (isVirtualFile(fileName)) {
-      watchers.get(fileName)?.forEach((callback) => {
-        callback(fileName, baseEvent)
-      })
-    } else {
-      watchers.forEach((watchers, fileName) => {
-        watchers.forEach((callback) => {
-          callback(fileName, baseEvent)
-        })
-      })
-    }
-  }
-
-  public stopVirtualFileWatcher(
-    fileName: string,
-    callback: TS.FileWatcherCallback,
-  ) {
-    const watchers = this.getWatchers(fileName)!.get(fileName)
-
-    if (watchers) {
-      watchers.delete(callback)
-    }
-  }
-
   public tryCreateScriptInfo(fileName: string): void {
     try {
       if (isVirtualFile(fileName)) {
-        this.store.get(getContainingFile(fileName))
+        const vueFileName = getContainingFile(fileName)
+        this.store.get(vueFileName)
         const scriptInfo = this.projectService.getOrCreateScriptInfoForNormalizedPath(
-          this.typescript.server.toNormalizedPath(getContainingFile(fileName)),
+          this.typescript.server.toNormalizedPath(vueFileName),
           false,
         )
         if (scriptInfo) {
@@ -229,24 +174,30 @@ function patchExtraFileExtensions(context: PluginContext) {
     'setHostConfiguration',
     (setHostConfiguration) => {
       context.log(`[patch] Add support for vue extension. (ProjectService)`)
-      return (args) => {
-        const current = ((context.projectService as any)
-          .hostConfiguration as TS.server.HostConfiguration).extraFileExtensions
+      return wrapFn(
+        'setHostConfiguration',
+        (args: TS.server.protocol.ConfigureRequestArguments): void => {
+          const current = ((context.projectService as any)
+            .hostConfiguration as TS.server.HostConfiguration)
+            .extraFileExtensions
 
-        if (args.extraFileExtensions) {
-          args.extraFileExtensions.push(...extraFileExtensions)
-          context.log(
-            `extraFileExtensions: ${JSON.stringify(args.extraFileExtensions)}`,
-          )
-        } else if (
-          !current ||
-          !current.some((ext) => ext.extension === 'vue')
-        ) {
-          args.extraFileExtensions = [...extraFileExtensions]
-        }
+          if (args.extraFileExtensions) {
+            args.extraFileExtensions.push(...extraFileExtensions)
+            context.log(
+              `extraFileExtensions: ${JSON.stringify(
+                args.extraFileExtensions,
+              )}`,
+            )
+          } else if (
+            !current ||
+            !current.some((ext) => ext.extension === 'vue')
+          ) {
+            args.extraFileExtensions = [...extraFileExtensions]
+          }
 
-        return setHostConfiguration(args)
-      }
+          return setHostConfiguration(args)
+        },
+      )
     },
   )
 
@@ -294,17 +245,8 @@ function patchGetScriptFileNames(
         `[patch] Override getScriptFileNames to expand .vue files to virtual files. (LanguageServerHost)`,
       )
 
-      return () => {
+      return wrapFn('getScriptFileNames', (): string[] => {
         const fileNames = new Set<string>()
-
-        if (__DEV__) {
-          context.log(`LanguageServerHost.getScriptFileNames (original)`)
-          context.projectService.logger.startGroup()
-          getScriptFileNames().forEach((fileName) =>
-            context.log(` - "${fileName}"`),
-          )
-          context.projectService.logger.endGroup()
-        }
 
         const vueFiles = new Set<string>()
 
@@ -342,15 +284,8 @@ function patchGetScriptFileNames(
           })
         }
 
-        if (__DEV__) {
-          context.log(`LanguageServerHost.getScriptFileNames`)
-          context.projectService.logger.startGroup()
-          fileNames.forEach((fileName) => context.log(` - "${fileName}"`))
-          context.projectService.logger.endGroup()
-        }
-
         return Array.from(fileNames)
-      }
+      })
     },
   )
 }
@@ -364,7 +299,7 @@ function patchFileExists(context: PluginContext) {
         `[patch] Override fileExists to check containing file for virtual files. (ServiceHost)`,
       )
 
-      return (fileName) => {
+      return wrapFn('fileExists', (fileName: string): boolean => {
         if (isVirtualFile(fileName)) {
           const document = context.store.get(getContainingFile(fileName))
           const { selector } = parseVirtualFileName(fileName)!
@@ -373,7 +308,7 @@ function patchFileExists(context: PluginContext) {
         }
 
         return fileExists(fileName)
-      }
+      })
     },
   )
 }
@@ -384,7 +319,9 @@ function patchReadFile(context: PluginContext) {
       `[patch] Override readFile to check containing file for virtual files. (ServiceHost)`,
     )
 
-    return (fileName) => {
+    return wrapFn('readFile', (fileName: string, encoding?: string):
+      | string
+      | undefined => {
       if (isVirtualFile(fileName)) {
         context.log(`host.readFile("${fileName}")`)
         const document = context.store
@@ -395,9 +332,9 @@ function patchReadFile(context: PluginContext) {
       }
 
       return readFile
-        ? readFile(fileName)
-        : context.typescript.sys.readFile(fileName)
-    }
+        ? readFile(fileName, encoding)
+        : context.typescript.sys.readFile(fileName, encoding)
+    })
   })
 }
 
@@ -413,61 +350,64 @@ function patchModuleResolution(
         `[patch] Override resolveModuleNames to resolve imports from .vue files. (LanguageServerHost)`,
       )
 
-      return (
-        moduleNames,
-        containingFile,
-        reusedNames,
-        redirectedReferences,
-        options,
-      ) => {
-        if (isVueFile(containingFile))
-          throw new Error('A .vue file should not be part of TS program.')
+      return wrapFn(
+        'resolveModuleNames',
+        (
+          moduleNames: string[],
+          containingFile: string,
+          reusedNames: string[] | undefined,
+          redirectedReferences: TS.ResolvedProjectReference | undefined,
+          options: TS.CompilerOptions,
+        ): (TS.ResolvedModule | undefined)[] => {
+          if (isVueFile(containingFile))
+            throw new Error('A .vue file should not be part of TS program.')
 
-        const newModuleNames = moduleNames.map((moduleName) =>
-          isVueFile(moduleName)
-            ? moduleName + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR
-            : moduleName.endsWith('.vue?internal')
-            ? moduleName.replace(/\?internal$/, '') +
-              VIRTUAL_FILENAME_SEPARATOR +
-              INTERNAL_MODULE_SELECTOR
-            : moduleName,
-        )
+          const newModuleNames = moduleNames.map((moduleName) =>
+            isVueFile(moduleName)
+              ? moduleName + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR
+              : moduleName.endsWith('.vue?internal')
+              ? moduleName.replace(/\?internal$/, '') +
+                VIRTUAL_FILENAME_SEPARATOR +
+                INTERNAL_MODULE_SELECTOR
+              : moduleName,
+          )
 
-        // TODO: Support paths mapped to .vue files, if needed.
-        const result = resolveModuleNames
-          ? resolveModuleNames(
-              newModuleNames,
-              containingFile,
-              reusedNames,
-              redirectedReferences,
-              options,
-            )
-          : []
+          // TODO: Support paths mapped to .vue files, if needed.
+          const result = resolveModuleNames
+            ? resolveModuleNames(
+                newModuleNames,
+                containingFile,
+                reusedNames,
+                redirectedReferences,
+                options,
+              )
+            : []
 
-        result.forEach((resolved) => {
-          if (resolved != null && isVirtualFile(resolved.resolvedFileName)) {
-            context.tryCreateScriptInfo(resolved.resolvedFileName) // Trigger .vue script info creation.
-          }
-        })
+          result.forEach((resolved) => {
+            if (resolved != null && isVirtualFile(resolved.resolvedFileName)) {
+              context.tryCreateScriptInfo(resolved.resolvedFileName) // Trigger .vue script info creation.
+            }
+          })
 
-        if (__DEV__) {
-          if (!/node_modules/.test(containingFile)) {
-            context.log(
-              `Module resolution in ${containingFile} :: ` +
-                JSON.stringify(
-                  moduleNames.map(
-                    (name, index) =>
-                      `${name} => ${newModuleNames[index]} => ${result[index]?.resolvedFileName}`,
+          if (__DEV__) {
+            if (!/node_modules/.test(containingFile)) {
+              context.log(
+                `Module resolution in ${containingFile} :: ` +
+                  JSON.stringify(
+                    moduleNames.map(
+                      (name, index) =>
+                        `${name} => ${newModuleNames[index]} => ${result[index]?.resolvedFileName}`,
+                    ),
+                    null,
+                    2,
                   ),
-                  null,
-                  2,
-                ),
-            )
+              )
+            }
           }
-        }
 
-        return result
-      }
+          return result
+        },
+      )
     },
   )
 }
@@ -484,23 +424,28 @@ function patchWatchFile(context: PluginContext) {
       `[patch] Override watchFile to watch virtual files. (ServiceHost)`,
     )
 
-    return (fileName, callback, pollingInterval, options) => {
-      if (__DEV__) {
-        context.log(`host.watchFile("${fileName}")`)
-      }
-
-      if (isVirtualFile(fileName)) {
-        context.watchVirtualFile(fileName, callback) // wrap callback instead.
-
-        return {
-          close() {
-            context.stopVirtualFileWatcher(fileName, callback)
-          },
+    return wrapFn(
+      'watchFile',
+      (
+        fileName: string,
+        callback: TS.FileWatcherCallback,
+        pollingInterval?: number,
+        options?: TS.WatchOptions,
+      ): TS.FileWatcher => {
+        if (isVirtualFile(fileName)) {
+          return watchFile(
+            getContainingFile(fileName),
+            (_, event) => {
+              callback(fileName, event)
+            },
+            pollingInterval,
+            options,
+          )
         }
-      }
 
-      return watchFile(fileName, callback, pollingInterval, options)
-    }
+        return watchFile(fileName, callback, pollingInterval, options)
+      },
+    )
   })
 }
 
@@ -511,10 +456,10 @@ function patchScriptInfo(
   if (!scriptInfo) throw new Error('ScriptInfo is required.')
 
   function triggerFileUpdate(fileName: string) {
+    if (__DEV__) context.log(`Taint ${fileName}`)
     const scriptInfo = context.projectService.getScriptInfo(fileName)
 
     if (scriptInfo) {
-      if (__DEV__) context.log(`Taint ${fileName}`)
       // @ts-ignore - internal method but it's better for performance compared to it's public counter part `reloadFromFile()`.
       scriptInfo.delayReloadNonMixedContentFile()
     } else if (__DEV__) context.log(`Cannot find scriptInfo for ${fileName}`)
@@ -525,23 +470,26 @@ function patchScriptInfo(
       `[patch] Override editContent() of "${scriptInfo.fileName}" to sync virtual files. (ScriptInfo)`,
     )
 
-    return (start, end, newText) => {
-      const document = context.store.get(scriptInfo.fileName)
-      if (!document)
-        throw new Error('VueTextDocument should exist for every ScriptInfo.')
-      const range = {
-        start: document.positionAt(start),
-        end: document.positionAt(end),
-      }
-      editContent(start, end, newText)
+    return wrapFn(
+      'editContent',
+      (start: number, end: number, newText: string): void => {
+        const document = context.store.get(scriptInfo.fileName)
+        if (!document)
+          throw new Error('VueTextDocument should exist for every ScriptInfo.')
+        const range = {
+          start: document.positionAt(start),
+          end: document.positionAt(end),
+        }
+        editContent(start, end, newText)
 
-      VueTextDocument.update(
-        document,
-        [{ range, text: newText }],
-        getLastNumberFromVersion(scriptInfo.getLatestVersion()),
-      )
-        .all()
-        .forEach((document) => triggerFileUpdate(document.fsPath))
-    }
+        VueTextDocument.update(
+          document,
+          [{ range, text: newText }],
+          getLastNumberFromVersion(scriptInfo.getLatestVersion()),
+        )
+          .all()
+          .forEach((document) => triggerFileUpdate(document.fsPath))
+      },
+    )
   })
 }

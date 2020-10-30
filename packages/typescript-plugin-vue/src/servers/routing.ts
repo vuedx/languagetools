@@ -186,7 +186,6 @@ function createLanguageServiceRouter(
 
       getSemanticDiagnostics(fileName) {
         const diagnostics = choose(fileName).getSemanticDiagnostics(fileName)
-        const program = config.service.getProgram()
 
         return diagnostics
           .map((diagnostic) => {
@@ -209,11 +208,6 @@ function createLanguageServiceRouter(
                     fileName,
                     info.messageText,
                   )
-                  if (isVirtualSourceFile(info.file)) {
-                    info.file = program?.getSourceFile(
-                      getContainingFile(info.file.fileName),
-                    )
-                  }
 
                   return info
                 },
@@ -227,17 +221,9 @@ function createLanguageServiceRouter(
 
       getSyntacticDiagnostics(fileName) {
         const diagnostics = choose(fileName).getSyntacticDiagnostics(fileName)
-        const program = config.service.getProgram()
 
         return diagnostics
           .map((diagnostic) => {
-            if (isVirtualSourceFile(diagnostic.file)) {
-              diagnostic.file = {
-                ...diagnostic.file,
-                fileName: getContainingFile(diagnostic.file.fileName),
-              }
-            }
-
             diagnostic.messageText = applyReplacements(
               fileName,
               diagnostic.messageText,
@@ -250,11 +236,6 @@ function createLanguageServiceRouter(
                     fileName,
                     info.messageText,
                   )
-                  if (isVirtualSourceFile(info.file)) {
-                    info.file = program?.getSourceFile(
-                      getContainingFile(info.file.fileName),
-                    )
-                  }
 
                   return info
                 },
@@ -271,13 +252,6 @@ function createLanguageServiceRouter(
 
         return diagnostics
           .map((diagnostic) => {
-            if (isVirtualSourceFile(diagnostic.file)) {
-              diagnostic.file = {
-                ...diagnostic.file,
-                fileName: getContainingFile(diagnostic.file.fileName),
-              }
-            }
-
             diagnostic.messageText = applyReplacements(
               fileName,
               diagnostic.messageText,
@@ -290,12 +264,6 @@ function createLanguageServiceRouter(
                     fileName,
                     info.messageText,
                   )
-                  if (isVirtualSourceFile(info.file)) {
-                    info.file = {
-                      ...info.file,
-                      fileName: getContainingFile(info.file.fileName),
-                    }
-                  }
 
                   return info
                 },
@@ -305,6 +273,24 @@ function createLanguageServiceRouter(
             return diagnostic
           })
           .filter(isNotNull)
+      },
+
+      getCodeFixesAtPosition(
+        fileName: string,
+        start: number,
+        end: number,
+        errorCodes: number[],
+        formatOptions: TS.FormatCodeOptions,
+        preferences: TS.UserPreferences,
+      ): readonly TS.CodeFixAction[] {
+        return choose(fileName).getCodeFixesAtPosition(
+          fileName,
+          start,
+          end,
+          errorCodes,
+          formatOptions,
+          preferences,
+        )
       },
 
       getRenameInfo(fileName, position, options) {

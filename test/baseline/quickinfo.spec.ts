@@ -75,7 +75,9 @@ describe('quickinfo', () => {
         await findPositionOrThrowIn(file, `<HelloWorld `, 3),
       )
 
-      expect(body?.displayString).toBe('import HelloWorld')
+      expect(body?.displayString).toEqual(
+        expect.stringContaining(`(alias) const HelloWorld: DefineComponent`),
+      )
       expect(body?.kind).toBe('alias')
     })
 

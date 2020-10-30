@@ -22,7 +22,7 @@
     "prerelease": "pnpm build",
     "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath ./vue.vsix",
     "prewatch": "pnpm build:grammar",
-    "watch": "ncc build --watch src/index.ts"
+    "watch": "ncc build --source-map --no-source-map-register --watch src/index.ts"
   },
   "repository": {
     "type": "git",

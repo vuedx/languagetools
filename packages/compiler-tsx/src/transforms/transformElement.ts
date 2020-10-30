@@ -53,12 +53,6 @@ export function createElementTransform(
           })
           context.addIdentifiers(name)
         } else if (/* isKnownGlobalComponent?? */ false) {
-        } else {
-          context.imports.add({
-            exp: `{ ${name} }`,
-            path: getInternalPath(options),
-          })
-          context.addIdentifiers(name)
         }
       }
     }

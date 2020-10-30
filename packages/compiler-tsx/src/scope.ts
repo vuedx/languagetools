@@ -1,4 +1,4 @@
-import { parse } from '@babel/parser'
+import { parse, parseExpression } from '@babel/parser'
 import {
   Identifier,
   isFunction,
@@ -114,7 +114,7 @@ export function withScope(ast: RootNode): RootNode {
 function getIdentifiers(source: string) {
   if (isSimpleIdentifier(source.trim())) return new Set([source.trim()])
 
-  const ast = parse(source, { plugins: ['bigInt', 'optionalChaining'] })
+  const ast = parseUsingBabel(source)
   const identifers = new Set<string>()
 
   traverseBabel(ast, (node, ancestors) => {
@@ -130,6 +130,14 @@ function getIdentifiers(source: string) {
   })
 
   return identifers
+}
+
+function parseUsingBabel(source: string) {
+  try {
+    return parse(source, { plugins: ['bigInt', 'optionalChaining'] })
+  } catch {
+    return parseExpression(source, { plugins: ['bigInt', 'optionalChaining'] })
+  }
 }
 
 function shouldTrack(identifier: Identifier, parent: BabelNode) {

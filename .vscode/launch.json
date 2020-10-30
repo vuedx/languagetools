@@ -10,7 +10,7 @@
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue-language-features",
-        "/Users/znck/Workspace/Experiments/demo"
+        "${workspaceRoot}/samples/feature-diagnostics"
       ],
 
       "outFiles": [
