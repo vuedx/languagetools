@@ -237,11 +237,15 @@ export class TestServer {
   ): Promise<Proto.RequestCompletedEvent>
   public async waitForEvent(
     event: Proto.DiagnosticEventKind,
+    check?: (event: Proto.DiagnosticEvent) => boolean,
   ): Promise<Proto.DiagnosticEvent>
-  public async waitForEvent(event: string): Promise<Proto.Event> {
+  public async waitForEvent(
+    event: string,
+    check: (event: any) => boolean = () => true,
+  ): Promise<Proto.Event> {
     return new Promise((resolve) => {
       this.eventHandlers.push((payload) => {
-        if (payload.event === event) {
+        if (payload.event === event && check(payload)) {
           resolve(payload)
           return true
         } else {

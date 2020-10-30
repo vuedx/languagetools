@@ -9,9 +9,9 @@ import TypeScriptSetupPropsOption from './components/TypeScriptSetupPropsOption.
 
 export default defineComponent({
   components: {
-    TypeScriptPropsType, // TODO: Requires support from "vue"
+    TypeScriptPropsType,
     TypeScriptPropsOption,
-    TypeScriptSetupPropsDeclare, // TODO: Requires support from "vue"
+    TypeScriptSetupPropsDeclare,
     TypeScriptSetupPropsOption,
     JavaScriptPropsOption,
     JavaScriptSetupPropsOption,
@@ -20,10 +20,10 @@ export default defineComponent({
 </script>
 
 <template>
-  <TypeScriptPropsType />
-  <TypeScriptPropsOption />
-  <TypeScriptSetupPropsDeclare />
-  <TypeScriptSetupPropsOption />
-  <JavaScriptPropsOption />
-  <JavaScriptSetupPropsOption />
+  <TypeScriptPropsType :string="1" />
+  <TypeScriptPropsOption :string="1" />
+  <TypeScriptSetupPropsDeclare :string="1" />
+  <TypeScriptSetupPropsOption :string="1" />
+  <JavaScriptPropsOption :string="1" />
+  <JavaScriptSetupPropsOption :string="1" />
 </template>

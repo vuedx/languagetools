@@ -1,5 +1,10 @@
 <script setup>
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
+
+/**
+ * @typedef Event
+ * @property {number} id
+ */
 
 export default defineComponent({
   props: {
@@ -45,31 +50,39 @@ export default defineComponent({
       type: Boolean,
     },
 
+    /** @type {PropType<Event>} */
     object: Object,
     objectFull: {
+      /** @type {PropType<Event>} */
       type: Object,
       required: true,
     },
     objectFullDefault: {
+      /** @type {PropType<Event>} */
       type: Object,
       required: true,
       default: () => ({ id: 1 }),
     },
     optionalObjectFull: {
+      /** @type {PropType<Event>} */
       type: Object,
     },
 
+    /** @type {PropType<Event[]>} */
     array: Array,
     arrayFull: {
+      /** @type {PropType<Event[]>} */
       type: Array,
       required: true,
     },
     arrayFullDefault: {
+      /** @type {PropType<Event[]>} */
       type: Array,
       required: true,
       default: () => [{ id: 1 }],
     },
     optionalArrayFull: {
+      /** @type {PropType<Event[]>} */
       type: Array,
     },
 

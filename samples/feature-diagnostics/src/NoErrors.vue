@@ -1,12 +1,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
-import TypeScriptPropsOption from './components/TypeScriptPropsOption.vue'
-import TypeScriptSetupPropsDeclare from './components/TypeScriptSetupPropsDeclare.vue'
-import TypeScriptSetupPropsOption from './components/TypeScriptSetupPropsOption.vue'
-import TypeScriptSetupPropsType from './components/TypeScriptSetupPropsType.vue'
 import JavaScriptPropsOption from './components/JavaScriptPropsOption.vue'
 import JavaScriptSetupPropsOption from './components/JavaScriptSetupPropsOption.vue'
+import TypeScriptPropsOption from './components/TypeScriptPropsOption.vue'
+import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
+import TypeScriptSetupPropsDeclare from './components/TypeScriptSetupPropsDeclare.vue'
+import TypeScriptSetupPropsOption from './components/TypeScriptSetupPropsOption.vue'
 
 export default defineComponent({
   components: {
@@ -14,7 +13,6 @@ export default defineComponent({
     TypeScriptPropsOption,
     TypeScriptSetupPropsDeclare,
     TypeScriptSetupPropsOption,
-    TypeScriptSetupPropsType,
     JavaScriptPropsOption,
     JavaScriptSetupPropsOption,
   },
@@ -25,7 +23,7 @@ export default defineComponent({
   <TypeScriptPropsType
     stringFull="value"
     :numberFull="1"
-    booleanFull
+    :booleanFull="true"
     :objectFull="{ id: 1 }"
     :arrayFull="[{ id: 1 }]"
     :unionFull="1"
@@ -33,7 +31,7 @@ export default defineComponent({
   <TypeScriptPropsOption
     stringFull="value"
     :numberFull="1"
-    booleanFull
+    :booleanFull="true"
     :objectFull="{ id: 1 }"
     :arrayFull="[{ id: 1 }]"
     :unionFull="1"
@@ -41,7 +39,7 @@ export default defineComponent({
   <TypeScriptSetupPropsDeclare
     stringFull="value"
     :numberFull="1"
-    booleanFull
+    :booleanFull="true"
     :objectFull="{ id: 1 }"
     :arrayFull="[{ id: 1 }]"
     :unionFull="1"
@@ -49,15 +47,7 @@ export default defineComponent({
   <TypeScriptSetupPropsOption
     stringFull="value"
     :numberFull="1"
-    booleanFull
-    :objectFull="{ id: 1 }"
-    :arrayFull="[{ id: 1 }]"
-    :unionFull="1"
-  />
-  <TypeScriptSetupPropsType
-    stringFull="value"
-    :numberFull="1"
-    booleanFull
+    :booleanFull="true"
     :objectFull="{ id: 1 }"
     :arrayFull="[{ id: 1 }]"
     :unionFull="1"
@@ -65,7 +55,7 @@ export default defineComponent({
   <JavaScriptPropsOption
     stringFull="value"
     :numberFull="1"
-    booleanFull
+    :booleanFull="true"
     :objectFull="{ id: 1 }"
     :arrayFull="[{ id: 1 }]"
     :unionFull="1"
@@ -73,7 +63,7 @@ export default defineComponent({
   <JavaScriptSetupPropsOption
     stringFull="value"
     :numberFull="1"
-    booleanFull
+    :booleanFull="true"
     :objectFull="{ id: 1 }"
     :arrayFull="[{ id: 1 }]"
     :unionFull="1"
