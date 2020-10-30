@@ -1,7 +1,9 @@
 import { sync as glob } from 'fast-glob'
 import Path from 'path'
 import FS from 'fs'
+import { URI } from 'vscode-uri'
 import { VueTextDocument } from '../src/documents/VueTextDocument'
+import { asFilePath } from '../src/utils'
 
 expect.addSnapshotSerializer({
   test: (value) => typeof value === 'string',
@@ -22,7 +24,7 @@ describe('VueVirtualDocument/baseline', () => {
       encoding: 'utf-8',
     })
     const document = VueTextDocument.create(
-      `file://${fileName}`,
+      asFilePath(fileName),
       'vue',
       0,
       content,

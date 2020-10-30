@@ -61,6 +61,10 @@ export function asUri(fileName: string) {
   return uri
 }
 
+export function asFilePath(path: string) {
+  return URI.file(path).toString()
+}
+
 export function asFsPath(uri: string) {
   return URI.parse(uri).fsPath
 }
