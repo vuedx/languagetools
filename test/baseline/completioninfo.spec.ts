@@ -50,8 +50,7 @@ describe('completioninfo', () => {
         await findPositionOrThrowIn(file, `defineComponent`, 15),
       )
 
-      body?.entries.length === 3
-      debugger
+      expect(body?.entries.length).toBeGreaterThan(1)
       // expect(body?.displayString).toBe(
       //   `module "${abs('src/components/HelloWorld.vue')}"`,
       // )
