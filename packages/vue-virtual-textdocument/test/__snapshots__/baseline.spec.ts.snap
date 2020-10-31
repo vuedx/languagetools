@@ -49,8 +49,8 @@ export function render({name}: InstanceType<typeof _Ctx>) {
 }
 `;
 
-exports[`VueVirtualDocument/baseline feature-diagnostics/src/FeaturePropType.vue 1`] = `
-import _Ctx from './FeaturePropType.vue?internal'
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/FeatureSetup.vue 1`] = ``;
+
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/MissingKeysInObjectProp.vue 1`] = `
 import _Ctx from './MissingKeysInObjectProp.vue?internal'
 import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
