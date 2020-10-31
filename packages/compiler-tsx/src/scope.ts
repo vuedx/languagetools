@@ -111,32 +111,50 @@ export function withScope(ast: RootNode): RootNode {
   return ast
 }
 
-function getIdentifiers(source: string) {
-  if (isSimpleIdentifier(source.trim())) return new Set([source.trim()])
+function getIdentifiers(source: string): Set<string> {
+  source = source
+    .trim()
+    // Common errors when user is typing.
+    .replace(/(\.|\[\]?)$/, '')
 
-  const ast = parseUsingBabel(source)
-  const identifers = new Set<string>()
+  if (isSimpleIdentifier(source.trim())) return new Set([source])
 
-  traverseBabel(ast, (node, ancestors) => {
-    if (isIdentifier(node)) {
-      if (ancestors.length) {
-        if (shouldTrack(node, ancestors[ancestors.length - 1].node)) {
+  // TODO: Handle incomplete expressions
+  try {
+    const ast = parseUsingBabel(source)
+    const identifers = new Set<string>()
+
+    traverseBabel(ast, (node, ancestors) => {
+      if (isIdentifier(node)) {
+        if (ancestors.length) {
+          if (shouldTrack(node, ancestors[ancestors.length - 1].node)) {
+            identifers.add(node.name)
+          }
+        } else {
           identifers.add(node.name)
         }
-      } else {
-        identifers.add(node.name)
       }
-    }
-  })
+    })
 
-  return identifers
+    return identifers
+  } catch {
+    return new Set<string>([])
+  }
 }
 
 function parseUsingBabel(source: string) {
   try {
-    return parse(source, { plugins: ['bigInt', 'optionalChaining'] })
+    return parse(source, {
+      plugins: ['bigInt', 'optionalChaining'],
+      // @ts-ignore
+      errorRecovery: true,
+    })
   } catch {
-    return parseExpression(source, { plugins: ['bigInt', 'optionalChaining'] })
+    return parseExpression(source, {
+      plugins: ['bigInt', 'optionalChaining'],
+      // @ts-ignore
+      errorRecovery: true,
+    })
   }
 }
 

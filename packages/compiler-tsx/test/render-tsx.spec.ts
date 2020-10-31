@@ -261,6 +261,20 @@ const samples: Array<{
     }
     `,
   },
+  {
+    name: 'Incomplete expression',
+    template: `
+      {{ foo. }}
+    `,
+    render: `
+import _Ctx from './component.vue?internal'
+
+
+export function render({foo}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/{foo.}/*@@vue:end*/
+}
+`.trim(),
+  },
 ]
 
 import { compile } from '../src'
@@ -285,13 +299,17 @@ describe('compile/tsx', () => {
 })
 
 function prepare(source: string) {
-  return format(trimIndent(source), {
-    parser: 'typescript',
-    singleQuote: false,
-    semi: true,
-    trailingComma: 'all',
-    printWidth: 120,
-  })
+  try {
+    return format(trimIndent(source), {
+      parser: 'typescript',
+      singleQuote: false,
+      semi: true,
+      trailingComma: 'all',
+      printWidth: 120,
+    })
+  } catch {
+    return source
+  }
 }
 
 function trimIndent(source: string) {

@@ -1,4 +1,4 @@
-import { parse } from '@babel/parser';
+import { parse } from '@babel/parser'
 import {
   Identifier,
   isArrayPattern,
@@ -12,65 +12,103 @@ import {
   ObjectMember,
   traverse,
   traverseFast,
-} from '@babel/types';
-import { findDir, isSimpleIdentifier, NodeTransform, TransformContext } from '@vue/compiler-core';
-import { isDirectiveNode, isElementNode, isInterpolationNode, isSimpleExpressionNode } from '@vuedx/template-ast-types';
+} from '@babel/types'
+import {
+  findDir,
+  isSimpleIdentifier,
+  NodeTransform,
+  Position,
+  TransformContext,
+} from '@vue/compiler-core'
+import {
+  isDirectiveNode,
+  isElementNode,
+  isInterpolationNode,
+  isSimpleExpressionNode,
+} from '@vuedx/template-ast-types'
+import { advancePositionWithClone } from '../utils'
 
-export function createExpressionTracker(addIdentifer: (identifer: string) => void): NodeTransform {
+export function createExpressionTracker(
+  addIdentifer: (identifer: string) => void,
+): NodeTransform {
   return (node, context) => {
-    const localIdentifiers = new Set<string>();
+    const localIdentifiers = new Set<string>()
     if (isInterpolationNode(node)) {
-      if (isSimpleExpressionNode(node.content) && !node.content.isStatic && node.content.content.trim()) {
-        trackIdentifiers(node.content.content, context, addIdentifer);
+      if (
+        isSimpleExpressionNode(node.content) &&
+        !node.content.isStatic &&
+        node.content.content.trim()
+      ) {
+        trackIdentifiers(node.content.content, context, addIdentifer)
       }
     } else if (isElementNode(node)) {
       node.props.forEach((dir) => {
         if (isDirectiveNode(dir)) {
-          if (isSimpleExpressionNode(dir.arg) && !dir.arg.isStatic && dir.arg.content.trim()) {
-            trackIdentifiers(dir.arg.content, context, addIdentifer);
+          if (
+            isSimpleExpressionNode(dir.arg) &&
+            !dir.arg.isStatic &&
+            dir.arg.content.trim()
+          ) {
+            trackIdentifiers(dir.arg.content, context, addIdentifer)
           }
 
-          const slot = findDir(node, 'slot');
+          const slot = findDir(node, 'slot')
 
           if (slot) {
-            if (isSimpleExpressionNode(slot.exp) && !slot.exp.isStatic && slot.exp.content.trim()) {
+            if (
+              isSimpleExpressionNode(slot.exp) &&
+              !slot.exp.isStatic &&
+              slot.exp.content.trim()
+            ) {
               trackIdentifiers(
                 slot.exp.content,
                 context,
                 (identifier) => {
-                  localIdentifiers.add(identifier);
-                  context.addIdentifiers(identifier);
+                  localIdentifiers.add(identifier)
+                  context.addIdentifiers(identifier)
                 },
-                dir.name === 'slot'
-              );
+                dir.name === 'slot',
+              )
             }
           }
 
           switch (dir.name) {
             case 'for':
             case 'slot':
-              break;
+              break
             case 'on':
-              if (isSimpleExpressionNode(dir.exp) && !dir.exp.isStatic && dir.exp.content.trim()) {
-                context.addIdentifiers('$event');
-                trackIdentifiers(dir.exp.content, context, addIdentifer, false, true);
-                context.removeIdentifiers('$event');
+              if (
+                isSimpleExpressionNode(dir.exp) &&
+                !dir.exp.isStatic &&
+                dir.exp.content.trim()
+              ) {
+                context.addIdentifiers('$event')
+                trackIdentifiers(
+                  dir.exp.content,
+                  context,
+                  addIdentifer,
+                  false,
+                  true,
+                )
+                context.removeIdentifiers('$event')
               }
-              break;
+              break
             default: {
               if (isSimpleExpressionNode(dir.exp) && dir.exp.content.trim()) {
-                trackIdentifiers(dir.exp.content, context, addIdentifer);
+                trackIdentifiers(dir.exp.content, context, addIdentifer)
               }
             }
           }
         }
-      });
+      })
     }
 
     return () => {
-      localIdentifiers.forEach((identifier) => context.removeIdentifiers(identifier));
-    };
-  };
+      localIdentifiers.forEach((identifier) =>
+        context.removeIdentifiers(identifier),
+      )
+    }
+  }
 }
 
 const KNOWN_IDENTIFIERS = new Set(
@@ -78,11 +116,11 @@ const KNOWN_IDENTIFIERS = new Set(
     'Infinity,undefined,NaN,isFinite,isNaN,parseFloat,parseInt,decodeURI,' +
     'decodeURIComponent,encodeURI,encodeURIComponent,Math,Number,Date,Array,' +
     'Object,Boolean,String,RegExp,Map,Set,JSON,Intl'
-  ).split(',')
-);
+  ).split(','),
+)
 
 export function isKnownIdentifier(value: string) {
-  return KNOWN_IDENTIFIERS.has(value) || /^(true|false|null|this)$/.test(value);
+  return KNOWN_IDENTIFIERS.has(value) || /^(true|false|null|this)$/.test(value)
 }
 
 export function trackIdentifiers(
@@ -93,71 +131,104 @@ export function trackIdentifiers(
   // function params
   asParams = false,
   // v-on handler values may contain multiple statements
-  asRawStatements = false
+  asRawStatements = false,
 ) {
-  rawExp = rawExp.trim();
+  rawExp = rawExp
+    .trim()
+    // Handle common incomplete expressions
+    .replace(/(\.|\[\]?)$/, '')
 
   if (isSimpleIdentifier(rawExp)) {
-    if (!asParams && !context.identifiers[rawExp] && !isKnownIdentifier(rawExp)) {
-      addIdentifer(rawExp);
+    if (
+      !asParams &&
+      !context.identifiers[rawExp] &&
+      !isKnownIdentifier(rawExp)
+    ) {
+      addIdentifer(rawExp)
     }
 
-    return;
+    return
   }
 
-  const source = asRawStatements ? ` ${rawExp} ` : `(${rawExp})${asParams ? `=>{}` : ``}`;
+  const source = asRawStatements
+    ? ` ${rawExp} `
+    : `(${rawExp})${asParams ? `=>{}` : ``}`
 
-  const ast = parse(source, { plugins: ['bigInt', 'optionalChaining', 'nullishCoalescingOperator'] });
-  const knownIds = { ...context.identifiers };
+  try {
+    const ast = parse(source, {
+      plugins: ['bigInt', 'optionalChaining', 'nullishCoalescingOperator'],
+      // @ts-ignore
+      errorRecovery: true,
+    })
+    const knownIds = { ...context.identifiers }
 
-  traverse(ast, {
-    enter(node, ancestors) {
-      const scope = new Set<string>();
-      const parent = ancestors[ancestors.length - 1]?.node;
-      if (isIdentifier(node)) {
-        if (!knownIds[node.name]) {
-          if (shouldTrack(node, parent)) {
-            addIdentifer(node.name);
-          }
-        }
-      } else if (isFunction(node)) {
-        node.params.forEach((param) =>
-          traverseFast(param, (node, ancestors) => {
-            const parent = ancestors[ancestors.length - 1]?.node;
-            if (
-              isIdentifier(node) &&
-              !isStaticProperty(parent) &&
-              !(isAssignmentPattern(parent) && parent.right === node)
-            ) {
-              const id = node.name;
-              if (!scope.has(id)) {
-                if (id in knownIds) ++knownIds[id]!;
-                else knownIds[id] = 1;
-              }
-              scope.add(id);
+    traverse(ast, {
+      enter(node, ancestors) {
+        const scope = new Set<string>()
+        const parent = ancestors[ancestors.length - 1]?.node
+        if (isIdentifier(node)) {
+          if (!knownIds[node.name]) {
+            if (shouldTrack(node, parent)) {
+              addIdentifer(node.name)
             }
-          })
-        );
+          }
+        } else if (isFunction(node)) {
+          node.params.forEach((param) =>
+            traverseFast(param, (node, ancestors) => {
+              const parent = ancestors[ancestors.length - 1]?.node
+              if (
+                isIdentifier(node) &&
+                !isStaticProperty(parent) &&
+                !(isAssignmentPattern(parent) && parent.right === node)
+              ) {
+                const id = node.name
+                if (!scope.has(id)) {
+                  if (id in knownIds) ++knownIds[id]!
+                  else knownIds[id] = 1
+                }
+                scope.add(id)
+              }
+            }),
+          )
+        }
+
+        // @ts-ignore
+        node.scope = scope
+      },
+      exit(node) {
+        // @ts-ignore
+        const scope: Set<string> | undefined = node.scope
+
+        scope?.forEach((id) => --knownIds[id]!)
+      },
+    })
+  } catch (error) {
+    if (error.loc != null) {
+      const start: Position = {
+        line: error.loc.line,
+        column: error.loc.column,
+        offset: error.pos,
       }
-
-      // @ts-ignore
-      node.scope = scope;
-    },
-    exit(node) {
-      // @ts-ignore
-      const scope: Set<string> | undefined = node.scope;
-
-      scope?.forEach((id) => --knownIds[id]!);
-    },
-  });
+      context.onError({
+        name: error.code,
+        message: error.message,
+        code: -2,
+        loc: {
+          source: rawExp,
+          start: start,
+          end: advancePositionWithClone(start, rawExp, 1),
+        },
+      })
+    }
+  }
 }
 
 export function isStaticProperty(node: Node): node is ObjectMember {
-  return isObjectMember(node) && node.computed === false;
+  return isObjectMember(node) && node.computed === false
 }
 
 export function isStaticPropertyKey(node: Node, parent: Node) {
-  return isStaticProperty(parent) && parent.key === node;
+  return isStaticProperty(parent) && parent.key === node
 }
 
 export function shouldTrack(identifier: Identifier, parent: Node) {
@@ -186,6 +257,6 @@ export function shouldTrack(identifier: Identifier, parent: Node) {
     // is a special keyword but parsed as identifier
     identifier.name !== `arguments`
   ) {
-    return true;
+    return true
   }
 }
