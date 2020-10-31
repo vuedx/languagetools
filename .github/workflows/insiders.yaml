@@ -40,3 +40,10 @@ jobs:
         env:
           RELEASE_CHANNEL: insiders
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+
+      - name: Publish Insiders Packages
+        run: |
+          pnpm recursive --filter ./packages exec -- npm version prerelease --preid=insiders-$(date +%s)
+          pnpm recursive --filter ./packages publish --tag insiders --access public --no-git-checks
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
