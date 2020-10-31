@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/typescript-plugin-vue",
-  "version": "0.2.4-0",
+  "version": "0.3.0",
   "description": "TypeScript plugin for Vue",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",

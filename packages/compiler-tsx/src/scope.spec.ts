@@ -29,4 +29,12 @@ describe('scope', () => {
 
     expect(ast.scope.identifiers).toEqual([])
   })
+
+  test('incomplete expression', () => {
+    const ast = baseParse(`{{ foo. }}`)
+
+    withScope(ast)
+
+    expect(ast.scope.identifiers).toEqual(['foo'])
+  })
 })

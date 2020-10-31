@@ -1,9 +1,9 @@
 {
+  "private": true,
   "name": "@vuedx/typescript-standalone",
-  "version": "0.2.4-0",
+  "version": "0.3.0",
   "description": "TypeScript plugin for Vue (Standalone Mode)",
   "main": "dist/index.js",
-  "private": false,
   "scripts": {
     "build": "ncc build src/index.js",
     "watch": "ncc build --watch src/index.js"
