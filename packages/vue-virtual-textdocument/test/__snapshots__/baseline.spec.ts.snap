@@ -49,7 +49,14 @@ export function render({name}: InstanceType<typeof _Ctx>) {
 }
 `;
 
-exports[`VueVirtualDocument/baseline feature-diagnostics/src/FeatureSetup.vue 1`] = ``;
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/FeatureSetup.vue 1`] = `
+import _Ctx from './FeatureSetup.vue?internal'
+
+
+export function render({str}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<p>{str.toLocaleLowerCase()}</p>/*@@vue:end*/
+}
+`;
 
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/MissingKeysInObjectProp.vue 1`] = `
 import _Ctx from './MissingKeysInObjectProp.vue?internal'
