@@ -209,6 +209,13 @@ function createLanguageServiceRouter(
                     info.messageText,
                   )
 
+                  if (info.file != null && isVirtualFile(info.file.fileName)) {
+                    info.file = {
+                      ...info.file,
+                      fileName: getContainingFile(info.file.fileName),
+                    }
+                  }
+
                   return info
                 },
               )
@@ -236,6 +243,13 @@ function createLanguageServiceRouter(
                     fileName,
                     info.messageText,
                   )
+
+                  if (info.file != null && isVirtualFile(info.file.fileName)) {
+                    info.file = {
+                      ...info.file,
+                      fileName: getContainingFile(info.file.fileName),
+                    }
+                  }
 
                   return info
                 },
@@ -289,6 +303,12 @@ function createLanguageServiceRouter(
                     fileName,
                     info.messageText,
                   )
+                  if (info.file != null && isVirtualFile(info.file.fileName)) {
+                    info.file = {
+                      ...info.file,
+                      fileName: getContainingFile(info.file.fileName),
+                    }
+                  }
 
                   return info
                 },

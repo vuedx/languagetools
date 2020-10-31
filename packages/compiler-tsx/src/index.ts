@@ -11,6 +11,7 @@ import {
   CompilerError,
 } from '@vue/compiler-core'
 import {
+  isCommentNode,
   isDirectiveNode,
   isElementNode,
   isInterpolationNode,
@@ -56,6 +57,7 @@ export function compile(
     cacheHandlers: false,
     scopeId: null,
     nodeTransforms: [
+      // Collect Expressions
       (node) => {
         if (isInterpolationNode(node)) {
           expressions.push([
@@ -81,6 +83,12 @@ export function compile(
           })
         }
       },
+      // Drop Comments
+      (node, context) => {
+        if (isCommentNode(node)) {
+          context.removeNode(node)
+        }
+      },
 
       createTransformFor((id) => identifiers.add(id)),
       createExpressionTracker((id) => identifiers.add(id)),
@@ -91,7 +99,6 @@ export function compile(
       errors.push(error)
     },
   })
-
   ;[OPEN_BLOCK, CREATE_BLOCK, CREATE_VNODE, FRAGMENT].forEach((helper) => {
     const index = ast.helpers.indexOf(helper)
     if (index >= 0) ast.helpers.splice(index, 1)

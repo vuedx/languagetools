@@ -227,6 +227,13 @@ function patchLanguageServiceHost(
       const settings = getCompilationSettings()
 
       settings.jsx = context.typescript.JsxEmit.Preserve
+      if (settings.allowJs !== false) {
+        settings.allowJs = true
+      }
+
+      if (settings.checkJs !== false) {
+        settings.checkJs = true
+      }
 
       return settings
     },

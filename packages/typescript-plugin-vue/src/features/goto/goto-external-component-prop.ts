@@ -1,5 +1,11 @@
 import { GotoProvider } from './abstract'
-import { isAttributeNode, isComponentNode } from '@vuedx/template-ast-types'
+import {
+  t,
+  isAttributeNode,
+  isComponentNode,
+  isDirectiveNode,
+  isSimpleExpressionNode,
+} from '@vuedx/template-ast-types'
 import {
   isVirtualFile,
   getContainingFile,
@@ -11,8 +17,30 @@ export const GotoExternalComponentProp: GotoProvider = {
     const document = h.getRenderDoc(fileName)
     if (document?.ast == null) return
 
-    const targetNode = h.findTemplateNodeAt(document.ast, position)
-    if (!isAttributeNode(targetNode?.node)) return
+    let targetNode = h.findTemplateNodeAt(document.ast, position)
+
+    if (isSimpleExpressionNode(targetNode.node)) {
+      const last = targetNode.ancestors.pop()
+      if (last != null) {
+        targetNode.node = last.node
+      }
+    }
+
+    let name: string
+    let node: t.Node
+    if (
+      isDirectiveNode(targetNode?.node) &&
+      targetNode.node.name === 'bind' &&
+      isSimpleExpressionNode(targetNode.node.arg)
+    ) {
+      name = targetNode.node.arg.content
+      node = targetNode.node.arg
+    } else if (isAttributeNode(targetNode?.node)) {
+      name = targetNode.node.name
+      node = targetNode.node
+    } else {
+      return
+    }
 
     const parent = targetNode.ancestors[targetNode.ancestors.length - 1]?.node
     if (!isComponentNode(parent)) return
@@ -41,14 +69,13 @@ export const GotoExternalComponentProp: GotoProvider = {
     const componentDoc = h.getVueDocument(externalComponentFilename)
     if (componentDoc == null) return
 
-    const name = targetNode.node.name
     const externalComponentInfo = h.getComponentInfo(componentDoc)
     const prop = externalComponentInfo.props.find((prop) => prop.name == name)
     if (prop == null) return
 
     return {
       textSpan: {
-        start: targetNode.node.loc.start.offset,
+        start: node.loc.start.offset,
         length: name.length,
       },
       definitions: [

@@ -237,6 +237,7 @@ class VueModuleTextDocument {
         let scriptMayHaveDefaultExport = false
         let scriptSetupHasDefaultExport = false
         let usesDefineComponent = false
+        let usePropTypes = false
         if (script != null) {
           const path = script.src
             ? script.src.replace(/\.([^.]+)$/, '')
@@ -244,9 +245,11 @@ class VueModuleTextDocument {
                 document.container.getDocumentFileName('script'),
               )
           lines.push(`export * from '${path}'`)
-          lines.unshift(`import * as script from '${path}'`)
+          lines.unshift(`import script from '${path}'`)
           scriptHasDefaultExport = script.content.includes('export default ')
-          usesDefineComponent = script.content.includes(' defineComponent(')
+          usesDefineComponent =
+            script.content.includes(' defineComponent(') ||
+            script.content.includes(' defineComponent<')
           scriptMayHaveDefaultExport = script.src != null
         }
 
@@ -255,22 +258,27 @@ class VueModuleTextDocument {
             document.container.getDocumentFileName('scriptSetup'),
           )
           lines.unshift(`import * as scriptSetup from '${path}'`)
-          scriptHasDefaultExport = scriptSetup.content.includes(
+          scriptSetupHasDefaultExport = scriptSetup.content.includes(
             'export default ',
           )
-          usesDefineComponent = scriptSetup.content.includes(
-            ' defineComponent(',
-          )
+          usesDefineComponent =
+            scriptSetup.content.includes(' defineComponent(') ||
+            scriptSetup.content.includes(' defineComponent<')
+          usePropTypes = scriptSetup.content.includes('declare const props:')
         }
 
         if (scriptSetupHasDefaultExport) {
           lines.push(`const component = scriptSetup.default`)
         } else if (scriptHasDefaultExport || scriptMayHaveDefaultExport) {
-          lines.push(`const component = script.default`)
+          lines.push(`const component = script`)
         } else {
           usesDefineComponent = true
           lines.unshift(`import { defineComponent } from 'vue'`)
-          lines.push(`const component = defineComponent({})`)
+          lines.push(
+            `const component = defineComponent${
+              usePropTypes ? '<scriptSetup.$Props>' : ''
+            }({})`,
+          )
         }
 
         if (template != null) {
@@ -320,14 +328,26 @@ class InternalModuleTextDocument {
 
           if (hasDefaultExport) {
             lines.push(`import options from '${path}'`)
-          } else {
-            lines.push(`const options = {}`)
           }
 
-          // TODO: Transform <script setup> and always import default from there!!
-          lines.push(
-            `const component = defineComponent({ ...options, setup: () => scriptSetup })`,
-          )
+          if (scriptSetup.content.includes('declare const props:')) {
+            // TODO: Transform <script setup> and always import default from there!!
+            lines.push(`import type { $Props } from '${path}'`)
+            lines.push(
+              `const component = defineComponent(${
+                hasDefaultExport
+                  ? '{ ...options, setup: (props: $Props) => scriptSetup }'
+                  : '(props: $Props) => scriptSetup'
+              })`,
+            )
+          } else {
+            // TODO: Transform <script setup> and always import default from there!!
+            lines.push(
+              `const component = defineComponent({ ${
+                hasDefaultExport ? '...options,' : ''
+              } setup: () => scriptSetup })`,
+            )
+          }
         } else if (script != null) {
           const path = relativeVirtualImportPath(
             document.container.getDocumentFileName('script'),
@@ -367,6 +387,15 @@ class ScriptSetupTextDocument {
         if (!scriptSetup) return { code: '' }
 
         // TODO: Transform
+        // TODO: Remove this hack and put a proper transform.
+        if (scriptSetup.content.includes('declare const props:')) {
+          return {
+            code: scriptSetup.content.replace(
+              'declare const props:',
+              'export type $Props =',
+            ),
+          }
+        }
 
         return { code: scriptSetup.content }
       },
