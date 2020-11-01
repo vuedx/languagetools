@@ -309,8 +309,17 @@ function createLanguageServiceRouter(
           preferences,
         )
 
-        if (details && isVirtual) {
-          details.name = getContainingFile(details.name).slice(0, -3)
+        if (details) {
+          if (isVirtual) {
+            details.name = getContainingFile(details.name).slice(0, -3)
+
+            if (details.source) {
+              // fix the import name
+              details.source.forEach((x) => {
+                x.text = getContainingFile(x.text)
+              })
+            }
+          }
 
           if (details.codeActions) {
             details.codeActions.forEach((x) => {
@@ -321,6 +330,7 @@ function createLanguageServiceRouter(
                 .replace(`${VIRTUAL_FILENAME_SEPARATOR}script`, '')
 
               x.changes.forEach((c) => {
+                // fix the import file
                 c.fileName = getContainingFile(c.fileName)
 
                 c.textChanges.forEach((t) => {
@@ -329,12 +339,6 @@ function createLanguageServiceRouter(
                     .replace(`${VIRTUAL_FILENAME_SEPARATOR}script`, '')
                 })
               })
-            })
-          }
-
-          if (details.source) {
-            details.source.forEach((x) => {
-              x.text = getContainingFile(x.text)
             })
           }
         }
