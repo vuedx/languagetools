@@ -30,6 +30,6 @@ export function increment() {}
     <span>AltCode: {{ altCode }}</span>
   </p>
   <p>
-    <span>{{ increment }}</span>
+    <span>Increment: {{ increment }}</span>
   </p>
 </template>

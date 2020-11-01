@@ -30,4 +30,7 @@ export default {
     <span>FullName: {{ fullname }}</span>
     <span>AltCode: {{ altCode }}</span>
   </p>
+  <p>
+    <span>Increment: {{ increment }}</span>
+  </p>
 </template>

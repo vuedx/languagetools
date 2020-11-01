@@ -260,18 +260,13 @@ function createLanguageServiceRouter(
           })
           .filter(isNotNull)
       },
-      getCompletionsAtPosition(fileName, position, options) {
-        const file = choose(fileName)
 
-        const completions = file.getCompletionsAtPosition(
+      getCompletionsAtPosition(fileName, position, options) {
+        return choose(fileName).getCompletionsAtPosition(
           fileName,
           position,
           options,
         )
-
-        completions?.entries[0].source
-
-        return completions
       },
 
       getCompletionEntryDetails(

@@ -90,7 +90,7 @@ describe('completioninfo', () => {
       })
     })
 
-    it('should show prop type in template (prop: String)', async () => {
+    it('should show prop completion (prop: String)', async () => {
       const { body } = await server.sendCommand(
         'completionInfo',
         await findPositionOrThrowIn(
@@ -100,7 +100,13 @@ describe('completioninfo', () => {
         ),
       )
 
-      // expect(body?.displayString).toBe('var name: string')
+      expect(body?.entries.length).toBeGreaterThan(1)
+      expect(body?.entries).toContainEqual({
+        name: 'name',
+        kind: 'var',
+        kindModifiers: '',
+        sortText: '0',
+      })
     })
 
     it('should show prop type in template (prop: { type: String })', async () => {
@@ -113,7 +119,13 @@ describe('completioninfo', () => {
         ),
       )
 
-      // expect(body?.displayString).toBe('var email: string')
+      expect(body?.entries.length).toBeGreaterThan(1)
+      expect(body?.entries).toContainEqual({
+        name: 'email',
+        kind: 'var',
+        kindModifiers: '',
+        sortText: '0',
+      })
     })
 
     it('should show prop type in template (prop: [String, Number])', async () => {
@@ -126,7 +138,13 @@ describe('completioninfo', () => {
         ),
       )
 
-      // expect(body?.displayString).toBe('var code: string | number')
+      expect(body?.entries.length).toBeGreaterThan(1)
+      expect(body?.entries).toContainEqual({
+        name: 'code',
+        kind: 'var',
+        kindModifiers: '',
+        sortText: '0',
+      })
     })
 
     it('should show ref type from setup', async () => {
@@ -139,7 +157,13 @@ describe('completioninfo', () => {
         ),
       )
 
-      // expect(body?.displayString).toBe('var fullname: string')
+      expect(body?.entries.length).toBeGreaterThan(1)
+      expect(body?.entries).toContainEqual({
+        name: 'fullname',
+        kind: 'var',
+        kindModifiers: '',
+        sortText: '0',
+      })
     })
 
     it('should show values from setup', async () => {
@@ -152,7 +176,32 @@ describe('completioninfo', () => {
         ),
       )
 
-      // expect(body?.displayString).toBe('var altCode: number')
+      expect(body?.entries.length).toBeGreaterThan(1)
+      expect(body?.entries).toContainEqual({
+        name: 'altCode',
+        kind: 'var',
+        kindModifiers: '',
+        sortText: '0',
+      })
+    })
+
+    it('should show increment from setup', async () => {
+      const { body } = await server.sendCommand(
+        'completionInfo',
+        await findPositionOrThrowIn(
+          file,
+          `Increment: {{ increment }}`,
+          'Increment: {{ incre'.length,
+        ),
+      )
+
+      expect(body?.entries.length).toBeGreaterThan(1)
+      expect(body?.entries).toContainEqual({
+        name: 'increment',
+        kind: 'var',
+        kindModifiers: '',
+        sortText: '0',
+      })
     })
   })
 })
