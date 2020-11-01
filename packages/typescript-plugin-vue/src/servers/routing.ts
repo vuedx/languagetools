@@ -262,11 +262,27 @@ function createLanguageServiceRouter(
       },
 
       getCompletionsAtPosition(fileName, position, options) {
-        return choose(fileName).getCompletionsAtPosition(
+        const completions = choose(fileName).getCompletionsAtPosition(
           fileName,
           position,
           options,
         )
+
+        if (completions?.entries) {
+          completions.entries = completions.entries
+            .filter(
+              (x) => !x.name.endsWith(`${VIRTUAL_FILENAME_SEPARATOR}module`),
+            )
+            .map((x) => {
+              if (x.source && isVirtualFile(x.source)) {
+                x.name = getContainingFile(x.name).slice(0, -3) // remove vue
+                x.source = getContainingFile(x.source!)
+              }
+              return x
+            })
+        }
+
+        return completions
       },
 
       getCompletionEntryDetails(
@@ -277,6 +293,13 @@ function createLanguageServiceRouter(
         source,
         preferences,
       ) {
+        const isVirtual = source && isVueFile(source!)
+        // rename to valid files
+        if (isVirtual) {
+          entryName = `${entryName}Vue${VIRTUAL_FILENAME_SEPARATOR}script`
+          source = `${source}${VIRTUAL_FILENAME_SEPARATOR}script`
+        }
+
         const details = choose(fileName).getCompletionEntryDetails(
           fileName,
           position,
@@ -286,6 +309,37 @@ function createLanguageServiceRouter(
           preferences,
         )
 
+        if (details && isVirtual) {
+          // console.log('pikax running code action ', JSON.stringify(details))
+
+          details.name = getContainingFile(details.name).slice(0, -3)
+
+          if (details.codeActions) {
+            details.codeActions.forEach((x) => {
+              // rename ``Import default 'HPageVue________script' from module "../ui/HPage.vue________script"`
+              // to `Import default 'HPage' from module "../ui/HPage.vue"`
+              x.description = x.description
+                .replace(`Vue${VIRTUAL_FILENAME_SEPARATOR}script`, '')
+                .replace(`${VIRTUAL_FILENAME_SEPARATOR}script`, '')
+
+              x.changes.forEach((c) => {
+                c.fileName = getContainingFile(c.fileName)
+
+                c.textChanges.forEach((t) => {
+                  t.newText = t.newText
+                    .replace(`Vue${VIRTUAL_FILENAME_SEPARATOR}script`, '')
+                    .replace(`${VIRTUAL_FILENAME_SEPARATOR}script`, '')
+                })
+              })
+            })
+          }
+
+          if (details.source) {
+            details.source.forEach((x) => {
+              x.text = getContainingFile(x.text)
+            })
+          }
+        }
         return details
       },
 
