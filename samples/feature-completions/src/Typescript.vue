@@ -1,8 +1,9 @@
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { ref } from 'vue'
+import {} from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
 
-export default defineComponent({
+export default {
   components: { HelloWorld },
   props: {
     name: String,
@@ -11,10 +12,11 @@ export default defineComponent({
   },
   setup() {
     const fullname = ref('')
+    function increment() {}
 
-    return { fullname, altCode: 1 }
+    return { fullname, altCode: 1, increment }
   },
-})
+}
 </script>
 
 <template>

@@ -44,52 +44,35 @@ describe('completioninfo', () => {
       })
     })
 
-    it('should provide info on import', async () => {
+    it('should provide info on import vue', async () => {
       const { body } = await server.sendCommand(
         'completionInfo',
-        await findPositionOrThrowIn(file, `defineComponent`, 15),
+        await findPositionOrThrowIn(file, `import {} from 'vue'`, 8),
       )
 
       expect(body?.entries.length).toBeGreaterThan(1)
-      // expect(body?.displayString).toBe(
-      //   `module "${abs('src/components/HelloWorld.vue')}"`,
-      // )
-
-      // expect(body?.kind).toBe('module')
+      expect(body?.entries).toContainEqual({
+        kind: 'function',
+        kindModifiers: 'export,declare',
+        name: 'defineComponent',
+        sortText: '0',
+      })
     })
 
-    it('should show resolved module path on hovering package import', async () => {
-      const { body } = await server.sendCommand(
+    it('should show completion for props on render', async () => {
+      const { body, ...rest } = await server.sendCommand(
         'completionInfo',
-        await findPositionOrThrowIn(file, `'vue'`, 3),
+        await findPositionOrThrowIn(file, `<HelloWorld name`, 13),
       )
 
-      // expect(body?.displayString).toEqual(
-      //   expect.stringMatching(/^module "(.*)node_modules\/vue\/dist\/vue"$/),
-      // )
-      // expect(body?.kind).toBe('module')
-    })
+      expect(body?.entries.length).toBeGreaterThan(1)
 
-    it('should show import name of local component on hovering component tag', async () => {
-      const { body } = await server.sendCommand(
-        'completionInfo',
-        await findPositionOrThrowIn(file, `<HelloWorld `, 3),
-      )
-
-      // expect(body?.displayString).toEqual(
-      //   expect.stringContaining(`(alias) const HelloWorld: DefineComponent`),
-      // )
-      // expect(body?.kind).toBe('alias')
-    })
-
-    it('should show prop type on hovering attribute', async () => {
-      const { body } = await server.sendCommand(
-        'completionInfo',
-        await findPositionOrThrowIn(file, `name="Jane"`, 3),
-      )
-
-      // expect(body?.displayString).toBe('(JSX attribute) name: string')
-      // expect(body?.kind).toBe('JSX attribute')
+      expect(body?.entries).toContainEqual({
+        name: 'name',
+        kind: 'JSX attribute',
+        kindModifiers: '',
+        sortText: '0',
+      })
     })
   })
 

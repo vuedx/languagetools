@@ -15,8 +15,8 @@ import _Ctx from './JavascriptSetup.vue?internal'
 import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
+export function render({name, email, code, fullname, altCode, increment}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p><p><span>{increment}</span></p></>/*@@vue:end*/
 }
 `;
 

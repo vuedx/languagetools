@@ -1,9 +1,9 @@
-import { defineComponent } from 'vue'
+import {} from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
 
-export default defineComponent({
+export default {
   components: { HelloWorld },
-})
+}
 
 export function render() {
   return <HelloWorld name="Jane" />

@@ -261,11 +261,17 @@ function createLanguageServiceRouter(
           .filter(isNotNull)
       },
       getCompletionsAtPosition(fileName, position, options) {
-        return choose(fileName).getCompletionsAtPosition(
+        const file = choose(fileName)
+
+        const completions = file.getCompletionsAtPosition(
           fileName,
           position,
           options,
         )
+
+        completions?.entries[0].source
+
+        return completions
       },
 
       getCompletionEntryDetails(
@@ -276,7 +282,7 @@ function createLanguageServiceRouter(
         source,
         preferences,
       ) {
-        return choose(fileName).getCompletionEntryDetails(
+        const details = choose(fileName).getCompletionEntryDetails(
           fileName,
           position,
           entryName,
@@ -284,6 +290,8 @@ function createLanguageServiceRouter(
           source,
           preferences,
         )
+
+        return details
       },
 
       getSuggestionDiagnostics(fileName) {
