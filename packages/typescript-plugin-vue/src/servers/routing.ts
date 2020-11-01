@@ -310,8 +310,6 @@ function createLanguageServiceRouter(
         )
 
         if (details && isVirtual) {
-          // console.log('pikax running code action ', JSON.stringify(details))
-
           details.name = getContainingFile(details.name).slice(0, -3)
 
           if (details.codeActions) {
