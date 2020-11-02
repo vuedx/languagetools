@@ -7,10 +7,8 @@ const pkg = require(`${pwd}/package.json`)
 const today = new Date()
 
 function s(num) {
-  return `${num}`.padStart(2, '0')
+  return `${num}`
 }
-
-const [v, build] = pkg.version.split('-')
 
 pkg.preview = true
 pkg.version = [
