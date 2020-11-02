@@ -33,7 +33,9 @@ jobs:
       - name: Test
         run: pnpm run coverage
 
-      - run: bash <(curl -s https://codecov.io/bash)
+      - uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage/coverage-final.json
 
   windows:
     runs-on: windows-latest
