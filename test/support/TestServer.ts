@@ -296,6 +296,11 @@ export class TestServer {
     args: Proto.RenameRequest['arguments'],
   ): Promise<Proto.RenameResponse>
 
+  public async sendCommand(
+    command: 'completionInfo' | Proto.CommandTypes.CompletionInfo,
+    args: Proto.CompletionsRequest['arguments'],
+  ): Promise<Proto.CompletionInfoResponse>
+
   public async sendCommand(command: string, args: any): Promise<any> {
     return this.sendRequest({ command, arguments: args }) as any
   }

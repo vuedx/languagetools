@@ -305,6 +305,49 @@ export function createVueLanguageServer(
       }
     },
 
+    getCompletionsAtPosition(fileName, position, options) {
+      const document = h.getDocumentAt(fileName, position)
+      if (document != null) {
+        return choose(document).getCompletionsAtPosition(
+          document.fsPath,
+          position,
+          options,
+        )
+      }
+    },
+    getCompletionEntryDetails(
+      fileName,
+      position,
+      entryName,
+      formatOptions,
+      source,
+      preferences,
+    ) {
+      const document = h.getDocumentAt(fileName, position)
+      if (document != null) {
+        return choose(document).getCompletionEntryDetails(
+          document.fsPath,
+          position,
+          entryName,
+          formatOptions,
+          source,
+          preferences,
+        )
+      }
+    },
+
+    getCompletionEntrySymbol(fileName, position, name, source) {
+      const document = h.getDocumentAt(fileName, position)
+      if (document != null) {
+        return choose(document).getCompletionEntrySymbol(
+          document.fsPath,
+          position,
+          name,
+          source,
+        )
+      }
+    },
+
     getDefinitionAtPosition(
       fileName: string,
       position: number,

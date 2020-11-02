@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "dependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.3"
+  }
+}
