@@ -1,23 +1,23 @@
-import { TS } from '../../interfaces';
-import { LanguageServiceOptions } from '../../types';
+import { TS } from '../../interfaces'
+import { LanguageServiceOptions } from '../../types'
 
 export interface RefactorProvider {
-  version: string;
+  version: string
 
-  findRefactors(
+  findRefactors: (
     config: LanguageServiceOptions,
     fileName: string,
     position: number | TS.TextRange,
-    preferences: TS.UserPreferences
-  ): TS.ApplicableRefactorInfo[];
+    preferences: TS.UserPreferences,
+  ) => TS.ApplicableRefactorInfo[]
 
-  applyRefactor(
+  applyRefactor: (
     config: LanguageServiceOptions,
     fileName: string,
     options: TS.FormatCodeSettings,
     position: number | TS.TextRange,
     refactorName: string,
     actionName: string,
-    preferences: TS.UserPreferences
-  ): TS.RefactorEditInfo|undefined;
+    preferences: TS.UserPreferences,
+  ) => TS.RefactorEditInfo | undefined
 }

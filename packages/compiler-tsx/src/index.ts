@@ -16,6 +16,7 @@ import {
   isElementNode,
   isInterpolationNode,
   isSimpleExpressionNode,
+  isTextNode,
 } from '@vuedx/template-ast-types'
 import { withScope } from './scope'
 import { createElementTransform } from './transforms/transformElement'
@@ -26,7 +27,7 @@ import { CodegenResult, ComponentImport, Options } from './types'
 
 export * from './types'
 
-function clone(obj: object) {
+function clone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj))
 }
 
@@ -67,7 +68,7 @@ export function compile(
         } else if (isElementNode(node)) {
           node.props.forEach((prop) => {
             if (isDirectiveNode(prop)) {
-              if (prop.exp) {
+              if (prop.exp != null) {
                 expressions.push([
                   prop.exp.loc.start.offset,
                   prop.exp.loc.source.length,
@@ -127,7 +128,7 @@ export function compile(
       context.push = (code, node) => {
         if (
           isSimpleExpressionNode(node) &&
-          node.loc &&
+          node.loc != null &&
           node.loc.start.offset < node.loc.end.offset
         ) {
           mappings.push([
@@ -142,17 +143,25 @@ export function compile(
         if (code.startsWith('function render(_ctx, _cache')) {
           push(
             `function render(${
-              identifiers.size
+              identifiers.size > 0
                 ? `{${Array.from(identifiers).join(', ')}}`
                 : '_ctx'
             }: InstanceType<typeof _Ctx>) {`,
           )
+        } else if (isTextNode(node)) {
+          push(node.content, node)
         } else {
           push(code, node)
         }
       }
     },
   })
+
+  result.code += [
+    '',
+    'declare const __completionsTrigger: InstanceType<typeof _Ctx>',
+    '__completionsTrigger./*@@vue:completions*/$props',
+  ].join('\n')
 
   return {
     ...result,

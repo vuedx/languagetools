@@ -1,25 +1,25 @@
-import { createAnalyzer } from '../analyzer';
-import { ScriptBlockAnalyzer as ScriptBlockAnalyzer } from './ScriptBlockAnalyzer';
-import { PropsOptionsAnalyzer } from './ScriptOptionsPropsAnalyzer';
+import { createAnalyzer } from '../analyzer'
+import { ScriptBlockAnalyzer } from './ScriptBlockAnalyzer'
+import { PropsOptionsAnalyzer } from './ScriptOptionsPropsAnalyzer'
 
 describe('script/options/props', () => {
-  const analyzer = createAnalyzer([ScriptBlockAnalyzer, PropsOptionsAnalyzer]);
+  const analyzer = createAnalyzer([ScriptBlockAnalyzer, PropsOptionsAnalyzer])
 
   test('array props', () => {
     const info = analyzer.analyzeScript(`
       export default {
         props: ['foo', 'bar']
       }
-    `);
+    `)
 
-    expect(info.props).toHaveLength(2);
+    expect(info.props).toHaveLength(2)
     expect(info.props[0]).toMatchObject({
       name: 'foo',
-    });
+    })
     expect(info.props[1]).toMatchObject({
       name: 'bar',
-    });
-  });
+    })
+  })
 
   test('object props', () => {
     const info = analyzer.analyzeScript(`
@@ -32,17 +32,17 @@ describe('script/options/props', () => {
           }
         }
       }
-    `);
+    `)
 
-    expect(info.props).toHaveLength(2);
+    expect(info.props).toHaveLength(2)
     expect(info.props[0]).toMatchObject({
       name: 'foo',
       required: false,
-    });
+    })
     expect(info.props[1]).toMatchObject({
       name: 'bar',
-    });
-  });
+    })
+  })
 
   test('prop types', () => {
     const info = analyzer.analyzeScript(`
@@ -58,9 +58,9 @@ describe('script/options/props', () => {
           }
         }
       }
-    `);
+    `)
 
-    expect(info.props).toHaveLength(4);
+    expect(info.props).toHaveLength(4)
     expect(info.props[0]).toMatchObject({
       name: 'foo',
       type: [
@@ -68,7 +68,7 @@ describe('script/options/props', () => {
           kind: 'string',
         },
       ],
-    });
+    })
     expect(info.props[1]).toMatchObject({
       name: 'bar',
       type: [
@@ -82,7 +82,7 @@ describe('script/options/props', () => {
           kind: 'boolean',
         },
       ],
-    });
+    })
     expect(info.props[2]).toMatchObject({
       name: 'baz',
       type: [
@@ -90,7 +90,7 @@ describe('script/options/props', () => {
           kind: 'number',
         },
       ],
-    });
+    })
     expect(info.props[3]).toMatchObject({
       name: 'bam',
       type: [
@@ -106,6 +106,6 @@ describe('script/options/props', () => {
           expression: 'object',
         },
       ],
-    });
-  });
-});
+    })
+  })
+})

@@ -179,8 +179,8 @@ importers:
       '@babel/types': 7.12.1
       '@types/lodash.camelcase': ^4.3.6
       '@vue/compiler-core': ^3.0.1
-      '@vuedx/analyze': 'workspace:^0.2.4-0'
-      '@vuedx/compiler-sfc': 'workspace:^0.0.0'
+      '@vuedx/analyze': 'workspace:*'
+      '@vuedx/compiler-sfc': 'workspace:*'
       '@vuedx/template-ast-types': 'workspace:*'
       chalk: ^4.1.0
       cli-highlight: ^2.1.4

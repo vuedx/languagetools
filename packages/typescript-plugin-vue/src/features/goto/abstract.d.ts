@@ -4,9 +4,9 @@ import { LanguageServiceOptions } from '../../types'
 export interface GotoProvider {
   version: string
 
-  getDefinitionAndBoundSpan(
+  getDefinitionAndBoundSpan: (
     config: LanguageServiceOptions,
     fileName: string,
     position: number,
-  ): TS.DefinitionInfoAndBoundSpan | undefined
+  ) => TS.DefinitionInfoAndBoundSpan | undefined
 }

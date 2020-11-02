@@ -15,7 +15,7 @@ import { TS, PluginConfig } from './interfaces'
 import { tryPatchMethod } from './helpers/patcher'
 import { wrapFn } from './helpers/logger'
 
-function getLastNumberFromVersion(version: string) {
+function getLastNumberFromVersion(version: string): number {
   const parts = version.split(/[^0-9]+/)
   const ver = parts.pop()
 
@@ -23,19 +23,19 @@ function getLastNumberFromVersion(version: string) {
 }
 
 class ProxyDocumentStore extends DocumentStore<VueTextDocument> {
-  get(fileNameOrUri: string) {
+  get(fileNameOrUri: string): VueTextDocument | null {
     return super.get(asUri(fileNameOrUri))
   }
 
-  has(fileNameOrUri: string) {
+  has(fileNameOrUri: string): boolean {
     return super.has(asUri(fileNameOrUri))
   }
 
-  set(fileNameOrUri: string, document: VueTextDocument) {
+  set(fileNameOrUri: string, document: VueTextDocument): void {
     return super.set(asUri(fileNameOrUri), document)
   }
 
-  delete(fileNameOrUri: string) {
+  delete(fileNameOrUri: string): boolean {
     return super.delete(asUri(fileNameOrUri))
   }
 }
@@ -66,11 +66,10 @@ export class PluginContext {
   public readonly _externalFiles = new WeakMap<TS.server.Project, string[]>()
 
   public constructor(public readonly typescript: typeof TS) {
-    this.typescript.setSourceMapRange
     this.store = new ProxyDocumentStore(
       (uri) => {
         const fileName = URI.parse(uri).fsPath
-        const content = this.typescript.sys.readFile(fileName) || ''
+        const content = this.typescript.sys.readFile(fileName) ?? ''
         return VueTextDocument.create(uri, 'vue', 0, content)
       },
       (uri) => {
@@ -85,21 +84,21 @@ export class PluginContext {
     return this._config
   }
 
-  public get serviceHost() {
+  public get serviceHost(): TS.server.ServerHost {
     return this._serverHost
   }
 
-  public get projectService() {
+  public get projectService(): TS.server.ProjectService {
     return this._projectService
   }
 
   public log(message: string): void {
-    if (this.projectService) {
+    if (this.projectService != null) {
       this.projectService.logger.info(`Vue.js:: ${message}`)
     }
   }
 
-  public getVueVersion(fileName: string) {
+  public getVueVersion(fileName: string): string {
     return '3.0.0'
   }
 
@@ -107,17 +106,17 @@ export class PluginContext {
     return this._externalFiles.get(project) ?? []
   }
 
-  public createVueDocument(fileName: string, content: string) {
+  public createVueDocument(fileName: string, content: string): VueTextDocument {
     const uri = URI.file(fileName).toString()
     const document = VueTextDocument.create(uri, 'vue', 0, content)
     this.store.set(uri, document)
     return document
   }
 
-  public error(message: Error): void {
-    if (this.projectService) {
+  public error(error: Error): void {
+    if (this.projectService != null) {
       this.projectService.logger.msg(
-        `Vue.js:: ${message} ${message.stack}`,
+        `Vue.js:: ${error.message} ${error.stack ?? ''}`,
         this.typescript.server.Msg.Err,
       )
     }
@@ -132,7 +131,7 @@ export class PluginContext {
           this.typescript.server.toNormalizedPath(vueFileName),
           false,
         )
-        if (scriptInfo) {
+        if (scriptInfo != null) {
           patchScriptInfo(this, scriptInfo)
         }
       }
@@ -151,16 +150,16 @@ export class PluginContext {
     patchLanguageServiceHost(this, info.languageServiceHost)
   }
 
-  public setConfig(config: Partial<PluginConfig>) {
+  public setConfig(config: Partial<PluginConfig>): void {
     this._config = getConfig(config)
   }
 }
 
-function patchProjectService(context: PluginContext) {
+function patchProjectService(context: PluginContext): void {
   patchExtraFileExtensions(context)
 }
 
-function patchExtraFileExtensions(context: PluginContext) {
+function patchExtraFileExtensions(context: PluginContext): void {
   const extraFileExtensions: TS.server.HostConfiguration['extraFileExtensions'] = [
     {
       extension: 'vue',
@@ -181,7 +180,7 @@ function patchExtraFileExtensions(context: PluginContext) {
             .hostConfiguration as TS.server.HostConfiguration)
             .extraFileExtensions
 
-          if (args.extraFileExtensions) {
+          if (args.extraFileExtensions != null) {
             args.extraFileExtensions.push(...extraFileExtensions)
             context.log(
               `extraFileExtensions: ${JSON.stringify(
@@ -189,7 +188,7 @@ function patchExtraFileExtensions(context: PluginContext) {
               )}`,
             )
           } else if (
-            !current ||
+            current == null ||
             !current.some((ext) => ext.extension === 'vue')
           ) {
             args.extraFileExtensions = [...extraFileExtensions]
@@ -205,7 +204,7 @@ function patchExtraFileExtensions(context: PluginContext) {
     ((context.projectService as any)
       .hostConfiguration as TS.server.HostConfiguration).extraFileExtensions?.some(
       (ext) => ext.extension === 'vue',
-    )
+    ) === true
   ) {
     return
   }
@@ -217,7 +216,7 @@ function patchExtraFileExtensions(context: PluginContext) {
 function patchLanguageServiceHost(
   context: PluginContext,
   languageServiceHost: TS.LanguageServiceHost,
-) {
+): void {
   patchGetScriptFileNames(context, languageServiceHost)
   patchModuleResolution(context, languageServiceHost)
   tryPatchMethod(
@@ -243,7 +242,7 @@ function patchLanguageServiceHost(
 function patchGetScriptFileNames(
   context: PluginContext,
   languageServiceHost: TS.LanguageServiceHost,
-) {
+): void {
   tryPatchMethod(
     languageServiceHost,
     'getScriptFileNames',
@@ -264,9 +263,9 @@ function patchGetScriptFileNames(
           .forEach((fileName) => {
             if (isVueFile(fileName)) {
               const document = context.store.get(fileName)
-              if (document) {
+              if (document != null) {
                 vueFiles.add(fileName)
-                fileNames.add(document.getDocumentFileName(MODULE_SELECTOR)!)
+                fileNames.add(document.getDocumentFileName(MODULE_SELECTOR))
               }
             } else {
               fileNames.add(fileName)
@@ -297,7 +296,7 @@ function patchGetScriptFileNames(
   )
 }
 
-function patchFileExists(context: PluginContext) {
+function patchFileExists(context: PluginContext): void {
   tryPatchMethod(
     context.serviceHost,
     'fileExists',
@@ -309,9 +308,13 @@ function patchFileExists(context: PluginContext) {
       return wrapFn('fileExists', (fileName: string): boolean => {
         if (isVirtualFile(fileName)) {
           const document = context.store.get(getContainingFile(fileName))
-          const { selector } = parseVirtualFileName(fileName)!
+          const result = parseVirtualFileName(fileName)
 
-          return fileName === document?.getDocumentFileName(selector)
+          return (
+            document != null &&
+            result != null &&
+            fileName === document.getDocumentFileName(result.selector)
+          )
         }
 
         return fileExists(fileName)
@@ -320,7 +323,7 @@ function patchFileExists(context: PluginContext) {
   )
 }
 
-function patchReadFile(context: PluginContext) {
+function patchReadFile(context: PluginContext): void {
   tryPatchMethod(context.serviceHost, 'readFile', (readFile) => {
     context.log(
       `[patch] Override readFile to check containing file for virtual files. (ServiceHost)`,
@@ -334,11 +337,11 @@ function patchReadFile(context: PluginContext) {
         const document = context.store
           .get(getContainingFile(fileName))
           ?.getDocument(fileName)
-        if (document) return document.getText()
-        return
+        if (document != null) return document.getText()
+        else return
       }
 
-      return readFile
+      return readFile != null
         ? readFile(fileName, encoding)
         : context.typescript.sys.readFile(fileName, encoding)
     })
@@ -348,7 +351,7 @@ function patchReadFile(context: PluginContext) {
 function patchModuleResolution(
   context: PluginContext,
   languageServiceHost: TS.LanguageServiceHost,
-) {
+): void {
   tryPatchMethod(
     languageServiceHost,
     'resolveModuleNames',
@@ -365,7 +368,7 @@ function patchModuleResolution(
           reusedNames: string[] | undefined,
           redirectedReferences: TS.ResolvedProjectReference | undefined,
           options: TS.CompilerOptions,
-        ): (TS.ResolvedModule | undefined)[] => {
+        ): Array<TS.ResolvedModule | undefined> => {
           if (isVueFile(containingFile))
             throw new Error('A .vue file should not be part of TS program.')
 
@@ -380,15 +383,16 @@ function patchModuleResolution(
           )
 
           // TODO: Support paths mapped to .vue files, if needed.
-          const result = resolveModuleNames
-            ? resolveModuleNames(
-                newModuleNames,
-                containingFile,
-                reusedNames,
-                redirectedReferences,
-                options,
-              )
-            : []
+          const result =
+            resolveModuleNames != null
+              ? resolveModuleNames(
+                  newModuleNames,
+                  containingFile,
+                  reusedNames,
+                  redirectedReferences,
+                  options,
+                )
+              : []
 
           result.forEach((resolved) => {
             if (resolved != null && isVirtualFile(resolved.resolvedFileName)) {
@@ -397,13 +401,15 @@ function patchModuleResolution(
           })
 
           if (__DEV__) {
-            if (!/node_modules/.test(containingFile)) {
+            if (!containingFile.includes('node_modules')) {
               context.log(
                 `Module resolution in ${containingFile} :: ` +
                   JSON.stringify(
                     moduleNames.map(
                       (name, index) =>
-                        `${name} => ${newModuleNames[index]} => ${result[index]?.resolvedFileName}`,
+                        `${name} => ${newModuleNames[index]} => ${
+                          result[index]?.resolvedFileName ?? '?'
+                        }`,
                     ),
                     null,
                     2,
@@ -419,13 +425,13 @@ function patchModuleResolution(
   )
 }
 
-function patchServiceHost(context: PluginContext) {
+function patchServiceHost(context: PluginContext): void {
   patchWatchFile(context)
   patchFileExists(context)
   patchReadFile(context)
 }
 
-function patchWatchFile(context: PluginContext) {
+function patchWatchFile(context: PluginContext): void {
   tryPatchMethod(context.serviceHost, 'watchFile', (watchFile) => {
     context.log(
       `[patch] Override watchFile to watch virtual files. (ServiceHost)`,
@@ -459,15 +465,15 @@ function patchWatchFile(context: PluginContext) {
 function patchScriptInfo(
   context: PluginContext,
   scriptInfo: TS.server.ScriptInfo,
-) {
-  if (!scriptInfo) throw new Error('ScriptInfo is required.')
+): void {
+  if (scriptInfo == null) throw new Error('ScriptInfo is required.')
 
-  function triggerFileUpdate(fileName: string) {
+  function triggerFileUpdate(fileName: string): void {
     if (__DEV__) context.log(`Taint ${fileName}`)
     const scriptInfo = context.projectService.getScriptInfo(fileName)
 
-    if (scriptInfo) {
-      // @ts-ignore - internal method but it's better for performance compared to it's public counter part `reloadFromFile()`.
+    if (scriptInfo != null) {
+      // @ts-expect-error - internal method but it's better for performance compared to it's public counter part `reloadFromFile()`.
       scriptInfo.delayReloadNonMixedContentFile()
     } else if (__DEV__) context.log(`Cannot find scriptInfo for ${fileName}`)
   }
@@ -481,7 +487,7 @@ function patchScriptInfo(
       'editContent',
       (start: number, end: number, newText: string): void => {
         const document = context.store.get(scriptInfo.fileName)
-        if (!document)
+        if (document == null)
           throw new Error('VueTextDocument should exist for every ScriptInfo.')
         const range = {
           start: document.positionAt(start),

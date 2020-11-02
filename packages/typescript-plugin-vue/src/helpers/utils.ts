@@ -9,19 +9,19 @@ import {
   VirtualTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
-import FS from 'fs'
 import Path from 'path'
 import QuickLRU from 'quick-lru'
 import { PluginContext } from '../context'
+import { TS } from '../interfaces'
 import {
   findTemplateElementNodeAt,
   findTemplateNodeAt,
   findTemplateNodeFor,
   findTemplateNodesIn,
+  SearchResult,
 } from './ast-ops'
-import { TS } from '../interfaces'
 
-function createCachedAnalyzer() {
+function createCachedAnalyzer(): (document: VueTextDocument) => ComponentInfo {
   const cache = new QuickLRU<string, ComponentInfo>({ maxSize: 1000 })
   const analyzer = createFullAnalyzer([], {
     babel: { plugins: ['typescript', 'jsx'] },
@@ -29,36 +29,44 @@ function createCachedAnalyzer() {
 
   return (document: VueTextDocument) => {
     const key = `${document.version}::${document.fsPath}`
-    if (cache.has(key)) return cache.get(key)!
-    const info = analyzer.analyze(document.getText(), document.fsPath)
+    const info =
+      cache.get(key) ?? analyzer.analyze(document.getText(), document.fsPath)
     cache.set(key, info)
+
     return info
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createServerHelper(
   context: PluginContext,
   languageService: TS.LanguageService,
 ) {
   const getComponentInfo = createCachedAnalyzer()
 
-  function findNodeAtPosition(fileName: string, position: number) {
+  function findNodeAtPosition(
+    fileName: string,
+    position: number,
+  ): SearchResult & { document: RenderFunctionTextDocument | null } {
     const document = getRenderDoc(fileName)
-    if (document?.ast)
+    if (document?.ast != null)
       return {
-        document: document!,
+        document: document,
         ...findTemplateNodeAt(document.ast, position),
       }
     else return { node: null, ancestors: [], document: null }
   }
 
-  function getDocument(fileName: string) {
+  function getDocument(
+    fileName: string,
+  ): VueTextDocument | VirtualTextDocument | null {
     return isVirtualFile(fileName)
-      ? context.store.get(getContainingFile(fileName))?.getDocument(fileName)
+      ? context.store.get(getContainingFile(fileName))?.getDocument(fileName) ??
+          null
       : context.store.get(fileName)
   }
 
-  function getVueDocument(fileName: string) {
+  function getVueDocument(fileName: string): VueTextDocument | null {
     return isVueFile(fileName)
       ? context.store.get(fileName)
       : isVirtualFile(fileName)
@@ -66,16 +74,19 @@ export function createServerHelper(
       : null
   }
 
-  function getDocumentAt(fileName: string, position: number) {
-    const document = context.store.get(fileName)! // The file should exist.
-    const block = document.blockAt(position)
-    if (!block) return
-
+  function getDocumentAt(
+    fileName: string,
+    position: number,
+  ): VirtualTextDocument | null {
+    const document = context.store.get(fileName)
+    const block = document?.blockAt(position)
+    if (block == null || document == null) return null
     if (block.type === 'template') {
       return document.getDocument(RENDER_SELECTOR)
     }
-
-    return document.getDocument(document.getBlockSelector(block)!)
+    const selector = document.getBlockSelector(block)
+    if (selector == null) return null
+    return document.getDocument(selector)
   }
 
   function isRenderFunctionDocument(
@@ -103,7 +114,7 @@ export function createServerHelper(
   ): TS.TextSpan {
     if (isRenderFunctionDocument(document)) {
       const result = document.getOriginalOffsetAt(span.start)
-      if (result) return { start: result.offset, length: result.length }
+      if (result != null) return { start: result.offset, length: result.length }
     }
 
     return span
@@ -146,11 +157,11 @@ export function isNotNull<T>(value: T | null | undefined): value is T {
 export function computeIdentifierReplacement(
   source: string,
   identifer: string,
-) {
+): { prefixText: string; suffixText: string } {
   const RE = new RegExp(`\\b${identifer}\\b`)
   const match = RE.exec(source)
 
-  if (!match) return { prefixText: source, suffixText: '' }
+  if (match == null) return { prefixText: source, suffixText: '' }
 
   return {
     prefixText: source.substr(0, match.index),
@@ -158,43 +169,18 @@ export function computeIdentifierReplacement(
   }
 }
 
-/**
- * @deprecated - Do not depend on filesystem!
- */
-export function findNearestComponentsDir(
-  fileName: string,
-  rootDir: string = '/',
-) {
-  let currentDir = Path.dirname(fileName)
-  rootDir = Path.normalize(rootDir)
-  do {
-    const dir = Path.resolve(currentDir, 'components')
-    if (isDirectory(dir)) return dir
-
-    currentDir = Path.dirname(currentDir)
-  } while (currentDir && Path.normalize(currentDir) === rootDir)
-
-  return null
-}
-
-function isDirectory(dir: string) {
-  const isDir = FS.existsSync(dir) && FS.statSync(dir).isDirectory()
-
-  return isDir
-}
-
-export function getPaddingLength(source: string, offset: number = 0) {
+export function getPaddingLength(source: string, offset: number = 0): number {
   source = source.substr(offset)
   const match = /^[\s\r\n]+/m.exec(source)
 
-  return match ? match[0].length : 0
+  return match != null ? match[0].length : 0
 }
 
 export function getFilenameForNewComponent(
   context: PluginContext,
   directory: string,
   usedNames = new Set<string>(),
-) {
+): string {
   let name = 'Component'
   let fileName = Path.join(directory, 'Component.vue')
   let index = 0
@@ -213,10 +199,10 @@ export function getFilenameForNewComponent(
   return fileName
 }
 
-export function getComponentName(fileName: string) {
+export function getComponentName(fileName: string): string {
   return Path.basename(fileName).replace(/\.vue$/, '')
 }
 
-export function indent(code: string) {
+export function indent(code: string): string {
   return '  ' + code.split('\n').join('\n  ')
 }

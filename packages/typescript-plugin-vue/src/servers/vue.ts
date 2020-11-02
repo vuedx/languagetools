@@ -10,7 +10,7 @@ import { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
 import { createTemplateLanguageServer } from './template'
 
-type GetElementType<T> = T extends (infer U)[] ? U : T
+type GetElementType<T> = T extends Array<infer U> ? U : T
 export function createVueLanguageServer(
   options: LanguageServiceOptions,
 ): TS.LanguageService {
@@ -29,7 +29,7 @@ export function createVueLanguageServer(
       : feature === checkFor
   }
 
-  function choose(document: VirtualTextDocument) {
+  function choose(document: VirtualTextDocument): TS.LanguageService {
     return h.isRenderFunctionDocument(document) ? template : script
   }
 
@@ -43,11 +43,11 @@ export function createVueLanguageServer(
 
       const document = h.getVueDocument(fileName)
       const diagnostics: TS.Diagnostic[] = []
-      if (document) {
-        ;['script', '_render'].forEach((selector) => {
+      if (document != null) {
+        const selectors = ['script', '_render', 'scriptSetup'] as const
+        selectors.forEach((selector) => {
           const virtual = document.getDocument(selector)
-
-          if (virtual) {
+          if (virtual != null) {
             const results = choose(virtual).getSemanticDiagnostics(
               virtual.fsPath,
             )
@@ -67,11 +67,12 @@ export function createVueLanguageServer(
       const document = h.getVueDocument(fileName)
 
       const diagnostics: TS.DiagnosticWithLocation[] = []
-      if (document) {
-        ;['script', '_render'].forEach((selector) => {
+      if (document != null) {
+        const selectors = ['script', '_render', 'scriptSetup'] as const
+        selectors.forEach((selector) => {
           const virtual = document.getDocument(selector)
 
-          if (virtual)
+          if (virtual != null)
             diagnostics.push(
               ...choose(virtual).getSuggestionDiagnostics(virtual.fsPath),
             )
@@ -89,11 +90,12 @@ export function createVueLanguageServer(
       const document = h.getVueDocument(fileName)
 
       const diagnostics: TS.DiagnosticWithLocation[] = []
-      if (document) {
-        ;['script', '_render'].forEach((selector) => {
+      if (document != null) {
+        const selectors = ['script', '_render', 'scriptSetup'] as const
+        selectors.forEach((selector) => {
           const virtual = document.getDocument(selector)
 
-          if (virtual)
+          if (virtual != null)
             diagnostics.push(
               ...choose(virtual).getSyntacticDiagnostics(virtual.fsPath),
             )
@@ -107,10 +109,10 @@ export function createVueLanguageServer(
       if (!isFeatureEnabled('organizeImports')) return []
 
       const document = h.getVueDocument(scope.fileName)
-      if (document) {
+      if (document != null) {
         const virtual =
-          document.getDocument('script') || document.getDocument('scriptSetup')
-        if (virtual) {
+          document.getDocument('script') ?? document.getDocument('scriptSetup')
+        if (virtual != null) {
           return script.organizeImports(
             { ...scope, fileName: virtual.fsPath },
             formatOptions,
@@ -127,7 +129,7 @@ export function createVueLanguageServer(
 
       // TODO: Provide better quick info for components and props.
       const document = h.getDocumentAt(fileName, position)
-      if (document)
+      if (document != null)
         return choose(document).getQuickInfoAtPosition(
           document.fsPath,
           position,
@@ -261,7 +263,7 @@ export function createVueLanguageServer(
         isNumber(positionOrRange) ? positionOrRange : positionOrRange.end,
       )
 
-      if (document && document === document2) {
+      if (document != null && document === document2) {
         return choose(document).getEditsForRefactor(
           document.fsPath,
           formatOptions,

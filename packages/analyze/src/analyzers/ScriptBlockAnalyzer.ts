@@ -9,7 +9,7 @@ import { createSourceRange, isNotNull } from '../utilities'
 export const ScriptBlockAnalyzer: Plugin = {
   blocks: {
     script: (block, ctx) => {
-      if (block.content) {
+      if (block.src == null) {
         processScript(createScriptContext(block.content, ctx, block))
       }
     },
@@ -21,7 +21,7 @@ export function createScriptContext(
   context: Context,
   block?: SFCScriptBlock,
 ): ScriptAnalyzerContext {
-  const script = block || {
+  const script = block ?? {
     type: 'script',
     content: content,
     setup: false,
@@ -34,7 +34,7 @@ export function createScriptContext(
     },
   }
 
-  const plugins = context.parsers.babel.plugins?.slice() || []
+  const plugins = context.parsers.babel.plugins?.slice() ?? []
 
   if (script.lang === 'ts' && !plugins.includes('typescript')) {
     plugins.push('typescript')
@@ -44,23 +44,23 @@ export function createScriptContext(
     ...context.parsers.babel,
     plugins: Array.from(new Set(plugins)),
     ranges: true,
-    // @ts-ignore
+    // @ts-expect-error
     errorRecovery: true,
   })
 
   return {
     ...context,
-    mode: script.setup ? 'setup' : 'module',
+    mode: script.setup != null ? 'setup' : 'module',
     ast: ast,
     source: content,
     block: script,
   }
 }
 
-function processScript(context: ScriptAnalyzerContext) {
-  // @ts-ignore
-  if (context.ast.errors?.length) {
-    // @ts-ignore
+function processScript(context: ScriptAnalyzerContext): void {
+  // @ts-expect-error
+  if ((context.ast.errors?.length ?? 0) > 0) {
+    // @ts-expect-error
     context.ast.errors.forEach((error: any) =>
       context.component.addError(error.message, {
         ...error.loc,
@@ -72,11 +72,10 @@ function processScript(context: ScriptAnalyzerContext) {
 
   const enterHandlers = context.plugins
     .map((plugin) => {
-      if (plugin.babel) {
+      if (plugin.babel != null) {
         if (typeof plugin.babel === 'function') {
           return plugin.babel
-        }
-        if ('enter' in plugin.babel) {
+        } else if ('enter' in plugin.babel) {
           return plugin.babel.enter
         }
       }
@@ -85,7 +84,7 @@ function processScript(context: ScriptAnalyzerContext) {
 
   const exitHandlers = context.plugins
     .map((plugin) => {
-      if (plugin.babel && 'exit' in plugin.babel) {
+      if (plugin.babel != null && 'exit' in plugin.babel) {
         return plugin.babel.exit
       }
     })
@@ -108,9 +107,9 @@ function processScript(context: ScriptAnalyzerContext) {
     .flat()
 
   function call<T>(
-    fns: ((node: T, context: ScriptAnalyzerContext) => void)[],
+    fns: Array<(node: T, context: ScriptAnalyzerContext) => void>,
     node: T,
-  ) {
+  ): void {
     fns.forEach((fn) => {
       try {
         fn(node, context)
@@ -120,10 +119,8 @@ function processScript(context: ScriptAnalyzerContext) {
     })
   }
 
-  function processOptions(options$: NodePath<t.ObjectExpression>) {
-    const properties$ = options$.get('properties') as NodePath<
-      t.ObjectExpression['properties'][0]
-    >[]
+  function processOptions(options$: NodePath<t.ObjectExpression>): void {
+    const properties$ = options$.get('properties')
     context.component.addOption('', {
       loc: createSourceRange(context, options$.node),
     })
@@ -145,7 +142,7 @@ function processScript(context: ScriptAnalyzerContext) {
           optionsByNameHandlers.forEach((options) => {
             const fn = options[name] as any
 
-            if (fn) {
+            if (fn != null) {
               try {
                 fn(property$, context)
               } catch {
@@ -170,9 +167,7 @@ function processScript(context: ScriptAnalyzerContext) {
       call(exitHandlers, path)
     },
     ExportDefaultDeclaration(path: NodePath<t.ExportDefaultDeclaration>) {
-      const d$ = path.get('declaration') as NodePath<
-        t.ExportDefaultDeclaration['declaration']
-      >
+      const d$ = path.get('declaration')
       /**
        * Matches:
        * export default {}
@@ -190,7 +185,7 @@ function processScript(context: ScriptAnalyzerContext) {
          */
         const { callee } = declaration$.node
         const args$ = declaration$.get('arguments')
-        let options$ = ((Array.isArray(args$)
+        const options$ = ((Array.isArray(args$)
           ? args$[0]
           : args$) as unknown) as NodePath
 

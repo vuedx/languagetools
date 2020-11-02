@@ -17,7 +17,7 @@ export const GotoExternalComponentProp: GotoProvider = {
     const document = h.getRenderDoc(fileName)
     if (document?.ast == null) return
 
-    let targetNode = h.findTemplateNodeAt(document.ast, position)
+    const targetNode = h.findTemplateNodeAt(document.ast, position)
 
     if (isSimpleExpressionNode(targetNode.node)) {
       const last = targetNode.ancestors.pop()
@@ -70,7 +70,7 @@ export const GotoExternalComponentProp: GotoProvider = {
     if (componentDoc == null) return
 
     const externalComponentInfo = h.getComponentInfo(componentDoc)
-    const prop = externalComponentInfo.props.find((prop) => prop.name == name)
+    const prop = externalComponentInfo.props.find((prop) => prop.name === name)
     if (prop == null) return
 
     return {
@@ -90,13 +90,13 @@ export const GotoExternalComponentProp: GotoProvider = {
           containerKind: context.typescript.ScriptElementKind.unknown,
           containerName: '',
           contextSpan:
-            externalComponentInfo.options?.properties['props'] != null
+            externalComponentInfo.options?.properties.props != null
               ? {
                   start:
-                    externalComponentInfo.options.properties['props'].loc.start
+                    externalComponentInfo.options.properties.props.loc.start
                       .offset,
                   length:
-                    externalComponentInfo.options.properties['props'].loc.source
+                    externalComponentInfo.options.properties.props.loc.source
                       .length,
                 }
               : undefined,

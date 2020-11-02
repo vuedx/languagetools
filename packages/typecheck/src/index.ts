@@ -21,7 +21,7 @@ export function generateCodeFrame(
   let count = 0
   const res: string[] = []
   const width = String(lines.length).length
-  const getLine = (line: number | string) =>
+  const getLine = (line: number | string): string =>
     String(line).padStart(width) + ' | '
   for (let i = 0; i < lines.length; i++) {
     count += lines[i].length + 1
@@ -57,7 +57,15 @@ export function generateCodeFrame(
   return res.join('\n')
 }
 
-export function getDiagnostics(directory: string, logging = false) {
+export function getDiagnostics(
+  directory: string,
+  logging = false,
+): Array<{
+  fileName: string
+  semanticDiagnostics: Diagnostic[]
+  syntacticDiagnostics: DiagnosticWithLocation[]
+  suggestionDiagnostics: DiagnosticWithLocation[]
+}> {
   const pluginFile = require.resolve('@vuedx/typescript-plugin-vue')
   console.debug(
     `Loading plugin from ${Path.relative(process.cwd(), pluginFile)}`,
@@ -114,13 +122,13 @@ export function getDiagnostics(directory: string, logging = false) {
       `Loading project from ${Path.relative(process.cwd(), configFile)}`,
     )
   }
-  // @ts-ignore - This would load Vue plugin and would prevent reload when actual project is created.
+  // @ts-expect-error - This would load Vue plugin and would prevent reload when actual project is created.
   let project: TypeScriptServer.Project = projectService.createInferredProject(
     directory,
     true,
   )
   if (configFile != null) {
-    // @ts-ignore - private method.
+    // @ts-expect-error - private method.
     project = projectService.createLoadAndUpdateConfiguredProject(configFile)
   } else {
     project.updateGraph()
@@ -136,12 +144,10 @@ export function getDiagnostics(directory: string, logging = false) {
 
   const fileNames = Array.from(
     new Set(
-      server
-        .getProgram()!
-        .getSourceFiles()
+      (server.getProgram()?.getSourceFiles() ?? [])
         .map((sourceFile) => sourceFile?.fileName)
         .filter(Boolean)
-        .filter((fileName) => !/node_modules/.test(fileName))
+        .filter((fileName) => !fileName.includes('node_modules'))
         .map((fileName) =>
           isVirtualFile(fileName) ? getContainingFile(fileName) : fileName,
         ),
@@ -157,9 +163,9 @@ export function getDiagnostics(directory: string, logging = false) {
     }
 
     if (
-      diagnostic.semanticDiagnostics.length ||
-      diagnostic.syntacticDiagnostics.length ||
-      diagnostic.suggestionDiagnostics.length
+      diagnostic.semanticDiagnostics.length > 0 ||
+      diagnostic.syntacticDiagnostics.length > 0 ||
+      diagnostic.suggestionDiagnostics.length > 0
     ) {
       diagnostics.push(diagnostic)
     }
@@ -205,6 +211,7 @@ function getServerHost(T: typeof ts): TypeScriptServer.ServerHost {
     clearImmediate: clearImmediate,
     require: (context, moduleName) => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const m = require(require.resolve(moduleName, { paths: [context] }))
 
         return { module: m, error: undefined }
@@ -216,7 +223,7 @@ function getServerHost(T: typeof ts): TypeScriptServer.ServerHost {
 }
 
 function getLogger(enabled: boolean): TypeScriptServer.Logger {
-  function noop() {}
+  function noop(): void {}
   return {
     close: () => {},
     hasLevel: () => true,
@@ -235,8 +242,10 @@ function getTypesInstaller(): TypeScriptServer.ITypingsInstaller {
     attach() {},
     enqueueInstallTypingsRequest() {},
     globalTypingsCacheLocation: undefined,
-    installPackage() {
-      return Promise.reject()
+    async installPackage() {
+      return await Promise.reject(
+        new Error('installPackage() is not implemented.'),
+      )
     },
     isKnownTypesPackageName() {
       return true

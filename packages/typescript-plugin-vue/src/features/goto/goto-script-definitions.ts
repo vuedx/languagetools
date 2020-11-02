@@ -62,13 +62,13 @@ export const GotoScriptDefinitions: GotoProvider = {
                 containerKind: context.typescript.ScriptElementKind.unknown,
                 containerName: '',
                 contextSpan:
-                  componentInfo.options?.properties['props'] != null
+                  componentInfo.options?.properties.props != null
                     ? {
                         start:
-                          componentInfo.options.properties['props'].loc.start
+                          componentInfo.options.properties.props.loc.start
                             .offset,
                         length:
-                          componentInfo.options.properties['props'].loc.source
+                          componentInfo.options.properties.props.loc.source
                             .length,
                       }
                     : undefined,
@@ -77,7 +77,7 @@ export const GotoScriptDefinitions: GotoProvider = {
           }
         } else {
           const textSpan = h.getTextSpan(document, definition.textSpan)
-          if (textSpan != definition.textSpan) {
+          if (textSpan !== definition.textSpan) {
             isTextSpanSet = true
             definition.textSpan = textSpan
             if (definition.contextSpan != null) {
@@ -97,7 +97,7 @@ export const GotoScriptDefinitions: GotoProvider = {
     result.definitions = definitions
 
     if (!isTextSpanSet) {
-      let textSpan: TS.TextSpan | null = getTextSpan(document, position)
+      const textSpan: TS.TextSpan | null = getTextSpan(document, position)
       if (textSpan != null) result.textSpan = textSpan
     }
 

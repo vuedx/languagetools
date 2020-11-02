@@ -273,7 +273,21 @@ import _Ctx from './component.vue?internal'
 export function render({foo}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/{foo.}/*@@vue:end*/
 }
-`.trim(),
+`.trimStart(),
+  },
+  {
+    name: 'Text Node',
+    template: `
+      <span></span>    {{  }}<span></span>
+    `.trim(),
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<><span></span> {}<span></span></>/*@@vue:end*/
+      }
+  `,
   },
 ]
 
@@ -292,7 +306,10 @@ describe('compile/tsx', () => {
     })
 
     const actual = prepare(result.code)
-    const expected = prepare(sample.render)
+    const expected = prepare(
+      sample.render +
+        `declare const __completionsTrigger: InstanceType<typeof _Ctx>\n__completionsTrigger./*@@vue:completions*/$props`,
+    )
 
     expect(actual).toEqual(expected)
   })

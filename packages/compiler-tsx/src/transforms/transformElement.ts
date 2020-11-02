@@ -43,36 +43,41 @@ export function createElementTransform(
     if (isComponentNode(node)) {
       const name = node.tag
       const component = options.components[name]
-      if (!context.identifiers[name]) {
-        if (component) {
+      if ((context.identifiers[name] ?? 0) <= 0) {
+        if (component != null) {
           context.imports.add({
-            exp: component.named
-              ? `{ ${component.name ? component.name + ' as ' : ''}${name} }`
-              : name,
+            exp:
+              component.named != null
+                ? `{ ${
+                    component.name != null ? component.name + ' as ' : ''
+                  }${name} }`
+                : name,
             path: component.path,
           })
           context.addIdentifiers(name)
-        } else if (/* isKnownGlobalComponent?? */ false) {
         }
       }
     }
 
     return () => {
-      let name: string = isComponentNode(node) ? pascalCase(node.tag) : node.tag
-
-      const startTag = name
-        ? createSimpleExpression(
-            name,
-            false,
-            createLoc(
-              node.loc,
-              node.loc.source.indexOf(node.tag),
-              node.tag.length,
-            ),
-            false,
-          )
+      const name: string = isComponentNode(node)
+        ? pascalCase(node.tag)
         : node.tag
-      const attributes = getJSXAttributes(node as ElementNode, context)
+
+      const startTag =
+        name != null
+          ? createSimpleExpression(
+              name,
+              false,
+              createLoc(
+                node.loc,
+                node.loc.source.indexOf(node.tag),
+                node.tag.length,
+              ),
+              false,
+            )
+          : node.tag
+      const attributes = getJSXAttributes(node, context)
 
       if (node.isSelfClosing) {
         node.codegenNode = createCompoundExpression([
@@ -82,18 +87,19 @@ export function createElementTransform(
           '/>',
         ]) as any
       } else {
-        const endTag = name
-          ? createSimpleExpression(
-              name,
-              false,
-              createLoc(
-                node.loc,
-                node.loc.source.lastIndexOf(node.tag),
-                node.tag.length,
-              ),
-              false,
-            )
-          : node.tag
+        const endTag =
+          name != null
+            ? createSimpleExpression(
+                name,
+                false,
+                createLoc(
+                  node.loc,
+                  node.loc.source.lastIndexOf(node.tag),
+                  node.tag.length,
+                ),
+                false,
+              )
+            : node.tag
         const children = getChildren(node, context)
         node.codegenNode = createCompoundExpression([
           '<',
@@ -111,10 +117,12 @@ export function createElementTransform(
 }
 
 function getInternalPath(options: Required<Options>): string {
-  return `./${options.filename.split(/[/\\]/).pop()}?internal`
+  return `./${
+    options.filename.split(/[/\\]/).pop() ?? options.filename
+  }?internal`
 }
 
-function getJSXAttributes(node: ElementNode, context: TransformContext) {
+function getJSXAttributes(node: ElementNode, context: TransformContext): any[] {
   const result: any[] = []
   node.props.forEach((dir, index) => {
     if (isAttributeNode(dir)) {
@@ -126,28 +134,28 @@ function getJSXAttributes(node: ElementNode, context: TransformContext) {
           createLoc(dir.loc, 0, dir.name.length),
         ),
       )
-      if (dir.value) {
+      if (dir.value != null) {
         result.push(
           '=',
           createSimpleExpression(dir.value.loc.source, false, dir.value.loc),
         )
       }
-    } else if ('bind' === dir.name) {
+    } else if (dir.name === 'bind') {
       if (isSimpleExpressionNode(dir.arg)) {
         if (dir.arg.isStatic || dir.arg.content === 'key') {
           dir.arg.isStatic = false
           result.push(' ', dir.arg.content === 'class' ? 'className' : dir.arg)
-          if (dir.exp) result.push('={', dir.exp, '}')
+          if (dir.exp != null) result.push('={', dir.exp, '}')
         } else {
           result.push(' {...({[', dir.arg, ']: ')
-          if (dir.exp) result.push(dir.exp)
+          if (dir.exp != null) result.push(dir.exp)
           else result.push('true')
           result.push('})}')
         }
-      } else if (dir.exp) {
+      } else if (dir.exp != null) {
         result.push(' {...(', dir.exp, ')}')
       }
-    } else if ('on' === dir.name) {
+    } else if (dir.name === 'on') {
       const exp = isSimpleExpressionNode(dir.exp)
         ? isSimpleIdentifier(dir.exp.content.trim())
           ? [dir.exp]
@@ -172,11 +180,11 @@ function getJSXAttributes(node: ElementNode, context: TransformContext) {
         } else {
           result.push('{...({[', dir.arg, ']: ', ...exp, '})}')
         }
-      } else if (dir.exp) {
+      } else if (dir.exp != null) {
         result.push('{...(', dir.exp, ')}')
       }
     } else if (dir.name === 'model') {
-      const exp = dir.exp || 'null'
+      const exp = dir.exp ?? 'null'
 
       result.push(' ')
       if (isSimpleExpressionNode(dir.arg)) {
@@ -203,7 +211,7 @@ function getJSXAttributes(node: ElementNode, context: TransformContext) {
       result.push(` __directive_${dir.name}_${index}={[`)
       if (isSimpleExpressionNode(dir.arg) && !dir.arg.isStatic)
         result.push(dir.arg, ',')
-      if (dir.exp) result.push(dir.exp, ',')
+      if (dir.exp != null) result.push(dir.exp, ',')
       result.push(']}')
     }
   })
@@ -211,7 +219,7 @@ function getJSXAttributes(node: ElementNode, context: TransformContext) {
   return result
 }
 
-function getChildren(node: ElementNode, context: TransformContext) {
+function getChildren(node: ElementNode, context: TransformContext): any[] {
   if (isComponentNode(node)) {
     const { slots } = buildSlots(node, context, (props, children) =>
       createFunctionExpression(
@@ -247,7 +255,7 @@ function getChildren(node: ElementNode, context: TransformContext) {
   }
 }
 
-function processTemplateNodes(nodes: TemplateChildNode[]) {
+function processTemplateNodes(nodes: TemplateChildNode[]): any[] {
   return nodes.map((node) => {
     if (isTextNode(node)) {
       return createSimpleExpression(node.content, false, undefined, false)

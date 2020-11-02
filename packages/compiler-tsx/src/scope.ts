@@ -1,5 +1,7 @@
 import { parse, parseExpression } from '@babel/parser'
 import {
+  Expression,
+  File,
   Identifier,
   isFunction,
   isIdentifier,
@@ -26,11 +28,11 @@ export class Scope {
 
   public constructor(public readonly parent: Scope | null = null) {}
 
-  public get identifiers() {
+  public get identifiers(): string[] {
     return Array.from(Object.keys(this.bindings))
   }
 
-  public get globals() {
+  public get globals(): string[] {
     return this.identifiers.filter(
       (identifier) => this.getBinding(identifier) === null,
     )
@@ -38,7 +40,7 @@ export class Scope {
 
   public getBinding(identifier: string): null | Node {
     if (identifier in this.bindings) return this.bindings[identifier]
-    if (this.parent) {
+    if (this.parent != null) {
       return (this.bindings[identifier] = this.parent.getBinding(identifier))
     } else {
       this.bindings[identifier] = null
@@ -47,7 +49,7 @@ export class Scope {
     return null
   }
 
-  public setBinding(identifer: string, node: Node) {
+  public setBinding(identifer: string, node: Node): void {
     this.bindings[identifer] = node
   }
 }
@@ -56,12 +58,12 @@ export function withScope(ast: RootNode): RootNode {
   ast.scope = new Scope(null)
 
   traverse(ast, (node, ancestors) => {
-    const parent = ancestors[ancestors.length - 1]?.node || ast
-    const scope = (node.scope = node.scope || new Scope(parent.scope))
+    const parent = (ancestors[ancestors.length - 1]?.node ?? ast) as any
+    const scope = (node.scope = node.scope ?? new Scope(parent.scope))
 
     if (isSimpleExpressionNode(node) && !node.isStatic) {
       if (
-        !parent ||
+        parent != null ||
         !(
           isDirectiveNode(parent) &&
           ['slot', 'for'].includes(parent.name) &&
@@ -75,7 +77,7 @@ export function withScope(ast: RootNode): RootNode {
     } else if (isElementNode(node)) {
       node.props.forEach((prop) => {
         if (isDirectiveNode(prop)) {
-          const directiveScope = (prop.scope = prop.scope || new Scope(scope))
+          const directiveScope = (prop.scope = prop.scope ?? new Scope(scope))
           if (prop.name === 'slot') {
             if (isSimpleExpressionNode(prop.exp)) {
               const localScope = (prop.exp.scope = new Scope(directiveScope))
@@ -90,7 +92,7 @@ export function withScope(ast: RootNode): RootNode {
             if (isSimpleExpressionNode(prop.exp)) {
               const localScope = (prop.exp.scope = new Scope(directiveScope))
               const match = forAliasRE.exec(prop.exp.content)
-              if (match) {
+              if (match != null) {
                 const [, LHS, RHS] = match
                 getIdentifiers(RHS).forEach((identifier) => {
                   localScope.getBinding(identifier)
@@ -126,7 +128,7 @@ function getIdentifiers(source: string): Set<string> {
 
     traverseBabel(ast, (node, ancestors) => {
       if (isIdentifier(node)) {
-        if (ancestors.length) {
+        if (ancestors.length > 0) {
           if (shouldTrack(node, ancestors[ancestors.length - 1].node)) {
             identifers.add(node.name)
           }
@@ -142,23 +144,23 @@ function getIdentifiers(source: string): Set<string> {
   }
 }
 
-function parseUsingBabel(source: string) {
+function parseUsingBabel(source: string): File | Expression {
   try {
     return parse(source, {
       plugins: ['bigInt', 'optionalChaining'],
-      // @ts-ignore
+      // @ts-expect-error
       errorRecovery: true,
     })
   } catch {
     return parseExpression(source, {
       plugins: ['bigInt', 'optionalChaining'],
-      // @ts-ignore
+      // @ts-expect-error
       errorRecovery: true,
     })
   }
 }
 
-function shouldTrack(identifier: Identifier, parent: BabelNode) {
+function shouldTrack(identifier: Identifier, parent: BabelNode): boolean {
   if (
     !(
       isFunction(parent) &&
@@ -182,4 +184,6 @@ function shouldTrack(identifier: Identifier, parent: BabelNode) {
   ) {
     return true
   }
+
+  return false
 }

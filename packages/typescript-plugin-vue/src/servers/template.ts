@@ -1,3 +1,7 @@
+import {
+  isInterpolationNode,
+  isSimpleExpressionNode,
+} from '@vuedx/template-ast-types'
 import { GOTO_PROVIDERS } from '../features/goto'
 import { REFACTOR_PROVIDERS } from '../features/refactors'
 import { RENAME_PROVIDERS } from '../features/renames'
@@ -8,11 +12,11 @@ import { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
 
 interface AdditionalFunctions {
-  getEditsForFileRenameIn(
+  getEditsForFileRenameIn: (
     fileName: string,
     oldFilePath: string,
     newFilePath: string,
-  ): TS.FileTextChanges[]
+  ) => TS.FileTextChanges[]
 }
 
 export const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
@@ -33,48 +37,164 @@ export function createTemplateLanguageServer(
       preferences,
     ) {
       const document = h.getRenderDoc(fileName)
-      if (!document) return
+      if (document == null) return
 
       const loc = document.getGeneratedOffsetAt(position)
-      if (!loc) return
 
-      const result = service.getCompletionEntryDetails(
-        fileName,
-        loc.offset,
-        entryName,
-        formatOptions,
-        source,
-        preferences,
-      )
+      const result =
+        loc != null
+          ? service.getCompletionEntryDetails(
+              fileName,
+              loc.offset,
+              entryName,
+              formatOptions,
+              source,
+              preferences,
+            )
+          : service.getCompletionEntryDetails(
+              fileName,
+              document.contextCompletionsTriggerOffset,
+              entryName,
+              formatOptions,
+              source,
+              preferences,
+            )
+
       return result
     },
 
     getCompletionsAtPosition(fileName, position, options) {
       const document = h.getRenderDoc(fileName)
-      if (!document) return
 
+      const result: TS.CompletionInfo = {
+        isGlobalCompletion: false,
+        isMemberCompletion: false,
+        isNewIdentifierLocation: false,
+        entries: [],
+      }
+
+      if (document == null) return result
+
+      const nodeAtCursor = h.findNodeAtPosition(document.fsPath, position)
       const loc = document.getGeneratedOffsetAt(position)
-      if (!loc) return
 
-      const result = service.getCompletionsAtPosition(
-        fileName,
-        loc.offset,
-        options,
-      )
+      if (loc != null) {
+        Object.assign(
+          result,
+          service.getCompletionsAtPosition(
+            document.fsPath,
+            loc.offset,
+            options,
+          ),
+        )
+      }
+
+      const isInExpression =
+        isSimpleExpressionNode(nodeAtCursor.node) ||
+        isInterpolationNode(nodeAtCursor.node)
+
+      if (isInExpression) {
+        const contextCompletion = service.getCompletionsAtPosition(
+          document.fsPath,
+          document.contextCompletionsTriggerOffset,
+          {
+            ...options,
+            triggerCharacter: '.',
+            includeAutomaticOptionalChainCompletions: true,
+            includeCompletionsForModuleExports: false,
+            includeCompletionsWithInsertText: true,
+            includePackageJsonAutoImports: 'off',
+            provideRefactorNotApplicableReason: false,
+            disableSuggestions: true,
+          },
+        )
+
+        if (contextCompletion?.entries != null) {
+          result.entries = result.entries ?? []
+          result.entries.push(...contextCompletion.entries)
+        }
+      }
+
+      if (result?.entries != null) {
+        const disallowedIdentifiers = new Set([
+          'arguments',
+          'globalThis',
+          'default',
+        ])
+        const allowedGlobals = new Set([
+          'Infinity',
+          'undefined',
+          'NaN',
+          'isFinite',
+          'isNaN',
+          'parseFloat',
+          'parseInt',
+          'decodeURI',
+          'decodeURIComponent',
+          'encodeURI',
+          'encodeURIComponent',
+          'Math',
+          'Number',
+          'Date',
+          'Array',
+          'Object',
+          'Boolean',
+          'String',
+          'RegExp',
+          'Map',
+          'Set',
+          'JSON',
+          'Intl',
+        ])
+
+        if (isInExpression) {
+          const { components } = h.getComponentInfo(document.container)
+          components.forEach((component) =>
+            component.aliases.forEach((alias) =>
+              disallowedIdentifiers.add(alias),
+            ),
+          )
+        }
+
+        result.entries = result.entries.filter((entry) => {
+          if (entry.source != null) return // Ignore external module import
+          if (disallowedIdentifiers.has(entry.name)) return false
+          if (entry.name.startsWith('_')) return false // Ignore Vue internals
+          if (entry.kindModifiers != null) {
+            if (entry.kindModifiers.includes('export')) {
+              if (entry.kind !== 'property') return false // Ignore non-property exports
+            }
+            if (entry.kindModifiers.includes('deprecated')) return false // Ignore deprecated
+            if (entry.kindModifiers.includes('declare')) {
+              if (entry.kind !== 'property') {
+                if (!allowedGlobals.has(entry.name)) return false
+              }
+            }
+          }
+          if (entry.source === 'constants') return false // Ignore typescript constants
+          if (entry.kind === 'keyword') return false // Only helpful in v-on but we discourage big inline handlers.
+          if (entry.name.startsWith('$')) {
+            entry.sortText = '9'
+          }
+
+          return true
+        })
+      }
+
       return result
     },
 
     getQuickInfoAtPosition(fileName, position) {
       const document = h.getRenderDoc(fileName)
-      if (!document) return
+      if (document == null) return
 
       const loc = document.getGeneratedOffsetAt(position)
-      if (!loc) return
+      if (loc == null) return
       const result = service.getQuickInfoAtPosition(fileName, loc.offset)
 
-      if (result) {
+      if (result != null) {
         const textSpan = h.getTextSpan(document, result.textSpan)
-        if (textSpan) {
+        if (textSpan != null) {
           result.textSpan = textSpan
 
           return result
@@ -84,14 +204,17 @@ export function createTemplateLanguageServer(
 
     getSemanticDiagnostics(fileName) {
       const document = h.getRenderDoc(fileName)
-      if (!document) return []
+      if (document == null) return []
 
       context.log(`[DEBUG] CallInner "${document.fsPath}"`)
 
       const diagnostics = service
         .getSemanticDiagnostics(document.fsPath)
         .map((diagnostic) => {
-          if (diagnostic.file && diagnostic.file.fileName != document.fsPath) {
+          if (
+            diagnostic.file != null &&
+            diagnostic.file.fileName !== document.fsPath
+          ) {
             throw new Error(
               `Unexpected file "${diagnostic.file.fileName}" in diagnostics of "${document.fsPath}"`,
             )
@@ -115,7 +238,7 @@ export function createTemplateLanguageServer(
                     document.container
                       .getDocument({ type: 'template' })
                       .positionAt(position.offset),
-                  )} in "${diagnostic.file?.fileName}"`,
+                  )} in "${diagnostic.file?.fileName ?? ''}"`,
                 )
               }
 
@@ -140,7 +263,7 @@ export function createTemplateLanguageServer(
 
     getSuggestionDiagnostics(fileName) {
       const document = h.getRenderDoc(fileName)
-      if (!document) return []
+      if (document == null) return []
 
       const diagnostics = service
         .getSuggestionDiagnostics(document.fsPath)
@@ -161,7 +284,7 @@ export function createTemplateLanguageServer(
 
     getSyntacticDiagnostics(fileName) {
       const document = h.getRenderDoc(fileName)
-      if (!document) return []
+      if (document == null) return []
 
       const diagnostics = service
         .getSyntacticDiagnostics(document.fsPath)
@@ -174,7 +297,7 @@ export function createTemplateLanguageServer(
           }
         })
         .filter(isNotNull)
-      if (document.parserErrors.length) {
+      if (document.parserErrors.length > 0) {
         const sourceFile = service.getProgram()?.getSourceFile(document.fsPath)
         const block = document.container.getBlock({ type: 'template' })
         if (sourceFile != null && block != null) {
@@ -187,10 +310,11 @@ export function createTemplateLanguageServer(
               code: error.code,
               file: sourceFile,
               source: error.loc?.source,
-              start: error.loc ? error.loc.start.offset : start,
-              length: error.loc
-                ? error.loc.end.offset - error.loc.start.offset
-                : length,
+              start: error.loc != null ? error.loc.start.offset : start,
+              length:
+                error.loc != null
+                  ? error.loc.end.offset - error.loc.start.offset
+                  : length,
               messageText: error.message,
             })
           })
@@ -226,7 +350,7 @@ export function createTemplateLanguageServer(
           findInStrings,
           findInComments,
         )
-        if (result) return result
+        if (result != null) return result
       }
 
       return []
@@ -242,7 +366,7 @@ export function createTemplateLanguageServer(
           {},
           {},
         )
-        if (result) return result
+        if (result != null) return result
       }
 
       return []
@@ -259,7 +383,7 @@ export function createTemplateLanguageServer(
           preferences,
         )
 
-        if (result) refactors.push(...result)
+        if (result != null) refactors.push(...result)
       }
 
       return refactors
