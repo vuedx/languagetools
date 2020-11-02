@@ -6,9 +6,6 @@
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "private": false,
-  "scripts": {
-    "build": "ncc build ./dist/index.cjs.js -o . && mv index.js standalone.js"
-  },
   "keywords": [],
   "files": [
     "dist",
