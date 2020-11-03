@@ -8,7 +8,7 @@ A set of tools for better developer experience.
 
 ## VueDX includes:
 
-- [Analyze](./packages/vue-virtual-textdocument) — statically analyzes Vue components and provides API info.
+- [Analyze](./packages/analyze) — statically analyzes Vue components and provides API info.
 - [Compiler SFC](./packages/compiler-sfc) — a light weight build of `@vue/compiler-sfc` (only `parse()` functionality is provided).
 - [Compiler TSX](./packages/compiler-tsx) — a `<template>` to representational `TSX` compiler (generated TSX may not be functional but ensures type consistency).
 - [Preview](https://github.com/znck/preview) — a quick-prototyping and component management tool
