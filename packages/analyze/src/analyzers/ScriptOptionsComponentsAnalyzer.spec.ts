@@ -37,6 +37,21 @@ describe('script/options/components', () => {
     })
   })
 
+  test('exported from script setup', () => {
+    const info = analyzer.analyzeScript(`
+      export { default as Foo } from './foo.vue'
+    `)
+
+    expect(info.components).toHaveLength(1)
+    expect(info.components[0]).toMatchObject({
+      name: 'Foo',
+      kind: 'script',
+      source: {
+        moduleName: './foo.vue',
+      },
+    })
+  })
+
   test('imported component in defineComponent', () => {
     const info = analyzer.analyzeScript(`
       import { defineComponent } from 'vue'

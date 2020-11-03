@@ -2,12 +2,12 @@ import Path from 'path'
 import { findPositionOrThrowIn, toNormalizedPath } from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
-describe('completioninfo', () => {
+describe('completions', () => {
   const projectPath = toNormalizedPath(
     Path.resolve(__dirname, '../../samples/feature-completions'),
   )
 
-  function abs(fileName: string) {
+  function abs(fileName: string): string {
     return toNormalizedPath(Path.resolve(projectPath, fileName))
   }
 

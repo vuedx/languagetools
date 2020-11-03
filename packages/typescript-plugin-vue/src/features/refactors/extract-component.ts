@@ -10,7 +10,6 @@ import {
   RenderFunctionTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
-import { deIndent } from './de-indent'
 import Path from 'path'
 import {
   getComponentName,
@@ -21,6 +20,7 @@ import {
 import { TS } from '../../interfaces'
 import { LanguageServiceOptions } from '../../types'
 import { RefactorProvider } from './abstract'
+import { deIndent } from './de-indent'
 
 /// <reference types="@vuedx/compiler-tsx" />
 
@@ -101,7 +101,7 @@ export const RefactorExtractComponent: RefactorProvider = {
   ) {
     const document = config.helpers.getRenderDoc(fileName)
     if (document != null && refactorName === 'component') {
-      const path = Path.dirname(fileName)
+      const path = Path.posix.dirname(fileName)
       const info = config.helpers.getComponentInfo(document.container)
       const directoryName = path
       const componentFileName = getFilenameForNewComponent(
@@ -284,8 +284,8 @@ function getImportEditForComponent(
   const changes: TS.TextChange[] = []
   const name = getComponentName(fileName)
   const { script, scriptSetup } = document.descriptor
-  const relativeFileName = `./${Path.relative(
-    Path.dirname(document.fsPath),
+  const relativeFileName = `./${Path.posix.relative(
+    Path.posix.dirname(document.fsPath),
     fileName,
   )}`
   let renameLocation = 0

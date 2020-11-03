@@ -7,7 +7,7 @@ describe('quickinfo', () => {
     Path.resolve(__dirname, '../../samples/feature-quickinfo'),
   )
 
-  function abs(fileName: string) {
+  function abs(fileName: string): string {
     return toNormalizedPath(Path.resolve(projectPath, fileName))
   }
 

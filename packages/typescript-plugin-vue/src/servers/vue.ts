@@ -317,6 +317,7 @@ export function createVueLanguageServer(
         )
       }
     },
+
     getCompletionEntryDetails(
       fileName,
       position,
@@ -334,6 +335,18 @@ export function createVueLanguageServer(
           formatOptions,
           source,
           preferences,
+        )
+      }
+    },
+
+    getSignatureHelpItems(fileName, position, options) {
+      const document = h.getDocumentAt(fileName, position)
+
+      if (document != null) {
+        return choose(document).getSignatureHelpItems(
+          document.fsPath,
+          position,
+          options,
         )
       }
     },

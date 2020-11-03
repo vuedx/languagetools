@@ -15,6 +15,7 @@ import {
 } from '@vue/compiler-core'
 import {
   isAttributeNode,
+  isCommentNode,
   isComponentNode,
   isElementNode,
   isForNode,
@@ -22,9 +23,9 @@ import {
   isSimpleExpressionNode,
   isTextNode,
 } from '@vuedx/template-ast-types'
-import { Options } from '../types'
-import { createLoc, pascalCase } from '../utils'
 import camelCase from 'lodash.camelcase'
+import { Options } from '../types'
+import { createLoc, pascalCase, processBogusComment } from '../utils'
 
 export function createElementTransform(
   options: Required<Options>,
@@ -47,7 +48,7 @@ export function createElementTransform(
         if (component != null) {
           context.imports.add({
             exp:
-              component.named != null
+              component.named === true
                 ? `{ ${
                     component.name != null ? component.name + ' as ' : ''
                   }${name} }`
@@ -64,19 +65,12 @@ export function createElementTransform(
         ? pascalCase(node.tag)
         : node.tag
 
-      const startTag =
-        name != null
-          ? createSimpleExpression(
-              name,
-              false,
-              createLoc(
-                node.loc,
-                node.loc.source.indexOf(node.tag),
-                node.tag.length,
-              ),
-              false,
-            )
-          : node.tag
+      const startTag = createSimpleExpression(
+        name,
+        false,
+        createLoc(node.loc, node.loc.source.indexOf(node.tag), node.tag.length),
+        false,
+      )
       const attributes = getJSXAttributes(node, context)
 
       if (node.isSelfClosing) {
@@ -84,28 +78,25 @@ export function createElementTransform(
           '<',
           startTag,
           ...attributes,
-          '/>',
+          ' />',
         ]) as any
       } else {
-        const endTag =
-          name != null
-            ? createSimpleExpression(
-                name,
-                false,
-                createLoc(
-                  node.loc,
-                  node.loc.source.lastIndexOf(node.tag),
-                  node.tag.length,
-                ),
-                false,
-              )
-            : node.tag
+        const endTag = createSimpleExpression(
+          name,
+          false,
+          createLoc(
+            node.loc,
+            node.loc.source.lastIndexOf(node.tag),
+            node.tag.length,
+          ),
+          false,
+        )
         const children = getChildren(node, context)
         node.codegenNode = createCompoundExpression([
           '<',
           startTag,
           ...attributes,
-          '>',
+          ' >',
           ...children,
           '</',
           endTag,
@@ -144,7 +135,7 @@ function getJSXAttributes(node: ElementNode, context: TransformContext): any[] {
       if (isSimpleExpressionNode(dir.arg)) {
         if (dir.arg.isStatic || dir.arg.content === 'key') {
           dir.arg.isStatic = false
-          result.push(' ', dir.arg.content === 'class' ? 'className' : dir.arg)
+          result.push(' ', dir.arg)
           if (dir.exp != null) result.push('={', dir.exp, '}')
         } else {
           result.push(' {...({[', dir.arg, ']: ')
@@ -221,16 +212,15 @@ function getJSXAttributes(node: ElementNode, context: TransformContext): any[] {
 
 function getChildren(node: ElementNode, context: TransformContext): any[] {
   if (isComponentNode(node)) {
-    const { slots } = buildSlots(node, context, (props, children) =>
-      createFunctionExpression(
+    const { slots } = buildSlots(node, context, (props, children) => {
+      const nodes = processTemplateNodes(children)
+      return createFunctionExpression(
         props,
-        createCompoundExpression([
-          '(<>',
-          ...processTemplateNodes(children),
-          '</>)',
-        ]),
-      ),
-    )
+        createCompoundExpression(
+          nodes.length > 0 ? ['(<>', ...nodes, '</>)'] : ['null'],
+        ),
+      )
+    })
     context.helpers.delete(WITH_CTX)
 
     if (isDynamicSlotsExpression(slots)) {
@@ -256,9 +246,15 @@ function getChildren(node: ElementNode, context: TransformContext): any[] {
 }
 
 function processTemplateNodes(nodes: TemplateChildNode[]): any[] {
-  return nodes.map((node) => {
-    if (isTextNode(node)) {
-      return createSimpleExpression(node.content, false, undefined, false)
+  return nodes.flatMap((node) => {
+    if (isCommentNode(node)) {
+      if (node.content.includes('<') || node.content.includes('>')) {
+        return createCompoundExpression([processBogusComment(node.content)])
+      } else {
+        return []
+      }
+    } else if (isTextNode(node)) {
+      return createCompoundExpression([processBogusComment(node.content)])
     } else if (isIfNode(node) || isForNode(node)) {
       return createCompoundExpression(['{', node as any, '}'])
     } else {

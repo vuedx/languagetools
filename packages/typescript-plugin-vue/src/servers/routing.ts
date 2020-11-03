@@ -1,18 +1,22 @@
 import {
+  getContainingFile,
   isVirtualFile,
   isVueFile,
-  VirtualTextDocument,
-  getContainingFile,
+  MODULE_SELECTOR,
   parseVirtualFileName,
+  VirtualTextDocument,
   VIRTUAL_FILENAME_SEPARATOR,
 } from '@vuedx/vue-virtual-textdocument'
 import { PluginContext } from '../context'
+import { wrapInTrace } from '../helpers/logger'
+import {
+  createServerHelper,
+  getComponentName as baseGetComponentName,
+  isNotNull,
+} from '../helpers/utils'
 import { TS } from '../interfaces'
 import { LanguageServiceOptions } from '../types'
-import { createServerHelper, isNotNull } from '../helpers/utils'
 import { createVueLanguageServer } from './vue'
-import Path from 'path'
-import { wrapInTrace } from '../helpers/logger'
 const VUE_LANGUAGE_SERVER = Symbol('Vue Language Server')
 
 export class RoutingLanguageServer {
@@ -67,10 +71,9 @@ function createLanguageServiceRouter(
 
   function getComponentName(fileName?: string): string | undefined {
     if (fileName == null || !isVueFile(fileName)) return
-    const baseName = Path.basename(fileName)
-
-    return baseName.substr(0, baseName.length - 4)
+    return baseGetComponentName(fileName)
   }
+
   const COMPONENT_TYPE_RE = /'ComponentPublicInstance<.*?ComponentOptionsBase<...>>'/g
   const REPLACE = {
     virtualFile: (messageText: string) =>
@@ -263,15 +266,25 @@ function createLanguageServiceRouter(
 
         if (completions?.entries != null) {
           completions.entries = completions.entries
-            .filter(
-              (x) => !x.name.endsWith(`${VIRTUAL_FILENAME_SEPARATOR}module`),
-            )
-            .map((x) => {
-              if (x.source != null && isVirtualFile(x.source)) {
-                x.name = getContainingFile(x.name).slice(0, -3) // remove vue
-                x.source = getContainingFile(x.source)
+            .filter((entry) => {
+              if (entry.source != null && isVirtualFile(entry.source)) {
+                return entry.source.endsWith(
+                  VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
+                )
               }
-              return x
+
+              return true
+            })
+            .map((entry) => {
+              if (entry.source != null && isVirtualFile(entry.source)) {
+                entry.source = getContainingFile(entry.source)
+
+                if (entry.name === 'component') {
+                  entry.name = baseGetComponentName(entry.source)
+                }
+              }
+
+              return entry
             })
         }
 
@@ -286,11 +299,15 @@ function createLanguageServiceRouter(
         source,
         preferences,
       ) {
-        const isVirtual = source != null && isVueFile(source)
-        // rename to valid files
-        if (isVirtual) {
-          entryName = `${entryName}Vue${VIRTUAL_FILENAME_SEPARATOR}script`
-          source = `${source ?? ''}${VIRTUAL_FILENAME_SEPARATOR}script`
+        const originalEntryName = entryName
+        const originalSource = source
+        if (source != null && isVueFile(source)) {
+          const componentName = baseGetComponentName(source)
+          source = source + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR
+
+          if (entryName === componentName) {
+            entryName = 'component'
+          }
         }
 
         const details = choose(fileName).getCompletionEntryDetails(
@@ -302,40 +319,52 @@ function createLanguageServiceRouter(
           preferences,
         )
 
-        if (details != null) {
-          if (isVirtual) {
-            details.name = getContainingFile(details.name).slice(0, -3)
-
-            if (details.source != null) {
-              // fix the import name
-              details.source.forEach((x) => {
-                x.text = getContainingFile(x.text)
-              })
+        if (originalSource != null && isVueFile(originalSource)) {
+          details?.codeActions?.forEach((codeAction) => {
+            const isComponentImport = entryName === 'component'
+            if (isComponentImport) {
+              codeAction.description = codeAction.description
+                .replace(VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR, '')
+                .replace('component', originalEntryName)
             }
-          }
 
-          if (details.codeActions != null) {
-            details.codeActions.forEach((x) => {
-              // rename ``Import default 'HPageVue________script' from module "../ui/HPage.vue________script"`
-              // to `Import default 'HPage' from module "../ui/HPage.vue"`
-              x.description = x.description
-                .replace(`Vue${VIRTUAL_FILENAME_SEPARATOR}script`, '')
-                .replace(`${VIRTUAL_FILENAME_SEPARATOR}script`, '')
+            codeAction.changes.forEach((change) => {
+              if (isVirtualFile(change.fileName)) {
+                change.fileName = getContainingFile(change.fileName)
+              }
 
-              x.changes.forEach((c) => {
-                // fix the import file
-                c.fileName = getContainingFile(c.fileName)
+              change.textChanges.forEach((textChange) => {
+                textChange.newText = textChange.newText.replace(
+                  VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
+                  '',
+                )
 
-                c.textChanges.forEach((t) => {
-                  t.newText = t.newText
-                    .replace(`Vue${VIRTUAL_FILENAME_SEPARATOR}script`, '')
-                    .replace(`${VIRTUAL_FILENAME_SEPARATOR}script`, '')
-                })
+                if (isComponentImport) {
+                  textChange.newText = textChange.newText.replace(
+                    /\bcomponent\b/,
+                    originalEntryName,
+                  )
+                }
               })
             })
-          }
+          })
+
+          details?.source?.forEach((item) => {
+            if (isVirtualFile(item.text)) {
+              item.text = getContainingFile(item.text)
+            }
+          })
         }
+
         return details
+      },
+
+      getSignatureHelpItems(fileName, position, options) {
+        return choose(fileName).getSignatureHelpItems(
+          fileName,
+          position,
+          options,
+        )
       },
 
       getSuggestionDiagnostics(fileName) {

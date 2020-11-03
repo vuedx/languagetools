@@ -6,7 +6,7 @@ import { createInterface, Interface } from 'readline'
 import Proto from 'typescript/lib/protocol'
 import { inspect } from 'util'
 
-function abs(fileName: string) {
+function abs(fileName: string): string {
   return Path.resolve(__dirname, fileName)
 }
 

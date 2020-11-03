@@ -2,157 +2,168 @@
 
 exports[`VueVirtualDocument/baseline feature-completions/src/Javascript.vue 1`] = `
 import _Ctx from './Javascript.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({name, email, code, fullname, altCode, increment}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p><p><span>Increment: {increment}</span></p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name, email, code, fullname, altCode, increment}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p><p ><span >Increment: {increment}</span></p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-completions/src/JavascriptSetup.vue 1`] = `
 import _Ctx from './JavascriptSetup.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({name, email, code, fullname, altCode, increment}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p><p><span>Increment: {increment}</span></p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name, email, code, fullname, altCode, increment}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p><p ><span >Increment: {increment}</span></p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-completions/src/Typescript.vue 1`] = `
 import _Ctx from './Typescript.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({name, email, code, fullname, altCode, increment}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p><p><span>Increment: {increment}</span></p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name, email, code, fullname, altCode, increment}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p><p ><span >Increment: {increment}</span></p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-completions/src/TypescriptSetup.vue 1`] = `
 import _Ctx from './TypescriptSetup.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({name, email, code, fullname, altCode, increment}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p><p><span>Increment: {increment}</span></p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name, email, code, fullname, altCode, increment}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p><p ><span >Increment: {increment}</span></p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-completions/src/components/HelloWorld.vue 1`] = `
 import _Ctx from './HelloWorld.vue?internal'
 
 
-export function render({name}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/FeatureSetup.vue 1`] = `
 import _Ctx from './FeatureSetup.vue?internal'
 
 
-export function render({str}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<p>{str.toLocaleLowerCase()}</p>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({str}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >{str.toLocaleLowerCase()}</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/MissingKeysInObjectProp.vue 1`] = `
 import _Ctx from './MissingKeysInObjectProp.vue?internal'
-import { TypeScriptPropsType } from './components/TypeScriptPropsType.vue'
-import { TypeScriptPropsOption } from './components/TypeScriptPropsOption.vue'
-import { TypeScriptSetupPropsDeclare } from './components/TypeScriptSetupPropsDeclare.vue'
-import { TypeScriptSetupPropsOption } from './components/TypeScriptSetupPropsOption.vue'
-import { JavaScriptPropsOption } from './components/JavaScriptPropsOption.vue'
-import { JavaScriptSetupPropsOption } from './components/JavaScriptSetupPropsOption.vue'
+import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
+import TypeScriptPropsOption from './components/TypeScriptPropsOption.vue'
+import TypeScriptSetupPropsDeclare from './components/TypeScriptSetupPropsDeclare.vue'
+import TypeScriptSetupPropsOption from './components/TypeScriptSetupPropsOption.vue'
+import JavaScriptPropsOption from './components/JavaScriptPropsOption.vue'
+import JavaScriptSetupPropsOption from './components/JavaScriptSetupPropsOption.vue'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><TypeScriptPropsType object={{}}/><TypeScriptPropsOption object={{}}/><TypeScriptSetupPropsDeclare object={{}}/><TypeScriptSetupPropsOption object={{}}/><JavaScriptPropsOption object={{}}/><JavaScriptSetupPropsOption object={{}}/></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><TypeScriptPropsType object={{}} /><TypeScriptPropsOption object={{}} /><TypeScriptSetupPropsDeclare object={{}} /><TypeScriptSetupPropsOption object={{}} /><JavaScriptPropsOption object={{}} /><JavaScriptSetupPropsOption object={{}} /></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/MissingRequiredProp.vue 1`] = `
 import _Ctx from './MissingRequiredProp.vue?internal'
-import { TypeScriptPropsType } from './components/TypeScriptPropsType.vue'
-import { TypeScriptPropsOption } from './components/TypeScriptPropsOption.vue'
-import { TypeScriptSetupPropsDeclare } from './components/TypeScriptSetupPropsDeclare.vue'
-import { TypeScriptSetupPropsOption } from './components/TypeScriptSetupPropsOption.vue'
-import { JavaScriptPropsOption } from './components/JavaScriptPropsOption.vue'
-import { JavaScriptSetupPropsOption } from './components/JavaScriptSetupPropsOption.vue'
+import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
+import TypeScriptPropsOption from './components/TypeScriptPropsOption.vue'
+import TypeScriptSetupPropsDeclare from './components/TypeScriptSetupPropsDeclare.vue'
+import TypeScriptSetupPropsOption from './components/TypeScriptSetupPropsOption.vue'
+import JavaScriptPropsOption from './components/JavaScriptPropsOption.vue'
+import JavaScriptSetupPropsOption from './components/JavaScriptSetupPropsOption.vue'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><TypeScriptPropsType/><TypeScriptPropsOption/><TypeScriptSetupPropsDeclare/><TypeScriptSetupPropsOption/><JavaScriptPropsOption/><JavaScriptSetupPropsOption/></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><TypeScriptPropsType /><TypeScriptPropsOption /><TypeScriptSetupPropsDeclare /><TypeScriptSetupPropsOption /><JavaScriptPropsOption /><JavaScriptSetupPropsOption /></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/NoErrors.vue 1`] = `
 import _Ctx from './NoErrors.vue?internal'
-import { TypeScriptPropsType } from './components/TypeScriptPropsType.vue'
-import { TypeScriptPropsOption } from './components/TypeScriptPropsOption.vue'
-import { TypeScriptSetupPropsDeclare } from './components/TypeScriptSetupPropsDeclare.vue'
-import { TypeScriptSetupPropsOption } from './components/TypeScriptSetupPropsOption.vue'
-import { JavaScriptPropsOption } from './components/JavaScriptPropsOption.vue'
-import { JavaScriptSetupPropsOption } from './components/JavaScriptSetupPropsOption.vue'
+import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
+import TypeScriptPropsOption from './components/TypeScriptPropsOption.vue'
+import TypeScriptSetupPropsDeclare from './components/TypeScriptSetupPropsDeclare.vue'
+import TypeScriptSetupPropsOption from './components/TypeScriptSetupPropsOption.vue'
+import JavaScriptPropsOption from './components/JavaScriptPropsOption.vue'
+import JavaScriptSetupPropsOption from './components/JavaScriptSetupPropsOption.vue'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><TypeScriptPropsType stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1}/><TypeScriptPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1}/><TypeScriptSetupPropsDeclare stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1}/><TypeScriptSetupPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1}/><JavaScriptPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1}/><JavaScriptSetupPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1}/></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><TypeScriptPropsType stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /><TypeScriptPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /><TypeScriptSetupPropsDeclare stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /><TypeScriptSetupPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /><JavaScriptPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /><JavaScriptSetupPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/UnknownKeysInObjectProp.vue 1`] = `
 import _Ctx from './UnknownKeysInObjectProp.vue?internal'
-import { TypeScriptPropsType } from './components/TypeScriptPropsType.vue'
-import { TypeScriptPropsOption } from './components/TypeScriptPropsOption.vue'
-import { TypeScriptSetupPropsDeclare } from './components/TypeScriptSetupPropsDeclare.vue'
-import { TypeScriptSetupPropsOption } from './components/TypeScriptSetupPropsOption.vue'
-import { JavaScriptPropsOption } from './components/JavaScriptPropsOption.vue'
-import { JavaScriptSetupPropsOption } from './components/JavaScriptSetupPropsOption.vue'
+import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
+import TypeScriptPropsOption from './components/TypeScriptPropsOption.vue'
+import TypeScriptSetupPropsDeclare from './components/TypeScriptSetupPropsDeclare.vue'
+import TypeScriptSetupPropsOption from './components/TypeScriptSetupPropsOption.vue'
+import JavaScriptPropsOption from './components/JavaScriptPropsOption.vue'
+import JavaScriptSetupPropsOption from './components/JavaScriptSetupPropsOption.vue'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><TypeScriptPropsType object={{ id: 1, unknown: '' }}/><TypeScriptPropsOption object={{ id: 1, unknown: '' }}/><TypeScriptSetupPropsDeclare object={{ id: 1, unknown: '' }}/><TypeScriptSetupPropsOption object={{ id: 1, unknown: '' }}/><JavaScriptPropsOption object={{ id: 1, unknown: '' }}/><JavaScriptSetupPropsOption object={{ id: 1, unknown: '' }}/></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><TypeScriptPropsType object={{ id: 1, unknown: '' }} /><TypeScriptPropsOption object={{ id: 1, unknown: '' }} /><TypeScriptSetupPropsDeclare object={{ id: 1, unknown: '' }} /><TypeScriptSetupPropsOption object={{ id: 1, unknown: '' }} /><JavaScriptPropsOption object={{ id: 1, unknown: '' }} /><JavaScriptSetupPropsOption object={{ id: 1, unknown: '' }} /></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/WrongPropType.vue 1`] = `
 import _Ctx from './WrongPropType.vue?internal'
-import { TypeScriptPropsType } from './components/TypeScriptPropsType.vue'
-import { TypeScriptPropsOption } from './components/TypeScriptPropsOption.vue'
-import { TypeScriptSetupPropsDeclare } from './components/TypeScriptSetupPropsDeclare.vue'
-import { TypeScriptSetupPropsOption } from './components/TypeScriptSetupPropsOption.vue'
-import { JavaScriptPropsOption } from './components/JavaScriptPropsOption.vue'
-import { JavaScriptSetupPropsOption } from './components/JavaScriptSetupPropsOption.vue'
+import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
+import TypeScriptPropsOption from './components/TypeScriptPropsOption.vue'
+import TypeScriptSetupPropsDeclare from './components/TypeScriptSetupPropsDeclare.vue'
+import TypeScriptSetupPropsOption from './components/TypeScriptSetupPropsOption.vue'
+import JavaScriptPropsOption from './components/JavaScriptPropsOption.vue'
+import JavaScriptSetupPropsOption from './components/JavaScriptSetupPropsOption.vue'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><TypeScriptPropsType string={1}/><TypeScriptPropsOption string={1}/><TypeScriptSetupPropsDeclare string={1}/><TypeScriptSetupPropsOption string={1}/><JavaScriptPropsOption string={1}/><JavaScriptSetupPropsOption string={1}/></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><TypeScriptPropsType string={1} /><TypeScriptPropsOption string={1} /><TypeScriptSetupPropsDeclare string={1} /><TypeScriptSetupPropsOption string={1} /><JavaScriptPropsOption string={1} /><JavaScriptSetupPropsOption string={1} /></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/JavaScriptPropsOption.vue 1`] = ``;
@@ -169,269 +180,292 @@ exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/TypeScri
 
 exports[`VueVirtualDocument/baseline feature-goto-definition/src/Javascript.vue 1`] = `
 import _Ctx from './Javascript.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-goto-definition/src/JavascriptSetup.vue 1`] = `
 import _Ctx from './JavascriptSetup.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-goto-definition/src/Typescript.vue 1`] = `
 import _Ctx from './Typescript.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-goto-definition/src/TypescriptSetup.vue 1`] = `
 import _Ctx from './TypescriptSetup.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-goto-definition/src/components/HelloWorld.vue 1`] = `
 import _Ctx from './HelloWorld.vue?internal'
 
 
-export function render({name}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-quickinfo/src/Javascript.vue 1`] = `
 import _Ctx from './Javascript.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-quickinfo/src/JavascriptSetup.vue 1`] = `
 import _Ctx from './JavascriptSetup.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-quickinfo/src/Typescript.vue 1`] = `
 import _Ctx from './Typescript.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-quickinfo/src/TypescriptSetup.vue 1`] = `
 import _Ctx from './TypescriptSetup.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><span>Name: {name}</span><span>Email: {email}</span><span>Code: {code}</span></p><p><span>FullName: {fullname}</span><span>AltCode: {altCode}</span></p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-quickinfo/src/components/HelloWorld.vue 1`] = `
 import _Ctx from './HelloWorld.vue?internal'
 
 
-export function render({name}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-rename/src/Javascript.vue 1`] = `
 import _Ctx from './Javascript.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-rename/src/JavascriptSetup.vue 1`] = `
 import _Ctx from './JavascriptSetup.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-rename/src/Typescript.vue 1`] = `
 import _Ctx from './Typescript.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-rename/src/TypescriptSetup.vue 1`] = `
 import _Ctx from './TypescriptSetup.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld name="Jane"/><p><button onClick={decrease}>-</button> {one} <button onClick={increase}>+</button> and double is {two}</p><p>Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline feature-rename/src/components/HelloWorld.vue 1`] = `
 import _Ctx from './HelloWorld.vue?internal'
 
 
-export function render({name}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline javascript/src/App.vue 1`] = `
 import _Ctx from './App.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><main ><h1 >A sample vue application</h1><HelloWorld name="Rahul" /></main></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline javascript/src/components/HelloWorld.vue 1`] = `
 import _Ctx from './HelloWorld.vue?internal'
 
 
-export function render({name}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline javascript-with-config/src/App.vue 1`] = `
 import _Ctx from './App.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><main ><h1 >A sample vue application</h1><HelloWorld name="Rahul" /></main></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline javascript-with-config/src/components/HelloWorld.vue 1`] = `
 import _Ctx from './HelloWorld.vue?internal'
 
 
-export function render({name}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline typescript/src/App.vue 1`] = `
 import _Ctx from './App.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><main ><h1 >A sample vue application</h1><HelloWorld name="Rahul" /></main></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline typescript/src/components/HelloWorld.vue 1`] = `
 import _Ctx from './HelloWorld.vue?internal'
 
 
-export function render({name}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline typescript-with-config/src/App.vue 1`] = `
 import _Ctx from './App.vue?internal'
-import { HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
 
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<main><h1>A sample vue application</h1><HelloWorld name="Rahul"/></main>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><main ><h1 >A sample vue application</h1><HelloWorld name="Rahul" /></main></>/*@@vue:end*/
+}
 `;
 
 exports[`VueVirtualDocument/baseline typescript-with-config/src/components/HelloWorld.vue 1`] = `
 import _Ctx from './HelloWorld.vue?internal'
 
 
-export function render({name}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<p>Hello {name}!</p>/*@@vue:end*/
-}
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
 `;

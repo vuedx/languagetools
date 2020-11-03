@@ -14,7 +14,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <div>foo</div>/*@@vue:end*/
+      return /*@@vue:start*/<><div>foo</div></>/*@@vue:end*/
     }
     `,
   },
@@ -27,7 +27,7 @@ const samples: Array<{
     import Foo from './Foo.vue'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <Foo>{{ default: () => <>foo</> }}</Foo>/*@@vue:end*/
+      return /*@@vue:start*/<><Foo>{{ default: () => <>foo</> }}</Foo></>/*@@vue:end*/
     }
     `,
   },
@@ -45,7 +45,7 @@ const samples: Array<{
     import { Foo } from 'foo-components'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <Foo>{{ default: () => <>foo</> }}</Foo>/*@@vue:end*/
+      return /*@@vue:start*/<><Foo>{{ default: () => <>foo</> }}</Foo></>/*@@vue:end*/
     }
     `,
   },
@@ -56,7 +56,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <Foo>{{ default: () => <>foo</> }}</Foo>/*@@vue:end*/
+      return /*@@vue:start*/<><Foo>{{ default: () => <>foo</> }}</Foo></>/*@@vue:end*/
     }
     `,
   },
@@ -67,7 +67,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <web-component>foo</web-component>/*@@vue:end*/
+      return /*@@vue:start*/<><web-component>foo</web-component></>/*@@vue:end*/
     }
     `,
   },
@@ -81,7 +81,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
     
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ (
+      return /*@@vue:start*/(
         <>
           <input type="text" />
           <Foo type="text" />
@@ -99,24 +99,20 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
     
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <input  onFocus={() => {}} />/*@@vue:end*/
+      return /*@@vue:start*/<><input  onFocus={() => {}} /></>/*@@vue:end*/
     }
     `,
   },
   {
     name: 'Rewrite expressions',
     template: `
-      <div :style="style" :[key]="value" @hover="handleHover" @[event]="handleEvent">
-        {{ hello }} world
-      </div>
+      <div :style="style" :[key]="value" @hover="handleHover" @[event]="handleEvent">{{ hello }} world</div>
     `,
     render: `
     import _Ctx from './component.vue?internal'
     
     export function render({style, key, value, handleHover, event, handleEvent, hello}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <div  style={style} key={value} onHover={handleHover} {...{[event]: handleEvent}}>
-        {hello} world{' '}
-      </div>/*@@vue:end*/
+      return /*@@vue:start*/<><div  style={style} key={value} onHover={handleHover} {...{[event]: handleEvent}}>{hello} world</div></>/*@@vue:end*/
     }
     `,
   },
@@ -127,7 +123,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({foo}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <input modelValue={foo} {...{'onUpdate:modelValue': $event => (foo = $event)}} />/*@@vue:end*/
+      return /*@@vue:start*/<><input modelValue={foo} {...{'onUpdate:modelValue': $event => (foo = $event)}} /></>/*@@vue:end*/
     }
     `,
   },
@@ -138,7 +134,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({foo}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <input checked={foo} {...{'onUpdate:checked': $event => (foo = $event)}} />/*@@vue:end*/
+      return /*@@vue:start*/<><input checked={foo} {...{'onUpdate:checked': $event => (foo = $event)}} /></>/*@@vue:end*/
     }
     `,
   },
@@ -149,7 +145,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({checked, foo}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <input {...{[checked]: foo}} {...{['onUpdate:'+checked]: $event => (foo = $event)}} />/*@@vue:end*/
+      return /*@@vue:start*/<><input {...{[checked]: foo}} {...{['onUpdate:'+checked]: $event => (foo = $event)}} /></>/*@@vue:end*/
     }
     `,
   },
@@ -160,7 +156,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({ bar }: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <input onFocus={$event => (bar = $event)} />/*@@vue:end*/
+      return /*@@vue:start*/<><input onFocus={$event => (bar = $event)} /></>/*@@vue:end*/
     }
     `,
   },
@@ -171,7 +167,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({isVisible}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <div style="color: red" __directive_show_1={[isVisible]}></div>/*@@vue:end*/
+      return /*@@vue:start*/<><div style="color: red" __directive_show_1={[isVisible]}></div></>/*@@vue:end*/
     }
     `,
   },
@@ -186,7 +182,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({foo, bar}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ (
+      return /*@@vue:start*/(
         <>
           <div __directive_if_0={[foo]}>A</div>
           <div __directive_else-if_0={[bar]}>B</div>
@@ -205,7 +201,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({foo}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ <div __directive_if_0={[foo]}>A</div>/*@@vue:end*/
+      return /*@@vue:start*/<><div __directive_if_0={[foo]}>A</div></>/*@@vue:end*/
     }
     `,
   },
@@ -217,9 +213,9 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({ items, other }: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ _renderList(items, (item, index) => {
-        return <div>{item} {other}</div>
-      })/*@@vue:end*/
+      return /*@@vue:start*/<>{_renderList(items, (item, index) => {
+        return <><div>{item} {other}</div></>
+      })}</>/*@@vue:end*/
     }
     `,
   },
@@ -233,7 +229,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({foo}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ (
+      return /*@@vue:start*/(
         <>
           <div __directive_text_0={[foo]}/>
           <div __directive_html_0={[foo]}/>
@@ -252,7 +248,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({exp, arg}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/ (
+      return /*@@vue:start*/(
         <>
           <div __directive_known_0={[exp]} />
           <div __directive_unknown_0={[arg, exp]} />
@@ -271,9 +267,105 @@ import _Ctx from './component.vue?internal'
 
 
 export function render({foo}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/{foo.}/*@@vue:end*/
+  return /*@@vue:start*/<>{foo.}</>/*@@vue:end*/
 }
-`.trimStart(),
+`.trim(),
+  },
+  {
+    name: 'Incomplete top level tag',
+    template: `<`,
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<>{'<'}</>/*@@vue:end*/
+      }
+    `,
+  },
+  {
+    name: 'Missing closing tag top level tag',
+    template: `<div`,
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<><div></div></>/*@@vue:end*/
+      }
+    `,
+  },
+  {
+    name: 'Incomplete closing tag top level tag',
+    template: `<div></`,
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<><div>{'<'}/</div></>/*@@vue:end*/
+      }
+    `,
+  },
+  {
+    name: 'Missing closing top level fragment',
+    template: `<>`,
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<>{'<'}{'>'}</>/*@@vue:end*/
+      }
+    `,
+  },
+  {
+    name: 'Incomplete tag',
+    template: `<div><</div>`,
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<><div>{'<'}</div></>/*@@vue:end*/
+      }
+    `,
+  },
+  {
+    name: 'Missing closing tag',
+    template: `<div><div</div>`,
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<><div>{'<'}div{'<'}/div{'>'}</div></>/*@@vue:end*/
+      }
+    `,
+  },
+  {
+    name: 'Missing closing fragment',
+    template: `<div><></div>`,
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<><div>{'<'}{'>'}</div></>/*@@vue:end*/
+      }
+    `,
+  },
+  {
+    name: 'Incomplete closing tag',
+    template: `<div><div></</div>`,
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<><div><div>{'<'}/div</div></div></>/*@@vue:end*/
+      }
+    `,
   },
   {
     name: 'Text Node',
@@ -285,7 +377,7 @@ export function render({foo}: InstanceType<typeof _Ctx>) {
 
 
       export function render(_ctx: InstanceType<typeof _Ctx>) {
-        return /*@@vue:start*/<><span></span> {}<span></span></>/*@@vue:end*/
+        return /*@@vue:start*/<><span></span>    {}<span></span></>/*@@vue:end*/
       }
   `,
   },
@@ -296,19 +388,22 @@ import { format } from 'prettier'
 
 describe('compile/tsx', () => {
   test.each(
-    samples.map(
-      (sample, index) => [index + 1 + '', sample.name, sample] as const,
-    ),
+    samples
+    // .filter(sample => sample.name === 'Missing closing tag')
+      .map((sample, index) => [index + 1 + '', sample.name, sample] as const),
   )('%s. %s', (_, __, sample) => {
     const result = compile(sample.template, {
       filename: '/foo/bar/component.vue',
       components: sample.components,
+      onError() {},
     })
 
     const actual = prepare(result.code)
     const expected = prepare(
-      sample.render +
-        `declare const __completionsTrigger: InstanceType<typeof _Ctx>\n__completionsTrigger./*@@vue:completions*/$props`,
+      sample.render.replace(
+        'export ',
+        `declare const __completionsTrigger: InstanceType<typeof _Ctx>\n__completionsTrigger./*@@vue:completions*/$props\nconst __completionsTag = /*@@vue:completionsTag*/<div />\nexport `,
+      ),
     )
 
     expect(actual).toEqual(expected)

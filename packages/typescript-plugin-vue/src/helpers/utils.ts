@@ -182,7 +182,7 @@ export function getFilenameForNewComponent(
   usedNames = new Set<string>(),
 ): string {
   let name = 'Component'
-  let fileName = Path.join(directory, 'Component.vue')
+  let fileName = Path.posix.join(directory, 'Component.vue')
   let index = 0
 
   if (context.serviceHost.directoryExists(directory)) {
@@ -192,7 +192,7 @@ export function getFilenameForNewComponent(
 
     while (files.has(fileName) || usedNames.has(name)) {
       name = `Component${++index}`
-      fileName = Path.join(directory, `${name}.vue`)
+      fileName = Path.posix.join(directory, `${name}.vue`)
     }
   }
 
@@ -200,7 +200,7 @@ export function getFilenameForNewComponent(
 }
 
 export function getComponentName(fileName: string): string {
-  return Path.basename(fileName).replace(/\.vue$/, '')
+  return Path.posix.basename(fileName).replace(/\.vue$/, '')
 }
 
 export function indent(code: string): string {

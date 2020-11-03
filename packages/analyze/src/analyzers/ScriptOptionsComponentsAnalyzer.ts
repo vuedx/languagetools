@@ -17,7 +17,7 @@ export const ComponentsOptionAnalyzer: Plugin = {
   babel: (path$, ctx) => {
     if (path$.isExportNamedDeclaration()) {
       const node = path$.node
-      if (node.source?.value.endsWith('.vue') == true) {
+      if (node.source?.value.endsWith('.vue') === true) {
         const specifier = node.specifiers.find(
           (specifier) =>
             isExportSpecifier(specifier) &&
@@ -50,13 +50,13 @@ export const ComponentsOptionAnalyzer: Plugin = {
           components.properties.forEach((declaration) => {
             if (isObjectProperty(declaration)) {
               const name = getComponentName(declaration.key)
-              if (name) {
+              if (name != null) {
                 if (isIdentifier(declaration.value)) {
                   const info = resolveComponentInformation(
                     path$.scope.getBinding(declaration.value.name),
                     ctx,
                   )
-                  if (info)
+                  if (info != null)
                     ctx.component.addLocalComponent(
                       name,
                       info,
@@ -72,7 +72,7 @@ export const ComponentsOptionAnalyzer: Plugin = {
   },
 }
 
-function getComponentName(key: ObjectProperty['key']) {
+function getComponentName(key: ObjectProperty['key']): string | undefined {
   if (isIdentifier(key)) return key.name
 }
 
@@ -80,7 +80,7 @@ function resolveComponentInformation(
   binding: Binding | undefined,
   context: ScriptAnalyzerContext,
 ): ImportSource | undefined {
-  if (!binding) return
+  if (binding == null) return
 
   switch (binding.kind) {
     case 'module':

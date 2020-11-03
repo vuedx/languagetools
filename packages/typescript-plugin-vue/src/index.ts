@@ -9,8 +9,8 @@ export type { Modules, PluginConfig } from './interfaces'
 export type PluginModule = TS.server.PluginModule
 
 export default function init({ typescript }: Modules): TS.server.PluginModule {
-  context = context || new PluginContext(typescript)
-  server = server || new RoutingLanguageServer(context)
+  context = context ?? new PluginContext(typescript)
+  server = server ?? new RoutingLanguageServer(context)
 
   return {
     create(info) {

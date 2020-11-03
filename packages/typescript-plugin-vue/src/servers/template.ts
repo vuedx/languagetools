@@ -1,12 +1,24 @@
 import {
+  isDirectiveNode,
+  isElementNode,
   isInterpolationNode,
   isSimpleExpressionNode,
+  t,
 } from '@vuedx/template-ast-types'
+import {
+  getContainingFile,
+  isVirtualFile,
+  isVueFile,
+  MODULE_SELECTOR,
+  RenderFunctionTextDocument,
+  VIRTUAL_FILENAME_SEPARATOR,
+} from '@vuedx/vue-virtual-textdocument'
+import { PluginContext } from '../context'
 import { GOTO_PROVIDERS } from '../features/goto'
 import { REFACTOR_PROVIDERS } from '../features/refactors'
 import { RENAME_PROVIDERS } from '../features/renames'
 import { wrapInTrace } from '../helpers/logger'
-import { isNotNull } from '../helpers/utils'
+import { getComponentName, isNotNull } from '../helpers/utils'
 import { TS } from '../interfaces'
 import { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
@@ -38,31 +50,77 @@ export function createTemplateLanguageServer(
     ) {
       const document = h.getRenderDoc(fileName)
       if (document == null) return
-
       const loc = document.getGeneratedOffsetAt(position)
-
       const result =
-        loc != null
+        (loc != null
           ? service.getCompletionEntryDetails(
-              fileName,
+              document.fsPath,
               loc.offset,
               entryName,
               formatOptions,
               source,
               preferences,
             )
-          : service.getCompletionEntryDetails(
-              fileName,
-              document.contextCompletionsTriggerOffset,
-              entryName,
-              formatOptions,
-              source,
-              preferences,
-            )
+          : undefined) ??
+        service.getCompletionEntryDetails(
+          document.fsPath,
+          document.tagCompletionsTriggerOffset,
+          entryName,
+          formatOptions,
+          source,
+          preferences,
+        ) ??
+        service.getCompletionEntryDetails(
+          document.fsPath,
+          document.contextCompletionsTriggerOffset,
+          entryName,
+          formatOptions,
+          source,
+          preferences,
+        )
+
+      result?.codeActions?.forEach((codeAction) => {
+        if (
+          source != null &&
+          isVirtualFile(source) &&
+          entryName === 'component'
+        ) {
+          const { script, scriptSetup } = document.container.descriptor
+          codeAction.changes.forEach((change) => {
+            const additionalTextChanges: TS.TextChange[] = []
+            if (change.fileName === document.fsPath) {
+              change.fileName = document.container.fsPath
+              change.textChanges.forEach((textChange) => {
+                if (textChange.newText.startsWith('import component from')) {
+                  if (scriptSetup != null) {
+                    textChange.newText = textChange.newText.replace(
+                      'import component ',
+                      'export { default as component } ',
+                    )
+                    textChange.span.start =
+                      scriptSetup.loc.start.offset +
+                      scriptSetup.loc.source.indexOf('\n') +
+                      1 // Insert after first new line
+                    textChange.span.length = 0
+                  } else if (script != null) {
+                    // Register component code.
+                  }
+                }
+              })
+            }
+
+            change.textChanges = [
+              ...change.textChanges,
+              ...additionalTextChanges,
+            ]
+          })
+        }
+      })
 
       return result
     },
 
+    // TODO: Extract this to features directory and modularize.
     getCompletionsAtPosition(fileName, position, options) {
       const document = h.getRenderDoc(fileName)
 
@@ -77,8 +135,71 @@ export function createTemplateLanguageServer(
 
       const nodeAtCursor = h.findNodeAtPosition(document.fsPath, position)
       const loc = document.getGeneratedOffsetAt(position)
+      const {
+        isTagCompletion,
+        isInExpression,
+        charAtCursor,
+      } = detectCompletionType(
+        context,
+        document,
+        position,
+        options?.triggerCharacter,
+        nodeAtCursor.node,
+      )
 
-      if (loc != null) {
+      if (isTagCompletion) {
+        Object.assign(
+          result,
+          service.getCompletionsAtPosition(
+            document.fsPath,
+            document.tagCompletionsTriggerOffset,
+            options,
+          ),
+        )
+        const info = h.getComponentInfo(document.container)
+
+        info.components.forEach((component) => {
+          result.entries.push({
+            name: component.name,
+            kind: context.typescript.ScriptElementKind.jsxAttribute,
+            sortText: '4',
+            source: h.getResolvedModule(
+              document.fsPath,
+              component.source.moduleName,
+            )?.resolvedFileName,
+          })
+        })
+        // TODO: Add global components
+        const project = context.projectService.getDefaultProjectForFile(
+          context.typescript.server.toNormalizedPath(document.fsPath),
+          false,
+        )
+
+        if (project != null) {
+          const fileNames = Array.from(
+            new Set(
+              project
+                .getFileNames(false)
+                .map((fileName) => fileName.toString())
+                .filter(
+                  (fileName) => isVirtualFile(fileName) || isVueFile(fileName),
+                )
+                .map((fileName) => getContainingFile(fileName)),
+            ),
+          )
+
+          fileNames.forEach((fileName) => {
+            const name = getComponentName(fileName)
+            result.entries.push({
+              name: name,
+              kind: context.typescript.ScriptElementKind.jsxAttribute,
+              sortText: '4',
+              source: fileName + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
+              hasAction: true,
+            })
+          })
+        }
+      } else if (loc != null) {
         Object.assign(
           result,
           service.getCompletionsAtPosition(
@@ -87,13 +208,41 @@ export function createTemplateLanguageServer(
             options,
           ),
         )
+      } else if (isElementNode(nodeAtCursor.node)) {
+        const loc = document.getGeneratedOffsetAt(
+          nodeAtCursor.node.loc.start.offset + 1,
+        )
+
+        if (loc != null) {
+          Object.assign(
+            result,
+            service.getCompletionsAtPosition(
+              document.fsPath,
+              loc.offset + nodeAtCursor.node.tag.length + 1, // TODO: Handle kebab-cased tags.
+              options,
+            ),
+          )
+        }
+      } else if (isDirectiveNode(nodeAtCursor.node)) {
+        const parent =
+          nodeAtCursor.ancestors[nodeAtCursor.ancestors.length - 1].node
+        if (isElementNode(parent)) {
+          const loc = document.getGeneratedOffsetAt(parent.loc.start.offset + 1)
+
+          if (loc != null) {
+            Object.assign(
+              result,
+              service.getCompletionsAtPosition(
+                document.fsPath,
+                loc.offset + parent.tag.length + 1, // TODO: Handle kebab-cased tags.
+                options,
+              ),
+            )
+          }
+        }
       }
 
-      const isInExpression =
-        isSimpleExpressionNode(nodeAtCursor.node) ||
-        isInterpolationNode(nodeAtCursor.node)
-
-      if (isInExpression) {
+      if (isInExpression && /^[ {+/*-]$/.test(charAtCursor)) {
         const contextCompletion = service.getCompletionsAtPosition(
           document.fsPath,
           document.contextCompletionsTriggerOffset,
@@ -157,7 +306,7 @@ export function createTemplateLanguageServer(
         }
 
         result.entries = result.entries.filter((entry) => {
-          if (entry.source != null) return // Ignore external module import
+          if (entry.source != null && entry.kind !== 'JSX attribute') return // Ignore external module import
           if (disallowedIdentifiers.has(entry.name)) return false
           if (entry.name.startsWith('_')) return false // Ignore Vue internals
           if (entry.kindModifiers != null) {
@@ -177,11 +326,28 @@ export function createTemplateLanguageServer(
             entry.sortText = '9'
           }
 
+          if (isTagCompletion && entry.kind !== 'JSX attribute') {
+            return false
+          }
+
           return true
         })
       }
 
       return result
+    },
+
+    getSignatureHelpItems(fileName, position, options) {
+      const document = h.getRenderDoc(fileName)
+      const loc = document?.getGeneratedOffsetAt(position)
+
+      if (loc != null && document != null) {
+        return service.getSignatureHelpItems(
+          document.fsPath,
+          loc.offset,
+          options,
+        )
+      }
     },
 
     getQuickInfoAtPosition(fileName, position) {
@@ -206,8 +372,6 @@ export function createTemplateLanguageServer(
       const document = h.getRenderDoc(fileName)
       if (document == null) return []
 
-      context.log(`[DEBUG] CallInner "${document.fsPath}"`)
-
       const diagnostics = service
         .getSemanticDiagnostics(document.fsPath)
         .map((diagnostic) => {
@@ -224,33 +388,9 @@ export function createTemplateLanguageServer(
             if (document.isInGeneratedRange(diagnostic.start)) {
               const position = document.getOriginalOffsetAt(diagnostic.start)
 
-              if (position == null) {
-                context.log(
-                  `Cannot find mapping at ${JSON.stringify(
-                    document.positionAt(diagnostic.start),
-                  )} in "${document.container.fsPath}"`,
-                )
-              } else {
-                context.log(
-                  `RenderMapping: ${JSON.stringify(
-                    document.positionAt(diagnostic.start),
-                  )} -> ${JSON.stringify(
-                    document.container
-                      .getDocument({ type: 'template' })
-                      .positionAt(position.offset),
-                  )} in "${diagnostic.file?.fileName ?? ''}"`,
-                )
-              }
-
               diagnostic.start = position?.offset ?? diagnostic.start
 
               return diagnostic
-            } else {
-              context.log(
-                `Cannot find mapping at ${JSON.stringify(
-                  document.positionAt(diagnostic.start),
-                )} in "${document.container.fsPath}"`,
-              )
             }
           } else {
             return diagnostic
@@ -427,4 +567,32 @@ export function createTemplateLanguageServer(
       }
     },
   })
+}
+
+function detectCompletionType(
+  context: PluginContext,
+  document: RenderFunctionTextDocument,
+  position: number,
+  triggerCharacter?: string,
+  node?: t.Node | null,
+): { isTagCompletion: boolean; isInExpression: boolean; charAtCursor: string } {
+  const templateSource = document.container.getDocument('template').getText()
+  let isTagCompletion = triggerCharacter === '<'
+  const index = isTagCompletion
+    ? 0
+    : templateSource.substr(0, position).lastIndexOf('<')
+  if (index > 0) {
+    const text = templateSource.substring(index, position)
+    isTagCompletion = /^<[A-Za-z0-9-]*$/.test(text)
+  }
+
+  const isInExpression =
+    !isTagCompletion &&
+    (isSimpleExpressionNode(node) || isInterpolationNode(node))
+
+  return {
+    isTagCompletion,
+    isInExpression,
+    charAtCursor: templateSource.substr(position - 1, 1),
+  }
 }

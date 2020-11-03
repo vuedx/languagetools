@@ -271,13 +271,24 @@ function createVueModuleTextDocument(
         usePropTypes = scriptSetup.content.includes('declare const props:')
       }
 
-      if (scriptSetupHasDefaultExport) {
-        lines.push(`const component = scriptSetup.default`)
-      } else if (scriptHasDefaultExport || scriptMayHaveDefaultExport) {
-        lines.push(`const component = script`)
-      } else {
-        usesDefineComponent = true
+      if (!usesDefineComponent) {
         lines.unshift(`import { defineComponent } from 'vue'`)
+      }
+      if (scriptSetupHasDefaultExport) {
+        lines.push(
+          `const component = ${
+            usesDefineComponent
+              ? 'scriptSetup.default'
+              : 'defineComponent(scriptSetup.default)'
+          }`,
+        )
+      } else if (scriptHasDefaultExport || scriptMayHaveDefaultExport) {
+        lines.push(
+          `const component = ${
+            usesDefineComponent ? 'script' : 'defineComponent(script)'
+          }`,
+        )
+      } else {
         lines.push(
           `const component = defineComponent${
             usePropTypes ? '<scriptSetup.$Props>' : ''
@@ -293,12 +304,7 @@ function createVueModuleTextDocument(
         lines.push(`component.render = render`)
       }
 
-      if (usesDefineComponent) {
-        lines.push(`export default component`)
-      } else {
-        lines.unshift(`import { defineComponent } from 'vue'`)
-        lines.push(`export default defineComponent(component)`)
-      }
+      lines.push(`export default component`)
 
       return { code: lines.join('\n') }
     },
@@ -407,9 +413,14 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   private generatedMappings: CodegenResult['mappings'] = []
   private expressionsMap: Record<string, [number, number]> = {}
   private _contextCompletionsTriggerOffset: number = 0
+  private _tagCompletionsTriggerOffset: number = 0
 
   public get contextCompletionsTriggerOffset(): number {
     return this._contextCompletionsTriggerOffset
+  }
+
+  public get tagCompletionsTriggerOffset(): number {
+    return this._tagCompletionsTriggerOffset
   }
 
   public get ast(): CodegenResult['ast'] | undefined {
@@ -433,10 +444,16 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
           if (start <= offset && offset <= start + length) return 0
           return start - offset
         },
+        true,
       )
 
       if (mapping != null) {
-        const offsetInSource = offset - mapping[0]
+        const offsetInSource =
+          mapping[0] <= offset && offset <= mapping[0] + mapping[1]
+            ? offset - mapping[0]
+            : mapping[3] === 0
+            ? -1 // Include previous character if mapped to zero length
+            : 0
 
         return {
           offset: mapping[2] + offsetInSource,
@@ -588,6 +605,10 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
       this._contextCompletionsTriggerOffset = this.result.code.indexOf(
         '/*@@vue:completions*/',
       )
+      this._tagCompletionsTriggerOffset =
+        this.result.code.indexOf('/*@@vue:completionsTag*/') +
+        '/*@@vue:completionsTag*/'.length +
+        1
 
       this.originalMappings.sort((a, b) => a[2] - b[2])
       this.generatedMappings.sort((a, b) => a[0] - b[0])
@@ -601,6 +622,29 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
 
       return this.result.code
     }
+  }
+
+  public toDisplayMappings(): string {
+    const mappings: string[] = []
+    const pos = (p: Position): string => `${p.line + 1}:${p.character + 1}`
+
+    if (this.result != null) {
+      const templateDoc = this.container.getDocument('template')
+      const template = templateDoc.getText()
+      const render = this.doc.getText()
+      this.result.mappings.forEach((m) => {
+        mappings.push(
+          `${pos(templateDoc.positionAt(m[2]))} => ${pos(
+            this.doc.positionAt(m[0]),
+          )} (${m[3]}:${m[1]}) "${template.substr(
+            m[2],
+            m[3],
+          )}"->"${render.substr(m[0], m[1])}"`,
+        )
+      })
+    }
+
+    return mappings.join('\n')
   }
 
   protected getLocalComponents(): Record<string, ComponentImport> | undefined {

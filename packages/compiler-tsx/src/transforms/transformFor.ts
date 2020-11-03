@@ -44,11 +44,15 @@ export function createTransformFor(
         exp,
       ]) as ForRenderListExpression
 
-      forNode.codegenNode = renderExp as any
+      forNode.codegenNode = createCompoundExpression([
+        '{',
+        renderExp as any,
+        '}',
+      ]) as any
       return () => {
         const childBlock =
-          forNode.children.length === 1
-            ? forNode.children[0]
+          forNode.children.length === 0
+            ? createCompoundExpression(['null'])
             : createCompoundExpression([
                 '<>',
                 ...(forNode.children as any),
