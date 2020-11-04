@@ -37,7 +37,7 @@ export function createExpressionTracker(
       if (
         isSimpleExpressionNode(node.content) &&
         !node.content.isStatic &&
-        node.content.content.trim()
+        node.content.content.trim() !== ''
       ) {
         trackIdentifiers(node.content.content, context, addIdentifer)
       }
@@ -47,18 +47,18 @@ export function createExpressionTracker(
           if (
             isSimpleExpressionNode(dir.arg) &&
             !dir.arg.isStatic &&
-            dir.arg.content.trim()
+            dir.arg.content.trim() !== ''
           ) {
             trackIdentifiers(dir.arg.content, context, addIdentifer)
           }
 
           const slot = findDir(node, 'slot')
 
-          if (slot) {
+          if (slot != null) {
             if (
               isSimpleExpressionNode(slot.exp) &&
               !slot.exp.isStatic &&
-              slot.exp.content.trim()
+              slot.exp.content.trim() !== ''
             ) {
               trackIdentifiers(
                 slot.exp.content,
@@ -80,7 +80,7 @@ export function createExpressionTracker(
               if (
                 isSimpleExpressionNode(dir.exp) &&
                 !dir.exp.isStatic &&
-                dir.exp.content.trim()
+                dir.exp.content.trim() !== ''
               ) {
                 context.addIdentifiers('$event')
                 trackIdentifiers(
@@ -94,7 +94,10 @@ export function createExpressionTracker(
               }
               break
             default: {
-              if (isSimpleExpressionNode(dir.exp) && dir.exp.content.trim()) {
+              if (
+                isSimpleExpressionNode(dir.exp) &&
+                dir.exp.content.trim() !== ''
+              ) {
                 trackIdentifiers(dir.exp.content, context, addIdentifer)
               }
             }
@@ -119,7 +122,7 @@ const KNOWN_IDENTIFIERS = new Set(
   ).split(','),
 )
 
-export function isKnownIdentifier(value: string) {
+export function isKnownIdentifier(value: string): boolean {
   return KNOWN_IDENTIFIERS.has(value) || /^(true|false|null|this)$/.test(value)
 }
 
@@ -132,7 +135,7 @@ export function trackIdentifiers(
   asParams = false,
   // v-on handler values may contain multiple statements
   asRawStatements = false,
-) {
+): void {
   rawExp = rawExp
     .trim()
     // Handle common incomplete expressions
@@ -141,7 +144,7 @@ export function trackIdentifiers(
   if (isSimpleIdentifier(rawExp)) {
     if (
       !asParams &&
-      !context.identifiers[rawExp] &&
+      (context.identifiers[rawExp] ?? 0) === 0 &&
       !isKnownIdentifier(rawExp)
     ) {
       addIdentifer(rawExp)
@@ -157,7 +160,7 @@ export function trackIdentifiers(
   try {
     const ast = parse(source, {
       plugins: ['bigInt', 'optionalChaining', 'nullishCoalescingOperator'],
-      // @ts-ignore
+      // @ts-expect-error
       errorRecovery: true,
     })
     const knownIds = { ...context.identifiers }
@@ -167,7 +170,7 @@ export function trackIdentifiers(
         const scope = new Set<string>()
         const parent = ancestors[ancestors.length - 1]?.node
         if (isIdentifier(node)) {
-          if (!knownIds[node.name]) {
+          if ((knownIds[node.name] ?? 0) === 0) {
             if (shouldTrack(node, parent)) {
               addIdentifer(node.name)
             }
@@ -183,6 +186,7 @@ export function trackIdentifiers(
               ) {
                 const id = node.name
                 if (!scope.has(id)) {
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                   if (id in knownIds) ++knownIds[id]!
                   else knownIds[id] = 1
                 }
@@ -192,14 +196,17 @@ export function trackIdentifiers(
           )
         }
 
-        // @ts-ignore
+        // @ts-expect-error
         node.scope = scope
       },
       exit(node) {
-        // @ts-ignore
+        // @ts-expect-error
         const scope: Set<string> | undefined = node.scope
 
-        scope?.forEach((id) => --knownIds[id]!)
+        scope?.forEach((id) => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          --knownIds[id]!
+        })
       },
     })
   } catch (error) {
@@ -224,14 +231,14 @@ export function trackIdentifiers(
 }
 
 export function isStaticProperty(node: Node): node is ObjectMember {
-  return isObjectMember(node) && node.computed === false
+  return isObjectMember(node) && !node.computed
 }
 
-export function isStaticPropertyKey(node: Node, parent: Node) {
+export function isStaticPropertyKey(node: Node, parent: Node): boolean {
   return isStaticProperty(parent) && parent.key === node
 }
 
-export function shouldTrack(identifier: Identifier, parent: Node) {
+export function shouldTrack(identifier: Identifier, parent: Node): boolean {
   if (
     !(
       isFunction(parent) &&
@@ -259,4 +266,6 @@ export function shouldTrack(identifier: Identifier, parent: Node) {
   ) {
     return true
   }
+
+  return false
 }

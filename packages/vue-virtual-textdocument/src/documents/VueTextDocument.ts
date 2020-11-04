@@ -49,15 +49,15 @@ import {
 
 const analyzer = createAnalyzer([ScriptBlockAnalyzer, ComponentsOptionAnalyzer])
 const replaceRE = /./g
-const parseSFC: typeof parse = /*#__PURE__*/ (source, options) => {
+const parseSFC: typeof parse = /* #__PURE__ */ (source, options) => {
   const result = parse(source, options)
 
   // @vue/compiler-sfc does not pads template.
-  if (result.descriptor.template?.content) {
+  if (result.descriptor.template?.content != null) {
     const { template } = result.descriptor
-    // @ts-ignore - parse reuses
-    if (!template.__padded__) {
-      // @ts-ignore
+    // @ts-expect-error - parse reuses
+    if (template.__padded__ !== true) {
+      // @ts-expect-error
       template.__padded__ = true
       template.content =
         source.substr(0, template.loc.start.offset).replace(replaceRE, ' ') +
@@ -91,7 +91,7 @@ export class VirtualTextDocument extends ProxyTextDocument {
   public readonly selector: Selector
   protected isDirty = true
 
-  public markDirty() {
+  public markDirty(): void {
     this.isDirty = true
   }
 
@@ -106,19 +106,21 @@ export class VirtualTextDocument extends ProxyTextDocument {
     this.selector = selector
   }
 
-  protected refresh() {
+  protected refresh(): void {
     if (this.isDirty || this.doc.version !== this.container.version) {
       this.isDirty = false
       const block = this.container.getBlock(this.selector as BlockSelector)
       this.doc = TextDocument.update(
         this.doc,
-        [{ text: block ? block.content : '' }],
+        [{ text: block != null ? block.content : '' }],
         this.container.version,
       )
     }
   }
 
-  public static create(options: CreateVirtualTextDocumentOptions) {
+  public static create(
+    options: CreateVirtualTextDocumentOptions,
+  ): VirtualTextDocument {
     return new VirtualTextDocument(
       options.container,
       options.selector,
@@ -186,7 +188,7 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
     }
   }
 
-  protected refresh() {
+  protected refresh(): void {
     if (this.isDirty || this.doc.version !== this.container.version) {
       this.isDirty = false
       const { code, map } = this.transform()
@@ -194,7 +196,7 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
         const block = this.container.getBlock(this.selector as BlockSelector)
         this.source = TextDocument.update(
           this.source,
-          [{ text: block ? block.content : '' }],
+          [{ text: block != null ? block.content : '' }],
           this.container.version,
         )
         this.consumer = new SourceMapConsumer(map)
@@ -212,7 +214,9 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
     return this._transform(this)
   }
 
-  public static create(options: CreateTransformedBlockTextDocumentOptions) {
+  public static create(
+    options: CreateTransformedBlockTextDocumentOptions,
+  ): TransformedBlockTextDocument {
     return new TransformedBlockTextDocument(
       options.container,
       options.selector,
@@ -223,184 +227,180 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
   }
 }
 
-class VueModuleTextDocument {
-  public static create(
-    options: CreateVirtualTextDocumentOptions<{ type: typeof MODULE_SELECTOR }>,
-  ) {
-    return TransformedBlockTextDocument.create({
-      ...options,
-      transformer: (document) => {
-        const { script, scriptSetup, template } = document.container.descriptor
+function createVueModuleTextDocument(
+  options: CreateVirtualTextDocumentOptions<{ type: typeof MODULE_SELECTOR }>,
+): TransformedBlockTextDocument {
+  return TransformedBlockTextDocument.create({
+    ...options,
+    transformer: (document) => {
+      const { script, scriptSetup, template } = document.container.descriptor
 
-        const lines: string[] = []
-        let scriptHasDefaultExport = false
-        let scriptMayHaveDefaultExport = false
-        let scriptSetupHasDefaultExport = false
-        let usesDefineComponent = false
-        let usePropTypes = false
-        if (script != null) {
-          const path = script.src
+      const lines: string[] = []
+      let scriptHasDefaultExport = false
+      let scriptMayHaveDefaultExport = false
+      let scriptSetupHasDefaultExport = false
+      let usesDefineComponent = false
+      let usePropTypes = false
+      if (script != null) {
+        const path =
+          script.src != null
             ? script.src.replace(/\.([^.]+)$/, '')
             : relativeVirtualImportPath(
                 document.container.getDocumentFileName('script'),
               )
-          lines.push(`export * from '${path}'`)
-          lines.unshift(`import script from '${path}'`)
-          scriptHasDefaultExport = script.content.includes('export default ')
-          usesDefineComponent =
-            script.content.includes(' defineComponent(') ||
-            script.content.includes(' defineComponent<')
-          scriptMayHaveDefaultExport = script.src != null
+        lines.push(`export * from '${path}'`)
+        lines.unshift(`import script from '${path}'`)
+        scriptHasDefaultExport = script.content.includes('export default ')
+        usesDefineComponent =
+          script.content.includes(' defineComponent(') ||
+          script.content.includes(' defineComponent<')
+        scriptMayHaveDefaultExport = script.src != null
+      }
+
+      if (scriptSetup != null) {
+        const path = relativeVirtualImportPath(
+          document.container.getDocumentFileName('scriptSetup'),
+        )
+        lines.unshift(`import * as scriptSetup from '${path}'`)
+        scriptSetupHasDefaultExport = scriptSetup.content.includes(
+          'export default ',
+        )
+        usesDefineComponent =
+          scriptSetup.content.includes(' defineComponent(') ||
+          scriptSetup.content.includes(' defineComponent<')
+        usePropTypes = scriptSetup.content.includes('declare const props:')
+      }
+
+      if (!usesDefineComponent) {
+        lines.unshift(`import { defineComponent } from 'vue'`)
+      }
+      if (scriptSetupHasDefaultExport) {
+        lines.push(
+          `const component = ${
+            usesDefineComponent
+              ? 'scriptSetup.default'
+              : 'defineComponent(scriptSetup.default)'
+          }`,
+        )
+      } else if (scriptHasDefaultExport || scriptMayHaveDefaultExport) {
+        lines.push(
+          `const component = ${
+            usesDefineComponent ? 'script' : 'defineComponent(script)'
+          }`,
+        )
+      } else {
+        lines.push(
+          `const component = defineComponent${
+            usePropTypes ? '<scriptSetup.$Props>' : ''
+          }({})`,
+        )
+      }
+
+      if (template != null) {
+        const path = relativeVirtualImportPath(
+          document.container.getDocumentFileName('_render'),
+        )
+        lines.unshift(`import { render } from '${path}'`)
+        lines.push(`component.render = render`)
+      }
+
+      lines.push(`export default component`)
+
+      return { code: lines.join('\n') }
+    },
+  })
+}
+
+function createInternalModuleTextDocument(
+  options: CreateVirtualTextDocumentOptions<{
+    type: typeof INTERNAL_MODULE_SELECTOR
+  }>,
+): TransformedBlockTextDocument {
+  return TransformedBlockTextDocument.create({
+    ...options,
+    transformer: (document) => {
+      const script = document.container.descriptor.script
+      const scriptSetup = document.container.descriptor.scriptSetup
+
+      const lines: string[] = []
+      lines.push(`import { defineComponent } from 'vue'`)
+      if (scriptSetup != null) {
+        const path = relativeVirtualImportPath(
+          document.container.getDocumentFileName('scriptSetup'),
+        )
+
+        lines.push(`import * as scriptSetup from '${path}'`)
+
+        const hasDefaultExport = scriptSetup.content.includes('export default')
+
+        if (hasDefaultExport) {
+          lines.push(`import options from '${path}'`)
         }
 
-        if (scriptSetup != null) {
-          const path = relativeVirtualImportPath(
-            document.container.getDocumentFileName('scriptSetup'),
+        if (scriptSetup.content.includes('declare const props:')) {
+          lines.push(`import type { $Props } from '${path}'`)
+          lines.push(
+            `const component = defineComponent<$Props>(${
+              hasDefaultExport
+                ? '{ ...options, setup: () => scriptSetup }'
+                : '{ setup: () => scriptSetup }'
+            })`,
           )
-          lines.unshift(`import * as scriptSetup from '${path}'`)
-          scriptSetupHasDefaultExport = scriptSetup.content.includes(
-            'export default ',
+        } else {
+          lines.push(
+            `const component = defineComponent({ ${
+              hasDefaultExport ? '...options,' : ''
+            } setup: () => scriptSetup })`,
           )
-          usesDefineComponent =
-            scriptSetup.content.includes(' defineComponent(') ||
-            scriptSetup.content.includes(' defineComponent<')
-          usePropTypes = scriptSetup.content.includes('declare const props:')
         }
-
-        if (scriptSetupHasDefaultExport) {
-          lines.push(`const component = scriptSetup.default`)
-        } else if (scriptHasDefaultExport || scriptMayHaveDefaultExport) {
+      } else if (script != null) {
+        const path = relativeVirtualImportPath(
+          document.container.getDocumentFileName('script'),
+        )
+        const hasDefineComponent = script.content.includes(` defineComponent(`)
+        lines.push(`import script from '${path}'`)
+        if (hasDefineComponent) {
           lines.push(`const component = script`)
         } else {
-          usesDefineComponent = true
-          lines.unshift(`import { defineComponent } from 'vue'`)
-          lines.push(
-            `const component = defineComponent${
-              usePropTypes ? '<scriptSetup.$Props>' : ''
-            }({})`,
-          )
+          lines.push(`const component = defineComponent(script)`)
         }
-
-        if (template != null) {
-          const path = relativeVirtualImportPath(
-            document.container.getDocumentFileName('_render'),
-          )
-          lines.unshift(`import { render } from '${path}'`)
-          lines.push(`component.render = render`)
-        }
-
-        if (usesDefineComponent) {
-          lines.push(`export default component`)
-        } else {
-          lines.unshift(`import { defineComponent } from 'vue'`)
-          lines.push(`export default defineComponent(component)`)
-        }
-
-        return { code: lines.join('\n') }
-      },
-    })
-  }
-}
-
-class InternalModuleTextDocument {
-  public static create(
-    options: CreateVirtualTextDocumentOptions<{
-      type: typeof INTERNAL_MODULE_SELECTOR
-    }>,
-  ) {
-    return TransformedBlockTextDocument.create({
-      ...options,
-      transformer: (document) => {
-        const script = document.container.descriptor.script
-        const scriptSetup = document.container.descriptor.scriptSetup
-
-        const lines: string[] = []
+      } else {
         lines.push(`import { defineComponent } from 'vue'`)
-        if (scriptSetup != null) {
-          const path = relativeVirtualImportPath(
-            document.container.getDocumentFileName('scriptSetup'),
-          )
+        lines.push(`const component = defineComponent({})`)
+      }
 
-          lines.push(`import * as scriptSetup from '${path}'`)
+      lines.push(`export default component`)
 
-          const hasDefaultExport =
-            scriptSetup.content.includes('export default') === true
-
-          if (hasDefaultExport) {
-            lines.push(`import options from '${path}'`)
-          }
-
-          if (scriptSetup.content.includes('declare const props:')) {
-            // TODO: Transform <script setup> and always import default from there!!
-            lines.push(`import type { $Props } from '${path}'`)
-            lines.push(
-              `const component = defineComponent(${
-                hasDefaultExport
-                  ? '{ ...options, setup: (props: $Props) => scriptSetup }'
-                  : '(props: $Props) => scriptSetup'
-              })`,
-            )
-          } else {
-            // TODO: Transform <script setup> and always import default from there!!
-            lines.push(
-              `const component = defineComponent({ ${
-                hasDefaultExport ? '...options,' : ''
-              } setup: () => scriptSetup })`,
-            )
-          }
-        } else if (script != null) {
-          const path = relativeVirtualImportPath(
-            document.container.getDocumentFileName('script'),
-          )
-          const hasDefineComponent = script.content.includes(
-            ` defineComponent(`,
-          )
-          lines.push(`import script from '${path}'`)
-          if (hasDefineComponent) {
-            lines.push(`const component = script`)
-          } else {
-            lines.push(`const component = defineComponent(script)`)
-          }
-        } else {
-          lines.push(`import { defineComponent } from 'vue'`)
-          lines.push(`const component = defineComponent({})`)
-        }
-
-        lines.push(`export default component`)
-
-        return { code: lines.join('\n') }
-      },
-    })
-  }
+      return { code: lines.join('\n') }
+    },
+  })
 }
 
-class ScriptSetupTextDocument {
-  public static create(
-    options: CreateVirtualTextDocumentOptions<{
-      type: typeof SCRIPT_SETUP_BLOCK_SELECTOR
-    }>,
-  ) {
-    return TransformedBlockTextDocument.create({
-      ...options,
-      transformer: (document) => {
-        const { scriptSetup } = document.container.descriptor
-        if (!scriptSetup) return { code: '' }
+function createScriptSetupTextDocument(
+  options: CreateVirtualTextDocumentOptions<{
+    type: typeof SCRIPT_SETUP_BLOCK_SELECTOR
+  }>,
+): TransformedBlockTextDocument {
+  return TransformedBlockTextDocument.create({
+    ...options,
+    transformer: (document) => {
+      const { scriptSetup } = document.container.descriptor
+      if (scriptSetup == null) return { code: '' }
 
-        // TODO: Transform
-        // TODO: Remove this hack and put a proper transform.
-        if (scriptSetup.content.includes('declare const props:')) {
-          return {
-            code: scriptSetup.content.replace(
-              'declare const props:',
-              'export type $Props =',
-            ),
-          }
+      // TODO: Transform
+      // TODO: Remove this hack and put a proper transform.
+      if (scriptSetup.content.includes('declare const props:')) {
+        return {
+          code: scriptSetup.content.replace(
+            'declare const props:',
+            'export type $Props =',
+          ),
         }
+      }
 
-        return { code: scriptSetup.content }
-      },
-    })
-  }
+      return { code: scriptSetup.content }
+    },
+  })
 }
 
 // TODO: Support style variables type check.
@@ -412,16 +412,28 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   private generatedRange: [number, number] = [0, 0]
   private generatedMappings: CodegenResult['mappings'] = []
   private expressionsMap: Record<string, [number, number]> = {}
+  private _contextCompletionsTriggerOffset: number = 0
+  private _tagCompletionsTriggerOffset: number = 0
+
+  public get contextCompletionsTriggerOffset(): number {
+    return this._contextCompletionsTriggerOffset
+  }
+
+  public get tagCompletionsTriggerOffset(): number {
+    return this._tagCompletionsTriggerOffset
+  }
 
   public get ast(): CodegenResult['ast'] | undefined {
-    if (this.result) return this.result.ast
+    if (this.result != null) return this.result.ast
   }
 
   public get parserErrors(): CodegenResult['errors'] {
     return this.result?.errors ?? []
   }
 
-  public getOriginalOffsetAt(offset: number) {
+  public getOriginalOffsetAt(
+    offset: number,
+  ): undefined | { offset: number; length: number } {
     this.refresh()
     const [start, end] = this.generatedRange
 
@@ -432,10 +444,16 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
           if (start <= offset && offset <= start + length) return 0
           return start - offset
         },
+        true,
       )
 
-      if (mapping) {
-        const offsetInSource = offset - mapping[0]
+      if (mapping != null) {
+        const offsetInSource =
+          mapping[0] <= offset && offset <= mapping[0] + mapping[1]
+            ? offset - mapping[0]
+            : mapping[3] === 0
+            ? -1 // Include previous character if mapped to zero length
+            : 0
 
         return {
           offset: mapping[2] + offsetInSource,
@@ -445,21 +463,28 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     }
   }
 
-  public findExpression(offset: number, length: number) {
+  public findExpression(
+    offset: number,
+    length: number,
+  ): undefined | { offset: number; length: number } {
     const text = this.getText().substr(offset, length)
     const expression = this.expressionsMap[text.trim()]
 
-    if (expression) return { offset: expression[0], length: expression[1] }
+    if (expression != null) {
+      return { offset: expression[0], length: expression[1] }
+    }
   }
 
-  public isInGeneratedRange(offset: number) {
+  public isInGeneratedRange(offset: number): boolean {
     this.refresh()
     const [start, end] = this.generatedRange
 
     return start <= offset && offset <= end
   }
 
-  public getGeneratedOffsetAt(offset: number) {
+  public getGeneratedOffsetAt(
+    offset: number,
+  ): undefined | { length: number; offset: number } {
     this.refresh()
     const [start, end] = this.originalRange
 
@@ -472,7 +497,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
         },
       )
 
-      if (mapping) {
+      if (mapping != null) {
         const offsetInGenerated = offset - mapping[2]
 
         return {
@@ -483,7 +508,9 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     }
   }
 
-  public getAllGeneratedOffsetsAt(offset: number) {
+  public getAllGeneratedOffsetsAt(
+    offset: number,
+  ): undefined | Array<{ length: number; offset: number }> {
     this.refresh()
     const [start, end] = this.originalRange
 
@@ -507,7 +534,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     return []
   }
 
-  protected refresh() {
+  protected refresh(): void {
     if (this.isDirty || this.doc.version !== this.container.version) {
       this.isDirty = false
       try {
@@ -517,7 +544,9 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
           this.container.version,
         )
       } catch (error) {
-        const code = `\n/* ${error.message} ${error.stack} */ \n`
+        const code = `\n/* ${(error as Error).message} ${
+          (error as Error).stack ?? ''
+        } */ \n`
         this.doc = TextDocument.update(
           this.doc,
           [{ text: code }],
@@ -543,10 +572,10 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     }
   }
 
-  protected generate() {
+  protected generate(): string {
     const { template } = this.container.descriptor
 
-    if (!template) {
+    if (template == null) {
       return ''
     } else if (this.result?.template === template.content) {
       return this.result.code
@@ -573,6 +602,13 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
       this.generatedMappings = this.result.mappings.filter(
         (m) => this.generatedRange[0] <= m[0] && m[1] <= this.generatedRange[1],
       )
+      this._contextCompletionsTriggerOffset = this.result.code.indexOf(
+        '/*@@vue:completions*/',
+      )
+      this._tagCompletionsTriggerOffset =
+        this.result.code.indexOf('/*@@vue:completionsTag*/') +
+        '/*@@vue:completionsTag*/'.length +
+        1
 
       this.originalMappings.sort((a, b) => a[2] - b[2])
       this.generatedMappings.sort((a, b) => a[0] - b[0])
@@ -588,6 +624,29 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     }
   }
 
+  public toDisplayMappings(): string {
+    const mappings: string[] = []
+    const pos = (p: Position): string => `${p.line + 1}:${p.character + 1}`
+
+    if (this.result != null) {
+      const templateDoc = this.container.getDocument('template')
+      const template = templateDoc.getText()
+      const render = this.doc.getText()
+      this.result.mappings.forEach((m) => {
+        mappings.push(
+          `${pos(templateDoc.positionAt(m[2]))} => ${pos(
+            this.doc.positionAt(m[0]),
+          )} (${m[3]}:${m[1]}) "${template.substr(
+            m[2],
+            m[3],
+          )}"->"${render.substr(m[0], m[1])}"`,
+        )
+      })
+    }
+
+    return mappings.join('\n')
+  }
+
   protected getLocalComponents(): Record<string, ComponentImport> | undefined {
     const { script, scriptSetup } = this.container.descriptor
 
@@ -600,7 +659,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
       result.components.forEach((component) => {
         const result = {
           path: component.source.moduleName,
-          named: !!component.source.exportName,
+          named: component.source.exportName != null,
           name: component.source.exportName,
         }
 
@@ -615,7 +674,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
 
   public static create(
     options: CreateVirtualTextDocumentOptions<{ type: typeof RENDER_SELECTOR }>,
-  ) {
+  ): RenderFunctionTextDocument {
     return new RenderFunctionTextDocument(
       options.container,
       options.selector,
@@ -632,8 +691,11 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
 export class VueTextDocument extends ProxyTextDocument {
   private isDirty = true
   private sfc!: ReturnType<typeof parse>
-  private options: SFCParseOptions
-  private documents = new Map<string, VirtualTextDocument | undefined>()
+  private readonly options: SFCParseOptions
+  private readonly documents = new Map<
+    string,
+    VirtualTextDocument | undefined
+  >()
 
   constructor(doc: TextDocument, options?: SFCParseOptions) {
     super(doc)
@@ -684,7 +746,7 @@ export class VueTextDocument extends ProxyTextDocument {
       return descriptor.scriptSetup
 
     return (
-      descriptor.styles.find(isOffsetInBlock.bind(null, offset)) ||
+      descriptor.styles.find(isOffsetInBlock.bind(null, offset)) ??
       descriptor.customBlocks.find(isOffsetInBlock.bind(null, offset))
     )
   }
@@ -694,8 +756,11 @@ export class VueTextDocument extends ProxyTextDocument {
   ): VirtualTextDocument | undefined {
     const block = this.blockAt(position)
 
-    if (block) {
-      return this.getDocument(this.getBlockSelector(block)!)
+    if (block != null) {
+      const selector = this.getBlockSelector(block)
+      if (selector != null) {
+        return this.getDocument(selector)
+      }
     }
   }
 
@@ -739,16 +804,16 @@ export class VueTextDocument extends ProxyTextDocument {
   ): RenderFunctionTextDocument
   public getDocument(selector: SelectorLike): VirtualTextDocument // TODO: Can return undefined
   public getDocument(selector: string): VirtualTextDocument | undefined
-  public getDocument(selector: SelectorLike | string) {
+  public getDocument(selector: SelectorLike | string): any {
     this.parse()
 
     if (isString(selector)) {
       if (selector.includes('/') || selector.includes('\\')) {
         const result = parseVirtualFileName(selector)
-        if (!result) return
+        if (result == null) return
         selector = result.selector
       } else {
-        selector = { type: selector } as Selector
+        selector = ({ type: selector } as unknown) as Selector
       }
     }
 
@@ -774,59 +839,61 @@ export class VueTextDocument extends ProxyTextDocument {
     return this.documents.get(id)
   }
 
-  protected createBlockDocument(selector: BlockSelector) {
+  protected createBlockDocument(
+    selector: BlockSelector,
+  ): VirtualTextDocument | undefined {
     const block = this.getBlock(selector)
-    if (!block) return
+    if (block == null) return
     const options = {
       container: this,
       selector,
-      uri: asUri(this.getDocumentFileName(selector)!),
+      uri: asUri(this.getDocumentFileName(selector)),
       languageId: this.getDocumentLanguage(selector),
       version: this.version,
       content: block.content,
     }
 
     if (selector.type === SCRIPT_SETUP_BLOCK_SELECTOR) {
-      return ScriptSetupTextDocument.create({ ...options, selector })
+      return createScriptSetupTextDocument({ ...options, selector })
     } else {
       return VirtualTextDocument.create(options)
     }
   }
 
-  protected createInternalModuleDocument() {
-    return InternalModuleTextDocument.create({
+  protected createInternalModuleDocument(): TransformedBlockTextDocument {
+    return createInternalModuleTextDocument({
       container: this,
       selector: { type: INTERNAL_MODULE_SELECTOR },
-      uri: asUri(this.getDocumentFileName(INTERNAL_MODULE_SELECTOR)!),
+      uri: asUri(this.getDocumentFileName(INTERNAL_MODULE_SELECTOR)),
       languageId: this.getDocumentLanguage({ type: INTERNAL_MODULE_SELECTOR }),
       version: this.version,
       content: '',
     })
   }
 
-  protected createModuleDocument() {
-    return VueModuleTextDocument.create({
+  protected createModuleDocument(): TransformedBlockTextDocument {
+    return createVueModuleTextDocument({
       container: this,
       selector: { type: MODULE_SELECTOR },
-      uri: asUri(this.getDocumentFileName(MODULE_SELECTOR)!),
+      uri: asUri(this.getDocumentFileName(MODULE_SELECTOR)),
       languageId: this.getDocumentLanguage({ type: MODULE_SELECTOR }),
       version: this.version,
       content: '',
     })
   }
 
-  protected createRenderDocument() {
+  protected createRenderDocument(): RenderFunctionTextDocument {
     return RenderFunctionTextDocument.create({
       container: this,
       selector: { type: RENDER_SELECTOR },
-      uri: asUri(this.getDocumentFileName(RENDER_SELECTOR)!),
+      uri: asUri(this.getDocumentFileName(RENDER_SELECTOR)),
       languageId: this.getDocumentLanguage({ type: RENDER_SELECTOR }),
       version: this.version,
       content: '',
     })
   }
 
-  protected getDocumentLanguage(selector: Selector) {
+  protected getDocumentLanguage(selector: Selector): string {
     switch (selector.type) {
       case INTERNAL_MODULE_SELECTOR:
       case MODULE_SELECTOR:
@@ -838,13 +905,13 @@ export class VueTextDocument extends ProxyTextDocument {
     }
   }
 
-  protected getDocumentId(selector: Selector) {
+  protected getDocumentId(selector: Selector): string {
     if (isString(selector)) return selector
-    if ('index' in selector) return selector.type + '__' + selector.index
+    if ('index' in selector) return `${selector.type}__${selector.index}`
     return selector.type
   }
 
-  protected parse() {
+  protected parse(): void {
     if (!this.isDirty) return
     this.isDirty = false
     const source = this.getText()
@@ -862,7 +929,7 @@ export class VueTextDocument extends ProxyTextDocument {
     version: number,
     content: string,
     options?: SFCParseOptions,
-  ) {
+  ): VueTextDocument {
     return new VueTextDocument(
       TextDocument.create(uri, languageId, version, content),
       options,
@@ -873,11 +940,11 @@ export class VueTextDocument extends ProxyTextDocument {
     document: VueTextDocument,
     changes: TextDocumentContentChangeEvent[],
     version: number,
-  ) {
+  ): VueTextDocument {
     document.doc = TextDocument.update(document.doc, changes, version)
     document.isDirty = true
     document.documents.forEach((document) => {
-      if (document) document.markDirty()
+      if (document != null) document.markDirty()
     })
 
     return document

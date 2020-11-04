@@ -1,5 +1,6 @@
 import {
   baseParse,
+  CompilerError,
   CompilerOptions,
   createCompoundExpression,
   CREATE_BLOCK,
@@ -8,7 +9,6 @@ import {
   generate,
   OPEN_BLOCK,
   transform,
-  CompilerError,
 } from '@vue/compiler-core'
 import {
   isCommentNode,
@@ -16,17 +16,20 @@ import {
   isElementNode,
   isInterpolationNode,
   isSimpleExpressionNode,
+  isTextNode,
 } from '@vuedx/template-ast-types'
+import Path from 'path'
 import { withScope } from './scope'
 import { createElementTransform } from './transforms/transformElement'
 import { createExpressionTracker } from './transforms/transformExpression'
 import { createTransformFor } from './transforms/transformFor'
 import { createInterpolationTransform } from './transforms/transformInterpolation'
 import { CodegenResult, ComponentImport, Options } from './types'
+import { getComponentName, processBogusComment } from './utils'
 
 export * from './types'
 
-function clone(obj: object) {
+function clone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj))
 }
 
@@ -43,6 +46,9 @@ export function compile(
     components: {
       ...components,
       ...options.components,
+      [getComponentName(options.filename)]: {
+        path: `./${Path.posix.basename(options.filename)}`,
+      },
     },
   }
   const identifiers = new Set<string>()
@@ -67,7 +73,7 @@ export function compile(
         } else if (isElementNode(node)) {
           node.props.forEach((prop) => {
             if (isDirectiveNode(prop)) {
-              if (prop.exp) {
+              if (prop.exp != null) {
                 expressions.push([
                   prop.exp.loc.start.offset,
                   prop.exp.loc.source.length,
@@ -86,7 +92,25 @@ export function compile(
       // Drop Comments
       (node, context) => {
         if (isCommentNode(node)) {
-          context.removeNode(node)
+          if (node.content.includes('<') || node.content.includes('>')) {
+            context.replaceNode(
+              createCompoundExpression([
+                processBogusComment(node.content.trim()),
+              ]),
+            )
+          } else {
+            context.removeNode(node)
+          }
+        } else if (isTextNode(node)) {
+          context.replaceNode(
+            createCompoundExpression([processBogusComment(node.content)]),
+          )
+        } else if (isElementNode(node) && node.tag.includes('<')) {
+          context.replaceNode(
+            createCompoundExpression([
+              processBogusComment(node.loc.source.trim()),
+            ]),
+          )
         }
       },
 
@@ -104,7 +128,7 @@ export function compile(
     if (index >= 0) ast.helpers.splice(index, 1)
   })
 
-  if (ast.children.length > 1) {
+  if (ast.children.length > 0) {
     ast.codegenNode = createCompoundExpression([
       '/*@@vue:start*/<>',
       ...ast.children,
@@ -112,9 +136,7 @@ export function compile(
     ] as any)
   } else {
     ast.codegenNode = createCompoundExpression([
-      '/*@@vue:start*/',
-      ...ast.children,
-      '/*@@vue:end*/',
+      '/*@@vue:start*/null/*@@vue:end*/',
     ] as any)
   }
   const mappings: Array<[number, number, number, number, number]> = []
@@ -125,14 +147,24 @@ export function compile(
     onContextCreated(context) {
       const push = context.push
       context.push = (code, node) => {
+        if (code.startsWith('export ')) {
+          push(
+            [
+              'declare const __completionsTrigger: InstanceType<typeof _Ctx>',
+              '__completionsTrigger./*@@vue:completions*/$props',
+              'const __completionsTag = /*@@vue:completionsTag*/<div />',
+              '',
+            ].join('\n'),
+          )
+        }
         if (
-          isSimpleExpressionNode(node) &&
-          node.loc &&
-          node.loc.start.offset < node.loc.end.offset
+          node?.loc != null &&
+          node.loc.start.offset !== 0 &&
+          node.loc.end.offset !== 0
         ) {
           mappings.push([
             context.offset,
-            node.content.length,
+            code.length,
             node.loc.start.offset,
             node.loc.source.length,
             0,
@@ -142,7 +174,7 @@ export function compile(
         if (code.startsWith('function render(_ctx, _cache')) {
           push(
             `function render(${
-              identifiers.size
+              identifiers.size > 0
                 ? `{${Array.from(identifiers).join(', ')}}`
                 : '_ctx'
             }: InstanceType<typeof _Ctx>) {`,

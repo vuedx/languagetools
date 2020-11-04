@@ -6,7 +6,7 @@ import { createInterface, Interface } from 'readline'
 import Proto from 'typescript/lib/protocol'
 import { inspect } from 'util'
 
-function abs(fileName: string) {
+function abs(fileName: string): string {
   return Path.resolve(__dirname, fileName)
 }
 
@@ -33,9 +33,11 @@ export class TestServer {
   public readonly serverPath = abs(
     '../../node_modules/typescript/lib/tsserver.js',
   )
+
   public readonly pluginPath = abs(
     '../../packages/typescript-plugin-vue/dist/index.cjs.js',
   )
+
   public readonly logPath = abs(`../output/tsserver.${this.id}.log`)
   public readonly exitStatus: Promise<number>
 
@@ -189,7 +191,7 @@ export class TestServer {
 
     if (!this.voidCommands.includes(request.command as Proto.CommandTypes)) {
       this.pendingResponses += 1
-      return new Promise((resolve) => {
+      return await new Promise((resolve) => {
         this.responseHandlers.set(id, (response) => resolve(response))
       })
     }
@@ -203,7 +205,7 @@ export class TestServer {
     this.isClosed = true
     this.shutdown()
 
-    return this.exitStatus
+    return await this.exitStatus
   }
 
   private cleanup() {
@@ -232,6 +234,10 @@ export class TestServer {
     await this.waitForEvent('requestCompleted')
   }
 
+  public async waitForEvent(
+    event: Proto.ProjectLoadingFinishEventName,
+  ): Promise<Proto.ProjectLoadingFinishEvent>
+  
   public async waitForEvent(
     event: Proto.RequestCompletedEventName,
   ): Promise<Proto.RequestCompletedEvent>

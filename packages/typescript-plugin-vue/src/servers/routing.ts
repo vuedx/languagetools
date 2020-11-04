@@ -1,24 +1,29 @@
 import {
+  getContainingFile,
   isVirtualFile,
   isVueFile,
-  VirtualTextDocument,
-  getContainingFile,
+  MODULE_SELECTOR,
   parseVirtualFileName,
+  VirtualTextDocument,
   VIRTUAL_FILENAME_SEPARATOR,
 } from '@vuedx/vue-virtual-textdocument'
 import { PluginContext } from '../context'
+import { wrapInTrace } from '../helpers/logger'
+import {
+  createServerHelper,
+  getComponentName as baseGetComponentName,
+  isNotNull,
+} from '../helpers/utils'
 import { TS } from '../interfaces'
 import { LanguageServiceOptions } from '../types'
-import { createServerHelper, isNotNull } from '../helpers/utils'
+import { createVirtualLanguageServer } from './virtual'
 import { createVueLanguageServer } from './vue'
-import Path from 'path'
-import { wrapInTrace } from '../helpers/logger'
 const VUE_LANGUAGE_SERVER = Symbol('Vue Language Server')
 
 export class RoutingLanguageServer {
-  constructor(private context: PluginContext) {}
+  constructor(private readonly context: PluginContext) {}
 
-  decorate(languageService: TS.LanguageService) {
+  decorate(languageService: TS.LanguageService): TS.LanguageService {
     if (VUE_LANGUAGE_SERVER in languageService) {
       return languageService
     }
@@ -29,7 +34,7 @@ export class RoutingLanguageServer {
       helpers: createServerHelper(this.context, languageService),
     })
 
-    // @ts-ignore
+    // @ts-expect-error
     proxy[VUE_LANGUAGE_SERVER] = true
 
     return proxy
@@ -40,10 +45,15 @@ function createLanguageServiceRouter(
   config: LanguageServiceOptions,
 ): TS.LanguageService {
   const vue = createVueLanguageServer(config)
+  const virtual = createVirtualLanguageServer(config)
   const ts = config.service
 
-  function choose(fileName: string) {
-    return isVueFile(fileName) ? vue : ts
+  function choose(fileName: string): TS.LanguageService {
+    return fileName.startsWith('^vue:')
+      ? virtual
+      : isVueFile(fileName)
+      ? vue
+      : ts
   }
 
   function getTextSpan(
@@ -52,7 +62,7 @@ function createLanguageServiceRouter(
   ): TS.TextSpan | null {
     if (config.helpers.isRenderFunctionDocument(document)) {
       const result = document.getOriginalOffsetAt(span.start)
-      if (result) return { start: result.offset, length: result.length }
+      if (result != null) return { start: result.offset, length: result.length }
 
       return null
     }
@@ -61,23 +71,22 @@ function createLanguageServiceRouter(
   }
 
   const VIRTUAL_FILE_SUFFIX_RE = new RegExp(
-    `(?<=\.vue)${VIRTUAL_FILENAME_SEPARATOR}([A-Za-z_][A-Za-z0-9_-]*)(\\.[jt]sx?)?`,
+    `(?<=\\.vue)${VIRTUAL_FILENAME_SEPARATOR}([A-Za-z_][A-Za-z0-9_-]*)(\\.[jt]sx?)?`,
     'g',
   )
 
-  function getComponentName(fileName?: string) {
-    if (!fileName || !isVueFile(fileName)) return
-    const baseName = Path.basename(fileName)
-
-    return baseName.substr(0, baseName.length - 4)
+  function getComponentName(fileName?: string): string | undefined {
+    if (fileName == null || !isVueFile(fileName)) return
+    return baseGetComponentName(fileName)
   }
+
   const COMPONENT_TYPE_RE = /'ComponentPublicInstance<.*?ComponentOptionsBase<...>>'/g
   const REPLACE = {
     virtualFile: (messageText: string) =>
       messageText.replace(VIRTUAL_FILE_SUFFIX_RE, ''),
     componentType: (fileName: string | undefined, messageText: string) => {
       const component = getComponentName(fileName)
-      return component
+      return component != null
         ? messageText.replace(COMPONENT_TYPE_RE, `vue component '${component}'`)
         : messageText
     },
@@ -111,7 +120,7 @@ function createLanguageServiceRouter(
   }
 
   function isVirtualSourceFile(file?: TS.SourceFile): file is TS.SourceFile {
-    return !!file && isVirtualFile(file.fileName)
+    return file != null && isVirtualFile(file.fileName)
   }
 
   const proxy: Partial<TS.LanguageService> = wrapInTrace(
@@ -121,15 +130,6 @@ function createLanguageServiceRouter(
       dispose() {
         // TODO: Clear Vue files in memory.
         config.service.dispose()
-      },
-      cleanupSemanticCache() {
-        config.service.cleanupSemanticCache()
-      },
-      getCompilerOptionsDiagnostics() {
-        return config.service.getCompilerOptionsDiagnostics()
-      },
-      getSyntacticClassifications(fileName, span) {
-        return config.service.getSyntacticClassifications(fileName, span)
       },
       getCombinedCodeFix(scope, fixId, formatOptions, preferences) {
         return config.service.getCombinedCodeFix(
@@ -142,11 +142,13 @@ function createLanguageServiceRouter(
       getProgram() {
         return config.service.getProgram()
       },
+
       toLineColumnOffset(fileName, position) {
-        return config.service.toLineColumnOffset
+        return config.service.toLineColumnOffset != null
           ? config.service.toLineColumnOffset(fileName, position)
           : { line: 0, character: 0 }
       },
+
       organizeImports(scope, formatOptions, preferences) {
         return choose(scope.fileName)
           .organizeImports(scope, formatOptions, preferences)
@@ -161,7 +163,7 @@ function createLanguageServiceRouter(
       getQuickInfoAtPosition(fileName, position) {
         const info = choose(fileName).getQuickInfoAtPosition(fileName, position)
 
-        if (info?.displayParts) {
+        if (info?.displayParts != null) {
           info.displayParts = info.displayParts
             .map((part) => {
               part.text = applyReplacements(fileName, part.text)
@@ -171,7 +173,7 @@ function createLanguageServiceRouter(
             .filter(isNotNull)
         }
 
-        if (info?.documentation) {
+        if (info?.documentation != null) {
           info.documentation = info.documentation
             .map((part) => {
               part.text = applyReplacements(fileName, part.text)
@@ -201,7 +203,7 @@ function createLanguageServiceRouter(
               diagnostic.messageText,
             )
 
-            if (diagnostic.relatedInformation) {
+            if (diagnostic.relatedInformation != null) {
               diagnostic.relatedInformation = diagnostic.relatedInformation.map(
                 (info) => {
                   info.messageText = applyReplacements(
@@ -236,7 +238,7 @@ function createLanguageServiceRouter(
               diagnostic.messageText,
             )
 
-            if (diagnostic.relatedInformation) {
+            if (diagnostic.relatedInformation != null) {
               diagnostic.relatedInformation = diagnostic.relatedInformation.map(
                 (info) => {
                   info.messageText = applyReplacements(
@@ -268,17 +270,27 @@ function createLanguageServiceRouter(
           options,
         )
 
-        if (completions?.entries) {
+        if (completions?.entries != null) {
           completions.entries = completions.entries
-            .filter(
-              (x) => !x.name.endsWith(`${VIRTUAL_FILENAME_SEPARATOR}module`),
-            )
-            .map((x) => {
-              if (x.source && isVirtualFile(x.source)) {
-                x.name = getContainingFile(x.name).slice(0, -3) // remove vue
-                x.source = getContainingFile(x.source!)
+            .filter((entry) => {
+              if (entry.source != null && isVirtualFile(entry.source)) {
+                return entry.source.endsWith(
+                  VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
+                )
               }
-              return x
+
+              return true
+            })
+            .map((entry) => {
+              if (entry.source != null && isVirtualFile(entry.source)) {
+                entry.source = getContainingFile(entry.source)
+
+                if (entry.name === 'component') {
+                  entry.name = baseGetComponentName(entry.source)
+                }
+              }
+
+              return entry
             })
         }
 
@@ -293,11 +305,15 @@ function createLanguageServiceRouter(
         source,
         preferences,
       ) {
-        const isVirtual = source && isVueFile(source!)
-        // rename to valid files
-        if (isVirtual) {
-          entryName = `${entryName}Vue${VIRTUAL_FILENAME_SEPARATOR}script`
-          source = `${source}${VIRTUAL_FILENAME_SEPARATOR}script`
+        const originalEntryName = entryName
+        const originalSource = source
+        if (source != null && isVueFile(source)) {
+          const componentName = baseGetComponentName(source)
+          source = source + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR
+
+          if (entryName === componentName) {
+            entryName = 'component'
+          }
         }
 
         const details = choose(fileName).getCompletionEntryDetails(
@@ -309,40 +325,52 @@ function createLanguageServiceRouter(
           preferences,
         )
 
-        if (details) {
-          if (isVirtual) {
-            details.name = getContainingFile(details.name).slice(0, -3)
-
-            if (details.source) {
-              // fix the import name
-              details.source.forEach((x) => {
-                x.text = getContainingFile(x.text)
-              })
+        if (originalSource != null && isVueFile(originalSource)) {
+          details?.codeActions?.forEach((codeAction) => {
+            const isComponentImport = entryName === 'component'
+            if (isComponentImport) {
+              codeAction.description = codeAction.description
+                .replace(VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR, '')
+                .replace('component', originalEntryName)
             }
-          }
 
-          if (details.codeActions) {
-            details.codeActions.forEach((x) => {
-              // rename ``Import default 'HPageVue________script' from module "../ui/HPage.vue________script"`
-              // to `Import default 'HPage' from module "../ui/HPage.vue"`
-              x.description = x.description
-                .replace(`Vue${VIRTUAL_FILENAME_SEPARATOR}script`, '')
-                .replace(`${VIRTUAL_FILENAME_SEPARATOR}script`, '')
+            codeAction.changes.forEach((change) => {
+              if (isVirtualFile(change.fileName)) {
+                change.fileName = getContainingFile(change.fileName)
+              }
 
-              x.changes.forEach((c) => {
-                // fix the import file
-                c.fileName = getContainingFile(c.fileName)
+              change.textChanges.forEach((textChange) => {
+                textChange.newText = textChange.newText.replace(
+                  VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
+                  '',
+                )
 
-                c.textChanges.forEach((t) => {
-                  t.newText = t.newText
-                    .replace(`Vue${VIRTUAL_FILENAME_SEPARATOR}script`, '')
-                    .replace(`${VIRTUAL_FILENAME_SEPARATOR}script`, '')
-                })
+                if (isComponentImport) {
+                  textChange.newText = textChange.newText.replace(
+                    /\bcomponent\b/,
+                    originalEntryName,
+                  )
+                }
               })
             })
-          }
+          })
+
+          details?.source?.forEach((item) => {
+            if (isVirtualFile(item.text)) {
+              item.text = getContainingFile(item.text)
+            }
+          })
         }
+
         return details
+      },
+
+      getSignatureHelpItems(fileName, position, options) {
+        return choose(fileName).getSignatureHelpItems(
+          fileName,
+          position,
+          options,
+        )
       },
 
       getSuggestionDiagnostics(fileName) {
@@ -355,7 +383,7 @@ function createLanguageServiceRouter(
               diagnostic.messageText,
             )
 
-            if (diagnostic.relatedInformation) {
+            if (diagnostic.relatedInformation != null) {
               diagnostic.relatedInformation = diagnostic.relatedInformation.map(
                 (info) => {
                   info.messageText = applyReplacements(
@@ -405,7 +433,10 @@ function createLanguageServiceRouter(
         )
 
         if (result.canRename) {
-          if (result.fileToRename && isVirtualFile(result.fileToRename)) {
+          if (
+            result.fileToRename != null &&
+            isVirtualFile(result.fileToRename)
+          ) {
             result.fileToRename = getContainingFile(result.fileToRename)
           }
 
@@ -443,7 +474,7 @@ function createLanguageServiceRouter(
               if (textSpan == null) return
 
               item.textSpan = textSpan
-              if (item.contextSpan) {
+              if (item.contextSpan != null) {
                 const contextSpan = getTextSpan(virtual, item.contextSpan)
                 if (contextSpan == null) return
 
@@ -454,8 +485,6 @@ function createLanguageServiceRouter(
             return item
           })
           .filter(isNotNull)
-
-        config.context.log(JSON.stringify(result))
 
         return result
       },
@@ -498,7 +527,7 @@ function createLanguageServiceRouter(
               })
               .filter(isNotNull)
 
-            if (!edit.textChanges.length) return
+            if (edit.textChanges.length === 0) return
 
             return edit
           })
@@ -539,7 +568,7 @@ function createLanguageServiceRouter(
           }
         > = {}
 
-        if (result) {
+        if (result != null) {
           result.edits = result.edits.filter((edit) => {
             if (isVirtualFile(edit.fileName) || isVueFile(edit.fileName)) {
               edit.fileName = getContainingFile(edit.fileName)
@@ -555,7 +584,7 @@ function createLanguageServiceRouter(
                 ...edit.textChanges,
               )
               editsByFileName[edit.fileName].isNewFile =
-                editsByFileName[edit.fileName].isNewFile ||
+                editsByFileName[edit.fileName].isNewFile ??
                 edit.isNewFile === true
 
               return false
@@ -582,7 +611,7 @@ function createLanguageServiceRouter(
           position,
         )
 
-        if (result?.definitions) {
+        if (result?.definitions != null) {
           result.definitions.forEach((definition) => {
             if (isVirtualFile(definition.fileName)) {
               definition.fileName = getContainingFile(definition.fileName)

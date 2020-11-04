@@ -10,7 +10,6 @@ import {
   RenderFunctionTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
-import { deIndent } from './de-indent'
 import Path from 'path'
 import {
   getComponentName,
@@ -21,6 +20,7 @@ import {
 import { TS } from '../../interfaces'
 import { LanguageServiceOptions } from '../../types'
 import { RefactorProvider } from './abstract'
+import { deIndent } from './de-indent'
 
 /// <reference types="@vuedx/compiler-tsx" />
 
@@ -28,10 +28,10 @@ export const RefactorExtractComponent: RefactorProvider = {
   version: '*',
   findRefactors(config, fileName, position, preferences) {
     const document = config.helpers.getRenderDoc(fileName)
-    if (document) {
+    if (document != null) {
       const nodes = findNodes(config, document, position)
 
-      if (nodes.length) {
+      if (nodes.length !== 0) {
         let isExtractSupported = true
         const modelExpressions = new Set()
         nodes.forEach((node) =>
@@ -68,7 +68,7 @@ export const RefactorExtractComponent: RefactorProvider = {
             config.context.typescript.server.toNormalizedPath(document.fsPath),
             false,
           )
-          if (project) {
+          if (project != null) {
             config.context.config.directories
               .filter((dir) => dir.kind === 'component')
               .forEach((config) => {
@@ -99,22 +99,11 @@ export const RefactorExtractComponent: RefactorProvider = {
     actionName,
     preferences,
   ) {
-    const document = config.helpers.getRenderDoc(fileName)!
-    if (document && refactorName === 'component') {
-      const project = config.context.projectService.getDefaultProjectForFile(
-        config.context.typescript.server.toNormalizedPath(document.fsPath),
-        false,
-      )!
-      const path =
-        actionName === ':current'
-          ? Path.dirname(fileName)
-          : config.context.config.directories.find(
-              (directory) => directory.path,
-            )!.path
+    const document = config.helpers.getRenderDoc(fileName)
+    if (document != null && refactorName === 'component') {
+      const path = Path.posix.dirname(fileName)
       const info = config.helpers.getComponentInfo(document.container)
-      const directoryName = Path.isAbsolute(path)
-        ? path
-        : Path.resolve(project.getCurrentDirectory(), path)
+      const directoryName = path
       const componentFileName = getFilenameForNewComponent(
         config.context,
         directoryName,
@@ -131,7 +120,7 @@ export const RefactorExtractComponent: RefactorProvider = {
         ),
       )
       const template = document.container
-        .getDocument('template')!
+        .getDocument('template')
         .getText()
         .substring(
           nodes[0].loc.start.offset,
@@ -160,7 +149,7 @@ export const RefactorExtractComponent: RefactorProvider = {
             if (components.has(name)) {
               script.push(
                 `import ${
-                  source.exportName
+                  source.exportName != null
                     ? `{ ${
                         source.localName === source.exportName
                           ? ``
@@ -254,7 +243,7 @@ export const RefactorExtractComponent: RefactorProvider = {
     return undefined
   },
 }
-function formatTemplate(template: string) {
+function formatTemplate(template: string): string {
   const index = template.indexOf('\n')
 
   if (index >= 0) {
@@ -271,7 +260,7 @@ function findNodes(
   document: RenderFunctionTextDocument,
   position: number | TS.TextRange,
 ): t.Node[] {
-  return document.ast
+  return document.ast != null
     ? typeof position === 'number'
       ? config.helpers.findTemplateNodesIn(document.ast, position, position)
       : config.helpers.findTemplateNodesIn(
@@ -286,18 +275,34 @@ function getImportEditForComponent(
   document: VueTextDocument,
   info: ComponentInfo,
   fileName: string,
-) {
+): {
+  name: string
+  changes: TS.TextChange[]
+  renameLocation: number
+  isScript: boolean
+} {
   const changes: TS.TextChange[] = []
   const name = getComponentName(fileName)
-  const { script } = document.descriptor
-  const relativeFileName = `./${Path.relative(
-    Path.dirname(document.fsPath),
+  const { script, scriptSetup } = document.descriptor
+  const relativeFileName = `./${Path.posix.relative(
+    Path.posix.dirname(document.fsPath),
     fileName,
   )}`
   let renameLocation = 0
   let isScript = false
 
-  if (script && !script.setup) {
+  if (scriptSetup != null) {
+    const newText = `\nexport { default as ${name} } from '${relativeFileName}';`
+    renameLocation =
+      scriptSetup.loc.start.offset +
+      newText.indexOf(relativeFileName) +
+      relativeFileName.length -
+      5
+    changes.push({
+      newText,
+      span: { start: scriptSetup.loc.start.offset, length: 0 },
+    })
+  } else if (script != null) {
     isScript = true
     const newText = `\nimport ${name} from '${relativeFileName}';`
     renameLocation =
@@ -310,15 +315,15 @@ function getImportEditForComponent(
       span: { start: script.loc.start.offset, length: 0 },
     })
 
-    if (info.options?.properties['components']) {
-      const components = info.options.properties['components']
+    if (info.options?.properties.components != null) {
+      const components = info.options.properties.components
       const start = components.loc.start.offset + 1
       const padding = getPaddingLength(components.loc.source, 1)
       changes.push({
         newText: components.loc.source.substr(1, padding) + `${name},`,
         span: { start, length: 0 },
       })
-    } else if (info.options) {
+    } else if (info.options != null) {
       const start = info.options.loc.start.offset + 1
       const padding = getPaddingLength(info.options.loc.source, 1)
       changes.push({
@@ -327,7 +332,7 @@ function getImportEditForComponent(
           `components: { ${name} },`,
         span: { start, length: 0 },
       })
-    } else if (info.setup) {
+    } else if (info.setup != null) {
       changes.push(
         {
           newText: `{\n  components: { ${name} },\n setup: `,
@@ -344,16 +349,6 @@ function getImportEditForComponent(
         span: { start: script.loc.end.offset, length: 0 },
       })
     }
-  } else if (script?.setup) {
-    const newText = `<component src="./${Path.relative(
-      Path.dirname(document.fsPath),
-      fileName,
-    )}" />\n\n`
-    renameLocation = newText.indexOf(relativeFileName)
-    changes.push({
-      newText,
-      span: { start: 0, length: 0 },
-    })
   } else {
     isScript = false
     const newText = `<script>\nimport ${name} from '${relativeFileName}';\nexport default { components: { ${name} } }\n</script>\n\n`
@@ -366,7 +361,7 @@ function getImportEditForComponent(
 
     // if <script></script>  is there, it should be removed.
     const m = /^<script[^>]*><\/script>/m.exec(document.getText())
-    if (m) {
+    if (m != null) {
       changes.push({
         newText: '',
         span: { start: m.index, length: m[0].length },

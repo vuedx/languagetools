@@ -15,7 +15,8 @@
     "watch:vscode-vlf": "pnpm recursive --filter ./extensions/vscode-vue-language-features/ run watch",
     "watch:standalone": "pnpm recursive --filter @vuedx/typescript-standalone run watch",
     "ci:build": "node scripts/build",
-    "eslint:check": "eslint ."
+    "eslint:check": "eslint --cache .",
+    "eslint:fix": "eslint --cache --fix ."
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.1",

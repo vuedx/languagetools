@@ -1,30 +1,30 @@
-import { TS } from '../../interfaces';
-import { LanguageServiceOptions } from '../../types';
+import { TS } from '../../interfaces'
+import { LanguageServiceOptions } from '../../types'
 
 export interface RenameProvider {
-  version: string;
+  version: string
 
-  canRename(
+  canRename: (
     config: LanguageServiceOptions,
     fileName: string,
     position: number,
-    preferences: TS.RenameInfoOptions
-  ): TS.RenameInfo | undefined;
+    preferences: TS.RenameInfoOptions,
+  ) => TS.RenameInfo | undefined
 
-  applyRename(
+  applyRename: (
     config: LanguageServiceOptions,
     fileName: string,
     position: number,
     findInStrings: boolean,
-    findInComments: boolean
-  ): TS.RenameLocation[] | undefined;
+    findInComments: boolean,
+  ) => TS.RenameLocation[] | undefined
 
-  applyFileRename(
+  applyFileRename: (
     config: LanguageServiceOptions,
     containerFile: string,
     oldFileName: string,
     newFileName: string,
     options: TS.FormatCodeSettings,
-    preferences: TS.UserPreferences
-  ): TS.FileTextChanges[]|undefined;
+    preferences: TS.UserPreferences,
+  ) => TS.FileTextChanges[] | undefined
 }

@@ -19,12 +19,12 @@ export interface CodegenResult extends Result {
    *
    * [offset, length]
    */
-  expressions: [number, number][]
+  expressions: Array<[number, number]>
 
   /**
    * Each tuple represents an simple expression (mostly identifier).
    *
    * [generatedOffset, generatedLength, sourceOffset, sourceLength, prefixLength]
    */
-  mappings: [number, number, number, number, number][]
+  mappings: Array<[number, number, number, number, number]>
 }

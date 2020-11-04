@@ -1,3 +1,4 @@
+/*  */
 import {
   RenderFunctionTextDocument as RenderFunctionDocument,
   VueTextDocument,

@@ -1,12 +1,12 @@
-import vscode from 'vscode'
-import { injectable } from 'inversify'
-import { Installable } from '../utils/installable'
-import { DocumentService } from '../services/documents'
 import {
   Selector,
   VirtualTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
+import { injectable } from 'inversify'
+import vscode from 'vscode'
+import { DocumentService } from '../services/documents'
+import { Installable } from '../utils/installable'
 
 @injectable()
 export class OpenVirtualFileCommand extends Installable {
@@ -14,12 +14,12 @@ export class OpenVirtualFileCommand extends Installable {
     super()
   }
 
-  public install() {
+  public install(): vscode.Disposable {
     super.install()
 
     return vscode.commands.registerTextEditorCommand(
       'vue.openVirtualFile',
-      this.onExecute.bind(this),
+      this.onExecute.bind(this) as any,
     )
   }
 
@@ -28,19 +28,21 @@ export class OpenVirtualFileCommand extends Installable {
     _: vscode.TextEditorEdit,
     activeDocumentUri?: string,
     activeSelector?: Selector,
-  ) {
+  ): Promise<void> {
     const uri = activeDocumentUri ?? editor.document.uri.toString()
     if (!/\.vue$/.test(uri)) {
-      return vscode.window.showInformationMessage(
+      await vscode.window.showInformationMessage(
         'There is no active Vue document.',
       )
+      return
     }
 
     const container = await this.documents.getVueDocument(uri)
     if (container == null) {
-      return vscode.window.showInformationMessage(
+      await vscode.window.showInformationMessage(
         'There is no active Vue document.',
       )
+      return
     }
 
     if (activeDocumentUri != null) {
@@ -60,7 +62,7 @@ export class OpenVirtualFileCommand extends Installable {
               'Virtual module .vue file resolved to when imported from render function virtual file',
             picked: activeSelector?.type === '_internal',
           },
-          container.descriptor.template
+          container.descriptor.template != null
             ? {
                 label: 'Render',
                 value: '_render',
@@ -69,7 +71,7 @@ export class OpenVirtualFileCommand extends Installable {
                 picked: activeSelector?.type === '_render',
               }
             : null,
-          container.descriptor.template
+          container.descriptor.template != null
             ? {
                 label: 'Template',
                 value: 'template',
@@ -77,7 +79,7 @@ export class OpenVirtualFileCommand extends Installable {
                 picked: activeSelector?.type === 'template',
               }
             : null,
-          container.descriptor.script
+          container.descriptor.script != null
             ? {
                 label: 'Script',
                 value: 'script',
@@ -85,7 +87,7 @@ export class OpenVirtualFileCommand extends Installable {
                 picked: activeSelector?.type === 'script',
               }
             : null,
-          container.descriptor.scriptSetup
+          container.descriptor.scriptSetup != null
             ? {
                 label: 'Setup Script',
                 value: 'scriptSetup',
@@ -133,15 +135,14 @@ export class OpenVirtualFileCommand extends Installable {
     const virtualUri = vscode.Uri.parse(document.uri)
     const ref = await vscode.workspace.openTextDocument(virtualUri)
 
-    vscode.window.showTextDocument(ref, {
+    await vscode.window.showTextDocument(ref, {
       viewColumn: viewColumn,
       preserveFocus: true,
       preview: true,
-      selection: editor.selection,
     })
   }
 }
 
-function onlyNonNull<T>(items: (T | null | undefined)[]): T[] {
+function onlyNonNull<T>(items: Array<T | null | undefined>): T[] {
   return items.filter((item) => item != null) as T[]
 }

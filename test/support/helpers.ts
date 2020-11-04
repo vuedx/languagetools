@@ -1,3 +1,8 @@
+import FS from 'fs/promises'
+import Path from 'path'
+import { URI } from 'vscode-uri'
+import { TextDocument } from 'vscode-languageserver-textdocument'
+
 export async function findPositionOrThrowIn(
   file: string,
   text: string,
@@ -27,11 +32,6 @@ export async function findPositionIn(
   }
 }
 
-import FS from 'fs/promises'
-import Path from 'path'
-import { URI } from 'vscode-uri'
-import { TextDocument } from 'vscode-languageserver-textdocument'
-
 const cache = new Map<string, TextDocument>()
 
 export async function getTextDocument(file: string): Promise<TextDocument> {
@@ -42,7 +42,7 @@ async function createTextDocument(file: string): Promise<TextDocument> {
   const content = await FS.readFile(file, { encoding: 'utf-8' })
   const document = TextDocument.create(
     URI.file(file).toString(),
-    Path.extname(file),
+    Path.posix.extname(file),
     0,
     content,
   )

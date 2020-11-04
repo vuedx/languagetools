@@ -15,7 +15,7 @@ export function isNumber(value: unknown): value is number {
   return typeof value === 'number'
 }
 
-export function getLanguageIdFromExtension(ext: string) {
+export function getLanguageIdFromExtension(ext: string): string {
   switch (ext) {
     case 'js':
       return 'javascript'
@@ -29,27 +29,27 @@ export function getLanguageIdFromExtension(ext: string) {
 // Vue File: foo.vue
 export const VIRTUAL_FILENAME_SEPARATOR = '________'
 
-export function basename(fileName: string) {
-  return Path.basename(fileName)
+export function basename(fileName: string): string {
+  return Path.posix.basename(fileName)
 }
 
-export function relativeVirtualImportPath(fileName: string) {
+export function relativeVirtualImportPath(fileName: string): string {
   return `./${basename(fileName).replace(/\.[^.]+$/, '')}`
 }
 
-export function isVueFile(fileName: string) {
+export function isVueFile(fileName: string): boolean {
   return fileName.endsWith('.vue')
 }
 
-export function isVirtualFile(fileName: string) {
+export function isVirtualFile(fileName: string): boolean {
   return fileName.indexOf('.vue' + VIRTUAL_FILENAME_SEPARATOR) > 0
 }
 
-export function getContainingFile(fileName: string) {
-  return fileName.split(VIRTUAL_FILENAME_SEPARATOR).shift()!
+export function getContainingFile(fileName: string): string {
+  return fileName.split(VIRTUAL_FILENAME_SEPARATOR).shift() ?? fileName
 }
 
-export function asUri(fileNameOrUri: string) {
+export function asUri(fileNameOrUri: string): string {
   if (/^[a-z]{2,}:\//i.test(fileNameOrUri)) return fileNameOrUri
 
   const uri = URI.file(replaceSlashes(fileNameOrUri)).toString()
@@ -61,19 +61,21 @@ export function asUri(fileNameOrUri: string) {
   return uri
 }
 
-export function asFsUri(fileName: string) {
+export function asFsUri(fileName: string): string {
   return URI.file(fileName).toString()
 }
 
-export function replaceSlashes(fileName: string) {
+export function replaceSlashes(fileName: string): string {
   return fileName.replace(/\\/g, '/')
 }
 
-export function asFsPath(uri: string) {
+export function asFsPath(uri: string): string {
   return replaceSlashes(URI.parse(uri).fsPath)
 }
 
-export function parseVirtualFileName(fileName: string) {
+export function parseVirtualFileName(
+  fileName: string,
+): { uri: string; selector: Selector } | null {
   const uri = URI.parse(asUri(fileName))
 
   if (uri.scheme === 'vue') {
@@ -86,9 +88,9 @@ export function parseVirtualFileName(fileName: string) {
 
     return {
       uri: asFsUri(container),
-      selector: <Selector>(
-        (index ? { type: block, index: parseInt(index, 10) } : { type: block })
-      ),
+      selector: (index != null
+        ? { type: block, index: parseInt(index, 10) }
+        : { type: block }) as Selector,
     }
   }
 
@@ -105,22 +107,22 @@ const languages: Record<string, string> = {
 }
 
 export function getBlockLanguage(block?: SFCBlock | null): string {
-  if (!block) return ''
+  if (block == null) return ''
 
-  if (block.lang) {
+  if (block.lang != null) {
     if (block.lang === 'js') return 'javascript'
     if (block.lang === 'ts') return 'typescript'
     return block.lang
   }
 
-  return languages[block.type] || block.type
+  return languages[block.type] ?? block.type
 }
 
 export function isOffsetInBlock(
   offset: number,
   block?: SFCBlock | null,
 ): boolean {
-  if (!block) return false
+  if (block == null) return false
 
   return block.loc.start.offset <= offset && offset <= block.loc.end.offset
 }
@@ -133,12 +135,13 @@ const extensions: Record<string, string> = {
   markdown: 'md',
 }
 export function getLanguageExtension(lang: string): string {
-  return extensions[lang] || lang
+  return extensions[lang] ?? lang
 }
 
 export function binarySearch<T>(
   array: T[],
   isMatch: (a: T) => number,
+  returnMin?: boolean,
 ): T | undefined {
   let lo = 0
   let hi = array.length - 1
@@ -152,5 +155,9 @@ export function binarySearch<T>(
     }
     if (result < 0) lo = mid + 1
     else hi = mid - 1
+  }
+
+  if (returnMin === true) {
+    return array[lo]
   }
 }

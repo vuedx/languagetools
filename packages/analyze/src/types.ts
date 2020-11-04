@@ -40,17 +40,16 @@ export interface ScriptAnalyzerContext extends Context {
   block: SFCScriptBlock
 }
 
-export interface ScriptAnalyzer {
-  (ast: File, context: ScriptAnalyzerContext): void
-}
+export type ScriptAnalyzer = (ast: File, context: ScriptAnalyzerContext) => void
 
-interface AbstractAnalyzerFn<T extends Node = Node> {
-  (node: NodePath<T>, context: ScriptAnalyzerContext): void
-}
+type AbstractAnalyzerFn<T extends Node = Node> = (
+  node: NodePath<T>,
+  context: ScriptAnalyzerContext,
+) => void
 
 interface AbstractAnalyzerHandler<T extends Node = Node> {
-  enter(node: NodePath<T>, context: ScriptAnalyzerContext): void
-  exit(node: NodePath<T>, context: ScriptAnalyzerContext): void
+  enter: (node: NodePath<T>, context: ScriptAnalyzerContext) => void
+  exit: (node: NodePath<T>, context: ScriptAnalyzerContext) => void
 }
 
 export type ComponentDeclarationAnalyzer = AbstractAnalyzerFn
@@ -62,9 +61,10 @@ export type ComponentSetupFnAnalyzer = AbstractAnalyzerFn<
   | FunctionDeclaration
 >
 
-export interface BlockAnalyzer<T extends SFCBlock = SFCBlock> {
-  (block: T, context: Context): void
-}
+export type BlockAnalyzer<T extends SFCBlock = SFCBlock> = (
+  block: T,
+  context: Context,
+) => void
 
 export interface Plugin {
   babel?: AbstractAnalyzerFn | AbstractAnalyzerHandler

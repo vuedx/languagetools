@@ -3,16 +3,20 @@ import util from 'util'
 
 export function wrapInTrace<T>(context: string, target: T): T {
   if (__DEV__) {
-    function write(
+    const write = (
       method: string,
       start: number,
       args: unknown,
       result: unknown,
-    ) {
+    ): void => {
       console.log(
         `[TRACE] ${context} ${method}(${JSON.stringify(args)}) ${
           performance.now() - start
-        } ${util.inspect(result, false, 6, false)}`,
+        } ${util.inspect(result, {
+          depth: 6,
+          maxArrayLength: Infinity,
+          showHidden: false,
+        })}`,
       )
     }
 
@@ -53,7 +57,7 @@ export function wrapFn<T extends (...args: any[]) => any>(
   target: T,
 ): T {
   if (__DEV__) {
-    function write(start: number, args: unknown, result: unknown) {
+    const write = (start: number, args: unknown, result: unknown): void => {
       console.log(
         `[TRACE] fn ${context} (${JSON.stringify(args)}) ${
           performance.now() - start
