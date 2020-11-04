@@ -157,7 +157,11 @@ export function compile(
             ].join('\n'),
           )
         }
-        if (node?.loc != null) {
+        if (
+          node?.loc != null &&
+          node.loc.start.offset !== 0 &&
+          node.loc.end.offset !== 0
+        ) {
           mappings.push([
             context.offset,
             code.length,
