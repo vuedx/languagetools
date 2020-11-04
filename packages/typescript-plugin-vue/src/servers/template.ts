@@ -35,7 +35,10 @@ export const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
 export function createTemplateLanguageServer(
   config: LanguageServiceOptions,
 ): TS.LanguageService & AdditionalFunctions {
-  const { helpers: h, service, context } = config
+  const { helpers: h, context } = config
+  const choose = (fileName: string): TS.LanguageService => {
+    return config.service
+  }
 
   return wrapInTrace('TemplateLanguageServer', {
     ...noop,
@@ -53,7 +56,7 @@ export function createTemplateLanguageServer(
       const loc = document.getGeneratedOffsetAt(position)
       const result =
         (loc != null
-          ? service.getCompletionEntryDetails(
+          ? choose(document.fsPath).getCompletionEntryDetails(
               document.fsPath,
               loc.offset,
               entryName,
@@ -62,7 +65,7 @@ export function createTemplateLanguageServer(
               preferences,
             )
           : undefined) ??
-        service.getCompletionEntryDetails(
+        choose(document.fsPath).getCompletionEntryDetails(
           document.fsPath,
           document.tagCompletionsTriggerOffset,
           entryName,
@@ -70,7 +73,7 @@ export function createTemplateLanguageServer(
           source,
           preferences,
         ) ??
-        service.getCompletionEntryDetails(
+        choose(document.fsPath).getCompletionEntryDetails(
           document.fsPath,
           document.contextCompletionsTriggerOffset,
           entryName,
@@ -150,7 +153,7 @@ export function createTemplateLanguageServer(
       if (isTagCompletion) {
         Object.assign(
           result,
-          service.getCompletionsAtPosition(
+          choose(document.fsPath).getCompletionsAtPosition(
             document.fsPath,
             document.tagCompletionsTriggerOffset,
             options,
@@ -202,7 +205,7 @@ export function createTemplateLanguageServer(
       } else if (loc != null) {
         Object.assign(
           result,
-          service.getCompletionsAtPosition(
+          choose(document.fsPath).getCompletionsAtPosition(
             document.fsPath,
             loc.offset,
             options,
@@ -216,7 +219,7 @@ export function createTemplateLanguageServer(
         if (loc != null) {
           Object.assign(
             result,
-            service.getCompletionsAtPosition(
+            choose(document.fsPath).getCompletionsAtPosition(
               document.fsPath,
               loc.offset + nodeAtCursor.node.tag.length + 1, // TODO: Handle kebab-cased tags.
               options,
@@ -232,7 +235,7 @@ export function createTemplateLanguageServer(
           if (loc != null) {
             Object.assign(
               result,
-              service.getCompletionsAtPosition(
+              choose(document.fsPath).getCompletionsAtPosition(
                 document.fsPath,
                 loc.offset + parent.tag.length + 1, // TODO: Handle kebab-cased tags.
                 options,
@@ -243,7 +246,9 @@ export function createTemplateLanguageServer(
       }
 
       if (isInExpression && /^[ {+/*-]$/.test(charAtCursor)) {
-        const contextCompletion = service.getCompletionsAtPosition(
+        const contextCompletion = choose(
+          document.fsPath,
+        ).getCompletionsAtPosition(
           document.fsPath,
           document.contextCompletionsTriggerOffset,
           {
@@ -342,7 +347,7 @@ export function createTemplateLanguageServer(
       const loc = document?.getGeneratedOffsetAt(position)
 
       if (loc != null && document != null) {
-        return service.getSignatureHelpItems(
+        return choose(document.fsPath).getSignatureHelpItems(
           document.fsPath,
           loc.offset,
           options,
@@ -356,7 +361,10 @@ export function createTemplateLanguageServer(
 
       const loc = document.getGeneratedOffsetAt(position)
       if (loc == null) return
-      const result = service.getQuickInfoAtPosition(fileName, loc.offset)
+      const result = choose(document.fsPath).getQuickInfoAtPosition(
+        fileName,
+        loc.offset,
+      )
 
       if (result != null) {
         const textSpan = h.getTextSpan(document, result.textSpan)
@@ -372,7 +380,7 @@ export function createTemplateLanguageServer(
       const document = h.getRenderDoc(fileName)
       if (document == null) return []
 
-      const diagnostics = service
+      const diagnostics = choose(document.fsPath)
         .getSemanticDiagnostics(document.fsPath)
         .map((diagnostic) => {
           if (
@@ -391,6 +399,8 @@ export function createTemplateLanguageServer(
               diagnostic.start = position?.offset ?? diagnostic.start
 
               return diagnostic
+            } else {
+              return null
             }
           } else {
             return diagnostic
@@ -405,17 +415,22 @@ export function createTemplateLanguageServer(
       const document = h.getRenderDoc(fileName)
       if (document == null) return []
 
-      const diagnostics = service
+      const diagnostics = choose(document.fsPath)
         .getSuggestionDiagnostics(document.fsPath)
         .map((diagnostic) => {
-          if (document.isInGeneratedRange(diagnostic.start)) {
-            diagnostic.start =
-              document.getOriginalOffsetAt(diagnostic.start)?.offset ??
-              diagnostic.start
+          if (diagnostic.start != null) {
+            if (document.isInGeneratedRange(diagnostic.start)) {
+              const position = document.getOriginalOffsetAt(diagnostic.start)
+
+              diagnostic.start = position?.offset ?? diagnostic.start
+
+              return diagnostic
+            } else {
+              return null
+            }
+          } else {
             return diagnostic
           }
-
-          return diagnostic
         })
         .filter(isNotNull)
 
@@ -426,19 +441,28 @@ export function createTemplateLanguageServer(
       const document = h.getRenderDoc(fileName)
       if (document == null) return []
 
-      const diagnostics = service
+      const diagnostics = choose(document.fsPath)
         .getSyntacticDiagnostics(document.fsPath)
         .map((diagnostic) => {
-          if (document.isInGeneratedRange(diagnostic.start)) {
-            diagnostic.start =
-              document.getOriginalOffsetAt(diagnostic.start)?.offset ??
-              diagnostic.start
+          if (diagnostic.start != null) {
+            if (document.isInGeneratedRange(diagnostic.start)) {
+              const position = document.getOriginalOffsetAt(diagnostic.start)
+
+              diagnostic.start = position?.offset ?? diagnostic.start
+
+              return diagnostic
+            } else {
+              return null
+            }
+          } else {
             return diagnostic
           }
         })
         .filter(isNotNull)
       if (document.parserErrors.length > 0) {
-        const sourceFile = service.getProgram()?.getSourceFile(document.fsPath)
+        const sourceFile = choose(document.fsPath)
+          .getProgram()
+          ?.getSourceFile(document.fsPath)
         const block = document.container.getBlock({ type: 'template' })
         if (sourceFile != null && block != null) {
           const start = block.loc.start.offset

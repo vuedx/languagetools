@@ -7,7 +7,7 @@ describe('rename', () => {
     Path.resolve(__dirname, '../../samples/feature-rename'),
   )
 
-  function abs(fileName: string) {
+  function abs(fileName: string): string {
     return toNormalizedPath(Path.resolve(projectPath, fileName))
   }
 
@@ -64,7 +64,7 @@ describe('rename', () => {
       expect(body).toBeTruthy()
       expect(body?.info.canRename).toBe(true)
 
-      if (body?.info.canRename) {
+      if (body?.info.canRename === true) {
         expect(body.info.fileToRename).toBe(
           abs('src/components/HelloWorld.vue'),
         )

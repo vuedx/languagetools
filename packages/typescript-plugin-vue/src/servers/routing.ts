@@ -16,6 +16,7 @@ import {
 } from '../helpers/utils'
 import { TS } from '../interfaces'
 import { LanguageServiceOptions } from '../types'
+import { createVirtualLanguageServer } from './virtual'
 import { createVueLanguageServer } from './vue'
 const VUE_LANGUAGE_SERVER = Symbol('Vue Language Server')
 
@@ -44,10 +45,15 @@ function createLanguageServiceRouter(
   config: LanguageServiceOptions,
 ): TS.LanguageService {
   const vue = createVueLanguageServer(config)
+  const virtual = createVirtualLanguageServer(config)
   const ts = config.service
 
   function choose(fileName: string): TS.LanguageService {
-    return isVueFile(fileName) ? vue : ts
+    return fileName.startsWith('^vue:')
+      ? virtual
+      : isVueFile(fileName)
+      ? vue
+      : ts
   }
 
   function getTextSpan(
@@ -479,8 +485,6 @@ function createLanguageServiceRouter(
             return item
           })
           .filter(isNotNull)
-
-        config.context.log(JSON.stringify(result))
 
         return result
       },

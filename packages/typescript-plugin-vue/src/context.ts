@@ -348,6 +348,21 @@ function patchReadFile(context: PluginContext): void {
   })
 }
 
+function patchReadDirectory(context: PluginContext): void {
+  tryPatchMethod(context.serviceHost, 'readDirectory', (readDirectory) => {
+    return wrapFn(
+      'readDirectory',
+      (path, extensions, exclude, include, depth) => {
+        if (extensions != null) {
+          extensions = [...extensions, '.vue']
+        }
+
+        return readDirectory(path, extensions, exclude, include, depth)
+      },
+    )
+  })
+}
+
 function patchModuleResolution(
   context: PluginContext,
   languageServiceHost: TS.LanguageServiceHost,
@@ -429,6 +444,7 @@ function patchServiceHost(context: PluginContext): void {
   patchWatchFile(context)
   patchFileExists(context)
   patchReadFile(context)
+  patchReadDirectory(context)
 }
 
 function patchWatchFile(context: PluginContext): void {

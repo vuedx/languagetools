@@ -235,6 +235,10 @@ export class TestServer {
   }
 
   public async waitForEvent(
+    event: Proto.ProjectLoadingFinishEventName,
+  ): Promise<Proto.ProjectLoadingFinishEvent>
+  
+  public async waitForEvent(
     event: Proto.RequestCompletedEventName,
   ): Promise<Proto.RequestCompletedEvent>
   public async waitForEvent(

@@ -30,7 +30,11 @@ export function createVueLanguageServer(
   }
 
   function choose(document: VirtualTextDocument): TS.LanguageService {
-    return h.isRenderFunctionDocument(document) ? template : script
+    if (h.isRenderFunctionDocument(document)) {
+      return template
+    }
+
+    return script
   }
 
   return wrapInTrace('VueLanguageServer', {

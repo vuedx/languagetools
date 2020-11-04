@@ -56,7 +56,7 @@ export function wrapFn<T extends (...args: any[]) => any>(
   context: string,
   target: T,
 ): T {
-  if (__DEV__ && 0 + 0 !== 0) {
+  if (__DEV__) {
     const write = (start: number, args: unknown, result: unknown): void => {
       console.log(
         `[TRACE] fn ${context} (${JSON.stringify(args)}) ${
