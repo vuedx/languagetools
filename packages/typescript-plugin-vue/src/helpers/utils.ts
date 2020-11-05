@@ -3,6 +3,7 @@ import {
   getContainingFile,
   isVirtualFile,
   isVueFile,
+  MODULE_SELECTOR,
   parseVirtualFileName,
   RenderFunctionTextDocument,
   RENDER_SELECTOR,
@@ -102,6 +103,13 @@ export function createServerHelper(
     )
   }
 
+  function isVueModuleFileName(fileName: string): boolean {
+    return (
+      isVirtualFile(fileName) &&
+      parseVirtualFileName(fileName)?.selector.type === MODULE_SELECTOR
+    )
+  }
+
   function getRenderDoc(
     fileName: string,
   ): RenderFunctionTextDocument | undefined {
@@ -146,6 +154,7 @@ export function createServerHelper(
     getVueDocument,
     isRenderFunctionDocument,
     isRenderFunctionFileName,
+    isVueModuleFileName,
     getResolvedModule,
   }
 }
@@ -200,7 +209,7 @@ export function getFilenameForNewComponent(
 }
 
 export function getComponentName(fileName: string): string {
-  return Path.posix.basename(fileName).replace(/\.vue$/, '')
+  return Path.posix.basename(fileName).replace(/\.(vue|ts|tsx|js|jsx)$/, '')
 }
 
 export function indent(code: string): string {

@@ -614,6 +614,39 @@ function createLanguageServiceRouter(
         if (result?.definitions != null) {
           result.definitions.forEach((definition) => {
             if (isVirtualFile(definition.fileName)) {
+              if (config.helpers.isVueModuleFileName(definition.fileName)) {
+                const document = config.helpers.getVueDocument(
+                  definition.fileName,
+                )
+                if (document?.descriptor != null) {
+                  const script =
+                    document.descriptor.scriptSetup ??
+                    document.descriptor.script
+
+                  if (script != null) {
+                    // TODO: resolve to export default in <script> or <script setup>
+                    definition.name = baseGetComponentName(document.fsPath)
+
+                    const info = config.helpers.getComponentInfo(document)
+
+                    definition.textSpan = definition.contextSpan = {
+                      start: script.loc.start.offset,
+                      length: script.loc.end.offset - script.loc.start.offset,
+                    }
+
+                    if (info.options?.loc != null) {
+                      definition.textSpan = {
+                        start: info.options.loc.start.offset,
+                        length:
+                          info.options.loc.end.offset -
+                          info.options.loc.start.offset +
+                          1,
+                      }
+                    }
+                  }
+                }
+              }
+
               definition.fileName = getContainingFile(definition.fileName)
             }
           })

@@ -87,7 +87,7 @@ describe('quickinfo', () => {
         await findPositionOrThrowIn(file, `name="Jane"`, 3),
       )
 
-      expect(body?.displayString).toBe('(JSX attribute) name: string')
+      expect(body?.displayString).toBe(file.endsWith('.vue') ? '(prop) name: string' : '(JSX attribute) name: string')
       expect(body?.kind).toBe('JSX attribute')
     })
   })
