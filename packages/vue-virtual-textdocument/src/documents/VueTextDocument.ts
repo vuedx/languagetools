@@ -326,12 +326,14 @@ function createVueModuleTextDocument(
         )
       }
 
+      const renderFilePath = relativeVirtualImportPath(
+        document.container.getDocumentFileName('_render'),
+      )
       if (template != null) {
-        const path = relativeVirtualImportPath(
-          document.container.getDocumentFileName('_render'),
-        )
-        lines.unshift(`import { render } from '${path}'`)
+        lines.unshift(`import { render } from '${renderFilePath}'`)
         lines.push(`component.render = render`)
+      } else {
+        lines.unshift(`import "${renderFilePath}"`)
       }
 
       lines.push(`export default component`)
