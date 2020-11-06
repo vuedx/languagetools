@@ -1,14 +1,14 @@
 name: meta.block.__var_BLOCK__.vue
-begin: ^(<)(__var_BLOCK__)(?=(?:[^"'>]|"[^"]*"|'[^']')*lang="(?:__var_LANGUAGE_ALIASES__)")
+begin: ^(<)(__var_BLOCK__)(?=(?:[^"'>]|"[^"]*"|'[^']')*lang="(?i)(?:__var_LANGUAGE_ALIASES__)")
 beginCaptures:
   0: { name: meta.tag.open.vue }
   1: { name: punctuation.definition.tag.open.begin.vue }
-  2: { name: entity.name.tag.vue }
+  2: { name: entity.name.section.vue }
 end: (<\/)(__var_BLOCK__)(>)
 endCaptures:
   0: { name: meta.tag.close.vue }
   1: { name: punctuation.definition.tag.close.begin.vue }
-  2: { name: entity.name.tag.vue }
+  2: { name: entity.name.section.vue }
   3: { name: punctuation.definition.tag.close.end.vue }
 patterns:
   - begin: (>)
@@ -25,8 +25,8 @@ patterns:
     contentName: entity.attribute.vue
     captures:
       0: { name: meta.tag.open.vue }
-      1: { name: entity.other.attribute-name.vue }
-      2: { name: punctuation.separater.key-value.vue }
+      1: { name: entity.other.block-attribute-name.vue }
+      2: { name: punctuation.separator.key-value.vue }
       3: { name: string.quoted.double.vue }
       4: { name: punctuation.definition.string.quoted.double.begin.vue }
       5: { name: punctuation.definition.string.quoted.double.end.vue }
@@ -34,6 +34,7 @@ patterns:
       7: { name: punctuation.definition.string.quoted.single.begin.vue }
       8: { name: punctuation.definition.string.quoted.single.end.vue }
       9: { name: string.unquoted.vue }
+  - __var_PATTERN__
   - { include: '#attribute' }
   - match: \s
   - match: ([="'])

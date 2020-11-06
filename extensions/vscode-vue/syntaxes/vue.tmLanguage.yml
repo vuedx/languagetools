@@ -35,10 +35,12 @@ repository:
 
   string-quoted-double:
     name: string.quoted.double.vue
-    match: (")[^"]*(")
-    captures:
+    begin: (")
+    beginCaptures:
       1: { name: punctuation.definition.string.quoted.double.begin.vue }
-      2: { name: punctuation.definition.string.quoted.double.end.vue }
+    end: (")
+    endCaptures:
+      1: { name: punctuation.definition.string.quoted.double.end.vue }
 
   string-quoted-single:
     name: string.quoted.single.vue
@@ -48,8 +50,6 @@ repository:
     end: (')
     endCaptures:
       1: { name: punctuation.definition.string.quoted.single.end.vue }
-    patterns:
-      - match: ([^']*)
 
   string-unquoted:
     name: string.unquoted.vue
@@ -66,19 +66,83 @@ repository:
     name: meta.attribute.$1.vue
     begin: ([^\s\f\0\/"'<>=]+)
     beginCaptures:
-      1: { name: entity.other.attribute-name.vue }
+      1: { name: entity.other.block-attribute-name.vue }
     end: (?=[\s\/>])
     patterns:
       - begin: (=)(?=[^\s`<>])
         beginCaptures:
-          1: { name: punctuation.separater.key-value.vue }
+          1: { name: punctuation.separator.key-value.vue }
         end: (?<=["'])|(?=[\s\/>])
         patterns:
           - { include: '#string' }
       - match: (=)
         name: invalid.illegal.tag.open.character-not-allowed-here.vue
 
+  attribute-style:
+    name: meta.attribute.$1.vue
+    begin: (vars|module)
+    beginCaptures:
+      1: { name: entity.other.block-attribute-name.vue }
+    end: (?=[\s\/>])
+    patterns:
+      - begin: (=)(?=[^\s`<>])
+        beginCaptures:
+          1: { name: punctuation.separator.key-value.vue }
+        end: (?<=["'])|(?=[\s\/>])
+        patterns:
+          - begin: (")
+            beginCaptures:
+              1:
+                {
+                  name: string.quoted.double.vue punctuation.definition.string.quoted.double.begin.vue,
+                }
+            end: (")
+            endCaptures:
+              1:
+                {
+                  name: string.quoted.double.vue punctuation.definition.string.quoted.double.end.vue,
+                }
+            patterns:
+              - { include: 'source.js#expression' }
+      - match: (=)
+        name: invalid.illegal.tag.open.character-not-allowed-here.vue
+
+  attribute-script:
+    name: meta.attribute.$1.vue
+    begin: (setup)
+    beginCaptures:
+      1: { name: entity.other.block-attribute-name.vue }
+    end: (?=[\s\/>])
+    patterns:
+      - begin: (=)(?=[^\s`<>])
+        beginCaptures:
+          1: { name: punctuation.separator.key-value.vue }
+        end: (?<=["'])|(?=[\s\/>])
+        patterns:
+          - begin: (")
+            beginCaptures:
+              1:
+                {
+                  name: string.quoted.double.vue punctuation.definition.string.quoted.double.begin.vue,
+                }
+            end: (")
+            endCaptures:
+              1:
+                {
+                  name: string.quoted.double.vue punctuation.definition.string.quoted.double.end.vue,
+                }
+            patterns:
+              - { include: 'source.js#expression' }
+      - match: (=)
+        name: invalid.illegal.tag.open.character-not-allowed-here.vue
+
   block:
+    begin: (^[ \t]+)?
+    beginCaptures:
+      0: { name: punctuation.whitespace.embedded.leading.vue }
+    end: (?!\G)([ \t]*$\n?)?
+    endCaptures:
+      0: { name: punctuation.whitespace.embedded.trailing.vue }
     patterns: []
 
   language-block:

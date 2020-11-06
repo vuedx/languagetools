@@ -4,12 +4,13 @@ patterns:
     beginCaptures:
       0: { name: meta.tag.self-closing.vue }
       1: { name: punctuation.definition.tag.open.begin.vue }
-      2: { name: entity.name.tag.vue }
+      2: { name: entity.name.section.vue }
     end: (/>)
     endCaptures:
       0: { name: meta.tag.self-closing.vue-html }
       1: { name: punctuation.definition.tag.self-closing.end.vue-html }
     patterns:
+      - __var_PATTERN__
       - { include: '#attribute' }
       - match: \s
       - match: ([="'])
@@ -19,12 +20,12 @@ patterns:
     beginCaptures:
       0: { name: meta.tag.open.vue }
       1: { name: punctuation.definition.tag.open.begin.vue }
-      2: { name: entity.name.tag.vue }
+      2: { name: entity.name.section.vue }
     end: (<\/)(__var_BLOCK__)(>)
     endCaptures:
       0: { name: meta.tag.close.vue }
       1: { name: punctuation.definition.tag.close.begin.vue }
-      2: { name: entity.name.tag.vue }
+      2: { name: entity.name.section.vue }
       3: { name: punctuation.definition.tag.close.end.vue }
     patterns:
       - begin: (>)
@@ -35,6 +36,7 @@ patterns:
         end: (?=<\/__var_BLOCK__>)
         patterns:
           - include: __var_SCOPE_NAME__
+      - __var_PATTERN__
       - { include: '#attribute' }
       - match: \s
       - match: ([="'])
