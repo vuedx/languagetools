@@ -53,12 +53,12 @@ export function createTemplateLanguageServer(
     ) {
       const document = h.getRenderDoc(fileName)
       if (document == null) return
-      const loc = document.getGeneratedOffsetAt(position)
+      const loc = document.tryGetGeneratedOffset(position)
       const result =
         (loc != null
           ? choose(document.fsPath).getCompletionEntryDetails(
               document.fsPath,
-              loc.offset,
+              loc,
               entryName,
               formatOptions,
               source,
@@ -137,7 +137,7 @@ export function createTemplateLanguageServer(
       if (document == null) return result
 
       const nodeAtCursor = h.findNodeAtPosition(document.fsPath, position)
-      const loc = document.getGeneratedOffsetAt(position)
+      const loc = document.tryGetGeneratedOffset(position)
       const {
         isTagCompletion,
         isInExpression,
@@ -207,12 +207,12 @@ export function createTemplateLanguageServer(
           result,
           choose(document.fsPath).getCompletionsAtPosition(
             document.fsPath,
-            loc.offset,
+            loc,
             options,
           ),
         )
       } else if (isElementNode(nodeAtCursor.node)) {
-        const loc = document.getGeneratedOffsetAt(
+        const loc = document.tryGetGeneratedOffset(
           nodeAtCursor.node.loc.start.offset + 1,
         )
 
@@ -221,7 +221,7 @@ export function createTemplateLanguageServer(
             result,
             choose(document.fsPath).getCompletionsAtPosition(
               document.fsPath,
-              loc.offset + nodeAtCursor.node.tag.length + 1, // TODO: Handle kebab-cased tags.
+              loc + nodeAtCursor.node.tag.length + 1, // TODO: Handle kebab-cased tags.
               options,
             ),
           )
@@ -230,14 +230,16 @@ export function createTemplateLanguageServer(
         const parent =
           nodeAtCursor.ancestors[nodeAtCursor.ancestors.length - 1].node
         if (isElementNode(parent)) {
-          const loc = document.getGeneratedOffsetAt(parent.loc.start.offset + 1)
+          const loc = document.tryGetGeneratedOffset(
+            parent.loc.start.offset + 1,
+          )
 
           if (loc != null) {
             Object.assign(
               result,
               choose(document.fsPath).getCompletionsAtPosition(
                 document.fsPath,
-                loc.offset + parent.tag.length + 1, // TODO: Handle kebab-cased tags.
+                loc + parent.tag.length + 1, // TODO: Handle kebab-cased tags.
                 options,
               ),
             )

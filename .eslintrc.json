@@ -23,10 +23,13 @@
       ]
     },
     {
-      "files": ["**/__tests__/**/*.ts"],
+      "files": ["**/__tests__/**/*.ts", "**/*.spec.ts"],
       "env": {
         "jest": true,
         "node": true
+      },
+      "rules": {
+        "@typescript-eslint/no-non-null-assertion": "off"
       }
     }
   ]
