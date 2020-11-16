@@ -8,8 +8,8 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p><p __directive_if_0={[,]} ></p> {'<'}{'>'} </>/*@@vue:end*/
+export function render({}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
 }
 `;
 
@@ -21,8 +21,8 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p><p __directive_if_0={[,]} ></p> {'<'}{'>'} </>/*@@vue:end*/
+export function render({}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
 }
 `;
 
@@ -34,8 +34,8 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p><p __directive_if_0={[,]} ></p> {'<'}{'>'} </>/*@@vue:end*/
+export function render({}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
 }
 `;
 
@@ -47,8 +47,8 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p><p __directive_if_0={[,]} ></p> {'<'}{'>'} </>/*@@vue:end*/
+export function render({}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
 }
 `;
 

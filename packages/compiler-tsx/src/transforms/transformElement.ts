@@ -196,7 +196,7 @@ function getJSXAttributes(node: ElementNode, context: TransformContext): any[] {
         : [`'onUpdate:modelValue'`]
       result.push(`{...({`, ...arg, ': $event => ', exp, ' = $event', '})}')
       if (isSimpleExpressionNode(dir.arg)) dir.arg.isStatic = false
-    } else if (dir.name === 'slot') {
+    } else if (dir.name === 'slot' || dir.name === 'if') {
       // Already handled.
     } else {
       result.push(` __directive_${dir.name}_${index}={[`)

@@ -1,4 +1,5 @@
-/// <reference types="jest" />
+import { format } from 'prettier'
+import { compile } from '../src'
 import { Options } from '../src/types'
 
 const samples: Array<{
@@ -175,7 +176,7 @@ const samples: Array<{
     name: 'Convert v-if, v-else-if, v-else to ternary',
     template: `
     <div v-if="foo">A</div>
-    <div v-else-if="bar">B</div>
+    <div v-else-if="foo + bar < 50">B</div>
     <div v-else>C</div>
     `,
     render: `
@@ -183,11 +184,11 @@ const samples: Array<{
 
     export function render({foo, bar}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/(
-        <>
-          <div __directive_if_0={[foo]}>A</div>
-          <div __directive_else-if_0={[bar]}>B</div>
-          <div __directive_else_0={[]}>C</div>
-        </>
+        <>{
+            (foo) ? (<div>A</div>) :
+            (foo + bar < 50) ? (<div>B</div>) :
+            (<div>C</div>)
+        }</>
       )/*@@vue:end*/
     }
     `,
@@ -201,7 +202,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({foo}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/<><div __directive_if_0={[foo]}>A</div></>/*@@vue:end*/
+      return /*@@vue:start*/<>{(foo)?(<div>A</div>):(null)}</>/*@@vue:end*/
     }
     `,
   },
@@ -383,14 +384,11 @@ export function render({foo}: InstanceType<typeof _Ctx>) {
   },
 ]
 
-import { compile } from '../src'
-import { format } from 'prettier'
-
 describe('compile/tsx', () => {
   test.each(
     samples
-    // .filter(sample => sample.name === 'Missing closing tag')
-      .map((sample, index) => [index + 1 + '', sample.name, sample] as const),
+      // .filter((sample) => /(v-if)/.test(sample.name))
+      .map((sample, index) => [`${index + 1}`, sample.name, sample] as const),
   )('%s. %s', (_, __, sample) => {
     const result = compile(sample.template, {
       filename: '/foo/bar/component.vue',
@@ -410,7 +408,7 @@ describe('compile/tsx', () => {
   })
 })
 
-function prepare(source: string) {
+function prepare(source: string): string {
   try {
     return format(trimIndent(source), {
       parser: 'typescript',
@@ -424,6 +422,6 @@ function prepare(source: string) {
   }
 }
 
-function trimIndent(source: string) {
+function trimIndent(source: string): string {
   return source.replace(/([,{[(][\s]*)\n/g, (_, exp) => exp)
 }
