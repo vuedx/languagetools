@@ -83,6 +83,7 @@ interface BlockTransformResult {
 interface CreateTransformedBlockTextDocumentOptions<
   T extends Selector = Selector
 > extends CreateVirtualTextDocumentOptions<T> {
+  sourceSelector?: Selector
   transformer: (document: TransformedBlockTextDocument) => BlockTransformResult
 }
 
@@ -141,7 +142,7 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
     container: VueTextDocument,
     selector: Selector,
     transformed: TextDocument,
-    private source: TextDocument,
+    private source: TextDocument | VirtualTextDocument,
     private readonly _transform: (
       document: TransformedBlockTextDocument,
     ) => BlockTransformResult,
@@ -151,39 +152,55 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
 
   private toTextDocumentPosition({
     line,
-    column: character,
+    column,
   }: SourceMapPosition): Position {
-    return { line, character }
+    return { line: line - 1, character: column }
   }
 
   private toSourceMapPosition({
     line,
-    character: column,
+    character,
   }: Position): SourceMapPosition {
-    return { line, column }
+    return { line: line + 1, column: character }
   }
 
   tryGetSourceOffset(offset: number): number | undefined {
     if (this.consumer != null) {
-      return this.source.offsetAt(
-        this.toTextDocumentPosition(
-          this.consumer.originalPositionFor(
-            this.toSourceMapPosition(this.doc.positionAt(offset)),
-          ),
-        ),
-      )
+      const position = this.consumer.originalPositionFor({
+        ...this.toSourceMapPosition(this.doc.positionAt(offset)),
+        bias: SourceMapConsumer.GREATEST_LOWER_BOUND,
+      })
+
+      if (position?.line != null) {
+        const generated = this.consumer.generatedPositionFor({
+          ...position,
+          bias: SourceMapConsumer.GREATEST_LOWER_BOUND,
+        })
+        const delta =
+          offset - this.offsetAt(this.toTextDocumentPosition(generated))
+        return (
+          this.source.offsetAt(this.toTextDocumentPosition(position)) + delta
+        )
+      }
     }
   }
 
   tryGetGeneratedOffset(offset: number): number | undefined {
     if (this.consumer != null) {
-      const generated = this.consumer.allGeneratedPositionsFor({
+      const generated = this.consumer.generatedPositionFor({
         ...this.toSourceMapPosition(this.source.positionAt(offset)),
-        source: this.fsPath,
+        source: this.container.fsPath,
+        bias: SourceMapConsumer.GREATEST_LOWER_BOUND,
       })
 
-      if (generated.length > 0) {
-        return this.doc.offsetAt(this.toTextDocumentPosition(generated[0]))
+      if (generated.line != null) {
+        const original = this.consumer.originalPositionFor({
+          ...generated,
+          bias: SourceMapConsumer.GREATEST_LOWER_BOUND,
+        })
+        const delta =
+          offset - this.source.offsetAt(this.toTextDocumentPosition(original))
+        return this.doc.offsetAt(this.toTextDocumentPosition(generated)) + delta
       }
     }
   }
@@ -193,12 +210,15 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
       this.isDirty = false
       const { code, map } = this.transform()
       if (map != null) {
-        const block = this.container.getBlock(this.selector as BlockSelector)
-        this.source = TextDocument.update(
-          this.source,
-          [{ text: block != null ? block.content : '' }],
-          this.container.version,
-        )
+        if (!(this.source instanceof VirtualTextDocument)) {
+          const block = this.container.getBlock(this.selector as BlockSelector)
+          this.source = TextDocument.update(
+            this.source,
+            [{ text: block != null ? block.content : '' }],
+            this.container.version,
+          )
+        }
+        map.sources = [this.container.fsPath]
         this.consumer = new SourceMapConsumer(map)
       }
 
@@ -217,11 +237,21 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
   public static create(
     options: CreateTransformedBlockTextDocumentOptions,
   ): TransformedBlockTextDocument {
+    const source =
+      options.sourceSelector != null
+        ? options.container.getDocument(options.sourceSelector)
+        : TextDocument.create(
+            options.uri,
+            options.languageId,
+            -1,
+            options.content,
+          )
+
     return new TransformedBlockTextDocument(
       options.container,
       options.selector,
-      TextDocument.create(options.uri, 'typescript', -1, ''),
       TextDocument.create(options.uri, options.languageId, -1, options.content),
+      source,
       options.transformer,
     )
   }
@@ -405,7 +435,7 @@ function createScriptSetupTextDocument(
 
 // TODO: Support style variables type check.
 
-export class RenderFunctionTextDocument extends VirtualTextDocument {
+export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
   private result!: CodegenResult & { template?: string }
   private originalRange: [number, number] = [0, 0]
   private originalMappings: CodegenResult['mappings'] = []
@@ -414,6 +444,19 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   private expressionsMap: Record<string, [number, number]> = {}
   private _contextCompletionsTriggerOffset: number = 0
   private _tagCompletionsTriggerOffset: number = 0
+
+  constructor(
+    container: VueTextDocument,
+    selector: Selector,
+    transformed: TextDocument,
+    source: TextDocument,
+  ) {
+    super(container, selector, transformed, source, () => {
+      const code = this.tryGenerate()
+
+      return { code, map: this.result?.map }
+    })
+  }
 
   public get contextCompletionsTriggerOffset(): number {
     return this._contextCompletionsTriggerOffset
@@ -534,41 +577,31 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
     return []
   }
 
-  protected refresh(): void {
-    if (this.isDirty || this.doc.version !== this.container.version) {
-      this.isDirty = false
-      try {
-        this.doc = TextDocument.update(
-          this.doc,
-          [{ text: this.generate() }],
-          this.container.version,
-        )
-      } catch (error) {
-        const code = `\n/* ${(error as Error).message} ${
-          (error as Error).stack ?? ''
-        } */ \n`
-        this.doc = TextDocument.update(
-          this.doc,
-          [{ text: code }],
-          this.container.version,
-        )
+  protected tryGenerate(): string {
+    try {
+      return this.generate()
+    } catch (error) {
+      const code = `\n/* ${(error as Error).message} ${
+        (error as Error).stack ?? ''
+      } */ \n`
 
-        if (error.loc == null) {
-          error.loc = this.container.descriptor.template?.loc
-        }
-
-        this.originalRange = [0, 0]
-        this.originalMappings = []
-        this.generatedRange = [0, 0]
-        this.generatedMappings = []
-        this.result = {
-          errors: [error],
-          code,
-          ast: null as any,
-          expressions: [],
-          mappings: [],
-        }
+      if (error.loc == null) {
+        error.loc = this.container.descriptor.template?.loc
       }
+
+      this.originalRange = [0, 0]
+      this.originalMappings = []
+      this.generatedRange = [0, 0]
+      this.generatedMappings = []
+      this.result = {
+        errors: [error],
+        code,
+        ast: null as any,
+        expressions: [],
+        mappings: [],
+      }
+
+      return code
     }
   }
 
@@ -673,7 +706,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
   }
 
   public static create(
-    options: CreateVirtualTextDocumentOptions<{ type: typeof RENDER_SELECTOR }>,
+    options: CreateVirtualTextDocumentOptions,
   ): RenderFunctionTextDocument {
     return new RenderFunctionTextDocument(
       options.container,
@@ -684,6 +717,7 @@ export class RenderFunctionTextDocument extends VirtualTextDocument {
         options.version,
         options.content,
       ),
+      options.container.getDocument('template'),
     )
   }
 }
