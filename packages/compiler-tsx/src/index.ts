@@ -23,6 +23,7 @@ import { withScope } from './scope'
 import { createElementTransform } from './transforms/transformElement'
 import { createExpressionTracker } from './transforms/transformExpression'
 import { createTransformFor } from './transforms/transformFor'
+import { createTransformIf } from './transforms/transformIf'
 import { createInterpolationTransform } from './transforms/transformInterpolation'
 import { CodegenResult, ComponentImport, Options } from './types'
 import { getComponentName, processBogusComment } from './utils'
@@ -115,6 +116,7 @@ export function compile(
       },
 
       createTransformFor((id) => identifiers.add(id)),
+      createTransformIf((id) => identifiers.add(id)),
       createExpressionTracker((id) => identifiers.add(id)),
       createElementTransform(config),
       createInterpolationTransform(config),

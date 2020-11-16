@@ -2,6 +2,18 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "node",
+      "name": "Run tests in current file",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--runInBand", "${relativeFile}"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "protocol": "inspector",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true
+    },
+    {
       "name": "Extension: VS Code",
       "type": "extensionHost",
       "request": "launch",
