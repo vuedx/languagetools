@@ -210,9 +210,14 @@ const samples: Array<{
     name: 'Convert v-for to renderList',
     template: `<div v-for="(item, index) of items">{{ item }} {{ other }}</div>`,
     render: `
-    import { renderList as _renderList } from 'vue'
     import _Ctx from './component.vue?internal'
 
+
+    declare function _renderList(source: string, renderItem: (value: string, index: number) => any): any[];
+    declare function _renderList(source: number, renderItem: (value: number, index: number) => any): any[];
+    declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];
+    declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];
+    declare function _renderList<T>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];
     export function render({ items, other }: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/<>{_renderList(items, (item, index) => {
         return <><div>{item} {other}</div></>
