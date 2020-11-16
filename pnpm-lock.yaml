@@ -203,7 +203,6 @@ importers:
       '@vuedx/vue-virtual-textdocument': 'link:../vue-virtual-textdocument'
       chalk: 4.1.0
       minimist: 1.2.5
-    devDependencies:
       typescript: 4.0.3
     specifiers:
       '@vuedx/typescript-plugin-vue': 'workspace:*'
@@ -6371,7 +6370,6 @@ packages:
     resolution:
       integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==
   /typescript/4.0.3:
-    dev: true
     engines:
       node: '>=4.2.0'
     hasBin: true

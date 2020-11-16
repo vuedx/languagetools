@@ -2,7 +2,9 @@ import {
   isNumber,
   isVirtualFile,
   isVueFile,
+  MODULE_SELECTOR,
   VirtualTextDocument,
+  VIRTUAL_FILENAME_SEPARATOR,
 } from '@vuedx/vue-virtual-textdocument'
 import { wrapInTrace } from '../helpers/logger'
 import { PluginConfig, TS } from '../interfaces'
@@ -191,10 +193,12 @@ export function createVueLanguageServer(
       const visited = new Set<string>()
 
       if (document != null) {
-        const component = document.getDocument('_module')
+        const component = document.getDocument(MODULE_SELECTOR)
         const currentChanges = script.getEditsForFileRename(
           component.fsPath,
-          component.fsPath.replace(oldFilePath, newFilePath),
+          isVueFile(newFilePath)
+            ? newFilePath + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR
+            : newFilePath,
           formatOptions,
           preferences,
         )

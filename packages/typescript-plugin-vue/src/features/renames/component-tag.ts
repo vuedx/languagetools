@@ -21,7 +21,7 @@ export const RenameComponentTag: RenameProvider = {
     if (
       isComponentNode(node) &&
       isPositionInTagName(position, node) &&
-      document
+      document != null
     ) {
       const info = config.helpers.getComponentInfo(document.container)
       const name = node.tag
@@ -30,9 +30,9 @@ export const RenameComponentTag: RenameProvider = {
       )
 
       if (
-        component &&
+        component != null &&
         component.kind === 'script' &&
-        !component.source.exportName &&
+        component.source.exportName != null &&
         component.source.moduleName.endsWith('.vue') &&
         getComponentName(component.source.moduleName) === name
       ) {
@@ -41,7 +41,7 @@ export const RenameComponentTag: RenameProvider = {
           component.source.loc.start.offset +
           component.source.loc.source.lastIndexOf(name)
         const result = config.service.getRenameInfo(
-          document.container.getDocumentFileName('script')!,
+          document.container.getDocumentFileName('script'),
           newPosition,
           {
             allowRenameOfImportPath: true,
@@ -69,7 +69,7 @@ export const RenameComponentTag: RenameProvider = {
         return result
       }
 
-      if (!component) {
+      if (component != null) {
         return {
           canRename: false,
           localizedErrorMessage:
@@ -99,7 +99,7 @@ export const RenameComponentTag: RenameProvider = {
     if (
       isComponentNode(node) &&
       isPositionInTagName(position, node) &&
-      document
+      document != null
     ) {
       const info = config.helpers.getComponentInfo(document.container)
       const name = node.tag
@@ -107,9 +107,7 @@ export const RenameComponentTag: RenameProvider = {
         (component) => component.name === name,
       )
       if (
-        component &&
-        component.kind === 'script' &&
-        !component.source.exportName &&
+        component?.kind === 'script' &&
         component.source.moduleName.endsWith('.vue') &&
         getComponentName(component.source.moduleName) === name
       ) {
@@ -119,7 +117,7 @@ export const RenameComponentTag: RenameProvider = {
         // Ask to rename file instead.
         return config.service
           .findRenameLocations(
-            document.container.getDocumentFileName('script')!,
+            document.container.getDocumentFileName('script'),
             newPosition,
             findInStrings,
             findInComments,
@@ -127,7 +125,7 @@ export const RenameComponentTag: RenameProvider = {
           ?.slice()
       }
       const renameLocations: TS.RenameLocation[] = []
-      if (component) {
+      if (component != null) {
         if (component.kind === 'script') {
           // if component is registered with an alias, then update to reflect in template.
           if (component.source.localName !== component.name) {
@@ -150,14 +148,14 @@ export const RenameComponentTag: RenameProvider = {
               component.source.localName,
             )
             const locations = config.service.findRenameLocations(
-              document.container.getDocumentFileName('script')!,
+              document.container.getDocumentFileName('script'),
               component.loc.start.offset + prefixText.length,
               findInStrings,
               findInComments,
             )
             const start = component.source.loc.start.offset
             const end = component.source.loc.end.offset
-            if (locations) {
+            if (locations != null) {
               const vueFileName = document.container.fsPath
               locations.forEach((location) => {
                 if (
@@ -178,7 +176,7 @@ export const RenameComponentTag: RenameProvider = {
             )
             // add alias to named import.
             if (
-              component.source.exportName &&
+              component.source.exportName != null &&
               !importReplacement.prefixText.trim().endsWith(' as')
             ) {
               importReplacement.prefixText =
@@ -200,7 +198,7 @@ export const RenameComponentTag: RenameProvider = {
           // TODO: Support <component /> block.
         }
 
-        if (document.ast) {
+        if (document.ast != null) {
           traverseFast(document.ast, (node) => {
             if (isComponentNode(node)) {
               if (component.aliases.includes(node.tag)) {
@@ -246,16 +244,16 @@ export const RenameComponentTag: RenameProvider = {
     if (isVueFile(oldFileName)) {
       const document = config.helpers.getRenderDoc(containerFile)
 
-      if (document) {
+      if (document != null) {
         const name = getComponentName(oldFileName)
         const newName = getComponentName(newFileName)
         const info = config.helpers.getComponentInfo(document.container)
         const component = info.components.find(
           (component) => component.name === name,
         )
-        if (component) {
+        if (component != null) {
           const script = document.container.getDocument('script')
-          if (script) {
+          if (script != null) {
             const position = Math.max(
               component.loc.end.offset - 2,
               component.loc.start.offset,
@@ -271,7 +269,7 @@ export const RenameComponentTag: RenameProvider = {
                 false,
                 false,
               )
-              if (edits) {
+              if (edits != null) {
                 const fileName = document.container.fsPath
                 fileTextChanges.push({
                   fileName: fileName,
@@ -287,7 +285,7 @@ export const RenameComponentTag: RenameProvider = {
                 const textChanges: TS.TextChange[] = []
 
                 // update tags in template
-                if (document.ast) {
+                if (document.ast != null) {
                   traverseFast(document.ast, (node) => {
                     if (isComponentNode(node)) {
                       if (component.aliases.includes(node.tag)) {
@@ -324,11 +322,11 @@ export const RenameComponentTag: RenameProvider = {
       }
     }
 
-    if (fileTextChanges.length) return fileTextChanges
+    if (fileTextChanges.length > 0) return fileTextChanges
   },
 }
 
-function isPositionInTagName(position: number, node: t.ComponentNode) {
+function isPositionInTagName(position: number, node: t.ComponentNode): boolean {
   return (
     // In start tag.
     position <= node.loc.start.offset + node.tag.length ||

@@ -100,8 +100,9 @@ export function createLoc(
   return { source, start, end }
 }
 
+// TODO: Move it to ast helpers maybe
 export function getComponentName(fileName: string): string {
-  return Path.posix.basename(fileName).replace(/\.vue$/, '')
+  return Path.posix.basename(fileName).replace(/\.(vue|ts|tsx|js|jsx)$/, '')
 }
 
 export function processBogusComment(content: string): string {

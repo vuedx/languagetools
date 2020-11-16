@@ -376,6 +376,7 @@ export function createTemplateLanguageServer(
 
       const loc = document.getGeneratedOffsetAt(position)
       if (loc == null) return
+
       const result = choose(document.fsPath).getQuickInfoAtPosition(
         fileName,
         loc.offset,
@@ -385,10 +386,16 @@ export function createTemplateLanguageServer(
         const textSpan = h.getTextSpan(document, result.textSpan)
         if (textSpan != null) {
           result.textSpan = textSpan
-
-          return result
+        } else {
+          return
         }
+        result.displayParts?.forEach((displayPart) => {
+          if (displayPart.text === 'JSX attribute') {
+            displayPart.text = 'prop' // TODO: Maybe event or prop or attribute?
+          }
+        })
       }
+      return result
     },
 
     getSemanticDiagnostics(fileName) {

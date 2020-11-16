@@ -16,10 +16,8 @@
   "dependencies": {
     "@vuedx/typescript-plugin-vue": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
+    "typescript": "^4.0.3",
     "chalk": "^4.1.0",
     "minimist": "^1.2.5"
-  },
-  "devDependencies": {
-    "typescript": "^4.0.3"
   }
 }
