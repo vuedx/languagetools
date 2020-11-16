@@ -10,7 +10,9 @@ export const ScriptBlockAnalyzer: Plugin = {
   blocks: {
     script: (block, ctx) => {
       if (block.src == null) {
-        processScript(createScriptContext(block.content, ctx, block))
+        try {
+          processScript(createScriptContext(block.content, ctx, block))
+        } catch {}
       }
     },
   },

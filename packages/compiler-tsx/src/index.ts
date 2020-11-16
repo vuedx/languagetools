@@ -5,6 +5,7 @@ import {
   createCompoundExpression,
   CREATE_BLOCK,
   CREATE_VNODE,
+  RENDER_LIST,
   FRAGMENT,
   generate,
   OPEN_BLOCK,
@@ -33,7 +34,15 @@ export * from './types'
 function clone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj))
 }
-
+const typeHelpers = {
+  'v-for': [
+    `declare function _renderList(source: string, renderItem: (value: string, index: number) => any): any[];`,
+    `declare function _renderList(source: number, renderItem: (value: number, index: number) => any): any[];`,
+    `declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];`,
+    `declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];`,
+    `declare function _renderList<T>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];`,
+  ].join('\n'),
+} as const
 const components: Record<string, ComponentImport> = {}
 export function compile(
   template: string,
@@ -125,11 +134,13 @@ export function compile(
       errors.push(error)
     },
   })
-  ;[OPEN_BLOCK, CREATE_BLOCK, CREATE_VNODE, FRAGMENT].forEach((helper) => {
-    const index = ast.helpers.indexOf(helper)
-    if (index >= 0) ast.helpers.splice(index, 1)
-  })
-
+  const hasVFor = ast.helpers.includes(RENDER_LIST)
+  ;[OPEN_BLOCK, CREATE_BLOCK, CREATE_VNODE, FRAGMENT, RENDER_LIST].forEach(
+    (helper) => {
+      const index = ast.helpers.indexOf(helper)
+      if (index >= 0) ast.helpers.splice(index, 1)
+    },
+  )
   if (ast.children.length > 0) {
     ast.codegenNode = createCompoundExpression([
       '/*@@vue:start*/<>',
@@ -152,11 +163,14 @@ export function compile(
         if (code.startsWith('export ')) {
           push(
             [
+              hasVFor ? typeHelpers['v-for'] : null,
               'declare const __completionsTrigger: InstanceType<typeof _Ctx>',
               '__completionsTrigger./*@@vue:completions*/$props',
               'const __completionsTag = /*@@vue:completionsTag*/<div />',
               '',
-            ].join('\n'),
+            ]
+              .filter((value) => value != null)
+              .join('\n'),
           )
         }
         if (
