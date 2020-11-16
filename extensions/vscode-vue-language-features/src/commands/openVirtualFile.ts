@@ -109,6 +109,7 @@ export class OpenVirtualFileCommand extends Installable {
       await this.showDocument(
         this.findActiveVirtualDocument(editor, container),
         editor,
+        vscode.ViewColumn.Two,
       )
     }
   }

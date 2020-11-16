@@ -442,6 +442,7 @@ function patchModuleResolution(
 
 function patchServiceHost(context: PluginContext): void {
   patchWatchFile(context)
+  patchWatchDirectory(context)
   patchFileExists(context)
   patchReadFile(context)
   patchReadDirectory(context)
@@ -473,6 +474,41 @@ function patchWatchFile(context: PluginContext): void {
         }
 
         return watchFile(fileName, callback, pollingInterval, options)
+      },
+    )
+  })
+}
+
+function patchWatchDirectory(context: PluginContext): void {
+  tryPatchMethod(context.serviceHost, 'watchDirectory', (watchDirectory) => {
+    context.log(
+      `[patch] Override watchFile to watch virtual files. (ServiceHost)`,
+    )
+
+    return wrapFn(
+      'watchDirectory',
+      (
+        fileName: string,
+        callback: TS.DirectoryWatcherCallback,
+        recursive?: boolean,
+        options?: TS.WatchOptions,
+      ): TS.FileWatcher => {
+        return watchDirectory(
+          fileName,
+          (fileName) => {
+            if (isVueFile(fileName)) {
+              // TODO: Ensure this does mess with fileName case-sensitivity
+              const document = context.store.get(fileName)
+              if (document != null) {
+                callback(document.getDocumentFileName('_module'))
+              }
+            } else {
+              callback(fileName)
+            }
+          },
+          recursive,
+          options,
+        )
       },
     )
   })

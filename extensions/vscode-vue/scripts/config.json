@@ -4,11 +4,16 @@
     "allowed": ["pug"]
   },
   "preview": {
-    "default": "vue-html"
+    "default": "vue-html",
+    "allowed": []
   },
   "docs": {
     "default": "markdown",
     "allowed": ["asciidoc", "text"]
+  },
+  "i18n": {
+    "default": "json",
+    "allowed": ["yaml"]
   },
   "script": {
     "default": "javascript",

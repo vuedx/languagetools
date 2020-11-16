@@ -23,6 +23,14 @@ const languages = {
     scopeName: 'source.ts',
     aliases: ['ts', 'typescript'],
   },
+  json: {
+    scopeName: 'source.json',
+    aliases: ['json'],
+  },
+  yaml: {
+    scopeName: 'source.yaml',
+    aliases: ['yml', 'yaml'],
+  },
 
   css: {
     scopeName: 'source.css',
@@ -101,7 +109,15 @@ module.exports = function generate(grammar) {
           .replace(/__var_BLOCK__/g, blockName)
           .replace(/__var_LANGUAGE__/g, defaultLanguage)
           .replace(/__var_LANGUAGE_ALIASES__/g, defaultLanguage)
-          .replace(/__var_SCOPE_NAME__/g, languageInfo.scopeName),
+          .replace(/__var_SCOPE_NAME__/g, languageInfo.scopeName)
+          .replace(
+            /"__var_PATTERN__"/g,
+            blockName === 'style'
+              ? `{ "include": "#attribute-style" }`
+              : blockName === 'script'
+              ? `{ "include": "#attribute-script" }`
+              : '{}',
+          ),
       )
 
       const id = `${blockName}-block`
@@ -123,7 +139,15 @@ module.exports = function generate(grammar) {
               /__var_LANGUAGE_ALIASES__/g,
               languageInfo.aliases.join('|'),
             )
-            .replace(/__var_SCOPE_NAME__/g, languageInfo.scopeName),
+            .replace(/__var_SCOPE_NAME__/g, languageInfo.scopeName)
+            .replace(
+              /"__var_PATTERN__"/g,
+              blockName === 'style'
+                ? `{ "include": "#attribute-style" }`
+                : blockName === 'script'
+                ? `{ "include": "#attribute-script" }`
+                : '{}',
+            ),
         )
 
         const id = `${blockName}-${language}-block`
