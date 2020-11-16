@@ -51,7 +51,7 @@ function createLanguageServiceRouter(
   function choose(fileName: string): TS.LanguageService {
     return fileName.startsWith('^vue:')
       ? virtual
-      : isVueFile(fileName)
+      : isVueFile(fileName) || isVirtualFile(fileName)
       ? vue
       : ts
   }

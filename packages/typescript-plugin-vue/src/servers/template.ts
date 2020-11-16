@@ -35,9 +35,22 @@ export const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
 export function createTemplateLanguageServer(
   config: LanguageServiceOptions,
 ): TS.LanguageService & AdditionalFunctions {
-  const { helpers: h, context } = config
+  const { helpers: h, context, service } = config
   const choose = (fileName: string): TS.LanguageService => {
-    return config.service
+    try {
+      service.getProgram()?.getSourceFile(fileName) // This should throw if {fileName} is not part of program.
+
+      return service
+    } catch {
+      return (
+        context.projectService
+          .getDefaultProjectForFile(
+            context.typescript.server.toNormalizedPath(fileName),
+            false,
+          )
+          ?.getLanguageService() ?? service
+      )
+    }
   }
 
   return wrapInTrace('TemplateLanguageServer', {
