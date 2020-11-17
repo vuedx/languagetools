@@ -23,7 +23,7 @@ jobs:
           node-version: '14.14.0'
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v1.2.0
+        uses: pnpm/action-setup@v1.2.1
         with:
           version: 5.5.4
           run_install: |

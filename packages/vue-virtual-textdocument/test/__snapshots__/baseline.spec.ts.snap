@@ -160,6 +160,77 @@ export function render(_ctx: InstanceType<typeof _Ctx>) {
 }
 `;
 
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/VFor.vue 1`] = `
+import _Ctx from './VFor.vue?internal'
+
+
+declare function _renderList(source: string, renderItem: (value: string, index: number) => any): any[];
+declare function _renderList(source: number, renderItem: (value: number, index: number) => any): any[];
+declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];
+declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];
+declare function _renderList<T extends object>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({num, str, arr, obj, itr, boo, sym}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<>{_renderList(num, (n) => {
+    return <><div >{n}</div></>
+  })}{_renderList(num, (n, i) => {
+    return <><div >{n}:{i}</div></>
+  })}{_renderList(str, (s) => {
+    return <><div >{s}</div></>
+  })}{_renderList(str, (s, i) => {
+    return <><div >{s}:{i}</div></>
+  })}{_renderList(arr, (a) => {
+    return <><div >{a}</div></>
+  })}{_renderList(arr, ({ value }) => {
+    return <><div >{value}</div></>
+  })}{_renderList(arr, ({ foo }) => {
+    return <><div >{arr}</div></>
+  })}{_renderList(arr, (a, i) => {
+    return <><div >{a}:{i}</div></>
+  })}{_renderList(arr, ({ value }, i) => {
+    return <><div >{value}:{i}</div></>
+  })}{_renderList(obj, (o) => {
+    return <><div >{o}</div></>
+  })}{_renderList(obj, (o, k) => {
+    return <><div >{o}:{k}</div></>
+  })}{_renderList(obj, (o, k, i) => {
+    return <><div >{o}:{k}:{i}</div></>
+  })}{_renderList(itr, (t) => {
+    return <><div >{t}</div></>
+  })}{_renderList(boo, (b) => {
+    return <><div >{b}</div></>
+  })}{_renderList(sym, (s) => {
+    return <><div >{s}</div></>
+  })}</>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/VIf.vue 1`] = `
+import _Ctx from './VIf.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({isVerified, user}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<>{(isVerified === true) ? (<div >Verified</div>) :null}{(user === true) ? (<div >{user.name}</div>) :(<div >{user} has no name</div>)}{(user == null) ? (<div >{user.name}</div>) :(user != null) ? (<div >{user.name}</div>) :(<div >{user} has no name</div>)}</>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/VModel.vue 1`] = `
+import _Ctx from './VModel.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({asConst, asRef, asComputed, asComputedWritable, asReactive, asReadonly}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><input value={asConst} onChange={($event) => (asConst = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asConst} onChange={($event) => (asConst = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asRef} onChange={($event) => (asRef = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asRef} onChange={($event) => (asRef = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asComputed} onChange={($event) => (asComputed = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asComputed} onChange={($event) => (asComputed = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asComputedWritable} onChange={($event) => (asComputedWritable = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asComputedWritable} onChange={($event) => (asComputedWritable = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReactive} onChange={($event) => (asReactive = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReactive} onChange={($event) => (asReactive = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReactive.foo} onChange={($event) => (asReactive.foo = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReactive.foo} onChange={($event) => (asReactive.foo = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReadonly} onChange={($event) => (asReadonly = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReadonly} onChange={($event) => (asReadonly = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReadonly.foo} onChange={($event) => (asReadonly.foo = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReadonly.foo} onChange={($event) => (asReadonly.foo = Number(($event as Event & {target:HTMLInputElement}).target.value))} /></>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/WrongPropType.vue 1`] = `
 import _Ctx from './WrongPropType.vue?internal'
 import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
