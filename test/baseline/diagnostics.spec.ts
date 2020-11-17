@@ -8,7 +8,7 @@ describe('quickinfo', () => {
   )
   const projectRootPath = toNormalizedPath(Path.join(projectPath, 'src'))
 
-  function abs(fileName: string) {
+  function abs(fileName: string): string {
     return toNormalizedPath(Path.resolve(projectPath, fileName))
   }
 
@@ -19,6 +19,7 @@ describe('quickinfo', () => {
     await server.sendCommand('configure', { preferences: {}, watchOptions: {} })
     await server.sendCommand('compilerOptionsForInferredProjects', {
       options: {
+        strict: true,
         allowJs: true,
         checkJs: true,
         allowNonTsExtensions: true,
@@ -48,6 +49,100 @@ describe('quickinfo', () => {
         checkEventFile(file),
       )
       expect(body?.diagnostics).toHaveLength(0)
+    } finally {
+      await server.sendCommand('updateOpen', { closedFiles: [file] })
+    }
+  })
+
+  test('v-for', async () => {
+    const file = abs(`src/VFor.vue`)
+    try {
+      await server.sendCommand('updateOpen', {
+        openFiles: [{ file, projectRootPath }],
+      })
+
+      const { body } = await server.waitForEvent(
+        'semanticDiag',
+        checkEventFile(file),
+      )
+      expect(body?.diagnostics).toHaveLength(3)
+      expect(body?.diagnostics).toEqual([
+        expect.objectContaining({
+          category: 'error',
+          code: 2339,
+          text: expect.stringContaining(`'foo' does not exist on type`),
+        }),
+        expect.objectContaining({
+          category: 'error',
+          code: 2769,
+          // TODO: Rewrite message for v-for unsupported types.
+        }),
+        expect.objectContaining({
+          category: 'error',
+          code: 2769,
+        }),
+      ])
+    } finally {
+      await server.sendCommand('updateOpen', { closedFiles: [file] })
+    }
+  })
+
+  test('v-if', async () => {
+    const file = abs(`src/VIf.vue`)
+    try {
+      await server.sendCommand('updateOpen', {
+        openFiles: [{ file, projectRootPath }],
+      })
+
+      const { body } = await server.waitForEvent(
+        'semanticDiag',
+        checkEventFile(file),
+      )
+      expect(body?.diagnostics).toHaveLength(3)
+      expect(body?.diagnostics).toEqual([
+        expect.objectContaining({
+          category: 'error',
+          code: 2367,
+          text: expect.stringContaining(
+            `This condition will always return 'false'`,
+          ),
+        }),
+        expect.objectContaining({
+          category: 'error',
+          code: 2339,
+          text: expect.stringContaining(
+            `Property 'name' does not exist on type`,
+          ),
+        }),
+        expect.objectContaining({
+          category: 'error',
+          code: 2531,
+          text: expect.stringContaining(`Object is possibly 'null'`),
+        }),
+      ])
+    } finally {
+      await server.sendCommand('updateOpen', { closedFiles: [file] })
+    }
+  })
+  test('v-model', async () => {
+    const file = abs(`src/VModel.vue`)
+    try {
+      await server.sendCommand('updateOpen', {
+        openFiles: [{ file, projectRootPath }],
+      })
+
+      const { body } = await server.waitForEvent(
+        'semanticDiag',
+        checkEventFile(file),
+      )
+      expect(body?.diagnostics).toHaveLength(15)
+      expect(body?.diagnostics[14]).toEqual(
+        expect.objectContaining({
+          category: 'error',
+          code: 2540,
+          text: expect.stringContaining(`because it is a read-only property`),
+        }),
+      )
     } finally {
       await server.sendCommand('updateOpen', { closedFiles: [file] })
     }
@@ -292,7 +387,7 @@ describe('quickinfo', () => {
           category: 'error',
           code: 2322,
           text: expect.stringContaining(
-            `Type 'number' is not assignable to type 'string'.`,
+            `Type 'number' is not assignable to type`,
           ),
           start: {
             line: item.line,

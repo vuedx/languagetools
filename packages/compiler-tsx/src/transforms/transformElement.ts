@@ -176,26 +176,43 @@ function getJSXAttributes(node: ElementNode, context: TransformContext): any[] {
       }
     } else if (dir.name === 'model') {
       const exp = dir.exp ?? 'null'
+      const isNativeInput = /^(input|textarea|select)$/.test(node.tag)
 
-      result.push(' ')
-      if (isSimpleExpressionNode(dir.arg)) {
-        if (dir.arg.isStatic) {
-          result.push(dir.arg, '={', exp, '}')
-        } else {
-          result.push('{...({[', dir.arg, ']: ', exp, '})}')
-        }
+      if (isNativeInput && dir.arg == null) {
+        const type = `Event & {target:${getHTMLElementType(node.tag)}}`
+        result.push(' ')
+        result.push('value={', exp, '}')
+        result.push(' ')
+        result.push(
+          `onChange={($event) => (`,
+          exp,
+          ' = ',
+          dir.modifiers.includes('number')
+            ? `Number(($event as ${type}).target.value)`
+            : `($event as ${type}).target.value`,
+          ')}',
+        )
       } else {
-        result.push('modelValue={', exp, '}')
-      }
+        result.push(' ')
+        if (isSimpleExpressionNode(dir.arg)) {
+          if (dir.arg.isStatic) {
+            result.push(dir.arg, '={', exp, '}')
+          } else {
+            result.push('{...({[', dir.arg, ']: ', exp, '})}')
+          }
+        } else {
+          result.push('modelValue={', exp, '}')
+        }
 
-      result.push(' ')
-      const arg = isSimpleExpressionNode(dir.arg)
-        ? dir.arg.isStatic
-          ? ["'", 'onUpdate:' + dir.arg.content, "'"]
-          : [`['onUpdate:' + `, dir.arg, `]`]
-        : [`'onUpdate:modelValue'`]
-      result.push(`{...({`, ...arg, ': $event => ', exp, ' = $event', '})}')
-      if (isSimpleExpressionNode(dir.arg)) dir.arg.isStatic = false
+        result.push(' ')
+        const arg = isSimpleExpressionNode(dir.arg)
+          ? dir.arg.isStatic
+            ? ["'", 'onUpdate:' + dir.arg.content, "'"]
+            : [`['onUpdate:' + `, dir.arg, `]`]
+          : [`'onUpdate:modelValue'`]
+        result.push(`{...({`, ...arg, ': $event => ', exp, ' = $event', '})}')
+        if (isSimpleExpressionNode(dir.arg)) dir.arg.isStatic = false
+      }
     } else if (dir.name === 'slot' || dir.name === 'if') {
       // Already handled.
     } else {
@@ -267,4 +284,17 @@ function isDynamicSlotsExpression(
   node: SlotsExpression,
 ): node is DynamicSlotsExpression {
   return node.type === 14
+}
+
+function getHTMLElementType(tag: string): string {
+  switch (tag) {
+    case 'input':
+      return 'HTMLInputElement'
+    case 'textarea':
+      return 'HTMLTextAreaElement'
+    case 'select':
+      return 'HTMLSelectElement'
+    default:
+      return 'HTMLElement'
+  }
 }
