@@ -124,7 +124,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({foo}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/<><input modelValue={foo} {...{'onUpdate:modelValue': $event => (foo = $event)}} /></>/*@@vue:end*/
+      return /*@@vue:start*/<><input value={foo} onChange={$event => (foo = ($event as Event & {target:HTMLInputElement}).target.value)} /></>/*@@vue:end*/
     }
     `,
   },
@@ -217,7 +217,7 @@ const samples: Array<{
     declare function _renderList(source: number, renderItem: (value: number, index: number) => any): any[];
     declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];
     declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];
-    declare function _renderList<T>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];
+    declare function _renderList<T extends object>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];
     export function render({ items, other }: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/<>{_renderList(items, (item, index) => {
         return <><div>{item} {other}</div></>

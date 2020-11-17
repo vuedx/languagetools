@@ -40,7 +40,7 @@ const typeHelpers = {
     `declare function _renderList(source: number, renderItem: (value: number, index: number) => any): any[];`,
     `declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];`,
     `declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];`,
-    `declare function _renderList<T>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];`,
+    `declare function _renderList<T extends object>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];`,
   ].join('\n'),
 } as const
 const components: Record<string, ComponentImport> = {}
