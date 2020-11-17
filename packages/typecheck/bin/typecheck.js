@@ -101,6 +101,14 @@ function jsonEncodeDiagnostics(diagnostic) {
   )
 }
 
+function hasErrors(diagnostics) {
+  return diagnostics.some(
+    (diagnostic) =>
+      diagnostic.syntacticDiagnostics.length ||
+      diagnostic.semanticDiagnostics.length,
+  )
+}
+
 /**
  *
  * @param {string} fileName
@@ -166,10 +174,10 @@ Options
     process.exit(1)
   }
 
+  let result = checker.getDiagnostics(directory, verbose)
   if (json) {
-    jsonEncodeDiagnostics(checker.getDiagnostics(directory, verbose))
+    jsonEncodeDiagnostics(result)
   } else {
-    let result = checker.getDiagnostics(directory, verbose)
     if (vue) {
       result = result.filter((item) => item.fileName.endsWith('.vue'))
     }
@@ -191,6 +199,8 @@ Options
       console.log()
     })
   }
+
+  if (hasErrors(result)) process.exit(2)
 }
 
 try {
