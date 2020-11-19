@@ -88,6 +88,21 @@ export function render({str}: InstanceType<typeof _Ctx>) {
 }
 `;
 
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/GlobalComponent.vue 1`] = `
+import _Ctx from './GlobalComponent.vue?internal'
+import JavaScriptSetupPropsOption from './components/JavaScriptSetupPropsOption.vue'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><Transition >{{
+    default: () => (<><JavaScriptPropsOption /><JavaScriptSetupPropsOption /></>)
+  }}</Transition></>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/MissingKeysInObjectProp.vue 1`] = `
 import _Ctx from './MissingKeysInObjectProp.vue?internal'
 import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
@@ -227,7 +242,7 @@ declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render({asConst, asRef, asComputed, asComputedWritable, asReactive, asReadonly}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><input value={asConst} onChange={($event) => (asConst = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asConst} onChange={($event) => (asConst = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asRef} onChange={($event) => (asRef = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asRef} onChange={($event) => (asRef = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asComputed} onChange={($event) => (asComputed = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asComputed} onChange={($event) => (asComputed = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asComputedWritable} onChange={($event) => (asComputedWritable = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asComputedWritable} onChange={($event) => (asComputedWritable = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReactive} onChange={($event) => (asReactive = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReactive} onChange={($event) => (asReactive = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReactive.foo} onChange={($event) => (asReactive.foo = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReactive.foo} onChange={($event) => (asReactive.foo = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReadonly} onChange={($event) => (asReadonly = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReadonly} onChange={($event) => (asReadonly = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReadonly.foo} onChange={($event) => (asReadonly.foo = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReadonly.foo} onChange={($event) => (asReadonly.foo = Number(($event as Event & {target:HTMLInputElement}).target.value))} /></>/*@@vue:end*/
+  return /*@@vue:start*/<><input value={asConst}  onChange={($event) => (asConst = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asConst}  onChange={($event) => (asConst = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asRef}  onChange={($event) => (asRef = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asRef}  onChange={($event) => (asRef = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asComputed}  onChange={($event) => (asComputed = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asComputed}  onChange={($event) => (asComputed = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asComputedWritable}  onChange={($event) => (asComputedWritable = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asComputedWritable}  onChange={($event) => (asComputedWritable = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReactive}  onChange={($event) => (asReactive = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReactive}  onChange={($event) => (asReactive = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReactive.foo}  onChange={($event) => (asReactive.foo = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReactive.foo}  onChange={($event) => (asReactive.foo = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReadonly}  onChange={($event) => (asReadonly = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReadonly}  onChange={($event) => (asReadonly = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReadonly.foo}  onChange={($event) => (asReadonly.foo = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReadonly.foo}  onChange={($event) => (asReadonly.foo = Number(($event as Event & {target:HTMLInputElement}).target.value))} /></>/*@@vue:end*/
 }
 `;
 

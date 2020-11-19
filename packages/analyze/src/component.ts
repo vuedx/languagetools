@@ -14,17 +14,30 @@ export interface Addressable {
   loc: SourceRange
 }
 
-export interface ImportSource extends Addressable {
+export interface ImportSource {
   moduleName: string
   exportName?: string
   localName: string
 }
 
-export interface ComponentRegistrationInfo extends Addressable {
+export interface ImportSourceWithLocation extends ImportSource, Addressable {}
+
+export interface ComponentRegistrationInfo {
   name: string
   aliases: string[]
-  kind: 'script'
   source: ImportSource
+}
+
+export interface DirectiveRegistrationInfo {
+  name: string
+  source: ImportSource
+}
+
+export interface LocalComponentRegistrationInfo
+  extends ComponentRegistrationInfo,
+    Addressable {
+  kind: 'script' | 'scriptSetup'
+  source: ImportSourceWithLocation
 }
 
 export type TypeInfo =
@@ -79,7 +92,7 @@ export interface SyntaxError {
 }
 
 export interface ComponentInfo {
-  components: ComponentRegistrationInfo[]
+  components: LocalComponentRegistrationInfo[]
   props: PropInfo[]
   options?: ComponentOptionsInfo
   setup?: SetupInfo
@@ -101,7 +114,7 @@ export interface ComponentInfoFactory {
   addProp: (name: string, options?: Partial<PropInfo>) => ComponentInfoFactory
   addLocalComponent: (
     name: string,
-    source: ImportSource,
+    source: ImportSourceWithLocation,
     loc?: SourceRange,
   ) => ComponentInfoFactory
   addOption: (name: string, address: Addressable) => ComponentInfoFactory
@@ -151,7 +164,7 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
       name,
       source,
       loc = null as any,
-      kind: ComponentRegistrationInfo['kind'] = 'script',
+      kind: LocalComponentRegistrationInfo['kind'] = 'script',
     ) {
       component.components.push({ name, aliases: [name], kind, source, loc }) // Vue 3 — Component names are PascalCase.
 

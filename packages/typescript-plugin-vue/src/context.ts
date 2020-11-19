@@ -1,19 +1,21 @@
+import { InferredVueProject, VueProject } from '@vuedx/analyze'
 import {
   asUri,
   DocumentStore,
   getContainingFile,
+  INTERNAL_MODULE_SELECTOR,
   isVirtualFile,
   isVueFile,
+  MODULE_SELECTOR,
+  parseVirtualFileName,
   VIRTUAL_FILENAME_SEPARATOR,
   VueTextDocument,
-  MODULE_SELECTOR,
-  INTERNAL_MODULE_SELECTOR,
-  parseVirtualFileName,
 } from '@vuedx/vue-virtual-textdocument'
+import Path from 'path'
 import { URI } from 'vscode-uri'
-import { TS, PluginConfig } from './interfaces'
-import { tryPatchMethod } from './helpers/patcher'
 import { wrapFn } from './helpers/logger'
+import { tryPatchMethod } from './helpers/patcher'
+import { PluginConfig, TS } from './interfaces'
 
 function getLastNumberFromVersion(version: string): number {
   const parts = version.split(/[^0-9]+/)
@@ -64,13 +66,14 @@ export class PluginContext {
   private _projectService!: TS.server.ProjectService
   private _serverHost!: TS.server.ServerHost
   public readonly _externalFiles = new WeakMap<TS.server.Project, string[]>()
+  public readonly _vueProjects: VueProject[] = []
 
   public constructor(public readonly typescript: typeof TS) {
     this.store = new ProxyDocumentStore(
       (uri) => {
         const fileName = URI.parse(uri).fsPath
         const content = this.typescript.sys.readFile(fileName) ?? ''
-        return VueTextDocument.create(uri, 'vue', 0, content)
+        return this.createVueDocument(fileName, content)
       },
       (uri) => {
         const fileName = URI.parse(uri).fsPath
@@ -106,9 +109,55 @@ export class PluginContext {
     return this._externalFiles.get(project) ?? []
   }
 
+  public getVueProjectForFile(fileName: string, ensure: true): VueProject
+  public getVueProjectForFile(
+    fileName: string,
+    ensure?: false,
+  ): VueProject | null
+  public getVueProjectForFile(
+    fileName: string,
+    ensure?: boolean,
+  ): VueProject | null {
+    let project =
+      this._vueProjects.find((project) =>
+        fileName.startsWith(project.rootDir + '/'),
+      ) ?? null
+
+    if (project === null && ensure === true) {
+      const packageFile = this.typescript.findConfigFile(
+        fileName,
+        this.typescript.sys.fileExists,
+        'package.json',
+      )
+
+      // TODO: Implement configured project support. https://github.com/vuejs/vetur/pull/2378
+
+      const rootDir = Path.posix.dirname(packageFile ?? fileName)
+      const fileNames = this.serviceHost.readDirectory(
+        rootDir,
+        [],
+        ['node_modules'],
+      )
+
+      project = new InferredVueProject(
+        rootDir,
+        packageFile != null ? require(packageFile) : {},
+      )
+
+      project.setVueFileNames(fileNames)
+
+      this._vueProjects.push(project)
+    }
+
+    return project
+  }
+
   public createVueDocument(fileName: string, content: string): VueTextDocument {
     const uri = URI.file(fileName).toString()
-    const document = VueTextDocument.create(uri, 'vue', 0, content)
+    const project = this.getVueProjectForFile(fileName, true)
+    const document = VueTextDocument.create(uri, 'vue', 0, content, {
+      globalComponents: project.components,
+    })
     this.store.set(uri, document)
     return document
   }
@@ -287,6 +336,16 @@ function patchGetScriptFileNames(
 
           projects.forEach((project) => {
             context._externalFiles.set(project, files)
+            if (
+              project instanceof context.typescript.server.ConfiguredProject
+            ) {
+              const vueProject = context.getVueProjectForFile(
+                project.getCurrentDirectory() + '/placeholder.vue',
+                true,
+              )
+
+              vueProject.setVueFileNames(files)
+            }
           })
         }
 

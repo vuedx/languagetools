@@ -132,7 +132,9 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/vscode#readme",
   "dependencies": {
-    "@vuedx/typescript-standalone": "workspace:*"
+    "@vuedx/analyze": "workspace:^0.3.0",
+    "@vuedx/typescript-standalone": "workspace:*",
+    "fast-glob": "^3.2.4"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.24.1",

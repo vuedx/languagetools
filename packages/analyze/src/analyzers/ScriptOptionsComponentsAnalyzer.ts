@@ -9,7 +9,7 @@ import {
   ObjectProperty,
   ExportSpecifier,
 } from '@babel/types'
-import { ImportSource } from '../component'
+import { ImportSourceWithLocation } from '../component'
 import { Plugin, ScriptAnalyzerContext } from '../types'
 import { createSourceRange } from '../utilities'
 
@@ -79,7 +79,7 @@ function getComponentName(key: ObjectProperty['key']): string | undefined {
 function resolveComponentInformation(
   binding: Binding | undefined,
   context: ScriptAnalyzerContext,
-): ImportSource | undefined {
+): ImportSourceWithLocation | undefined {
   if (binding == null) return
 
   switch (binding.kind) {

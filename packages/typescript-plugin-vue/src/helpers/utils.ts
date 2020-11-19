@@ -21,6 +21,7 @@ import {
   findTemplateNodesIn,
   SearchResult,
 } from './ast-ops'
+export { getComponentName } from '@vuedx/analyze'
 
 function createCachedAnalyzer(): (document: VueTextDocument) => ComponentInfo {
   const cache = new QuickLRU<string, ComponentInfo>({ maxSize: 1000 })
@@ -206,10 +207,6 @@ export function getFilenameForNewComponent(
   }
 
   return fileName
-}
-
-export function getComponentName(fileName: string): string {
-  return Path.posix.basename(fileName).replace(/\.(vue|ts|tsx|js|jsx)$/, '')
 }
 
 export function indent(code: string): string {

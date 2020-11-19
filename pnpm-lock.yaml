@@ -95,7 +95,9 @@ importers:
       yaml: ^1.10.0
   extensions/vscode-vue-language-features:
     dependencies:
+      '@vuedx/analyze': 'link:../../packages/analyze'
       '@vuedx/typescript-standalone': 'link:../../packages/typescript-standalone'
+      fast-glob: 3.2.4
     devDependencies:
       '@vercel/ncc': 0.24.1
       '@vuedx/vue-virtual-textdocument': 'link:../../packages/vue-virtual-textdocument'
@@ -105,8 +107,10 @@ importers:
       vsce: 1.81.0
     specifiers:
       '@vercel/ncc': ^0.24.1
+      '@vuedx/analyze': 'workspace:^0.3.0'
       '@vuedx/typescript-standalone': 'workspace:*'
       '@vuedx/vue-virtual-textdocument': 'workspace:*'
+      fast-glob: ^3.2.4
       inversify: ^5.0.1
       reflect-metadata: ^0.1.13
       typescript: ^4.0.3

@@ -1,9 +1,11 @@
 import {
+  isComponentNode,
   isDirectiveNode,
   isElementNode,
   isInterpolationNode,
   isSimpleExpressionNode,
   t,
+  traverseFast,
 } from '@vuedx/template-ast-types'
 import {
   getContainingFile,
@@ -430,6 +432,40 @@ export function createTemplateLanguageServer(
         })
         .filter(isNotNull)
 
+      // TODO: Cache it.
+      if (document.ast != null) {
+        const info = h.getComponentInfo(document.container)
+        const localComponents = new Set(
+          info.components.flatMap((component) => component.aliases),
+        )
+        const project = context.getVueProjectForFile(document.container.fsPath)
+        const globalComponents = new Set(
+          project?.globalComponents.flatMap((component) => component.aliases) ??
+            [],
+        )
+        const file = choose(document.fsPath)
+          .getProgram()
+          ?.getSourceFile(document.fsPath)
+        traverseFast(document.ast, (node) => {
+          if (isComponentNode(node)) {
+            console.log('Checking component node: ' + node.tag)
+            if (
+              !localComponents.has(node.tag) &&
+              !globalComponents.has(node.tag)
+            ) {
+              diagnostics.push({
+                category: context.typescript.DiagnosticCategory.Warning,
+                code: 59001,
+                start: node.loc.start.offset + 1,
+                length: node.tag.length,
+                messageText: `The component '${node.tag}' is inferred as global component. It may not be available at runtime.`,
+                file,
+              })
+            }
+          }
+        })
+      }
+
       return diagnostics
     },
 
@@ -493,7 +529,7 @@ export function createTemplateLanguageServer(
           document.parserErrors.forEach((error) => {
             diagnostics.push({
               category: context.typescript.DiagnosticCategory.Error,
-              code: error.code,
+              code: 50000 + error.code,
               file: sourceFile,
               source: error.loc?.source,
               start: error.loc != null ? error.loc.start.offset : start,

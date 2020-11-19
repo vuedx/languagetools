@@ -1,4 +1,5 @@
 import {
+  ComponentRegistrationInfo,
   ComponentsOptionAnalyzer,
   createAnalyzer,
   ScriptBlockAnalyzer,
@@ -46,6 +47,7 @@ import {
   RawSourceMap,
   Position as SourceMapPosition,
 } from 'source-map'
+import Path from 'path'
 
 const analyzer = createAnalyzer([ScriptBlockAnalyzer, ComponentsOptionAnalyzer])
 const replaceRE = /./g
@@ -618,7 +620,7 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
       const errors: any[] = []
       this.result = compile(template.content, {
         filename: this.container.fsPath,
-        components: this.getLocalComponents(),
+        components: this.getKnownComponents(),
         onError: (error) => {
           errors.push(error)
         },
@@ -682,29 +684,47 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
     return mappings.join('\n')
   }
 
-  protected getLocalComponents(): Record<string, ComponentImport> | undefined {
+  protected getKnownComponents(): Record<string, ComponentImport> {
+    const componentsByName: Record<string, ComponentImport> = {}
+
+    const dir = Path.posix.dirname(this.container.fsPath)
+    this.container.options.globalComponents.forEach((component) => {
+      const result = {
+        path: Path.posix.isAbsolute(component.source.moduleName)
+          ? getRelativeFileName(dir, component.source.moduleName)
+          : component.source.moduleName,
+        named: component.source.exportName != null,
+        name: component.source.exportName,
+      }
+
+      component.aliases.forEach((name) => {
+        componentsByName[name] = result
+      })
+    })
+
     const { script, scriptSetup } = this.container.descriptor
-
     const content = scriptSetup?.content ?? script?.content
-
     if (content != null) {
       // TODO: Cache this.
-      const result = analyzer.analyzeScript(content, 'component.ts')
-      const map: Record<string, ComponentImport> = {}
-      result.components.forEach((component) => {
-        const result = {
-          path: component.source.moduleName,
-          named: component.source.exportName != null,
-          name: component.source.exportName,
-        }
+      try {
+        const result = analyzer.analyzeScript(content, 'component.ts')
+        result.components.forEach((component) => {
+          const result = {
+            path: component.source.moduleName,
+            named: component.source.exportName != null,
+            name: component.source.exportName,
+          }
 
-        component.aliases.forEach((name) => {
-          map[name] = result
+          component.aliases.forEach((name) => {
+            componentsByName[name] = result
+          })
         })
-      })
-
-      return map
+      } catch {
+        // TODO: Handle this...
+      }
     }
+
+    return componentsByName
   }
 
   public static create(
@@ -724,20 +744,36 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
   }
 }
 
+interface VueTextDocumentOptions {
+  globalComponents: ComponentRegistrationInfo[]
+}
+
 export class VueTextDocument extends ProxyTextDocument {
   private isDirty = true
   private sfc!: ReturnType<typeof parse>
-  private readonly options: SFCParseOptions
+  private readonly parseOptions: SFCParseOptions
+
   private readonly documents = new Map<
     string,
     VirtualTextDocument | undefined
   >()
 
-  constructor(doc: TextDocument, options?: SFCParseOptions) {
+  public readonly options: VueTextDocumentOptions
+
+  constructor(
+    doc: TextDocument,
+    options?: VueTextDocumentOptions,
+    parseOptions?: SFCParseOptions,
+  ) {
     super(doc)
 
     this.options = {
+      globalComponents: [],
       ...options,
+    }
+
+    this.parseOptions = {
+      ...parseOptions,
       filename: this.fsPath,
       sourceMap: false,
       pad: 'space',
@@ -952,7 +988,7 @@ export class VueTextDocument extends ProxyTextDocument {
     this.isDirty = false
     const source = this.getText()
     try {
-      this.sfc = parseSFC(source, this.options)
+      this.sfc = parseSFC(source, this.parseOptions)
     } catch {
       // -- skip invalid state.
       // TODO: Catch errors.
@@ -964,11 +1000,13 @@ export class VueTextDocument extends ProxyTextDocument {
     languageId: string,
     version: number,
     content: string,
-    options?: SFCParseOptions,
+    options?: VueTextDocumentOptions,
+    parseOptions?: SFCParseOptions,
   ): VueTextDocument {
     return new VueTextDocument(
       TextDocument.create(uri, languageId, version, content),
       options,
+      parseOptions,
     )
   }
 
@@ -985,4 +1023,10 @@ export class VueTextDocument extends ProxyTextDocument {
 
     return document
   }
+}
+
+function getRelativeFileName(dir: string, fileName: string): string {
+  const relative = Path.posix.relative(dir, fileName)
+
+  return relative.startsWith('.') ? relative : `./${relative}`
 }
