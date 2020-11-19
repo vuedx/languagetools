@@ -174,24 +174,28 @@ function generateCustomDirective(
 
   dirs.forEach((dir) => alreadyProcessed.add(dir))
 
-  code.push(` v-${dir.name}={[`)
+  code.push(` v-${dir.name}={`)
 
+  const isMultiValue = dirs.length > 1
+  if (isMultiValue) code.push('[')
   dirs.forEach((dir) => {
     code.push('{')
 
     code.push('arg:', dir.arg ?? 'undefined', ',')
-    code.push('exp:', dir.arg ?? 'undefined', ',')
+    code.push('exp:', dir.exp ?? 'undefined', ',')
 
+    // TODO: Maybe array?
     code.push('modifiers: {')
     dir.modifiers.forEach((modifier) => {
       code.push(modifier, ':true,')
     })
-    code.push('},')
+    code.push('}')
 
-    code.push('},')
+    code.push('}')
+    if (isMultiValue) code.push(',')
   })
-
-  code.push(']}')
+  if (isMultiValue) code.push(']')
+  code.push('}')
 
   return code
 }

@@ -168,7 +168,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({isVisible}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/<><div style="color: red" __directive_show_1={[isVisible]}></div></>/*@@vue:end*/
+      return /*@@vue:start*/<><div style="color: red" v-show={{ arg: undefined, exp: isVisible, modifiers: {}}}></div></>/*@@vue:end*/
     }
     `,
   },
@@ -237,8 +237,8 @@ const samples: Array<{
     export function render({foo}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/(
         <>
-          <div __directive_text_0={[foo]}/>
-          <div __directive_html_0={[foo]}/>
+          <div v-text={{ arg: undefined, exp: foo, modifiers: {}}}/>
+          <div v-html={{ arg: undefined, exp: foo, modifiers: {}}}/>
         </>
       )/*@@vue:end*/
     }
@@ -256,8 +256,8 @@ const samples: Array<{
     export function render({exp, arg}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/(
         <>
-          <div __directive_known_0={[exp]} />
-          <div __directive_unknown_0={[arg, exp]} />
+          <div v-known={{ arg: "arg", exp: exp, modifiers: { modifier: true }}} />
+          <div v-unknown={{ arg: arg, exp: exp, modifiers: { modifier: true }}} />
         </>
       )/*@@vue:end*/
     }
