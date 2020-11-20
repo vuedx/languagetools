@@ -411,9 +411,7 @@ export function createTemplateLanguageServer(
             diagnostic.file != null &&
             diagnostic.file.fileName !== document.fsPath
           ) {
-            throw new Error(
-              `Unexpected file "${diagnostic.file.fileName}" in diagnostics of "${document.fsPath}"`,
-            )
+            return diagnostic
           }
 
           if (diagnostic.start != null) {
@@ -433,25 +431,30 @@ export function createTemplateLanguageServer(
         .filter(isNotNull)
 
       // TODO: Cache it.
-      if (document.ast != null) {
+
+      const project = context.getVueProjectForFile(document.container.fsPath)
+      if (document.ast != null && project?.kind === 'inferred') {
         const info = h.getComponentInfo(document.container)
         const localComponents = new Set(
           info.components.flatMap((component) => component.aliases),
         )
-        const project = context.getVueProjectForFile(document.container.fsPath)
+
         const globalComponents = new Set(
-          project?.globalComponents.flatMap((component) => component.aliases) ??
-            [],
+          project.globalComponents.flatMap((component) => component.aliases),
         )
+        const projectComponents = new Set(
+          project.components.flatMap((component) => component.aliases),
+        )
+
         const file = choose(document.fsPath)
           .getProgram()
           ?.getSourceFile(document.fsPath)
         traverseFast(document.ast, (node) => {
           if (isComponentNode(node)) {
-            console.log('Checking component node: ' + node.tag)
             if (
               !localComponents.has(node.tag) &&
-              !globalComponents.has(node.tag)
+              !globalComponents.has(node.tag) &&
+              projectComponents.has(node.tag)
             ) {
               diagnostics.push({
                 category: context.typescript.DiagnosticCategory.Warning,

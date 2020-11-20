@@ -116,6 +116,12 @@
         }
       ]
     },
+    "jsonValidation": [
+      {
+        "fileMatch": "vueconfig.json",
+        "url": "https://unpkg.com/@vuedx/projectconfig@0.3.2/schema.json"
+      }
+    ],
     "typescriptServerPlugins": [
       {
         "name": "@vuedx/typescript-standalone",

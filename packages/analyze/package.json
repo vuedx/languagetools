@@ -32,12 +32,15 @@
     "@babel/parser": "^7.12.3",
     "@babel/traverse": "7.12.1",
     "@babel/types": "7.12.1",
+    "@types/micromatch": "^4.0.1",
     "@vue/compiler-core": "^3.0.1",
     "@vuedx/compiler-sfc": "workspace:*",
+    "@vuedx/projectconfig": "link:../projectconfig",
     "cli-highlight": "^2.1.4",
     "commander": "^6.1.0",
     "fast-glob": "^3.2.4",
-    "hash-sum": "^2.0.0"
+    "hash-sum": "^2.0.0",
+    "micromatch": "^4.0.2"
   },
   "devDependencies": {
     "@types/babel__traverse": "^7.0.15",

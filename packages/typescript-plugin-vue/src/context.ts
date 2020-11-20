@@ -1,4 +1,8 @@
-import { InferredVueProject, VueProject } from '@vuedx/analyze'
+import {
+  ConfiguredVueProject,
+  InferredVueProject,
+  VueProject,
+} from '@vuedx/analyze'
 import {
   asUri,
   DocumentStore,
@@ -66,7 +70,10 @@ export class PluginContext {
   private _projectService!: TS.server.ProjectService
   private _serverHost!: TS.server.ServerHost
   public readonly _externalFiles = new WeakMap<TS.server.Project, string[]>()
-  public readonly _vueProjects: VueProject[] = []
+  public readonly _vueProjects: Array<{
+    project: VueProject
+    dispose: () => void
+  }> = []
 
   public constructor(public readonly typescript: typeof TS) {
     this.store = new ProxyDocumentStore(
@@ -109,6 +116,12 @@ export class PluginContext {
     return this._externalFiles.get(project) ?? []
   }
 
+  private forEachTSProject(fn: (project: TS.server.Project) => void): void {
+    this.projectService.configuredProjects.forEach(fn)
+    this.projectService.inferredProjects.forEach(fn)
+    this.projectService.externalProjects.forEach(fn)
+  }
+
   public getVueProjectForFile(fileName: string, ensure: true): VueProject
   public getVueProjectForFile(
     fileName: string,
@@ -119,9 +132,9 @@ export class PluginContext {
     ensure?: boolean,
   ): VueProject | null {
     let project =
-      this._vueProjects.find((project) =>
+      this._vueProjects.find(({ project }) =>
         fileName.startsWith(project.rootDir + '/'),
-      ) ?? null
+      )?.project ?? null
 
     if (project === null && ensure === true) {
       const packageFile = this.typescript.findConfigFile(
@@ -130,33 +143,197 @@ export class PluginContext {
         'package.json',
       )
 
-      // TODO: Implement configured project support. https://github.com/vuejs/vetur/pull/2378
+      const configFile = this.typescript.findConfigFile(
+        fileName,
+        this.typescript.sys.fileExists,
+        'vueconfig.json',
+      )
 
-      const rootDir = Path.posix.dirname(packageFile ?? fileName)
+      const rootDir = Path.posix.dirname(packageFile ?? configFile ?? fileName)
       const fileNames = this.serviceHost.readDirectory(
         rootDir,
-        [],
+        ['.tsx', '.jsx', '.ts', '.js'],
         ['node_modules'],
       )
 
-      project = new InferredVueProject(
+      const tryRequire = (fileName: string): any => {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete require.cache[fileName]
+
+          return require(fileName)
+        } catch (error) {
+          return {}
+        }
+      }
+
+      const newProject =
+        configFile != null
+          ? new ConfiguredVueProject(
+              rootDir,
+              packageFile,
+              packageFile != null ? tryRequire(packageFile) : {},
+              configFile,
+              tryRequire(configFile),
+            )
+          : new InferredVueProject(
+              rootDir,
+              packageFile,
+              packageFile != null ? tryRequire(packageFile) : {},
+            )
+
+      newProject.setFileNames(fileNames)
+
+      const disposables: Array<() => void> = [
+        () => {
+          this._vueProjects.splice(
+            this._vueProjects.findIndex((item) => item.project === newProject),
+            1,
+          )
+        },
+      ]
+
+      const dispose = (): void => disposables.forEach((fn) => fn())
+      const projectDirWatcher = this.serviceHost.watchDirectory(
         rootDir,
-        packageFile != null ? require(packageFile) : {},
+        (fileName: string) => {
+          if (fileName.endsWith('/vueconfig.json')) {
+            if (newProject.kind === 'inferred') {
+              dispose()
+              reload()
+              return
+            }
+          }
+
+          if (!/\.(vue|ts|tsx|js|jsx)$/.test(fileName)) return
+          if (this.serviceHost.fileExists(fileName)) {
+            if (!newProject.fileNames.includes(fileName)) {
+              newProject.setFileNames([...newProject.fileNames, fileName])
+            }
+          } else {
+            if (newProject.fileNames.includes(fileName)) {
+              newProject.setFileNames(
+                newProject.fileNames.filter((f) => f !== fileName),
+              )
+            }
+          }
+        },
       )
 
-      project.setVueFileNames(fileNames)
+      disposables.push(() => projectDirWatcher.close())
 
-      this._vueProjects.push(project)
+      const reload = (): void => {
+        this.forEachTSProject((tsProject) => {
+          const dir = tsProject.getCurrentDirectory()
+          if (
+            dir.startsWith(newProject.rootDir) ||
+            newProject.rootDir.startsWith(dir)
+          ) {
+            this.getExternalFiles(tsProject).forEach((fileName) => {
+              const document = this.store.get(fileName)
+              if (document != null) {
+                document.markDirty()
+                document.all().forEach((doc) => {
+                  if (
+                    [
+                      'javascript',
+                      'typescript',
+                      'javascriptreact',
+                      'typescriptreact',
+                    ].includes(doc.languageId)
+                  ) {
+                    triggerFileUpdate(this, doc.fsPath)
+                  }
+                })
+              }
+            })
+            tsProject.markAsDirty()
+            tsProject.refreshDiagnostics()
+          }
+        })
+      }
+
+      if (configFile != null) {
+        __DEV__ && this.log(`Setting VueProject FileWatcher:  ${configFile}`)
+        const configFileWatcher = this.serviceHost.watchFile(
+          configFile,
+          (_, event) => {
+            if (event === this.typescript.FileWatcherEventKind.Deleted) {
+              dispose()
+            } else {
+              ;(newProject as ConfiguredVueProject).config = tryRequire(
+                configFile,
+              )
+              newProject.markDirty()
+            }
+            reload()
+          },
+        )
+        disposables.push(() => {
+          __DEV__ && this.log(`Stopping VueProject FileWatcher: ${configFile}`)
+          configFileWatcher.close()
+        })
+      }
+
+      if (packageFile != null) {
+        const packageFileWatcher = this.serviceHost.watchFile(
+          packageFile,
+          (_, event) => {
+            if (event === this.typescript.FileWatcherEventKind.Deleted) {
+              dispose()
+            } else {
+              newProject.packageJSON = {
+                dependencies: {},
+                devDependencies: {},
+                ...tryRequire(packageFile),
+              }
+              newProject.markDirty()
+            }
+          },
+        )
+        disposables.push(() => packageFileWatcher.close())
+      }
+
+      this._vueProjects.push({ project: newProject, dispose })
+
+      project = newProject
     }
 
     return project
   }
 
+  private lastCleanupAt = Date.now()
+  public disposeUnusedProjects(force: boolean = false): void {
+    if (
+      !force &&
+      (Date.now() - this.lastCleanupAt > 5 * 60 * 1000 ||
+        this._vueProjects.length === 0)
+    ) {
+      return
+    }
+
+    this.lastCleanupAt = Date.now()
+    const usedProjects = new Set<VueProject>()
+
+    // TODO: detect unused projects
+
+    this._vueProjects.forEach(({ project, dispose }) => {
+      if (!usedProjects.has(project)) {
+        // dispose()
+      }
+    })
+  }
+
   public createVueDocument(fileName: string, content: string): VueTextDocument {
     const uri = URI.file(fileName).toString()
-    const project = this.getVueProjectForFile(fileName, true)
     const document = VueTextDocument.create(uri, 'vue', 0, content, {
-      globalComponents: project.components,
+      getGlobalComponents: wrapFn('getGlobalComponents', () => {
+        const project = this.getVueProjectForFile(fileName, true)
+
+        return project.kind === 'inferred'
+          ? project.components
+          : project.globalComponents
+      }),
     })
     this.store.set(uri, document)
     return document
@@ -344,7 +521,7 @@ function patchGetScriptFileNames(
                 true,
               )
 
-              vueProject.setVueFileNames(files)
+              vueProject.setFileNames(files)
             }
           })
         }
@@ -573,21 +750,21 @@ function patchWatchDirectory(context: PluginContext): void {
   })
 }
 
+function triggerFileUpdate(context: PluginContext, fileName: string): void {
+  if (__DEV__) context.log(`Taint ${fileName}`)
+  const scriptInfo = context.projectService.getScriptInfo(fileName)
+
+  if (scriptInfo != null) {
+    // @ts-expect-error - internal method but it's better for performance compared to it's public counter part `reloadFromFile()`.
+    scriptInfo.delayReloadNonMixedContentFile()
+  } else if (__DEV__) context.log(`Cannot find scriptInfo for ${fileName}`)
+}
+
 function patchScriptInfo(
   context: PluginContext,
   scriptInfo: TS.server.ScriptInfo,
 ): void {
   if (scriptInfo == null) throw new Error('ScriptInfo is required.')
-
-  function triggerFileUpdate(fileName: string): void {
-    if (__DEV__) context.log(`Taint ${fileName}`)
-    const scriptInfo = context.projectService.getScriptInfo(fileName)
-
-    if (scriptInfo != null) {
-      // @ts-expect-error - internal method but it's better for performance compared to it's public counter part `reloadFromFile()`.
-      scriptInfo.delayReloadNonMixedContentFile()
-    } else if (__DEV__) context.log(`Cannot find scriptInfo for ${fileName}`)
-  }
 
   tryPatchMethod(scriptInfo, 'editContent', (editContent) => {
     context.log(
@@ -612,7 +789,7 @@ function patchScriptInfo(
           getLastNumberFromVersion(scriptInfo.getLatestVersion()),
         )
           .all()
-          .forEach((document) => triggerFileUpdate(document.fsPath))
+          .forEach((document) => triggerFileUpdate(context, document.fsPath))
       },
     )
   })

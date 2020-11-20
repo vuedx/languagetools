@@ -1,0 +1,49 @@
+{
+  "$id": "https://unpkg.com/@vuedx/projectconfig/schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Project configuration for TS Plugin",
+  "type": "object",
+  "properties": {
+    "globalComponents": {
+      "description": "List of global components for type checking",
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string",
+            "description": "A file, a glob expression or a package name. NOTE: File must default export a Vue component and it should be included in 'tsconfig.json' or 'jsconfig.json'. Package must have either 'web-types' or 'vetur' fields on package.json"
+          },
+          {
+            "type": "object",
+            "patternProperties": {
+              "^[A-Za-z][A-Za-z0-9-]*$": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "description": "A file or a package name. It must default export a Vue component."
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "moduleName": {
+                        "type": "string",
+                        "description": "A file or a package name."
+                      },
+                      "exportName": {
+                        "type": "string",
+                        "description": "Named export identifier"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": ["moduleName"]
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  }
+}

@@ -13,6 +13,7 @@ export * from './types'
 export * from './utilities'
 export * from './project/VueProject'
 export * from './project/InferredVueProject'
+export * from './project/ConfiguredVueProject'
 
 export function createFullAnalyzer(
   plugins: Plugin[] = [],

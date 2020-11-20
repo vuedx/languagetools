@@ -53,7 +53,9 @@ export class GenerateGrammarCommand extends Installable {
 
   private async checkIfNewLanguage(uri: string): Promise<void> {
     if (this.isActive) return
+
     const doc = await this.documents.getVueDocument(uri)
+    if (doc == null) return
 
     let shouldGenerate = false
     const blocks: Array<{ block: string; language: string }> = []

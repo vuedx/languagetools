@@ -1,5 +1,9 @@
-import vscode from 'vscode'
-import { injectable } from 'inversify'
+/* eslint-disable no-eval */
+import {
+  ConfiguredVueProject,
+  InferredVueProject,
+  VueProject,
+} from '@vuedx/analyze'
 import {
   AsyncDocumentStore,
   isVueFile,
@@ -7,11 +11,12 @@ import {
   VirtualTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
-import { InferredVueProject, VueProject } from '@vuedx/analyze'
-import { Installable } from '../utils/installable'
-import Path from 'path'
-import FS from 'fs'
 import glob from 'fast-glob'
+import FS from 'fs'
+import { injectable } from 'inversify'
+import Path from 'path'
+import vscode from 'vscode'
+import { Installable } from '../utils/installable'
 
 @injectable()
 export class DocumentService extends Installable {
@@ -20,13 +25,20 @@ export class DocumentService extends Installable {
   private readonly store = new AsyncDocumentStore(async (uri) => {
     const _uri = vscode.Uri.parse(uri)
     const text = await vscode.workspace.openTextDocument(_uri)
-    const project = this.getProjectForFile(_uri.fsPath)
+
     const doc = VueTextDocument.create(
       uri,
       'vue',
       text.version,
       text.getText(),
-      { globalComponents: project.components },
+      {
+        getGlobalComponents: () => {
+          const project = this.getProjectForFile(_uri.fsPath)
+          return project.kind === 'inferred'
+            ? project.components
+            : project.globalComponents
+        },
+      },
     )
 
     return doc
@@ -80,19 +92,34 @@ export class DocumentService extends Installable {
         FS.existsSync,
         'package.json',
       )
-
-      // TODO: Implement configured project support. https://github.com/vuejs/vetur/pull/2378
+      const configFile = findConfigFile(
+        fileName,
+        FS.existsSync,
+        'vueconfig.json',
+      )
 
       const rootDir = Path.posix.dirname(packageFile ?? fileName)
       const fileNames = readDirectory(rootDir)
+      const requireModule = eval('require') as NodeJS.Require
 
-      project = new InferredVueProject(
-        rootDir,
-        // eslint-disable-next-line no-eval
-        packageFile != null ? eval('require')(packageFile) : {},
-      )
+      project =
+        configFile != null
+          ? new ConfiguredVueProject(
+              rootDir,
+              packageFile,
+              packageFile != null ? requireModule(packageFile) : {},
+              configFile,
+              requireModule(configFile),
+              requireModule,
+            )
+          : new InferredVueProject(
+              rootDir,
+              packageFile,
+              packageFile != null ? requireModule(packageFile) : {},
+              requireModule,
+            )
 
-      project.setVueFileNames(fileNames)
+      project.setFileNames(fileNames)
 
       this.projects.push(project)
     }
@@ -123,7 +150,7 @@ export class DocumentService extends Installable {
 }
 
 function readDirectory(dir: string): string[] {
-  return glob.sync('**/*.vue', {
+  return glob.sync('**/*.{ts,tsx,js,tsx,vue}', {
     absolute: true,
     cwd: dir,
     ignore: ['**/node_modules/**'],

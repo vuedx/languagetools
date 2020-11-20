@@ -128,7 +128,7 @@ function createLanguageServiceRouter(
     {
       ...config.service,
       dispose() {
-        // TODO: Clear Vue files in memory.
+        config.context.disposeUnusedProjects(true)
         config.service.dispose()
       },
       getCombinedCodeFix(scope, fixId, formatOptions, preferences) {
@@ -187,6 +187,8 @@ function createLanguageServiceRouter(
       },
 
       getSemanticDiagnostics(fileName) {
+        config.context.disposeUnusedProjects()
+
         const diagnostics = choose(fileName).getSemanticDiagnostics(fileName)
 
         return diagnostics

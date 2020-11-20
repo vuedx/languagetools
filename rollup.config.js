@@ -15,6 +15,7 @@ const config = [
   { ...type('compiler-tsx'), input: abs('packages/compiler-tsx/src/entry.ts') },
   type('template-ast-types'),
   type('typecheck'),
+  type('projectconfig'),
   type('typescript-plugin-vue'),
   type('typescript-vetur'),
   type('vue-virtual-textdocument'),

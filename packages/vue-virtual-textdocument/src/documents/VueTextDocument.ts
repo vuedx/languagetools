@@ -112,6 +112,7 @@ export class VirtualTextDocument extends ProxyTextDocument {
   protected refresh(): void {
     if (this.isDirty || this.doc.version !== this.container.version) {
       this.isDirty = false
+      __DEV__ && console.log(`Refreshing virtual file: ${this.fsPath}`)
       const block = this.container.getBlock(this.selector as BlockSelector)
       this.doc = TextDocument.update(
         this.doc,
@@ -209,7 +210,8 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
 
   protected refresh(): void {
     if (this.isDirty || this.doc.version !== this.container.version) {
-      this.isDirty = false
+      __DEV__ &&
+        console.log(`Refreshing transformed virtual file: ${this.fsPath}`)
       const { code, map } = this.transform()
       if (map != null) {
         if (!(this.source instanceof VirtualTextDocument)) {
@@ -229,6 +231,7 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
         [{ text: code }],
         this.container.version,
       )
+      this.isDirty = false
     }
   }
 
@@ -614,13 +617,14 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
 
     if (template == null) {
       return ''
-    } else if (this.result?.template === template.content) {
+    } else if (!this.isDirty && this.result?.template === template.content) {
       return this.result.code
     } else {
       const errors: any[] = []
+      const components = this.getKnownComponents()
       this.result = compile(template.content, {
         filename: this.container.fsPath,
-        components: this.getKnownComponents(),
+        components: components,
         onError: (error) => {
           errors.push(error)
         },
@@ -688,7 +692,7 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
     const componentsByName: Record<string, ComponentImport> = {}
 
     const dir = Path.posix.dirname(this.container.fsPath)
-    this.container.options.globalComponents.forEach((component) => {
+    this.container.options.getGlobalComponents().forEach((component) => {
       const result = {
         path: Path.posix.isAbsolute(component.source.moduleName)
           ? getRelativeFileName(dir, component.source.moduleName)
@@ -745,7 +749,7 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
 }
 
 interface VueTextDocumentOptions {
-  globalComponents: ComponentRegistrationInfo[]
+  getGlobalComponents: () => ComponentRegistrationInfo[]
 }
 
 export class VueTextDocument extends ProxyTextDocument {
@@ -768,7 +772,7 @@ export class VueTextDocument extends ProxyTextDocument {
     super(doc)
 
     this.options = {
-      globalComponents: [],
+      getGlobalComponents: () => [],
       ...options,
     }
 
@@ -983,9 +987,15 @@ export class VueTextDocument extends ProxyTextDocument {
     return selector.type
   }
 
+  public markDirty(): void {
+    this.isDirty = true
+    this.all().forEach((doc) => doc.markDirty())
+  }
+
   protected parse(): void {
     if (!this.isDirty) return
     this.isDirty = false
+    __DEV__ && console.log(`Parsing .vue file: ${this.fsPath}`)
     const source = this.getText()
     try {
       this.sfc = parseSFC(source, this.parseOptions)
