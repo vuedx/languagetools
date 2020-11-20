@@ -112,7 +112,7 @@ export class VirtualTextDocument extends ProxyTextDocument {
   protected refresh(): void {
     if (this.isDirty || this.doc.version !== this.container.version) {
       this.isDirty = false
-      __DEV__ && console.log(`Refreshing virtual file: ${this.fsPath}`)
+
       const block = this.container.getBlock(this.selector as BlockSelector)
       this.doc = TextDocument.update(
         this.doc,
@@ -210,8 +210,6 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
 
   protected refresh(): void {
     if (this.isDirty || this.doc.version !== this.container.version) {
-      __DEV__ &&
-        console.log(`Refreshing transformed virtual file: ${this.fsPath}`)
       const { code, map } = this.transform()
       if (map != null) {
         if (!(this.source instanceof VirtualTextDocument)) {
@@ -995,7 +993,6 @@ export class VueTextDocument extends ProxyTextDocument {
   protected parse(): void {
     if (!this.isDirty) return
     this.isDirty = false
-    __DEV__ && console.log(`Parsing .vue file: ${this.fsPath}`)
     const source = this.getText()
     try {
       this.sfc = parseSFC(source, this.parseOptions)
