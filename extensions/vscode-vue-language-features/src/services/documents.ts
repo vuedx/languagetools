@@ -1,4 +1,5 @@
 /* eslint-disable no-eval */
+import JSON5 from 'json5'
 import {
   ConfiguredVueProject,
   InferredVueProject,
@@ -81,48 +82,36 @@ export class DocumentService extends Installable {
   }
 
   public getProjectForFile(fileName: string): VueProject {
-    let project =
-      this.projects.find((project) =>
-        fileName.startsWith(project.rootDir + '/'),
-      ) ?? null
+    const packageFile = findConfigFile(fileName, FS.existsSync, 'package.json')
+    const configFile = findConfigFile(fileName, FS.existsSync, 'vueconfig.json')
 
-    if (project === null) {
-      const packageFile = findConfigFile(
-        fileName,
-        FS.existsSync,
-        'package.json',
-      )
-      const configFile = findConfigFile(
-        fileName,
-        FS.existsSync,
-        'vueconfig.json',
-      )
+    const rootDir = Path.posix.dirname(packageFile ?? fileName)
+    const fileNames = readDirectory(rootDir)
+    const requireModule = eval('require') as NodeJS.Require
+    const readJSON = (fileName: string): any => {
+      const contents = FS.readFileSync(fileName, { encoding: 'utf-8' })
 
-      const rootDir = Path.posix.dirname(packageFile ?? fileName)
-      const fileNames = readDirectory(rootDir)
-      const requireModule = eval('require') as NodeJS.Require
-
-      project =
-        configFile != null
-          ? new ConfiguredVueProject(
-              rootDir,
-              packageFile,
-              packageFile != null ? requireModule(packageFile) : {},
-              configFile,
-              requireModule(configFile),
-              requireModule,
-            )
-          : new InferredVueProject(
-              rootDir,
-              packageFile,
-              packageFile != null ? requireModule(packageFile) : {},
-              requireModule,
-            )
-
-      project.setFileNames(fileNames)
-
-      this.projects.push(project)
+      return JSON5.parse(contents)
     }
+
+    const project: VueProject =
+      configFile != null
+        ? new ConfiguredVueProject(
+            rootDir,
+            packageFile,
+            packageFile != null ? readJSON(packageFile) : {},
+            configFile,
+            readJSON(configFile),
+            requireModule,
+          )
+        : new InferredVueProject(
+            rootDir,
+            packageFile,
+            packageFile != null ? readJSON(packageFile) : {},
+            requireModule,
+          )
+
+    project.setFileNames(fileNames)
 
     return project
   }

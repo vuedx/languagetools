@@ -1,3 +1,4 @@
+import JSON5 from 'json5'
 import {
   ConfiguredVueProject,
   InferredVueProject,
@@ -158,6 +159,11 @@ export class PluginContext {
 
       const tryRequire = (fileName: string): any => {
         try {
+          if (Path.posix.basename(fileName) === 'vueconfig.json') {
+            const contents = this.serviceHost.readFile(fileName) ?? ''
+            return JSON5.parse(contents)
+          }
+
           // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
           delete require.cache[fileName]
 

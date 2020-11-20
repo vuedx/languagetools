@@ -1,6 +1,7 @@
-import { Container } from 'inversify'
 import 'reflect-metadata'
+
 import vscode from 'vscode'
+import { Container } from 'inversify'
 import { OpenVirtualFileCommand } from './commands/openVirtualFile'
 import { VueVirtualDocumentProvider } from './scheme/vue'
 import { DocumentService } from './services/documents'
