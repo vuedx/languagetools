@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "name": "library-vetur-component-data",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "dependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.3"
+  },
+  "vetur": {
+    "tags": "vetur-tags.json",
+    "attributes": "vetur-attributes.json"
+  }
+}

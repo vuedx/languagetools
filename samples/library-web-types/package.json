@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "name": "library-web-types",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "dependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.3"
+  },
+  "web-types": "web-types.json"
+}

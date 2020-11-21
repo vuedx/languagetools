@@ -1,0 +1,15 @@
+{
+  "name": "@vuedx/projectconfig",
+  "version": "0.3.2",
+  "description": "TypeScript plugin for Vue",
+  "types": "dist/index.d.ts",
+  "scripts": {},
+  "keywords": [],
+  "files": [
+    "dist",
+    "schema.json"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "dependencies": {}
+}

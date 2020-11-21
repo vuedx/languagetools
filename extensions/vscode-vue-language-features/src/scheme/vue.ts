@@ -11,7 +11,7 @@ export class VueVirtualDocumentProvider
     super()
   }
 
-  public install() {
+  public install(): vscode.Disposable {
     super.install()
 
     return vscode.Disposable.from(
@@ -22,10 +22,12 @@ export class VueVirtualDocumentProvider
     )
   }
 
-  private onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>()
+  private readonly onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>()
   public onDidChange = this.onDidChangeEmitter.event
 
-  async provideTextDocumentContent(request: vscode.Uri) {
+  async provideTextDocumentContent(
+    request: vscode.Uri,
+  ): Promise<string | undefined> {
     let uri = request.toString()
 
     if (uri.startsWith('vue:/') && !uri.startsWith('vue://')) {
@@ -37,7 +39,9 @@ export class VueVirtualDocumentProvider
 
       return document?.getText()
     } catch (error) {
-      return `/*\nError: ${error.message}\n${error.stack}\n*/`
+      if (error instanceof Error) {
+        return `/*\nError: ${error.message}\n${error.stack ?? ''}\n*/`
+      }
     }
   }
 }

@@ -12,7 +12,7 @@ export class GenerateGrammarCommand extends Installable {
   private readonly rootDir: string
   private isActive = false
   private blocks = JSON.parse(JSON.stringify(this.configuration.config.blocks))
-  private supported: Record<string, string> = {}
+  private readonly supported: Record<string, string> = {}
 
   public constructor(
     private readonly configuration: ConfigurationService,
@@ -22,55 +22,60 @@ export class GenerateGrammarCommand extends Installable {
     super()
 
     this.rootDir = this.context.extensionPath
+    // eslint-disable-next-line no-eval
     this.supported = eval('require')(
       Path.resolve(this.context.extensionPath, 'scripts', 'supported.json'),
     )
   }
 
-  public install() {
+  public install(): vscode.Disposable {
     super.install()
 
     return vscode.Disposable.from(
-      vscode.commands.registerTextEditorCommand(
-        'vue.generateGrammar',
-        this.onExecute.bind(this),
-      ),
+      vscode.commands.registerTextEditorCommand('vue.generateGrammar', () => {
+        // eslint-disable-next-line no-void
+        void this.onExecute()
+      }),
       vscode.workspace.onDidOpenTextDocument(async (event) => {
         const uri = event.uri.toString()
         if (isVueFile(uri)) {
-          this.checkIfNewLanguage(uri)
+          await this.checkIfNewLanguage(uri)
         }
       }),
       vscode.workspace.onDidSaveTextDocument(async (document) => {
         const uri = document.uri.toString()
         if (isVueFile(uri)) {
-          this.checkIfNewLanguage(uri)
+          await this.checkIfNewLanguage(uri)
         }
       }),
     )
   }
 
-  private async checkIfNewLanguage(uri: string) {
+  private async checkIfNewLanguage(uri: string): Promise<void> {
     if (this.isActive) return
-    const doc = (await this.documents.getVueDocument(uri))!
+
+    const doc = await this.documents.getVueDocument(uri)
+    if (doc == null) return
 
     let shouldGenerate = false
-    const blocks: { block: string; language: string }[] = []
+    const blocks: Array<{ block: string; language: string }> = []
 
     doc.descriptor.customBlocks.forEach((block) => {
       if (
         !/^(script|template|style)$/.test(block.type) &&
-        block.lang &&
+        block.lang != null &&
         block.lang in this.supported
       ) {
-        if (!this.blocks[block.type]) {
+        if (this.blocks[block.type] != null) {
           shouldGenerate = true
           this.blocks[block.type] = {
             default: '',
             allowed: [block.lang],
           }
           blocks.push({ block: block.type, language: block.lang })
-        } else if (!this.blocks[block.type].allowed?.includes(block.lang)) {
+        } else if (
+          this.blocks[block.type].allowed?.includes(block.lang) !== true
+        ) {
           this.blocks[block.type] = {
             allowed: [],
             ...this.blocks[block.type],
@@ -83,11 +88,11 @@ export class GenerateGrammarCommand extends Installable {
     })
 
     if (shouldGenerate) {
-      this.generate(this.blocks, blocks)
+      await this.generate(this.blocks, blocks)
     }
   }
 
-  private async onExecute() {
+  private readonly onExecute = async (): Promise<void> => {
     await this.generate(this.configuration.config.blocks)
 
     const ans = await vscode.window.showInformationMessage(
@@ -103,8 +108,8 @@ export class GenerateGrammarCommand extends Installable {
 
   private async generate(
     blocks: Record<string, { default: string; allowed: string[] }>,
-    changes: { block: string; language: string }[] = [],
-  ) {
+    changes: Array<{ block: string; language: string }> = [],
+  ): Promise<void> {
     try {
       this.isActive = true
       const current = JSON.parse(
@@ -122,13 +127,12 @@ export class GenerateGrammarCommand extends Installable {
 
       await this.configuration.save('blocks', config)
 
-      require(Path.resolve(
-        this.rootDir,
-        'scripts',
-        'generate-grammar.js',
-      )).generate()
+      // eslint-disable-next-line no-eval
+      eval('require')(
+        Path.resolve(this.rootDir, 'scripts', 'generate-grammar.js'),
+      ).generate()
 
-      if (changes.length) {
+      if (changes.length > 0) {
         const ans = await vscode.window.showInformationMessage(
           'New block types found in vue files: \n' +
             changes

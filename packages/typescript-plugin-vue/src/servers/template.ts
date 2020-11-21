@@ -1,9 +1,11 @@
 import {
+  isComponentNode,
   isDirectiveNode,
   isElementNode,
   isInterpolationNode,
   isSimpleExpressionNode,
   t,
+  traverseFast,
 } from '@vuedx/template-ast-types'
 import {
   getContainingFile,
@@ -409,9 +411,7 @@ export function createTemplateLanguageServer(
             diagnostic.file != null &&
             diagnostic.file.fileName !== document.fsPath
           ) {
-            throw new Error(
-              `Unexpected file "${diagnostic.file.fileName}" in diagnostics of "${document.fsPath}"`,
-            )
+            return diagnostic
           }
 
           if (diagnostic.start != null) {
@@ -429,6 +429,68 @@ export function createTemplateLanguageServer(
           }
         })
         .filter(isNotNull)
+
+      // TODO: Cache it.
+      const project = context.getVueProjectForFile(document.container.fsPath)
+      if (document.ast != null && project?.kind === 'inferred') {
+        const info = h.getComponentInfo(document.container)
+        const localComponentNames = new Set(
+          info.components.flatMap((component) => component.aliases),
+        )
+        const globalComponentNames = new Set(
+          project.globalComponents.flatMap((component) => component.aliases),
+        )
+        const projectComponentNames = new Set(
+          project.components.flatMap((component) => component.aliases),
+        )
+        const projectComponents = project.components
+        const file = choose(document.fsPath)
+          .getProgram()
+          ?.getSourceFile(document.fsPath)
+        traverseFast(document.ast, (node) => {
+          if (isComponentNode(node)) {
+            if (
+              !localComponentNames.has(node.tag) &&
+              !globalComponentNames.has(node.tag) &&
+              projectComponentNames.has(node.tag)
+            ) {
+              const components = projectComponents.filter((component) =>
+                component.aliases.includes(node.tag),
+              )
+
+              let messageText = `The component '${node.tag}' is inferred as global component. It may not be available at runtime.`
+              const relatedInformation: TS.DiagnosticRelatedInformation[] = []
+
+              if (!components[0].source.moduleName.endsWith('.vue')) {
+                messageText = `The component '${node.tag}' is found in '${components[0].source.moduleName}' and it inferred as global component. It may not be available at runtime.`
+              }
+
+              if (components.length > 1) {
+                components.forEach((component) => {
+                  relatedInformation.push({
+                    code: 59002,
+                    category: context.typescript.DiagnosticCategory.Warning,
+                    messageText: `Found in '${component.source.moduleName}'`,
+                    file: undefined,
+                    start: undefined,
+                    length: undefined,
+                  })
+                })
+              }
+
+              diagnostics.push({
+                category: context.typescript.DiagnosticCategory.Warning,
+                code: 59001,
+                start: node.loc.start.offset + 1,
+                length: node.tag.length,
+                messageText,
+                file,
+                relatedInformation,
+              })
+            }
+          }
+        })
+      }
 
       return diagnostics
     },
@@ -493,7 +555,7 @@ export function createTemplateLanguageServer(
           document.parserErrors.forEach((error) => {
             diagnostics.push({
               category: context.typescript.DiagnosticCategory.Error,
-              code: error.code,
+              code: 50000 + error.code,
               file: sourceFile,
               source: error.loc?.source,
               start: error.loc != null ? error.loc.start.offset : start,
