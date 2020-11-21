@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+const print = console.log
+console.info = console.debug = console.warn = console.log = console.error
+
 const checker = require('../dist/index.cjs')
 const Path = require('path')
 const FS = require('fs')
@@ -35,15 +38,15 @@ function printDiagnostics(diagnostic, root = true) {
   const color = colors[diagnostic.category]
   const name = categories[diagnostic.category]
   const pad = ' '.repeat(name.length + 1)
-  console.log(`=> ${relative(fileName, diagnostic.start)}`)
-  console.log(
+  print(`=> ${relative(fileName, diagnostic.start)}`)
+  print(
     color(
       `${name} :: ${stringifyChain(pad, diagnostic.messageText)} (code ${
         diagnostic.code
       })`,
     ),
   )
-  console.log(
+  print(
     indent(
       generateCodeFrame(
         source,
@@ -60,11 +63,11 @@ function printDiagnostics(diagnostic, root = true) {
         printDiagnostics(information, false)
       } else if (information.messageText) {
         const msg = stringifyChain(pad, information.messageText)
-        if (msg.trim()) console.log(color(msg))
+        if (msg.trim()) print(color(msg))
       }
     })
   }
-  if (root) console.log()
+  if (root) print()
 }
 
 /**
@@ -91,14 +94,12 @@ function indent(string, pad = '  ') {
 }
 
 function jsonEncodeDiagnostics(diagnostic) {
-  console.log(
-    JSON.stringify(
-      diagnostic,
-      (key, value) => {
-        return key === 'file' && value ? value.fileName : value
-      },
-      2,
-    ),
+  return JSON.stringify(
+    diagnostic,
+    (key, value) => {
+      return key === 'file' && value ? getContainingFile(value.fileName) : value
+    },
+    2,
   )
 }
 
@@ -143,7 +144,7 @@ function main() {
   })
 
   if (help) {
-    console.log(
+    console.error(
       `
 Usage: typecheck <options> [directory]
 
@@ -177,7 +178,7 @@ Options
 
   let result = checker.getDiagnostics(directory, verbose)
   if (json) {
-    jsonEncodeDiagnostics(result)
+    print(jsonEncodeDiagnostics(result))
   } else {
     if (vue) {
       result = result.filter((item) => item.fileName.endsWith('.vue'))
@@ -185,7 +186,7 @@ Options
 
     result.forEach((sourceFile) => {
       const fileName = relative(sourceFile.fileName)
-      console.log(
+      print(
         chalk.bold(chalk.yellow(`${fileName}\n${'='.repeat(fileName.length)}`)),
       )
       sourceFile.syntacticDiagnostics.forEach((diagnostic) =>
@@ -197,7 +198,7 @@ Options
       sourceFile.suggestionDiagnostics.forEach((diagnostic) =>
         printDiagnostics(diagnostic),
       )
-      console.log()
+      print()
     })
   }
 
@@ -207,7 +208,7 @@ Options
 try {
   main()
 } catch (error) {
-  console.log(
+  console.error(
     chalk.green(
       'Unexpected error. Please report 👉 https://github.com/znck/vue-developer-experience/issues/new',
     ),
