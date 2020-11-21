@@ -468,6 +468,30 @@ export function render({name}: InstanceType<typeof _Ctx>) {
 }
 `;
 
+exports[`VueVirtualDocument/baseline feature-vue-project-configured/node_modules/library-vetur-component-data/src/VeturComponent.vue 1`] = `
+import _Ctx from './VeturComponent.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-vue-project-configured/node_modules/library-web-types/src/WebTypesComponent.vue 1`] = `
+import _Ctx from './WebTypesComponent.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-vue-project-configured/src/App.vue 1`] = `
 import _Ctx from './App.vue?internal'
 import LocalComponent from './components/LocalComponent.vue'
@@ -478,7 +502,7 @@ __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><Transition >{{
-    default: () => (<><LocalComponent /><GlobalComponent /><TSGlobalComponent /><AnotherGlobalComponent /><WildcardGlobalComponent /><WildcardTSGlobalComponent /><NotAGlobalComponent /></>)
+    default: () => (<><LocalComponent /><GlobalComponent /><TSGlobalComponent /><AnotherGlobalComponent /><WildcardGlobalComponent /><WildcardTSGlobalComponent /><NotAGlobalComponent /><VeturComponent /><WebTypesComponent /><VeturComponent name={1} /><WebTypesComponent name={1} /></>)
   }}</Transition></>/*@@vue:end*/
 }
 `;
@@ -493,6 +517,30 @@ exports[`VueVirtualDocument/baseline feature-vue-project-configured/src/componen
 
 exports[`VueVirtualDocument/baseline feature-vue-project-configured/src/components/globals/WildcardGlobalComponent.vue 1`] = ``;
 
+exports[`VueVirtualDocument/baseline feature-vue-project-inferred/node_modules/library-vetur-component-data/src/VeturComponent.vue 1`] = `
+import _Ctx from './VeturComponent.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-vue-project-inferred/node_modules/library-web-types/src/WebTypesComponent.vue 1`] = `
+import _Ctx from './WebTypesComponent.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-vue-project-inferred/src/App.vue 1`] = `
 import _Ctx from './App.vue?internal'
 import LocalComponent from './components/LocalComponent.vue'
@@ -503,7 +551,7 @@ __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><Transition >{{
-    default: () => (<><LocalComponent /><GlobalComponent /><NotAGlobalComponent /></>)
+    default: () => (<><LocalComponent /><GlobalComponent /><NotAGlobalComponent /><VeturComponent name={1} /><WebTypesComponent name={1} /></>)
   }}</Transition></>/*@@vue:end*/
 }
 `;
@@ -554,6 +602,30 @@ export function render(_ctx: InstanceType<typeof _Ctx>) {
 
 exports[`VueVirtualDocument/baseline javascript-with-config/src/components/HelloWorld.vue 1`] = `
 import _Ctx from './HelloWorld.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline library-vetur-component-data/src/VeturComponent.vue 1`] = `
+import _Ctx from './VeturComponent.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline library-web-types/src/WebTypesComponent.vue 1`] = `
+import _Ctx from './WebTypesComponent.vue?internal'
 
 
 declare const __completionsTrigger: InstanceType<typeof _Ctx>

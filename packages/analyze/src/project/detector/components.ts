@@ -36,10 +36,12 @@ export function getComponentsFromPackageJSON(
     ),
   )
 
-  const packages = [
-    ...Object.keys(pkg.devDependencies),
-    ...Object.keys(pkg.dependencies),
-  ]
+  const packages = Array.from(
+    new Set([
+      ...Object.keys(pkg.devDependencies),
+      ...Object.keys(pkg.dependencies),
+    ]),
+  )
 
   packages.forEach((packageName) => {
     if (packageName === 'vue') {
@@ -64,7 +66,7 @@ interface ExternalPackage {
   name: string
   version: string
   vetur?: {
-    tags: string
+    tags?: string
   }
   'web-types'?: string
 }
@@ -76,9 +78,30 @@ function getPackageJSON(
 ): ExternalPackage {
   try {
     return requireFileFromPackage(require, packageName, 'package.json', rootDir)
-  } catch {
+  } catch (error) {
+    console.error(error)
+
     return { name: packageName, version: 'latest' }
   }
+}
+
+const getPathsCache = new Map<string, string[]>()
+function getPaths(dir: string): string[] {
+  if (getPathsCache.has(dir)) {
+    return getPathsCache.get(dir) as string[]
+  }
+
+  const paths: string[] = []
+
+  while (dir !== Path.posix.dirname(dir)) {
+    paths.push(`${dir}/node_modules`)
+
+    dir = Path.posix.dirname(dir)
+  }
+
+  getPathsCache.set(dir, paths)
+
+  return paths
 }
 
 function requireFileFromPackage(
@@ -87,9 +110,9 @@ function requireFileFromPackage(
   fileName: string,
   rootDir: string,
 ): any {
-  return require(require.resolve(Path.posix.resolve(packageName, fileName), {
-    paths: [rootDir],
-  }))
+  const paths = getPaths(rootDir)
+  const req = Path.posix.resolve(`/${packageName}`, fileName).substr(1)
+  return require(require.resolve(req, { paths }))
 }
 
 export function getComponentsFromVuePackage(
@@ -182,14 +205,22 @@ export function getComponentsFromVueRouterPackage(
   return components
 }
 
+const getComponentsFromPackageCache = new Map<
+  string,
+  ComponentRegistrationInfo[]
+>()
 export function getComponentsFromPackage(
   require: NodeJS.Require,
   rootDir: string,
   packageName: string,
 ): ComponentRegistrationInfo[] {
-  const components: ComponentRegistrationInfo[] = []
-
   const pkg = getPackageJSON(require, rootDir, packageName)
+  const key = `${rootDir}:${packageName}@${pkg.version}`
+  if (getComponentsFromPackageCache.has(key)) {
+    return getComponentsFromPackageCache.get(key) as ComponentRegistrationInfo[]
+  }
+
+  const components: ComponentRegistrationInfo[] = []
 
   if (pkg['web-types'] != null) {
     try {
@@ -209,12 +240,16 @@ export function getComponentsFromPackage(
             moduleName: packageName,
             localName: componentName,
             exportName:
-              tag.source.symbol !== 'default' ? tag.source.symbol : undefined,
+              tag.source?.symbol != null && tag.source?.symbol !== 'default'
+                ? tag.source.symbol
+                : undefined,
           },
         })
       })
-    } catch {}
-  } else if (pkg.vetur != null) {
+    } catch (error) {
+      console.error(error)
+    }
+  } else if (pkg.vetur?.tags != null) {
     try {
       const info = requireFileFromPackage(
         require,
@@ -235,8 +270,13 @@ export function getComponentsFromPackage(
           },
         })
       })
-    } catch {}
+    } catch (error) {
+      console.error(error)
+    }
   }
+
+  getComponentsFromPackageCache.set(key, components)
+
   return components
 }
 
@@ -249,7 +289,7 @@ interface PackageWebTypes {
     html?: {
       tags?: Array<{
         name: string
-        source: {
+        source?: {
           symbol: string
         }
       }>

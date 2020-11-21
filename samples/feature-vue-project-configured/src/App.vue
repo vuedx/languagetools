@@ -18,5 +18,9 @@ export default defineComponent({
     <WildcardGlobalComponent />
     <WildcardTSGlobalComponent />
     <NotAGlobalComponent />
+    <VeturComponent />
+    <WebTypesComponent />
+    <VeturComponent :name="1" />
+    <WebTypesComponent :name="1" />
   </Transition>
 </template>

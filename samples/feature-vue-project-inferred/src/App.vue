@@ -14,5 +14,7 @@ export default defineComponent({
     <LocalComponent />
     <GlobalComponent />
     <NotAGlobalComponent />
+    <VeturComponent :name="1" />
+    <WebTypesComponent :name="1" />
   </Transition>
 </template>

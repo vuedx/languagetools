@@ -5,6 +5,8 @@
     "src/components/TSGlobalComponent.tsx",
     "./src/components/AnotherGlobalComponent.vue",
     // Glob
-    "**/globals/*.{tsx,vue}"
+    "**/globals/*.{tsx,vue}",
+    "library-vetur-component-data",
+    "library-web-types"
   ]
 }

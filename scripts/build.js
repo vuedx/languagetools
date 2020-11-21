@@ -6,7 +6,7 @@ const bin = path.resolve(__dirname, '../node_modules/rollup/dist/bin/rollup')
 const env = '--environment BUILD:production'
 const args = '--max-old-space-size=1024'
 
-const standalone = []
+const typesOnly = ['projectconfig']
 const ignored = ['typescript-standalone']
 
 names.forEach((name) => {
@@ -17,15 +17,8 @@ names.forEach((name) => {
 })
 
 names.forEach((name) => {
-  if (ignored.includes(name)) return
+  if (ignored.includes(name) || typesOnly.includes(name)) return
   console.log()
   console.log(`${name}: main,module`)
   cp.execSync(`node ${args} ${bin} -c ${env},FILTER:${name},KIND:bundle`)
-})
-
-standalone.forEach((name) => {
-  if (ignored.includes(name)) return
-  console.log()
-  console.log(`${name}: main,module`)
-  cp.execSync(`node ${args} ${bin} -c ${env},FILTER:${name},KIND:standalone`)
 })

@@ -1,7 +1,6 @@
 import { ComponentRegistrationInfo } from '../component'
 import {
   getComponentFromFile,
-  getComponentsFromPackage,
   getComponentsFromPackageJSON,
 } from './detector/components'
 import { PackageJSON } from './detector/PackageJSON'
@@ -9,6 +8,7 @@ import { PackageJSON } from './detector/PackageJSON'
 export abstract class VueProject {
   protected isDirty = true
   protected _globalComponents: ComponentRegistrationInfo[] = []
+  protected _externalComponents: ComponentRegistrationInfo[] = []
   protected _projectComponents = new Map<string, ComponentRegistrationInfo[]>()
   protected _fileNames: string[] = []
   public packageJSON: PackageJSON
@@ -27,10 +27,15 @@ export abstract class VueProject {
   }
 
   protected loadGlobalComponents(): void {
-    this._globalComponents = getComponentsFromPackageJSON(
+    this._externalComponents = getComponentsFromPackageJSON(
       this.rootDir,
       this.packageJSON,
       this.requireModule,
+    )
+
+    const KnownGlobalPackageRE = /^(vue|vue-router)$/
+    this._globalComponents = this._externalComponents.filter((component) =>
+      KnownGlobalPackageRE.test(component.source.moduleName),
     )
   }
 
@@ -60,29 +65,6 @@ export abstract class VueProject {
       }
     })
 
-    Object.keys(this.packageJSON.dependencies).forEach((packageName) => {
-      newLocalComponents.set(
-        packageName,
-        this._projectComponents.get(packageName) ??
-          getComponentsFromPackage(
-            this.requireModule,
-            this.rootDir,
-            packageName,
-          ),
-      )
-    })
-    Object.keys(this.packageJSON.devDependencies).forEach((packageName) => {
-      newLocalComponents.set(
-        packageName,
-        this._projectComponents.get(packageName) ??
-          getComponentsFromPackage(
-            this.requireModule,
-            this.rootDir,
-            packageName,
-          ),
-      )
-    })
-
     this._projectComponents = newLocalComponents
   }
 
@@ -96,10 +78,15 @@ export abstract class VueProject {
     return this._fileNames
   }
 
+  // TODO: Cache this.
   public get components(): ComponentRegistrationInfo[] {
     this.reloadIfNeeded()
 
-    return [this._globalComponents, ...this._projectComponents.values()].flat(2)
+    return [
+      this._globalComponents,
+      this._externalComponents,
+      ...this._projectComponents.values(),
+    ].flat(2)
   }
 
   get globalComponents(): ComponentRegistrationInfo[] {

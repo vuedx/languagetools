@@ -328,18 +328,26 @@ importers:
       vue: ^3.0.0
   samples/feature-vue-project-configured:
     dependencies:
+      library-vetur-component-data: 'link:../library-vetur-component-data'
+      library-web-types: 'link:../library-web-types'
       vue: 3.0.2
     devDependencies:
       typescript: 4.1.2
     specifiers:
+      library-vetur-component-data: 'link:../library-vetur-component-data'
+      library-web-types: 'link:../library-web-types'
       typescript: ^4.0.3
       vue: ^3.0.0
   samples/feature-vue-project-inferred:
     dependencies:
+      library-vetur-component-data: 'link:../library-vetur-component-data'
+      library-web-types: 'link:../library-web-types'
       vue: 3.0.2
     devDependencies:
       typescript: 4.1.2
     specifiers:
+      library-vetur-component-data: 'link:../library-vetur-component-data'
+      library-web-types: 'link:../library-web-types'
       typescript: ^4.0.3
       vue: ^3.0.0
   samples/javascript:
@@ -355,6 +363,22 @@ importers:
       vue: 3.0.0
     devDependencies:
       typescript: 4.0.3
+    specifiers:
+      typescript: ^4.0.3
+      vue: ^3.0.0
+  samples/library-vetur-component-data:
+    dependencies:
+      vue: 3.0.2
+    devDependencies:
+      typescript: 4.1.2
+    specifiers:
+      typescript: ^4.0.3
+      vue: ^3.0.0
+  samples/library-web-types:
+    dependencies:
+      vue: 3.0.2
+    devDependencies:
+      typescript: 4.1.2
     specifiers:
       typescript: ^4.0.3
       vue: ^3.0.0

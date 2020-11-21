@@ -431,38 +431,61 @@ export function createTemplateLanguageServer(
         .filter(isNotNull)
 
       // TODO: Cache it.
-
       const project = context.getVueProjectForFile(document.container.fsPath)
       if (document.ast != null && project?.kind === 'inferred') {
         const info = h.getComponentInfo(document.container)
-        const localComponents = new Set(
+        const localComponentNames = new Set(
           info.components.flatMap((component) => component.aliases),
         )
-
-        const globalComponents = new Set(
+        const globalComponentNames = new Set(
           project.globalComponents.flatMap((component) => component.aliases),
         )
-        const projectComponents = new Set(
+        const projectComponentNames = new Set(
           project.components.flatMap((component) => component.aliases),
         )
-
+        const projectComponents = project.components
         const file = choose(document.fsPath)
           .getProgram()
           ?.getSourceFile(document.fsPath)
         traverseFast(document.ast, (node) => {
           if (isComponentNode(node)) {
             if (
-              !localComponents.has(node.tag) &&
-              !globalComponents.has(node.tag) &&
-              projectComponents.has(node.tag)
+              !localComponentNames.has(node.tag) &&
+              !globalComponentNames.has(node.tag) &&
+              projectComponentNames.has(node.tag)
             ) {
+              const components = projectComponents.filter((component) =>
+                component.aliases.includes(node.tag),
+              )
+
+              let messageText = `The component '${node.tag}' is inferred as global component. It may not be available at runtime.`
+              const relatedInformation: TS.DiagnosticRelatedInformation[] = []
+
+              if (!components[0].source.moduleName.endsWith('.vue')) {
+                messageText = `The component '${node.tag}' is found in '${components[0].source.moduleName}' and it inferred as global component. It may not be available at runtime.`
+              }
+
+              if (components.length > 1) {
+                components.forEach((component) => {
+                  relatedInformation.push({
+                    code: 59002,
+                    category: context.typescript.DiagnosticCategory.Warning,
+                    messageText: `Found in '${component.source.moduleName}'`,
+                    file: undefined,
+                    start: undefined,
+                    length: undefined,
+                  })
+                })
+              }
+
               diagnostics.push({
                 category: context.typescript.DiagnosticCategory.Warning,
                 code: 59001,
                 start: node.loc.start.offset + 1,
                 length: node.tag.length,
-                messageText: `The component '${node.tag}' is inferred as global component. It may not be available at runtime.`,
+                messageText,
                 file,
+                relatedInformation,
               })
             }
           }
