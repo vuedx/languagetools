@@ -168,7 +168,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render({isVisible}: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/<><div style="color: red" v-show={{ arg: undefined, exp: isVisible, modifiers: {}}}></div></>/*@@vue:end*/
+      return /*@@vue:start*/<><div v-show={{ arg: undefined, exp: isVisible, modifiers: {}}}></div></>/*@@vue:end*/
     }
     `,
   },

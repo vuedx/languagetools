@@ -246,20 +246,21 @@ function generateVModel(dir: DirectiveNode, node: ElementNode): any[] {
   return code
 }
 
-function generateAttribute(dir: AttributeNode, node: ElementNode): any[] {
+function generateAttribute(attr: AttributeNode, node: ElementNode): any[] {
   const code: any[] = []
+  if (attr.name === 'class' || attr.name === 'style') return []
   code.push(
     ' ',
     createSimpleExpression(
-      dir.name,
+      attr.name,
       false,
-      createLoc(dir.loc, 0, dir.name.length),
+      createLoc(attr.loc, 0, attr.name.length),
     ),
   )
-  if (dir.value != null) {
+  if (attr.value != null) {
     code.push(
       '=',
-      createSimpleExpression(dir.value.loc.source, false, dir.value.loc),
+      createSimpleExpression(attr.value.loc.source, false, attr.value.loc),
     )
   }
   return code
