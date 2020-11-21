@@ -5,6 +5,7 @@ const Path = require('path')
 const FS = require('fs')
 const parseArgs = require('minimist')
 const chalk = require('chalk')
+const { getContainingFile } = require('@vuedx/vue-virtual-textdocument')
 const generateCodeFrame = checker.generateCodeFrame
 
 const categories = ['Warning', 'Error', 'Suggestion', 'Message']
@@ -29,7 +30,7 @@ function readFile(fileName) {
  */
 function printDiagnostics(diagnostic, root = true) {
   if (!diagnostic.file) return
-  const fileName = diagnostic.file.fileName
+  const fileName = getContainingFile(diagnostic.file.fileName)
   const source = readFile(fileName)
   const color = colors[diagnostic.category]
   const name = categories[diagnostic.category]
