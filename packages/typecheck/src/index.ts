@@ -113,10 +113,16 @@ export function getDiagnostics(
     ts.sys.fileExists,
     'jsconfig.json',
   )
+  
+  const isRelative = (directory: string, file: string) => {
+    const relative = Path.relative(directory, file)
+    return relative && !relative.startsWith('..') && !Path.isAbsolute(relative)
+  }
+  
   const configFile =
-    tsConfig?.startsWith(directory) === true
+    (tsConfig && isRelative(directory, tsConfig))
       ? tsConfig
-      : jsConfig?.startsWith(directory) === true
+      : (jsConfig && isRelative(directory, jsConfig))
       ? jsConfig
       : undefined
   if (configFile != null && logging) {
