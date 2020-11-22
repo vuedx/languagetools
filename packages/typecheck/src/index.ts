@@ -67,9 +67,11 @@ export function getDiagnostics(
   suggestionDiagnostics: DiagnosticWithLocation[]
 }> {
   const pluginFile = require.resolve('@vuedx/typescript-plugin-vue')
-  console.debug(
-    `Loading plugin from ${Path.relative(process.cwd(), pluginFile)}`,
-  )
+  if (logging) {
+    console.debug(
+      `Loading plugin from ${Path.relative(process.cwd(), pluginFile)}`,
+    )
+  }
   const serverHost = getServerHost(ts)
   const projectService = new ts.server.ProjectService({
     host: serverHost,
@@ -117,7 +119,7 @@ export function getDiagnostics(
       : jsConfig?.startsWith(directory) === true
       ? jsConfig
       : undefined
-  if (configFile != null) {
+  if (configFile != null && logging) {
     console.debug(
       `Loading project from ${Path.relative(process.cwd(), configFile)}`,
     )
