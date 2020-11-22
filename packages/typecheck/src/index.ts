@@ -114,9 +114,9 @@ export function getDiagnostics(
     'jsconfig.json',
   )
   
-  const isRelative = (directory, file) => {
-    const relative = path.relative(directory, file)
-    return relative && !relative.startsWith('..') && !path.isAbsolute(relative)
+  const isRelative = (directory: string, file: string) => {
+    const relative = Path.relative(directory, file)
+    return relative && !relative.startsWith('..') && !Path.isAbsolute(relative)
   }
   
   const configFile =
