@@ -250,6 +250,10 @@ Options
   }
 
   let result = checker.getDiagnostics(directory, verbose)
+ 
+  if (vue) {
+    result = result.filter((item) => item.fileName.endsWith('.vue'))
+  }
 
   if (json) {
     print(jsonEncodeDiagnostics(result))
@@ -257,10 +261,6 @@ Options
     print(JSON.stringify(toRdjson(result)))
     process.exit(0)
   } else {
-    if (vue) {
-      result = result.filter((item) => item.fileName.endsWith('.vue'))
-    }
-    
     result.forEach((sourceFile) => {
       const fileName = relative(sourceFile.fileName)
       print(
