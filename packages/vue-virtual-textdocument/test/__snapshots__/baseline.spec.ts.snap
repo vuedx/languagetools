@@ -97,9 +97,7 @@ declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><Transition >{{
-    default: () => (<><JavaScriptPropsOption /><JavaScriptSetupPropsOption /></>)
-  }}</Transition></>/*@@vue:end*/
+  return /*@@vue:start*/<><Transition ><JavaScriptPropsOption /><JavaScriptSetupPropsOption /></Transition></>/*@@vue:end*/
 }
 `;
 
@@ -188,37 +186,37 @@ declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render({num, str, arr, obj, itr, boo, sym}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<>{_renderList(num, (n) => {
+  return /*@@vue:start*/<><>{_renderList(num, (n) => {
     return <><div >{n}</div></>
-  })}{_renderList(num, (n, i) => {
+  })}</><>{_renderList(num, (n, i) => {
     return <><div >{n}:{i}</div></>
-  })}{_renderList(str, (s) => {
+  })}</><>{_renderList(str, (s) => {
     return <><div >{s}</div></>
-  })}{_renderList(str, (s, i) => {
+  })}</><>{_renderList(str, (s, i) => {
     return <><div >{s}:{i}</div></>
-  })}{_renderList(arr, (a) => {
+  })}</><>{_renderList(arr, (a) => {
     return <><div >{a}</div></>
-  })}{_renderList(arr, ({ value }) => {
+  })}</><>{_renderList(arr, ({ value }) => {
     return <><div >{value}</div></>
-  })}{_renderList(arr, ({ foo }) => {
+  })}</><>{_renderList(arr, ({ foo }) => {
     return <><div >{arr}</div></>
-  })}{_renderList(arr, (a, i) => {
+  })}</><>{_renderList(arr, (a, i) => {
     return <><div >{a}:{i}</div></>
-  })}{_renderList(arr, ({ value }, i) => {
+  })}</><>{_renderList(arr, ({ value }, i) => {
     return <><div >{value}:{i}</div></>
-  })}{_renderList(obj, (o) => {
+  })}</><>{_renderList(obj, (o) => {
     return <><div >{o}</div></>
-  })}{_renderList(obj, (o, k) => {
+  })}</><>{_renderList(obj, (o, k) => {
     return <><div >{o}:{k}</div></>
-  })}{_renderList(obj, (o, k, i) => {
+  })}</><>{_renderList(obj, (o, k, i) => {
     return <><div >{o}:{k}:{i}</div></>
-  })}{_renderList(itr, (t) => {
+  })}</><>{_renderList(itr, (t) => {
     return <><div >{t}</div></>
-  })}{_renderList(boo, (b) => {
+  })}</><>{_renderList(boo, (b) => {
     return <><div >{b}</div></>
-  })}{_renderList(sym, (s) => {
+  })}</><>{_renderList(sym, (s) => {
     return <><div >{s}</div></>
-  })}</>/*@@vue:end*/
+  })}</></>/*@@vue:end*/
 }
 `;
 
@@ -501,9 +499,7 @@ declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><Transition >{{
-    default: () => (<><LocalComponent /><GlobalComponent /><TSGlobalComponent /><AnotherGlobalComponent /><WildcardGlobalComponent /><WildcardTSGlobalComponent /><NotAGlobalComponent /><VeturComponent /><WebTypesComponent /><VeturComponent name={1} /><WebTypesComponent name={1} /></>)
-  }}</Transition></>/*@@vue:end*/
+  return /*@@vue:start*/<><Transition ><LocalComponent /><GlobalComponent /><TSGlobalComponent /><AnotherGlobalComponent /><WildcardGlobalComponent /><WildcardTSGlobalComponent /><NotAGlobalComponent /><VeturComponent /><WebTypesComponent /><VeturComponent name={1} /><WebTypesComponent name={1} /></Transition></>/*@@vue:end*/
 }
 `;
 
@@ -550,9 +546,7 @@ declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render(_ctx: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><Transition >{{
-    default: () => (<><LocalComponent /><GlobalComponent /><NotAGlobalComponent /><VeturComponent name={1} /><WebTypesComponent name={1} /></>)
-  }}</Transition></>/*@@vue:end*/
+  return /*@@vue:start*/<><Transition ><LocalComponent /><GlobalComponent /><NotAGlobalComponent /><VeturComponent name={1} /><WebTypesComponent name={1} /></Transition></>/*@@vue:end*/
 }
 `;
 
