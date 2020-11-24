@@ -67,9 +67,11 @@ export function getDiagnostics(
   suggestionDiagnostics: DiagnosticWithLocation[]
 }> {
   const pluginFile = require.resolve('@vuedx/typescript-plugin-vue')
-  console.debug(
-    `Loading plugin from ${Path.relative(process.cwd(), pluginFile)}`,
-  )
+  if (logging) {
+    console.debug(
+      `Loading plugin from ${Path.relative(process.cwd(), pluginFile)}`,
+    )
+  }
   const serverHost = getServerHost(ts)
   const projectService = new ts.server.ProjectService({
     host: serverHost,
@@ -111,13 +113,19 @@ export function getDiagnostics(
     ts.sys.fileExists,
     'jsconfig.json',
   )
+  
+  const isRelative = (directory: string, file: string) => {
+    const relative = Path.relative(directory, file)
+    return relative && !relative.startsWith('..') && !Path.isAbsolute(relative)
+  }
+  
   const configFile =
-    tsConfig?.startsWith(directory) === true
+    (tsConfig && isRelative(directory, tsConfig))
       ? tsConfig
-      : jsConfig?.startsWith(directory) === true
+      : (jsConfig && isRelative(directory, jsConfig))
       ? jsConfig
       : undefined
-  if (configFile != null) {
+  if (configFile != null && logging) {
     console.debug(
       `Loading project from ${Path.relative(process.cwd(), configFile)}`,
     )

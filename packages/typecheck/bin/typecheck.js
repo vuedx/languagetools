@@ -71,6 +71,69 @@ function printDiagnostics(diagnostic, root = true) {
 }
 
 /**
+ * Return diagnostic result in Reviewdog Diagnostic Format
+ * @param result Diagnostic results
+ * @return {{diagnostics: any[], source: {name: string, url: string}}}
+ *
+ * @see https://github.com/reviewdog/reviewdog/tree/master/proto/rdf#rdjson
+ */
+function toRdjson(result) {
+  // TODO: Improve Suggestions
+
+  const sevrityMap = ['WARNING', 'ERROR', 'WARNING', 'INFO']
+
+  const getMessageText = (message, ident = '') => {
+    if (typeof message === 'string') {
+      return message
+    }
+
+    let text = ident + message.messageText
+
+    if (message.next && message.next[0]) {
+      text += getMessageText(message.next[0], `\n - `)
+    }
+
+    return text;
+  }
+
+
+  const convert = (diagnostic) => {
+    const filePath = getContainingFile(diagnostic.file.fileName)
+    return {
+      message: getMessageText(diagnostic.messageText),
+      severity: sevrityMap[diagnostic.category],
+      location: {
+        path: filePath,
+        range: {
+          start: getPosition(filePath, diagnostic.start),
+          end: getPosition(filePath, diagnostic.start + diagnostic.length),
+        },
+      },
+      code: {
+        value: String(diagnostic.code),
+      },
+    }
+  }
+
+  return {
+    source: {
+      name: "VueDX typecheck",
+      url: "https://github.com/znck/vue-developer-experience/tree/master/packages/typecheck"
+    },
+    diagnostics: [
+      ...result.flatMap((diagnostics) => {
+        return [
+          ...diagnostics.semanticDiagnostics.map(convert),
+          ...diagnostics.syntacticDiagnostics.map(convert),
+          ...diagnostics.suggestionDiagnostics.map(convert),
+        ]
+      }),
+
+    ],
+  }
+}
+
+/**
  *
  * @param {import('typescript').Diagnostic['messageText']} messageText
  */
@@ -111,6 +174,18 @@ function hasErrors(diagnostics) {
   )
 }
 
+
+function getPosition(fileName, position) {
+  const content = readFile(fileName)
+  const lines = content.substr(0, position).split(/\r?\n/)
+  const isEoL = /[\r\n]/.test(content.substr(position, 1))
+
+  return {
+    line: lines.length + (isEoL ? 1 : 0),
+    column: isEoL ? 1 : lines[lines.length - 1].length + 1,
+  }
+}
+
 /**
  *
  * @param {string} fileName
@@ -122,12 +197,8 @@ function relative(fileName, position = null) {
     : '.' + Path.sep + relativeFileName
 
   if (typeof position === 'number') {
-    const content = readFile(fileName)
-    const lines = content.substr(0, position).split(/\r?\n/)
-    const isEoL = /[\r\n]/.test(content.substr(position, 1))
-    relativeFileName += isEoL
-      ? `:${lines.length + 1}:1`
-      : `:${lines.length}:${lines[lines.length - 1].length + 1}`
+    const {line, column} = getPosition(fileName, position)
+    relativeFileName += `:${line}:${column}`
   }
 
   return relativeFileName
@@ -138,6 +209,7 @@ function main() {
     verbose = false,
     vue = false,
     help = false,
+    rdjson = false,
     _: argv,
   } = parseArgs(process.argv.slice(2), {
     boolean: ['json', 'verbose', 'vue', 'help'],
@@ -151,7 +223,8 @@ Usage: typecheck <options> [directory]
 Options
     --json      print diagnostics as json
     --vue       process only vue files
-    --verbose   print debug output (on stderr) 
+    --rdjson    Return diagnostic result in Reviewdog Diagnostic Format
+    --verbose   print debug output (on stderr)
     --help      display help
 `.trim(),
     )
@@ -177,13 +250,17 @@ Options
   }
 
   let result = checker.getDiagnostics(directory, verbose)
+ 
+  if (vue) {
+    result = result.filter((item) => item.fileName.endsWith('.vue'))
+  }
+
   if (json) {
     print(jsonEncodeDiagnostics(result))
+  } else if (rdjson) {
+    print(JSON.stringify(toRdjson(result)))
+    process.exit(0)
   } else {
-    if (vue) {
-      result = result.filter((item) => item.fileName.endsWith('.vue'))
-    }
-
     result.forEach((sourceFile) => {
       const fileName = relative(sourceFile.fileName)
       print(
