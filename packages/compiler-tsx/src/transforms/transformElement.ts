@@ -44,9 +44,11 @@ export function createElementTransform(
     }
 
     if (!isElementNode(node)) return
+
+    let resolvedComponentName: string | undefined
     if (isComponentNode(node)) {
-      const name = node.tag
-      const component = options.components[name]
+      const name = pascalCase(node.tag)
+      const component = options.components[name] ?? options.components[node.tag]
       if ((context.identifiers[name] ?? 0) <= 0) {
         if (component != null) {
           context.imports.add({
@@ -61,15 +63,13 @@ export function createElementTransform(
             path: component.path,
           })
           context.addIdentifiers(name)
+          resolvedComponentName = name
         }
       }
     }
 
     return () => {
-      const name: string = isComponentNode(node)
-        ? pascalCase(node.tag)
-        : node.tag
-
+      const name: string = resolvedComponentName ?? node.tag
       const startTag = createSimpleExpression(
         name,
         false,
@@ -96,7 +96,11 @@ export function createElementTransform(
           ),
           false,
         )
-        const children = getChildren(node, context)
+        const children = generateChildren(
+          node,
+          context,
+          resolvedComponentName != null,
+        )
         node.codegenNode = createCompoundExpression([
           '<',
           startTag,
@@ -320,8 +324,12 @@ function generateVBind(dir: DirectiveNode, node: ElementNode): any[] {
   return code
 }
 
-function getChildren(node: ElementNode, context: TransformContext): any[] {
-  if (isComponentNode(node)) {
+function generateChildren(
+  node: ElementNode,
+  context: TransformContext,
+  isResolvedComponent: boolean,
+): any[] {
+  if (isResolvedComponent) {
     const { slots } = buildSlots(node, context, (props, children) => {
       const nodes = processTemplateNodes(children)
       return createFunctionExpression(
