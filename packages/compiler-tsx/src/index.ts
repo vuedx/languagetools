@@ -20,6 +20,7 @@ import {
   isTextNode,
 } from '@vuedx/template-ast-types'
 import Path from 'path'
+import { parserOptions } from './parserOptions'
 import { withScope } from './scope'
 import { createElementTransform } from './transforms/transformElement'
 import { createExpressionTracker } from './transforms/transformExpression'
@@ -48,10 +49,14 @@ export function compile(
   template: string,
   options: Options & CompilerOptions,
 ): CodegenResult {
-  const ast = baseParse(template, options)
+  const ast = baseParse(template, {
+    ...parserOptions,
+    ...options,
+  })
   const astCopy = clone(ast)
   const expressions: Array<[number, number]> = []
   const config: Required<Options> = {
+    ...parserOptions,
     ...options,
     components: {
       ...components,

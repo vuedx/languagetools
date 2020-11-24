@@ -122,6 +122,15 @@ export function getComponentsFromVuePackage(
 
   components.push(
     {
+      name: 'Component',
+      aliases: ['component', 'Component'],
+      source: {
+        moduleName: 'vue',
+        localName: 'Component',
+        exportName: 'Component',
+      },
+    },
+    {
       name: 'KeepAlive',
       aliases: ['keep-alive', 'KeepAlive'],
       source: {
