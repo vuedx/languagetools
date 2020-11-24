@@ -57,7 +57,7 @@ const samples: Array<{
     import _Ctx from './component.vue?internal'
 
     export function render(_ctx: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/<><Foo>{{ default: () => <>foo</> }}</Foo></>/*@@vue:end*/
+      return /*@@vue:start*/<><Foo>foo</Foo></>/*@@vue:end*/
     }
     `,
   },
@@ -219,9 +219,9 @@ const samples: Array<{
     declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];
     declare function _renderList<T extends object>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];
     export function render({ items, other }: InstanceType<typeof _Ctx>) {
-      return /*@@vue:start*/<>{_renderList(items, (item, index) => {
+      return /*@@vue:start*/<><>{_renderList(items, (item, index) => {
         return <><div>{item} {other}</div></>
-      })}</>/*@@vue:end*/
+      })}</></>/*@@vue:end*/
     }
     `,
   },
@@ -384,6 +384,45 @@ export function render({foo}: InstanceType<typeof _Ctx>) {
 
       export function render(_ctx: InstanceType<typeof _Ctx>) {
         return /*@@vue:start*/<><span></span>    {}<span></span></>/*@@vue:end*/
+      }
+  `,
+  },
+  {
+    name: 'Top level comment',
+    template: `
+      <!-- comment -->
+      <span></span>
+    `.trim(),
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<><span></span></>/*@@vue:end*/
+      }
+  `,
+  },
+  {
+    name: 'Nested comment',
+    template: `
+      <span>
+        <!-- comment -->
+        <div v-for="user in users" :key="user">{{ user }}</div>
+      </span>
+    `.trim(),
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      declare function _renderList(source: string, renderItem: (value: string, index: number) => any): any[];
+      declare function _renderList(source: number, renderItem: (value: number, index: number) => any): any[];
+      declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];
+      declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];
+      declare function _renderList<T extends object>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];
+      export function render({users}: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<><span>{<>{_renderList(users, user => {
+          return <><div key={user}>{user}</div></>
+        })}</>}</span></>/*@@vue:end*/
       }
   `,
   },

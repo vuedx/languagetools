@@ -45,9 +45,9 @@ export function createTransformFor(
       ]) as ForRenderListExpression
 
       forNode.codegenNode = createCompoundExpression([
-        '{',
+        '<>{',
         renderExp as any,
-        '}',
+        '}</>',
       ]) as any
       return () => {
         const childBlock =
