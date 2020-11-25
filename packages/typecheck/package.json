@@ -3,7 +3,9 @@
   "version": "0.3.0",
   "description": "TypeScript plugin for Vue",
   "main": "dist/index.cjs.js",
-  "bin": "bin/typecheck.js",
+  "bin": {
+    "vuedx-typecheck": "bin/typecheck.js"
+  },
   "types": "dist/index.d.ts",
   "scripts": {},
   "keywords": [],
