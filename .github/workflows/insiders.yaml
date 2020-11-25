@@ -1,8 +1,9 @@
 name: Insiders
 
 on:
-  schedule:
-    - cron: '0 3 * * 1'
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 defaults:
@@ -14,6 +15,11 @@ jobs:
     name: Insiders
     runs-on: ubuntu-latest
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.4.1
+        with:
+          access_token: ${{ github.token }}
+
       - name: Checkout
         uses: actions/checkout@v2
 
