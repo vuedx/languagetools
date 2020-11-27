@@ -379,13 +379,18 @@ export function createTemplateLanguageServer(
       const loc = document.getGeneratedOffsetAt(position)
       if (loc == null) return
 
+      const nodeAtCursor = h.findNodeAtPosition(document.fsPath, position)
       const result = choose(document.fsPath).getQuickInfoAtPosition(
         fileName,
         loc.offset,
       )
 
       if (result != null) {
-        const textSpan = h.getTextSpan(document, result.textSpan)
+        const textSpan = h.getTextSpan(
+          document,
+          result.textSpan,
+          nodeAtCursor.node,
+        )
         if (textSpan != null) {
           result.textSpan = textSpan
         } else {

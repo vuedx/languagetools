@@ -403,4 +403,25 @@ describe('quickinfo', () => {
       await server.sendCommand('updateOpen', { closedFiles: [file] })
     }
   })
+
+  test.each(['NestedVIf.vue'])(
+    `%s should have no semantic errors`,
+    async (fileName) => {
+      const file = abs(`src/${fileName}`)
+      
+      try {
+        await server.sendCommand('updateOpen', {
+          openFiles: [{ file, projectRootPath }],
+        })
+
+        const { body } = await server.waitForEvent(
+          'semanticDiag',
+          checkEventFile(file),
+        )
+        expect(body?.diagnostics).toHaveLength(0)
+      } finally {
+        await server.sendCommand('updateOpen', { closedFiles: [file] })
+      }
+    },
+  )
 })

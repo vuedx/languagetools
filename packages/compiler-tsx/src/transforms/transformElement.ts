@@ -8,6 +8,7 @@ import {
   DirectiveNode,
   DynamicSlotsExpression,
   ElementNode,
+  findProp,
   isSimpleIdentifier,
   NodeTransform,
   SlotsExpression,
@@ -69,6 +70,95 @@ export function createElementTransform(
     }
 
     return () => {
+      // TODO: Transform <slot />
+      if (node.tag === 'slot') {
+        const slotName = findProp(node, 'name')
+        const props = node.props.filter(
+          (prop) =>
+            prop !== slotName &&
+            (isAttributeNode(prop) || prop.name === 'bind'),
+        )
+        const args = createCompoundExpression(
+          props.length === 0
+            ? []
+            : props.length === 1 &&
+              isDirectiveNode(props[0]) &&
+              props[0].arg == null
+            ? [props[0].exp]
+            : [
+                '{',
+
+                props.flatMap<any>((prop) => {
+                  if (isAttributeNode(prop)) {
+                    return generateAttribute(prop, node, ':')
+                  } else if (prop.name === 'bind') {
+                    if (isSimpleExpressionNode(prop.arg)) {
+                      return [
+                        '[',
+                        prop.arg.isStatic
+                          ? prop.arg
+                          : createSimpleExpression(
+                              prop.arg.content,
+                              prop.arg.isStatic,
+                              createLoc(
+                                prop.arg.loc,
+                                1,
+                                prop.arg.content.length,
+                              ),
+                            ),
+                        ']:',
+                        prop.exp ?? 'true',
+                        ',',
+                      ]
+                    } else if (prop.exp != null) {
+                      return ['...(', prop.exp, '),']
+                    }
+                  }
+                  return []
+                }),
+                '}',
+              ].flat(),
+        )
+        node.codegenNode = createCompoundExpression(
+          [
+            '{_ctx.',
+            slotName != null
+              ? [
+                  createSimpleExpression(
+                    '$slots',
+                    false,
+                    createLoc(node.loc, 1, 4),
+                  ),
+                  '[',
+                  isAttributeNode(slotName)
+                    ? createSimpleExpression(
+                        slotName.value?.content ?? 'default',
+                        true,
+                        slotName.loc,
+                      )
+                    : slotName.exp,
+                  ']',
+                ]
+              : [
+                  createSimpleExpression(
+                    '$slots.default',
+                    false,
+                    createLoc(node.loc, 1, 4),
+                  ),
+                ],
+            '(',
+            args,
+            ')',
+            node.children.length > 0
+              ? ['?? (<>', generateChildNodes(node.children), '</>)'].flat()
+              : [],
+            '}',
+          ].flat(),
+        ) as any
+
+        return
+      }
+
       const name: string = resolvedComponentName ?? node.tag
       const startTag = createSimpleExpression(
         name,
@@ -250,24 +340,37 @@ function generateVModel(dir: DirectiveNode, node: ElementNode): any[] {
   return code
 }
 
-function generateAttribute(attr: AttributeNode, node: ElementNode): any[] {
+function generateAttribute(
+  attr: AttributeNode,
+  node: ElementNode,
+  sep: '=' | ':' = '=',
+): any[] {
   const code: any[] = []
-  if (attr.name === 'class' || attr.name === 'style') return []
-  code.push(
-    ' ',
-    createSimpleExpression(
-      attr.name,
-      false,
-      createLoc(attr.loc, 0, attr.name.length),
-    ),
-  )
-  if (attr.value != null) {
+  if (sep === '=' && (attr.name === 'class' || attr.name === 'style')) {
+    return code
+  } else {
     code.push(
-      '=',
-      createSimpleExpression(attr.value.loc.source, false, attr.value.loc),
+      ' ',
+      createSimpleExpression(
+        attr.name,
+        false,
+        createLoc(attr.loc, 0, attr.name.length),
+      ),
     )
+
+    if (attr.value != null) {
+      code.push(
+        sep,
+        createSimpleExpression(attr.value.loc.source, false, attr.value.loc),
+      )
+    } else if (sep === ':') {
+      code.push(sep, 'true')
+    }
+
+    if (sep === ':') code.push(',')
+
+    return code
   }
-  return code
 }
 
 const InlineVOnHandlerRE = /\bfunction\b|\b=>\b/
@@ -312,7 +415,15 @@ function generateVBind(dir: DirectiveNode, node: ElementNode): any[] {
       code.push(' ', dir.arg)
       if (dir.exp != null) code.push('={', dir.exp, '}')
     } else {
-      code.push(' {...({[', dir.arg, ']: ')
+      code.push(
+        ' {...({[',
+        createSimpleExpression(
+          dir.arg.content,
+          dir.arg.isStatic,
+          createLoc(dir.arg.loc, 1, dir.arg.content.length),
+        ),
+        ']: ',
+      )
       if (dir.exp != null) code.push(dir.exp)
       else code.push('true')
       code.push('})}')
@@ -331,7 +442,7 @@ function generateChildren(
 ): any[] {
   if (isResolvedComponent) {
     const { slots } = buildSlots(node, context, (props, children) => {
-      const nodes = processTemplateNodes(children)
+      const nodes = generateChildNodes(children)
       return createFunctionExpression(
         props,
         createCompoundExpression(
@@ -359,11 +470,11 @@ function generateChildren(
 
     return [createCompoundExpression(['{', slots as any, '}'])]
   } else {
-    return processTemplateNodes(node.children)
+    return generateChildNodes(node.children)
   }
 }
 
-function processTemplateNodes(nodes: TemplateChildNode[]): any[] {
+export function generateChildNodes(nodes: TemplateChildNode[]): any[] {
   return nodes.flatMap((node) => {
     if (isCommentNode(node)) {
       if (node.content.includes('<') || node.content.includes('>')) {

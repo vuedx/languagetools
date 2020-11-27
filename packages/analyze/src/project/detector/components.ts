@@ -195,7 +195,7 @@ export function getComponentsFromVueRouterPackage(
       name: 'RouterLink',
       aliases: ['router-link', 'RouterLink'],
       source: {
-        moduleName: 'vue',
+        moduleName: 'vue-router',
         localName: 'RouterLink',
         exportName: 'RouterLink',
       },
@@ -204,7 +204,7 @@ export function getComponentsFromVueRouterPackage(
       name: 'RouterView',
       aliases: ['router-view', 'RouterView'],
       source: {
-        moduleName: 'vue',
+        moduleName: 'vue-router',
         localName: 'RouterView',
         exportName: 'RouterView',
       },

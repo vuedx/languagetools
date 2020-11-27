@@ -30,7 +30,6 @@ export function createTransformIf(
           }
 
           ifNode.codegenNode = createCompoundExpression([
-            '{',
             ...(ifNode.branches.flatMap((branch) => {
               hasElse = hasElse || branch.condition == null
 
@@ -44,7 +43,7 @@ export function createTransformIf(
                   ]
                 : ['(', ...normalizeChildren(branch.children), ')']
             }) as any),
-            `${hasElse ? '' : 'null'}}`,
+            `${hasElse ? '' : 'null'}`,
           ]) as any
         }
       })
