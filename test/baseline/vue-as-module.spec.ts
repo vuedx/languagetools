@@ -32,7 +32,7 @@ describe.each(projects)('project: %s', (project) => {
   )
   const ext = project.includes('javascript') ? 'js' : 'ts'
 
-  function abs(fileName: string) {
+  function abs(fileName: string): string {
     return toNormalizedPath(Path.resolve(projectPath, fileName))
   }
 

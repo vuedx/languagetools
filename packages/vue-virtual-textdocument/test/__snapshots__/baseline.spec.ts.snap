@@ -8,7 +8,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({}: InstanceType<typeof _Ctx>) {
+export function render({,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
 }
 `;
@@ -21,7 +21,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({}: InstanceType<typeof _Ctx>) {
+export function render({,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
 }
 `;
@@ -34,7 +34,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({}: InstanceType<typeof _Ctx>) {
+export function render({,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
 }
 `;
@@ -47,7 +47,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({}: InstanceType<typeof _Ctx>) {
+export function render({,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
 }
 `;
@@ -59,7 +59,7 @@ import _Ctx from './HelloWorld.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -71,7 +71,7 @@ import _Ctx from './MyWorld.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -83,7 +83,7 @@ import _Ctx from './FeatureSetup.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({str}: InstanceType<typeof _Ctx>) {
+export function render({str,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >{str.toLocaleLowerCase()}</p></>/*@@vue:end*/
 }
 `;
@@ -137,6 +137,18 @@ export function render(_ctx: InstanceType<typeof _Ctx>) {
 }
 `;
 
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/NestedVIf.vue 1`] = `
+import _Ctx from './NestedVIf.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({msg,..._ctx}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div >{(msg) ? (<img alt="Vue logo" src="./assets/logo.png" />) :null}</div></>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/NoErrors.vue 1`] = `
 import _Ctx from './NoErrors.vue?internal'
 import TypeScriptPropsType from './components/TypeScriptPropsType.vue'
@@ -152,6 +164,45 @@ __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><TypeScriptPropsType stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /><TypeScriptPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /><TypeScriptSetupPropsDeclare stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /><TypeScriptSetupPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /><JavaScriptPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /><JavaScriptSetupPropsOption stringFull="value" numberFull={1} booleanFull={true} objectFull={{ id: 1 }} arrayFull={[{ id: 1 }]} unionFull={1} /></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/Slot.vue 1`] = `
+import _Ctx from './Slot.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({str, num,..._ctx}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div {...({[str]: num})} class={num} >{_ctx.$slots.default({ str, num })}{_ctx.$slots["other"]({ str, num })}{_ctx.$slots[str]({ str, num })}{_ctx.$slots.default({...({ str, num }), foo:true, bar:"bar",["baz"]:str,[str]:num,[num]:true,})?? (<><div >fallback {str} and {num}</div></>)}</div></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/SlotType.vue 1`] = `
+import _Ctx from './SlotType.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({str, num,..._ctx}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div >{_ctx.$slots.default({ str, num })}</div></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/SlotTypeUsage.vue 1`] = `
+import _Ctx from './SlotTypeUsage.vue?internal'
+import SlotType from './SlotType.vue'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({str, num,..._ctx}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div ><SlotType >{{
+    default: ({ str, num }) => (<>{str} {num}</>)
+  }}</SlotType></div></>/*@@vue:end*/
 }
 `;
 
@@ -173,6 +224,18 @@ export function render(_ctx: InstanceType<typeof _Ctx>) {
 }
 `;
 
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/UsingRouter.vue 1`] = `
+import _Ctx from './UsingRouter.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div ><RouterView ><Component /></RouterView></div></>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/VFor.vue 1`] = `
 import _Ctx from './VFor.vue?internal'
 
@@ -185,38 +248,38 @@ declare function _renderList<T extends object>(source: T, renderItem: <K extends
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({num, str, arr, obj, itr, boo, sym}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><>{_renderList(num, (n) => {
+export function render({num, str, arr, obj, itr, boo, sym,..._ctx}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<>{_renderList(num, (n) => {
     return <><div >{n}</div></>
-  })}</><>{_renderList(num, (n, i) => {
+  })}{_renderList(num, (n, i) => {
     return <><div >{n}:{i}</div></>
-  })}</><>{_renderList(str, (s) => {
+  })}{_renderList(str, (s) => {
     return <><div >{s}</div></>
-  })}</><>{_renderList(str, (s, i) => {
+  })}{_renderList(str, (s, i) => {
     return <><div >{s}:{i}</div></>
-  })}</><>{_renderList(arr, (a) => {
+  })}{_renderList(arr, (a) => {
     return <><div >{a}</div></>
-  })}</><>{_renderList(arr, ({ value }) => {
+  })}{_renderList(arr, ({ value }) => {
     return <><div >{value}</div></>
-  })}</><>{_renderList(arr, ({ foo }) => {
+  })}{_renderList(arr, ({ foo }) => {
     return <><div >{arr}</div></>
-  })}</><>{_renderList(arr, (a, i) => {
+  })}{_renderList(arr, (a, i) => {
     return <><div >{a}:{i}</div></>
-  })}</><>{_renderList(arr, ({ value }, i) => {
+  })}{_renderList(arr, ({ value }, i) => {
     return <><div >{value}:{i}</div></>
-  })}</><>{_renderList(obj, (o) => {
+  })}{_renderList(obj, (o) => {
     return <><div >{o}</div></>
-  })}</><>{_renderList(obj, (o, k) => {
+  })}{_renderList(obj, (o, k) => {
     return <><div >{o}:{k}</div></>
-  })}</><>{_renderList(obj, (o, k, i) => {
+  })}{_renderList(obj, (o, k, i) => {
     return <><div >{o}:{k}:{i}</div></>
-  })}</><>{_renderList(itr, (t) => {
+  })}{_renderList(itr, (t) => {
     return <><div >{t}</div></>
-  })}</><>{_renderList(boo, (b) => {
+  })}{_renderList(boo, (b) => {
     return <><div >{b}</div></>
-  })}</><>{_renderList(sym, (s) => {
+  })}{_renderList(sym, (s) => {
     return <><div >{s}</div></>
-  })}</></>/*@@vue:end*/
+  })}</>/*@@vue:end*/
 }
 `;
 
@@ -227,7 +290,7 @@ import _Ctx from './VIf.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({isVerified, user}: InstanceType<typeof _Ctx>) {
+export function render({isVerified, user,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<>{(isVerified === true) ? (<div >Verified</div>) :null}{(user === true) ? (<div >{user.name}</div>) :(<div >{user} has no name</div>)}{(user == null) ? (<div >{user.name}</div>) :(user != null) ? (<div >{user.name}</div>) :(<div >{user} has no name</div>)}</>/*@@vue:end*/
 }
 `;
@@ -239,8 +302,21 @@ import _Ctx from './VModel.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({asConst, asRef, asComputed, asComputedWritable, asReactive, asReadonly}: InstanceType<typeof _Ctx>) {
+export function render({asConst, asRef, asComputed, asComputedWritable, asReactive, asReadonly,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><input value={asConst}  onChange={($event) => (asConst = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asConst}  onChange={($event) => (asConst = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asRef}  onChange={($event) => (asRef = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asRef}  onChange={($event) => (asRef = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asComputed}  onChange={($event) => (asComputed = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asComputed}  onChange={($event) => (asComputed = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asComputedWritable}  onChange={($event) => (asComputedWritable = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asComputedWritable}  onChange={($event) => (asComputedWritable = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReactive}  onChange={($event) => (asReactive = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReactive}  onChange={($event) => (asReactive = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReactive.foo}  onChange={($event) => (asReactive.foo = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReactive.foo}  onChange={($event) => (asReactive.foo = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReadonly}  onChange={($event) => (asReadonly = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReadonly}  onChange={($event) => (asReadonly = Number(($event as Event & {target:HTMLInputElement}).target.value))} /><input value={asReadonly.foo}  onChange={($event) => (asReadonly.foo = ($event as Event & {target:HTMLInputElement}).target.value)} /><input value={asReadonly.foo}  onChange={($event) => (asReadonly.foo = Number(($event as Event & {target:HTMLInputElement}).target.value))} /></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/VOn.vue 1`] = `
+import _Ctx from './VOn.vue?internal'
+import WithEmits from './components/WithEmits.vue'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({console,..._ctx}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><WithEmits onWave={$event =>console.log($event)} /></>/*@@vue:end*/
 }
 `;
 
@@ -274,6 +350,8 @@ exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/TypeScri
 
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/TypeScriptSetupPropsOption.vue 1`] = ``;
 
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/components/WithEmits.vue 1`] = ``;
+
 exports[`VueVirtualDocument/baseline feature-goto-definition/src/Javascript.vue 1`] = `
 import _Ctx from './Javascript.vue?internal'
 import HelloWorld from './components/HelloWorld.vue'
@@ -282,7 +360,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+export function render({decrease, one, increase, two, name, email, code,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
 }
 `;
@@ -295,7 +373,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+export function render({decrease, one, increase, two, name, email, code,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
 }
 `;
@@ -308,7 +386,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+export function render({decrease, one, increase, two, name, email, code,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
 }
 `;
@@ -321,7 +399,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+export function render({decrease, one, increase, two, name, email, code,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
 }
 `;
@@ -333,7 +411,7 @@ import _Ctx from './HelloWorld.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -346,7 +424,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+export function render({name, email, code, fullname, altCode,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p></>/*@@vue:end*/
 }
 `;
@@ -359,7 +437,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+export function render({name, email, code, fullname, altCode,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p></>/*@@vue:end*/
 }
 `;
@@ -372,7 +450,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+export function render({name, email, code, fullname, altCode,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p></>/*@@vue:end*/
 }
 `;
@@ -385,7 +463,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name, email, code, fullname, altCode}: InstanceType<typeof _Ctx>) {
+export function render({name, email, code, fullname, altCode,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><span >Name: {name}</span><span >Email: {email}</span><span >Code: {code}</span></p><p ><span >FullName: {fullname}</span><span >AltCode: {altCode}</span></p></>/*@@vue:end*/
 }
 `;
@@ -397,7 +475,7 @@ import _Ctx from './HelloWorld.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -410,7 +488,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+export function render({decrease, one, increase, two, name, email, code,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
 }
 `;
@@ -423,7 +501,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+export function render({decrease, one, increase, two, name, email, code,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
 }
 `;
@@ -436,7 +514,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+export function render({decrease, one, increase, two, name, email, code,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
 }
 `;
@@ -449,7 +527,7 @@ import HelloWorld from './components/HelloWorld.vue'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({decrease, one, increase, two, name, email, code}: InstanceType<typeof _Ctx>) {
+export function render({decrease, one, increase, two, name, email, code,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><HelloWorld name="Jane" /><p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
 }
 `;
@@ -461,7 +539,7 @@ import _Ctx from './HelloWorld.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -473,7 +551,7 @@ import _Ctx from './VeturComponent.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -485,7 +563,7 @@ import _Ctx from './WebTypesComponent.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -520,7 +598,7 @@ import _Ctx from './VeturComponent.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -532,7 +610,7 @@ import _Ctx from './WebTypesComponent.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -576,7 +654,7 @@ import _Ctx from './HelloWorld.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -601,7 +679,7 @@ import _Ctx from './HelloWorld.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -613,7 +691,7 @@ import _Ctx from './VeturComponent.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -625,7 +703,7 @@ import _Ctx from './WebTypesComponent.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -650,7 +728,7 @@ import _Ctx from './HelloWorld.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
@@ -675,7 +753,7 @@ import _Ctx from './HelloWorld.vue?internal'
 declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
-export function render({name}: InstanceType<typeof _Ctx>) {
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
 }
 `;

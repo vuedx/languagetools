@@ -1,3 +1,4 @@
+import { isSimpleExpressionNode, t } from '@vuedx/template-ast-types'
 import { ComponentInfo, createFullAnalyzer } from '@vuedx/analyze'
 import {
   getContainingFile,
@@ -22,6 +23,11 @@ import {
   SearchResult,
 } from './ast-ops'
 export { getComponentName } from '@vuedx/analyze'
+
+const nonIdentifierRE = /^\d|[^$\w]/
+function isSimpleIdentifier(id: string): boolean {
+  return !nonIdentifierRE.test(id.trim())
+}
 
 function createCachedAnalyzer(): (document: VueTextDocument) => ComponentInfo {
   const cache = new QuickLRU<string, ComponentInfo>({ maxSize: 1000 })
@@ -120,10 +126,19 @@ export function createServerHelper(
   function getTextSpan(
     document: VirtualTextDocument,
     span: TS.TextSpan,
+    node?: t.Node | null,
   ): TS.TextSpan {
     if (isRenderFunctionDocument(document)) {
       const result = document.getOriginalOffsetAt(span.start)
-      if (result != null) return { start: result.offset, length: result.length }
+      if (result != null)
+        return {
+          start: result.offset,
+          length: isSimpleExpressionNode(node)
+            ? isSimpleIdentifier(node.content)
+              ? node.content.length
+              : span.length
+            : result.length,
+        }
     }
 
     return span

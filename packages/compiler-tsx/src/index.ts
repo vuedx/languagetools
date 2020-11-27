@@ -22,7 +22,10 @@ import {
 import Path from 'path'
 import { parserOptions } from './parserOptions'
 import { withScope } from './scope'
-import { createElementTransform } from './transforms/transformElement'
+import {
+  createElementTransform,
+  generateChildNodes,
+} from './transforms/transformElement'
 import { createExpressionTracker } from './transforms/transformExpression'
 import { createTransformFor } from './transforms/transformFor'
 import { createTransformIf } from './transforms/transformIf'
@@ -149,7 +152,7 @@ export function compile(
   if (ast.children.length > 0) {
     ast.codegenNode = createCompoundExpression([
       '/*@@vue:start*/<>',
-      ...ast.children,
+      ...generateChildNodes(ast.children),
       '</>/*@@vue:end*/',
     ] as any)
   } else {
@@ -196,7 +199,7 @@ export function compile(
           push(
             `function render(${
               identifiers.size > 0
-                ? `{${Array.from(identifiers).join(', ')}}`
+                ? `{${Array.from(identifiers).join(', ')},..._ctx}`
                 : '_ctx'
             }: InstanceType<typeof _Ctx>) {`,
           )

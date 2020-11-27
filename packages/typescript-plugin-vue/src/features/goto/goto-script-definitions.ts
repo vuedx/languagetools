@@ -1,4 +1,8 @@
-import { isAttributeNode, isElementNode } from '@vuedx/template-ast-types'
+import {
+  isAttributeNode,
+  isElementNode,
+  isSimpleExpressionNode,
+} from '@vuedx/template-ast-types'
 import { RenderFunctionTextDocument } from '@vuedx/vue-virtual-textdocument'
 import { findTemplateNodeAt } from '../../helpers/ast-ops'
 import { TS } from '../../interfaces'
@@ -22,6 +26,7 @@ export const GotoScriptDefinitions: GotoProvider = {
 
     let isTextSpanSet = false
     const definitions: TS.DefinitionInfo[] = []
+    const nodeAtCursor = h.findNodeAtPosition(document.fsPath, position)
 
     result.definitions?.forEach((definition) => {
       if (h.isRenderFunctionFileName(definition.fileName)) {
@@ -76,7 +81,11 @@ export const GotoScriptDefinitions: GotoProvider = {
             }
           }
         } else {
-          const textSpan = h.getTextSpan(document, definition.textSpan)
+          const textSpan = h.getTextSpan(
+            document,
+            definition.textSpan,
+            nodeAtCursor.node,
+          )
           if (textSpan !== definition.textSpan) {
             isTextSpanSet = true
             definition.textSpan = textSpan
@@ -84,6 +93,7 @@ export const GotoScriptDefinitions: GotoProvider = {
               definition.contextSpan = h.getTextSpan(
                 document,
                 definition.contextSpan,
+                nodeAtCursor.node,
               )
             }
             definition.fileName = document.container.fsPath
@@ -97,8 +107,16 @@ export const GotoScriptDefinitions: GotoProvider = {
     result.definitions = definitions
 
     if (!isTextSpanSet) {
-      const textSpan: TS.TextSpan | null = getTextSpan(document, position)
-      if (textSpan != null) result.textSpan = textSpan
+      if (isSimpleExpressionNode(nodeAtCursor.node)) {
+        result.textSpan = h.getTextSpan(
+          document,
+          result.textSpan,
+          nodeAtCursor.node,
+        )
+      } else {
+        const textSpan: TS.TextSpan | null = getTextSpan(document, position)
+        if (textSpan != null) result.textSpan = textSpan
+      }
     }
 
     return result
