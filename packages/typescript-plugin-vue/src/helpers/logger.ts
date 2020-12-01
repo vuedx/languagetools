@@ -13,7 +13,7 @@ export function wrapInTrace<T>(context: string, target: T): T {
         `[TRACE] ${context} ${method}(${JSON.stringify(args)}) ${
           performance.now() - start
         } ${util.inspect(result, {
-          depth: 6,
+          depth: 7,
           maxArrayLength: Infinity,
           showHidden: false,
         })}`,

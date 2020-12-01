@@ -45,6 +45,13 @@ export function isVirtualFile(fileName: string): boolean {
   return fileName.indexOf('.vue' + VIRTUAL_FILENAME_SEPARATOR) > 0
 }
 
+export function isVirtualFileOfType(
+  fileName: string,
+  type: '_render' | '_module' | '_internal' | 'script' | 'scriptSetup',
+): boolean {
+  return fileName.indexOf('.vue' + VIRTUAL_FILENAME_SEPARATOR + type) > 0
+}
+
 export function getContainingFile(fileName: string): string {
   return fileName.split(VIRTUAL_FILENAME_SEPARATOR).shift() ?? fileName
 }

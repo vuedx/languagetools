@@ -3,6 +3,7 @@ import {
   ComponentsOptionAnalyzer,
   createAnalyzer,
   ScriptBlockAnalyzer,
+  getComponentName,
 } from '@vuedx/analyze'
 import {
   parse,
@@ -274,6 +275,7 @@ function createVueModuleTextDocument(
       let scriptSetupHasDefaultExport = false
       let usesDefineComponent = false
       let usePropTypes = false
+      const name = getComponentName(document.container.fsPath)
       if (script != null) {
         const path =
           script.src != null
@@ -309,7 +311,7 @@ function createVueModuleTextDocument(
       }
       if (scriptSetupHasDefaultExport) {
         lines.push(
-          `const component = ${
+          `const ${name} = ${
             usesDefineComponent
               ? 'scriptSetup.default'
               : 'defineComponent(scriptSetup.default)'
@@ -317,13 +319,13 @@ function createVueModuleTextDocument(
         )
       } else if (scriptHasDefaultExport || scriptMayHaveDefaultExport) {
         lines.push(
-          `const component = ${
+          `const ${name} = ${
             usesDefineComponent ? 'script' : 'defineComponent(script)'
           }`,
         )
       } else {
         lines.push(
-          `const component = defineComponent${
+          `const ${name} = defineComponent${
             usePropTypes ? '<scriptSetup.$Props>' : ''
           }({})`,
         )
@@ -334,12 +336,12 @@ function createVueModuleTextDocument(
       )
       if (template != null) {
         lines.unshift(`import { render } from '${renderFilePath}'`)
-        lines.push(`component.render = render`)
+        lines.push(`${name}.render = render`)
       } else {
         lines.unshift(`import "${renderFilePath}"`)
       }
 
-      lines.push(`export default component`)
+      lines.push(`export default ${name}`)
 
       return { code: lines.join('\n') }
     },

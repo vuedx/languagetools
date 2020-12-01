@@ -171,10 +171,11 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
       return factory
     },
     addOption(name, address) {
-      if (name != null) {
+      if (name === '') {
         component.options = {
-          ...address,
           properties: {},
+          ...component.options,
+          ...address,
         }
       } else {
         if (component.options == null)
