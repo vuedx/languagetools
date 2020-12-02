@@ -16,7 +16,10 @@ import {
   isNotNull,
 } from '../helpers/utils'
 import { TS } from '../interfaces'
-import { registerLocalComponent } from '../transforms/registerLocalComponent'
+import {
+  registerLocalComponent,
+  registerLocalComponentWithSource,
+} from '../transforms/registerLocalComponent'
 import { LanguageServiceOptions } from '../types'
 import { createVirtualLanguageServer } from './virtual'
 import { createVueLanguageServer } from './vue'
@@ -337,39 +340,44 @@ function createLanguageServiceRouter(
               codeAction.changes.forEach((change) => {
                 const document = config.helpers.getVueDocument(change.fileName)
                 if (
+                  change.textChanges.length > 0 &&
                   document != null &&
                   config.helpers.isRenderFunctionDocument(documentAtCursor)
                 ) {
-                  change.textChanges.forEach((textChange) => {
-                    // We need to rewrite import statement to start of script block of .vue file.
-                    const block =
-                      document.descriptor.scriptSetup ??
-                      document.descriptor.script
+                  const block =
+                    document.descriptor.scriptSetup ??
+                    document.descriptor.script
 
-                    if (block != null) {
-                      // Add import statement to start of <script> or <script setup> block
-                      textChange.span.start = block.loc.start.offset + 1
-                    } else {
-                      textChange.span.start = 0
-                      textChange.newText = [
-                        `<script>`,
-                        `import { defineComponent } from 'vue'`,
-                        textChange.newText,
-                        `export default defineComponent({`,
-                        `  components: { ${entryName} }`,
-                        `})`,
-                        `</script>\n\n`,
-                      ].join('\n')
-                    }
-                  })
-                  change.textChanges = [
-                    ...change.textChanges,
-                    ...registerLocalComponent(
+                  if (block == null) {
+                    const project = config.context.getVueProjectForFile(
+                      fileName,
+                      true,
+                    )
+                    change.textChanges = registerLocalComponentWithSource(
                       document,
                       config.helpers.getComponentInfo(document),
-                      entryName,
-                    ),
-                  ]
+                      { moduleName: source, localName: entryName }, // <- create fake "source" as "importStatement" is available
+                      project.config.preferences.script,
+                      change.textChanges[0].newText,
+                    )
+                  } else {
+                    change.textChanges.forEach((textChange) => {
+                      // We need to rewrite import statement to start of script block of .vue file
+                      if (block != null) {
+                        // Add import statement to start of <script> or <script setup> block
+                        textChange.span.start = block.loc.start.offset + 1
+                      }
+                    })
+
+                    change.textChanges = [
+                      ...change.textChanges,
+                      ...registerLocalComponent(
+                        document,
+                        config.helpers.getComponentInfo(document),
+                        entryName,
+                      ),
+                    ]
+                  }
                 }
               })
             })

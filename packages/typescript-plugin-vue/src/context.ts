@@ -267,8 +267,8 @@ export class PluginContext {
             if (event === this.typescript.FileWatcherEventKind.Deleted) {
               dispose()
             } else {
-              ;(newProject as ConfiguredVueProject).config = tryRequire(
-                configFile,
+              ;(newProject as ConfiguredVueProject).setConfig(
+                tryRequire(configFile),
               )
               newProject.markDirty()
             }
