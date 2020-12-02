@@ -20,6 +20,7 @@ importers:
       eslint-plugin-prettier: 3.1.4_eslint@7.12.1+prettier@2.1.2
       eslint-plugin-promise: 4.2.1
       eslint-plugin-standard: 4.0.2_eslint@7.12.1
+      fast-glob: 3.2.4
       husky: 4.3.0
       jest: 26.5.3
       jest-expect-message: 1.0.2
@@ -56,6 +57,7 @@ importers:
       eslint-plugin-prettier: ^3.1.4
       eslint-plugin-promise: ^4.2.1
       eslint-plugin-standard: ^4.0.2
+      fast-glob: ^3.2.4
       husky: ^4.3.0
       jest: ^26.5.3
       jest-expect-message: ^1.0.2
@@ -227,6 +229,7 @@ importers:
   packages/typescript-plugin-vue:
     dependencies:
       '@vuedx/analyze': 'link:../analyze'
+      '@vuedx/projectconfig': 'link:../projectconfig'
       '@vuedx/template-ast-types': 'link:../template-ast-types'
       '@vuedx/vue-virtual-textdocument': 'link:../vue-virtual-textdocument'
       de-indent: 1.0.2
@@ -240,6 +243,7 @@ importers:
     specifiers:
       '@vuedx/analyze': 'workspace:*'
       '@vuedx/compiler-tsx': 'workspace:*'
+      '@vuedx/projectconfig': 'workspace:*'
       '@vuedx/template-ast-types': 'workspace:*'
       '@vuedx/vue-virtual-textdocument': 'workspace:*'
       de-indent: ^1.0.2

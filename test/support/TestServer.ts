@@ -307,6 +307,11 @@ export class TestServer {
     args: Proto.CompletionsRequest['arguments'],
   ): Promise<Proto.CompletionInfoResponse>
 
+  public async sendCommand(
+    command: 'completionEntryDetails' | Proto.CommandTypes.CompletionDetails,
+    args: Proto.CompletionDetailsRequest['arguments'],
+  ): Promise<Proto.CompletionDetailsResponse>
+
   public async sendCommand(command: string, args: any): Promise<any> {
     return this.sendRequest({ command, arguments: args }) as any
   }

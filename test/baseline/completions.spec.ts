@@ -93,7 +93,7 @@ describe('completions', () => {
       )
     })
 
-    it('should should provide completions in interpolation expression', async () => {
+    it('should provide completions in interpolation expression', async () => {
       const { body } = await server.sendCommand(
         'completionInfo',
         await findPositionOrThrowIn(file, `{{ name +`, '{{ '.length),
@@ -117,7 +117,7 @@ describe('completions', () => {
       )
     })
 
-    it('should should provide tag completion', async () => {
+    it('should provide tag completion', async () => {
       const { body } = await server.sendCommand(
         'completionInfo',
         await findPositionOrThrowIn(file, `<>`, '<'.length),
@@ -139,6 +139,99 @@ describe('completions', () => {
       expect(body?.entries).not.toContainEqual(
         expect.objectContaining({ name: 'window' }),
       )
+    })
+  })
+
+  describe.each([
+    'NoScript.vue',
+    'ScriptWithComponents.vue',
+    'ScriptWithEmptyOptions.vue',
+    'ScriptWithNoComponents.vue',
+    'ScriptWithSetup.vue',
+  ])('auto-import in %s', (source) => {
+    const file = abs(`src/auto-import/${source}`)
+    beforeAll(async () => {
+      await server.sendCommand('updateOpen', {
+        openFiles: [{ file, projectRootPath: projectPath }],
+      })
+    })
+
+    it('should import and register component', async () => {
+      const position = await findPositionOrThrowIn(file, '<My>', 3)
+      const { body } = await server.sendCommand('completionInfo', position)
+      expect(body?.entries.length).toBeGreaterThan(1)
+      const completion = body?.entries.find(
+        (completion) => completion.name === 'MyWorld',
+      )
+      expect(completion).toBeTruthy()
+      expect(completion?.source).toBe(abs(`src/components/MyWorld.vue`))
+      expect(completion?.hasAction).toBe(true)
+
+      const { body: details } = await server.sendCommand(
+        'completionEntryDetails',
+        {
+          ...position,
+          entryNames: [{ name: completion!.name, source: completion?.source }],
+        },
+      )
+
+      expect(details).toHaveLength(1)
+      expect(details![0].codeActions).toHaveLength(1)
+      const codeAction = details![0].codeActions![0]
+      expect(codeAction.description).toEqual(
+        expect.stringContaining(
+          `Import default 'MyWorld' from module "../components/MyWorld.vue"`,
+        ),
+      )
+      expect(codeAction.changes).toHaveLength(1)
+      expect(codeAction.changes[0].fileName).toBe(file)
+      expect(codeAction.changes[0].textChanges).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            newText: expect.stringMatching(
+              `import MyWorld from '../components/MyWorld.vue'`,
+            ),
+          }),
+        ]),
+      )
+      if (!/setup/i.test(source)) {
+        // Should register for non-setup script blocks.
+        expect(codeAction.changes[0].textChanges).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              newText: expect.stringMatching(/MyWorld(?! from)/),
+            }),
+          ]),
+        )
+      }
+    })
+    it('should complete kebab-case', async () => {
+      const position = await findPositionOrThrowIn(file, '<My>', 3)
+      const { body } = await server.sendCommand('completionInfo', position)
+      expect(body?.entries.length).toBeGreaterThan(1)
+      const completion = body?.entries.find(
+        (completion) => completion.name === 'my-world',
+      )
+      expect(completion).toBeTruthy()
+      expect(completion?.source).toBe(abs(`src/components/MyWorld.vue`))
+      expect(completion?.hasAction).toBe(true)
+
+      const { body: kebabDetails } = await server.sendCommand(
+        'completionEntryDetails',
+        {
+          ...position,
+          entryNames: [{ name: 'my-world', source: completion?.source }],
+        },
+      )
+      const { body: pascalDetails } = await server.sendCommand(
+        'completionEntryDetails',
+        {
+          ...position,
+          entryNames: [{ name: 'MyWorld', source: completion?.source }],
+        },
+      )
+
+      expect(pascalDetails).toEqual(kebabDetails)
     })
   })
 })

@@ -8,6 +8,10 @@ import MagicString from 'magic-string'
 import Path from 'path'
 import dts from 'rollup-plugin-dts'
 
+import { sync as glob } from 'fast-glob'
+
+const files = glob(['packages/src/**/*.ts'], { cwd: process.cwd() })
+
 /** @type {import('rollup').RollupOptions[]} */
 const config = [
   type('compiler-sfc'),
@@ -103,6 +107,9 @@ function bundle(name, plugins = [], external = []) {
       ...external,
       ...builtIns,
     ],
+    watch: {
+      include: files,
+    },
   }
 }
 
@@ -189,6 +196,9 @@ function type(name) {
       file: abs(`./packages/${name}/dist/index.d.ts`),
     },
     plugins: [dts()],
+    watch: {
+      include: files,
+    },
   }
 }
 

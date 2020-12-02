@@ -38,6 +38,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.2",
+    "fast-glob": "^3.2.4",
     "husky": "^4.3.0",
     "jest": "^26.5.3",
     "jest-expect-message": "^1.0.2",

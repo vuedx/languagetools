@@ -1,13 +1,13 @@
 import { ProjectConfig } from '@vuedx/projectconfig'
-import { getComponentNameAliases, getComponentName } from '../utilities'
-import { PackageJSON } from './detector/PackageJSON'
-import { VueProject } from './VueProject'
-import Path from 'path'
 import micromatch from 'micromatch'
+import Path from 'path'
+import { getComponentName, getComponentNameAliases } from '../utilities'
 import {
   getComponentFromFile,
   getComponentsFromPackage,
 } from './detector/components'
+import { PackageJSON } from './detector/PackageJSON'
+import { VueProject } from './VueProject'
 
 export class ConfiguredVueProject extends VueProject {
   kind = 'configured' as const
@@ -17,10 +17,11 @@ export class ConfiguredVueProject extends VueProject {
     packageFile: string | undefined,
     packageJSON: Partial<PackageJSON>,
     public readonly configFile: string,
-    public config: Readonly<ProjectConfig>,
+    config: Readonly<ProjectConfig>,
     requireModule: NodeJS.Require = require,
   ) {
     super(rootDir, packageFile, packageJSON, requireModule)
+    this.setConfig(config)
   }
 
   public setFileNames(fileNames: string[]): void {
@@ -29,7 +30,7 @@ export class ConfiguredVueProject extends VueProject {
   }
 
   protected refresh(): void {
-    this.config.globalComponents?.forEach((option) => {
+    this.config.globalComponents.forEach((option) => {
       if (typeof option === 'string') {
         if (
           option in this.packageJSON.dependencies ||

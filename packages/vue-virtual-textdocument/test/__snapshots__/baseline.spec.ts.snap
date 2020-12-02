@@ -52,6 +52,66 @@ export function render({,..._ctx}: InstanceType<typeof _Ctx>) {
 }
 `;
 
+exports[`VueVirtualDocument/baseline feature-completions/src/auto-import/NoScript.vue 1`] = `
+import _Ctx from './NoScript.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div ><My ></My></div></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/auto-import/ScriptWithComponents.vue 1`] = `
+import _Ctx from './ScriptWithComponents.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div ><My ></My></div></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/auto-import/ScriptWithEmptyOptions.vue 1`] = `
+import _Ctx from './ScriptWithEmptyOptions.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div ><My ></My></div></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/auto-import/ScriptWithNoComponents.vue 1`] = `
+import _Ctx from './ScriptWithNoComponents.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div ><My ></My></div></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/auto-import/ScriptWithSetup.vue 1`] = `
+import _Ctx from './ScriptWithSetup.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div ><My ></My></div></>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-completions/src/components/HelloWorld.vue 1`] = `
 import _Ctx from './HelloWorld.vue?internal'
 

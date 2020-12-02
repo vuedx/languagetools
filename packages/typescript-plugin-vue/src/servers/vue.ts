@@ -400,5 +400,28 @@ export function createVueLanguageServer(
         )
       }
     },
+
+    getCodeFixesAtPosition(
+      fileName,
+      start,
+      end,
+      errorCodes,
+      formatOptions,
+      preferences,
+    ) {
+      const document = h.getDocumentAt(fileName, start)
+
+      if (document != null) {
+        return choose(document).getCodeFixesAtPosition(
+          document.fsPath,
+          start,
+          end,
+          errorCodes,
+          formatOptions,
+          preferences,
+        )
+      }
+      return []
+    },
   })
 }

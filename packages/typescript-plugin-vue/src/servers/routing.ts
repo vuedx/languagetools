@@ -1,12 +1,14 @@
 import {
   getContainingFile,
   isVirtualFile,
+  isVirtualFileOfType,
   isVueFile,
   MODULE_SELECTOR,
   parseVirtualFileName,
   VirtualTextDocument,
   VIRTUAL_FILENAME_SEPARATOR,
 } from '@vuedx/vue-virtual-textdocument'
+import { kebabCase } from '@vuedx/analyze'
 import { PluginContext } from '../context'
 import { wrapInTrace } from '../helpers/logger'
 import {
@@ -15,6 +17,10 @@ import {
   isNotNull,
 } from '../helpers/utils'
 import { TS } from '../interfaces'
+import {
+  registerLocalComponent,
+  registerLocalComponentWithSource,
+} from '../transforms/registerLocalComponent'
 import { LanguageServiceOptions } from '../types'
 import { createVirtualLanguageServer } from './virtual'
 import { createVueLanguageServer } from './vue'
@@ -273,12 +279,11 @@ function createLanguageServiceRouter(
         )
 
         if (completions?.entries != null) {
+          const additionalEntries: TS.CompletionEntry[] = []
           completions.entries = completions.entries
             .filter((entry) => {
               if (entry.source != null && isVirtualFile(entry.source)) {
-                return entry.source.endsWith(
-                  VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
-                )
+                return isVirtualFileOfType(entry.source, '_module')
               }
 
               return true
@@ -286,14 +291,23 @@ function createLanguageServiceRouter(
             .map((entry) => {
               if (entry.source != null && isVirtualFile(entry.source)) {
                 entry.source = getContainingFile(entry.source)
-
-                if (entry.name === 'component') {
-                  entry.name = baseGetComponentName(entry.source)
+                const componentName = getComponentName(entry.source)
+                if (componentName === entry.name) {
+                  additionalEntries.push({
+                    ...entry,
+                    name: kebabCase(entry.name),
+                    isRecommended: undefined,
+                    insertText:
+                      entry.insertText != null
+                        ? kebabCase(entry.insertText)
+                        : undefined,
+                  })
                 }
               }
 
               return entry
             })
+          completions.entries.push(...additionalEntries)
         }
 
         return completions
@@ -307,62 +321,121 @@ function createLanguageServiceRouter(
         source,
         preferences,
       ) {
-        const originalEntryName = entryName
-        const originalSource = source
+        let details: TS.CompletionEntryDetails | undefined
         if (source != null && isVueFile(source)) {
+          // -> Importing from a .vue file
+          let newSource = source
+          let newEntryName = entryName
+
           const componentName = baseGetComponentName(source)
-          source = source + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR
-
-          if (entryName === componentName) {
-            entryName = 'component'
+          if (
+            newEntryName.includes('-') &&
+            baseGetComponentName(newEntryName) === componentName
+          ) {
+            newEntryName = componentName
           }
-        }
 
-        const details = choose(fileName).getCompletionEntryDetails(
-          fileName,
-          position,
-          entryName,
-          formatOptions,
-          source,
-          preferences,
-        )
+          // -> Rewrite source to _module virtual file.
+          newSource = source + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR
 
-        if (originalSource != null && isVueFile(originalSource)) {
-          details?.codeActions?.forEach((codeAction) => {
-            const isComponentImport = entryName === 'component'
-            if (isComponentImport) {
-              codeAction.description = codeAction.description
-                .replace(VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR, '')
-                .replace('component', originalEntryName)
-            }
+          details = choose(fileName).getCompletionEntryDetails(
+            fileName,
+            position,
+            newEntryName,
+            formatOptions,
+            newSource,
+            preferences,
+          )
 
-            codeAction.changes.forEach((change) => {
-              if (isVirtualFile(change.fileName)) {
-                change.fileName = getContainingFile(change.fileName)
-              }
+          const isComponentImport = newEntryName === componentName
 
-              change.textChanges.forEach((textChange) => {
-                textChange.newText = textChange.newText.replace(
-                  VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
-                  '',
-                )
+          if (isComponentImport) {
+            const documentAtCursor = config.helpers.getDocumentAt(
+              fileName,
+              position,
+            )
+            details?.codeActions?.forEach((codeAction) => {
+              codeAction.description = codeAction.description.replace(
+                VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
+                '',
+              )
 
-                if (isComponentImport) {
-                  textChange.newText = textChange.newText.replace(
-                    /\bcomponent\b/,
-                    originalEntryName,
-                  )
+              codeAction.changes.forEach((change) => {
+                const document = config.helpers.getVueDocument(change.fileName)
+                if (
+                  change.textChanges.length > 0 &&
+                  document != null &&
+                  config.helpers.isRenderFunctionDocument(documentAtCursor)
+                ) {
+                  const block =
+                    document.descriptor.scriptSetup ??
+                    document.descriptor.script
+
+                  if (block == null) {
+                    const project = config.context.getVueProjectForFile(
+                      fileName,
+                      true,
+                    )
+                    change.textChanges = registerLocalComponentWithSource(
+                      document,
+                      config.helpers.getComponentInfo(document),
+                      { moduleName: source, localName: newEntryName }, // <- create fake "source" as "importStatement" is available
+                      project.config.preferences.script,
+                      change.textChanges[0].newText,
+                    )
+                  } else {
+                    change.textChanges.forEach((textChange) => {
+                      // We need to rewrite import statement to start of script block of .vue file
+                      if (block != null) {
+                        // Add import statement to start of <script> or <script setup> block
+                        textChange.span.start = block.loc.start.offset + 1
+                      }
+                    })
+
+                    change.textChanges = [
+                      ...change.textChanges,
+                      ...registerLocalComponent(
+                        document,
+                        config.helpers.getComponentInfo(document),
+                        newEntryName,
+                      ),
+                    ]
+                  }
                 }
               })
             })
-          })
-
-          details?.source?.forEach((item) => {
-            if (isVirtualFile(item.text)) {
-              item.text = getContainingFile(item.text)
-            }
-          })
+          }
+        } else {
+          details = choose(fileName).getCompletionEntryDetails(
+            fileName,
+            position,
+            entryName,
+            formatOptions,
+            source,
+            preferences,
+          )
         }
+
+        details?.codeActions?.forEach((codeAction) => {
+          codeAction.changes.forEach((change) => {
+            if (isVirtualFile(change.fileName)) {
+              change.fileName = getContainingFile(change.fileName)
+            }
+
+            change.textChanges.forEach((textChange) => {
+              textChange.newText = textChange.newText.replace(
+                VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
+                '',
+              )
+            })
+          })
+        })
+
+        details?.source?.forEach((item) => {
+          if (isVirtualFile(item.text)) {
+            item.text = getContainingFile(item.text)
+          }
+        })
 
         return details
       },
@@ -417,14 +490,64 @@ function createLanguageServiceRouter(
         formatOptions: TS.FormatCodeOptions,
         preferences: TS.UserPreferences,
       ): readonly TS.CodeFixAction[] {
-        return choose(fileName).getCodeFixesAtPosition(
-          fileName,
-          start,
-          end,
-          errorCodes,
-          formatOptions,
-          preferences,
-        )
+        return choose(fileName)
+          .getCodeFixesAtPosition(
+            fileName,
+            start,
+            end,
+            errorCodes,
+            formatOptions,
+            preferences,
+          )
+          .filter((fix) => {
+            if (
+              fix.fixName === 'import' &&
+              fix.description.includes(VIRTUAL_FILENAME_SEPARATOR)
+            ) {
+              return fix.description.includes(
+                VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
+              )
+            }
+            return true
+          })
+          .map((fix) => {
+            if (fix.fixName === 'import') {
+              fix.description = fix.description.replace(
+                VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
+                '',
+              )
+
+              fix.changes.forEach((change) => {
+                change.textChanges.forEach((textChange) => {
+                  textChange.newText = textChange.newText.replace(
+                    VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
+                    '',
+                  )
+                })
+              })
+            }
+
+            fix.changes.forEach((change) => {
+              if (isVirtualFile(change.fileName)) {
+                const document = config.helpers.getVueDocument(change.fileName)
+                const fileNameInfo = parseVirtualFileName(change.fileName)
+                change.fileName = getContainingFile(change.fileName)
+                if (document != null && fileNameInfo != null) {
+                  const block = document.getBlock(fileNameInfo.selector as any)
+                  if (block != null) {
+                    change.textChanges.forEach((textChange) => {
+                      if (textChange.span.start < block.loc.start.offset) {
+                        // Put at beginning of the block.
+                        textChange.span.start = block.loc.start.offset + 1
+                      }
+                    })
+                  }
+                }
+              }
+            })
+
+            return fix
+          })
       },
 
       getRenameInfo(fileName, position, options) {

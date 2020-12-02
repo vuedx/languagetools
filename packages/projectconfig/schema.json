@@ -35,7 +35,9 @@
                       }
                     },
                     "additionalProperties": false,
-                    "required": ["moduleName"]
+                    "required": [
+                      "moduleName"
+                    ]
                   }
                 ]
               }
@@ -43,6 +45,63 @@
             "additionalProperties": false
           }
         ]
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "description": "User preferences for the project",
+      "properties": {
+        "componentDirectories": {
+          "type": "array",
+          "description": "List of directories containing components",
+          "items": {
+            "type": "string",
+            "description": "Relative directory path"
+          },
+          "default": [
+            "src/components/"
+          ]
+        },
+        "script": {
+          "type": "object",
+          "description": "Script block preferences",
+          "properties": {
+            "mode": {
+              "description": "Preferred script block mode",
+              "enum": [
+                "setup",
+                "setup-ref",
+                "normal"
+              ],
+              "default": "normal"
+            },
+            "language": {
+              "description": "Preferred script block language",
+              "enum": [
+                "js",
+                "ts"
+              ],
+              "default": "js"
+            }
+          }
+        },
+        "style": {
+          "type": "object",
+          "description": "Style block preferences",
+          "properties": {
+            "language": {
+              "description": "Preferred style block language",
+              "enum": [
+                "css",
+                "scss",
+                "sass",
+                "styl",
+                "stylus",
+                "less"
+              ]
+            }
+          }
+        }
       }
     }
   }
