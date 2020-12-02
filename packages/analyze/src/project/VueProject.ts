@@ -1,7 +1,4 @@
-import {
-  ProjectConfig,
-  ProjectConfigNormalized,
-} from 'packages/projectconfig/src'
+import { ProjectConfig, ProjectConfigNormalized } from '@vuedx/projectconfig'
 import { ComponentRegistrationInfo } from '../component'
 import {
   getComponentFromFile,

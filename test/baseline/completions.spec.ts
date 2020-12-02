@@ -205,5 +205,33 @@ describe('completions', () => {
         )
       }
     })
+    it('should complete kebab-case', async () => {
+      const position = await findPositionOrThrowIn(file, '<My>', 3)
+      const { body } = await server.sendCommand('completionInfo', position)
+      expect(body?.entries.length).toBeGreaterThan(1)
+      const completion = body?.entries.find(
+        (completion) => completion.name === 'my-world',
+      )
+      expect(completion).toBeTruthy()
+      expect(completion?.source).toBe(abs(`src/components/MyWorld.vue`))
+      expect(completion?.hasAction).toBe(true)
+
+      const { body: kebabDetails } = await server.sendCommand(
+        'completionEntryDetails',
+        {
+          ...position,
+          entryNames: [{ name: 'my-world', source: completion?.source }],
+        },
+      )
+      const { body: pascalDetails } = await server.sendCommand(
+        'completionEntryDetails',
+        {
+          ...position,
+          entryNames: [{ name: 'MyWorld', source: completion?.source }],
+        },
+      )
+
+      expect(pascalDetails).toEqual(kebabDetails)
+    })
   })
 })

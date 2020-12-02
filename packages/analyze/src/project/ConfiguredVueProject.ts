@@ -4,7 +4,7 @@ import Path from 'path'
 import { getComponentName, getComponentNameAliases } from '../utilities'
 import {
   getComponentFromFile,
-  getComponentsFromPackage
+  getComponentsFromPackage,
 } from './detector/components'
 import { PackageJSON } from './detector/PackageJSON'
 import { VueProject } from './VueProject'
@@ -30,7 +30,7 @@ export class ConfiguredVueProject extends VueProject {
   }
 
   protected refresh(): void {
-    this.config.globalComponents?.forEach((option) => {
+    this.config.globalComponents.forEach((option) => {
       if (typeof option === 'string') {
         if (
           option in this.packageJSON.dependencies ||

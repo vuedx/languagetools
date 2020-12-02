@@ -8,6 +8,7 @@ import {
   VirtualTextDocument,
   VIRTUAL_FILENAME_SEPARATOR,
 } from '@vuedx/vue-virtual-textdocument'
+import { kebabCase } from '@vuedx/analyze'
 import { PluginContext } from '../context'
 import { wrapInTrace } from '../helpers/logger'
 import {
@@ -278,6 +279,7 @@ function createLanguageServiceRouter(
         )
 
         if (completions?.entries != null) {
+          const additionalEntries: TS.CompletionEntry[] = []
           completions.entries = completions.entries
             .filter((entry) => {
               if (entry.source != null && isVirtualFile(entry.source)) {
@@ -289,10 +291,23 @@ function createLanguageServiceRouter(
             .map((entry) => {
               if (entry.source != null && isVirtualFile(entry.source)) {
                 entry.source = getContainingFile(entry.source)
+                const componentName = getComponentName(entry.source)
+                if (componentName === entry.name) {
+                  additionalEntries.push({
+                    ...entry,
+                    name: kebabCase(entry.name),
+                    isRecommended: undefined,
+                    insertText:
+                      entry.insertText != null
+                        ? kebabCase(entry.insertText)
+                        : undefined,
+                  })
+                }
               }
 
               return entry
             })
+          completions.entries.push(...additionalEntries)
         }
 
         return completions
@@ -310,7 +325,15 @@ function createLanguageServiceRouter(
         if (source != null && isVueFile(source)) {
           // -> Importing from a .vue file
           let newSource = source
+          let newEntryName = entryName
+
           const componentName = baseGetComponentName(source)
+          if (
+            newEntryName.includes('-') &&
+            baseGetComponentName(newEntryName) === componentName
+          ) {
+            newEntryName = componentName
+          }
 
           // -> Rewrite source to _module virtual file.
           newSource = source + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR
@@ -318,13 +341,13 @@ function createLanguageServiceRouter(
           details = choose(fileName).getCompletionEntryDetails(
             fileName,
             position,
-            entryName,
+            newEntryName,
             formatOptions,
             newSource,
             preferences,
           )
 
-          const isComponentImport = entryName === componentName
+          const isComponentImport = newEntryName === componentName
 
           if (isComponentImport) {
             const documentAtCursor = config.helpers.getDocumentAt(
@@ -356,7 +379,7 @@ function createLanguageServiceRouter(
                     change.textChanges = registerLocalComponentWithSource(
                       document,
                       config.helpers.getComponentInfo(document),
-                      { moduleName: source, localName: entryName }, // <- create fake "source" as "importStatement" is available
+                      { moduleName: source, localName: newEntryName }, // <- create fake "source" as "importStatement" is available
                       project.config.preferences.script,
                       change.textChanges[0].newText,
                     )
@@ -374,7 +397,7 @@ function createLanguageServiceRouter(
                       ...registerLocalComponent(
                         document,
                         config.helpers.getComponentInfo(document),
-                        entryName,
+                        newEntryName,
                       ),
                     ]
                   }
