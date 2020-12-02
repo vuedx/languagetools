@@ -621,7 +621,7 @@ function createLanguageServiceRouter(
         preferences: TS.UserPreferences,
       ): readonly TS.FileTextChanges[] {
         const suffix = '.vue' + VIRTUAL_FILENAME_SEPARATOR + '_module'
-        return choose(oldFilePath)
+        const edits = choose(oldFilePath)
           .getEditsForFileRename(
             oldFilePath,
             newFilePath,
@@ -657,6 +657,8 @@ function createLanguageServiceRouter(
             return edit
           })
           .filter(isNotNull)
+
+        return mergeFileTextChanges(edits)
       },
 
       getApplicableRefactors(fileName, positionOrRange, preferences) {
@@ -684,46 +686,23 @@ function createLanguageServiceRouter(
           preferences,
         )
 
-        const editsByFileName: Record<
-          string,
-          {
-            fileName: string
-            isNewFile?: boolean
-            textChanges: TS.TextChange[]
-          }
-        > = {}
-
         if (result != null) {
           result.edits = result.edits.filter((edit) => {
-            if (isVirtualFile(edit.fileName) || isVueFile(edit.fileName)) {
+            if (isVirtualFile(edit.fileName)) {
+              const info = parseVirtualFileName(edit.fileName)
               edit.fileName = getContainingFile(edit.fileName)
 
-              if (!(edit.fileName in editsByFileName)) {
-                editsByFileName[edit.fileName] = {
-                  isNewFile: false,
-                  fileName: edit.fileName,
-                  textChanges: [],
-                }
-              }
-              editsByFileName[edit.fileName].textChanges.push(
-                ...edit.textChanges,
+              return ['script', 'scriptSetup'].includes(
+                info?.selector.type ?? '',
               )
-              editsByFileName[edit.fileName].isNewFile =
-                editsByFileName[edit.fileName].isNewFile ??
-                edit.isNewFile === true
-
-              return false
+            } else {
+              return true
             }
-
-            return true
           })
 
-          result.edits.push(
-            ...Object.values<TS.FileTextChanges>(editsByFileName),
-          )
+          result.edits = mergeFileTextChanges(result.edits)
         }
 
-        config.context.log(JSON.stringify(result, null, 2))
         return result
       },
 
@@ -836,4 +815,57 @@ function createLanguageServiceRouter(
   )
 
   return proxy as any
+}
+
+function mergeFileTextChanges(
+  edits: TS.FileTextChanges[],
+): TS.FileTextChanges[] {
+  const editsByFileName: Record<string, TS.FileTextChanges> = {}
+
+  edits.forEach((edit) => {
+    if (!(edit.fileName in editsByFileName)) {
+      editsByFileName[edit.fileName] = {
+        fileName: edit.fileName,
+        textChanges: [],
+      }
+    }
+    const currentEdit = editsByFileName[edit.fileName]
+
+    currentEdit.textChanges = combineTextChanges(
+      currentEdit.textChanges,
+      edit.textChanges,
+    )
+    if (edit.isNewFile != null) {
+      const value = currentEdit.isNewFile
+      currentEdit.isNewFile =
+        value == null ? edit.isNewFile : value || edit.isNewFile
+    }
+  })
+
+  return Array.from(Object.values(editsByFileName))
+}
+
+function combineTextChanges(
+  changes: readonly TS.TextChange[],
+  newChanges: readonly TS.TextChange[],
+): TS.TextChange[] {
+  const finalChanges = changes.slice()
+  const ids = new Set(changes.map(serializeTextChange))
+
+  newChanges.forEach((change) => {
+    const id = serializeTextChange(change)
+
+    if (!ids.has(id)) {
+      ids.add(id)
+      finalChanges.push(change)
+    }
+  })
+
+  finalChanges.sort((a, b) => a.span.start - b.span.start)
+
+  return finalChanges
+}
+
+function serializeTextChange(change: TS.TextChange): string {
+  return JSON.stringify([change.span.start, change.span.length, change.newText])
 }

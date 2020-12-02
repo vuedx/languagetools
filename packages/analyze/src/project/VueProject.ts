@@ -3,6 +3,7 @@ import { ComponentRegistrationInfo } from '../component'
 import {
   getComponentFromFile,
   getComponentsFromPackageJSON,
+  getPackageJSON,
 } from './detector/components'
 import { PackageJSON } from './detector/PackageJSON'
 
@@ -32,6 +33,7 @@ const DEFAULT_CONFIG: ProjectConfigNormalized = {
     componentsDirectories: ['src/components'],
     script: { mode: 'normal', language: 'js' },
     style: { language: 'css' },
+    template: { directiveSyntax: 'shorthand' },
   },
 }
 
@@ -41,6 +43,7 @@ export abstract class VueProject {
   protected _externalComponents: ComponentRegistrationInfo[] = []
   protected _projectComponents = new Map<string, ComponentRegistrationInfo[]>()
   protected _fileNames: string[] = []
+  protected _version: string = '3.0.0'
   protected _config: Readonly<ProjectConfigNormalized> = deepDefaults(
     {},
     DEFAULT_CONFIG,
@@ -59,6 +62,10 @@ export abstract class VueProject {
 
   public get config(): Readonly<ProjectConfigNormalized> {
     return this._config
+  }
+
+  public get version(): string {
+    return this._version
   }
 
   public setConfig(config: ProjectConfig): void {
@@ -91,6 +98,9 @@ export abstract class VueProject {
 
   protected reloadIfNeeded(): void {
     if (this.isDirty) {
+      this._version =
+        getPackageJSON(this.requireModule, this.rootDir, 'vue').version ??
+        '3.0.0'
       this.loadGlobalComponents()
       this.refresh()
       this.isDirty = false

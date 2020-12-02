@@ -206,8 +206,8 @@ export function getFilenameForNewComponent(
   directory: string,
   usedNames = new Set<string>(),
 ): string {
-  let name = 'Component'
-  let fileName = Path.posix.join(directory, 'Component.vue')
+  let name = 'Component0'
+  let fileName = Path.posix.join(directory, 'Component0.vue')
   let index = 0
 
   if (context.serviceHost.directoryExists(directory)) {

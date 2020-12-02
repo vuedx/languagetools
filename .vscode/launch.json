@@ -22,7 +22,7 @@
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue-language-features",
-        "${workspaceRoot}/samples/feature-completions"
+        "${workspaceRoot}/samples/feature-refactor"
       ],
 
       "outFiles": [

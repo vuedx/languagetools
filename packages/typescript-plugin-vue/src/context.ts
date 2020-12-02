@@ -110,7 +110,7 @@ export class PluginContext {
   }
 
   public getVueVersion(fileName: string): string {
-    return '3.0.0'
+    return this.getVueProjectForFile(fileName, false)?.version ?? '3.0.0'
   }
 
   public getExternalFiles(project: TS.server.Project): string[] {
@@ -341,7 +341,9 @@ export class PluginContext {
           : project.globalComponents
       }),
     })
+
     this.store.set(uri, document)
+
     return document
   }
 

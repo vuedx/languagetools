@@ -540,6 +540,38 @@ export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
 }
 `;
 
+exports[`VueVirtualDocument/baseline feature-refactor/src/Javascript.vue 1`] = `
+import _Ctx from './Javascript.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
+
+
+declare function _renderList(source: string, renderItem: (value: string, index: number) => any): any[];
+declare function _renderList(source: number, renderItem: (value: number, index: number) => any): any[];
+declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];
+declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];
+declare function _renderList<T extends object>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({one, decrease, increase, two, name, email, code,..._ctx}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div ><HelloWorld name="Jane" />{(one) ? (<p ><button onClick={decrease} >-</button> {one} <button onClick={increase} >+</button> and double is {two}</p>) :null}{(one) ? (<div >{two}</div>) :(two) ? (<div >{one}</div>) :(<div >{one + two}</div>)}{(one) ? (<div >{_renderList(one, (item) => {
+    return <><div >{item} {two}</div></>
+  })}</div>) :null}</div><p >Name: {name} Email: {email} Code: {code}</p></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-refactor/src/components/HelloWorld.vue 1`] = `
+import _Ctx from './HelloWorld.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p >Hello {name}!</p></>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-rename/src/Javascript.vue 1`] = `
 import _Ctx from './Javascript.vue?internal'
 import HelloWorld from './components/HelloWorld.vue'

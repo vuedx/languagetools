@@ -24,8 +24,9 @@ export function findTemplateNodeAt(
 export function findTemplateElementNodeAt(
   ast: t.RootNode,
   position: number,
+  mode?: 'start' | 'end',
 ): SearchResult {
-  const result = findTemplateNodeFor(ast, position, position)
+  const result = findTemplateNodeFor(ast, position, position, mode)
 
   while (result.ancestors.length > 0) {
     if (
@@ -51,6 +52,7 @@ export function findTemplateNodeFor(
   ast: t.RootNode,
   start: number,
   end: number,
+  mode?: 'start' | 'end',
 ): SearchResult {
   const found = {
     node: null as t.Node | null,
@@ -58,14 +60,20 @@ export function findTemplateNodeFor(
   }
 
   traverseEvery(ast, (node, ancestors) => {
-    if (node.loc.start.offset <= start && end <= node.loc.end.offset) {
+    if (
+      mode === 'start'
+        ? node.loc.start.offset <= start && end < node.loc.end.offset
+        : mode === 'end'
+        ? node.loc.start.offset < start && end <= node.loc.end.offset
+        : node.loc.start.offset <= start && end <= node.loc.end.offset
+    ) {
       found.node = node
       found.ancestors = ancestors.slice()
 
       return true
+    } else {
+      return false
     }
-
-    return false
   })
 
   return found
@@ -82,8 +90,8 @@ export function findTemplateNodesIn(
     return a.node != null ? [a.node] : []
   }
 
-  const a = findTemplateElementNodeAt(ast, start)
-  const b = findTemplateElementNodeAt(ast, end)
+  const a = findTemplateElementNodeAt(ast, start, 'start')
+  const b = findTemplateElementNodeAt(ast, end, 'end')
   if (a.node == null || b.node == null) return []
   if (a.node === b.node) return [a.node]
 

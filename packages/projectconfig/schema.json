@@ -35,9 +35,7 @@
                       }
                     },
                     "additionalProperties": false,
-                    "required": [
-                      "moduleName"
-                    ]
+                    "required": ["moduleName"]
                   }
                 ]
               }
@@ -58,9 +56,7 @@
             "type": "string",
             "description": "Relative directory path"
           },
-          "default": [
-            "src/components/"
-          ]
+          "default": ["src/components/"]
         },
         "script": {
           "type": "object",
@@ -68,19 +64,12 @@
           "properties": {
             "mode": {
               "description": "Preferred script block mode",
-              "enum": [
-                "setup",
-                "setup-ref",
-                "normal"
-              ],
+              "enum": ["setup", "setup-ref", "normal"],
               "default": "normal"
             },
             "language": {
               "description": "Preferred script block language",
-              "enum": [
-                "js",
-                "ts"
-              ],
+              "enum": ["js", "ts"],
               "default": "js"
             }
           }
@@ -91,14 +80,17 @@
           "properties": {
             "language": {
               "description": "Preferred style block language",
-              "enum": [
-                "css",
-                "scss",
-                "sass",
-                "styl",
-                "stylus",
-                "less"
-              ]
+              "enum": ["css", "scss", "sass", "styl", "stylus", "less"]
+            }
+          }
+        },
+        "template": {
+          "type": "object",
+          "description": "Template block preferences",
+          "properties": {
+            "directiveSyntax": {
+              "description": "Preferred directive syntax",
+              "enum": ["shorthand", "longhand"]
             }
           }
         }

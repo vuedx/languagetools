@@ -71,7 +71,7 @@ interface ExternalPackage {
   'web-types'?: string
 }
 
-function getPackageJSON(
+export function getPackageJSON(
   require: NodeJS.Require,
   rootDir: string,
   packageName: string,

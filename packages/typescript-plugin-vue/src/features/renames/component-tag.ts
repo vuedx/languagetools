@@ -251,20 +251,30 @@ export const RenameComponentTag: RenameProvider = {
         const component = info.components.find(
           (component) => component.name === name,
         )
+
         if (component != null) {
-          const script = document.container.getDocument('script')
-          if (script != null) {
+          const { scriptSetup, script } = document.container.descriptor
+          const scriptFileName =
+            scriptSetup != null
+              ? document.container.getDocumentFileName('scriptSetup')
+              : script != null
+              ? document.container.getDocumentFileName('script')
+              : null
+
+          if (scriptFileName != null) {
             const position = Math.max(
               component.loc.end.offset - 2,
               component.loc.start.offset,
             )
+
             const renameInfo = config.service.getRenameInfo(
-              script.fsPath,
+              scriptFileName,
               position,
             )
+
             if (renameInfo.canRename) {
               const edits = config.service.findRenameLocations(
-                script.fsPath,
+                scriptFileName,
                 position,
                 false,
                 false,
@@ -274,48 +284,61 @@ export const RenameComponentTag: RenameProvider = {
                 fileTextChanges.push({
                   fileName: fileName,
                   textChanges: edits
-                    .filter(
-                      (edit) =>
-                        isVirtualFile(edit.fileName) &&
-                        getContainingFile(edit.fileName) === fileName,
-                    )
+                    .filter((edit) => edit.fileName === scriptFileName)
                     .map((edit) => ({ span: edit.textSpan, newText: newName })),
                 })
-
-                const textChanges: TS.TextChange[] = []
-
-                // update tags in template
-                if (document.ast != null) {
-                  traverseFast(document.ast, (node) => {
-                    if (isComponentNode(node)) {
-                      if (component.aliases.includes(node.tag)) {
-                        textChanges.push({
-                          newText: newName,
-                          span: {
-                            start: node.loc.start.offset + 1,
-                            length: node.tag.length,
-                          },
-                        })
-
-                        if (!node.isSelfClosing) {
-                          textChanges.push({
-                            newText: newName,
-                            span: {
-                              start:
-                                node.loc.start.offset +
-                                node.loc.source.lastIndexOf('</' + node.tag) +
-                                2,
-                              length: node.tag.length,
-                            },
-                          })
-                        }
-                      }
-                    }
-                  })
-                }
-
-                fileTextChanges.push({ fileName, textChanges: textChanges })
               }
+            }
+
+            // update tags in template
+            if (
+              document.ast != null &&
+              name === component.source.localName &&
+              component.name === component.source.localName
+            ) {
+              const textChanges: TS.TextChange[] = []
+              if (component.loc.source.trim() !== name) {
+                // Rename alias in components options
+                textChanges.push({
+                  span: {
+                    start: component.loc.start.offset,
+                    length: component.loc.source.indexOf(':'),
+                  },
+                  newText: newName,
+                })
+              }
+
+              traverseFast(document.ast, (node) => {
+                if (isComponentNode(node)) {
+                  if (component.aliases.includes(node.tag)) {
+                    textChanges.push({
+                      newText: newName,
+                      span: {
+                        start: node.loc.start.offset + 1,
+                        length: node.tag.length,
+                      },
+                    })
+
+                    if (!node.isSelfClosing) {
+                      textChanges.push({
+                        newText: newName,
+                        span: {
+                          start:
+                            node.loc.start.offset +
+                            node.loc.source.lastIndexOf('</' + node.tag) +
+                            2,
+                          length: node.tag.length,
+                        },
+                      })
+                    }
+                  }
+                }
+              })
+
+              fileTextChanges.push({
+                fileName: document.container.fsPath,
+                textChanges: textChanges,
+              })
             }
           }
         }

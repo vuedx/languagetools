@@ -1,8 +1,11 @@
-import { ComponentInfo } from '@vuedx/analyze'
+import { ComponentInfo, ImportSourceWithLocation } from '@vuedx/analyze'
+import { ProjectConfigNormalized } from '@vuedx/projectconfig'
 import {
   isComponentNode,
   isDirectiveNode,
+  isElementNode,
   isSimpleExpressionNode,
+  stringify,
   t,
   traverseFast,
 } from '@vuedx/template-ast-types'
@@ -11,16 +14,15 @@ import {
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import Path from 'path'
+import { findNextSibling, first, last } from '../../helpers/array'
 import {
   getComponentName,
   getFilenameForNewComponent,
-  getPaddingLength,
-  indent,
 } from '../../helpers/utils'
 import { TS } from '../../interfaces'
+import { registerLocalComponentWithSource } from '../../transforms/registerLocalComponent'
 import { LanguageServiceOptions } from '../../types'
 import { RefactorProvider } from './abstract'
-import { deIndent } from './de-indent'
 
 /// <reference types="@vuedx/compiler-tsx" />
 
@@ -28,67 +30,60 @@ export const RefactorExtractComponent: RefactorProvider = {
   version: '*',
   findRefactors(config, fileName, position, preferences) {
     const document = config.helpers.getRenderDoc(fileName)
+    let notApplicableReason: string | undefined
+    const extractAsComponent: TS.ApplicableRefactorInfo = getRefactor(
+      config,
+      fileName,
+    )
     if (document != null) {
       const nodes = findNodes(config, document, position)
-
       if (nodes.length !== 0) {
-        let isExtractSupported = true
-        const modelExpressions = new Set()
-        nodes.forEach((node) =>
-          traverseFast(node, (node) => {
-            if (isDirectiveNode(node) && node.name === 'model') {
-              if (isSimpleExpressionNode(node.exp)) {
-                modelExpressions.add(node.exp.content.trim())
-              }
+        if (nodes.length > 1 && document.ast != null) {
+          const parent = findParentNode(document.ast, nodes)
+          if (isElementNode(parent)) {
+            const type = detectConditionType(parent, nodes)
+
+            if (type === 'partial') {
+              notApplicableReason =
+                'Partial v-if/v-else-if/v-else tags cannot be extracted'
             }
-          }),
-        )
-
-        if (modelExpressions.size > 1) {
-          const version = parseInt(
-            config.context.getVueVersion(document.container.fsPath),
-          )
-          if (version < 3) isExtractSupported = false
+          }
         }
 
-        if (isExtractSupported) {
-          const extractAsComponent: TS.ApplicableRefactorInfo = {
-            name: 'component',
-            description: 'Extract to component',
-            inlineable: true,
-            actions: [
-              {
-                name: ':current',
-                description: 'Extract to component in current directory',
-              },
-            ],
-          }
-
-          const project = config.context.projectService.getDefaultProjectForFile(
-            config.context.typescript.server.toNormalizedPath(document.fsPath),
-            false,
+        if (
+          notApplicableReason == null &&
+          parseInt(config.context.getVueVersion(document.container.fsPath)) < 3
+        ) {
+          const modelExpressions = new Set()
+          nodes.forEach((node) =>
+            traverseFast(node, (node) => {
+              if (isDirectiveNode(node) && node.name === 'model') {
+                if (isSimpleExpressionNode(node.exp)) {
+                  modelExpressions.add(node.exp.content.trim())
+                }
+              }
+            }),
           )
-          if (project != null) {
-            config.context.config.directories
-              .filter((dir) => dir.kind === 'component')
-              .forEach((config) => {
-                extractAsComponent.actions.push({
-                  name: config.name,
-                  description: `Extract to component in ${config.name} directory`,
-                })
-              })
-          }
 
-          if (extractAsComponent.actions.length > 4) {
-            extractAsComponent.inlineable = false
+          if (modelExpressions.size > 1) {
+            notApplicableReason =
+              'Multiple v-model expressions require vue >= 3.0'
           }
-
-          return [extractAsComponent]
         }
+      } else {
+        notApplicableReason = 'No template selection'
       }
+    } else {
+      notApplicableReason = 'Only allowed in <template> block'
     }
 
-    return []
+    if (notApplicableReason != null) {
+      extractAsComponent.actions.forEach((action) => {
+        action.notApplicableReason = notApplicableReason
+      })
+    }
+
+    return [extractAsComponent]
   },
   applyRefactor(
     config,
@@ -100,34 +95,81 @@ export const RefactorExtractComponent: RefactorProvider = {
     preferences,
   ) {
     const document = config.helpers.getRenderDoc(fileName)
-    if (document != null && refactorName === 'component') {
-      const path = Path.posix.dirname(fileName)
+    if (document?.ast != null && refactorName === 'component') {
+      const project = config.context.getVueProjectForFile(fileName, true)
       const info = config.helpers.getComponentInfo(document.container)
-      const directoryName = path
+      const directoryName =
+        actionName === ':current'
+          ? Path.posix.dirname(fileName)
+          : Path.posix.resolve(project.rootDir, actionName)
       const componentFileName = getFilenameForNewComponent(
         config.context,
         directoryName,
         new Set(info.components.map((component) => component.name)),
       )
       const nodes = findNodes(config, document, position)
-      const identifiers = Array.from(
-        new Set(
-          nodes.flatMap((node) =>
-            node.scope.identifiers.filter(
-              (id) => node.scope.getBinding(id) !== node,
-            ),
-          ),
+      if (nodes.length === 0) return // No nodes in selection.
+
+      const parent = findParentNode(document.ast, nodes) as t.ElementNode
+      const conditionType = detectConditionType(parent, nodes)
+      if (conditionType === 'partial') return // Partial conditions cannot be extracted.
+
+      const rawIdentifiers = new Set(
+        nodes.flatMap(
+          (node) =>
+            // Collect identifiers in top-level scopes which are coming from parent.
+            node.scope.identifiers,
         ),
       )
-      const template = document.container
-        .getDocument('template')
-        .getText()
-        .substring(
-          nodes[0].loc.start.offset,
-          nodes[nodes.length - 1].loc.end.offset,
-        )
-      // TODO: detect types of props.
-      const script: string[] = [`import { defineComponent } from 'vue'`]
+
+      const skipNodes = new Set<t.Node>()
+      const addSkipNodes = (skipped: t.Node[], all: t.Node[]): void => {
+        skipped.forEach((node) => {
+          skipNodes.add(node)
+          node.scope.identifiers.forEach((id) => rawIdentifiers.delete(id))
+        })
+        all.forEach((prop) => {
+          if (!skipNodes.has(prop)) {
+            prop.scope.identifiers.forEach((id) => rawIdentifiers.add(id))
+          }
+        })
+      }
+      if (conditionType === 'preserve') {
+        nodes.forEach((node) => {
+          if (isElementNode(node)) {
+            addSkipNodes(
+              node.props.filter(
+                (prop) =>
+                  isDirectiveNode(prop) &&
+                  /^(if|else-if|else)$/.test(prop.name),
+              ),
+              [...node.props, ...node.children],
+            )
+          }
+        })
+      }
+
+      if (nodes.length === 1) {
+        const el = first(nodes)
+        if (isElementNode(el)) {
+          const forNode = el.props.find(
+            (prop) => isDirectiveNode(prop) && prop.name === 'for',
+          )
+
+          if (forNode != null) {
+            addSkipNodes([forNode], [...el.props, ...el.children])
+          }
+        }
+      }
+
+      const identifiers = Array.from(rawIdentifiers)
+      const template = stringify(nodes, {
+        indent: 2,
+        initialIndent: 1,
+        directive: project.config.preferences.template.directiveSyntax,
+        skipNodes,
+      })
+
       const components = new Set<string>()
       const models = new Set<string>()
       nodes.forEach((node) =>
@@ -143,55 +185,72 @@ export const RefactorExtractComponent: RefactorProvider = {
         }),
       )
 
+      const script: string[] = [`import { defineComponent } from 'vue'`]
       const options = {
-        components: `components: {${info.components.reduce(
-          (text, { name, source }) => {
-            if (components.has(name)) {
-              script.push(
-                `import ${
-                  source.exportName != null
-                    ? `{ ${
-                        source.localName === source.exportName
-                          ? ``
-                          : `${source.exportName} as `
-                      }${source.localName} }`
-                    : `${source.localName}`
-                } from '${source.moduleName}'`,
-              )
-              return (
-                text +
-                `${
-                  name === source.localName
-                    ? ``
-                    : `${/^[a-z0-9]$/i.test(name) ? `'${name}'` : name}: `
-                }${source.localName}, `
-              )
-            }
+        components:
+          components.size > 0
+            ? `components: {${info.components.reduce(
+                (text, { name, source }) => {
+                  if (components.has(name)) {
+                    script.push(
+                      genComponentImport(fileName, componentFileName, source),
+                    )
+                    const registration =
+                      name === source.localName
+                        ? source.localName
+                        : `${
+                            name.includes('-') ? JSON.stringify(name) : name
+                          }: ${source.localName}`
 
-            return text
-          },
-          '',
-        )}},`,
-        props: `props: [${identifiers
-          .map((identifier) => `'${identifier}'`)
-          .join(', ')}],`,
+                    return text + registration + ', '
+                  } else {
+                    return text
+                  }
+                },
+                '',
+              )}},`
+            : '',
+        props:
+          identifiers.length > 0
+            ? `props: [${identifiers
+                .map((identifier) => `'${identifier}'`)
+                .join(', ')}],`
+            : '',
       }
+
       script.push(
         `export default defineComponent({\n  ${options.props}\n  ${options.components}\n})`,
       )
-      const code = `<script>\n${script.join(
-        '\n',
-      )}\n</script>\n\n<template>\n${formatTemplate(template)}\n</template>\n`
 
-      let {
-        name,
-        changes,
-        renameLocation,
-        isScript,
-      } = getImportEditForComponent(document.container, info, componentFileName)
+      const code = [
+        getScriptStartTag(project.config.preferences.script),
+        ...script,
+        `</script>`,
+        ``,
+        `<template>`,
+        template,
+        `</template>`,
+        ``,
+      ].join('\n')
 
+      let { name, changes, renameLocation } = getImportEditForComponent(
+        document.container,
+        info,
+        componentFileName,
+        project.config,
+      )
+
+      const skipNodesTemplate = Array.from(skipNodes)
+        .map((node) =>
+          stringify(node, {
+            indent: 2,
+            initialIndent: 0,
+            directive: project.config.preferences.template.directiveSyntax,
+          }),
+        )
+        .join(' ')
       const templateReplacement = {
-        newText: `<${name} ${identifiers
+        newText: `<${name} ${skipNodesTemplate} ${identifiers
           .map(
             (identifer) =>
               `${
@@ -200,15 +259,15 @@ export const RefactorExtractComponent: RefactorProvider = {
           )
           .join(' ')}/>`,
         span: {
-          start: nodes[0].loc.start.offset,
-          length: template.length,
+          start: first(nodes).loc.start.offset,
+          length: last(nodes).loc.end.offset - first(nodes).loc.start.offset,
         },
       }
 
       changes.push(templateReplacement)
 
-      // Template is before script, need to adjust rename trigger location.
-      if (isScript && templateReplacement.span.start < renameLocation) {
+      if (templateReplacement.span.start < renameLocation) {
+        // Template is before script, need to adjust rename trigger location.
         renameLocation =
           renameLocation - template.length + templateReplacement.newText.length
       }
@@ -243,16 +302,120 @@ export const RefactorExtractComponent: RefactorProvider = {
     return undefined
   },
 }
-function formatTemplate(template: string): string {
-  const index = template.indexOf('\n')
 
-  if (index >= 0) {
-    const firstLine = template.substr(0, index + 1)
-    const otherLines = template.substr(index + 1)
-    return indent(firstLine + deIndent(otherLines))
+function genComponentImport(
+  oldFileName: string,
+  newFileName: string,
+  source: ImportSourceWithLocation,
+): string {
+  let moduleName = source.moduleName
+
+  if (moduleName.startsWith('.')) {
+    moduleName = Path.posix.relative(
+      Path.posix.dirname(newFileName),
+      Path.posix.resolve(Path.posix.dirname(oldFileName), moduleName),
+    )
+
+    if (!moduleName.startsWith('.')) {
+      moduleName = `./${moduleName}`
+    }
   }
 
-  return indent(template)
+  return `import ${
+    source.exportName != null
+      ? `{ ${
+          source.localName === source.exportName
+            ? ``
+            : `${source.exportName} as `
+        }${source.localName} }`
+      : `${source.localName}`
+  } from '${moduleName}'`
+}
+
+function detectConditionType(
+  parent: t.ElementNode,
+  nodes: t.Node[],
+): 'none' | 'extract' | 'preserve' | 'partial' {
+  const conditions = nodes.map((node) => {
+    if (isElementNode(node)) {
+      return node.props.find(
+        (prop) =>
+          isDirectiveNode(prop) && /^(if|else-if|else)$/.test(prop.name),
+      )
+    }
+  })
+
+  const nonNullConditions = conditions.filter((condition) => condition != null)
+
+  if (nonNullConditions.length > 0) {
+    if (conditions.length === 1) return 'preserve'
+
+    const firstCondition = first(conditions)
+    const lastCondition = last(conditions)
+    if (
+      (firstCondition == null || firstCondition.name === 'if') &&
+      (lastCondition == null || lastCondition.name === 'else')
+    ) {
+      return 'extract'
+    }
+
+    if (firstCondition != null && firstCondition.name !== 'if') return 'partial'
+    const nextSibling = findNextSibling(parent.children, last(nodes))
+    const nextCondition = isElementNode(nextSibling)
+      ? nextSibling.props.find(
+          (prop) => isDirectiveNode(prop) && /^(else-if|else)$/.test(prop.name),
+        )
+      : undefined
+
+    if (nextCondition == null) return 'extract'
+
+    return 'partial'
+  } else {
+    return 'none'
+  }
+}
+
+function getRefactor(
+  config: LanguageServiceOptions,
+  fileName: string,
+): TS.ApplicableRefactorInfo {
+  const project = config.context.getVueProjectForFile(fileName, true)
+  const extractAsComponent: TS.ApplicableRefactorInfo = {
+    name: 'component',
+    description: 'Extract to component',
+    inlineable: true,
+    actions: [
+      {
+        name: ':current',
+        description: 'Extract to component in current directory',
+      },
+    ],
+  }
+
+  project.config.preferences.componentsDirectories.forEach((dir) => {
+    extractAsComponent.actions.push({
+      name: dir,
+      description: `Extract to component in "${dir}" directory`,
+    })
+  })
+
+  if (extractAsComponent.actions.length > 4) {
+    extractAsComponent.inlineable = false
+  }
+
+  return extractAsComponent
+}
+
+function getScriptStartTag(
+  preferences: ProjectConfigNormalized['preferences']['script'],
+): string {
+  return preferences.mode === 'normal'
+    ? preferences.language !== 'js'
+      ? `<script lang=${JSON.stringify(preferences.language)}>`
+      : `<script>`
+    : preferences.language !== 'js'
+    ? `<script lang=${JSON.stringify(preferences.language)} setup>`
+    : `<script setup>`
 }
 
 function findNodes(
@@ -271,17 +434,34 @@ function findNodes(
     : []
 }
 
+function findParentNode(ast: t.RootNode, nodes: t.Node[]): t.Node {
+  if (nodes.length === 0) return ast
+
+  const search = nodes[0]
+  let result: t.Node | undefined
+
+  traverseFast(ast, (node, _, stop) => {
+    if (isElementNode(node)) {
+      if (node.children.includes(search as any)) {
+        result = node
+        stop()
+      }
+    }
+  })
+
+  return result ?? ast
+}
+
 function getImportEditForComponent(
   document: VueTextDocument,
   info: ComponentInfo,
   fileName: string,
+  config: ProjectConfigNormalized,
 ): {
   name: string
   changes: TS.TextChange[]
   renameLocation: number
-  isScript: boolean
 } {
-  const changes: TS.TextChange[] = []
   const name = getComponentName(fileName)
   const { script, scriptSetup } = document.descriptor
   const relativeFileName = `./${Path.posix.relative(
@@ -289,85 +469,37 @@ function getImportEditForComponent(
     fileName,
   )}`
   let renameLocation = 0
-  let isScript = false
+  const importStatement = `import ${name} from '${relativeFileName}';\n`
+  const changes = registerLocalComponentWithSource(
+    document,
+    info,
+    { moduleName: relativeFileName, localName: name },
+    config.preferences.script,
+    importStatement,
+  )
 
   if (scriptSetup != null) {
-    const newText = `\nexport { default as ${name} } from '${relativeFileName}';`
     renameLocation =
       scriptSetup.loc.start.offset +
-      newText.indexOf(relativeFileName) +
+      1 +
+      importStatement.indexOf(relativeFileName) +
       relativeFileName.length -
-      5
-    changes.push({
-      newText,
-      span: { start: scriptSetup.loc.start.offset, length: 0 },
-    })
+      4
   } else if (script != null) {
-    isScript = true
-    const newText = `\nimport ${name} from '${relativeFileName}';`
     renameLocation =
       script.loc.start.offset +
-      newText.indexOf(relativeFileName) +
+      1 +
+      importStatement.indexOf(relativeFileName) +
       relativeFileName.length -
-      5
-    changes.push({
-      newText,
-      span: { start: script.loc.start.offset, length: 0 },
-    })
-
-    if (info.options?.properties.components != null) {
-      const components = info.options.properties.components
-      const start = components.loc.start.offset + 1
-      const padding = getPaddingLength(components.loc.source, 1)
-      changes.push({
-        newText: components.loc.source.substr(1, padding) + `${name},`,
-        span: { start, length: 0 },
-      })
-    } else if (info.options != null) {
-      const start = info.options.loc.start.offset + 1
-      const padding = getPaddingLength(info.options.loc.source, 1)
-      changes.push({
-        newText:
-          info.options.loc.source.substr(1, padding) +
-          `components: { ${name} },`,
-        span: { start, length: 0 },
-      })
-    } else if (info.setup != null) {
-      changes.push(
-        {
-          newText: `{\n  components: { ${name} },\n setup: `,
-          span: { start: info.setup.loc.start.offset, length: 0 },
-        },
-        {
-          newText: `\n}`,
-          span: { start: info.setup.loc.end.offset, length: 0 },
-        },
-      )
-    } else {
-      changes.push({
-        newText: `\nexport default { components: { ${name} } };\n`,
-        span: { start: script.loc.end.offset, length: 0 },
-      })
-    }
+      4
   } else {
-    isScript = false
-    const newText = `<script>\nimport ${name} from '${relativeFileName}';\nexport default { components: { ${name} } }\n</script>\n\n`
     renameLocation =
-      newText.indexOf(relativeFileName) + relativeFileName.length - 5
-    changes.push({
-      newText,
-      span: { start: 0, length: 0 },
-    })
-
-    // if <script></script>  is there, it should be removed.
-    const m = /^<script[^>]*><\/script>/m.exec(document.getText())
-    if (m != null) {
-      changes.push({
-        newText: '',
-        span: { start: m.index, length: m[0].length },
-      })
-    }
+      changes[0].newText.indexOf(importStatement) +
+      1 +
+      importStatement.indexOf(relativeFileName) +
+      relativeFileName.length -
+      4
   }
 
-  return { name, changes, renameLocation, isScript }
+  return { name, changes, renameLocation }
 }
