@@ -10,6 +10,8 @@ import {
   generate,
   OPEN_BLOCK,
   transform,
+  ParserOptions,
+  RootNode,
 } from '@vue/compiler-core'
 import {
   isCommentNode,
@@ -52,10 +54,7 @@ export function compile(
   template: string,
   options: Options & CompilerOptions,
 ): CodegenResult {
-  const ast = baseParse(template, {
-    ...parserOptions,
-    ...options,
-  })
+  const ast = parse(template, options)
   const astCopy = clone(ast)
   const expressions: Array<[number, number]> = []
   const config: Required<Options> = {
@@ -217,4 +216,11 @@ export function compile(
     expressions,
     errors,
   }
+}
+
+export function parse(template: string, options: ParserOptions): RootNode {
+  return baseParse(template, {
+    ...parserOptions,
+    ...options,
+  })
 }

@@ -1,17 +1,13 @@
 <script>
-import { ref, computed } from 'vue'
+import Component0 from './components/Component0.vue';
+import { ref } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
 
 export default {
-  components: { HelloWorld: HelloWorld },
-  props: {
-    name: { type: String },
-    email: { type: String, required: true },
-    code: { type: Number },
-  },
+  components: { Component0, HelloWorld },
   setup() {
     const one = ref(1)
-    const two = computed(() => one.value * 2)
+    const two = ref(2)
 
     function increase() {
       one.value += 1
@@ -28,23 +24,12 @@ export default {
 
 <template>
   <div>
-    <HelloWorld name="Jane" />
-
-    <p v-if="one">
-      <button @click="decrease">-</button>
-      {{ one }}
-      <button @click="increase">+</button>
-
-      and double is {{ two }}
-    </p>
-
-    <div v-if="one">{{ two }}</div>
-    <div v-else-if="two">{{ one }}</div>
-    <div v-else>{{ one + two }}</div>
-
-    <div v-if="one">
-      <div v-for="item in one">{{ item }} {{ two }}</div>
-    </div>
+    <Component0 
+      v-if="one" 
+      v-model:one="one" 
+      v-model:two="two" 
+      @decrease="decrease" 
+      @increase="increase" 
+    />
   </div>
-  <p>Name: {{ name }} Email: {{ email }} Code: {{ code }}</p>
 </template>

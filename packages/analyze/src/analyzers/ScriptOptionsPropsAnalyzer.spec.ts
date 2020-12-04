@@ -2,7 +2,7 @@ import { createAnalyzer } from '../analyzer'
 import { ScriptBlockAnalyzer } from './ScriptBlockAnalyzer'
 import { PropsOptionsAnalyzer } from './ScriptOptionsPropsAnalyzer'
 
-describe('script/options/props', () => {
+describe('script/props', () => {
   const analyzer = createAnalyzer([ScriptBlockAnalyzer, PropsOptionsAnalyzer])
 
   test('array props', () => {
@@ -107,5 +107,79 @@ describe('script/options/props', () => {
         },
       ],
     })
+  })
+
+  test('defineProps array', () => {
+    const info = analyzer.analyzeScript(`
+      import { defineProps } from 'vue'
+
+      const props = defineProps(['foo', 'bar'])
+    `)
+
+    expect(info.props).toHaveLength(2)
+    expect(info.props).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'foo' }),
+        expect.objectContaining({ name: 'bar' }),
+      ]),
+    )
+  })
+
+  test('defineProps object', () => {
+    const info = analyzer.analyzeScript(`
+      import { defineProps } from 'vue'
+
+      const props = defineProps({
+        foo: null,
+        bar: {
+          type: String
+        }
+      })
+    `)
+
+    expect(info.props).toHaveLength(2)
+    expect(info.props).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'foo' }),
+        expect.objectContaining({ name: 'bar' }),
+      ]),
+    )
+  })
+
+  test('defineProps prop types', () => {
+    const info = analyzer.analyzeScript(`
+      import { defineProps } from 'vue'
+
+      const props = defineProps({
+        foo: String,
+        bar: [String, Number, Boolean],
+        baz: {
+          type: Number,
+        },
+        bam: {
+          type: [String, Number, Object],
+        }
+      })
+    `)
+
+    expect(info.props).toHaveLength(4)
+    expect(info.props).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'foo', type: [{ kind: 'string' }] }),
+        expect.objectContaining({
+          name: 'bar',
+          type: [{ kind: 'string' }, { kind: 'number' }, { kind: 'boolean' }],
+        }),
+        expect.objectContaining({ name: 'baz', type: [{ kind: 'number' }] }),
+        expect.objectContaining({
+          name: 'bam',
+          type: [
+            { kind: 'string' },
+            { kind: 'number' },
+            { kind: 'expression', imports: [], expression: 'object' },
+          ],
+        }),
+      ]),
+    )
   })
 })

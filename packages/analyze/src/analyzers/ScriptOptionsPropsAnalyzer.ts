@@ -13,9 +13,10 @@ import { createSourceRange, isNotNull } from '../utilities'
 
 export const PropsOptionsAnalyzer: Plugin = {
   options: {
-    props(property$: NodePath<ObjectMember>, context) {
-      if (!property$.isObjectProperty()) return
-      const props$ = property$.get('value') as NodePath
+    props(property$, context) {
+      const props$ = property$.isObjectProperty()
+        ? (property$.get('value') as NodePath)
+        : property$
 
       if (props$.isObjectExpression()) {
         ;(props$.get('properties') as NodePath[]).forEach((property$) => {
@@ -30,15 +31,15 @@ export const PropsOptionsAnalyzer: Plugin = {
 
               if (value$.isIdentifier()) {
                 const type = getTypeInfo(value$)
-                if (type) context.component.addProp(name, { type })
+                if (type != null) context.component.addProp(name, { type })
               } else if (value$.isArrayExpression()) {
                 const type = getTypeInfo(value$)
-                if (type) context.component.addProp(name, { type })
+                if (type != null) context.component.addProp(name, { type })
               } else if (value$.isObjectExpression()) {
                 const options = toObjectExpressionMap(value$)
                 const info: Partial<PropInfo> = {}
 
-                if (options.required) {
+                if (options.required != null) {
                   const node = options.required.node
                   info.required =
                     isObjectProperty(node) &&
@@ -46,7 +47,7 @@ export const PropsOptionsAnalyzer: Plugin = {
                     node.value.value
                 }
 
-                if (options.type) {
+                if (options.type != null) {
                   info.type = getTypeInfo(options.type.get('value') as NodePath)
                 }
 

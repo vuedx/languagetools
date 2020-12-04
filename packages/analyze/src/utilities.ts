@@ -1,5 +1,5 @@
 import Path from 'path'
-import { ScriptAnalyzerContext } from './types'
+import { ScriptAnalyzerContext, Context } from './types'
 import { Node } from '@babel/types'
 import { SourceRange } from './component'
 
@@ -22,7 +22,7 @@ export function getComponentNameAliases(
 }
 
 export function createSourceRange(
-  context: ScriptAnalyzerContext,
+  context: Context | ScriptAnalyzerContext,
   node: Node,
 ): SourceRange {
   if (node.start == null || node.end == null || node.loc == null) {
@@ -32,8 +32,11 @@ export function createSourceRange(
       end: { offset: 0, line: 0, column: 0 },
     }
   } else {
+    const source =
+      'source' in context ? context.source : context.descriptor.source
+
     return {
-      source: context.source.substring(node.start, node.end),
+      source: source.substring(node.start, node.end),
       start: {
         offset: node.start,
         line: node.loc.start.line,

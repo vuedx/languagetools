@@ -595,6 +595,7 @@ export function createTemplateLanguageServer(
     },
 
     findRenameLocations(fileName, position, findInStrings, findInComments) {
+      const locs: TS.RenameLocation[] = []
       for (const provider of RENAME_PROVIDERS) {
         const result = provider.applyRename(
           config,
@@ -603,13 +604,14 @@ export function createTemplateLanguageServer(
           findInStrings,
           findInComments,
         )
-        if (result != null) return result
-      }
 
-      return []
+        if (result != null) locs.push(...result)
+      }
+      return locs
     },
 
     getEditsForFileRenameIn(fileName, oldFilePath, newFilePath) {
+      const fileTextChanges: TS.FileTextChanges[] = []
       for (const provider of RENAME_PROVIDERS) {
         const result = provider.applyFileRename(
           config,
@@ -619,10 +621,10 @@ export function createTemplateLanguageServer(
           {},
           {},
         )
-        if (result != null) return result
+        if (result != null) fileTextChanges.push(...result)
       }
 
-      return []
+      return fileTextChanges
     },
 
     getApplicableRefactors(fileName, position, preferences = {}) {

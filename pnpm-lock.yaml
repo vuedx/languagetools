@@ -127,9 +127,10 @@ importers:
       '@babel/traverse': 7.12.1
       '@babel/types': 7.12.1
       '@types/micromatch': 4.0.1
-      '@vue/compiler-core': 3.0.1
       '@vuedx/compiler-sfc': 'link:../compiler-sfc'
+      '@vuedx/compiler-tsx': 'link:../compiler-tsx'
       '@vuedx/projectconfig': 'link:../projectconfig'
+      '@vuedx/template-ast-types': 'link:../template-ast-types'
       cli-highlight: 2.1.4
       commander: 6.1.0
       fast-glob: 3.2.4
@@ -146,9 +147,10 @@ importers:
       '@babel/types': 7.12.1
       '@types/babel__traverse': ^7.0.15
       '@types/micromatch': ^4.0.1
-      '@vue/compiler-core': ^3.0.1
       '@vuedx/compiler-sfc': 'workspace:*'
+      '@vuedx/compiler-tsx': 'workspace:*'
       '@vuedx/projectconfig': 'workspace:*'
+      '@vuedx/template-ast-types': 'workspace:*'
       cli-highlight: ^2.1.4
       commander: ^6.1.0
       fast-glob: ^3.2.4
@@ -180,7 +182,6 @@ importers:
       lodash.camelcase: 4.3.0
     devDependencies:
       '@types/lodash.camelcase': 4.3.6
-      '@vuedx/analyze': 'link:../analyze'
       '@vuedx/compiler-sfc': 'link:../compiler-sfc'
       chalk: 4.1.0
       cli-highlight: 2.1.4
@@ -193,7 +194,6 @@ importers:
       '@babel/types': 7.12.1
       '@types/lodash.camelcase': ^4.3.6
       '@vue/compiler-core': ^3.0.1
-      '@vuedx/analyze': 'workspace:*'
       '@vuedx/compiler-sfc': 'workspace:*'
       '@vuedx/template-ast-types': 'workspace:*'
       chalk: ^4.1.0
@@ -2529,8 +2529,8 @@ packages:
       eslint: '>=3.14.1'
     resolution:
       integrity: sha512-a1+kOYLR8wMGustcgAjdydMsQ2A/2ipRPwRKUmfYaSxc9ZPcrku080Ctl6zrZzZNs/U82MjSv+qKREkoq3bJaw==
-  ? /eslint-config-standard-with-typescript/19.0.1_f8ddcd1ba7d7b88a9346d2663f5419a5
-  : dependencies:
+  /eslint-config-standard-with-typescript/19.0.1_f8ddcd1ba7d7b88a9346d2663f5419a5:
+    dependencies:
       '@typescript-eslint/eslint-plugin': 4.6.0_6d316174d9c711c44038268a70e82dcc
       '@typescript-eslint/parser': 4.6.0_eslint@7.12.1+typescript@4.0.3
       eslint: 7.12.1

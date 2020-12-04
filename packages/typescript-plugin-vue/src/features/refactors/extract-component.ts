@@ -1,10 +1,16 @@
-import { ComponentInfo, ImportSourceWithLocation } from '@vuedx/analyze'
+import {
+  ComponentInfo,
+  ImportSourceWithLocation,
+  VueProject,
+} from '@vuedx/analyze'
 import { ProjectConfigNormalized } from '@vuedx/projectconfig'
 import {
+  createSimpleExpression,
   isComponentNode,
   isDirectiveNode,
   isElementNode,
   isSimpleExpressionNode,
+  isSimpleIdentifier,
   stringify,
   t,
   traverseFast,
@@ -122,14 +128,14 @@ export const RefactorExtractComponent: RefactorProvider = {
         ),
       )
 
-      const skipNodes = new Set<t.Node>()
+      const replaceNodes = new Map<t.Node, null | t.Node>()
       const addSkipNodes = (skipped: t.Node[], all: t.Node[]): void => {
         skipped.forEach((node) => {
-          skipNodes.add(node)
+          replaceNodes.set(node, null)
           node.scope.identifiers.forEach((id) => rawIdentifiers.delete(id))
         })
         all.forEach((prop) => {
-          if (!skipNodes.has(prop)) {
+          if (!replaceNodes.has(prop)) {
             prop.scope.identifiers.forEach((id) => rawIdentifiers.add(id))
           }
         })
@@ -162,76 +168,76 @@ export const RefactorExtractComponent: RefactorProvider = {
         }
       }
 
-      const identifiers = Array.from(rawIdentifiers)
-      const template = stringify(nodes, {
-        indent: 2,
-        initialIndent: 1,
-        directive: project.config.preferences.template.directiveSyntax,
-        skipNodes,
-      })
-
       const components = new Set<string>()
       const models = new Set<string>()
+      const emits = new Map<string, string>()
       nodes.forEach((node) =>
         traverseFast(node, (node) => {
           if (isComponentNode(node)) components.add(node.tag)
-          else if (isDirectiveNode(node) && node.name === 'model') {
+          else if (isDirectiveNode(node)) {
             if (isSimpleExpressionNode(node.exp)) {
-              node.exp.scope.globals.forEach((identifier) => {
-                models.add(identifier)
-              })
+              if (node.name === 'model') {
+                node.exp.scope.globals.forEach((identifier) => {
+                  models.add(identifier)
+                  rawIdentifiers.delete(identifier)
+                })
+              } else if (node.name === 'on') {
+                if (isSimpleIdentifier(node.exp.content.trim())) {
+                  const name = node.exp.content.trim()
+                  addSkipNodes([node.exp], [])
+                  replaceNodes.set(
+                    node.exp,
+                    createSimpleExpression(`$emit('${name}')`, false),
+                  )
+
+                  emits.set(name, name)
+                }
+              }
             }
           }
         }),
       )
 
-      const script: string[] = [`import { defineComponent } from 'vue'`]
+      const script: string[] = []
+      const identifiers = Array.from(rawIdentifiers)
+      const template = stringify(nodes, {
+        indent: 2,
+        initialIndent: 1,
+        directive: project.config.preferences.template.directiveSyntax,
+        replaceNodes,
+      })
       const options = {
-        components:
-          components.size > 0
-            ? `components: {${info.components.reduce(
-                (text, { name, source }) => {
-                  if (components.has(name)) {
-                    script.push(
-                      genComponentImport(fileName, componentFileName, source),
-                    )
-                    const registration =
-                      name === source.localName
-                        ? source.localName
-                        : `${
-                            name.includes('-') ? JSON.stringify(name) : name
-                          }: ${source.localName}`
-
-                    return text + registration + ', '
-                  } else {
-                    return text
-                  }
-                },
-                '',
-              )}},`
-            : '',
-        props:
-          identifiers.length > 0
-            ? `props: [${identifiers
-                .map((identifier) => `'${identifier}'`)
-                .join(', ')}],`
-            : '',
+        components: genComponentsOptionsText({
+          info,
+          addImport: (text) => script.push(text),
+          fileName,
+          components,
+          componentFileName,
+        }),
+        props: genPropsOptionsText({ identifiers, models }),
+        emits: genEmitsOptionsText({ emits, models }),
       }
 
-      script.push(
-        `export default defineComponent({\n  ${options.props}\n  ${options.components}\n})`,
-      )
+      const optionsText = Array.from(Object.values(options))
+        .filter(Boolean)
+        .map((line) => '  ' + line)
+        .join('\n')
+      if (optionsText !== '') {
+        script.unshift(`import { defineComponent } from 'vue'`)
+        script.push(`export default defineComponent({\n${optionsText}\n})`)
+      }
+      const codeLines: string[] = []
+      if (script.length > 0) {
+        codeLines.push(
+          getScriptStartTag(project.config.preferences.script),
+          ...script,
+          `</script>`,
+        )
+      }
 
-      const code = [
-        getScriptStartTag(project.config.preferences.script),
-        ...script,
-        `</script>`,
-        ``,
-        `<template>`,
-        template,
-        `</template>`,
-        ``,
-      ].join('\n')
+      codeLines.push(`<template>${template}</template>`, '')
+
+      const code = codeLines.join('\n')
 
       let { name, changes, renameLocation } = getImportEditForComponent(
         document.container,
@@ -240,24 +246,15 @@ export const RefactorExtractComponent: RefactorProvider = {
         project.config,
       )
 
-      const skipNodesTemplate = Array.from(skipNodes)
-        .map((node) =>
-          stringify(node, {
-            indent: 2,
-            initialIndent: 0,
-            directive: project.config.preferences.template.directiveSyntax,
-          }),
-        )
-        .join(' ')
       const templateReplacement = {
-        newText: `<${name} ${skipNodesTemplate} ${identifiers
-          .map(
-            (identifer) =>
-              `${
-                models.has(identifer) ? 'v-model' : ''
-              }:${identifer}="${identifer}"`,
-          )
-          .join(' ')}/>`,
+        newText: genTagForExtractedComponent({
+          name,
+          project,
+          emits,
+          models,
+          identifiers,
+          replaceNodes,
+        }),
         span: {
           start: first(nodes).loc.start.offset,
           length: last(nodes).loc.end.offset - first(nodes).loc.start.offset,
@@ -301,6 +298,121 @@ export const RefactorExtractComponent: RefactorProvider = {
 
     return undefined
   },
+}
+
+function genTagForExtractedComponent({
+  name,
+  project,
+  emits,
+  models,
+  identifiers,
+  replaceNodes,
+}: {
+  name: string
+  project: VueProject
+  emits: Map<string, string>
+  models: Set<string>
+  identifiers: string[]
+  replaceNodes: Map<t.Node, t.Node | null>
+}): string {
+  const useShorthand =
+    project.config.preferences.template.directiveSyntax === 'shorthand'
+  const skipNodes = new Set<t.Node>()
+  replaceNodes.forEach((value, key) => {
+    if (value == null) skipNodes.add(key)
+  })
+  const skipNodesTemplate = Array.from(skipNodes)
+    .map((node) =>
+      stringify(node, {
+        indent: 2,
+        initialIndent: 0,
+        directive: project.config.preferences.template.directiveSyntax,
+      }),
+    )
+    .join(' ')
+  const modelsTemplate = Array.from(models)
+    .map((id) => `v-model:${id}="${id}"`)
+    .join(' ')
+
+  const vOnDirText = useShorthand ? '@' : 'v-on:'
+  const vBindDirText = useShorthand ? ':' : 'v-bind:'
+
+  const emitsTemplate = Array.from(emits.entries())
+    .map(([key, value]) => `${vOnDirText}${key}="${value}"`)
+    .join(' ')
+
+  const bindsTemplate = identifiers
+    .map((id) => `${vBindDirText}${id}="${id}"`)
+    .join(' ')
+
+  const openTag = [
+    name,
+    skipNodesTemplate,
+    modelsTemplate,
+    emitsTemplate,
+    bindsTemplate,
+  ].join(' ')
+
+  return `<${openTag} />`
+}
+
+function genEmitsOptionsText({
+  emits,
+  models,
+}: {
+  emits: Map<string, string>
+  models: Set<string>
+}): string {
+  const text = [
+    ...emits.keys(),
+    ...Array.from(models).map((id) => `onUpdate:${id}`),
+  ]
+    .map((key) => `'${key}'`)
+    .join(', ')
+
+  return text !== '' ? `emits: [${text}],` : ''
+}
+
+function genPropsOptionsText({
+  identifiers,
+  models,
+}: {
+  identifiers: string[]
+  models: Set<string>
+}): string {
+  const text = [...identifiers, ...models].map((id) => `'${id}'`).join(', ')
+  return text !== '' ? `props: [${text}],` : ''
+}
+
+function genComponentsOptionsText({
+  components,
+  info,
+  addImport,
+  fileName,
+  componentFileName,
+}: {
+  info: ComponentInfo
+  addImport: (text: string) => void
+  fileName: string
+  componentFileName: string
+  components: Set<string>
+}): string {
+  const text = info.components
+    .map(({ name, source, aliases }) => {
+      if (aliases.some((alias) => components.has(alias))) {
+        addImport(genComponentImport(fileName, componentFileName, source))
+        const registration =
+          name === source.localName
+            ? source.localName
+            : `${name}: ${source.localName}`
+
+        return registration
+      }
+    })
+    .filter(Boolean)
+    .join(', ')
+
+  return text !== '' ? `components: {${text}},` : ''
 }
 
 function genComponentImport(

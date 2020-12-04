@@ -20,7 +20,6 @@
   },
   "devDependencies": {
     "@types/lodash.camelcase": "^4.3.6",
-    "@vuedx/analyze": "workspace:*",
     "@vuedx/compiler-sfc": "workspace:*",
     "chalk": "^4.1.0",
     "cli-highlight": "^2.1.4",

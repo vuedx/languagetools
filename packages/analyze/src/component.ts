@@ -50,7 +50,7 @@ export type TypeInfo =
     }
   | {
       kind: 'expression'
-      imports: string[]
+      imports: ImportSource[]
       expression: string
     }
 
@@ -86,6 +86,15 @@ export interface PropInfo extends Taggable, Addressable {
   defaultValue: ValueInfo | null
 }
 
+export interface EmitInfo extends Taggable, Addressable {
+  name: string
+  description: string
+  type: TypeInfo[]
+  references: SourceRange[]
+  isInferred: boolean
+  isDynamic: boolean
+}
+
 export interface SyntaxError {
   message: string
   loc: SourceLocation
@@ -94,8 +103,10 @@ export interface SyntaxError {
 export interface ComponentInfo {
   components: LocalComponentRegistrationInfo[]
   props: PropInfo[]
+  emits: EmitInfo[]
   options?: ComponentOptionsInfo
   setup?: SetupInfo
+  scriptSetup?: ScriptSetupInfo
   errors: SyntaxError[]
 }
 
@@ -109,9 +120,15 @@ export interface SetupInfo extends Addressable {
   return?: Addressable
 }
 
+export interface ScriptSetupInfo {
+  defineProps?: Addressable
+  defineEmit?: Addressable
+}
+
 export interface ComponentInfoFactory {
   addError: (message: string, loc: SourceLocation) => ComponentInfoFactory
   addProp: (name: string, options?: Partial<PropInfo>) => ComponentInfoFactory
+  addEmit: (name: string, options?: Partial<EmitInfo>) => ComponentInfoFactory
   addLocalComponent: (
     name: string,
     source: ImportSourceWithLocation,
@@ -122,12 +139,17 @@ export interface ComponentInfoFactory {
     name: Exclude<keyof SetupInfo, 'loc'> | '',
     address: Addressable,
   ) => ComponentInfoFactory
+  addScriptSetup: (
+    name: keyof ScriptSetupInfo,
+    address: Addressable,
+  ) => ComponentInfoFactory
   info: () => ComponentInfo
 }
 
 export function createComponentInfoFactory(): ComponentInfoFactory {
   const component: ComponentInfo = {
     props: [],
+    emits: [],
     components: [],
     errors: [],
   }
@@ -154,6 +176,61 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
           type: [{ kind: 'expression', imports: [], expression: 'any' }],
           defaultValue: null,
           loc: null as any,
+          ...options,
+        })
+      }
+
+      return factory
+    },
+    addEmit(name, options = {}) {
+      const index = component.emits.findIndex((emit) => emit.name === name)
+
+      if (index >= 0) {
+        const emit = component.emits[index]
+
+        if (options.isInferred === true) {
+          if (options.loc != null) {
+            options.references = emit.references
+            options.references.push(options.loc)
+          }
+
+          if (options.type != null) {
+            const expressions = new Set(
+              options.type.map((type) =>
+                type.kind === 'expression' ? type.expression : '',
+              ),
+            )
+
+            emit.type.forEach((type) => {
+              if (type.kind === 'expression') {
+                if (!expressions.has(type.kind)) {
+                  options.type?.push(type)
+                }
+              }
+            })
+          }
+        }
+
+        Object.assign(emit, { name, ...options })
+      } else {
+        component.emits.push({
+          name,
+          tags: [],
+          description: '',
+          type: [
+            {
+              kind: 'expression',
+              imports: [],
+              expression: '(event?: any) => void',
+            },
+          ],
+          loc: null as any,
+          references:
+            options.isInferred === true && options.loc != null
+              ? [options.loc]
+              : [],
+          isInferred: false,
+          isDynamic: false,
           ...options,
         })
       }
@@ -197,6 +274,15 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
           )
         component.setup[name] = address
       }
+
+      return factory
+    },
+    addScriptSetup(name, address) {
+      if (component.scriptSetup == null) {
+        component.scriptSetup = {}
+      }
+
+      component.scriptSetup[name] = address
 
       return factory
     },

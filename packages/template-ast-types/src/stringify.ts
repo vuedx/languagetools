@@ -20,14 +20,14 @@ export interface StringifyOptions {
   indent: number
   initialIndent: number
   directive: 'shorthand' | 'longhand'
-  skipNodes: Set<Node>
+  replaceNodes: Map<Node, Node | null>
 }
 
 const defaults: StringifyOptions = {
   indent: 2,
   initialIndent: 0,
   directive: 'shorthand',
-  skipNodes: new Set(),
+  replaceNodes: new Map<Node, Node | null>(),
 }
 
 export function stringify(
@@ -54,8 +54,9 @@ function genNode(
   indent: number,
   options: StringifyOptions,
 ): string {
-  if (options.skipNodes.has(node)) {
-    return ''
+  if (options.replaceNodes.has(node)) {
+    const replaced = options.replaceNodes.get(node)
+    return replaced == null ? '' : genNode(replaced, indent, options)
   } else if (isRootNode(node)) {
     return genRootNode(node, indent, options)
   } else if (isElementNode(node)) {
@@ -80,9 +81,7 @@ function genExpressionNode(
   indent: number,
   options: StringifyOptions,
 ): string {
-  return node.content.includes('\n')
-    ? node.content.split('\n').join(' '.repeat(indent + options.indent) + '\n')
-    : node.content
+  return genMultilineText(node.content, indent, options)
 }
 
 function genTextNode(
@@ -90,12 +89,26 @@ function genTextNode(
   indent: number,
   options: StringifyOptions,
 ): string {
-  return node.content.includes('\n')
-    ? node.content
-        .split('\n')
-        .map((line) => line.trimStart())
-        .join(' '.repeat(indent + options.indent) + '\n')
-    : node.content
+  return genMultilineText(node.content, indent, options)
+}
+
+function genMultilineText(
+  content: string,
+  indent: number,
+  options: StringifyOptions,
+): string {
+  if (content.startsWith('\n')) {
+    content = content.trimStart()
+  }
+
+  if (content.includes('\n')) {
+    content = content
+      .split('\n')
+      .map((line) => line.trim())
+      .join('\n' + ' '.repeat(indent + options.indent))
+  }
+
+  return content
 }
 
 function genRootNode(
@@ -103,14 +116,7 @@ function genRootNode(
   indent: number,
   options: StringifyOptions,
 ): string {
-  const code: string[] = []
-
-  node.children.forEach((child, index) => {
-    if (index > 0 && isElementNode(child)) code.push('\n')
-    code.push(genNode(child, indent, options))
-  })
-
-  return code.join('')
+  return genChildren(node, indent, options)
 }
 
 function genElementNode(
@@ -123,8 +129,9 @@ function genElementNode(
   code.push(' '.repeat(indent), '<', node.tag)
 
   let shouldIndentClosing = false
-  if (node.props.length > 0) {
-    if (node.props.length > 2) {
+  const props = applyReplaceNodes(node.props, options)
+  if (props.length > 0) {
+    if (props.length > 2) {
       code.push('\n')
       node.props.forEach((prop) => {
         code.push(' '.repeat(indent + options.indent))
@@ -133,8 +140,8 @@ function genElementNode(
       })
       shouldIndentClosing = true
     } else {
-      code.push(' ')
-      node.props.forEach((prop) => {
+      props.forEach((prop) => {
+        code.push(' ')
         code.push(genNode(prop, indent, options))
       })
     }
@@ -142,23 +149,61 @@ function genElementNode(
 
   if (shouldIndentClosing) code.push(' '.repeat(indent))
   if (node.isSelfClosing) {
-    if (shouldIndentClosing) code.push(' ')
+    if (!shouldIndentClosing) code.push(' ')
     code.push('/>')
   } else {
-    code.push('>')
-    if (node.children.length > 0) {
-      let shouldIndentNext = isElementNode(node.children[0])
-      node.children.forEach((child) => {
-        if (shouldIndentNext) code.push('\n')
-        code.push(genNode(child, indent + options.indent, options))
-        shouldIndentNext = isElementNode(child)
-      })
-      if (shouldIndentNext) code.push('\n', ' '.repeat(indent))
-    }
-    code.push('</', node.tag, '>')
+    code.push('>', genChildren(node, indent, options), '</', node.tag, '>')
   }
 
   return code.join('')
+}
+
+function genChildren(
+  node: ElementNode | RootNode,
+  indent: number,
+  options: StringifyOptions,
+): string {
+  const code: string[] = []
+  const children = applyReplaceNodes(node.children, options)
+  if (children.length > 0) {
+    const hasOnlyInlineChildren = children.every(
+      (child) => !isElementNode(child),
+    )
+    if (hasOnlyInlineChildren) {
+      children.forEach((child) => {
+        code.push(genNode(child, indent + options.indent, options))
+      })
+    } else {
+      let wasLastChildInline = true
+      children.forEach((child) => {
+        if (isTextNode(child) && child.content.trim() === '') return // Ignore empty text nodes.
+        const isThisChildInline = !isElementNode(child)
+        if (wasLastChildInline && isThisChildInline) {
+          // No need to put anything between inline children.
+        } else if (wasLastChildInline) {
+          code.push('\n')
+        } else if (isThisChildInline) {
+          code.push('\n', ' '.repeat(indent + options.indent))
+        } else {
+          code.push('\n')
+        }
+
+        code.push(genNode(child, indent + options.indent, options))
+        wasLastChildInline = isThisChildInline
+      })
+      code.push('\n', ' '.repeat(indent))
+    }
+  }
+  return code.join('')
+}
+
+function applyReplaceNodes(nodes: Node[], options: StringifyOptions): Node[] {
+  return nodes
+    .map((node) => {
+      if (options.replaceNodes.has(node)) return options.replaceNodes.get(node)
+      return node
+    })
+    .filter(Boolean) as Node[]
 }
 
 function genDirectiveNode(
@@ -179,6 +224,8 @@ function genDirectiveNode(
     if (node.arg.isStatic) code.push(genNode(node.arg, indent, options))
     else code.push('[', genNode(node.arg, indent, options), ']')
   }
+
+  node.modifiers.forEach((modifier) => code.push('.', modifier))
 
   if (isSimpleExpressionNode(node.exp)) {
     code.push('="', genNode(node.exp, indent, options), '"')
