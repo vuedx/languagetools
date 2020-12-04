@@ -218,7 +218,7 @@ function main() {
   if (help) {
     console.error(
       `
-Usage: typecheck <options> [directory]
+Usage: vuedx-typecheck <options> [directory]
 
 Options
     --json      print diagnostics as json
@@ -250,7 +250,7 @@ Options
   }
 
   let result = checker.getDiagnostics(directory, verbose)
- 
+
   if (vue) {
     result = result.filter((item) => item.fileName.endsWith('.vue'))
   }
