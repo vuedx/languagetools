@@ -26,7 +26,7 @@ export const GotoScriptDefinitions: GotoProvider = {
 
     let isTextSpanSet = false
     const definitions: TS.DefinitionInfo[] = []
-    const nodeAtCursor = h.findNodeAtPosition(document.fsPath, position)
+    const nodeAtCursor = h.findTemplateNodeAtPosition(document.fsPath, position)
 
     result.definitions?.forEach((definition) => {
       if (h.isRenderFunctionFileName(definition.fileName)) {

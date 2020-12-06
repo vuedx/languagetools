@@ -3,7 +3,7 @@ import { LanguageServiceOptions } from '../../types'
 
 export interface RenameProvider {
   version: string
-
+  name: string
   canRename: (
     config: LanguageServiceOptions,
     fileName: string,

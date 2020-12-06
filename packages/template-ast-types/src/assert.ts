@@ -5,8 +5,10 @@ import {
   CompoundExpressionNode,
   DirectiveNode,
   ElementNode,
+  ForNode,
   IfNode,
   InterpolationNode,
+  isSimpleIdentifier as _isSimpleIdentifier,
   Node,
   PlainElementNode,
   RootNode,
@@ -14,10 +16,11 @@ import {
   SlotOutletNode,
   TemplateNode,
   TextNode,
-  ForNode,
 } from '@vue/compiler-core'
 
-export { isSimpleIdentifier } from '@vue/compiler-core'
+export function isSimpleIdentifier(content: string): boolean {
+  return _isSimpleIdentifier(content.trim())
+}
 
 export function isNode(node: unknown): node is Node {
   return typeof node === 'object' && node != null && 'type' in node

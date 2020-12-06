@@ -100,13 +100,18 @@ export interface SyntaxError {
   loc: SourceLocation
 }
 
+export interface IdentifierSource extends Addressable {
+  name: string
+}
+
 export interface ComponentInfo {
   components: LocalComponentRegistrationInfo[]
   props: PropInfo[]
   emits: EmitInfo[]
   options?: ComponentOptionsInfo
-  setup?: SetupInfo
+  fnSetupOption?: SetupInfo
   scriptSetup?: ScriptSetupInfo
+  identifierSource: Record<string, IdentifierSource>
   errors: SyntaxError[]
 }
 
@@ -144,6 +149,7 @@ export interface ComponentInfoFactory {
     address: Addressable,
   ) => ComponentInfoFactory
   info: () => ComponentInfo
+  addIdentifier: (id: string, source: string, loc: SourceRange) => void
 }
 
 export function createComponentInfoFactory(): ComponentInfoFactory {
@@ -152,6 +158,7 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
     emits: [],
     components: [],
     errors: [],
+    identifierSource: {},
   }
 
   const factory: ComponentInfoFactory = {
@@ -160,8 +167,16 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
 
       return factory
     },
+    addIdentifier(id, name, loc) {
+      // TODO: Add error handling here
+      component.identifierSource[id] = { name, loc }
+    },
     addProp(name, options = {}) {
       const index = component.props.findIndex((prop) => prop.name === name)
+
+      if (options.loc != null) {
+        factory.addIdentifier(name, 'props', options.loc)
+      }
 
       if (index >= 0) {
         const prop = component.props[index]
@@ -264,15 +279,15 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
     },
     addSetup(name, address) {
       if (name === '') {
-        component.setup = {
+        component.fnSetupOption = {
           ...address,
         }
       } else {
-        if (component.setup == null)
+        if (component.fnSetupOption == null)
           throw new Error(
             'Cannot set setup params location without setting setup',
           )
-        component.setup[name] = address
+        component.fnSetupOption[name] = address
       }
 
       return factory

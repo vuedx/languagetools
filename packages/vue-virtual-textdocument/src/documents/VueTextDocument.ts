@@ -813,8 +813,8 @@ export class VueTextDocument extends ProxyTextDocument {
   }
 
   public blockAt(position: Position | number): SFCBlock | null | undefined {
-    const offset = isNumber(position) ? position : this.offsetAt(position)
     const descriptor = this.descriptor
+    const offset = isNumber(position) ? position : this.offsetAt(position)
 
     if (isOffsetInBlock(offset, descriptor.template)) return descriptor.template
     if (isOffsetInBlock(offset, descriptor.script)) return descriptor.script

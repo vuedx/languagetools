@@ -330,6 +330,13 @@ export class PluginContext {
     })
   }
 
+  public hasAnyVueReference(fileName: string): boolean {
+    // TODO: check if there is an import from .vue file or not.
+    // This could be used in routing service to skip some work when .vue
+    // is not in the play.
+    return true
+  }
+
   public createVueDocument(fileName: string, content: string): VueTextDocument {
     const uri = URI.file(fileName).toString()
     const document = VueTextDocument.create(uri, 'vue', 0, content, {

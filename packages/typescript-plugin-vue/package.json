@@ -15,6 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "@vuedx/analyze": "workspace:*",
+    "@vuedx/compiler-sfc": "workspace:*",
     "@vuedx/projectconfig": "workspace:*",
     "@vuedx/template-ast-types": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",

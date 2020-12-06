@@ -1,12 +1,21 @@
 import {
+  isSimpleExpressionNode,
+  isSimpleIdentifier,
+  traverseEvery,
+} from '@vuedx/template-ast-types'
+import {
   isNumber,
   isVirtualFile,
   isVueFile,
   MODULE_SELECTOR,
+  RENDER_SELECTOR,
   VirtualTextDocument,
   VIRTUAL_FILENAME_SEPARATOR,
 } from '@vuedx/vue-virtual-textdocument'
+import { REFACTORS } from '../features/refactors/abstract'
+import { getChangesForComponentTagRename } from '../features/renames/component-tag'
 import { wrapInTrace } from '../helpers/logger'
+import { isSpanInSourceRange } from '../helpers/utils'
 import { PluginConfig, TS } from '../interfaces'
 import { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
@@ -154,11 +163,17 @@ export function createVueLanguageServer(
       if (document == null) {
         return {
           canRename: false,
-          localizedErrorMessage: 'Cannot find this Vue file.',
+          localizedErrorMessage: 'Cannot rename this entity.',
         }
       }
 
-      return choose(document).getRenameInfo(document.fsPath, position, options)
+      const result = choose(document).getRenameInfo(
+        document.fsPath,
+        position,
+        options,
+      )
+
+      return result
     },
 
     findRenameLocations(
@@ -172,12 +187,144 @@ export function createVueLanguageServer(
       const document = h.getDocumentAt(fileName, position)
       if (document == null) return
 
-      return choose(document).findRenameLocations(
-        document.fsPath,
-        position,
-        findInStrings,
-        findInComments,
-      )
+      const locations = choose(document)
+        .findRenameLocations(
+          document.fsPath,
+          position,
+          findInStrings,
+          findInComments,
+        )
+        ?.slice()
+
+      if (locations != null && locations.length > 0) {
+        const result = script.getRenameInfo(document.fsPath, position, {
+          allowRenameOfImportPath: false,
+        })
+        if (result.canRename) {
+          const info = h.getComponentInfo(document.container)
+          if (!h.isRenderFunctionDocument(document)) {
+            // Maybe component got renamed
+            const component = info.components.find(
+              (component) => component.name === result.displayName,
+            )
+            if (
+              component != null &&
+              locations.some(
+                (loc) =>
+                  isSpanInSourceRange(loc.textSpan, component.loc) ||
+                  isSpanInSourceRange(loc.textSpan, component.source.loc),
+              )
+            ) {
+              const doc = h.getRenderDoc(document.fsPath)
+              if (doc?.ast != null) {
+                getChangesForComponentTagRename(doc.ast, component).forEach(
+                  (textSpan) => {
+                    locations.push({ fileName, textSpan })
+                  },
+                )
+              }
+            } else if (
+              info.options != null &&
+              isSpanInSourceRange(result.triggerSpan, info.options.loc)
+            ) {
+              if (isSimpleIdentifier(result.displayName)) {
+                const property = Object.entries(
+                  info.options.properties,
+                ).find(([_, value]) =>
+                  isSpanInSourceRange(result.triggerSpan, value.loc),
+                )
+
+                if (property != null) {
+                  switch (property[0]) {
+                    case 'data':
+                    case 'methods':
+                    case 'computed':
+                    case 'props':
+                    case 'emits':
+                      {
+                        const render = h.getRenderDoc(fileName)
+                        if (render?.ast != null) {
+                          if (
+                            render.ast.scope.identifiers.includes(
+                              result.displayName,
+                            )
+                          ) {
+                            // Find an expression using this identifiers.
+
+                            let isDone = false
+                            traverseEvery(render.ast, (node) => {
+                              if (isDone) return false
+                              if (
+                                isSimpleExpressionNode(node) &&
+                                node.scope.identifiers.includes(
+                                  result.displayName,
+                                )
+                              ) {
+                                const binding = node.scope.getBinding(
+                                  result.displayName,
+                                )
+
+                                if (binding == null) {
+                                  isDone = true
+                                  context.log(
+                                    '@@DEBUG found expression usage in template',
+                                  )
+                                  const additionalLocations = template.findRenameLocations(
+                                    document.container.getDocumentFileName(
+                                      RENDER_SELECTOR,
+                                    ),
+                                    node.loc.start.offset +
+                                      node.content.indexOf(result.displayName) +
+                                      1,
+                                    findInStrings,
+                                    findInComments,
+                                  )
+
+                                  if (additionalLocations != null) {
+                                    context.log(
+                                      '@@DEBUG found additional change locations',
+                                    )
+                                    locations.push(...additionalLocations)
+                                  }
+
+                                  return false // stop
+                                }
+                              }
+                              return true
+                            })
+                          }
+                        }
+                      }
+                      break
+                  }
+                }
+              }
+            }
+          } else {
+            if (isSimpleIdentifier(result.displayName)) {
+              const source = info.identifierSource[result.displayName.trim()]
+              if (
+                source != null &&
+                locations.some((loc) =>
+                  isSpanInSourceRange(loc.textSpan, source.loc),
+                )
+              ) {
+                const additionalLocations = script.findRenameLocations(
+                  document.fsPath,
+                  source.loc.start.offset,
+                  findInStrings,
+                  findInComments,
+                )
+                if (additionalLocations != null) {
+                  locations.push(...additionalLocations)
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return locations
     },
 
     getEditsForFileRename(
@@ -272,7 +419,7 @@ export function createVueLanguageServer(
       )
 
       if (document != null && document === document2) {
-        return choose(document).getEditsForRefactor(
+        const result = choose(document).getEditsForRefactor(
           document.fsPath,
           formatOptions,
           positionOrRange,
@@ -280,6 +427,36 @@ export function createVueLanguageServer(
           actionName,
           preferences,
         )
+
+        if (result?.renameLocation != null) {
+          const isExtractComponent =
+            refactorName === REFACTORS.EXTRACT_COMPONENT
+          const renameLocation = result.renameLocation
+          let delta = 0
+          result.edits.forEach((edit) => {
+            if (edit.fileName === fileName) {
+              edit.textChanges.forEach((textChange) => {
+                if (
+                  textChange.span.start + textChange.span.length <
+                    renameLocation &&
+                  (!isExtractComponent ||
+                    // For extract-component, renameLocation should be generated import statement.
+                    textChange.span.start -
+                      textChange.span.length +
+                      textChange.newText.length <
+                      renameLocation)
+                ) {
+                  delta -= textChange.span.length
+                  delta += textChange.newText.length
+                }
+              })
+            }
+          })
+
+          result.renameLocation = renameLocation + delta
+        }
+
+        return result
       }
     },
 

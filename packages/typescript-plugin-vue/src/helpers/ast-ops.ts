@@ -1,12 +1,13 @@
 import {
-  TraversalAncestors,
-  traverseEvery,
+  isCommentNode,
   isElementNode,
+  isInterpolationNode,
   isRootNode,
   isTextNode,
-  isInterpolationNode,
-  isCommentNode,
   t,
+  TraversalAncestors,
+  traverseEvery,
+  traverseFast,
 } from '@vuedx/template-ast-types'
 
 export interface SearchResult {
@@ -18,15 +19,15 @@ export function findTemplateNodeAt(
   ast: t.RootNode,
   position: number,
 ): SearchResult {
-  return findTemplateNodeFor(ast, position, position)
+  return findTemplateNodeInRange(ast, position, position)
 }
 
-export function findTemplateElementNodeAt(
+export function findTemplateChildNodeAt(
   ast: t.RootNode,
   position: number,
   mode?: 'start' | 'end',
 ): SearchResult {
-  const result = findTemplateNodeFor(ast, position, position, mode)
+  const result = findTemplateNodeInRange(ast, position, position, mode)
 
   while (result.ancestors.length > 0) {
     if (
@@ -48,7 +49,7 @@ export function findTemplateElementNodeAt(
   }
 }
 
-export function findTemplateNodeFor(
+export function findTemplateNodeInRange(
   ast: t.RootNode,
   start: number,
   end: number,
@@ -79,19 +80,35 @@ export function findTemplateNodeFor(
   return found
 }
 
-export function findTemplateNodesIn(
+export function findTemplateNodesInRange(
+  ast: t.RootNode,
+  start: number,
+  end: number,
+): t.Node[] {
+  const found: t.Node[] = []
+
+  traverseFast(ast, (node) => {
+    if (node.loc.start.offset <= start && end <= node.loc.end.offset) {
+      found.push(node)
+    }
+  })
+
+  return found
+}
+
+export function findTemplateChildrenInRange(
   ast: t.RootNode,
   start: number,
   end: number,
 ): t.Node[] {
   if (start === end) {
-    const a = findTemplateElementNodeAt(ast, start)
+    const a = findTemplateChildNodeAt(ast, start)
 
     return a.node != null ? [a.node] : []
   }
 
-  const a = findTemplateElementNodeAt(ast, start, 'start')
-  const b = findTemplateElementNodeAt(ast, end, 'end')
+  const a = findTemplateChildNodeAt(ast, start, 'start')
+  const b = findTemplateChildNodeAt(ast, end, 'end')
   if (a.node == null || b.node == null) return []
   if (a.node === b.node) return [a.node]
 

@@ -18,7 +18,7 @@ import {
 } from '../helpers/utils'
 import { TS } from '../interfaces'
 import {
-  registerLocalComponent,
+  registerComponentAPI,
   registerLocalComponentWithSource,
 } from '../transforms/registerLocalComponent'
 import { LanguageServiceOptions } from '../types'
@@ -68,7 +68,12 @@ function createLanguageServiceRouter(
   ): TS.TextSpan | null {
     if (config.helpers.isRenderFunctionDocument(document)) {
       const result = document.getOriginalOffsetAt(span.start)
-      if (result != null) return { start: result.offset, length: result.length }
+      if (result != null) {
+        return {
+          start: result.offset,
+          length: Math.min(span.length, result.length),
+        }
+      }
 
       return null
     }
@@ -394,11 +399,13 @@ function createLanguageServiceRouter(
 
                     change.textChanges = [
                       ...change.textChanges,
-                      ...registerLocalComponent(
+                      ...registerComponentAPI(
                         document,
                         config.helpers.getComponentInfo(document),
+                        'components',
                         newEntryName,
-                      ),
+                        newEntryName,
+                      ).changes,
                     ]
                   }
                 }

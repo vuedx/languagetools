@@ -63,6 +63,8 @@ const config = [
   bundle('typescript-plugin-vue'),
   bundle('typescript-vetur'),
   bundle('vue-virtual-textdocument'),
+
+  extension('coc-vue'),
 ]
 
 export default config
@@ -173,6 +175,7 @@ function extension(name, plugins = []) {
     moduleContext: () => 'undefined',
     external: [
       'vscode',
+      'coc.nvim',
       ...builtIns,
       ...deps(`./extensions/${name}/package.json`),
     ],

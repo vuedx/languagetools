@@ -30,7 +30,7 @@ describe('script', () => {
     `)
 
     expect(info.options).toBe(undefined)
-    expect(info.setup).toBeTruthy()
+    expect(info.fnSetupOption).toBeTruthy()
   })
 
   test('define props', () => {
@@ -45,7 +45,7 @@ describe('script', () => {
     )
 
     expect(info.options).toBe(undefined)
-    expect(info.setup).toBe(undefined)
+    expect(info.fnSetupOption).toBe(undefined)
     expect(info.scriptSetup).toBeTruthy()
     expect(info.scriptSetup?.defineProps).toBeTruthy()
   })
@@ -62,7 +62,7 @@ describe('script', () => {
     )
 
     expect(info.options).toBe(undefined)
-    expect(info.setup).toBe(undefined)
+    expect(info.fnSetupOption).toBe(undefined)
     expect(info.scriptSetup).toBeTruthy()
     expect(info.scriptSetup?.defineEmit).toBeTruthy()
   })

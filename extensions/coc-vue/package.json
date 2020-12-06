@@ -1,0 +1,139 @@
+{
+  "name": "coc-vue",
+  "publisher": "znck",
+  "displayName": "Vue Language Features",
+  "version": "0.0.3",
+  "description": "Enhanced TypeScript/JavaScript Support",
+  "main": "dist/index.js",
+  "activationEvents": [
+    "onLanguage:vue"
+  ],
+  "files": [
+    "dist"
+  ],
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/znck/vue-developer-experience"
+  },
+  "keywords": [
+    "vue",
+    "typescript"
+  ],
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "license": "MIT",
+  "engines": {
+    "coc": "^0.0.79"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "jsonc",
+        "filenames": [
+          "vueconfig.json"
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "Vue",
+      "properties": {
+        "vue.suggest.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enabled/disable autocomplete suggestions.",
+          "scope": "resource"
+        },
+        "vue.format.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable default TypeScript/JavaScript formatter.",
+          "scope": "window"
+        },
+        "vue.implementationsCodeLens.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable implementations CodeLens. This CodeLens shows the implementers of an interface.",
+          "scope": "window"
+        },
+        "vue.suggest.completeJSDocs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable suggestion to complete JSDoc comments.",
+          "scope": "resource"
+        },
+        "vue.referencesCodeLens.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable references CodeLens in TypeScript/JavaScript files.",
+          "scope": "window"
+        },
+        "vue.autoClosingTags": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable automatic closing of JSX tags. Requires using TypeScript 3.0 or newer in the workspace."
+        }
+      }
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "vue.openVirtualFile",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.reloadProjects",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.goToProjectConfig",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.selectTypeScriptVersion",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.openTsServerLog",
+          "when": "editorLangId == vue"
+        },
+        {
+          "command": "typescript.restartTsServer",
+          "when": "editorLangId == vue"
+        }
+      ]
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": "vueconfig.json",
+        "url": "https://unpkg.com/@vuedx/projectconfig@0.3.2/schema.json"
+      }
+    ],
+    "typescriptServerPlugins": [
+      {
+        "name": "@vuedx/typescript-plugin-vue",
+        "enableForWorkspaceTypeScriptVersions": true,
+        "configNamespace": "vue",
+        "languages": [
+          "vue"
+        ]
+      }
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/znck/vue-developer-experience/issues"
+  },
+  "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/coc-vue#readme",
+  "dependencies": {
+    "@vuedx/typescript-plugin-vue": "0.3.1-insiders-1607121235.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.0",
+    "coc.nvim": "^0.0.79"
+  },
+  "extensionDependencies": [
+    "coc-tsserver"
+  ]
+}

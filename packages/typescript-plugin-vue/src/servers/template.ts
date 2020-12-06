@@ -151,7 +151,10 @@ export function createTemplateLanguageServer(
 
       if (document == null) return result
 
-      const nodeAtCursor = h.findNodeAtPosition(document.fsPath, position)
+      const nodeAtCursor = h.findTemplateNodeAtPosition(
+        document.fsPath,
+        position,
+      )
       const loc = document.tryGetGeneratedOffset(position)
       const {
         isTagCompletion,
@@ -379,7 +382,10 @@ export function createTemplateLanguageServer(
       const loc = document.getGeneratedOffsetAt(position)
       if (loc == null) return
 
-      const nodeAtCursor = h.findNodeAtPosition(document.fsPath, position)
+      const nodeAtCursor = h.findTemplateNodeAtPosition(
+        document.fsPath,
+        position,
+      )
       const result = choose(document.fsPath).getQuickInfoAtPosition(
         fileName,
         loc.offset,
@@ -585,7 +591,11 @@ export function createTemplateLanguageServer(
           position,
           preferences,
         )
-        if (result != null) return result
+        if (result != null) {
+          context.log(`@@DEBUG found getRenameInfo using "${provider.name}"`)
+
+          return result
+        }
       }
 
       return {
@@ -595,7 +605,6 @@ export function createTemplateLanguageServer(
     },
 
     findRenameLocations(fileName, position, findInStrings, findInComments) {
-      const locs: TS.RenameLocation[] = []
       for (const provider of RENAME_PROVIDERS) {
         const result = provider.applyRename(
           config,
@@ -605,9 +614,14 @@ export function createTemplateLanguageServer(
           findInComments,
         )
 
-        if (result != null) locs.push(...result)
+        if (result != null) {
+          context.log(
+            `@@DEBUG found findRenameLocations using "${provider.name}"`,
+          )
+
+          return result
+        }
       }
-      return locs
     },
 
     getEditsForFileRenameIn(fileName, oldFilePath, newFilePath) {
@@ -652,8 +666,12 @@ export function createTemplateLanguageServer(
       actionName,
       preferences = {},
     ) {
-      for (const provider of REFACTOR_PROVIDERS) {
-        const result = provider.applyRefactor(
+      const provider = REFACTOR_PROVIDERS.find(
+        (provider) => provider.name === refactorName,
+      )
+
+      if (provider != null) {
+        return provider.applyRefactor(
           config,
           fileName,
           formatOptions,
@@ -662,8 +680,6 @@ export function createTemplateLanguageServer(
           actionName,
           preferences,
         )
-
-        if (result != null) return result
       }
     },
 

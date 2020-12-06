@@ -4,8 +4,12 @@ import { RenameProvider } from './abstract'
 
 export const RenameElementTag: RenameProvider = {
   version: '*',
+  name: 'element-tag',
   canRename(config, fileName, position) {
-    const { node } = config.helpers.findNodeAtPosition(fileName, position)
+    const { node } = config.helpers.findTemplateNodeAtPosition(
+      fileName,
+      position,
+    )
     if (isPlainElementNode(node) && isPositionInTagName(position, node)) {
       return {
         canRename: true,
@@ -21,7 +25,7 @@ export const RenameElementTag: RenameProvider = {
     }
   },
   applyRename(config, fileName, position) {
-    const { node, document } = config.helpers.findNodeAtPosition(
+    const { node, document } = config.helpers.findTemplateNodeAtPosition(
       fileName,
       position,
     )
