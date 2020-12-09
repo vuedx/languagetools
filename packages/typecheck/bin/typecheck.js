@@ -218,7 +218,7 @@ function main() {
   if (help) {
     console.error(
       `
-Usage: vuedx-typecheck <options> [directory]
+Usage: vuedx-typecheck [directory] <options>
 
 Options
     --json      print diagnostics as json
