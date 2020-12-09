@@ -9,7 +9,7 @@ export default defineComponent({
     const { two, three, four, five } = useFn()
 
     function newFunction() {
-      return props.foo + two.value + three.value + four.value.foo + five.foo
+      return props.foo + two.value + three.value + four.value.foo + five.foo;
     }
 
     return { newFunction, two, three, four, five }

@@ -41,66 +41,104 @@ describe('rename', () => {
   afterAll(async () => await server.close())
 
   describe('extract-method', () => {
-    test('', async () => {
-      const inputFile = abs(`src/extract-function/sample1.before.vue`)
-      const outputFile = abs(`src/extract-function/sample1.after.vue`)
-      await server.sendCommand('updateOpen', {
-        openFiles: [{ file: inputFile, projectRootPath: projectPath }],
+    it('should extract expression as a function in setup()', async () => {
+      await testRefactor({
+        inputFile: abs(`src/extract-function/sample1.before.vue`),
+        outputFile: abs(`src/extract-function/sample1.after.vue`),
+        refactorName: 'vue:extract-method',
+        actionName: '{"target":"setupMethods"}',
+        triggerPositionPrefixText: 'data-value="foo + two + three',
+        renamePositionPrefixText: 'data-value="',
       })
-
-      const position = await findPositionOrThrowIn(
-        inputFile,
-        'data-value="foo + two + three',
-        'data-value="foo + two + three'.length,
-      )
-      const refactors = await server.sendCommand('getApplicableRefactors', {
-        ...position,
-      })
-
-      expect(refactors.body).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            name: 'vue:extract-method',
-            actions: expect.arrayContaining([
-              expect.not.objectContaining({
-                name: '{"target":"setupMethods"}',
-                notApplicableReason: expect.any(String),
-              }),
-              expect.objectContaining({
-                name: '{"target":"setupMethods"}',
-              }),
-            ]),
-          }),
-        ]),
-      )
-
-      const response = await server.sendCommand('getEditsForRefactor', {
-        ...position,
-        refactor: 'vue:extract-method',
-        action: '{"target":"setupMethods"}',
-      })
-
-      const renamePosition = await findPositionOrThrowIn(
-        outputFile,
-        ':data-value="',
-        ':data-value="'.length,
-      )
-      expect(response.body?.renameFilename).toBe(inputFile)
-      expect(response.body?.renameLocation).toEqual(
-        // Start of extracted expression.
-        { line: renamePosition.line, offset: renamePosition.offset },
-      )
-
-      expect(response.body?.edits).toHaveLength(1)
-      const edit = response.body!.edits[0]
-      expect(edit.fileName).toBe(inputFile)
-
-      const content = TextDocument.applyEdits(
-        await getTextDocument(inputFile),
-        edit.textChanges.map(codeEditToTextEdit),
-      )
-
-      expect((await getTextDocument(outputFile)).getText()).toEqual(content)
     })
   })
+
+  async function testRefactor({
+    inputFile,
+    outputFile,
+    refactorName,
+    actionName,
+    triggerPositionPrefixText,
+    renamePositionPrefixText,
+    triggerSpan = 0,
+  }: {
+    inputFile: string
+    outputFile: string
+    refactorName: string
+    actionName: string
+    triggerPositionPrefixText: string
+    renamePositionPrefixText: string
+    triggerSpan?: number
+  }): Promise<void> {
+    await server.sendCommand('updateOpen', {
+      openFiles: [{ file: inputFile, projectRootPath: projectPath }],
+    })
+
+    const start = await findPositionOrThrowIn(
+      inputFile,
+      triggerPositionPrefixText,
+      triggerPositionPrefixText.length,
+    )
+    const end = await findPositionOrThrowIn(
+      inputFile,
+      triggerPositionPrefixText,
+      triggerPositionPrefixText.length + triggerSpan,
+    )
+    const position = {
+      file: start.file,
+      startLine: start.line,
+      startOffset: start.offset,
+      endLine: end.line,
+      endOffset: end.offset,
+    }
+
+    const refactors = await server.sendCommand('getApplicableRefactors', {
+      ...position,
+    })
+
+    expect(refactors.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: refactorName,
+          actions: expect.arrayContaining([
+            expect.not.objectContaining({
+              name: actionName,
+              notApplicableReason: expect.any(String),
+            }),
+            expect.objectContaining({
+              name: actionName,
+            }),
+          ]),
+        }),
+      ]),
+    )
+
+    const response = await server.sendCommand('getEditsForRefactor', {
+      ...position,
+      refactor: refactorName,
+      action: actionName,
+    })
+
+    const renamePosition = await findPositionOrThrowIn(
+      outputFile,
+      renamePositionPrefixText,
+      renamePositionPrefixText.length,
+    )
+    expect(response.body?.renameFilename).toBe(inputFile)
+    expect(response.body?.renameLocation).toEqual(
+      // Start of extracted expression.
+      { line: renamePosition.line, offset: renamePosition.offset },
+    )
+
+    expect(response.body?.edits).toHaveLength(1)
+    const edit = response.body!.edits[0]
+    expect(edit.fileName).toBe(inputFile)
+
+    const content = TextDocument.applyEdits(
+      await getTextDocument(inputFile),
+      edit.textChanges.map(codeEditToTextEdit),
+    )
+
+    expect((await getTextDocument(outputFile)).getText()).toEqual(content)
+  }
 })
