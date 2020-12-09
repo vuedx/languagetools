@@ -1,16 +1,19 @@
 import { transformToFunction } from '@vuedx/analyze'
+import { last } from '@vuedx/shared'
 import {
   isDirectiveNode,
   isSimpleExpressionNode,
   isSimpleIdentifier,
 } from '@vuedx/template-ast-types'
-import { last } from '../../helpers/array'
+import { detectRefsAndProps } from '../../helpers/detectRefsAndProps'
+import { genSetupFnParams } from '../../helpers/genSetupFnParams'
+import { getContextIdentifiers } from '../../helpers/getContextIdentifiers'
 import { TS } from '../../interfaces'
 import { registerComponentAPI } from '../../transforms/registerLocalComponent'
 import { decode, encode, RefactorProvider, REFACTORS } from './abstract'
 
 interface RefactorExtractMethodArgs {
-  target: 'methods' | 'setup'
+  target: 'methods' | 'setupMethods'
 }
 
 export const RefactorExtractMethod: RefactorProvider = {
@@ -24,7 +27,7 @@ export const RefactorExtractMethod: RefactorProvider = {
       description: 'Extract to method',
     }
     const extractAsFunction: TS.RefactorActionInfo = {
-      name: encode<RefactorExtractMethodArgs>({ target: 'setup' }),
+      name: encode<RefactorExtractMethodArgs>({ target: 'setupMethods' }),
       description: 'Extract to function',
     }
     const refactor: TS.ApplicableRefactorInfo = {
@@ -97,7 +100,7 @@ export const RefactorExtractMethod: RefactorProvider = {
   },
 
   applyRefactor(
-    { helpers, context },
+    { helpers, context, service },
     fileName,
     _,
     position,
@@ -117,7 +120,8 @@ export const RefactorExtractMethod: RefactorProvider = {
       const parent = last(ancestors)?.node
       const isEventHandler =
         isDirectiveNode(parent) && parent.name === 'on' && parent.exp === node
-      const shouldRewriteContext = args.target === 'methods'
+      const shouldRewriteContext =
+        args.target === 'methods' && document.descriptor.scriptSetup == null
       const methodArgs: string[] = []
       let shouldCallEventHandler = false
 
@@ -135,11 +139,18 @@ export const RefactorExtractMethod: RefactorProvider = {
         }
       })
 
+      const info = helpers.getComponentInfo(document)
+
       const code = transformToFunction(node.content, {
-        name: args.target === 'methods' ? 'anonymous' : undefined,
+        name: 'anonymous',
         kind: isEventHandler ? 'statement' : 'expression',
         args: methodArgs,
-        rewrite: shouldRewriteContext ? { context: 'this' } : undefined,
+        rewrite: shouldRewriteContext
+          ? { context: 'this' }
+          : {
+              ...detectRefsAndProps(service, document, info, node),
+              identifiers: getContextIdentifiers(info),
+            },
       })
 
       const name = args.target === 'methods' ? 'newMethod' : 'newFunction'
@@ -156,12 +167,16 @@ export const RefactorExtractMethod: RefactorProvider = {
 
       const { changes } = registerComponentAPI(
         document,
-        helpers.getComponentInfo(document),
+        info,
         args.target,
         name,
         code,
         project.config.preferences.script,
       )
+
+      if (info.fnSetupOption != null) {
+        changes.push(...genSetupFnParams(info, node))
+      }
 
       return {
         renameFilename: document.fsPath,

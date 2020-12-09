@@ -1,10 +1,8 @@
-import type { SourceFile, TypeChecker } from 'typescript'
 import type { ParserOptions } from '@babel/parser'
 import type { NodePath } from '@babel/traverse'
 import type {
   ArrowFunctionExpression,
   File,
-  FunctionDeclaration,
   FunctionExpression,
   Node,
   ObjectExpression,
@@ -19,6 +17,7 @@ import type {
   SFCStyleBlock,
   SFCTemplateBlock,
 } from '@vuedx/compiler-sfc'
+import type { SourceFile, TypeChecker } from 'typescript'
 import type { ComponentInfoFactory } from './component'
 
 export interface Context {
@@ -70,10 +69,7 @@ export type ComponentOptionsAnalyzer = AbstractScriptAnalyzerFn<
   ObjectExpression
 >
 export type ComponentSetupFnAnalyzer = AbstractScriptAnalyzerFn<
-  | FunctionExpression
-  | ArrowFunctionExpression
-  | ObjectMethod
-  | FunctionDeclaration
+  FunctionExpression | ArrowFunctionExpression | ObjectMethod
 >
 
 export type BlockAnalyzer<T extends SFCBlock = SFCBlock> = (

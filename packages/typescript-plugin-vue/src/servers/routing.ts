@@ -1,4 +1,9 @@
 import {
+  getComponentName as baseGetComponentName,
+  isNotNull,
+  kebabCase,
+} from '@vuedx/shared'
+import {
   getContainingFile,
   isVirtualFile,
   isVirtualFileOfType,
@@ -8,14 +13,9 @@ import {
   VirtualTextDocument,
   VIRTUAL_FILENAME_SEPARATOR,
 } from '@vuedx/vue-virtual-textdocument'
-import { kebabCase } from '@vuedx/analyze'
 import { PluginContext } from '../context'
 import { wrapInTrace } from '../helpers/logger'
-import {
-  createServerHelper,
-  getComponentName as baseGetComponentName,
-  isNotNull,
-} from '../helpers/utils'
+import { createServerHelper } from '../helpers/utils'
 import { TS } from '../interfaces'
 import {
   registerComponentAPI,

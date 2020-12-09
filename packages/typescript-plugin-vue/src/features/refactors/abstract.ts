@@ -20,7 +20,7 @@ export interface RefactorProvider {
     config: LanguageServiceOptions,
     fileName: string,
     position: number | TS.TextRange,
-    preferences: TS.UserPreferences,
+    preferences?: TS.UserPreferences,
   ) => TS.ApplicableRefactorInfo[]
 
   applyRefactor: (
@@ -30,11 +30,13 @@ export interface RefactorProvider {
     position: number | TS.TextRange,
     refactorName: string,
     actionName: string,
-    preferences: TS.UserPreferences,
+    preferences?: TS.UserPreferences,
   ) => TS.RefactorEditInfo | undefined
 }
 
 export const REFACTORS = {
   EXTRACT_COMPONENT: 'vue:extract-component',
   EXTRACT_METHOD: 'vue:extract-method',
+  EXTRACT_COMPUTED: 'vue:extract-computed',
+  ADD_TO_SETUP_CONTEXT: 'vue:add-to-setup-context',
 }

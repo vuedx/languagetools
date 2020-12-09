@@ -1,10 +1,10 @@
 import {
+  findTemplateNodeAt,
   isAttributeNode,
   isElementNode,
   isSimpleExpressionNode,
 } from '@vuedx/template-ast-types'
 import { RenderFunctionTextDocument } from '@vuedx/vue-virtual-textdocument'
-import { findTemplateNodeAt } from '../../helpers/ast-ops'
 import { TS } from '../../interfaces'
 import { GotoProvider } from './abstract'
 

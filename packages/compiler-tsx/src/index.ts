@@ -33,7 +33,8 @@ import { createTransformFor } from './transforms/transformFor'
 import { createTransformIf } from './transforms/transformIf'
 import { createInterpolationTransform } from './transforms/transformInterpolation'
 import { CodegenResult, ComponentImport, Options } from './types'
-import { getComponentName, processBogusComment } from './utils'
+import { processBogusComment } from './utils'
+import { getComponentName } from '@vuedx/shared'
 
 export * from './types'
 

@@ -4,5 +4,6 @@ export * from './assert'
 export * from './create'
 export * from './traverse'
 export * from './stringify'
+export * from './helpers'
 
 export { t }

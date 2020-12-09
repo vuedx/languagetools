@@ -1,14 +1,12 @@
+import type t from '@vue/compiler-core'
 import {
   isCommentNode,
   isElementNode,
   isInterpolationNode,
   isRootNode,
   isTextNode,
-  t,
-  TraversalAncestors,
-  traverseEvery,
-  traverseFast,
-} from '@vuedx/template-ast-types'
+} from './assert'
+import { TraversalAncestors, traverseEvery, traverseFast } from './traverse'
 
 export interface SearchResult {
   node: t.Node | null

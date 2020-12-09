@@ -2,7 +2,7 @@ import T from '@babel/types'
 import { Plugin, ScriptAnalyzerContext } from '../types'
 import { createSourceRange } from '../utilities'
 
-export const ContextAnalyzer: Plugin = {
+export const ScriptIdentifierSourceAnalyzer: Plugin = {
   babel(node$, context) {
     if (context.mode !== 'setup') return
     const node = node$.node
@@ -47,7 +47,9 @@ export const ContextAnalyzer: Plugin = {
             }
           }
         } else if (T.isVariableDeclaration(statement)) {
-          statement.declarations.forEach(({ id }) => {})
+          statement.declarations.forEach(({ id }) => {
+            register(id, 'value')
+          })
         } else if (T.isFunctionDeclaration(statement)) {
           if (statement.id != null) {
             register(statement.id, 'function')

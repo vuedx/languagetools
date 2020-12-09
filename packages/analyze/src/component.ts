@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/method-signature-style */
 export interface SourceLocation {
   offset: number
   line: number
@@ -120,8 +121,11 @@ export interface ComponentOptionsInfo extends Addressable {
 }
 
 export interface SetupInfo extends Addressable {
-  props?: Addressable
-  context?: Addressable
+  props?: { identifiers: string[]; rest?: string } & Addressable
+  context?: {
+    identifiers: Partial<{ attrs: string; slots: string; emit: string }>
+    rest?: string
+  } & Addressable
   return?: Addressable
 }
 
@@ -140,10 +144,11 @@ export interface ComponentInfoFactory {
     loc?: SourceRange,
   ) => ComponentInfoFactory
   addOption: (name: string, address: Addressable) => ComponentInfoFactory
-  addSetup: (
-    name: Exclude<keyof SetupInfo, 'loc'> | '',
-    address: Addressable,
-  ) => ComponentInfoFactory
+  addSetup(name: '', info: Addressable): ComponentInfoFactory
+  addSetup<K extends Exclude<keyof SetupInfo, 'loc'>>(
+    name: K,
+    info: SetupInfo[K],
+  ): ComponentInfoFactory
   addScriptSetup: (
     name: keyof ScriptSetupInfo,
     address: Addressable,
@@ -277,7 +282,7 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
 
       return factory
     },
-    addSetup(name, address) {
+    addSetup(name: any, address: any) {
       if (name === '') {
         component.fnSetupOption = {
           ...address,
@@ -287,7 +292,7 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
           throw new Error(
             'Cannot set setup params location without setting setup',
           )
-        component.fnSetupOption[name] = address
+        component.fnSetupOption[name as keyof SetupInfo] = address
       }
 
       return factory

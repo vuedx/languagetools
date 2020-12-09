@@ -1,5 +1,5 @@
 import { ComponentRegistrationInfo } from '../../component'
-import { getComponentName, getComponentNameAliases } from '../../utilities'
+import { getComponentName, getComponentNameAliases } from '@vuedx/shared'
 import { PackageJSON } from './PackageJSON'
 import Path from 'path'
 

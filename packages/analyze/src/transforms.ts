@@ -6,9 +6,20 @@ interface FunctionTransformOptions {
   name?: string
   kind: 'expression' | 'statement'
   args: string[]
-  rewrite?: {
-    context: string
-  }
+  rewrite?:
+    | {
+        context: string
+      }
+    | {
+        refs: string[]
+        props: string[]
+        identifiers: {
+          props: string
+          attrs: string
+          slots: string
+          emit: string
+        }
+      }
 }
 
 export function transformToFunction(
@@ -52,7 +63,7 @@ export function transformToFunction(
   if (options.rewrite != null) {
     const processed = new Set<T.Node>()
     const knownIdentifiers = new Set(options.args)
-    const context = options.rewrite.context
+    const rewrite = options.rewrite
     params.forEach((node) =>
       T.traverseFast(node, (node) => {
         if (T.isIdentifier(node)) {
@@ -69,7 +80,23 @@ export function transformToFunction(
         !knownIdentifiers.has(node.name)
       ) {
         processed.add(node)
-        node.name = `${context}.${node.name}`
+        if ('context' in rewrite) {
+          node.name = `${rewrite.context}.${node.name}`
+        } else if ('refs' in rewrite) {
+          if (rewrite.refs.includes(node.name)) {
+            node.name = `${node.name}.value`
+          } else if (rewrite.props.includes(node.name)) {
+            node.name = `${rewrite.identifiers.props}.${node.name}`
+          } else if (node.name === '$props') {
+            node.name = rewrite.identifiers.props
+          } else if (node.name === '$emit') {
+            node.name = rewrite.identifiers.emit
+          } else if (node.name === '$attrs') {
+            node.name = rewrite.identifiers.attrs
+          } else if (node.name === '$slots') {
+            node.name = rewrite.identifiers.slots
+          }
+        }
       }
     })
   }

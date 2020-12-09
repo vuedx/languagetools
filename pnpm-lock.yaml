@@ -76,13 +76,13 @@ importers:
       vscode-uri: ^2.1.2
   extensions/coc-vue:
     dependencies:
-      '@vuedx/typescript-standalone': 'link:../../packages/typescript-standalone'
+      '@vuedx/typescript-plugin-vue': 0.3.1-insiders-1607121235.0
     devDependencies:
       '@types/node': 10.17.48
       coc.nvim: 0.0.79
     specifiers:
       '@types/node': ^10.12.0
-      '@vuedx/typescript-standalone': 'workspace:*'
+      '@vuedx/typescript-plugin-vue': 0.3.1-insiders-1607121235.0
       coc.nvim: ^0.0.79
   extensions/vscode-vue:
     devDependencies:
@@ -149,6 +149,7 @@ importers:
       micromatch: 4.0.2
     devDependencies:
       '@types/babel__traverse': 7.0.15
+      '@vuedx/shared': 'link:../shared'
       typescript: 4.0.3
     specifiers:
       '@babel/code-frame': ^7.10.4
@@ -162,6 +163,7 @@ importers:
       '@vuedx/compiler-sfc': 'workspace:*'
       '@vuedx/compiler-tsx': 'workspace:*'
       '@vuedx/projectconfig': 'workspace:*'
+      '@vuedx/shared': 'workspace:*'
       '@vuedx/template-ast-types': 'workspace:*'
       cli-highlight: ^2.1.4
       commander: ^6.1.0
@@ -191,31 +193,19 @@ importers:
       '@babel/types': 7.12.1
       '@vue/compiler-core': 3.0.1
       '@vuedx/template-ast-types': 'link:../template-ast-types'
-      lodash.camelcase: 4.3.0
     devDependencies:
-      '@types/lodash.camelcase': 4.3.6
-      '@vuedx/compiler-sfc': 'link:../compiler-sfc'
-      chalk: 4.1.0
-      cli-highlight: 2.1.4
-      commander: 6.2.0
-      fast-glob: 3.2.4
-      prettier: 2.0.5
+      '@vuedx/shared': 'link:../shared'
       typescript: 4.0.3
     specifiers:
       '@babel/parser': 7.12.3
       '@babel/types': 7.12.1
-      '@types/lodash.camelcase': ^4.3.6
       '@vue/compiler-core': ^3.0.1
-      '@vuedx/compiler-sfc': 'workspace:*'
+      '@vuedx/shared': 'workspace:*'
       '@vuedx/template-ast-types': 'workspace:*'
-      chalk: ^4.1.0
-      cli-highlight: ^2.1.4
-      commander: ^6.2.0
-      fast-glob: ^3.2.4
-      lodash.camelcase: ^4.3.0
-      prettier: ^2.0.5
       typescript: ^4.0.3
   packages/projectconfig:
+    specifiers: {}
+  packages/shared:
     specifiers: {}
   packages/template-ast-types:
     dependencies:
@@ -250,14 +240,14 @@ importers:
       quick-lru: 5.1.1
       vscode-uri: 2.1.2
     devDependencies:
-      '@vuedx/compiler-tsx': 'link:../compiler-tsx'
+      '@vuedx/shared': 'link:../shared'
       typescript: 4.0.3
       vscode-languageserver-textdocument: 1.0.1
     specifiers:
       '@vuedx/analyze': 'workspace:*'
       '@vuedx/compiler-sfc': 'workspace:*'
-      '@vuedx/compiler-tsx': 'workspace:*'
       '@vuedx/projectconfig': 'workspace:*'
+      '@vuedx/shared': 'workspace:*'
       '@vuedx/template-ast-types': 'workspace:*'
       '@vuedx/vue-virtual-textdocument': 'workspace:*'
       de-indent: ^1.0.2
@@ -293,12 +283,14 @@ importers:
       vscode-languageserver-textdocument: 1.0.1
       vscode-uri: 2.1.2
     devDependencies:
+      '@vuedx/shared': 'link:../shared'
       fast-glob: 3.2.4
       typescript: 4.0.3
     specifiers:
       '@vuedx/analyze': 'workspace:*'
       '@vuedx/compiler-sfc': 'workspace:*'
       '@vuedx/compiler-tsx': 'workspace:*'
+      '@vuedx/shared': 'workspace:*'
       fast-glob: ^3.2.4
       source-map: ^0.6.1
       typescript: ^4.0.3
@@ -458,7 +450,7 @@ packages:
       integrity: sha512-0qXcZYKZp3/6N2jKYVxZv0aNCsxTSVCiK72DTiTYZAu7sjg73W0/aynWjMbiGd87EQL4WyA8reiJVh92AVla9g==
   /@babel/generator/7.12.1:
     dependencies:
-      '@babel/types': 7.12.1
+      '@babel/types': 7.12.7
       jsesc: 2.5.2
       source-map: 0.5.7
     resolution:
@@ -466,13 +458,13 @@ packages:
   /@babel/helper-function-name/7.10.4:
     dependencies:
       '@babel/helper-get-function-arity': 7.10.4
-      '@babel/template': 7.10.4
-      '@babel/types': 7.12.1
+      '@babel/template': 7.12.7
+      '@babel/types': 7.12.7
     resolution:
       integrity: sha512-YdaSyz1n8gY44EmN7x44zBn9zQ1Ry2Y+3GTA+3vH6Mizke1Vw0aWDM66FOYEPw8//qKkmqOckrGgTYa+6sceqQ==
   /@babel/helper-get-function-arity/7.10.4:
     dependencies:
-      '@babel/types': 7.12.1
+      '@babel/types': 7.12.7
     resolution:
       integrity: sha512-EkN3YDB+SRDgiIUnNgcmiD361ti+AVbL3f3Henf6dqqUyr5dMsorno0lJWJuLhDhkI5sYEpgj6y9kB8AOU1I2A==
   /@babel/helper-member-expression-to-functions/7.12.1:
@@ -528,7 +520,7 @@ packages:
       integrity: sha512-OxBp7pMrjVewSSC8fXDFrHrBcJATOOFssZwv16F3/6Xtc138GHybBfPbm9kfiqQHKhYQrlamWILwlDCeyMFEaA==
   /@babel/helper-split-export-declaration/7.11.0:
     dependencies:
-      '@babel/types': 7.12.1
+      '@babel/types': 7.12.7
     resolution:
       integrity: sha512-74Vejvp6mHkGE+m+k5vHY93FX2cAtrw1zXrZXRlG4l410Nm9PxfEiVTn1PjDPV5SnmieiueY4AFg2xqhNFuuZg==
   /@babel/helper-validator-identifier/7.10.4:
@@ -562,7 +554,6 @@ packages:
     resolution:
       integrity: sha512-FVM6RZQ0mn2KCf1VUED7KepYeUWoVShczewOCfm3nzoBybaih51h+sYVVGthW9M6lPByEPTQf+xm27PBdlpwmQ==
   /@babel/parser/7.12.7:
-    dev: false
     engines:
       node: '>=6.0.0'
     hasBin: true
@@ -672,6 +663,7 @@ packages:
       '@babel/code-frame': 7.10.4
       '@babel/parser': 7.12.3
       '@babel/types': 7.12.1
+    dev: true
     resolution:
       integrity: sha512-ZCjD27cGJFUB6nmCB1Enki3r+L5kJveX9pq1SvAUKoICy6CZ9yD8xO086YXdYhvNjBdnekm4ZnaP5yC8Cs/1tA==
   /@babel/template/7.12.7:
@@ -679,7 +671,6 @@ packages:
       '@babel/code-frame': 7.10.4
       '@babel/parser': 7.12.7
       '@babel/types': 7.12.7
-    dev: false
     resolution:
       integrity: sha512-GkDzmHS6GV7ZeXfJZ0tLRBhZcMcY0/Lnb+eEbXDBfCAcZCjrZKe6p3J4we/D24O9Y8enxWAg1cWwof59yLh2ow==
   /@babel/traverse/7.12.1:
@@ -688,8 +679,8 @@ packages:
       '@babel/generator': 7.12.1
       '@babel/helper-function-name': 7.10.4
       '@babel/helper-split-export-declaration': 7.11.0
-      '@babel/parser': 7.12.3
-      '@babel/types': 7.12.1
+      '@babel/parser': 7.12.7
+      '@babel/types': 7.12.7
       debug: 4.2.0
       globals: 11.12.0
       lodash: 4.17.20
@@ -714,7 +705,6 @@ packages:
       '@babel/helper-validator-identifier': 7.10.4
       lodash: 4.17.20
       to-fast-properties: 2.0.0
-    dev: false
     resolution:
       integrity: sha512-MNyI92qZq6jrQkXvtIiykvl4WtoRrVV9MPn+ZfsoEENjiWcBQ3ZSHrkxnJWgWtLX3XXqX5hrSQ+X69wkmesXuQ==
   /@bcoe/v8-coverage/0.2.3:
@@ -1182,16 +1172,6 @@ packages:
     dev: true
     resolution:
       integrity: sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
-  /@types/lodash.camelcase/4.3.6:
-    dependencies:
-      '@types/lodash': 4.14.158
-    dev: true
-    resolution:
-      integrity: sha512-hd/TEuPd76Jtf1xEq85CHbCqR+iqvs5IOKyrYbiaOg69BRQgPN9XkvLj8Jl8rBp/dfJ2wQ1AVcP8mZmybq7kIg==
-  /@types/lodash/4.14.158:
-    dev: true
-    resolution:
-      integrity: sha512-InCEXJNTv/59yO4VSfuvNrZHt7eeNtWQEgnieIA+mIC+MOWM9arOWG2eQ8Vhk6NbOre6/BidiXhkZYeDY9U35w==
   /@types/micromatch/4.0.1:
     dependencies:
       '@types/braces': 3.0.0
@@ -1481,6 +1461,78 @@ packages:
   /@vue/shared/3.0.2:
     resolution:
       integrity: sha512-Zx869zlNoujFOclKIoYmkh8ES2RcS/+Jn546yOiPyZ+3+Ejivnr+fb8l+DdXUEFjo+iVDNR3KyLzg03aBFfZ4Q==
+  /@vuedx/analyze/0.3.1-insiders-1607121235.0:
+    dependencies:
+      '@babel/code-frame': 7.10.4
+      '@babel/generator': 7.12.1
+      '@babel/parser': 7.12.7
+      '@babel/traverse': 7.12.1
+      '@babel/types': 7.12.1
+      '@types/micromatch': 4.0.1
+      '@vue/compiler-core': 3.0.2
+      '@vuedx/compiler-sfc': 0.3.1-insiders-1607121235.0
+      '@vuedx/projectconfig': 0.3.3-insiders-1607121235.0
+      cli-highlight: 2.1.4
+      commander: 6.2.0
+      fast-glob: 3.2.4
+      hash-sum: 2.0.0
+      micromatch: 4.0.2
+    dev: false
+    hasBin: true
+    resolution:
+      integrity: sha512-vkCxuxCFhcFYQ5FoYqa+guA3Tl+7W5bn5rO/PERUwyA9p4oXztRMRhCGyIEYNICOA7k2Nv/swRDDyJlF43y2oQ==
+  /@vuedx/compiler-sfc/0.3.1-insiders-1607121235.0:
+    dependencies:
+      '@vue/compiler-core': 3.0.2
+      lru-cache: 6.0.0
+      source-map: 0.6.1
+    dev: false
+    resolution:
+      integrity: sha512-8Doyooo5rsiVU0bRR1oiF/i+kg8lTggwSngK4YpBVMyvuwpIAmjhZms4NddYZu/AgX9ZpKXoe1ekkd0p6VulSQ==
+  /@vuedx/compiler-tsx/0.3.1-insiders-1607121235.0:
+    dependencies:
+      '@babel/parser': 7.12.3
+      '@babel/types': 7.12.1
+      '@vue/compiler-core': 3.0.2
+      '@vuedx/template-ast-types': 0.3.1-insiders-1607121235.0
+      lodash.camelcase: 4.3.0
+    dev: false
+    resolution:
+      integrity: sha512-Rb4bvMMq/mRZH2e39GZmgIvZgMKUgTmUxfCLeINSyDQ3mZevYb9001/DXcswc1FTz/soWJTyjIONTzgdi/zevA==
+  /@vuedx/projectconfig/0.3.3-insiders-1607121235.0:
+    dev: false
+    resolution:
+      integrity: sha512-fzuYoIJh4gz6zSxKtEuUQIGf3KcrqL8X8U0pt5CCSVVrLOddiK/alnpMVWO4Ctp4fm2JD5782L8z/3l+u+qMig==
+  /@vuedx/template-ast-types/0.3.1-insiders-1607121235.0:
+    dependencies:
+      '@vue/compiler-core': 3.0.2
+    dev: false
+    resolution:
+      integrity: sha512-OQmdPU1GrN8mutmTiPx2BEa8jkix9XUTit/X05bGySuctCSoPbHUjowu5dqpniSWk8PrgjqTlDxelWvktsh14g==
+  /@vuedx/typescript-plugin-vue/0.3.1-insiders-1607121235.0:
+    dependencies:
+      '@vuedx/analyze': 0.3.1-insiders-1607121235.0
+      '@vuedx/projectconfig': 0.3.3-insiders-1607121235.0
+      '@vuedx/template-ast-types': 0.3.1-insiders-1607121235.0
+      '@vuedx/vue-virtual-textdocument': 0.3.1-insiders-1607121235.0
+      de-indent: 1.0.2
+      json5: 2.1.3
+      quick-lru: 5.1.1
+      vscode-uri: 2.1.2
+    dev: false
+    resolution:
+      integrity: sha512-O/Kw7ZOKDUF4NLQdF47RUWKYPyH8AszuS5wWStP/K6BylsGN9RvwDtk71BymkmTZGK8H1CSLS0QHw9KaxNundw==
+  /@vuedx/vue-virtual-textdocument/0.3.1-insiders-1607121235.0:
+    dependencies:
+      '@vuedx/analyze': 0.3.1-insiders-1607121235.0
+      '@vuedx/compiler-sfc': 0.3.1-insiders-1607121235.0
+      '@vuedx/compiler-tsx': 0.3.1-insiders-1607121235.0
+      source-map: 0.6.1
+      vscode-languageserver-textdocument: 1.0.1
+      vscode-uri: 2.1.2
+    dev: false
+    resolution:
+      integrity: sha512-c8a+9Nny3BgO8v4vHnV3TEWStCy0lH0tWa84VCUyhYaOLmQiibSHZs7WvJDMOQGlBGTA/3Dn8BPPfbHIffiBGA==
   /abab/2.0.5:
     dev: true
     resolution:
@@ -1579,6 +1631,7 @@ packages:
     resolution:
       integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==
   /any-promise/1.3.0:
+    dev: false
     resolution:
       integrity: sha1-q8av7tzqUugJzcA3au0845Y10X8=
   /anymatch/2.0.0:
@@ -2092,6 +2145,7 @@ packages:
       parse5: 5.1.1
       parse5-htmlparser2-tree-adapter: 5.1.1
       yargs: 15.4.1
+    dev: false
     engines:
       node: '>=8.0.0'
       npm: '>=5.0.0'
@@ -2219,7 +2273,7 @@ packages:
     resolution:
       integrity: sha512-wl7PNrYWd2y5mp1OK/LhTlv8Ff4kQJQRXXAvF+uU/TPNiVJUxZLRYGj/B0y/lPGAVcSbJqH2Za/cvHmrPMC8mA==
   /commander/6.2.0:
-    dev: true
+    dev: false
     engines:
       node: '>= 6'
     resolution:
@@ -3551,6 +3605,8 @@ packages:
     resolution:
       integrity: sha512-Hrp5vIK/xr5SkeN2onO32H0MgNZ0f17HRNH39WfL0SYUNOTZ5Lz1TJ8Pajo/87dYGEFlLMm7mIc/k/s6Bvz9HQ==
   /highlight.js/9.18.3:
+    deprecated: Version no longer supported. Upgrade to @latest
+    dev: false
     resolution:
       integrity: sha512-zBZAmhSupHIl5sITeMqIJnYCDfAEc3Gdkqj65wC1lpI468MMQeeQkhcIAvk+RylAkxrCcI9xy9piHiXeQ1BdzQ==
   /hosted-git-info/2.8.8:
@@ -5069,6 +5125,7 @@ packages:
       any-promise: 1.3.0
       object-assign: 4.1.1
       thenify-all: 1.6.0
+    dev: false
     resolution:
       integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==
   /nanomatch/1.2.13:
@@ -5238,6 +5295,7 @@ packages:
     resolution:
       integrity: sha512-fexhUFFPTGV8ybAtSIGbV6gOkSv8UtRbDBnAyLQw4QPKkgNlsH2ByPGtMUqdWkos6YCRmAqViwgZrJc/mRDzZQ==
   /object-assign/4.1.1:
+    dev: false
     engines:
       node: '>=0.10.0'
     resolution:
@@ -5493,6 +5551,7 @@ packages:
   /parse5-htmlparser2-tree-adapter/5.1.1:
     dependencies:
       parse5: 5.1.1
+    dev: false
     resolution:
       integrity: sha512-CF+TKjXqoqyDwHqBhFQ+3l5t83xYi6fVT1tQNg+Ye0JRLnTxWvIroCjEp1A0k4lneHNBGnICUf0cfYVYGEazqw==
   /parse5/3.0.3:
@@ -5727,13 +5786,6 @@ packages:
       node: '>=6.0.0'
     resolution:
       integrity: sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w==
-  /prettier/2.0.5:
-    dev: true
-    engines:
-      node: '>=10.13.0'
-    hasBin: true
-    resolution:
-      integrity: sha512-7PtVymN48hGcO4fGjybyBSIWDsLU4H4XlvOHfq91pz9kkGlonzwTfYkaIEwiRg/dAJF9YlbsduBAgtYLi+8cFg==
   /prettier/2.1.2:
     dev: true
     engines:
@@ -6713,6 +6765,7 @@ packages:
   /thenify-all/1.6.0:
     dependencies:
       thenify: 3.3.1
+    dev: false
     engines:
       node: '>=0.8'
     resolution:
@@ -6720,6 +6773,7 @@ packages:
   /thenify/3.3.1:
     dependencies:
       any-promise: 1.3.0
+    dev: false
     resolution:
       integrity: sha512-RVZSIV5IG10Hk3enotrhvz0T9em6cyHBLkH/YAZuKqd8hRkKhSfCGIcP2KUY0EPxndzANBmNllzWPwak+bheSw==
   /throat/5.0.0:

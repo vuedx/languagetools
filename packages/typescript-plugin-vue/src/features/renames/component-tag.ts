@@ -1,14 +1,12 @@
+import { LocalComponentRegistrationInfo } from '@vuedx/analyze'
+import { getComponentName } from '@vuedx/shared'
 import { isComponentNode, t, traverseFast } from '@vuedx/template-ast-types'
 import {
   isVueFile,
   SCRIPT_BLOCK_SELECTOR,
   SCRIPT_SETUP_BLOCK_SELECTOR,
 } from '@vuedx/vue-virtual-textdocument'
-import { LocalComponentRegistrationInfo } from 'packages/analyze/src'
-import {
-  computeIdentifierReplacement,
-  getComponentName,
-} from '../../helpers/utils'
+import { computeIdentifierReplacement } from '../../helpers/utils'
 import { TS } from '../../interfaces'
 import { RenameProvider } from './abstract'
 

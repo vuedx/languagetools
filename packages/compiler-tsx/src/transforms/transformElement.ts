@@ -27,9 +27,9 @@ import {
   isSimpleExpressionNode,
   isTextNode,
 } from '@vuedx/template-ast-types'
-import camelCase from 'lodash.camelcase'
+import { camelCase, pascalCase } from '@vuedx/shared'
 import { Options } from '../types'
-import { createLoc, pascalCase, processBogusComment } from '../utils'
+import { createLoc, processBogusComment } from '../utils'
 
 export function createElementTransform(
   options: Required<Options>,

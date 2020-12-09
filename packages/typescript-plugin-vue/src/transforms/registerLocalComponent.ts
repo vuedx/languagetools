@@ -5,6 +5,7 @@ import {
   ProjectPreferences,
 } from '@vuedx/projectconfig'
 import { VueTextDocument } from '@vuedx/vue-virtual-textdocument'
+import { isSimpleIdentifier } from '@vuedx/template-ast-types'
 import { getCode, getPaddingLength, indent } from '../helpers/utils'
 import { TS } from '../interfaces'
 
@@ -84,7 +85,8 @@ export function registerComponentAPI(
   componentInfo: ComponentInfo,
   apiName:
     | 'data'
-    | 'setup'
+    | 'setupComputed'
+    | 'setupMethods'
     | 'methods'
     | 'computed'
     | 'watch'
@@ -100,7 +102,11 @@ export function registerComponentAPI(
   changes: TS.TextChange[]
   scriptStartOffset?: number
 } {
-  if (apiName === 'setup' || apiName === 'data') {
+  if (
+    apiName === 'setupComputed' ||
+    apiName === 'setupMethods' ||
+    apiName === 'data'
+  ) {
     return addOptionToConfigFunction(
       document,
       componentInfo,
@@ -123,7 +129,7 @@ export function registerComponentAPI(
 export function addOptionToConfigFunction(
   document: VueTextDocument,
   componentInfo: ComponentInfo,
-  apiName: 'data' | 'setup',
+  apiName: 'data' | 'setupComputed' | 'setupMethods',
   name: string,
   value: string,
   preferences?: ProjectConfigNormalized['preferences']['script'],
@@ -132,15 +138,113 @@ export function addOptionToConfigFunction(
   changes: TS.TextChange[]
   scriptStartOffset?: number
 } {
-  const { scriptSetup } = document.descriptor
+  const { scriptSetup, script } = document.descriptor
   if (scriptSetup != null) {
     return addOptionToScriptSetupConfig(
       scriptSetup,
       componentInfo.scriptSetup,
-      apiName,
+      apiName.startsWith('setup') ? apiName.substr(5).toLowerCase() : apiName,
       name,
       value,
     )
+  } else if (script != null) {
+    const changes: TS.TextChange[] = []
+    let scriptStartOffset: number | undefined
+    if (apiName === 'data') {
+      // TODO: Find return statement in data() fn.
+    } else {
+      const api = apiName.substr(5).toLowerCase()
+
+      let code: string
+      if (api === 'computed') {
+        const hasComputed = /\bcomputed\b/.test(script.content)
+        if (!hasComputed) {
+          changes.push({
+            newText: getCode(`import { computed } from 'vue'`, ``),
+            span: {
+              start:
+                script.loc.start.offset +
+                getPaddingLength(script.content, script.loc.start.offset),
+              length: 0,
+            },
+          })
+        }
+        code = `const ${name} = computed(${value})`
+      } else if (api === 'methods') {
+        code = `function ${name}${value.replace(/^function /, '')}`
+      } else {
+        code = `const ${name} = ${value}`
+      }
+
+      if (componentInfo.fnSetupOption != null) {
+        if (componentInfo.fnSetupOption.return != null) {
+          const loc = componentInfo.fnSetupOption.return.loc
+          const start =
+            componentInfo.fnSetupOption.loc.start.offset +
+            componentInfo.fnSetupOption.loc.source.lastIndexOf('return')
+
+          changes.push({
+            newText: getCode(indent(code, 4, false), ``, `    `),
+            span: { start: start, length: 0 },
+          })
+
+          if (isSimpleIdentifier(loc.source)) {
+            changes.push({
+              newText: getCode(
+                `{`,
+                `    ...${loc.source.trim()}`,
+                `    ${name},`,
+                `}`,
+              ),
+              span: { start: loc.start.offset, length: loc.source.length },
+            })
+          } else {
+            if (loc.source.includes('\n')) {
+              changes.push({
+                newText: getCode(``, `      ${name},`),
+                span: {
+                  start: loc.start.offset + 1,
+                  length: 0,
+                },
+              })
+            } else {
+              changes.push({
+                newText: getCode(` ${name},`),
+                span: {
+                  start: loc.start.offset + 1,
+                  length: 0,
+                },
+              })
+            }
+          }
+        } else {
+          // TODO: Insert return statement?
+        }
+      } else {
+        const newText = getCode(
+          `function (props, context) {`,
+          `  ${code}`,
+          `  return { ${name} }`,
+          `}`,
+        )
+
+        const result = addOptionToScriptConfig(
+          script,
+          componentInfo.options,
+          componentInfo.fnSetupOption,
+          '',
+          'setup',
+          newText,
+        )
+
+        changes.push(...result.changes)
+      }
+    }
+
+    return {
+      scriptStartOffset,
+      changes,
+    }
   } else {
     return {
       changes: [],
@@ -298,14 +402,88 @@ function addOptionToScriptConfig(
 } {
   const changes: TS.TextChange[] = []
   let renameLocation: number | undefined
+  if (apiName === '') {
+    const code = genPropertyCode(name, value, 2)
+    if (optionsLoc != null) {
+      const start = optionsLoc.loc.start.offset + 1
+      const newText = getCode(``, `  ${code}`)
+      renameLocation = start + newText.indexOf(code)
+      changes.push({ newText, span: { start: start, length: 0 } })
+    } else if (fnSetupOptionLoc != null) {
+      const setupLoc = fnSetupOptionLoc.loc
+      changes.push(
+        {
+          newText: getCode('{', code, '  setup: '),
+          span: { start: setupLoc.start.offset, length: 0 },
+        },
+        {
+          newText: `\n}`,
+          span: { start: setupLoc.end.offset, length: 0 },
+        },
+      )
+    } else {
+      const hasDefineComponent = /\bdefineComponent\b/.test(script.content)
+      if (!hasDefineComponent) {
+        const padding = getPaddingLength(script.content)
+        changes.push({
+          newText: getCode(`import { defineComponent } from 'vue';`, ''),
+          span: { start: script.loc.start.offset + padding, length: 0 },
+        })
+      }
+      const newText = getCode(
+        '',
+        `export default defineComponent({`,
+        code,
+        `})`,
+        '',
+      )
+      changes.push({
+        span: { start: script.loc.end.offset, length: 0 },
+        newText: newText,
+      })
+    }
+
+    return { changes }
+  }
+
   const code = genPropertyCode(name, value, 4)
   if (optionsLoc != null) {
     const api = optionsLoc.properties[apiName]
-    if (api != null) {
-      const start = api.loc.start.offset + 1
-      const newText = getCode(``, `    ${code}`)
+    if (isSimpleIdentifier(optionsLoc.loc.source)) {
+      const start = optionsLoc.loc.start.offset
+      const comma = optionsLoc.loc.source.trimEnd().endsWith(',') ? '' : ','
+      const newText = getCode(
+        `{`,
+        `  ...${optionsLoc.loc.source}${comma}`,
+        `  ${code}`,
+        '},',
+      )
       renameLocation = start + newText.indexOf(code)
-      changes.push({ newText, span: { start: start, length: 0 } })
+      changes.push({
+        newText,
+        span: { start: start, length: optionsLoc.loc.source.length },
+      })
+    } else if (api != null) {
+      if (isSimpleIdentifier(api.loc.source)) {
+        const start = api.loc.start.offset
+        const comma = api.loc.source.trimEnd().endsWith(',') ? '' : ','
+        const newText = getCode(
+          `{`,
+          `    ...${api.loc.source}${comma}`,
+          `    ${code}`,
+          '},',
+        )
+        renameLocation = start + newText.indexOf(code)
+        changes.push({
+          newText,
+          span: { start: start, length: api.loc.source.length },
+        })
+      } else {
+        const start = api.loc.start.offset + 1
+        const newText = getCode(``, `    ${code}`)
+        renameLocation = start + newText.indexOf(code)
+        changes.push({ newText, span: { start: start, length: 0 } })
+      }
     } else {
       const newText = getCode(`${apiName}: {`, `    ${code}`, `  },`, '  ')
       const padding = getPaddingLength(optionsLoc.loc.source, 1)
@@ -337,7 +515,7 @@ function addOptionToScriptConfig(
   } else {
     const hasDefineComponent = /\bdefineComponent\b/.test(script.content)
     if (!hasDefineComponent) {
-      const padding = getPaddingLength(script.content)
+      const padding = getPaddingLength(script.content, script.loc.start.offset)
       changes.push({
         newText: getCode(`import { defineComponent } from 'vue';`, ''),
         span: { start: script.loc.start.offset + padding, length: 0 },
@@ -392,7 +570,7 @@ function addOptionToScriptSetupConfig(
         span: {
           start:
             scriptSetup.loc.start.offset +
-            getPaddingLength(scriptSetup.content),
+            getPaddingLength(scriptSetup.content, scriptSetup.loc.start.offset),
           length: 0,
         },
         newText: getCode(
@@ -420,7 +598,7 @@ function addOptionToScriptSetupConfig(
         span: {
           start:
             scriptSetup.loc.start.offset +
-            getPaddingLength(scriptSetup.content),
+            getPaddingLength(scriptSetup.content, scriptSetup.loc.start.offset),
           length: 0,
         },
         newText: getCode(
@@ -439,7 +617,7 @@ function addOptionToScriptSetupConfig(
         span: {
           start:
             scriptSetup.loc.start.offset +
-            getPaddingLength(scriptSetup.content),
+            getPaddingLength(scriptSetup.content, scriptSetup.loc.start.offset),
           length: 0,
         },
         newText: getCode(`import { watch } from 'vue'`, ``),
@@ -470,7 +648,7 @@ function addOptionToScriptSetupConfig(
         span: {
           start:
             scriptSetup.loc.start.offset +
-            getPaddingLength(scriptSetup.content),
+            getPaddingLength(scriptSetup.content, scriptSetup.loc.start.offset),
           length: 0,
         },
         newText: getCode(`import { computed } from 'vue'`, ``),
@@ -489,7 +667,7 @@ function addOptionToScriptSetupConfig(
         span: {
           start:
             scriptSetup.loc.start.offset +
-            getPaddingLength(scriptSetup.content),
+            getPaddingLength(scriptSetup.content, scriptSetup.loc.start.offset),
           length: 0,
         },
         newText: getCode(`import { ref } from 'vue'`, ``),
@@ -500,12 +678,6 @@ function addOptionToScriptSetupConfig(
     changes.push({
       span: { start: scriptSetup.loc.end.offset, length: 0 },
       newText: getCode(`const ${name} = ref(${value})`, ``),
-    })
-  } else if (apiName === 'setup') {
-    renameLocation = scriptSetup.loc.end.offset + 6 // < length of 'const '
-    changes.push({
-      span: { start: scriptSetup.loc.end.offset, length: 0 },
-      newText: getCode(`const ${name} = ${value}`, ``),
     })
   }
 

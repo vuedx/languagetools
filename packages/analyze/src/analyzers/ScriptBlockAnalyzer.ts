@@ -5,7 +5,8 @@ import { isIdentifier, traverseFast } from '@babel/types'
 import { SFCScriptBlock } from '@vuedx/compiler-sfc'
 import type { SourceFile } from 'typescript'
 import { Context, Plugin, ScriptAnalyzerContext } from '../types'
-import { createSourceRange, isNotNull } from '../utilities'
+import { createSourceRange } from '../utilities'
+import { isNotNull } from '@vuedx/shared'
 
 export const ScriptBlockAnalyzer: Plugin = {
   blocks: {
@@ -188,8 +189,25 @@ function processScript(context: ScriptAnalyzerContext): void {
             }
           })
 
-          if (property$.isObjectMethod() && name === 'setup') {
-            call(setupHandlers, property$ as any)
+          if (name === 'setup') {
+            if (property$.isObjectMethod()) {
+              context.component.addSetup('', {
+                loc: createSourceRange(context, property$.node),
+              })
+              call(setupHandlers, property$ as any)
+            } else if (property$.isObjectProperty()) {
+              const value$ = property$.get('value') as NodePath
+
+              if (
+                value$.isFunctionExpression() ||
+                value$.isArrowFunctionExpression()
+              ) {
+                context.component.addSetup('', {
+                  loc: createSourceRange(context, value$.node),
+                })
+                call(setupHandlers, value$ as any)
+              }
+            }
           }
         }
       }

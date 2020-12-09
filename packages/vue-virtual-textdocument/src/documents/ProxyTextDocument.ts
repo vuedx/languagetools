@@ -3,7 +3,8 @@ import {
   Position,
   Range,
 } from 'vscode-languageserver-textdocument'
-import { asFsPath, isNumber } from '../utils'
+import { asFsPath } from '../utils'
+import { isNumber } from '@vuedx/shared'
 
 export abstract class ProxyTextDocument implements TextDocument {
   public readonly fsPath: string

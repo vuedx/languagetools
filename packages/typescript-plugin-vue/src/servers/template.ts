@@ -1,3 +1,4 @@
+import { getComponentName, isNotNull } from '@vuedx/shared'
 import {
   isComponentNode,
   isDirectiveNode,
@@ -20,7 +21,6 @@ import { GOTO_PROVIDERS } from '../features/goto'
 import { REFACTOR_PROVIDERS } from '../features/refactors'
 import { RENAME_PROVIDERS } from '../features/renames'
 import { wrapInTrace } from '../helpers/logger'
-import { getComponentName, isNotNull } from '../helpers/utils'
 import { TS } from '../interfaces'
 import { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
@@ -671,6 +671,7 @@ export function createTemplateLanguageServer(
       )
 
       if (provider != null) {
+        context.log(`@@DEBUG: Using ${provider.name}`)
         return provider.applyRefactor(
           config,
           fileName,

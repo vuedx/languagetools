@@ -1,6 +1,12 @@
 import { ComponentInfo, createFullAnalyzer, SourceRange } from '@vuedx/analyze'
 import type { SFCBlock } from '@vuedx/compiler-sfc'
-import { t, TraversalAncestors } from '@vuedx/template-ast-types'
+import {
+  findTemplateChildrenInRange,
+  findTemplateNodeAt,
+  findTemplateNodeInRange,
+  t,
+  TraversalAncestors,
+} from '@vuedx/template-ast-types'
 import {
   getContainingFile,
   isVirtualFile,
@@ -9,6 +15,8 @@ import {
   parseVirtualFileName,
   RenderFunctionTextDocument,
   RENDER_SELECTOR,
+  SCRIPT_BLOCK_SELECTOR,
+  SCRIPT_SETUP_BLOCK_SELECTOR,
   VirtualTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
@@ -16,17 +24,6 @@ import Path from 'path'
 import QuickLRU from 'quick-lru'
 import { PluginContext } from '../context'
 import { TS } from '../interfaces'
-import {
-  findTemplateChildrenInRange,
-  findTemplateNodeAt,
-  findTemplateNodeInRange,
-} from './ast-ops'
-export { getComponentName } from '@vuedx/analyze'
-
-const nonIdentifierRE = /^\d|[^$\w]/
-export function isSimpleIdentifier(id: string): boolean {
-  return !nonIdentifierRE.test(id.trim())
-}
 
 function createCachedAnalyzer(): (document: VueTextDocument) => ComponentInfo {
   const cache = new QuickLRU<string, ComponentInfo>({ maxSize: 1000 })
@@ -219,9 +216,43 @@ export function createServerHelper(
     return resolvedModules?.get(importSource)
   }
 
+  function findTypeScriptNodeAtPosition(
+    fileName: string,
+    position: number | TS.TextRange,
+  ): TS.Node | undefined {
+    const findNodeAt = (
+      start: number,
+      end: number,
+      container: TS.Node,
+    ): TS.Node | undefined => {
+      const node = container
+        .getChildren()
+        .find((node) => node.pos <= start && end <= node.end)
+
+      if (node != null) {
+        if (node.pos === start && node.pos === end) return node
+        else return findNodeAt(start, end, node) ?? node
+      } else {
+        return container
+      }
+    }
+
+    const scriptFile = languageService.getProgram()?.getSourceFile(fileName)
+
+    if (scriptFile != null) {
+      const result =
+        typeof position === 'number'
+          ? findNodeAt(position, position, scriptFile)
+          : findNodeAt(position.pos, position.end, scriptFile)
+
+      if (result !== scriptFile) return result
+    }
+  }
+
   return {
     findTemplateChildren,
     findTemplateNodeAtPosition,
+    findTypeScriptNodeAtPosition,
     getComponentInfo,
     getDocument,
     getDocumentAt,
@@ -233,10 +264,6 @@ export function createServerHelper(
     isVueModuleFileName,
     getResolvedModule,
   }
-}
-
-export function isNotNull<T>(value: T | null | undefined): value is T {
-  return value != null
 }
 
 export function computeIdentifierReplacement(
@@ -308,4 +335,25 @@ export function isSpanInSourceRange(
     range.start.offset <= span.start &&
     span.start + span.length <= range.end.offset
   )
+}
+
+export function isTextRangeInSourceRange(
+  textRange: number | TS.TextRange,
+  range?: SourceRange,
+): boolean {
+  if (range == null) return false
+  const span: TS.TextSpan =
+    typeof textRange === 'number'
+      ? { start: textRange, length: 0 }
+      : { start: textRange.pos, length: textRange.end - textRange.pos }
+
+  return isSpanInSourceRange(span, range)
+}
+
+export function getScriptFileName(document: VueTextDocument): string {
+  if (document.descriptor.scriptSetup != null) {
+    return document.getDocumentFileName(SCRIPT_SETUP_BLOCK_SELECTOR)
+  } else {
+    return document.getDocumentFileName(SCRIPT_BLOCK_SELECTOR)
+  }
 }

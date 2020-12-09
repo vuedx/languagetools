@@ -9,7 +9,8 @@ import {
 } from '@babel/types'
 import { PropInfo, TypeInfo } from '../component'
 import { Plugin } from '../types'
-import { createSourceRange, isNotNull } from '../utilities'
+import { createSourceRange } from '../utilities'
+import { isNotNull } from '@vuedx/shared'
 
 export const PropsOptionsAnalyzer: Plugin = {
   options: {

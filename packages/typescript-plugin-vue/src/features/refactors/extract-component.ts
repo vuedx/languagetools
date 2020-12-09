@@ -4,8 +4,10 @@ import {
   VueProject,
 } from '@vuedx/analyze'
 import { ProjectConfigNormalized } from '@vuedx/projectconfig'
+import { findNextSibling, first, last, getComponentName } from '@vuedx/shared'
 import {
   createSimpleExpression,
+  findTemplateChildrenInRange,
   isComponentNode,
   isDirectiveNode,
   isElementNode,
@@ -21,12 +23,7 @@ import {
 } from '@vuedx/vue-virtual-textdocument'
 import Path from 'path'
 import { PluginContext } from '../../context'
-import { findNextSibling, first, last } from '../../helpers/array'
-import { findTemplateChildrenInRange } from '../../helpers/ast-ops'
-import {
-  getComponentName,
-  getFilenameForNewComponent,
-} from '../../helpers/utils'
+import { getFilenameForNewComponent } from '../../helpers/utils'
 import { TS } from '../../interfaces'
 import { registerLocalComponentWithSource } from '../../transforms/registerLocalComponent'
 import {

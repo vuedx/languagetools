@@ -1,7 +1,7 @@
 import { ProjectConfig } from '@vuedx/projectconfig'
 import micromatch from 'micromatch'
 import Path from 'path'
-import { getComponentName, getComponentNameAliases } from '../utilities'
+import { getComponentName, getComponentNameAliases } from '@vuedx/shared'
 import {
   getComponentFromFile,
   getComponentsFromPackage,

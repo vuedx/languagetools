@@ -4,14 +4,16 @@ import {
   traverseEvery,
 } from '@vuedx/template-ast-types'
 import {
-  isNumber,
   isVirtualFile,
   isVueFile,
   MODULE_SELECTOR,
   RENDER_SELECTOR,
+  SCRIPT_BLOCK_SELECTOR,
+  SCRIPT_SETUP_BLOCK_SELECTOR,
   VirtualTextDocument,
   VIRTUAL_FILENAME_SEPARATOR,
 } from '@vuedx/vue-virtual-textdocument'
+import { SCRIPT_REFACTOR_PROVIDERS } from '../features/refactors'
 import { REFACTORS } from '../features/refactors/abstract'
 import { getChangesForComponentTagRename } from '../features/renames/component-tag'
 import { wrapInTrace } from '../helpers/logger'
@@ -197,9 +199,13 @@ export function createVueLanguageServer(
         ?.slice()
 
       if (locations != null && locations.length > 0) {
-        const result = script.getRenameInfo(document.fsPath, position, {
-          allowRenameOfImportPath: false,
-        })
+        const result = choose(document).getRenameInfo(
+          document.fsPath,
+          position,
+          {
+            allowRenameOfImportPath: false,
+          },
+        )
         if (result.canRename) {
           const info = h.getComponentInfo(document.container)
           if (!h.isRenderFunctionDocument(document)) {
@@ -224,12 +230,20 @@ export function createVueLanguageServer(
                 )
               }
             } else if (
-              info.options != null &&
-              isSpanInSourceRange(result.triggerSpan, info.options.loc)
+              (info.options != null &&
+                isSpanInSourceRange(result.triggerSpan, info.options.loc)) ||
+              (info.fnSetupOption?.return != null &&
+                isSpanInSourceRange(
+                  result.triggerSpan,
+                  info.fnSetupOption.return.loc,
+                ))
             ) {
               if (isSimpleIdentifier(result.displayName)) {
                 const property = Object.entries(
-                  info.options.properties,
+                  info.options?.properties ?? {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    setup: info.fnSetupOption!.return!,
+                  },
                 ).find(([_, value]) =>
                   isSpanInSourceRange(result.triggerSpan, value.loc),
                 )
@@ -241,6 +255,7 @@ export function createVueLanguageServer(
                     case 'computed':
                     case 'props':
                     case 'emits':
+                    case 'setup':
                       {
                         const render = h.getRenderDoc(fileName)
                         if (render?.ast != null) {
@@ -303,14 +318,17 @@ export function createVueLanguageServer(
           } else {
             if (isSimpleIdentifier(result.displayName)) {
               const source = info.identifierSource[result.displayName.trim()]
-              if (
-                source != null &&
-                locations.some((loc) =>
-                  isSpanInSourceRange(loc.textSpan, source.loc),
-                )
-              ) {
+              if (source != null) {
+                const scriptFileName =
+                  document.container.descriptor.scriptSetup != null
+                    ? document.container.getDocumentFileName(
+                        SCRIPT_SETUP_BLOCK_SELECTOR,
+                      )
+                    : document.container.getDocumentFileName(
+                        SCRIPT_BLOCK_SELECTOR,
+                      )
                 const additionalLocations = script.findRenameLocations(
-                  document.fsPath,
+                  scriptFileName,
                   source.loc.start.offset,
                   findInStrings,
                   findInComments,
@@ -374,29 +392,33 @@ export function createVueLanguageServer(
       return fileTextChanges
     },
 
-    getApplicableRefactors(fileName, positionOrRange, preferences) {
+    getApplicableRefactors(fileName, position, preferences) {
       if (!isFeatureEnabled('refactor')) return []
 
-      if (isNumber(positionOrRange)) {
-        const document = h.getDocumentAt(fileName, positionOrRange)
-        if (document == null) return []
+      const document = h.getDocumentAt(fileName, position)
+      const result: TS.ApplicableRefactorInfo[] =
+        document != null
+          ? choose(document).getApplicableRefactors(
+              document.fsPath,
+              position,
+              preferences,
+            )
+          : []
 
-        return choose(document).getApplicableRefactors(
-          document.fsPath,
-          positionOrRange,
-          preferences,
-        )
-      } else {
-        const document1 = h.getDocumentAt(fileName, positionOrRange.pos)
-        const document2 = h.getDocumentAt(fileName, positionOrRange.end)
-        if (document1 == null || document1 !== document2) return []
-
-        return choose(document1).getApplicableRefactors(
-          document1.fsPath,
-          positionOrRange,
-          preferences,
-        )
+      if (document != null && !h.isRenderFunctionDocument(document)) {
+        SCRIPT_REFACTOR_PROVIDERS.forEach((provider) => {
+          result.push(
+            ...provider.findRefactors(
+              options,
+              document.fsPath,
+              position,
+              preferences,
+            ),
+          )
+        })
       }
+
+      return result
     },
 
     getEditsForRefactor(
@@ -408,17 +430,24 @@ export function createVueLanguageServer(
       preferences,
     ) {
       if (!isFeatureEnabled('refactor')) return
+      const document = h.getDocumentAt(fileName, positionOrRange)
+      if (document != null) {
+        const provider = SCRIPT_REFACTOR_PROVIDERS.find(
+          (provider) => provider.name === refactorName,
+        )
 
-      const document = h.getDocumentAt(
-        fileName,
-        isNumber(positionOrRange) ? positionOrRange : positionOrRange.pos,
-      )
-      const document2 = h.getDocumentAt(
-        fileName,
-        isNumber(positionOrRange) ? positionOrRange : positionOrRange.end,
-      )
+        if (provider != null) {
+          return provider.applyRefactor(
+            options,
+            document.fsPath,
+            formatOptions,
+            positionOrRange,
+            refactorName,
+            actionName,
+            preferences,
+          )
+        }
 
-      if (document != null && document === document2) {
         const result = choose(document).getEditsForRefactor(
           document.fsPath,
           formatOptions,

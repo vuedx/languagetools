@@ -1,35 +1,18 @@
 <script>
-import Component0 from './components/Component0.vue';
-import { ref } from 'vue'
-import HelloWorld from './components/HelloWorld.vue'
+import { ref, defineComponent } from 'vue'
+import { useFn } from './useFn'
 
-export default {
-  components: { Component0, HelloWorld },
+export default defineComponent({
+  props: { foo: Number },
   setup() {
     const one = ref(1)
-    const two = ref(2)
+    const { two, three, four, five } = useFn()
 
-    function increase() {
-      one.value += 1
-    }
-
-    function decrease() {
-      one.value -= 1
-    }
-
-    return { one, two, increase, decrease }
+    return { two, three, four, five }
   },
-}
+})
 </script>
 
 <template>
-  <div>
-    <Component0 
-      v-if="one" 
-      v-model:one="one" 
-      v-model:two="two" 
-      @decrease="decrease" 
-      @increase="increase" 
-    />
-  </div>
+  <div :data-value="foo + two + three + four.foo + five.foo"></div>
 </template>

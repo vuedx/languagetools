@@ -14,6 +14,7 @@ const files = glob(['packages/src/**/*.ts'], { cwd: process.cwd() })
 
 /** @type {import('rollup').RollupOptions[]} */
 const config = [
+  type('shared'),
   type('compiler-sfc'),
   type('analyze'),
   { ...type('compiler-tsx'), input: abs('packages/compiler-tsx/src/entry.ts') },
@@ -24,6 +25,7 @@ const config = [
   type('typescript-vetur'),
   type('vue-virtual-textdocument'),
 
+  bundle('shared'),
   bundle('analyze'),
   {
     ...bundle(
