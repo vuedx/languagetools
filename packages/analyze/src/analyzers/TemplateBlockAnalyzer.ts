@@ -11,7 +11,13 @@ export const TemplateBlockAnalyzer: Plugin = {
   blocks: {
     template: (block, ctx) => {
       if (block.src == null) {
-        const ast = parse(block.content, {})
+        const ast = parse(block.content, {
+          onError(error) {
+            if (error.loc != null) {
+              ctx.component.addError(error.message, error.loc.start)
+            }
+          },
+        })
         const templateExpressionFns = ctx.plugins
           .map((plugin) => plugin.templateExpression)
           .filter(Boolean)

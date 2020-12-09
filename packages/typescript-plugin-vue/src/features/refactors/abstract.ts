@@ -38,5 +38,6 @@ export const REFACTORS = {
   EXTRACT_COMPONENT: 'vue:extract-component',
   EXTRACT_METHOD: 'vue:extract-method',
   EXTRACT_COMPUTED: 'vue:extract-computed',
+  MOVE_DIRECTIVE_TO_COMPONENT: 'vue:move-directive-to-component',
   ADD_TO_SETUP_CONTEXT: 'vue:add-to-setup-context',
 }

@@ -1,6 +1,6 @@
 <script>
 import { ref, defineComponent } from 'vue'
-import { useFn } from './useFn'
+import { useFn } from '../useFn'
 
 export default defineComponent({
   props: { foo: Number },
