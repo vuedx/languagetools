@@ -10,7 +10,7 @@ npm i @vuedx/typecheck --save-dev
 ### Options
 Run ```npx @vuedx/vuedx-typecheck --help``` to see all available options:
 ```
-Usage: vuedx-typecheck <options> [directory]
+Usage: vuedx-typecheck [directory] <options>
 
 Options
     --json      print diagnostics as json
