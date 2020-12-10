@@ -60,7 +60,10 @@ function generate(fileName, info) {
 function genFunction(member, hLevel = 3) {
   let code = ''
   const cc = docComment.parse(member.docComment.trim(), { unwrap: true })
-  code += `\n<a href="${getId(member.canonicalReference)}"></a>\n\n`
+  code += `\n<a href="${getId(member.canonicalReference)}" id="${getId(
+    member.canonicalReference,
+    false,
+  )}"></a>\n\n`
   code +=
     '#'.repeat(hLevel) +
     ` [${member.name}](${getId(member.canonicalReference)})\n\n`
@@ -82,17 +85,15 @@ function genFunction(member, hLevel = 3) {
         parameterName,
         parameterTypeTokenRange: { startIndex, endIndex },
       }) => {
-        code += `| ${parameterName} | ${member.excerptTokens
+        code += `| ${parameterName} | <code>${member.excerptTokens
           .slice(startIndex, endIndex)
           .map((item) =>
             'canonicalReference' in item && item.canonicalReference != null
-              ? `<a href="${getId(item.canonicalReference)}"><code>${
-                  item.text
-                }</code></a>`
-              : `<code>${item.text}</code>`,
+              ? `<a href="${getId(item.canonicalReference)}">${item.text}</a>`
+              : `${item.text}`,
           )
           .join('')
-          .replace(/\|/g, '&#124;')} | ${
+          .replace(/\|/g, '&#124;')}</code> | ${
           cc.tags
             .find((tag) => tag.title === 'param' && tag.name === parameterName)
             ?.description.replace(/\n/g, '\n<br>\n')
@@ -111,7 +112,10 @@ function genFunction(member, hLevel = 3) {
 function genClass(info) {
   let code = ''
   const cc = docComment.parse(info.docComment.trim(), { unwrap: true })
-  code += `\n<a href="${getId(info.canonicalReference)}"></a>\n\n`
+  code += `\n<a href="${getId(info.canonicalReference)}" id="${getId(
+    info.canonicalReference,
+    false,
+  )}"></a>\n\n`
   code += `### [${info.name}](${getId(info.canonicalReference)})\n\n`
   code += `${cc.description}\n\n`
   code += '<details><summary>More info</summary>\n\n'
@@ -154,7 +158,10 @@ function genType(member) {
   let code = ''
   const tokens = Array.from(member.excerptTokens).map((token) => token.text)
   const cc = docComment.parse(member.docComment.trim(), { unwrap: true })
-  code += `\n<a href="${getId(member.canonicalReference)}"></a>\n\n`
+  code += `\n<a href="${getId(member.canonicalReference)}" id="${getId(
+    member.canonicalReference,
+    false,
+  )}"></a>\n\n`
   code += `### [${member.name.replace(/_[\d]+$/, '')}](${getId(
     member.canonicalReference,
   )})\n\n`
@@ -177,8 +184,8 @@ function genType(member) {
   return code
 }
 
-function getId(text) {
-  return '#' + text.replace(/[^a-z0-9-]/gi, '-')
+function getId(text, prepend = true) {
+  return (prepend ? '#' : '') + text.replace(/[^a-z0-9-]/gi, '-')
 }
 
 const packages = [

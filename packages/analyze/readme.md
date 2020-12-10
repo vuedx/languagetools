@@ -13,7 +13,7 @@ This package is part of [VueDX project](https://github.com/znck/vue-developer-ex
 ## API
 
 
-<a href="#-vuedx-analyze-ConfiguredVueProject-class"></a>
+<a href="#-vuedx-analyze-ConfiguredVueProject-class" id="-vuedx-analyze-ConfiguredVueProject-class"></a>
 
 ### [ConfiguredVueProject](#-vuedx-analyze-ConfiguredVueProject-class)
 
@@ -35,7 +35,7 @@ declare class ConfiguredVueProject extends VueProject {
 **Members:**
 
 
-<a href="#-vuedx-analyze-ConfiguredVueProject-refresh-member-1-"></a>
+<a href="#-vuedx-analyze-ConfiguredVueProject-refresh-member-1-" id="-vuedx-analyze-ConfiguredVueProject-refresh-member-1-"></a>
 
 #### [refresh](#-vuedx-analyze-ConfiguredVueProject-refresh-member-1-)
 
@@ -49,7 +49,7 @@ protected refresh(): void;
 
 <br>
 
-<a href="#-vuedx-analyze-ConfiguredVueProject-setFileNames-member-1-"></a>
+<a href="#-vuedx-analyze-ConfiguredVueProject-setFileNames-member-1-" id="-vuedx-analyze-ConfiguredVueProject-setFileNames-member-1-"></a>
 
 #### [setFileNames](#-vuedx-analyze-ConfiguredVueProject-setFileNames-member-1-)
 
@@ -70,7 +70,7 @@ setFileNames(fileNames: string[]): void;
 <br>
 
 
-<a href="#-vuedx-analyze-InferredVueProject-class"></a>
+<a href="#-vuedx-analyze-InferredVueProject-class" id="-vuedx-analyze-InferredVueProject-class"></a>
 
 ### [InferredVueProject](#-vuedx-analyze-InferredVueProject-class)
 
@@ -89,7 +89,7 @@ declare class InferredVueProject extends VueProject {
 **Members:**
 
 
-<a href="#-vuedx-analyze-InferredVueProject-refresh-member-1-"></a>
+<a href="#-vuedx-analyze-InferredVueProject-refresh-member-1-" id="-vuedx-analyze-InferredVueProject-refresh-member-1-"></a>
 
 #### [refresh](#-vuedx-analyze-InferredVueProject-refresh-member-1-)
 
@@ -107,7 +107,7 @@ protected refresh(): void;
 <br>
 
 
-<a href="#-vuedx-analyze-VueProject-class"></a>
+<a href="#-vuedx-analyze-VueProject-class" id="-vuedx-analyze-VueProject-class"></a>
 
 ### [VueProject](#-vuedx-analyze-VueProject-class)
 
@@ -149,7 +149,7 @@ declare abstract class VueProject {
 **Members:**
 
 
-<a href="#-vuedx-analyze-VueProject-loadGlobalComponents-member-1-"></a>
+<a href="#-vuedx-analyze-VueProject-loadGlobalComponents-member-1-" id="-vuedx-analyze-VueProject-loadGlobalComponents-member-1-"></a>
 
 #### [loadGlobalComponents](#-vuedx-analyze-VueProject-loadGlobalComponents-member-1-)
 
@@ -163,7 +163,7 @@ protected loadGlobalComponents(): void;
 
 <br>
 
-<a href="#-vuedx-analyze-VueProject-markDirty-member-1-"></a>
+<a href="#-vuedx-analyze-VueProject-markDirty-member-1-" id="-vuedx-analyze-VueProject-markDirty-member-1-"></a>
 
 #### [markDirty](#-vuedx-analyze-VueProject-markDirty-member-1-)
 
@@ -177,7 +177,7 @@ markDirty(): void;
 
 <br>
 
-<a href="#-vuedx-analyze-VueProject-refresh-member-1-"></a>
+<a href="#-vuedx-analyze-VueProject-refresh-member-1-" id="-vuedx-analyze-VueProject-refresh-member-1-"></a>
 
 #### [refresh](#-vuedx-analyze-VueProject-refresh-member-1-)
 
@@ -191,7 +191,7 @@ protected abstract refresh(): void;
 
 <br>
 
-<a href="#-vuedx-analyze-VueProject-reloadIfNeeded-member-1-"></a>
+<a href="#-vuedx-analyze-VueProject-reloadIfNeeded-member-1-" id="-vuedx-analyze-VueProject-reloadIfNeeded-member-1-"></a>
 
 #### [reloadIfNeeded](#-vuedx-analyze-VueProject-reloadIfNeeded-member-1-)
 
@@ -205,7 +205,7 @@ protected reloadIfNeeded(): void;
 
 <br>
 
-<a href="#-vuedx-analyze-VueProject-setConfig-member-1-"></a>
+<a href="#-vuedx-analyze-VueProject-setConfig-member-1-" id="-vuedx-analyze-VueProject-setConfig-member-1-"></a>
 
 #### [setConfig](#-vuedx-analyze-VueProject-setConfig-member-1-)
 
@@ -218,11 +218,11 @@ setConfig(config: ProjectConfig): void;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| config | <a href="#-vuedx-projectconfig--ProjectConfig-interface"><code>ProjectConfig</code></a> | - |
+| config | <code><a href="#-vuedx-projectconfig--ProjectConfig-interface">ProjectConfig</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-analyze-VueProject-setFileNames-member-1-"></a>
+<a href="#-vuedx-analyze-VueProject-setFileNames-member-1-" id="-vuedx-analyze-VueProject-setFileNames-member-1-"></a>
 
 #### [setFileNames](#-vuedx-analyze-VueProject-setFileNames-member-1-)
 
@@ -243,7 +243,7 @@ setFileNames(fileNames: string[]): void;
 <br>
 
 
-<a href="#-vuedx-analyze-createAnalyzer-function-1-"></a>
+<a href="#-vuedx-analyze-createAnalyzer-function-1-" id="-vuedx-analyze-createAnalyzer-function-1-"></a>
 
 ### [createAnalyzer](#-vuedx-analyze-createAnalyzer-function-1-)
 
@@ -259,13 +259,13 @@ declare function createAnalyzer(plugins: Plugin[], options?: Partial<Context['pa
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| plugins | <a href="#-vuedx-analyze--Plugin-interface"><code>Plugin</code></a><code>[]</code> | - |
-| options | <a href="#-Partial-type"><code>Partial</code></a><code><</code><a href="#-vuedx-analyze--Context-interface"><code>Context</code></a><code>['parsers']></code> | - |
+| plugins | <code><a href="#-vuedx-analyze--Plugin-interface">Plugin</a>[]</code> | - |
+| options | <code><a href="#-Partial-type">Partial</a><<a href="#-vuedx-analyze--Context-interface">Context</a>['parsers']></code> | - |
 
 </details>
 <br>
 
-<a href="#-vuedx-analyze-createFullAnalyzer-function-1-"></a>
+<a href="#-vuedx-analyze-createFullAnalyzer-function-1-" id="-vuedx-analyze-createFullAnalyzer-function-1-"></a>
 
 ### [createFullAnalyzer](#-vuedx-analyze-createFullAnalyzer-function-1-)
 
@@ -281,13 +281,13 @@ declare function createFullAnalyzer(plugins?: Plugin[], options?: Partial<Contex
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| plugins | <a href="#-vuedx-analyze--Plugin-interface"><code>Plugin</code></a><code>[]</code> | - |
-| options | <a href="#-Partial-type"><code>Partial</code></a><code><</code><a href="#-vuedx-analyze--Context-interface"><code>Context</code></a><code>['parsers']></code> | - |
+| plugins | <code><a href="#-vuedx-analyze--Plugin-interface">Plugin</a>[]</code> | - |
+| options | <code><a href="#-Partial-type">Partial</a><<a href="#-vuedx-analyze--Context-interface">Context</a>['parsers']></code> | - |
 
 </details>
 <br>
 
-<a href="#-vuedx-analyze-createSourceRange-function-1-"></a>
+<a href="#-vuedx-analyze-createSourceRange-function-1-" id="-vuedx-analyze-createSourceRange-function-1-"></a>
 
 ### [createSourceRange](#-vuedx-analyze-createSourceRange-function-1-)
 
@@ -303,13 +303,13 @@ declare function createSourceRange(context: Context | ScriptAnalyzerContext, nod
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| context | <a href="#-vuedx-analyze--Context-interface"><code>Context</code></a><code> &#124; </code><a href="#-vuedx-analyze--ScriptAnalyzerContext-interface"><code>ScriptAnalyzerContext</code></a> | - |
-| node | <a href="#-babel-types-Node-type"><code>Node</code></a> | - |
+| context | <code><a href="#-vuedx-analyze--Context-interface">Context</a> &#124; <a href="#-vuedx-analyze--ScriptAnalyzerContext-interface">ScriptAnalyzerContext</a></code> | - |
+| node | <code><a href="#-babel-types-Node-type">Node</a></code> | - |
 
 </details>
 <br>
 
-<a href="#-vuedx-analyze-transformToFunction-function-1-"></a>
+<a href="#-vuedx-analyze-transformToFunction-function-1-" id="-vuedx-analyze-transformToFunction-function-1-"></a>
 
 ### [transformToFunction](#-vuedx-analyze-transformToFunction-function-1-)
 
@@ -326,7 +326,7 @@ declare function transformToFunction(content: string, options?: FunctionTransfor
 | Parameter | Type | Description |
 | --- | --- | --- |
 | content | <code>string</code> | - |
-| options | <a href="#-vuedx-analyze--FunctionTransformOptions-interface"><code>FunctionTransformOptions</code></a> | - |
+| options | <code><a href="#-vuedx-analyze--FunctionTransformOptions-interface">FunctionTransformOptions</a></code> | - |
 
 </details>
 <br>
@@ -334,7 +334,7 @@ declare function transformToFunction(content: string, options?: FunctionTransfor
 ## Types
 
 
-<a href="#-vuedx-analyze-Analyzer-interface"></a>
+<a href="#-vuedx-analyze-Analyzer-interface" id="-vuedx-analyze-Analyzer-interface"></a>
 
 ### [Analyzer](#-vuedx-analyze-Analyzer-interface)
 
@@ -351,7 +351,7 @@ interface Analyzer {
 
 <br>
 
-<a href="#-vuedx-analyze-ComponentInfo-interface"></a>
+<a href="#-vuedx-analyze-ComponentInfo-interface" id="-vuedx-analyze-ComponentInfo-interface"></a>
 
 ### [ComponentInfo](#-vuedx-analyze-ComponentInfo-interface)
 
@@ -373,7 +373,7 @@ interface ComponentInfo {
 
 <br>
 
-<a href="#-vuedx-analyze-ComponentRegistrationInfo-interface"></a>
+<a href="#-vuedx-analyze-ComponentRegistrationInfo-interface" id="-vuedx-analyze-ComponentRegistrationInfo-interface"></a>
 
 ### [ComponentRegistrationInfo](#-vuedx-analyze-ComponentRegistrationInfo-interface)
 
@@ -390,7 +390,7 @@ interface ComponentRegistrationInfo {
 
 <br>
 
-<a href="#-vuedx-analyze-EmitInfo-interface"></a>
+<a href="#-vuedx-analyze-EmitInfo-interface" id="-vuedx-analyze-EmitInfo-interface"></a>
 
 ### [EmitInfo](#-vuedx-analyze-EmitInfo-interface)
 
@@ -410,7 +410,7 @@ interface EmitInfo extends Taggable, Addressable {
 
 <br>
 
-<a href="#-vuedx-analyze-IdentifierSource-interface"></a>
+<a href="#-vuedx-analyze-IdentifierSource-interface" id="-vuedx-analyze-IdentifierSource-interface"></a>
 
 ### [IdentifierSource](#-vuedx-analyze-IdentifierSource-interface)
 
@@ -425,7 +425,7 @@ interface IdentifierSource extends Addressable {
 
 <br>
 
-<a href="#-vuedx-analyze-ImportSource-interface"></a>
+<a href="#-vuedx-analyze-ImportSource-interface" id="-vuedx-analyze-ImportSource-interface"></a>
 
 ### [ImportSource](#-vuedx-analyze-ImportSource-interface)
 
@@ -442,7 +442,7 @@ interface ImportSource {
 
 <br>
 
-<a href="#-vuedx-analyze-ImportSourceWithLocation-interface"></a>
+<a href="#-vuedx-analyze-ImportSourceWithLocation-interface" id="-vuedx-analyze-ImportSourceWithLocation-interface"></a>
 
 ### [ImportSourceWithLocation](#-vuedx-analyze-ImportSourceWithLocation-interface)
 
@@ -456,7 +456,7 @@ interface ImportSourceWithLocation extends ImportSource, Addressable {
 
 <br>
 
-<a href="#-vuedx-analyze-LocalComponentRegistrationInfo-interface"></a>
+<a href="#-vuedx-analyze-LocalComponentRegistrationInfo-interface" id="-vuedx-analyze-LocalComponentRegistrationInfo-interface"></a>
 
 ### [LocalComponentRegistrationInfo](#-vuedx-analyze-LocalComponentRegistrationInfo-interface)
 
@@ -472,7 +472,7 @@ interface LocalComponentRegistrationInfo extends ComponentRegistrationInfo, Addr
 
 <br>
 
-<a href="#-vuedx-analyze-Plugin-2-interface"></a>
+<a href="#-vuedx-analyze-Plugin-2-interface" id="-vuedx-analyze-Plugin-2-interface"></a>
 
 ### [Plugin](#-vuedx-analyze-Plugin-2-interface)
 
@@ -496,7 +496,7 @@ interface Plugin {
 
 <br>
 
-<a href="#-vuedx-analyze-PropInfo-interface"></a>
+<a href="#-vuedx-analyze-PropInfo-interface" id="-vuedx-analyze-PropInfo-interface"></a>
 
 ### [PropInfo](#-vuedx-analyze-PropInfo-interface)
 
@@ -515,7 +515,7 @@ interface PropInfo extends Taggable, Addressable {
 
 <br>
 
-<a href="#-vuedx-analyze-ScriptSetupInfo-interface"></a>
+<a href="#-vuedx-analyze-ScriptSetupInfo-interface" id="-vuedx-analyze-ScriptSetupInfo-interface"></a>
 
 ### [ScriptSetupInfo](#-vuedx-analyze-ScriptSetupInfo-interface)
 
@@ -531,7 +531,7 @@ interface ScriptSetupInfo {
 
 <br>
 
-<a href="#-vuedx-analyze-SetupInfo-interface"></a>
+<a href="#-vuedx-analyze-SetupInfo-interface" id="-vuedx-analyze-SetupInfo-interface"></a>
 
 ### [SetupInfo](#-vuedx-analyze-SetupInfo-interface)
 
@@ -558,7 +558,7 @@ interface SetupInfo extends Addressable {
 
 <br>
 
-<a href="#-vuedx-analyze-SourceRange-interface"></a>
+<a href="#-vuedx-analyze-SourceRange-interface" id="-vuedx-analyze-SourceRange-interface"></a>
 
 ### [SourceRange](#-vuedx-analyze-SourceRange-interface)
 
@@ -575,7 +575,7 @@ interface SourceRange {
 
 <br>
 
-<a href="#-vuedx-analyze-SyntaxError-2-interface"></a>
+<a href="#-vuedx-analyze-SyntaxError-2-interface" id="-vuedx-analyze-SyntaxError-2-interface"></a>
 
 ### [SyntaxError](#-vuedx-analyze-SyntaxError-2-interface)
 

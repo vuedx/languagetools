@@ -15,7 +15,7 @@ npm add @vuedx/vue-virtual-textdocument
 ## API
 
 
-<a href="#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-class"></a>
+<a href="#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-class" id="-vuedx-vue-virtual-textdocument-AsyncDocumentStore-class"></a>
 
 ### [AsyncDocumentStore](#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-class)
 
@@ -35,7 +35,7 @@ declare class AsyncDocumentStore<T> extends DocumentStore<T> {
 **Members:**
 
 
-<a href="#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-1-" id="-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-1-"></a>
 
 #### [get](#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-1-)
 
@@ -52,7 +52,7 @@ get(uri: string): T | null;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-2-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-2-" id="-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-2-"></a>
 
 #### [get](#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-2-)
 
@@ -73,7 +73,7 @@ get(uri: string): Promise<T | null>;
 <br>
 
 
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-class"></a>
+<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-class" id="-vuedx-vue-virtual-textdocument-DocumentStore-class"></a>
 
 ### [DocumentStore](#-vuedx-vue-virtual-textdocument-DocumentStore-class)
 
@@ -102,7 +102,7 @@ declare class DocumentStore<T> {
 **Members:**
 
 
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-all-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-all-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-all-member-1-"></a>
 
 #### [all](#-vuedx-vue-virtual-textdocument-DocumentStore-all-member-1-)
 
@@ -116,7 +116,7 @@ all(): string[];
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-delete-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-delete-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-delete-member-1-"></a>
 
 #### [delete](#-vuedx-vue-virtual-textdocument-DocumentStore-delete-member-1-)
 
@@ -133,7 +133,7 @@ delete(uri: string): boolean;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-dispose-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-dispose-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-dispose-member-1-"></a>
 
 #### [dispose](#-vuedx-vue-virtual-textdocument-DocumentStore-dispose-member-1-)
 
@@ -147,7 +147,7 @@ dispose(): void;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-get-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-get-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-get-member-1-"></a>
 
 #### [get](#-vuedx-vue-virtual-textdocument-DocumentStore-get-member-1-)
 
@@ -164,7 +164,7 @@ get(uri: string): T | null;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-getNormalizedUri-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-getNormalizedUri-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-getNormalizedUri-member-1-"></a>
 
 #### [getNormalizedUri](#-vuedx-vue-virtual-textdocument-DocumentStore-getNormalizedUri-member-1-)
 
@@ -181,7 +181,7 @@ protected getNormalizedUri(uri: string): string;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-has-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-has-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-has-member-1-"></a>
 
 #### [has](#-vuedx-vue-virtual-textdocument-DocumentStore-has-member-1-)
 
@@ -198,7 +198,7 @@ has(uri: string): boolean;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-set-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-set-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-set-member-1-"></a>
 
 #### [set](#-vuedx-vue-virtual-textdocument-DocumentStore-set-member-1-)
 
@@ -220,7 +220,7 @@ set(uri: string, document: T): void;
 <br>
 
 
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-class"></a>
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-class" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-class"></a>
 
 ### [RenderFunctionTextDocument](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-class)
 
@@ -264,7 +264,7 @@ declare class RenderFunctionTextDocument extends TransformedBlockTextDocument {
 **Members:**
 
 
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-create-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-create-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-create-member-1-"></a>
 
 #### [create](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-create-member-1-)
 
@@ -277,11 +277,11 @@ static create(options: CreateVirtualTextDocumentOptions): RenderFunctionTextDocu
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| options | <a href="#-vuedx-vue-virtual-textdocument--CreateVirtualTextDocumentOptions-interface"><code>CreateVirtualTextDocumentOptions</code></a> | - |
+| options | <code><a href="#-vuedx-vue-virtual-textdocument--CreateVirtualTextDocumentOptions-interface">CreateVirtualTextDocumentOptions</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-findExpression-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-findExpression-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-findExpression-member-1-"></a>
 
 #### [findExpression](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-findExpression-member-1-)
 
@@ -302,7 +302,7 @@ findExpression(offset: number, length: number): undefined | {
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-generate-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-generate-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-generate-member-1-"></a>
 
 #### [generate](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-generate-member-1-)
 
@@ -316,7 +316,7 @@ protected generate(): string;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getAllGeneratedOffsetsAt-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getAllGeneratedOffsetsAt-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getAllGeneratedOffsetsAt-member-1-"></a>
 
 #### [getAllGeneratedOffsetsAt](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getAllGeneratedOffsetsAt-member-1-)
 
@@ -336,7 +336,7 @@ getAllGeneratedOffsetsAt(offset: number): undefined | Array<{
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getGeneratedOffsetAt-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getGeneratedOffsetAt-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getGeneratedOffsetAt-member-1-"></a>
 
 #### [getGeneratedOffsetAt](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getGeneratedOffsetAt-member-1-)
 
@@ -356,7 +356,7 @@ getGeneratedOffsetAt(offset: number): undefined | {
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getKnownComponents-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getKnownComponents-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getKnownComponents-member-1-"></a>
 
 #### [getKnownComponents](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getKnownComponents-member-1-)
 
@@ -370,7 +370,7 @@ protected getKnownComponents(): Record<string, ComponentImport>;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getOriginalOffsetAt-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getOriginalOffsetAt-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getOriginalOffsetAt-member-1-"></a>
 
 #### [getOriginalOffsetAt](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getOriginalOffsetAt-member-1-)
 
@@ -390,7 +390,7 @@ getOriginalOffsetAt(offset: number): undefined | {
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInGeneratedRange-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInGeneratedRange-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInGeneratedRange-member-1-"></a>
 
 #### [isInGeneratedRange](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInGeneratedRange-member-1-)
 
@@ -407,7 +407,7 @@ isInGeneratedRange(offset: number): boolean;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-toDisplayMappings-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-toDisplayMappings-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-toDisplayMappings-member-1-"></a>
 
 #### [toDisplayMappings](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-toDisplayMappings-member-1-)
 
@@ -421,7 +421,7 @@ toDisplayMappings(): string;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-tryGenerate-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-tryGenerate-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-tryGenerate-member-1-"></a>
 
 #### [tryGenerate](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-tryGenerate-member-1-)
 
@@ -439,7 +439,7 @@ protected tryGenerate(): string;
 <br>
 
 
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-class"></a>
+<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-class" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-class"></a>
 
 ### [TransformedBlockTextDocument](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-class)
 
@@ -462,7 +462,7 @@ declare class TransformedBlockTextDocument extends VirtualTextDocument {
 **Members:**
 
 
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-create-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-create-member-1-" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-create-member-1-"></a>
 
 #### [create](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-create-member-1-)
 
@@ -475,11 +475,11 @@ static create(options: CreateTransformedBlockTextDocumentOptions): TransformedBl
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| options | <a href="#-vuedx-vue-virtual-textdocument--CreateTransformedBlockTextDocumentOptions-interface"><code>CreateTransformedBlockTextDocumentOptions</code></a> | - |
+| options | <code><a href="#-vuedx-vue-virtual-textdocument--CreateTransformedBlockTextDocumentOptions-interface">CreateTransformedBlockTextDocumentOptions</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-refresh-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-refresh-member-1-" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-refresh-member-1-"></a>
 
 #### [refresh](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-refresh-member-1-)
 
@@ -493,7 +493,7 @@ protected refresh(): void;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-transform-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-transform-member-1-" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-transform-member-1-"></a>
 
 #### [transform](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-transform-member-1-)
 
@@ -507,7 +507,7 @@ transform(): BlockTransformResult;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetGeneratedOffset-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetGeneratedOffset-member-1-" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetGeneratedOffset-member-1-"></a>
 
 #### [tryGetGeneratedOffset](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetGeneratedOffset-member-1-)
 
@@ -524,7 +524,7 @@ tryGetGeneratedOffset(offset: number): number | undefined;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetSourceOffset-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetSourceOffset-member-1-" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetSourceOffset-member-1-"></a>
 
 #### [tryGetSourceOffset](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetSourceOffset-member-1-)
 
@@ -545,7 +545,7 @@ tryGetSourceOffset(offset: number): number | undefined;
 <br>
 
 
-<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-class"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-class" id="-vuedx-vue-virtual-textdocument-VirtualTextDocument-class"></a>
 
 ### [VirtualTextDocument](#-vuedx-vue-virtual-textdocument-VirtualTextDocument-class)
 
@@ -569,7 +569,7 @@ declare class VirtualTextDocument extends ProxyTextDocument {
 **Members:**
 
 
-<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-create-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-create-member-1-" id="-vuedx-vue-virtual-textdocument-VirtualTextDocument-create-member-1-"></a>
 
 #### [create](#-vuedx-vue-virtual-textdocument-VirtualTextDocument-create-member-1-)
 
@@ -582,11 +582,11 @@ static create(options: CreateVirtualTextDocumentOptions): VirtualTextDocument;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| options | <a href="#-vuedx-vue-virtual-textdocument--CreateVirtualTextDocumentOptions-interface"><code>CreateVirtualTextDocumentOptions</code></a> | - |
+| options | <code><a href="#-vuedx-vue-virtual-textdocument--CreateVirtualTextDocumentOptions-interface">CreateVirtualTextDocumentOptions</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-markDirty-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-markDirty-member-1-" id="-vuedx-vue-virtual-textdocument-VirtualTextDocument-markDirty-member-1-"></a>
 
 #### [markDirty](#-vuedx-vue-virtual-textdocument-VirtualTextDocument-markDirty-member-1-)
 
@@ -600,7 +600,7 @@ markDirty(): void;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-refresh-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-refresh-member-1-" id="-vuedx-vue-virtual-textdocument-VirtualTextDocument-refresh-member-1-"></a>
 
 #### [refresh](#-vuedx-vue-virtual-textdocument-VirtualTextDocument-refresh-member-1-)
 
@@ -618,7 +618,7 @@ protected refresh(): void;
 <br>
 
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-class"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-class" id="-vuedx-vue-virtual-textdocument-VueTextDocument-class"></a>
 
 ### [VueTextDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-class)
 
@@ -657,7 +657,7 @@ declare class VueTextDocument extends ProxyTextDocument {
 **Members:**
 
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-all-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-all-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-all-member-1-"></a>
 
 #### [all](#-vuedx-vue-virtual-textdocument-VueTextDocument-all-member-1-)
 
@@ -671,7 +671,7 @@ all(): VirtualTextDocument[];
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-blockAt-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-blockAt-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-blockAt-member-1-"></a>
 
 #### [blockAt](#-vuedx-vue-virtual-textdocument-VueTextDocument-blockAt-member-1-)
 
@@ -684,11 +684,11 @@ blockAt(position: Position | number): SFCBlock | null | undefined;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| position | <a href="#vscode-languageserver-textdocument-Position-interface"><code>Position</code></a><code> &#124; number</code> | - |
+| position | <code><a href="#vscode-languageserver-textdocument-Position-interface">Position</a> &#124; number</code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-create-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-create-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-create-member-1-"></a>
 
 #### [create](#-vuedx-vue-virtual-textdocument-VueTextDocument-create-member-1-)
 
@@ -705,12 +705,12 @@ static create(uri: string, languageId: string, version: number, content: string,
 | languageId | <code>string</code> | - |
 | version | <code>number</code> | - |
 | content | <code>string</code> | - |
-| options | <a href="#-vuedx-vue-virtual-textdocument--VueTextDocumentOptions-interface"><code>VueTextDocumentOptions</code></a> | - |
-| parseOptions | <a href="#-vue-compiler-sfc-SFCParseOptions-interface"><code>SFCParseOptions</code></a> | - |
+| options | <code><a href="#-vuedx-vue-virtual-textdocument--VueTextDocumentOptions-interface">VueTextDocumentOptions</a></code> | - |
+| parseOptions | <code><a href="#-vue-compiler-sfc-SFCParseOptions-interface">SFCParseOptions</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createBlockDocument-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createBlockDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-createBlockDocument-member-1-"></a>
 
 #### [createBlockDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-createBlockDocument-member-1-)
 
@@ -723,11 +723,11 @@ protected createBlockDocument(selector: BlockSelector): VirtualTextDocument | un
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <a href="#-vuedx-vue-virtual-textdocument--BlockSelector-type"><code>BlockSelector</code></a> | - |
+| selector | <code><a href="#-vuedx-vue-virtual-textdocument--BlockSelector-type">BlockSelector</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createInternalModuleDocument-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createInternalModuleDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-createInternalModuleDocument-member-1-"></a>
 
 #### [createInternalModuleDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-createInternalModuleDocument-member-1-)
 
@@ -741,7 +741,7 @@ protected createInternalModuleDocument(): TransformedBlockTextDocument;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createModuleDocument-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createModuleDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-createModuleDocument-member-1-"></a>
 
 #### [createModuleDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-createModuleDocument-member-1-)
 
@@ -755,7 +755,7 @@ protected createModuleDocument(): TransformedBlockTextDocument;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createRenderDocument-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createRenderDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-createRenderDocument-member-1-"></a>
 
 #### [createRenderDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-createRenderDocument-member-1-)
 
@@ -769,7 +769,7 @@ protected createRenderDocument(): RenderFunctionTextDocument;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-documentAt-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-documentAt-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-documentAt-member-1-"></a>
 
 #### [documentAt](#-vuedx-vue-virtual-textdocument-VueTextDocument-documentAt-member-1-)
 
@@ -782,11 +782,11 @@ documentAt(position: Position | number): VirtualTextDocument | undefined;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| position | <a href="#vscode-languageserver-textdocument-Position-interface"><code>Position</code></a><code> &#124; number</code> | - |
+| position | <code><a href="#vscode-languageserver-textdocument-Position-interface">Position</a> &#124; number</code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getBlock-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getBlock-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getBlock-member-1-"></a>
 
 #### [getBlock](#-vuedx-vue-virtual-textdocument-VueTextDocument-getBlock-member-1-)
 
@@ -799,11 +799,11 @@ getBlock(selector: BlockSelector): SFCBlock | null | undefined;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <a href="#-vuedx-vue-virtual-textdocument--BlockSelector-type"><code>BlockSelector</code></a> | - |
+| selector | <code><a href="#-vuedx-vue-virtual-textdocument--BlockSelector-type">BlockSelector</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getBlockSelector-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getBlockSelector-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getBlockSelector-member-1-"></a>
 
 #### [getBlockSelector](#-vuedx-vue-virtual-textdocument-VueTextDocument-getBlockSelector-member-1-)
 
@@ -816,11 +816,11 @@ getBlockSelector(block: SFCBlock): BlockSelector | undefined;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| block | <a href="#-vue-compiler-sfc-SFCBlock-interface"><code>SFCBlock</code></a> | - |
+| block | <code><a href="#-vue-compiler-sfc-SFCBlock-interface">SFCBlock</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-1-"></a>
 
 #### [getDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-1-)
 
@@ -833,11 +833,11 @@ getDocument(selector: typeof RENDER_SELECTOR): RenderFunctionTextDocument;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <code>typeof </code><a href="#-vuedx-vue-virtual-textdocument--RENDER-SELECTOR-var"><code>RENDER_SELECTOR</code></a> | - |
+| selector | <code>typeof <a href="#-vuedx-vue-virtual-textdocument--RENDER-SELECTOR-var">RENDER_SELECTOR</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-2-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-2-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-2-"></a>
 
 #### [getDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-2-)
 
@@ -850,11 +850,11 @@ getDocument(selector: SelectorLike): VirtualTextDocument;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <a href="#-vuedx-vue-virtual-textdocument--SelectorLike-type"><code>SelectorLike</code></a> | - |
+| selector | <code><a href="#-vuedx-vue-virtual-textdocument--SelectorLike-type">SelectorLike</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-3-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-3-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-3-"></a>
 
 #### [getDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-3-)
 
@@ -871,7 +871,7 @@ getDocument(selector: string): VirtualTextDocument | undefined;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentFileName-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentFileName-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentFileName-member-1-"></a>
 
 #### [getDocumentFileName](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentFileName-member-1-)
 
@@ -884,11 +884,11 @@ getDocumentFileName(selectorLike: SelectorLike): string;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selectorLike | <a href="#-vuedx-vue-virtual-textdocument--SelectorLike-type"><code>SelectorLike</code></a> | - |
+| selectorLike | <code><a href="#-vuedx-vue-virtual-textdocument--SelectorLike-type">SelectorLike</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentId-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentId-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentId-member-1-"></a>
 
 #### [getDocumentId](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentId-member-1-)
 
@@ -901,11 +901,11 @@ protected getDocumentId(selector: Selector): string;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <a href="#-vuedx-vue-virtual-textdocument--Selector-type"><code>Selector</code></a> | - |
+| selector | <code><a href="#-vuedx-vue-virtual-textdocument--Selector-type">Selector</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentLanguage-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentLanguage-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentLanguage-member-1-"></a>
 
 #### [getDocumentLanguage](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentLanguage-member-1-)
 
@@ -918,11 +918,11 @@ protected getDocumentLanguage(selector: Selector): string;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <a href="#-vuedx-vue-virtual-textdocument--Selector-type"><code>Selector</code></a> | - |
+| selector | <code><a href="#-vuedx-vue-virtual-textdocument--Selector-type">Selector</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-markDirty-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-markDirty-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-markDirty-member-1-"></a>
 
 #### [markDirty](#-vuedx-vue-virtual-textdocument-VueTextDocument-markDirty-member-1-)
 
@@ -936,7 +936,7 @@ markDirty(): void;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-parse-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-parse-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-parse-member-1-"></a>
 
 #### [parse](#-vuedx-vue-virtual-textdocument-VueTextDocument-parse-member-1-)
 
@@ -950,7 +950,7 @@ protected parse(): void;
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-update-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-update-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-update-member-1-"></a>
 
 #### [update](#-vuedx-vue-virtual-textdocument-VueTextDocument-update-member-1-)
 
@@ -963,8 +963,8 @@ static update(document: VueTextDocument, changes: TextDocumentContentChangeEvent
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| document | <a href="#-vuedx-vue-virtual-textdocument--VueTextDocument-class"><code>VueTextDocument</code></a> | - |
-| changes | <a href="#vscode-languageserver-textdocument-TextDocumentContentChangeEvent-type"><code>TextDocumentContentChangeEvent</code></a><code>[]</code> | - |
+| document | <code><a href="#-vuedx-vue-virtual-textdocument--VueTextDocument-class">VueTextDocument</a></code> | - |
+| changes | <code><a href="#vscode-languageserver-textdocument-TextDocumentContentChangeEvent-type">TextDocumentContentChangeEvent</a>[]</code> | - |
 | version | <code>number</code> | - |
 
 <br>
@@ -973,7 +973,7 @@ static update(document: VueTextDocument, changes: TextDocumentContentChangeEvent
 <br>
 
 
-<a href="#-vuedx-vue-virtual-textdocument-asFsPath-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-asFsPath-function-1-" id="-vuedx-vue-virtual-textdocument-asFsPath-function-1-"></a>
 
 ### [asFsPath](#-vuedx-vue-virtual-textdocument-asFsPath-function-1-)
 
@@ -994,7 +994,7 @@ declare function asFsPath(uri: string): string;
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-asFsUri-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-asFsUri-function-1-" id="-vuedx-vue-virtual-textdocument-asFsUri-function-1-"></a>
 
 ### [asFsUri](#-vuedx-vue-virtual-textdocument-asFsUri-function-1-)
 
@@ -1015,7 +1015,7 @@ declare function asFsUri(fileName: string): string;
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-asUri-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-asUri-function-1-" id="-vuedx-vue-virtual-textdocument-asUri-function-1-"></a>
 
 ### [asUri](#-vuedx-vue-virtual-textdocument-asUri-function-1-)
 
@@ -1036,7 +1036,7 @@ declare function asUri(fileNameOrUri: string): string;
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-basename-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-basename-function-1-" id="-vuedx-vue-virtual-textdocument-basename-function-1-"></a>
 
 ### [basename](#-vuedx-vue-virtual-textdocument-basename-function-1-)
 
@@ -1057,7 +1057,7 @@ declare function basename(fileName: string): string;
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-binarySearch-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-binarySearch-function-1-" id="-vuedx-vue-virtual-textdocument-binarySearch-function-1-"></a>
 
 ### [binarySearch](#-vuedx-vue-virtual-textdocument-binarySearch-function-1-)
 
@@ -1080,7 +1080,7 @@ declare function binarySearch<T>(array: T[], isMatch: (a: T) => number, returnMi
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-getBlockLanguage-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-getBlockLanguage-function-1-" id="-vuedx-vue-virtual-textdocument-getBlockLanguage-function-1-"></a>
 
 ### [getBlockLanguage](#-vuedx-vue-virtual-textdocument-getBlockLanguage-function-1-)
 
@@ -1096,12 +1096,12 @@ declare function getBlockLanguage(block?: SFCBlock | null): string;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| block | <a href="#-vue-compiler-sfc-SFCBlock-interface"><code>SFCBlock</code></a><code> &#124; null</code> | - |
+| block | <code><a href="#-vue-compiler-sfc-SFCBlock-interface">SFCBlock</a> &#124; null</code> | - |
 
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-getContainingFile-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-getContainingFile-function-1-" id="-vuedx-vue-virtual-textdocument-getContainingFile-function-1-"></a>
 
 ### [getContainingFile](#-vuedx-vue-virtual-textdocument-getContainingFile-function-1-)
 
@@ -1122,7 +1122,7 @@ declare function getContainingFile(fileName: string): string;
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-getLanguageExtension-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-getLanguageExtension-function-1-" id="-vuedx-vue-virtual-textdocument-getLanguageExtension-function-1-"></a>
 
 ### [getLanguageExtension](#-vuedx-vue-virtual-textdocument-getLanguageExtension-function-1-)
 
@@ -1143,7 +1143,7 @@ declare function getLanguageExtension(lang: string): string;
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-getLanguageIdFromExtension-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-getLanguageIdFromExtension-function-1-" id="-vuedx-vue-virtual-textdocument-getLanguageIdFromExtension-function-1-"></a>
 
 ### [getLanguageIdFromExtension](#-vuedx-vue-virtual-textdocument-getLanguageIdFromExtension-function-1-)
 
@@ -1164,7 +1164,7 @@ declare function getLanguageIdFromExtension(ext: string): string;
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-isOffsetInBlock-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-isOffsetInBlock-function-1-" id="-vuedx-vue-virtual-textdocument-isOffsetInBlock-function-1-"></a>
 
 ### [isOffsetInBlock](#-vuedx-vue-virtual-textdocument-isOffsetInBlock-function-1-)
 
@@ -1181,12 +1181,12 @@ declare function isOffsetInBlock(offset: number, block?: SFCBlock | null): boole
 | Parameter | Type | Description |
 | --- | --- | --- |
 | offset | <code>number</code> | - |
-| block | <a href="#-vue-compiler-sfc-SFCBlock-interface"><code>SFCBlock</code></a><code> &#124; null</code> | - |
+| block | <code><a href="#-vue-compiler-sfc-SFCBlock-interface">SFCBlock</a> &#124; null</code> | - |
 
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-isVirtualFile-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-isVirtualFile-function-1-" id="-vuedx-vue-virtual-textdocument-isVirtualFile-function-1-"></a>
 
 ### [isVirtualFile](#-vuedx-vue-virtual-textdocument-isVirtualFile-function-1-)
 
@@ -1207,7 +1207,7 @@ declare function isVirtualFile(fileName: string): boolean;
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-isVirtualFileOfType-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-isVirtualFileOfType-function-1-" id="-vuedx-vue-virtual-textdocument-isVirtualFileOfType-function-1-"></a>
 
 ### [isVirtualFileOfType](#-vuedx-vue-virtual-textdocument-isVirtualFileOfType-function-1-)
 
@@ -1229,7 +1229,7 @@ declare function isVirtualFileOfType(fileName: string, type: '_render' | '_modul
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-isVueFile-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-isVueFile-function-1-" id="-vuedx-vue-virtual-textdocument-isVueFile-function-1-"></a>
 
 ### [isVueFile](#-vuedx-vue-virtual-textdocument-isVueFile-function-1-)
 
@@ -1250,7 +1250,7 @@ declare function isVueFile(fileName: string): boolean;
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-parseVirtualFileName-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-parseVirtualFileName-function-1-" id="-vuedx-vue-virtual-textdocument-parseVirtualFileName-function-1-"></a>
 
 ### [parseVirtualFileName](#-vuedx-vue-virtual-textdocument-parseVirtualFileName-function-1-)
 
@@ -1274,7 +1274,7 @@ declare function parseVirtualFileName(fileName: string): {
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-relativeVirtualImportPath-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-relativeVirtualImportPath-function-1-" id="-vuedx-vue-virtual-textdocument-relativeVirtualImportPath-function-1-"></a>
 
 ### [relativeVirtualImportPath](#-vuedx-vue-virtual-textdocument-relativeVirtualImportPath-function-1-)
 
@@ -1295,7 +1295,7 @@ declare function relativeVirtualImportPath(fileName: string): string;
 </details>
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-replaceSlashes-function-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-replaceSlashes-function-1-" id="-vuedx-vue-virtual-textdocument-replaceSlashes-function-1-"></a>
 
 ### [replaceSlashes](#-vuedx-vue-virtual-textdocument-replaceSlashes-function-1-)
 

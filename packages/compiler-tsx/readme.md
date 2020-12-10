@@ -17,7 +17,7 @@ npm add @vuedx/compiler-tsx
 ## API
 
 
-<a href="#-vuedx-compiler-tsx-compile-function-1-"></a>
+<a href="#-vuedx-compiler-tsx-compile-function-1-" id="-vuedx-compiler-tsx-compile-function-1-"></a>
 
 ### [compile](#-vuedx-compiler-tsx-compile-function-1-)
 
@@ -34,12 +34,12 @@ declare function compile(template: string, options: Options & CompilerOptions): 
 | Parameter | Type | Description |
 | --- | --- | --- |
 | template | <code>string</code> | - |
-| options | <a href="#-vuedx-compiler-tsx--Options-interface"><code>Options</code></a><code> & </code><a href="#-vue-compiler-core-CompilerOptions-type"><code>CompilerOptions</code></a> | - |
+| options | <code><a href="#-vuedx-compiler-tsx--Options-interface">Options</a> & <a href="#-vue-compiler-core-CompilerOptions-type">CompilerOptions</a></code> | - |
 
 </details>
 <br>
 
-<a href="#-vuedx-compiler-tsx-parse-function-1-"></a>
+<a href="#-vuedx-compiler-tsx-parse-function-1-" id="-vuedx-compiler-tsx-parse-function-1-"></a>
 
 ### [parse](#-vuedx-compiler-tsx-parse-function-1-)
 
@@ -56,7 +56,7 @@ declare function parse(template: string, options: ParserOptions): RootNode;
 | Parameter | Type | Description |
 | --- | --- | --- |
 | template | <code>string</code> | - |
-| options | <a href="#-vue-compiler-core-ParserOptions-interface"><code>ParserOptions</code></a> | - |
+| options | <code><a href="#-vue-compiler-core-ParserOptions-interface">ParserOptions</a></code> | - |
 
 </details>
 <br>
@@ -64,7 +64,7 @@ declare function parse(template: string, options: ParserOptions): RootNode;
 ## Types
 
 
-<a href="#-vuedx-compiler-tsx-CodegenResult-interface"></a>
+<a href="#-vuedx-compiler-tsx-CodegenResult-interface" id="-vuedx-compiler-tsx-CodegenResult-interface"></a>
 
 ### [CodegenResult](#-vuedx-compiler-tsx-CodegenResult-interface)
 
@@ -81,7 +81,7 @@ interface CodegenResult extends CodegenResult$1 {
 
 <br>
 
-<a href="#-vuedx-compiler-tsx-ComponentImport-interface"></a>
+<a href="#-vuedx-compiler-tsx-ComponentImport-interface" id="-vuedx-compiler-tsx-ComponentImport-interface"></a>
 
 ### [ComponentImport](#-vuedx-compiler-tsx-ComponentImport-interface)
 
@@ -98,7 +98,7 @@ interface ComponentImport {
 
 <br>
 
-<a href="#-vuedx-compiler-tsx-Options-interface"></a>
+<a href="#-vuedx-compiler-tsx-Options-interface" id="-vuedx-compiler-tsx-Options-interface"></a>
 
 ### [Options](#-vuedx-compiler-tsx-Options-interface)
 
