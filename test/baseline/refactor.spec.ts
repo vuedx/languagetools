@@ -139,6 +139,10 @@ describe('rename', () => {
       edit.textChanges.map(codeEditToTextEdit),
     )
 
-    expect((await getTextDocument(outputFile)).getText()).toEqual(content)
+    expectToEqual((await getTextDocument(outputFile)).getText(), content)
   }
 })
+
+function expectToEqual(a: string, b: string): void {
+  expect(a.replace(/\r/g, '')).toBe(b.replace(/\r/g, ''))
+}
