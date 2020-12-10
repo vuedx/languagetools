@@ -2,13 +2,13 @@ patterns:
   - name: meta.block.__var_BLOCK__.vue
     begin: ^(<)(__var_BLOCK__)(?=([^\/>]|"[^"]*"|'[^']*')*\/>)
     beginCaptures:
-      0: { name: meta.tag.self-closing.vue }
-      1: { name: punctuation.definition.tag.open.begin.vue }
+      0: { name: meta.block.self-closing.vue }
+      1: { name: punctuation.definition.block.open.begin.vue }
       2: { name: entity.name.section.vue }
     end: (/>)
     endCaptures:
-      0: { name: meta.tag.self-closing.vue-html }
-      1: { name: punctuation.definition.tag.self-closing.end.vue-html }
+      0: { name: meta.block.self-closing.vue-html }
+      1: { name: punctuation.definition.block.self-closing.end.vue-html }
     patterns:
       - __var_PATTERN__
       - { include: '#attribute' }
@@ -18,20 +18,20 @@ patterns:
   - name: meta.block.__var_BLOCK__.vue
     begin: ^(<)(__var_BLOCK__)
     beginCaptures:
-      0: { name: meta.tag.open.vue }
-      1: { name: punctuation.definition.tag.open.begin.vue }
+      0: { name: meta.block.open.vue }
+      1: { name: punctuation.definition.block.open.begin.vue }
       2: { name: entity.name.section.vue }
     end: (<\/)(__var_BLOCK__)(>)
     endCaptures:
-      0: { name: meta.tag.close.vue }
-      1: { name: punctuation.definition.tag.close.begin.vue }
+      0: { name: meta.block.close.vue }
+      1: { name: punctuation.definition.block.close.begin.vue }
       2: { name: entity.name.section.vue }
-      3: { name: punctuation.definition.tag.close.end.vue }
+      3: { name: punctuation.definition.block.close.end.vue }
     patterns:
       - begin: (>)
         beginCaptures:
-          0: { name: meta.tag.open.vue }
-          1: { name: punctuation.definition.tag.open.end.vue }
+          0: { name: meta.block.open.vue }
+          1: { name: punctuation.definition.block.open.end.vue }
         contentName: meta.embedded.block.__var_LANGUAGE__
         end: (?=<\/__var_BLOCK__>)
         patterns:

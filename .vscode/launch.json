@@ -29,6 +29,21 @@
         "${workspaceRoot}/extensions/vscode-vue/dist/*.js",
         "${workspaceRoot}/extensions/vscode-vue-language-features/dist/*.js"
       ]
+    },
+    {
+      "name": "Syntax: VS Code",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue",
+        "${workspaceRoot}/extensions/vscode-vue/demo"
+      ],
+
+      "outFiles": [
+        "${workspaceRoot}/extensions/vscode-vue/dist/*.js",
+        "${workspaceRoot}/extensions/vscode-vue-language-features/dist/*.js"
+      ]
     }
   ]
 }
