@@ -10,9 +10,25 @@
   "files": [
     "dist"
   ],
-  "keywords": [],
-  "author": "Rahul Kadyan <hey@znck.me> (https://znck.me)",
+  "keywords": [
+    "vue",
+    "compiler",
+    "sfc"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/znck/vue-developer-experience.git"
+  },
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/znck"
+  },
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/znck/vue-developer-experience/issues"
+  },
+  "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "devDependencies": {
     "@vue/compiler-sfc": "^3.0.2",
     "quick-lru": "^5.1.1",

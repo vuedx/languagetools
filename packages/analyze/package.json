@@ -8,21 +8,29 @@
   "bin": {
     "vuedx-analyze": "bin/analyze.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/znck/vue-developer-experience.git"
-  },
   "files": [
     "bin",
     "dist"
   ],
   "keywords": [
     "vue",
+    "sfc",
+    "sfc api extractor",
     "static analyzer",
+    "sfc analyzer",
+    "sfc static analyzer",
     "docgen",
     "documentation"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/znck/vue-developer-experience.git"
+  },
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/znck"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/znck/vue-developer-experience/issues"

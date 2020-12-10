@@ -1,5 +1,5 @@
 import { ComponentInfo } from '@vuedx/analyze'
-import { t } from '@vuedx/template-ast-types'
+import * as t from '@vuedx/template-ast-types'
 import { TS } from '../interfaces'
 import { getPaddingLength } from './utils'
 

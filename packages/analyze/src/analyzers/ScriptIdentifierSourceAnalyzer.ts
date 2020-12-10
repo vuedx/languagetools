@@ -1,8 +1,8 @@
 import T from '@babel/types'
-import { Plugin, ScriptAnalyzerContext } from '../types'
+import { createPlugin, ScriptAnalyzerContext } from '../types'
 import { createSourceRange } from '../utilities'
 
-export const ScriptIdentifierSourceAnalyzer: Plugin = {
+export const ScriptIdentifierSourceAnalyzer = createPlugin({
   babel(node$, context) {
     if (context.mode !== 'setup') return
     const node = node$.node
@@ -80,7 +80,7 @@ export const ScriptIdentifierSourceAnalyzer: Plugin = {
       ])
     },
   },
-}
+})
 
 function setIdentifiersSource(
   node: T.ObjectMember,

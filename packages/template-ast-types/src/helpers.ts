@@ -1,4 +1,4 @@
-import type t from '@vue/compiler-core'
+import { ElementNode, Node, RootNode } from '@vue/compiler-core'
 import {
   isCommentNode,
   isElementNode,
@@ -8,20 +8,37 @@ import {
 } from './assert'
 import { TraversalAncestors, traverseEvery, traverseFast } from './traverse'
 
+/**
+ * @public
+ */
 export interface SearchResult {
-  node: t.Node | null
+  node: Node | null
   ancestors: TraversalAncestors
 }
 
+/**
+ * Find the deepest node containing the given position.
+ *
+ * @public
+ */
 export function findTemplateNodeAt(
-  ast: t.RootNode,
+  ast: RootNode,
   position: number,
 ): SearchResult {
   return findTemplateNodeInRange(ast, position, position)
 }
 
+/**
+ * Find a child (element, component, text, interpolation, or comment) node containing the given position.
+ *
+ * @public
+ * @param mode - Open/close range comparison mode:
+ *  • undefined - position in [start, end]
+ *  • 'start'   — position in [start, end)
+ *  • 'end'     - position in (start, end]
+ */
 export function findTemplateChildNodeAt(
-  ast: t.RootNode,
+  ast: RootNode,
   position: number,
   mode?: 'start' | 'end',
 ): SearchResult {
@@ -42,19 +59,28 @@ export function findTemplateChildNodeAt(
   }
 
   return (result as unknown) as {
-    node: t.ElementNode | null
+    node: ElementNode | null
     ancestors: TraversalAncestors
   }
 }
 
+/**
+ * Find the deepest node containing the given position.
+ *
+ * @public
+ * @param mode - Open/close range comparison mode:
+ *  • undefined - position in [start, end]
+ *  • 'start'   — position in [start, end)
+ *  • 'end'     - position in (start, end]
+ */
 export function findTemplateNodeInRange(
-  ast: t.RootNode,
+  ast: RootNode,
   start: number,
   end: number,
   mode?: 'start' | 'end',
 ): SearchResult {
   const found = {
-    node: null as t.Node | null,
+    node: null as Node | null,
     ancestors: [] as TraversalAncestors,
   }
 
@@ -78,12 +104,17 @@ export function findTemplateNodeInRange(
   return found
 }
 
+/**
+ * Get all nodes contained in given range. (partial overlaps are ignored)
+ *
+ * @public
+ */
 export function findTemplateNodesInRange(
-  ast: t.RootNode,
+  ast: RootNode,
   start: number,
   end: number,
-): t.Node[] {
-  const found: t.Node[] = []
+): Node[] {
+  const found: Node[] = []
 
   traverseFast(ast, (node) => {
     if (node.loc.start.offset <= start && end <= node.loc.end.offset) {
@@ -94,11 +125,16 @@ export function findTemplateNodesInRange(
   return found
 }
 
+/**
+ * Get all child (element, component, text, interpolation, or comment) nodes contained in given range. (partial overlaps are ignored)
+ *
+ * @public
+ */
 export function findTemplateChildrenInRange(
-  ast: t.RootNode,
+  ast: RootNode,
   start: number,
   end: number,
-): t.Node[] {
+): Node[] {
   if (start === end) {
     const a = findTemplateChildNodeAt(ast, start)
 

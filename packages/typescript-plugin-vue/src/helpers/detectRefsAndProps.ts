@@ -1,5 +1,5 @@
 import { ComponentInfo } from '@vuedx/analyze'
-import { t } from '@vuedx/template-ast-types'
+import * as t from '@vuedx/template-ast-types'
 import { VueTextDocument } from '@vuedx/vue-virtual-textdocument'
 import { getScriptFileName } from './utils'
 import { TS } from '../interfaces'

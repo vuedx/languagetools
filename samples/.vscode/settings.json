@@ -1,0 +1,4 @@
+{
+  "window.title": "VueDX${separator}${activeEditorShort}",
+  "workbench.editor.showTabs": false
+}

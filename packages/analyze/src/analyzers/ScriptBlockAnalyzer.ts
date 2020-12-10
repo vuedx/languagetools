@@ -4,11 +4,11 @@ import type * as t from '@babel/types'
 import { isIdentifier, traverseFast } from '@babel/types'
 import { SFCScriptBlock } from '@vuedx/compiler-sfc'
 import type { SourceFile } from 'typescript'
-import { Context, Plugin, ScriptAnalyzerContext } from '../types'
+import { Context, createPlugin, ScriptAnalyzerContext } from '../types'
 import { createSourceRange } from '../utilities'
 import { isNotNull } from '@vuedx/shared'
 
-export const ScriptBlockAnalyzer: Plugin = {
+export const ScriptBlockAnalyzer = createPlugin({
   blocks: {
     script: (block, ctx) => {
       if (block.src == null) {
@@ -20,7 +20,7 @@ export const ScriptBlockAnalyzer: Plugin = {
       }
     },
   },
-}
+})
 
 export function createScriptContext(
   content: string,

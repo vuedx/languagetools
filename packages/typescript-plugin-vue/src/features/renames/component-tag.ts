@@ -1,6 +1,11 @@
 import { LocalComponentRegistrationInfo } from '@vuedx/analyze'
 import { getComponentName } from '@vuedx/shared'
-import { isComponentNode, t, traverseFast } from '@vuedx/template-ast-types'
+import {
+  ComponentNode,
+  isComponentNode,
+  RootNode,
+  traverseFast,
+} from '@vuedx/template-ast-types'
 import {
   isVueFile,
   SCRIPT_BLOCK_SELECTOR,
@@ -240,7 +245,7 @@ export const RenameComponentTag: RenameProvider = {
 }
 
 export function getChangesForComponentTagRename(
-  ast: t.RootNode,
+  ast: RootNode,
   component: LocalComponentRegistrationInfo,
 ): TS.TextSpan[] {
   const locations: TS.TextSpan[] = []
@@ -267,7 +272,7 @@ export function getChangesForComponentTagRename(
   return locations
 }
 
-function isPositionInTagName(position: number, node: t.ComponentNode): boolean {
+function isPositionInTagName(position: number, node: ComponentNode): boolean {
   return (
     // In start tag.
     position <= node.loc.start.offset + node.tag.length ||

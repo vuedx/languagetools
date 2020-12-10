@@ -1,9 +1,6 @@
-import type * as t from '@vue/compiler-core'
-
 export * from './assert'
 export * from './create'
-export * from './traverse'
-export * from './stringify'
+export * from './node'
 export * from './helpers'
-
-export { t }
+export * from './stringify'
+export * from './traverse'

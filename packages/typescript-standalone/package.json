@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@vuedx/typescript-standalone",
   "version": "0.3.0",
   "description": "TypeScript plugin for Vue (Standalone Mode)",
@@ -8,16 +7,29 @@
     "build": "ncc build src/index.js",
     "watch": "ncc build --watch src/index.js"
   },
-  "keywords": [],
+  "keywords": [
+    "vue",
+    "typescript"
+  ],
   "files": [
     "dist"
   ],
-  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
-  "license": "MIT",
-  "dependencies": {
-    "@vuedx/typescript-plugin-vue": "workspace:*"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/znck/vue-developer-experience.git"
   },
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/znck"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/znck/vue-developer-experience/issues"
+  },
+  "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "devDependencies": {
+    "@vuedx/typescript-plugin-vue": "workspace:*",
     "@vercel/ncc": "^0.24.1",
     "typescript": "^4.0.3"
   }

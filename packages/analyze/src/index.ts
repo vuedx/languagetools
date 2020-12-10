@@ -10,15 +10,37 @@ import {
 } from './analyzers'
 import { Context, Plugin } from './types'
 
-export * from './analyzer'
-export * from './analyzers'
-export * from './component'
-export * from './project/ConfiguredVueProject'
-export * from './project/InferredVueProject'
-export * from './project/VueProject'
-export * from './transforms'
-export * from './types'
-export * from './utilities'
+export { Analyzer, createAnalyzer } from './analyzer'
+export {
+  ScriptBlockAnalyzer,
+  ScriptIdentifierSourceAnalyzer,
+  SetupOptionsAnalyzer,
+  TemplateBlockAnalyzer,
+  ComponentsOptionAnalyzer,
+  EmitsOptionsAnalyzer,
+  PropsOptionsAnalyzer,
+  ImplicitEmitsAnalyzer,
+} from './analyzers'
+export {
+  ComponentInfo,
+  PropInfo,
+  EmitInfo,
+  SetupInfo,
+  ScriptSetupInfo,
+  SourceRange,
+  IdentifierSource,
+  SyntaxError,
+  ImportSource,
+  ImportSourceWithLocation,
+  ComponentRegistrationInfo,
+  LocalComponentRegistrationInfo,
+} from './component'
+export { ConfiguredVueProject } from './project/ConfiguredVueProject'
+export { InferredVueProject } from './project/InferredVueProject'
+export { VueProject } from './project/VueProject'
+export { transformToFunction } from './transforms'
+export { Plugin } from './types'
+export { createSourceRange } from './utilities'
 
 export function createFullAnalyzer(
   plugins: Plugin[] = [],

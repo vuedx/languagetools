@@ -9,8 +9,20 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/znck/vue-developer-experience.git"
+  },
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/znck"
+  },
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/znck/vue-developer-experience/issues"
+  },
+  "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
     "@babel/parser": "7.12.3",
     "@babel/types": "7.12.1",
