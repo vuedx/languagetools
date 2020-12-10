@@ -55,7 +55,7 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
 - Auto import components from Vue files.  
   **NOTE:** _This feature requires a `tsconfig.json` or `jsconfig.json` file in the project._
   <div>
-    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-auto-import-components.gif" height="360" />
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-auto-import-components.dark.gif" height="360" />
   </div>
   <br>
 
