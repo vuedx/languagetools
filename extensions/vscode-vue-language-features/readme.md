@@ -52,6 +52,12 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
     <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-suggest-named-exports.dark.gif" height="360" />
   </div>
   <br>
+- Auto import components from Vue files.  
+  **NOTE:** _This feature requires a `tsconfig.json` or `jsconfig.json` file in the project._
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-auto-import-components.gif" height="360" />
+  </div>
+  <br>
 
 ### Quick Fix
 
@@ -64,13 +70,63 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
 
 ### Definition
 
+- Goto component definition.
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-goto-component-definition.dark.gif" height="360" />
+  </div>
+  <br>
+- Goto prop definition.
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-goto-prop-definition.dark.gif" height="360" />
+  </div>
+  <br>
+- Goto expression definition.
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-goto-variable-definition.dark.gif" height="360" />
+  </div>
+  <br>
+
 ### QuickInfo
 
 ### Renaming
 
+- Rename prop
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-prop.dark.gif" height="360" />
+  </div>
+  <br>
+- Rename data
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-data.dark.gif" height="360" />
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-data-2.dark.gif" height="360" />
+  </div>
+  <br>
+- Rename computed
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-computed.dark.gif" height="360" />
+  </div>
+  <br>
+- Rename method
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-method.dark.gif" height="360" />
+  </div>
+  <br>
+- Rename variables/functions in `setup()`
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-setup.dark.gif" height="360" />
+  </div>
+  <br>
+- Rename component or Vue file
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-component.dark.gif" height="360" />
+  </div>
+  <br>
+
 ### Refactoring
 
 ## Known Issues
+
+<!-- - Rename prop only works when `data()` is present. -->
 
 ---
 
