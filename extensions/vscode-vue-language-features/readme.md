@@ -12,12 +12,29 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
 
 - Import Vue files in JS/TS files.
   <div>
-    <img src="./demo/feature-module-resolution.dark.gif" height="360" />
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-module-resolution.dark.gif" height="360" />
   </div>
   <br>
 - Use named exports from Vue files. 
   <div>
-    <img src="./demo/feature-module-named-exports.dark.gif" height="360" />
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-module-named-exports.dark.gif" height="360" />
+  </div>
+  <br>
+- Infers global components in the project. 
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-inferred-global-components.dark.gif" height="360" />
+  </div>
+  <br>
+<!-- TODO: Need example.
+- Infers global components from dependencies. 
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-module-named-exports.dark.gif" height="360" />
+  </div>
+  <br> 
+-->
+- Accepts configuration for global component resolution. 
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-configured-global-components.dark.gif" height="360" />
   </div>
   <br>
 
@@ -27,12 +44,12 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
 
 - Suggests Vue files in import statement.
   <div>
-    <img src="./demo/feature-suggest-in-import.dark.gif" height="360" />
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-suggest-in-import.dark.gif" height="360" />
   </div>
   <br>
 - Suggests named exports from Vue files.
   <div>
-    <img src="./demo/feature-suggest-named-exports.dark.gif" height="360" />
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-suggest-named-exports.dark.gif" height="360" />
   </div>
   <br>
 
@@ -40,7 +57,7 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
 
 - Import missing from Vue files.
   <div>
-    <img src="./demo/feature-quickfix-import-missing.dark.gif" height="360" />
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-quickfix-import-missing.dark.gif" height="360" />
   </div>
   <br>
 

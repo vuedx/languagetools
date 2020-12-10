@@ -1,4 +1,4 @@
-# Vue Language Features
+# COC Vue
 
 This extension provides features like type checking, completion, renaming and refactoring for `.vue` files by extending TypeScript extension.
 
@@ -8,52 +8,9 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
 
 ## Features
 
-### Module Resolution
+> TODO: Sync with vue-language-features.
 
-- Import Vue files in JS/TS files.
-  <div>
-    <img src="./demo/feature-module-resolution.dark.gif" height="360" />
-  </div>
-  <br>
-- Use named exports from Vue files. 
-  <div>
-    <img src="./demo/feature-module-named-exports.dark.gif" height="360" />
-  </div>
-  <br>
-
-### Diagnostics
-
-### Completion
-
-- Suggests Vue files in import statement.
-  <div>
-    <img src="./demo/feature-suggest-in-import.dark.gif" height="360" />
-  </div>
-  <br>
-- Suggests named exports from Vue files.
-  <div>
-    <img src="./demo/feature-suggest-named-exports.dark.gif" height="360" />
-  </div>
-  <br>
-
-### Quick Fix
-
-- Import missing from Vue files.
-  <div>
-    <img src="./demo/feature-quickfix-import-missing.dark.gif" height="360" />
-  </div>
-  <br>
-
-
-### Definition
-
-### QuickInfo
-
-### Renaming
-
-### Refactoring
-
-## Known Issues
+<br>
 
 ---
 
