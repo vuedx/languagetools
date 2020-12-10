@@ -136,12 +136,12 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
   <br>
 - Extract expression as a computed property (options API). It automatically add `this` in expressions.
   <div>
-    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-computed-property.dark.gif" height="360" />
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-refactor-computed-property.dark.gif" height="360" />
   </div>
   <br>
 - Organize imports and remove unused imports
   <div>
-    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-refactor-organize-imports.dark.gif" height="360" />
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-refactor-organise-imports.dark.gif" height="360" />
   </div>
   <br>
 - Add variables and functions to `return` statement of `setup()` function 
