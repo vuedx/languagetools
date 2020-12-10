@@ -118,7 +118,7 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
     <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-setup-function.dark.gif" height="360" />
   </div>
   <div>
-    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-setup-function-with-ref.dark.gif height="360" />
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-setup-function-with-ref.dark.gif" height="360" />
   </div>
   <br>
 - Extract expression as a computed value in `setup()` function. It automatically adds `.value` when required.
