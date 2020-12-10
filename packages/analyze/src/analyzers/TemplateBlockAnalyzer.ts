@@ -4,10 +4,10 @@ import {
   isSimpleExpressionNode,
   traverse,
 } from '@vuedx/template-ast-types'
-import { Plugin } from '../types'
+import { createPlugin } from '../types'
 import { parseJS } from './ScriptBlockAnalyzer'
 
-export const TemplateBlockAnalyzer: Plugin = {
+export const TemplateBlockAnalyzer = createPlugin({
   blocks: {
     template: (block, ctx) => {
       if (block.src == null) {
@@ -54,4 +54,4 @@ export const TemplateBlockAnalyzer: Plugin = {
       }
     },
   },
-}
+})

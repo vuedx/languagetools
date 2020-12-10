@@ -1,6 +1,6 @@
 import { GotoProvider } from './abstract'
 import {
-  t,
+  Node,
   isAttributeNode,
   isComponentNode,
   isDirectiveNode,
@@ -27,7 +27,7 @@ export const GotoExternalComponentProp: GotoProvider = {
     }
 
     let name: string
-    let node: t.Node
+    let node: Node
     if (
       isDirectiveNode(targetNode?.node) &&
       targetNode.node.name === 'bind' &&

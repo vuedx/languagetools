@@ -1,7 +1,7 @@
 import traverse, { NodePath } from '@babel/traverse'
 import t, { isStringLiteral } from '@babel/types'
 import { ImportSource, TypeInfo } from '../component'
-import { Context, Plugin, ScriptAnalyzerContext } from '../types'
+import { Context, createPlugin, ScriptAnalyzerContext } from '../types'
 import { createSourceRange } from '../utilities'
 import {
   getTypeAnnotation,
@@ -9,7 +9,7 @@ import {
   stringifyBabelNode,
 } from './babel-helpers'
 
-export const EmitsOptionsAnalyzer: Plugin = {
+export const EmitsOptionsAnalyzer = createPlugin({
   options: {
     emits(node$, context) {
       const emits$ = node$.isObjectProperty()
@@ -59,9 +59,9 @@ export const EmitsOptionsAnalyzer: Plugin = {
       }
     },
   },
-}
+})
 
-export const ImplicitEmitsAnalyzer: Plugin = {
+export const ImplicitEmitsAnalyzer = createPlugin({
   options: [
     (node$: NodePath<t.ObjectExpression>, context: ScriptAnalyzerContext) => {
       if (context.mode === 'setup') return // No $emit() in <script setup>
@@ -89,7 +89,7 @@ export const ImplicitEmitsAnalyzer: Plugin = {
 
     processInferredEmits(node$, context, true)
   },
-}
+})
 
 export function processInferredEmits(
   node$: NodePath | t.File,

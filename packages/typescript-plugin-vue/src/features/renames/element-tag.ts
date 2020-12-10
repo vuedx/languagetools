@@ -1,4 +1,4 @@
-import { isPlainElementNode, t } from '@vuedx/template-ast-types'
+import { isPlainElementNode, PlainElementNode } from '@vuedx/template-ast-types'
 import { TS } from '../../interfaces'
 import { RenameProvider } from './abstract'
 
@@ -67,7 +67,7 @@ export const RenameElementTag: RenameProvider = {
 
 function isPositionInTagName(
   position: number,
-  node: t.PlainElementNode,
+  node: PlainElementNode,
 ): boolean {
   return (
     // In start tag.

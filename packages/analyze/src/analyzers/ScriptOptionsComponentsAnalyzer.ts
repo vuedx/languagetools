@@ -10,10 +10,10 @@ import {
   ExportSpecifier,
 } from '@babel/types'
 import { ImportSourceWithLocation } from '../component'
-import { Plugin, ScriptAnalyzerContext } from '../types'
+import { createPlugin, ScriptAnalyzerContext } from '../types'
 import { createSourceRange } from '../utilities'
 
-export const ComponentsOptionAnalyzer: Plugin = {
+export const ComponentsOptionAnalyzer = createPlugin({
   babel: (path$, ctx) => {
     if (path$.isExportNamedDeclaration()) {
       const node = path$.node
@@ -70,7 +70,7 @@ export const ComponentsOptionAnalyzer: Plugin = {
       }
     },
   },
-}
+})
 
 function getComponentName(key: ObjectProperty['key']): string | undefined {
   if (isIdentifier(key)) return key.name

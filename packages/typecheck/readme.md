@@ -1,14 +1,25 @@
 # Typecheck
 
-a command line tool to check types, functionally equivalent to `tsc --noEmit` but includes .vue support.
+A command line tool to check types, functionally equivalent to `tsc --noEmit` but includes `.vue` support.
+
+## Support
+
+This package is part of [VueDX project](https://github.com/znck/vue-developer-experience), maintained by [Rahul Kadyan](https://github.com/znck). You can [💖 sponsor him](https://github.com/sponsors/znck) for continued development of this package and other VueDX tools.
 
 ## Usage
+
+Run `npx @vuedx/typecheck` to quickly type check your Vue project, or install and use `vuedx-typecheck` binary.
+
 ### Install
+
 ```
 npm i @vuedx/typecheck --save-dev
 ```
+
 ### Options
-Run ```npx @vuedx/vuedx-typecheck --help``` to see all available options:
+
+Run `vuedx-typecheck --help` to see all available options:
+
 ```
 Usage: vuedx-typecheck [directory] <options>
 

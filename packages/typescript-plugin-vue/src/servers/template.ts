@@ -5,7 +5,7 @@ import {
   isElementNode,
   isInterpolationNode,
   isSimpleExpressionNode,
-  t,
+  Node,
   traverseFast,
 } from '@vuedx/template-ast-types'
 import {
@@ -706,7 +706,7 @@ function detectCompletionType(
   document: RenderFunctionTextDocument,
   position: number,
   triggerCharacter?: string,
-  node?: t.Node | null,
+  node?: Node | null,
 ): { isTagCompletion: boolean; isInExpression: boolean; charAtCursor: string } {
   const templateSource = document.container.getDocument('template').getText()
   let isTagCompletion = triggerCharacter === '<'

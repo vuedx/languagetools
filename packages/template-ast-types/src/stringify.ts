@@ -16,6 +16,10 @@ import {
   isSimpleExpressionNode,
   isTextNode,
 } from './assert'
+
+/**
+ * @public
+ */
 export interface StringifyOptions {
   indent: number
   initialIndent: number
@@ -30,6 +34,11 @@ const defaults: StringifyOptions = {
   replaceNodes: new Map<Node, Node | null>(),
 }
 
+/**
+ * Convert template AST to template code.
+ *
+ * @public
+ */
 export function stringify(
   node: Node | Node[],
   options?: Partial<StringifyOptions>,

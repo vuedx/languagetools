@@ -92,3 +92,7 @@ export interface Plugin {
   }> &
     Record<string, BlockAnalyzer<any>>
 }
+
+export function createPlugin(options: Plugin): Plugin {
+  return options
+}

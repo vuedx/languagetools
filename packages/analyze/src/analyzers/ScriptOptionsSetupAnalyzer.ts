@@ -8,10 +8,10 @@ import t, {
   isReturnStatement,
   isStringLiteral,
 } from '@babel/types'
-import { Plugin } from '../types'
+import { createPlugin } from '../types'
 import { createSourceRange } from '../utilities'
 
-export const SetupOptionsAnalyzer: Plugin = {
+export const SetupOptionsAnalyzer = createPlugin({
   setup: [
     (node$, context) => {
       const { node } = node$
@@ -118,4 +118,4 @@ export const SetupOptionsAnalyzer: Plugin = {
       }
     },
   ],
-}
+})

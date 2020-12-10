@@ -2,6 +2,10 @@
 
 This extension provides language grammar and syntax highlight for `.vue` files.
 
+## Support
+
+This extension is part of [VueDX project](https://github.com/znck/vue-developer-experience), maintained by [Rahul Kadyan](https://github.com/znck). You can [💖 sponsor him](https://github.com/sponsors/znck) for continued development of this extension and other VueDX tools.
+
 ## Syntax Highlight
 
 The language grammar included in this extension provides precise information for
@@ -25,8 +29,8 @@ Following are some examples of syntax highlight.
       <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/NightOwl.png">
     </td>
     <td>
-      <h3>Light+</h3>
-      <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/NightOwl.png">
+      <h3>Light Owl</h3>
+      <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/LightOwl.png">
     </td>
   </tr>
   </tbody>
@@ -36,32 +40,17 @@ Following are some examples of syntax highlight.
 
 Use `vue` as language on fenced code block
 for embedding Vue SFC in markdown.
-
-```vue
-<template>
-  <div v-if="condition" attribute="value" :prop="value" @event="handler" />
-</template>
-
-<script>
-export default {}
-</script>
-```
-
-![](https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/FencedCodeBlock-Vue.png)
+<div>
+  <img width="480" src="https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/FencedCodeBlock-Vue.png" />
+</div>
+<br>
 
 Use `vue-html` as language on fenced code block
 for embedding Vue template DSL in markdown.
-
-```vue-html
-<div
-  v-if="condition"
-  attribute="value"
-  :prop="value"
-  @event="handler"
-/>
-```
-
-![](https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/FencedCodeBlock-VueHTML.png)
+<div>
+  <img width="480" src="https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/FencedCodeBlock-VueHTML.png" />
+</div>
+<br>
 
 ## Creating Themes
 

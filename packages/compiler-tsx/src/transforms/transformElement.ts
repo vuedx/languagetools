@@ -9,6 +9,8 @@ import {
   DynamicSlotsExpression,
   ElementNode,
   findProp,
+  ForNode,
+  IfNode,
   isSimpleIdentifier,
   NodeTransform,
   SlotsExpression,
@@ -16,20 +18,27 @@ import {
   TransformContext,
   WITH_CTX,
 } from '@vue/compiler-core'
+import { camelCase, pascalCase } from '@vuedx/shared'
 import {
   isAttributeNode,
   isCommentNode,
   isComponentNode,
   isDirectiveNode,
   isElementNode,
-  isForNode,
-  isIfNode,
+  isNode,
   isSimpleExpressionNode,
   isTextNode,
 } from '@vuedx/template-ast-types'
-import { camelCase, pascalCase } from '@vuedx/shared'
 import { Options } from '../types'
 import { createLoc, processBogusComment } from '../utils'
+
+function isForNode(node: unknown): node is ForNode {
+  return isNode(node) && node.type === 11
+}
+
+function isIfNode(node: unknown): node is IfNode {
+  return isNode(node) && node.type === 9
+}
 
 export function createElementTransform(
   options: Required<Options>,

@@ -1,5 +1,5 @@
-import { NodePath } from '@babel/traverse'
 import generate from '@babel/generator'
+import { NodePath } from '@babel/traverse'
 import {
   isBooleanLiteral,
   isIdentifier,
@@ -7,12 +7,12 @@ import {
   isStringLiteral,
   ObjectMember,
 } from '@babel/types'
-import { PropInfo, TypeInfo } from '../component'
-import { Plugin } from '../types'
-import { createSourceRange } from '../utilities'
 import { isNotNull } from '@vuedx/shared'
+import { PropInfo, TypeInfo } from '../component'
+import { createPlugin } from '../types'
+import { createSourceRange } from '../utilities'
 
-export const PropsOptionsAnalyzer: Plugin = {
+export const PropsOptionsAnalyzer = createPlugin({
   options: {
     props(property$, context) {
       const props$ = property$.isObjectProperty()
@@ -68,7 +68,7 @@ export const PropsOptionsAnalyzer: Plugin = {
       }
     },
   },
-}
+})
 
 function getTypeInfo(path$: NodePath): TypeInfo[] | undefined {
   if (path$.isIdentifier()) {

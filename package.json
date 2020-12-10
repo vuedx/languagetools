@@ -19,6 +19,7 @@
     "eslint:fix": "eslint --cache --fix ."
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.12.0",
     "@rollup/plugin-alias": "^3.1.1",
     "@rollup/plugin-commonjs": "^13.0.2",
     "@rollup/plugin-json": "^4.1.0",
@@ -30,6 +31,7 @@
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.6.0",
     "builtin-modules": "^3.1.0",
+    "doctrine": "^3.0.0",
     "eslint": "^7.12.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-config-standard-with-typescript": "^19.0.1",

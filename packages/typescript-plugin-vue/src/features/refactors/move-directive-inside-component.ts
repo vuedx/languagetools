@@ -1,10 +1,13 @@
 import { findNextSibling, first, last } from '@vuedx/shared'
 import {
+  ComponentNode,
+  DirectiveNode,
+  ElementNode,
   isComponentNode,
   isDirectiveNode,
   isElementNode,
   isSimpleExpressionNode,
-  t,
+  RootNode,
   traverseFast,
 } from '@vuedx/template-ast-types'
 import { isVueFile } from '@vuedx/vue-virtual-textdocument'
@@ -84,8 +87,8 @@ function getDirectiveNodeAtPosition(
   fileName: string,
   position: number | TS.TextRange,
 ): {
-  directive: t.DirectiveNode
-  component: t.ComponentNode
+  directive: DirectiveNode
+  component: ComponentNode
 } | null {
   const { node, ancestors } = helpers.findTemplateNodeAtPosition(
     fileName,
@@ -112,12 +115,12 @@ function getDirectiveNodeAtPosition(
 }
 
 function findParentNode(
-  ast: t.RootNode,
-  node?: t.ElementNode,
-): t.ElementNode | t.RootNode {
+  ast: RootNode,
+  node?: ElementNode,
+): ElementNode | RootNode {
   if (node == null) return ast
 
-  let result: t.ElementNode | undefined
+  let result: ElementNode | undefined
 
   traverseFast(ast, (node, _, stop) => {
     if (isElementNode(node)) {

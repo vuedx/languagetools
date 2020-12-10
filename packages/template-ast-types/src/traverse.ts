@@ -12,26 +12,38 @@ const VISITOR_KEYS = ([
   ['exp', 'arg'], // DIRECTIVE = 7,
 ] as unknown) as Record<Node['type'], Array<keyof Node>>
 
+/**
+ * @public
+ */
 export type TraversalAncestors = Array<{
   node: Node
   key: string
   index?: number
 }>
 
+/**
+ * @public
+ */
 export type TraversalHandler<T> = (
   node: Node,
   ancestors: TraversalAncestors,
   state: T,
 ) => void
+
+/**
+ * @public
+ */
 export interface TraversalHandlers<T> {
   enter?: TraversalHandler<T>
   exit?: TraversalHandler<T>
 }
 
 /**
- * A general AST traversal with both prefix and postfix handlers, and a
+ * A general AST traversal utility with both prefix and postfix handlers, and a
  * state object. Exposes ancestry data to each handler so that more complex
  * AST data can be taken into account.
+ *
+ * @public
  */
 export function traverse<T>(
   node: Node,
@@ -94,6 +106,11 @@ function traverseSimpleImpl<T>(
   if (exit != null) exit(node, ancestors, state)
 }
 
+/**
+ * An abortable AST traversal utility. Return false (or falsy value) to stop traversal.
+ *
+ * @public
+ */
 export function traverseEvery<T>(
   node: Node,
   enter: (node: Node, ancestors: TraversalAncestors, state: T) => boolean,
@@ -132,6 +149,11 @@ export function traverseEvery<T>(
   }
 }
 
+/**
+ * A faster AST traversal utility. It behaves same as [traverse()] but there is no ancestory data.
+ *
+ * @public
+ */
 export function traverseFast<T = any>(
   node: object,
   enter: (node: Node, state: T, stop: () => void) => void,

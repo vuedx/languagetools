@@ -4,7 +4,7 @@ import {
   findTemplateChildrenInRange,
   findTemplateNodeAt,
   findTemplateNodeInRange,
-  t,
+  Node,
   TraversalAncestors,
 } from '@vuedx/template-ast-types'
 import {
@@ -53,7 +53,7 @@ export function createServerHelper(
     position: number | TS.TextRange,
   ):
     | {
-        node: t.Node
+        node: Node
         ancestors: TraversalAncestors
         document: RenderFunctionTextDocument
       }
@@ -84,7 +84,7 @@ export function createServerHelper(
   function findTemplateChildren(
     fileName: string,
     position: number | TS.TextRange,
-  ): t.Node[] {
+  ): Node[] {
     const document = getRenderDoc(fileName)
 
     return document?.ast != null
@@ -190,7 +190,7 @@ export function createServerHelper(
   function getTextSpan(
     document: VirtualTextDocument,
     span: TS.TextSpan,
-    node?: t.Node | null,
+    node?: Node | null,
   ): TS.TextSpan {
     if (isRenderFunctionDocument(document)) {
       const result = document.getOriginalOffsetAt(span.start)

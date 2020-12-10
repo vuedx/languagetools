@@ -7,14 +7,16 @@ import { ProjectConfigNormalized } from '@vuedx/projectconfig'
 import { findNextSibling, first, last, getComponentName } from '@vuedx/shared'
 import {
   createSimpleExpression,
+  ElementNode,
   findTemplateChildrenInRange,
   isComponentNode,
   isDirectiveNode,
   isElementNode,
   isSimpleExpressionNode,
   isSimpleIdentifier,
+  Node,
+  RootNode,
   stringify,
-  t,
   traverseFast,
 } from '@vuedx/template-ast-types'
 import {
@@ -126,8 +128,8 @@ export const RefactorExtractComponent: RefactorProvider = {
     )
 
     // Collection of nodes that should be replaced when generating code of new component.
-    const replaceNodes = new Map<t.Node, null | t.Node>()
-    const addSkipNodes = (skipped: t.Node[], all: t.Node[]): void => {
+    const replaceNodes = new Map<Node, null | Node>()
+    const addSkipNodes = (skipped: Node[], all: Node[]): void => {
       skipped.forEach((node) => {
         replaceNodes.set(node, null)
         node.scope.identifiers.forEach((id) => rawIdentifiers.delete(id))
@@ -366,11 +368,11 @@ function genTagForExtractedComponent({
   emits: Map<string, string>
   models: Set<string>
   identifiers: string[]
-  replaceNodes: Map<t.Node, t.Node | null>
+  replaceNodes: Map<Node, Node | null>
 }): string {
   const useShorthand =
     project.config.preferences.template.directiveSyntax === 'shorthand'
-  const skipNodes = new Set<t.Node>()
+  const skipNodes = new Set<Node>()
   replaceNodes.forEach((value, key) => {
     if (value == null) skipNodes.add(key)
   })
@@ -500,8 +502,8 @@ function genComponentImport(
 }
 
 function detectConditionType(
-  parent: t.ElementNode | t.RootNode,
-  nodes: t.Node[],
+  parent: ElementNode | RootNode,
+  nodes: Node[],
 ): 'none' | 'extract' | 'preserve' | 'partial' {
   const conditions = nodes.map((node) => {
     if (isElementNode(node)) {
@@ -557,7 +559,7 @@ function getScriptStartTag(
 function findNodes(
   document: RenderFunctionTextDocument,
   position: number | TS.TextRange,
-): t.Node[] {
+): Node[] {
   return document.ast != null
     ? typeof position === 'number'
       ? findTemplateChildrenInRange(document.ast, position, position)
@@ -565,14 +567,11 @@ function findNodes(
     : []
 }
 
-function findParentNode(
-  ast: t.RootNode,
-  nodes: t.Node[],
-): t.ElementNode | t.RootNode {
+function findParentNode(ast: RootNode, nodes: Node[]): ElementNode | RootNode {
   if (nodes.length === 0) return ast
 
   const search = nodes[0]
-  let result: t.ElementNode | undefined
+  let result: ElementNode | undefined
 
   traverseFast(ast, (node, _, stop) => {
     if (isElementNode(node)) {
