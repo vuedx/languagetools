@@ -25,20 +25,11 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
     <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-inferred-global-components.dark.gif" height="360" />
   </div>
   <br>
-<!-- TODO: Need example.
-- Infers global components from dependencies. 
-  <div>
-    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-module-named-exports.dark.gif" height="360" />
-  </div>
-  <br> 
--->
 - Accepts configuration for global component resolution. 
   <div>
     <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-configured-global-components.dark.gif" height="360" />
   </div>
   <br>
-
-### Diagnostics
 
 ### Completion
 
@@ -86,8 +77,6 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
   </div>
   <br>
 
-### QuickInfo
-
 ### Renaming
 
 - Rename prop
@@ -124,9 +113,62 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
 
 ### Refactoring
 
+- Extract expression as a function in `setup()` function. It automatically adds `.value` when required.
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-setup-function.dark.gif" height="360" />
+  </div>
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-setup-function-with-ref.dark.gif height="360" />
+  </div>
+  <br>
+- Extract expression as a computed value in `setup()` function. It automatically adds `.value` when required.
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-setup-computed.dark.gif" height="360" />
+  </div>
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-setup-computed-with-ref.dark.gif" height="360" />
+  </div>
+  <br>
+- Extract expression as a method (options API). It automatically add `this` in expressions.
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-method.dark.gif" height="360" />
+  </div>
+  <br>
+- Extract expression as a computed property (options API). It automatically add `this` in expressions.
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-rename-computed-property.dark.gif" height="360" />
+  </div>
+  <br>
+- Organize imports and remove unused imports
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-refactor-organize-imports.dark.gif" height="360" />
+  </div>
+  <br>
+- Add variables and functions to `return` statement of `setup()` function 
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-add-to-return.dark.gif" height="360" />
+  </div>
+  <br>
+- Extract selected template as a component in current directory or components directories (configured using `vueconfig.json`)
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-extract-to-current-directory.dark.gif" height="360" />
+  </div>
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-extract-to-other-directory.dark.gif" height="360" />
+  </div>
+  <br>
+- Keep `v-for` (on root node of selection) in current component when extracting
+  <div>
+    <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/docs/extensions/vscode-vue-language-features/demo/feature-extract-to-component-keep-v-for.dark.gif" height="360" />
+  </div>
+  <br>
+
 ## Known Issues
 
-<!-- - Rename prop only works when `data()` is present. -->
+- Required Vue 3.0+
+- Works better if `tsconfig.json` or `jsconfig.json`
+- Diagnostics messages complain about JSX/TSX
+- Prop rename does work in all cases
 
 ---
 
