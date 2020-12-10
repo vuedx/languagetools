@@ -1,10 +1,12 @@
 import { parse } from '@babel/parser'
 import traverse, { NodePath } from '@babel/traverse'
 import type * as t from '@babel/types'
-import { isIdentifier } from '@babel/types'
+import { isIdentifier, traverseFast } from '@babel/types'
 import { SFCScriptBlock } from '@vuedx/compiler-sfc'
+import type { SourceFile } from 'typescript'
 import { Context, Plugin, ScriptAnalyzerContext } from '../types'
-import { createSourceRange, isNotNull } from '../utilities'
+import { createSourceRange } from '../utilities'
+import { isNotNull } from '@vuedx/shared'
 
 export const ScriptBlockAnalyzer: Plugin = {
   blocks: {
@@ -12,7 +14,9 @@ export const ScriptBlockAnalyzer: Plugin = {
       if (block.src == null) {
         try {
           processScript(createScriptContext(block.content, ctx, block))
-        } catch {}
+        } catch (error) {
+          console.error(error)
+        }
       }
     },
   },
@@ -36,19 +40,7 @@ export function createScriptContext(
     },
   }
 
-  const plugins = context.parsers.babel.plugins?.slice() ?? []
-
-  if (script.lang === 'ts' && !plugins.includes('typescript')) {
-    plugins.push('typescript')
-  }
-
-  const ast = parse(content, {
-    ...context.parsers.babel,
-    plugins: Array.from(new Set(plugins)),
-    ranges: true,
-    // @ts-expect-error
-    errorRecovery: true,
-  })
+  const { ast } = parseJS(context, content, script.lang === 'ts')
 
   return {
     ...context,
@@ -57,6 +49,48 @@ export function createScriptContext(
     source: content,
     block: script,
   }
+}
+
+export function parseJS(
+  context: Context,
+  content: string,
+  enableTS: boolean,
+  offset: number = 0,
+): {
+  ast: t.File
+  sourceFile?: SourceFile
+} {
+  let result: { ast: t.File; sourceFile?: SourceFile }
+  if (context.parsers.typescript != null) {
+    result = context.parsers.typescript(context.fileName, content, {
+      language: enableTS ? 'ts' : 'js',
+    })
+  } else {
+    const plugins = context.parsers.babel.plugins?.slice() ?? []
+    if (enableTS && !plugins.includes('typescript')) {
+      plugins.push('typescript')
+    }
+
+    const ast = parse(content, {
+      ...context.parsers.babel,
+      plugins: Array.from(new Set(plugins)),
+      ranges: true,
+      // @ts-expect-error
+      errorRecovery: true,
+    })
+    result = { ast }
+  }
+
+  if (offset !== 0 && Number.isInteger(offset)) {
+    traverseFast(result.ast, (node) => {
+      const n = node as { start: number; end: number }
+
+      n.start += offset
+      n.end += offset
+    })
+  }
+
+  return result
 }
 
 function processScript(context: ScriptAnalyzerContext): void {
@@ -115,7 +149,8 @@ function processScript(context: ScriptAnalyzerContext): void {
     fns.forEach((fn) => {
       try {
         fn(node, context)
-      } catch {
+      } catch (error) {
+        console.error(error)
         // TODO: Handle error.
       }
     })
@@ -147,14 +182,32 @@ function processScript(context: ScriptAnalyzerContext): void {
             if (fn != null) {
               try {
                 fn(property$, context)
-              } catch {
+              } catch (error) {
+                console.error(error)
                 // TODO: Handler error.
               }
             }
           })
 
-          if (property$.isObjectMethod() && name === 'setup') {
-            call(setupHandlers, property$ as any)
+          if (name === 'setup') {
+            if (property$.isObjectMethod()) {
+              context.component.addSetup('', {
+                loc: createSourceRange(context, property$.node),
+              })
+              call(setupHandlers, property$ as any)
+            } else if (property$.isObjectProperty()) {
+              const value$ = property$.get('value') as NodePath
+
+              if (
+                value$.isFunctionExpression() ||
+                value$.isArrowFunctionExpression()
+              ) {
+                context.component.addSetup('', {
+                  loc: createSourceRange(context, value$.node),
+                })
+                call(setupHandlers, value$ as any)
+              }
+            }
           }
         }
       }
@@ -167,6 +220,45 @@ function processScript(context: ScriptAnalyzerContext): void {
     },
     exit(path: NodePath<t.Node>) {
       call(exitHandlers, path)
+    },
+    CallExpression(path: NodePath<t.CallExpression>) {
+      const callee$ = path.get('callee')
+      const args$ = path.get('arguments')
+
+      if (callee$.isIdentifier()) {
+        const options$ = args$[0]
+        if (callee$.node.name === 'defineProps') {
+          context.component.addScriptSetup('defineProps', {
+            loc: createSourceRange(context, path.node),
+          })
+          optionsByNameHandlers.forEach((handlers) => {
+            const fn = handlers.props
+            if (fn != null) {
+              try {
+                fn(options$ as any, context)
+              } catch (error) {
+                console.error(error)
+                // TODO: Handle error
+              }
+            }
+          })
+        } else if (callee$.node.name === 'defineEmit') {
+          context.component.addScriptSetup('defineEmit', {
+            loc: createSourceRange(context, path.node),
+          })
+          optionsByNameHandlers.forEach((handlers) => {
+            const fn = handlers.emits
+            if (fn != null) {
+              try {
+                fn(options$ as any, context)
+              } catch (error) {
+                console.error(error)
+                // TODO: Handle error
+              }
+            }
+          })
+        }
+      }
     },
     ExportDefaultDeclaration(path: NodePath<t.ExportDefaultDeclaration>) {
       const d$ = path.get('declaration')

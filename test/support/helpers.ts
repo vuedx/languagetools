@@ -1,7 +1,26 @@
 import FS from 'fs/promises'
 import Path from 'path'
+import { CodeEdit, Location } from 'typescript/lib/protocol'
+import {
+  Position,
+  TextDocument,
+  TextEdit,
+} from 'vscode-languageserver-textdocument'
 import { URI } from 'vscode-uri'
-import { TextDocument } from 'vscode-languageserver-textdocument'
+
+export function locationToPosition(loc: Location): Position {
+  return { line: loc.line - 1, character: loc.offset - 1 }
+}
+
+export function codeEditToTextEdit(edit: CodeEdit): TextEdit {
+  return {
+    range: {
+      start: locationToPosition(edit.start),
+      end: locationToPosition(edit.end),
+    },
+    newText: edit.newText,
+  }
+}
 
 export async function findPositionOrThrowIn(
   file: string,

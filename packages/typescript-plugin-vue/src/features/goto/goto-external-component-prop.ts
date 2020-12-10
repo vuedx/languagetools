@@ -17,7 +17,7 @@ export const GotoExternalComponentProp: GotoProvider = {
     const document = h.getRenderDoc(fileName)
     if (document?.ast == null) return
 
-    const targetNode = h.findTemplateNodeAt(document.ast, position)
+    const targetNode = h.findTemplateNodeAtPosition(fileName, position)
 
     if (isSimpleExpressionNode(targetNode.node)) {
       const last = targetNode.ancestors.pop()

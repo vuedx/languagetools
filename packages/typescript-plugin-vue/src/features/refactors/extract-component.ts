@@ -1,8 +1,19 @@
-import { ComponentInfo } from '@vuedx/analyze'
 import {
+  ComponentInfo,
+  ImportSourceWithLocation,
+  VueProject,
+} from '@vuedx/analyze'
+import { ProjectConfigNormalized } from '@vuedx/projectconfig'
+import { findNextSibling, first, last, getComponentName } from '@vuedx/shared'
+import {
+  createSimpleExpression,
+  findTemplateChildrenInRange,
   isComponentNode,
   isDirectiveNode,
+  isElementNode,
   isSimpleExpressionNode,
+  isSimpleIdentifier,
+  stringify,
   t,
   traverseFast,
 } from '@vuedx/template-ast-types'
@@ -11,363 +22,604 @@ import {
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import Path from 'path'
-import {
-  getComponentName,
-  getFilenameForNewComponent,
-  getPaddingLength,
-  indent,
-} from '../../helpers/utils'
+import { PluginContext } from '../../context'
+import { getFilenameForNewComponent } from '../../helpers/utils'
 import { TS } from '../../interfaces'
-import { LanguageServiceOptions } from '../../types'
-import { RefactorProvider } from './abstract'
-import { deIndent } from './de-indent'
+import { registerLocalComponentWithSource } from '../../transforms/registerLocalComponent'
+import {
+  decode,
+  encode,
+  EncodedString,
+  RefactorProvider,
+  REFACTORS,
+} from './abstract'
 
 /// <reference types="@vuedx/compiler-tsx" />
 
+interface ExtractComponentArgs {
+  directory: string
+}
+
+type ExtractComponentAction = EncodedString<ExtractComponentArgs>
+
 export const RefactorExtractComponent: RefactorProvider = {
   version: '*',
-  findRefactors(config, fileName, position, preferences) {
-    const document = config.helpers.getRenderDoc(fileName)
-    if (document != null) {
-      const nodes = findNodes(config, document, position)
+  name: REFACTORS.EXTRACT_COMPONENT,
+  findRefactors({ helpers, context }, fileName, position) {
+    const extractInCurrentDirectory: TS.RefactorActionInfo = {
+      name: encode<ExtractComponentArgs>({ directory: '.' }),
+      description: 'Extract to component in current directory',
+    }
 
-      if (nodes.length !== 0) {
-        let isExtractSupported = true
-        const modelExpressions = new Set()
-        nodes.forEach((node) =>
-          traverseFast(node, (node) => {
-            if (isDirectiveNode(node) && node.name === 'model') {
-              if (isSimpleExpressionNode(node.exp)) {
-                modelExpressions.add(node.exp.content.trim())
-              }
-            }
-          }),
+    const refactor: TS.ApplicableRefactorInfo = {
+      name: REFACTORS.EXTRACT_COMPONENT,
+      description: 'Extract to component',
+      inlineable: true,
+      actions: [extractInCurrentDirectory],
+    }
+
+    // Check if refactor can be applied
+    const document = helpers.getDocumentAt(fileName, position)
+    if (helpers.isRenderFunctionDocument(document)) {
+      const nodes = findNodes(document, position)
+      if (nodes.length === 0) {
+        extractInCurrentDirectory.notApplicableReason = 'No active selection'
+      } else if (document.ast != null && nodes.length > 1) {
+        const parent = findParentNode(document.ast, nodes)
+        if (isElementNode(parent)) {
+          if (detectConditionType(parent, nodes) === 'partial') {
+            extractInCurrentDirectory.notApplicableReason =
+              'Partial v-if/v-else-if/v-else tags cannot be extracted'
+          }
+        }
+      }
+    } else {
+      extractInCurrentDirectory.notApplicableReason =
+        'Only supported in template block'
+    }
+
+    // Load project component directories.
+    const project = context.getVueProjectForFile(fileName, true)
+    project.config.preferences.componentsDirectories.forEach((directory) => {
+      refactor.actions.push({
+        name: encode<ExtractComponentArgs>({ directory }),
+        description: `Extract to component in "${directory}" directory`,
+        notApplicableReason: extractInCurrentDirectory.notApplicableReason,
+      })
+    })
+
+    // TODO: Add options to extract including v-if/v-for on root node.
+
+    if (refactor.actions.length > 4) {
+      refactor.inlineable = false
+    }
+
+    return [refactor]
+  },
+  applyRefactor(config, fileName, _, position, refactorName, actionName) {
+    if (refactorName !== REFACTORS.EXTRACT_COMPONENT) return
+    const { helpers, context } = config
+    const args = decode(actionName as ExtractComponentAction)
+    const document = helpers.getRenderDoc(fileName)
+    if (document?.ast == null) return
+
+    // Resolved target directory.
+    const project = context.getVueProjectForFile(fileName, true)
+    const directoryName =
+      args.directory === '.'
+        ? Path.posix.dirname(fileName)
+        : Path.posix.resolve(project.rootDir, args.directory)
+
+    // Pick a placeholder component name.
+    const info = helpers.getComponentInfo(document.container)
+    const componentFileName = getFilenameForNewComponent(
+      config.context,
+      directoryName,
+      new Set(info.components.map((component) => component.name)),
+    )
+
+    const nodes = findNodes(document, position)
+
+    // Known identifiers.
+    const rawIdentifiers = new Set(
+      nodes.flatMap((node) => node.scope.identifiers),
+    )
+
+    // Collection of nodes that should be replaced when generating code of new component.
+    const replaceNodes = new Map<t.Node, null | t.Node>()
+    const addSkipNodes = (skipped: t.Node[], all: t.Node[]): void => {
+      skipped.forEach((node) => {
+        replaceNodes.set(node, null)
+        node.scope.identifiers.forEach((id) => rawIdentifiers.delete(id))
+      })
+      all.forEach((prop) => {
+        if (!replaceNodes.has(prop)) {
+          prop.scope.identifiers.forEach((id) => rawIdentifiers.add(id))
+        }
+      })
+    }
+
+    // Detect how to process conditional directives.
+    const parent = findParentNode(document.ast, nodes)
+    const conditionType = detectConditionType(parent, nodes) // TODO: Provide choice to user.
+    if (conditionType === 'preserve') {
+      nodes.forEach((node) => {
+        if (isElementNode(node)) {
+          addSkipNodes(
+            node.props.filter(
+              (prop) =>
+                isDirectiveNode(prop) && /^(if|else-if|else)$/.test(prop.name),
+            ),
+            [...node.props, ...node.children],
+          )
+        }
+      })
+    }
+
+    // For single element node extracts, for look can be preserved.
+    if (nodes.length === 1) {
+      const el = first(nodes)
+      if (isElementNode(el)) {
+        const forNode = el.props.find(
+          (prop) => isDirectiveNode(prop) && prop.name === 'for',
         )
 
-        if (modelExpressions.size > 1) {
-          const version = parseInt(
-            config.context.getVueVersion(document.container.fsPath),
-          )
-          if (version < 3) isExtractSupported = false
-        }
-
-        if (isExtractSupported) {
-          const extractAsComponent: TS.ApplicableRefactorInfo = {
-            name: 'component',
-            description: 'Extract to component',
-            inlineable: true,
-            actions: [
-              {
-                name: ':current',
-                description: 'Extract to component in current directory',
-              },
-            ],
-          }
-
-          const project = config.context.projectService.getDefaultProjectForFile(
-            config.context.typescript.server.toNormalizedPath(document.fsPath),
-            false,
-          )
-          if (project != null) {
-            config.context.config.directories
-              .filter((dir) => dir.kind === 'component')
-              .forEach((config) => {
-                extractAsComponent.actions.push({
-                  name: config.name,
-                  description: `Extract to component in ${config.name} directory`,
-                })
-              })
-          }
-
-          if (extractAsComponent.actions.length > 4) {
-            extractAsComponent.inlineable = false
-          }
-
-          return [extractAsComponent]
+        if (forNode != null) {
+          addSkipNodes([forNode], [...el.props, ...el.children])
         }
       }
     }
 
-    return []
-  },
-  applyRefactor(
-    config,
-    fileName,
-    options,
-    position,
-    refactorName,
-    actionName,
-    preferences,
-  ) {
-    const document = config.helpers.getRenderDoc(fileName)
-    if (document != null && refactorName === 'component') {
-      const path = Path.posix.dirname(fileName)
-      const info = config.helpers.getComponentInfo(document.container)
-      const directoryName = path
-      const componentFileName = getFilenameForNewComponent(
-        config.context,
-        directoryName,
-        new Set(info.components.map((component) => component.name)),
-      )
-      const nodes = findNodes(config, document, position)
-      const identifiers = Array.from(
-        new Set(
-          nodes.flatMap((node) =>
-            node.scope.identifiers.filter(
-              (id) => node.scope.getBinding(id) !== node,
-            ),
-          ),
-        ),
-      )
-      const template = document.container
-        .getDocument('template')
-        .getText()
-        .substring(
-          nodes[0].loc.start.offset,
-          nodes[nodes.length - 1].loc.end.offset,
-        )
-      // TODO: detect types of props.
-      const script: string[] = [`import { defineComponent } from 'vue'`]
-      const components = new Set<string>()
-      const models = new Set<string>()
-      nodes.forEach((node) =>
-        traverseFast(node, (node) => {
-          if (isComponentNode(node)) components.add(node.tag)
-          else if (isDirectiveNode(node) && node.name === 'model') {
-            if (isSimpleExpressionNode(node.exp)) {
+    // Find components, v-model and v-emit.
+    const components = new Set<string>()
+    const models = new Set<string>()
+    const emits = new Map<string, string>()
+    nodes.forEach((node) =>
+      traverseFast(node, (node) => {
+        if (isComponentNode(node)) components.add(node.tag)
+        else if (isDirectiveNode(node)) {
+          if (isSimpleExpressionNode(node.exp)) {
+            if (node.name === 'model') {
               node.exp.scope.globals.forEach((identifier) => {
                 models.add(identifier)
+                rawIdentifiers.delete(identifier)
               })
+            } else if (node.name === 'on') {
+              if (isSimpleIdentifier(node.exp.content.trim())) {
+                const name = node.exp.content.trim()
+                addSkipNodes([node.exp], [])
+                replaceNodes.set(
+                  node.exp,
+                  createSimpleExpression(`$emit('${name}')`, false),
+                )
+
+                emits.set(name, name)
+              }
             }
           }
-        }),
-      )
+        }
+      }),
+    )
 
+    // Generate template for new component
+    const identifiers = Array.from(rawIdentifiers)
+    const script: string[] = []
+
+    if (project.config.preferences.script.mode === 'normal') {
+      // Generate options for new component
       const options = {
-        components: `components: {${info.components.reduce(
-          (text, { name, source }) => {
-            if (components.has(name)) {
-              script.push(
-                `import ${
-                  source.exportName != null
-                    ? `{ ${
-                        source.localName === source.exportName
-                          ? ``
-                          : `${source.exportName} as `
-                      }${source.localName} }`
-                    : `${source.localName}`
-                } from '${source.moduleName}'`,
-              )
-              return (
-                text +
-                `${
-                  name === source.localName
-                    ? ``
-                    : `${/^[a-z0-9]$/i.test(name) ? `'${name}'` : name}: `
-                }${source.localName}, `
-              )
-            }
-
-            return text
-          },
-          '',
-        )}},`,
-        props: `props: [${identifiers
-          .map((identifier) => `'${identifier}'`)
-          .join(', ')}],`,
-      }
-      script.push(
-        `export default defineComponent({\n  ${options.props}\n  ${options.components}\n})`,
-      )
-      const code = `<script>\n${script.join(
-        '\n',
-      )}\n</script>\n\n<template>\n${formatTemplate(template)}\n</template>\n`
-
-      let {
-        name,
-        changes,
-        renameLocation,
-        isScript,
-      } = getImportEditForComponent(document.container, info, componentFileName)
-
-      const templateReplacement = {
-        newText: `<${name} ${identifiers
-          .map(
-            (identifer) =>
-              `${
-                models.has(identifer) ? 'v-model' : ''
-              }:${identifer}="${identifer}"`,
-          )
-          .join(' ')}/>`,
-        span: {
-          start: nodes[0].loc.start.offset,
-          length: template.length,
-        },
+        components: genComponentsOptionsText({
+          info,
+          addImport: (text) => script.push(text),
+          fileName,
+          components,
+          componentFileName,
+        }),
+        props: genPropsOptionsText({ identifiers, models }),
+        emits: genEmitsOptionsText({ emits, models }),
       }
 
-      changes.push(templateReplacement)
+      const optionsText = Array.from(Object.values(options))
+        .filter(Boolean)
+        .map((line) => '  ' + line)
+        .join('\n')
 
-      // Template is before script, need to adjust rename trigger location.
-      if (isScript && templateReplacement.span.start < renameLocation) {
-        renameLocation =
-          renameLocation - template.length + templateReplacement.newText.length
+      if (optionsText !== '') {
+        script.unshift(`import { defineComponent } from 'vue'`)
+        script.push(`export default defineComponent({\n${optionsText}\n})`)
+      }
+    } else {
+      // We don't need to register components in <script setup> mode, so reusing
+      // components option generation but rejecting output and keeping only imports.
+      genComponentsOptionsText({
+        info,
+        addImport: (text) => script.push(text),
+        fileName,
+        components,
+        componentFileName,
+      })
+
+      // TODO: Generate props/emits in object syntax with types maybe.
+      const vueImports: string[] = []
+      if (identifiers.length > 0 || models.size > 0) {
+        vueImports.push('defineProps')
+        script.push(
+          `const props = defineProps(${genProps(context, [
+            ...identifiers,
+            ...models,
+          ])})`,
+        )
       }
 
-      config.context.createVueDocument(componentFileName, code)
+      if (emits.size > 0 || models.size > 0) {
+        vueImports.push('defineEmit')
+        const text = genEmits(
+          context,
+          Array.from(emits.keys()),
+          Array.from(models),
+        )
 
-      return {
-        renameFilename: document.container.fsPath,
-        renameLocation,
-        edits: [
-          {
-            isNewFile: true,
-            fileName: componentFileName,
-            textChanges: [
-              {
-                span: {
-                  start: 0,
-                  length: 0,
-                },
-                newText: code,
-              },
-            ],
-          },
-          {
-            fileName: document.container.fsPath,
-            textChanges: changes,
-          },
-        ],
+        script.push(`const emit = defineEmit(${text})`)
+      }
+
+      if (vueImports.length > 0) {
+        script.unshift(`import { ${vueImports.join(', ')} } from 'vue'`)
       }
     }
 
-    return undefined
+    const sfc: string[] = []
+    if (script.length > 0) {
+      sfc.push(
+        getScriptStartTag(project.config.preferences.script),
+        ...script,
+        `</script>\n`,
+      )
+    }
+
+    sfc.push(
+      `<template>${stringify(nodes, {
+        indent: 2,
+        initialIndent: 1,
+        directive: project.config.preferences.template.directiveSyntax,
+        replaceNodes,
+      })}</template>\n`,
+    )
+
+    // Generate text changes to import newly created component.
+    const code = sfc.join('\n')
+    const { name, changes, renameLocation } = getImportEditForComponent(
+      document.container,
+      info,
+      componentFileName,
+      project.config,
+    )
+
+    // Generate text changes to use newly created component in <template> of current component.
+    const templateReplacement = {
+      newText: genTagForExtractedComponent({
+        name,
+        project,
+        emits,
+        models,
+        identifiers,
+        replaceNodes,
+      }),
+      span: {
+        start: first(nodes).loc.start.offset,
+        length: last(nodes).loc.end.offset - first(nodes).loc.start.offset,
+      },
+    }
+
+    changes.push(templateReplacement)
+    config.context.createVueDocument(componentFileName, code)
+
+    return {
+      renameFilename: document.container.fsPath,
+      renameLocation: renameLocation,
+      edits: [
+        {
+          isNewFile: true,
+          fileName: componentFileName,
+          textChanges: [
+            {
+              span: {
+                start: 0,
+                length: 0,
+              },
+              newText: code,
+            },
+          ],
+        },
+        {
+          fileName: document.container.fsPath,
+          textChanges: changes,
+        },
+      ],
+    }
   },
 }
-function formatTemplate(template: string): string {
-  const index = template.indexOf('\n')
 
-  if (index >= 0) {
-    const firstLine = template.substr(0, index + 1)
-    const otherLines = template.substr(index + 1)
-    return indent(firstLine + deIndent(otherLines))
+function genEmits(
+  context: PluginContext,
+  emits: string[],
+  models: string[],
+): string {
+  return `[${[...emits, ...models.map((id) => `onUpdate:${id}`)]
+    .map((key) => `'${key}'`)
+    .join(', ')}]`
+}
+
+function genProps(context: PluginContext, identifiers: string[]): string {
+  return `[${identifiers.map((id) => `'${id}'`).join(', ')}]`
+}
+
+function genTagForExtractedComponent({
+  name,
+  project,
+  emits,
+  models,
+  identifiers,
+  replaceNodes,
+}: {
+  name: string
+  project: VueProject
+  emits: Map<string, string>
+  models: Set<string>
+  identifiers: string[]
+  replaceNodes: Map<t.Node, t.Node | null>
+}): string {
+  const useShorthand =
+    project.config.preferences.template.directiveSyntax === 'shorthand'
+  const skipNodes = new Set<t.Node>()
+  replaceNodes.forEach((value, key) => {
+    if (value == null) skipNodes.add(key)
+  })
+  const skipNodesTemplate = Array.from(skipNodes)
+    .map((node) =>
+      stringify(node, {
+        indent: 2,
+        initialIndent: 0,
+        directive: project.config.preferences.template.directiveSyntax,
+      }),
+    )
+    .join(' ')
+  const modelsTemplate = Array.from(models)
+    .map((id) => `v-model:${id}="${id}"`)
+    .join(' ')
+
+  const vOnDirText = useShorthand ? '@' : 'v-on:'
+  const vBindDirText = useShorthand ? ':' : 'v-bind:'
+
+  const emitsTemplate = Array.from(emits.entries())
+    .map(([key, value]) => `${vOnDirText}${key}="${value}"`)
+    .join(' ')
+
+  const bindsTemplate = identifiers
+    .map((id) => `${vBindDirText}${id}="${id}"`)
+    .join(' ')
+
+  const openTag = [
+    name,
+    skipNodesTemplate,
+    modelsTemplate,
+    emitsTemplate,
+    bindsTemplate,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  return `<${openTag} />`
+}
+
+function genEmitsOptionsText({
+  emits,
+  models,
+}: {
+  emits: Map<string, string>
+  models: Set<string>
+}): string {
+  const text = [
+    ...emits.keys(),
+    ...Array.from(models).map((id) => `onUpdate:${id}`),
+  ]
+    .map((key) => `'${key}'`)
+    .join(', ')
+
+  return text !== '' ? `emits: [${text}],` : ''
+}
+
+function genPropsOptionsText({
+  identifiers,
+  models,
+}: {
+  identifiers: string[]
+  models: Set<string>
+}): string {
+  const text = [...identifiers, ...models].map((id) => `'${id}'`).join(', ')
+  return text !== '' ? `props: [${text}],` : ''
+}
+
+function genComponentsOptionsText({
+  components,
+  info,
+  addImport,
+  fileName,
+  componentFileName,
+}: {
+  info: ComponentInfo
+  addImport: (text: string) => void
+  fileName: string
+  componentFileName: string
+  components: Set<string>
+}): string {
+  const text = info.components
+    .map(({ name, source, aliases }) => {
+      if (aliases.some((alias) => components.has(alias))) {
+        addImport(genComponentImport(fileName, componentFileName, source))
+        const registration =
+          name === source.localName
+            ? source.localName
+            : `${name}: ${source.localName}`
+
+        return registration
+      }
+    })
+    .filter(Boolean)
+    .join(', ')
+
+  return text !== '' ? `components: {${text}},` : ''
+}
+
+function genComponentImport(
+  oldFileName: string,
+  newFileName: string,
+  source: ImportSourceWithLocation,
+): string {
+  let moduleName = source.moduleName
+
+  if (moduleName.startsWith('.')) {
+    moduleName = Path.posix.relative(
+      Path.posix.dirname(newFileName),
+      Path.posix.resolve(Path.posix.dirname(oldFileName), moduleName),
+    )
+
+    if (!moduleName.startsWith('.')) {
+      moduleName = `./${moduleName}`
+    }
   }
 
-  return indent(template)
+  return `import ${
+    source.exportName != null
+      ? `{ ${
+          source.localName === source.exportName
+            ? ``
+            : `${source.exportName} as `
+        }${source.localName} }`
+      : `${source.localName}`
+  } from '${moduleName}'`
+}
+
+function detectConditionType(
+  parent: t.ElementNode | t.RootNode,
+  nodes: t.Node[],
+): 'none' | 'extract' | 'preserve' | 'partial' {
+  const conditions = nodes.map((node) => {
+    if (isElementNode(node)) {
+      return node.props.find(
+        (prop) =>
+          isDirectiveNode(prop) && /^(if|else-if|else)$/.test(prop.name),
+      )
+    }
+  })
+
+  const nonNullConditions = conditions.filter((condition) => condition != null)
+
+  if (nonNullConditions.length > 0) {
+    if (conditions.length === 1) return 'preserve'
+
+    const firstCondition = first(conditions)
+    const lastCondition = last(conditions)
+    if (
+      (firstCondition == null || firstCondition.name === 'if') &&
+      (lastCondition == null || lastCondition.name === 'else')
+    ) {
+      return 'extract'
+    }
+
+    if (firstCondition != null && firstCondition.name !== 'if') return 'partial'
+    const nextSibling = findNextSibling(parent.children, last(nodes))
+    const nextCondition = isElementNode(nextSibling)
+      ? nextSibling.props.find(
+          (prop) => isDirectiveNode(prop) && /^(else-if|else)$/.test(prop.name),
+        )
+      : undefined
+
+    if (nextCondition == null) return 'extract'
+
+    return 'partial'
+  } else {
+    return 'none'
+  }
+}
+
+function getScriptStartTag(
+  preferences: ProjectConfigNormalized['preferences']['script'],
+): string {
+  return preferences.mode === 'normal'
+    ? preferences.language !== 'js'
+      ? `<script lang=${JSON.stringify(preferences.language)}>`
+      : `<script>`
+    : preferences.language !== 'js'
+    ? `<script lang=${JSON.stringify(preferences.language)} setup>`
+    : `<script setup>`
 }
 
 function findNodes(
-  config: LanguageServiceOptions,
   document: RenderFunctionTextDocument,
   position: number | TS.TextRange,
 ): t.Node[] {
   return document.ast != null
     ? typeof position === 'number'
-      ? config.helpers.findTemplateNodesIn(document.ast, position, position)
-      : config.helpers.findTemplateNodesIn(
-          document.ast,
-          position.pos,
-          position.end,
-        )
+      ? findTemplateChildrenInRange(document.ast, position, position)
+      : findTemplateChildrenInRange(document.ast, position.pos, position.end)
     : []
+}
+
+function findParentNode(
+  ast: t.RootNode,
+  nodes: t.Node[],
+): t.ElementNode | t.RootNode {
+  if (nodes.length === 0) return ast
+
+  const search = nodes[0]
+  let result: t.ElementNode | undefined
+
+  traverseFast(ast, (node, _, stop) => {
+    if (isElementNode(node)) {
+      if (node.children.includes(search as any)) {
+        result = node
+        stop()
+      }
+    }
+  })
+
+  return result ?? ast
 }
 
 function getImportEditForComponent(
   document: VueTextDocument,
   info: ComponentInfo,
   fileName: string,
+  config: ProjectConfigNormalized,
 ): {
   name: string
   changes: TS.TextChange[]
   renameLocation: number
-  isScript: boolean
 } {
-  const changes: TS.TextChange[] = []
   const name = getComponentName(fileName)
   const { script, scriptSetup } = document.descriptor
   const relativeFileName = `./${Path.posix.relative(
     Path.posix.dirname(document.fsPath),
     fileName,
   )}`
-  let renameLocation = 0
-  let isScript = false
+  const importStatement = `import ${name} from '${relativeFileName}';\n`
+  let renameLocation =
+    importStatement.indexOf(relativeFileName) + relativeFileName.length - 3
+  const changes = registerLocalComponentWithSource(
+    document,
+    info,
+    { moduleName: relativeFileName, localName: name },
+    config.preferences.script,
+    importStatement,
+  )
 
   if (scriptSetup != null) {
-    const newText = `\nexport { default as ${name} } from '${relativeFileName}';`
-    renameLocation =
-      scriptSetup.loc.start.offset +
-      newText.indexOf(relativeFileName) +
-      relativeFileName.length -
-      5
-    changes.push({
-      newText,
-      span: { start: scriptSetup.loc.start.offset, length: 0 },
-    })
+    renameLocation += scriptSetup.loc.start.offset
   } else if (script != null) {
-    isScript = true
-    const newText = `\nimport ${name} from '${relativeFileName}';`
-    renameLocation =
-      script.loc.start.offset +
-      newText.indexOf(relativeFileName) +
-      relativeFileName.length -
-      5
-    changes.push({
-      newText,
-      span: { start: script.loc.start.offset, length: 0 },
-    })
-
-    if (info.options?.properties.components != null) {
-      const components = info.options.properties.components
-      const start = components.loc.start.offset + 1
-      const padding = getPaddingLength(components.loc.source, 1)
-      changes.push({
-        newText: components.loc.source.substr(1, padding) + `${name},`,
-        span: { start, length: 0 },
-      })
-    } else if (info.options != null) {
-      const start = info.options.loc.start.offset + 1
-      const padding = getPaddingLength(info.options.loc.source, 1)
-      changes.push({
-        newText:
-          info.options.loc.source.substr(1, padding) +
-          `components: { ${name} },`,
-        span: { start, length: 0 },
-      })
-    } else if (info.setup != null) {
-      changes.push(
-        {
-          newText: `{\n  components: { ${name} },\n setup: `,
-          span: { start: info.setup.loc.start.offset, length: 0 },
-        },
-        {
-          newText: `\n}`,
-          span: { start: info.setup.loc.end.offset, length: 0 },
-        },
-      )
-    } else {
-      changes.push({
-        newText: `\nexport default { components: { ${name} } };\n`,
-        span: { start: script.loc.end.offset, length: 0 },
-      })
-    }
+    renameLocation += script.loc.start.offset
   } else {
-    isScript = false
-    const newText = `<script>\nimport ${name} from '${relativeFileName}';\nexport default { components: { ${name} } }\n</script>\n\n`
-    renameLocation =
-      newText.indexOf(relativeFileName) + relativeFileName.length - 5
-    changes.push({
-      newText,
-      span: { start: 0, length: 0 },
-    })
-
-    // if <script></script>  is there, it should be removed.
-    const m = /^<script[^>]*><\/script>/m.exec(document.getText())
-    if (m != null) {
-      changes.push({
-        newText: '',
-        span: { start: m.index, length: m[0].length },
-      })
-    }
+    renameLocation += changes[0].newText.indexOf(importStatement)
   }
 
-  return { name, changes, renameLocation, isScript }
+  return { name, changes, renameLocation }
 }

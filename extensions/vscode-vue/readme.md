@@ -66,7 +66,7 @@ for embedding Vue template DSL in markdown.
 ## Creating Themes
 
 This extension provides detailed token and scope information which can be
-used to create better VS Code themes.
+used to create better VS Code themes. Find more details on [project wiki](https://github.com/znck/vue-developer-experience/wiki/Theme-Guide).
 
 ---
 

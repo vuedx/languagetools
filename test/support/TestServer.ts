@@ -311,6 +311,16 @@ export class TestServer {
     command: 'completionEntryDetails' | Proto.CommandTypes.CompletionDetails,
     args: Proto.CompletionDetailsRequest['arguments'],
   ): Promise<Proto.CompletionDetailsResponse>
+ 
+  public async sendCommand(
+    command: 'getApplicableRefactors' | Proto.CommandTypes.GetApplicableRefactors,
+    args: Proto.GetApplicableRefactorsRequest['arguments'],
+  ): Promise<Proto.GetApplicableRefactorsResponse>
+
+  public async sendCommand(
+    command: 'getEditsForRefactor' | Proto.CommandTypes.GetEditsForRefactor,
+    args: Proto.GetEditsForRefactorRequest['arguments'],
+  ): Promise<Proto.GetEditsForRefactorResponse>
 
   public async sendCommand(command: string, args: any): Promise<any> {
     return this.sendRequest({ command, arguments: args }) as any

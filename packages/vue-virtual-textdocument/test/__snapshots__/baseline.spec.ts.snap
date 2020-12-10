@@ -540,6 +540,30 @@ export function render({name,..._ctx}: InstanceType<typeof _Ctx>) {
 }
 `;
 
+exports[`VueVirtualDocument/baseline feature-refactor/src/extract-function/sample1.after.vue 1`] = `
+import _Ctx from './sample1.after.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({newFunction,..._ctx}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div data-value={newFunction()} ></div></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-refactor/src/extract-function/sample1.before.vue 1`] = `
+import _Ctx from './sample1.before.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({foo, two, three, four, five,..._ctx}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><div data-value={foo + two + three + four.foo + five.foo} ></div></>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-rename/src/Javascript.vue 1`] = `
 import _Ctx from './Javascript.vue?internal'
 import HelloWorld from './components/HelloWorld.vue'

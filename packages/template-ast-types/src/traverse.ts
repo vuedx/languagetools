@@ -134,7 +134,7 @@ export function traverseEvery<T>(
 
 export function traverseFast<T = any>(
   node: object,
-  enter: (node: Node, state: T) => void,
+  enter: (node: Node, state: T, stop: () => void) => void,
   state?: T,
 ): void {
   if (!isNode(node)) return
@@ -142,17 +142,30 @@ export function traverseFast<T = any>(
   const keys = VISITOR_KEYS[node.type]
   if (keys == null) return
 
-  enter(node, state as T)
+  let isStopped = false
+  const stop = (): void => {
+    isStopped = true
+  }
+  enter(node, state as T, stop)
+  if (isStopped) return
 
+  const forwardEnter = (node: Node, state: T, prevStop: () => void): void => {
+    enter(node, state, () => {
+      stop()
+      prevStop()
+    })
+  }
   for (const key of keys) {
     const subNode = node[key]
 
     if (Array.isArray(subNode)) {
       for (const node of subNode) {
-        traverseFast(node, enter, state)
+        traverseFast(node, forwardEnter, state)
+        if (isStopped) return
       }
     } else if (isNode(subNode)) {
-      traverseFast(subNode, enter, state)
+      traverseFast(subNode, forwardEnter, state)
+      if (isStopped) return
     }
   }
 }

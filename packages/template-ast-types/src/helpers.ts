@@ -1,13 +1,12 @@
+import type t from '@vue/compiler-core'
 import {
-  TraversalAncestors,
-  traverseEvery,
+  isCommentNode,
   isElementNode,
+  isInterpolationNode,
   isRootNode,
   isTextNode,
-  isInterpolationNode,
-  isCommentNode,
-  t,
-} from '@vuedx/template-ast-types'
+} from './assert'
+import { TraversalAncestors, traverseEvery, traverseFast } from './traverse'
 
 export interface SearchResult {
   node: t.Node | null
@@ -18,14 +17,15 @@ export function findTemplateNodeAt(
   ast: t.RootNode,
   position: number,
 ): SearchResult {
-  return findTemplateNodeFor(ast, position, position)
+  return findTemplateNodeInRange(ast, position, position)
 }
 
-export function findTemplateElementNodeAt(
+export function findTemplateChildNodeAt(
   ast: t.RootNode,
   position: number,
+  mode?: 'start' | 'end',
 ): SearchResult {
-  const result = findTemplateNodeFor(ast, position, position)
+  const result = findTemplateNodeInRange(ast, position, position, mode)
 
   while (result.ancestors.length > 0) {
     if (
@@ -47,10 +47,11 @@ export function findTemplateElementNodeAt(
   }
 }
 
-export function findTemplateNodeFor(
+export function findTemplateNodeInRange(
   ast: t.RootNode,
   start: number,
   end: number,
+  mode?: 'start' | 'end',
 ): SearchResult {
   const found = {
     node: null as t.Node | null,
@@ -58,32 +59,54 @@ export function findTemplateNodeFor(
   }
 
   traverseEvery(ast, (node, ancestors) => {
-    if (node.loc.start.offset <= start && end <= node.loc.end.offset) {
+    if (
+      mode === 'start'
+        ? node.loc.start.offset <= start && end < node.loc.end.offset
+        : mode === 'end'
+        ? node.loc.start.offset < start && end <= node.loc.end.offset
+        : node.loc.start.offset <= start && end <= node.loc.end.offset
+    ) {
       found.node = node
       found.ancestors = ancestors.slice()
 
       return true
+    } else {
+      return false
     }
-
-    return false
   })
 
   return found
 }
 
-export function findTemplateNodesIn(
+export function findTemplateNodesInRange(
+  ast: t.RootNode,
+  start: number,
+  end: number,
+): t.Node[] {
+  const found: t.Node[] = []
+
+  traverseFast(ast, (node) => {
+    if (node.loc.start.offset <= start && end <= node.loc.end.offset) {
+      found.push(node)
+    }
+  })
+
+  return found
+}
+
+export function findTemplateChildrenInRange(
   ast: t.RootNode,
   start: number,
   end: number,
 ): t.Node[] {
   if (start === end) {
-    const a = findTemplateElementNodeAt(ast, start)
+    const a = findTemplateChildNodeAt(ast, start)
 
     return a.node != null ? [a.node] : []
   }
 
-  const a = findTemplateElementNodeAt(ast, start)
-  const b = findTemplateElementNodeAt(ast, end)
+  const a = findTemplateChildNodeAt(ast, start, 'start')
+  const b = findTemplateChildNodeAt(ast, end, 'end')
   if (a.node == null || b.node == null) return []
   if (a.node === b.node) return [a.node]
 

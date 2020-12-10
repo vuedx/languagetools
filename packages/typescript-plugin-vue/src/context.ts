@@ -110,7 +110,7 @@ export class PluginContext {
   }
 
   public getVueVersion(fileName: string): string {
-    return '3.0.0'
+    return this.getVueProjectForFile(fileName, false)?.version ?? '3.0.0'
   }
 
   public getExternalFiles(project: TS.server.Project): string[] {
@@ -330,6 +330,13 @@ export class PluginContext {
     })
   }
 
+  public hasAnyVueReference(fileName: string): boolean {
+    // TODO: check if there is an import from .vue file or not.
+    // This could be used in routing service to skip some work when .vue
+    // is not in the play.
+    return true
+  }
+
   public createVueDocument(fileName: string, content: string): VueTextDocument {
     const uri = URI.file(fileName).toString()
     const document = VueTextDocument.create(uri, 'vue', 0, content, {
@@ -341,7 +348,9 @@ export class PluginContext {
           : project.globalComponents
       }),
     })
+
     this.store.set(uri, document)
+
     return document
   }
 

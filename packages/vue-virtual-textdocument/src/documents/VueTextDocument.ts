@@ -3,7 +3,6 @@ import {
   ComponentsOptionAnalyzer,
   createAnalyzer,
   ScriptBlockAnalyzer,
-  getComponentName,
 } from '@vuedx/analyze'
 import {
   parse,
@@ -13,6 +12,13 @@ import {
   SFCStyleBlock,
 } from '@vuedx/compiler-sfc'
 import { CodegenResult, compile, ComponentImport } from '@vuedx/compiler-tsx'
+import { getComponentName, isNotNull, isNumber, isString } from '@vuedx/shared'
+import Path from 'path'
+import {
+  Position as SourceMapPosition,
+  RawSourceMap,
+  SourceMapConsumer,
+} from 'source-map'
 import {
   Position,
   TextDocument,
@@ -34,21 +40,12 @@ import {
   binarySearch,
   getBlockLanguage,
   getLanguageExtension,
-  isNotNull,
-  isNumber,
   isOffsetInBlock,
-  isString,
   parseVirtualFileName,
   relativeVirtualImportPath,
   VIRTUAL_FILENAME_SEPARATOR,
 } from '../utils'
 import { ProxyTextDocument } from './ProxyTextDocument'
-import {
-  SourceMapConsumer,
-  RawSourceMap,
-  Position as SourceMapPosition,
-} from 'source-map'
-import Path from 'path'
 
 const analyzer = createAnalyzer([ScriptBlockAnalyzer, ComponentsOptionAnalyzer])
 const replaceRE = /./g
@@ -813,8 +810,8 @@ export class VueTextDocument extends ProxyTextDocument {
   }
 
   public blockAt(position: Position | number): SFCBlock | null | undefined {
-    const offset = isNumber(position) ? position : this.offsetAt(position)
     const descriptor = this.descriptor
+    const offset = isNumber(position) ? position : this.offsetAt(position)
 
     if (isOffsetInBlock(offset, descriptor.template)) return descriptor.template
     if (isOffsetInBlock(offset, descriptor.script)) return descriptor.script

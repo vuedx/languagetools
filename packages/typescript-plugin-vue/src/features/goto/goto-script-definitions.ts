@@ -1,10 +1,10 @@
 import {
+  findTemplateNodeAt,
   isAttributeNode,
   isElementNode,
   isSimpleExpressionNode,
 } from '@vuedx/template-ast-types'
 import { RenderFunctionTextDocument } from '@vuedx/vue-virtual-textdocument'
-import { findTemplateNodeAt } from '../../helpers/ast-ops'
 import { TS } from '../../interfaces'
 import { GotoProvider } from './abstract'
 
@@ -26,7 +26,7 @@ export const GotoScriptDefinitions: GotoProvider = {
 
     let isTextSpanSet = false
     const definitions: TS.DefinitionInfo[] = []
-    const nodeAtCursor = h.findNodeAtPosition(document.fsPath, position)
+    const nodeAtCursor = h.findTemplateNodeAtPosition(document.fsPath, position)
 
     result.definitions?.forEach((definition) => {
       if (h.isRenderFunctionFileName(definition.fileName)) {

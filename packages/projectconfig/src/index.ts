@@ -12,6 +12,9 @@ export interface ProjectPreferences {
   style: {
     language: 'css' | 'scss' | 'sass' | 'styl' | 'stylus' | 'less'
   }
+  template: {
+    directiveSyntax: 'shorthand' | 'longhand'
+  }
 }
 
 export interface ProjectConfigNormalized {

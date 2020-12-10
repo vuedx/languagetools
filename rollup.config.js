@@ -14,17 +14,18 @@ const files = glob(['packages/src/**/*.ts'], { cwd: process.cwd() })
 
 /** @type {import('rollup').RollupOptions[]} */
 const config = [
-  type('compiler-sfc'),
-  type('analyze'),
-  { ...type('compiler-tsx'), input: abs('packages/compiler-tsx/src/entry.ts') },
-  type('template-ast-types'),
-  type('typecheck'),
+  type('shared'),
   type('projectconfig'),
-  type('typescript-plugin-vue'),
-  type('typescript-vetur'),
+  type('compiler-sfc'),
+  type('template-ast-types'),
+  { ...type('compiler-tsx'), input: abs('packages/compiler-tsx/src/entry.ts') },
+  type('analyze'),
   type('vue-virtual-textdocument'),
+  type('typescript-plugin-vue'),
+  type('typecheck'),
+  type('typescript-vetur'),
 
-  bundle('analyze'),
+  bundle('shared'),
   {
     ...bundle(
       'compiler-sfc',
@@ -57,12 +58,15 @@ const config = [
       warn(warning)
     },
   },
-  bundle('compiler-tsx'),
-  bundle('typecheck', [], ['typescript/lib/tsserverlibrary']),
   bundle('template-ast-types'),
-  bundle('typescript-plugin-vue'),
-  bundle('typescript-vetur'),
+  bundle('compiler-tsx'),
+  bundle('analyze'),
   bundle('vue-virtual-textdocument'),
+  bundle('typescript-plugin-vue'),
+  bundle('typecheck', [], ['typescript/lib/tsserverlibrary']),
+  bundle('typescript-vetur'),
+
+  extension('coc-vue'),
 ]
 
 export default config
@@ -173,6 +177,7 @@ function extension(name, plugins = []) {
     moduleContext: () => 'undefined',
     external: [
       'vscode',
+      'coc.nvim',
       ...builtIns,
       ...deps(`./extensions/${name}/package.json`),
     ],

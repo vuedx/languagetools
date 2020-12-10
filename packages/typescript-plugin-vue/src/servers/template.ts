@@ -1,3 +1,4 @@
+import { getComponentName, isNotNull } from '@vuedx/shared'
 import {
   isComponentNode,
   isDirectiveNode,
@@ -20,7 +21,6 @@ import { GOTO_PROVIDERS } from '../features/goto'
 import { REFACTOR_PROVIDERS } from '../features/refactors'
 import { RENAME_PROVIDERS } from '../features/renames'
 import { wrapInTrace } from '../helpers/logger'
-import { getComponentName, isNotNull } from '../helpers/utils'
 import { TS } from '../interfaces'
 import { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
@@ -151,7 +151,10 @@ export function createTemplateLanguageServer(
 
       if (document == null) return result
 
-      const nodeAtCursor = h.findNodeAtPosition(document.fsPath, position)
+      const nodeAtCursor = h.findTemplateNodeAtPosition(
+        document.fsPath,
+        position,
+      )
       const loc = document.tryGetGeneratedOffset(position)
       const {
         isTagCompletion,
@@ -379,7 +382,10 @@ export function createTemplateLanguageServer(
       const loc = document.getGeneratedOffsetAt(position)
       if (loc == null) return
 
-      const nodeAtCursor = h.findNodeAtPosition(document.fsPath, position)
+      const nodeAtCursor = h.findTemplateNodeAtPosition(
+        document.fsPath,
+        position,
+      )
       const result = choose(document.fsPath).getQuickInfoAtPosition(
         fileName,
         loc.offset,
@@ -585,7 +591,11 @@ export function createTemplateLanguageServer(
           position,
           preferences,
         )
-        if (result != null) return result
+        if (result != null) {
+          context.log(`@@DEBUG found getRenameInfo using "${provider.name}"`)
+
+          return result
+        }
       }
 
       return {
@@ -603,13 +613,19 @@ export function createTemplateLanguageServer(
           findInStrings,
           findInComments,
         )
-        if (result != null) return result
-      }
 
-      return []
+        if (result != null) {
+          context.log(
+            `@@DEBUG found findRenameLocations using "${provider.name}"`,
+          )
+
+          return result
+        }
+      }
     },
 
     getEditsForFileRenameIn(fileName, oldFilePath, newFilePath) {
+      const fileTextChanges: TS.FileTextChanges[] = []
       for (const provider of RENAME_PROVIDERS) {
         const result = provider.applyFileRename(
           config,
@@ -619,10 +635,10 @@ export function createTemplateLanguageServer(
           {},
           {},
         )
-        if (result != null) return result
+        if (result != null) fileTextChanges.push(...result)
       }
 
-      return []
+      return fileTextChanges
     },
 
     getApplicableRefactors(fileName, position, preferences = {}) {
@@ -650,8 +666,13 @@ export function createTemplateLanguageServer(
       actionName,
       preferences = {},
     ) {
-      for (const provider of REFACTOR_PROVIDERS) {
-        const result = provider.applyRefactor(
+      const provider = REFACTOR_PROVIDERS.find(
+        (provider) => provider.name === refactorName,
+      )
+
+      if (provider != null) {
+        context.log(`@@DEBUG: Using ${provider.name}`)
+        return provider.applyRefactor(
           config,
           fileName,
           formatOptions,
@@ -660,8 +681,6 @@ export function createTemplateLanguageServer(
           actionName,
           preferences,
         )
-
-        if (result != null) return result
       }
     },
 
