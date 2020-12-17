@@ -125,7 +125,7 @@ importers:
       typescript: 4.0.3
       vsce: 1.81.0
     specifiers:
-      '@types/vscode': ^1.52.0
+      '@types/vscode': ^1.50.0
       '@vercel/ncc': ^0.24.1
       '@vuedx/analyze': 'workspace:^0.3.0'
       '@vuedx/typescript-plugin-vue': 'workspace:*'
