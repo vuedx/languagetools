@@ -18,29 +18,17 @@ import { REFACTORS } from '../features/refactors/abstract'
 import { getChangesForComponentTagRename } from '../features/renames/component-tag'
 import { wrapInTrace } from '../helpers/logger'
 import { isSpanInSourceRange } from '../helpers/utils'
-import { PluginConfig, TS } from '../interfaces'
+import { TS } from '../interfaces'
 import { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
 import { createTemplateLanguageServer } from './template'
 
-type GetElementType<T> = T extends Array<infer U> ? U : T
 export function createVueLanguageServer(
   options: LanguageServiceOptions,
 ): TS.LanguageService {
   const template = createTemplateLanguageServer(options)
   const { helpers: h, service, context } = options
   const script = wrapInTrace('ScriptLanguageServer', service)
-
-  function isFeatureEnabled<K extends keyof PluginConfig['features']>(
-    featureName: K,
-    checkFor: boolean | GetElementType<PluginConfig['features'][K]> = true,
-  ): boolean {
-    const feature = context.config.features[featureName]
-
-    return Array.isArray(feature)
-      ? feature.includes(checkFor)
-      : feature === checkFor
-  }
 
   function choose(document: VirtualTextDocument): TS.LanguageService {
     if (h.isRenderFunctionDocument(document)) {
@@ -54,7 +42,7 @@ export function createVueLanguageServer(
     ...noop,
 
     getSemanticDiagnostics(fileName) {
-      if (!isFeatureEnabled('diagnostics', 'semantic')) {
+      if (!h.isFeatureEnabled('diagnostics', 'semantic')) {
         return []
       }
 
@@ -77,7 +65,7 @@ export function createVueLanguageServer(
     },
 
     getSuggestionDiagnostics(fileName) {
-      if (!isFeatureEnabled('diagnostics', 'suggestion')) {
+      if (!h.isFeatureEnabled('diagnostics', 'suggestion')) {
         return []
       }
 
@@ -100,7 +88,7 @@ export function createVueLanguageServer(
     },
 
     getSyntacticDiagnostics(fileName) {
-      if (!isFeatureEnabled('diagnostics', 'syntactic')) {
+      if (!h.isFeatureEnabled('diagnostics', 'syntactic')) {
         return []
       }
 
@@ -123,7 +111,7 @@ export function createVueLanguageServer(
     },
 
     organizeImports(scope, formatOptions, preferences) {
-      if (!isFeatureEnabled('organizeImports')) return []
+      if (!h.isFeatureEnabled('organizeImports')) return []
 
       const document = h.getVueDocument(scope.fileName)
       if (document != null) {
@@ -142,7 +130,7 @@ export function createVueLanguageServer(
     },
 
     getQuickInfoAtPosition(fileName, position): TS.QuickInfo | undefined {
-      if (!isFeatureEnabled('quickInfo')) return
+      if (!h.isFeatureEnabled('quickInfo')) return
 
       // TODO: Provide better quick info for components and props.
       const document = h.getDocumentAt(fileName, position)
@@ -154,7 +142,7 @@ export function createVueLanguageServer(
     },
 
     getRenameInfo(fileName, position, options): TS.RenameInfo {
-      if (!isFeatureEnabled('rename')) {
+      if (!h.isFeatureEnabled('rename')) {
         return {
           canRename: false,
           localizedErrorMessage: 'Rename feature disabled.',
@@ -184,7 +172,7 @@ export function createVueLanguageServer(
       findInStrings,
       findInComments,
     ): readonly TS.RenameLocation[] | undefined {
-      if (!isFeatureEnabled('rename')) return
+      if (!h.isFeatureEnabled('rename')) return
 
       const document = h.getDocumentAt(fileName, position)
       if (document == null) return
@@ -351,7 +339,7 @@ export function createVueLanguageServer(
       formatOptions,
       preferences,
     ): TS.FileTextChanges[] {
-      if (!isFeatureEnabled('rename')) return []
+      if (!h.isFeatureEnabled('rename')) return []
 
       const document = h.getVueDocument(oldFilePath)
       const fileTextChanges: TS.FileTextChanges[] = []
@@ -393,7 +381,7 @@ export function createVueLanguageServer(
     },
 
     getApplicableRefactors(fileName, position, preferences) {
-      if (!isFeatureEnabled('refactor')) return []
+      if (!h.isFeatureEnabled('refactor')) return []
 
       const document = h.getDocumentAt(fileName, position)
       const result: TS.ApplicableRefactorInfo[] =
@@ -429,7 +417,7 @@ export function createVueLanguageServer(
       actionName,
       preferences,
     ) {
-      if (!isFeatureEnabled('refactor')) return
+      if (!h.isFeatureEnabled('refactor')) return
       const document = h.getDocumentAt(fileName, positionOrRange)
       if (document != null) {
         const provider = SCRIPT_REFACTOR_PROVIDERS.find(
@@ -595,7 +583,7 @@ export function createVueLanguageServer(
       fileName: string,
       position: number,
     ): TS.DefinitionInfoAndBoundSpan | undefined {
-      if (!isFeatureEnabled('goto')) return
+      if (!h.isFeatureEnabled('goto')) return
 
       const document = h.getDocumentAt(fileName, position)
 
@@ -628,6 +616,17 @@ export function createVueLanguageServer(
         )
       }
       return []
+    },
+
+    getJsxClosingTagAtPosition(fileName, position) {
+      const document = h.getDocumentAt(fileName, position)
+
+      if (document != null) {
+        return choose(document).getJsxClosingTagAtPosition(
+          document.fsPath,
+          position,
+        )
+      }
     },
   })
 }

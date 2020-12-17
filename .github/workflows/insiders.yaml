@@ -49,6 +49,7 @@ jobs:
 
       - name: Publish Insiders Packages
         run: |
+          echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc
           pnpm recursive --filter ./packages exec -- npm version prerelease --preid=insiders-$(date +%s)
           pnpm recursive --filter ./packages publish --tag insiders --access public --no-git-checks
         env:

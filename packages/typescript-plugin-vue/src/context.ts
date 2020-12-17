@@ -51,17 +51,15 @@ function getConfig(config: Partial<PluginConfig> = {}): PluginConfig {
   return {
     ...config,
     features: {
-      diagnostics: ['semantic', 'suggestion', 'syntactic'],
+      diagnostics: true,
       organizeImports: true,
       quickInfo: true,
       rename: true,
       refactor: true,
       goto: true,
+      tagCompletions: true,
       ...config.features,
     },
-    directories: [
-      { kind: 'component', name: 'components', path: 'src/components' },
-    ],
   }
 }
 
@@ -73,7 +71,7 @@ export class PluginContext {
   public readonly _externalFiles = new WeakMap<TS.server.Project, string[]>()
   public readonly _vueProjects: Array<{
     project: VueProject
-    dispose: () => void
+    dispose(): void
   }> = []
 
   public constructor(public readonly typescript: typeof TS) {
@@ -393,6 +391,11 @@ export class PluginContext {
 
   public setConfig(config: Partial<PluginConfig>): void {
     this._config = getConfig(config)
+    if (__DEV__) {
+      this.log(
+        `Loading TS Plugin config: ${JSON.stringify(this._config, null, 2)}`,
+      )
+    }
   }
 }
 
@@ -474,6 +477,8 @@ function patchLanguageServiceHost(
       if (settings.checkJs !== false) {
         settings.checkJs = true
       }
+
+      settings.noEmit = true
 
       return settings
     },

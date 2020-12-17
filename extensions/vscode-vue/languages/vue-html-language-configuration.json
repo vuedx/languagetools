@@ -4,13 +4,12 @@
   },
   "brackets": [
     ["<!--", "-->"],
-    ["<", ">"],
-    ["{", "}"],
+    ["{{", "}}"],
     ["(", ")"]
   ],
   "autoCloseBefore": ";:.,=}])>` \n\t",
   "autoClosingPairs": [
-    { "open": "{", "close": "}" },
+    { "open": "{{", "close": "}}" },
     { "open": "[", "close": "]" },
     { "open": "(", "close": ")" },
     { "open": "'", "close": "'" },
@@ -20,10 +19,10 @@
   "surroundingPairs": [
     { "open": "'", "close": "'" },
     { "open": "\"", "close": "\"" },
-    { "open": "{", "close": "}" },
+    { "open": "{{", "close": "}}" },
     { "open": "[", "close": "]" },
     { "open": "(", "close": ")" },
-    { "open": "<", "close": ">" }
+    { "open": "<!--", "close": "-->", "notIn": ["comment", "string"] }
   ],
   "folding": {
     "markers": {

@@ -1,6 +1,8 @@
-# Template AST Helpers
-
-A collection of utility functions for Vue template AST traversal, transformation, assertion and creation.
+<section align="center" style="text-align: center; margin-bottom: 72px">
+  <img src="./logo.png" width="144" style="margin-top: 72px; margin-bottom: 16px" />
+  <h1>Template AST Helpers</h1>
+  <p>A collection of utility functions for Vue template AST traversal, transformation, assertion and creation.</p>
+</section>
 
 ## Support
 

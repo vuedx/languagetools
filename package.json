@@ -1,5 +1,6 @@
 {
   "private": true,
+  "release": 0,
   "engines": {
     "node": ">=14.0"
   },

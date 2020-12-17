@@ -16,7 +16,7 @@ import glob from 'fast-glob'
 import FS from 'fs'
 import { injectable } from 'inversify'
 import Path from 'path'
-import vscode from 'vscode'
+import vscode, { TextDocument } from 'vscode'
 import { Installable } from '../utils/installable'
 
 @injectable()
@@ -79,6 +79,12 @@ export class DocumentService extends Installable {
 
   public async getVueDocument(uri: string): Promise<VueTextDocument | null> {
     return this.store.get(uri)
+  }
+
+  public async asVueDocument(document: TextDocument): Promise<VueTextDocument> {
+    const vue = await this.getVueDocument(document.uri.toString())
+    if (vue == null) throw new Error('???')
+    return vue
   }
 
   public getProjectForFile(fileName: string): VueProject {

@@ -2,6 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Attach to TSServer",
+      "port": 9999,
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "pwa-node",
+      "outFiles": ["${workspaceFolder}/packages/*/dist/*.js"]
+    },
+    {
       "type": "node",
       "name": "Run tests in current file",
       "request": "launch",
@@ -18,11 +26,14 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
+      "env": {
+        "TSS_DEBUG": "9999"
+      },
       "args": [
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue-language-features",
-        "${workspaceRoot}/samples/feature-refactor"
+        "${workspaceRoot}/samples/feature-diagnostics"
       ],
 
       "outFiles": [
@@ -44,6 +55,12 @@
         "${workspaceRoot}/extensions/vscode-vue/dist/*.js",
         "${workspaceRoot}/extensions/vscode-vue-language-features/dist/*.js"
       ]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug: Extension: VS Code",
+      "configurations": ["Extension: VS Code", "Attach to TSServer"]
     }
   ]
 }

@@ -11,6 +11,7 @@ const config: Partial<PluginConfig> = {
     rename: true,
     refactor: true,
     goto: true,
+    tagCompletions: false,
   },
 }
 

@@ -28,7 +28,11 @@
         "standard-with-typescript",
         "prettier",
         "prettier/@typescript-eslint"
-      ]
+      ],
+      "rules": {
+        "no-void": "off",
+        "@typescript-eslint/method-signature-style": [2, "method"]
+      }
     },
     {
       "files": ["**/__tests__/**/*.ts", "**/*.spec.ts"],

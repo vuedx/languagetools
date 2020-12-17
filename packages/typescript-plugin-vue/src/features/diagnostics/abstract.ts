@@ -4,17 +4,14 @@ import { LanguageServiceOptions } from '../../types'
 export interface DiagnosticProvider {
   version: string
 
-  semantic: (
-    context: LanguageServiceOptions,
-    fileName: string,
-  ) => TS.Diagnostic[]
+  semantic(context: LanguageServiceOptions, fileName: string): TS.Diagnostic[]
 
-  syntax: (
+  syntax(
     context: LanguageServiceOptions,
     fileName: string,
-  ) => TS.DiagnosticWithLocation[]
-  suggestions: (
+  ): TS.DiagnosticWithLocation[]
+  suggestions(
     context: LanguageServiceOptions,
     fileName: string,
-  ) => TS.DiagnosticWithLocation[]
+  ): TS.DiagnosticWithLocation[]
 }

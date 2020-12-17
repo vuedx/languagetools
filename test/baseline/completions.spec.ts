@@ -15,7 +15,10 @@ describe('completions', () => {
   beforeAll(async () => {
     server = new TestServer()
 
-    await server.sendCommand('configure', { preferences: {}, watchOptions: {} })
+    await server.sendCommand('configure', {
+      preferences: { includeCompletionsForModuleExports: true },
+      watchOptions: {},
+    })
     await server.sendCommand('compilerOptionsForInferredProjects', {
       options: {
         alwaysStrict: true,
@@ -60,10 +63,10 @@ describe('completions', () => {
     })
 
     it('should complete and auto-import .vue components', async () => {
-      const { body } = await server.sendCommand(
-        'completionInfo',
-        await findPositionOrThrowIn(file, `<HelloWorld `, '<'.length),
-      )
+      const { body } = await server.sendCommand('completionInfo', {
+        ...(await findPositionOrThrowIn(file, `<HelloWorld `, '<'.length)),
+        triggerCharacter: '<',
+      })
 
       expect(body?.entries.length).toBeGreaterThan(1)
       expect(body?.entries).toContainEqual(
@@ -129,9 +132,6 @@ describe('completions', () => {
       )
       expect(body?.entries).toContainEqual(
         expect.objectContaining({ name: 'HelloWorld' }),
-      )
-      expect(body?.entries).toContainEqual(
-        expect.objectContaining({ name: 'MyWorld' }),
       )
       expect(body?.entries).not.toContainEqual(
         expect.objectContaining({ name: '$props' }),

@@ -69,6 +69,8 @@ const config = [
   extension('coc-vue'),
 ]
 
+const isWatch = process.argv.includes('-w') || process.argv.includes('--watch')
+
 export default config
   .filter((config) => input(config).match(process.env.FILTER ?? ''))
   .filter((config) => kind(config).match(process.env.KIND ?? ''))
@@ -88,6 +90,11 @@ function bundle(name, plugins = [], external = []) {
         file: abs(`./packages/${name}/dist/index.esm.js`),
         preferConst: true,
         sourcemap: true,
+        sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+          return isWatch
+            ? Path.resolve(Path.dirname(sourcemapPath), relativeSourcePath)
+            : relativeSourcePath
+        },
       },
       {
         format: 'cjs',
@@ -95,6 +102,11 @@ function bundle(name, plugins = [], external = []) {
         preferConst: true,
         sourcemap: true,
         exports: 'auto',
+        sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+          return isWatch
+            ? Path.resolve(Path.dirname(sourcemapPath), relativeSourcePath)
+            : relativeSourcePath
+        },
       },
     ],
     plugins: [
