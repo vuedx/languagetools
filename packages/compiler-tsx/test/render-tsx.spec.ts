@@ -429,6 +429,13 @@ export function render({foo,..._ctx}: InstanceType<typeof _Ctx>) {
 ]
 
 describe('compile/tsx', () => {
+  test('debug', () => {
+    const result = compile('<div></div><>', {
+      filename: '/foo/bar/component.vue',
+      components: samples[0].components,
+      onError() {},
+    })
+  })
   test.each(
     samples
       // .filter((sample) => /(v-if)/.test(sample.name))

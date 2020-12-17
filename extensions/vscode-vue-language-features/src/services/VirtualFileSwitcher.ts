@@ -28,7 +28,7 @@ export class VirtualFileSwitcher extends Installable {
     StatusBarAlignment.Right,
   )
 
-  public install() {
+  public install(): Disposable {
     super.install()
 
     return Disposable.from(

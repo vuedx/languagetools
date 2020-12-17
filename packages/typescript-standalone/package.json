@@ -4,8 +4,8 @@
   "description": "TypeScript plugin for Vue (Standalone Mode)",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build src/index.js",
-    "watch": "ncc build --watch src/index.js"
+    "build": "ncc build --no-source-map-register --source-map src/index.js",
+    "watch": "ncc build --watch --no-source-map-register --source-map src/index.js"
   },
   "keywords": [
     "vue",
@@ -29,8 +29,9 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "devDependencies": {
-    "@vuedx/typescript-plugin-vue": "workspace:*",
     "@vercel/ncc": "^0.24.1",
+    "@vuedx/typescript-plugin-vue": "workspace:*",
+    "source-map-loader": "^1.1.3",
     "typescript": "^4.0.3"
   }
 }

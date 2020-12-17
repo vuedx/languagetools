@@ -2,7 +2,7 @@ import Path from 'path'
 import { findPositionOrThrowIn, toNormalizedPath } from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
-describe('quickinfo', () => {
+describe('diagnostic', () => {
   const projectPath = toNormalizedPath(
     Path.resolve(__dirname, '../../samples/feature-diagnostics'),
   )

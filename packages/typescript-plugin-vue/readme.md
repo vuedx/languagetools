@@ -1,6 +1,12 @@
-# Vue TypeScript Plugin
+<section align="center" style="text-align: center; margin-bottom: 72px">
+  <img src="./logo.png" width="144" style="margin-top: 72px; margin-bottom: 16px" />
+  <h1>TypeScript Plugin for Vue</h1>
+  <p>Enables <code>.vue</code> file support in typescript (tsserver).</p>
+</section>
 
-This plugin enables `.vue` file support in typescript (tsserver).
+## Support
+
+This package is part of [VueDX project](https://github.com/znck/vue-developer-experience), maintained by [Rahul Kadyan](https://github.com/znck). You can [💖 sponsor him](https://github.com/sponsors/znck) for continued development of this package and other VueDX tools.
 
 ## Goals
 
@@ -43,13 +49,13 @@ A `.vue` file is a collection of different contexts collocated and wrapped in bl
 
 ```vue
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   setup() {
-    return { foo: 0 };
+    return { foo: 0 }
   },
-});
+})
 </script>
 
 <template>
@@ -89,9 +95,8 @@ export default defineComponent({
 -----------
 ---------------------
 ---
---
----------
-----------
+
+-- --------- ----------
 <div>{{ foo }}</div>
 ```
 
@@ -105,12 +110,12 @@ A derived virtual file is generated from `<template>` block for `render()` funct
 <figcaption>Fig. 3: <code>component.vue____render.ts</code> file</figcaption>
 
 ```ts
-import { h as _h } from 'vue';
-import { JSX } from '<not decided yet>';
-import _Ctx from './component.vue';
+import { h as _h } from 'vue'
+import { JSX } from '<not decided yet>'
+import _Ctx from './component.vue'
 
 export function render(_ctx: _Ctx) {
-  return h(JSX.intrinsic.div, null, [_ctx.foo]);
+  return h(JSX.intrinsic.div, null, [_ctx.foo])
 }
 ```
 
@@ -123,7 +128,7 @@ We will see `render()` function generation in further sections.
 - Add type for render context.
 
   ```ts
-  import _Ctx from './component.vue';
+  import _Ctx from './component.vue'
 
   export function render(_ctx: _Ctx) {
     // ...
@@ -137,10 +142,10 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h } from 'vue';
+  import { h } from 'vue'
 
   export function render(/*...*/) {
-    return h('div', null, ['foo']);
+    return h('div', null, ['foo'])
   }
   ```
 
@@ -152,22 +157,22 @@ We will see `render()` function generation in further sections.
   </template>
 
   <script>
-    import CompA from './comp-a.vue';
+    import CompA from './comp-a.vue'
 
     export default {
       components: { CompA },
-    };
+    }
   </script>
   ```
 
   ```ts
-  import { h } from 'vue';
-  import CompA from './comp-a.vue';
+  import { h } from 'vue'
+  import CompA from './comp-a.vue'
 
   export function render(/*...*/) {
     return h(CompA, null, {
       default: () => ['foo'],
-    });
+    })
   }
   ```
 
@@ -178,14 +183,14 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h, resolveComponent } from 'vue';
+  import { h, resolveComponent } from 'vue'
 
   export function render(_ctx /*...*/) {
-    const CompB = resolveComponent('CompB'); // Should return component type.
+    const CompB = resolveComponent('CompB') // Should return component type.
 
     return h(CompB, null, {
       default: () => ['foo'],
-    });
+    })
   }
   ```
 
@@ -196,10 +201,10 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h } from 'vue';
+  import { h } from 'vue'
 
   export function render(/*...*/) {
-    return h('web-comp', null, ['foo']);
+    return h('web-comp', null, ['foo'])
   }
   ```
 
@@ -210,10 +215,10 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h } from 'vue';
+  import { h } from 'vue'
 
   export function render(_ctx /*...*/) {
-    return h('div', { foo: _ctx.foo, bar: 'test' }, []);
+    return h('div', { foo: _ctx.foo, bar: 'test' }, [])
   }
   ```
 
@@ -224,10 +229,17 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h } from 'vue';
+  import { h } from 'vue'
 
   export function render(_ctx /*...*/) {
-    return h('input', { modelValue: _ctx.foo, 'onUpdate:modelValue': ($event) => (_ctx.foo = $event) }, []);
+    return h(
+      'input',
+      {
+        modelValue: _ctx.foo,
+        'onUpdate:modelValue': ($event) => (_ctx.foo = $event),
+      },
+      [],
+    )
   }
   ```
 
@@ -238,11 +250,15 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h } from 'vue';
+  import { h } from 'vue'
 
   export function render(_ctx /*...*/) {
     // ...
-    return h(CompA, { onFoo: _ctx.onFoo, onBar: ($event) => (_ctx.bar = $event) }, {});
+    return h(
+      CompA,
+      { onFoo: _ctx.onFoo, onBar: ($event) => (_ctx.bar = $event) },
+      {},
+    )
   }
   ```
 
@@ -253,10 +269,14 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h } from 'vue';
+  import { h } from 'vue'
 
   export function render(_ctx /*...*/) {
-    return h('div', { style: [{ color: 'red' }, { display: _ctx.foo ? null : 'none' }] }, []);
+    return h(
+      'div',
+      { style: [{ color: 'red' }, { display: _ctx.foo ? null : 'none' }] },
+      [],
+    )
   }
   ```
 
@@ -269,10 +289,14 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h } from 'vue';
+  import { h } from 'vue'
 
   export function render(_ctx /*...*/) {
-    return _ctx.foo ? h('div', {}, ['A']) : _ctx.bar ? h('div', {}, ['B']) : h('div', {}, ['C']);
+    return _ctx.foo
+      ? h('div', {}, ['A'])
+      : _ctx.bar
+      ? h('div', {}, ['B'])
+      : h('div', {}, ['C'])
   }
   ```
 
@@ -283,10 +307,10 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h, renderList } from 'vue';
+  import { h, renderList } from 'vue'
 
   export function render(_ctx /*...*/) {
-    return renderList(_ctx.items, (item, index) => h('div', {}, []));
+    return renderList(_ctx.items, (item, index) => h('div', {}, []))
   }
   ```
 
@@ -297,10 +321,10 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h } from 'vue';
+  import { h } from 'vue'
 
   export function render(_ctx /*...*/) {
-    return h('div', {}, [_ctx.foo]);
+    return h('div', {}, [_ctx.foo])
   }
   ```
 
@@ -309,10 +333,10 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h } from 'vue';
+  import { h } from 'vue'
 
   export function render(_ctx /*...*/) {
-    return h('div', {}, [_ctx.foo]);
+    return h('div', {}, [_ctx.foo])
   }
   ```
 
@@ -328,20 +352,22 @@ We will see `render()` function generation in further sections.
   </template>
 
   <script>
-    import custom from './custom-directive';
+    import custom from './custom-directive'
 
     export default {
       directives: { custom },
-    };
+    }
   </script>
   ```
 
   ```ts
-  import { h, withDirectives } from 'vue';
-  import custom from './custom-directive';
+  import { h, withDirectives } from 'vue'
+  import custom from './custom-directive'
 
   export function render(_ctx /*...*/) {
-    return withDirectives(h('div', {}, []), [[custom, _ctx.foo, 'argument', { modifier: true }]]);
+    return withDirectives(h('div', {}, []), [
+      [custom, _ctx.foo, 'argument', { modifier: true }],
+    ])
   }
   ```
 
@@ -354,12 +380,14 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h, withDirectives, custom } from 'vue';
+  import { h, withDirectives, custom } from 'vue'
 
   export function render(_ctx /*...*/) {
-    const custom = resolveDirective('custom');
+    const custom = resolveDirective('custom')
 
-    return withDirectives(h('div', {}, []), [[custom, _ctx.foo, 'argument', { modifier: true }]]);
+    return withDirectives(h('div', {}, []), [
+      [custom, _ctx.foo, 'argument', { modifier: true }],
+    ])
   }
   ```
 
@@ -372,7 +400,7 @@ We will see `render()` function generation in further sections.
   ```
 
   ```ts
-  import { h, renderSlot } from 'vue';
+  import { h, renderSlot } from 'vue'
 
   export function render(_ctx /*...*/) {
     return h(
@@ -380,8 +408,8 @@ We will see `render()` function generation in further sections.
       {},
       {
         default: () => renderSlot(_ctx.$slots, 'xxx', { foo: _ctx.foo }),
-      }
-    );
+      },
+    )
   }
   ```
 
@@ -395,9 +423,7 @@ There are two sources of completion in template:
 We have to provide completions from both sources at any position. Hence, we use cursor position to generate fake completion positions.
 
 ```html
-<div v-for="item of items">
-  {{ foo + i█ }}
-</div>
+<div v-for="item of items">{{ foo + i█ }}</div>
 ```
 
 ```ts
@@ -480,10 +506,15 @@ The compiler hard codes the `render()` function export. However, we need to inje
 
 ## Further explorations
 
-### Convert `<template>` to TSX
-
-This would get all TSX features but it would require more efforts as compiler codegen module is written to generate JS output.
-
 ### Detect `$slots` type interface
 
 We can detect type interface of slots and that would help in completion of `v-slot` directive.
+
+### Provide block completion
+
+- Provide completion for `<script>`, `<template>`, `<style>`, `<preview>`, `<i18n>`
+
+### CSS Integration
+
+- Provide css identifier completion in `class` attribute
+- Declare CSS modules type render (maybe for script block too?)

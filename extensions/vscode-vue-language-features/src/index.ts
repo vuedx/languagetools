@@ -6,6 +6,8 @@ import { OpenVirtualFileCommand } from './commands/openVirtualFile'
 import { VueVirtualDocumentProvider } from './scheme/vue'
 import { DocumentService } from './services/documents'
 import { VirtualFileSwitcher } from './services/VirtualFileSwitcher'
+import { StyleLanguageProxy } from './services/StyleLanguageProxy'
+import { TemplateLanguageProxy } from './services/TemplateLanguageProxy'
 
 export async function activate(
   context: vscode.ExtensionContext,
@@ -18,6 +20,8 @@ export async function activate(
   container.bind('context').toConstantValue(context)
   context.subscriptions.push(
     container.get(DocumentService).install(),
+    container.get(StyleLanguageProxy).install(),
+    container.get(TemplateLanguageProxy).install(),
     container.get(VueVirtualDocumentProvider).install(),
     container.get(OpenVirtualFileCommand).install(),
     container.get(VirtualFileSwitcher).install(),

@@ -116,15 +116,19 @@ importers:
       fast-glob: 3.2.4
       json5: 2.1.3
     devDependencies:
+      '@types/vscode': 1.52.0
       '@vercel/ncc': 0.24.1
+      '@vuedx/typescript-plugin-vue': 'link:../../packages/typescript-plugin-vue'
       '@vuedx/vue-virtual-textdocument': 'link:../../packages/vue-virtual-textdocument'
       inversify: 5.0.1
       reflect-metadata: 0.1.13
       typescript: 4.0.3
       vsce: 1.81.0
     specifiers:
+      '@types/vscode': ^1.52.0
       '@vercel/ncc': ^0.24.1
       '@vuedx/analyze': 'workspace:^0.3.0'
+      '@vuedx/typescript-plugin-vue': 'workspace:*'
       '@vuedx/typescript-standalone': 'workspace:*'
       '@vuedx/vue-virtual-textdocument': 'workspace:*'
       fast-glob: ^3.2.4
@@ -264,10 +268,12 @@ importers:
     devDependencies:
       '@vercel/ncc': 0.24.1
       '@vuedx/typescript-plugin-vue': 'link:../typescript-plugin-vue'
+      source-map-loader: 1.1.3
       typescript: 4.0.5
     specifiers:
       '@vercel/ncc': ^0.24.1
       '@vuedx/typescript-plugin-vue': 'workspace:*'
+      source-map-loader: ^1.1.3
       typescript: ^4.0.3
   packages/typescript-vetur:
     dependencies:
@@ -1286,6 +1292,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-QnIeyi4L2DiD9M2bAQKRzT/EQvc80qP9UL6JD5TiLlNRL1khIDg4ej4mDSRbtFrDAsRntFI1RhMvdomUThMsqg==
+  /@types/vscode/1.52.0:
+    dev: true
+    resolution:
+      integrity: sha512-Kt3bvWzAvvF/WH9YEcrCICDp0Z7aHhJGhLJ1BxeyNP6yRjonWqWnAIh35/pXAjswAnWOABrYlF7SwXR9+1nnLA==
   /@types/yargs-parser/15.0.0:
     dev: true
     resolution:
@@ -1637,7 +1647,7 @@ packages:
       integrity: sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==
   /agent-base/6.0.2:
     dependencies:
-      debug: 4.2.0
+      debug: 4.3.1
     dev: true
     engines:
       node: '>= 6.0.0'
@@ -1652,6 +1662,14 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-4I7Td01quW/RpocfNayFdFVk1qSuoh0E7JrbRJ16nH01HhKFQ88INq9Sd+nd72zqRySlr9BmDA8xlEJ6vJMrYA==
+  /ajv-keywords/3.5.2_ajv@6.12.6:
+    dependencies:
+      ajv: 6.12.6
+    dev: true
+    peerDependencies:
+      ajv: ^6.9.1
+    resolution:
+      integrity: sha512-5p6WTN0DdTGVQk6VjcEju19IgaHudalcfabD7yhDGeA6bcQnmL+CpveLJq/3hvfwd1aof6L386Ougkx6RfyMIQ==
   /ajv/6.12.6:
     dependencies:
       fast-deep-equal: 3.1.3
@@ -2542,6 +2560,19 @@ packages:
         optional: true
     resolution:
       integrity: sha512-IX2ncY78vDTjZMFUdmsvIRFY2Cf4FnD0wRs+nQwJU8Lu99/tPFdb0VybiiMTPe3I6rQmwsqQqRBvxU+bZ/I8sg==
+  /debug/4.3.1:
+    dependencies:
+      ms: 2.1.2
+    dev: true
+    engines:
+      node: '>=6.0'
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+    resolution:
+      integrity: sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==
   /decamelize/1.2.0:
     engines:
       node: '>=0.10.0'
@@ -3726,7 +3757,7 @@ packages:
     dependencies:
       '@tootallnate/once': 1.1.2
       agent-base: 6.0.2
-      debug: 4.2.0
+      debug: 4.3.1
     dev: true
     engines:
       node: '>= 6'
@@ -3746,7 +3777,7 @@ packages:
   /https-proxy-agent/5.0.0:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.2.0
+      debug: 4.3.1
     dev: true
     engines:
       node: '>= 6'
@@ -3785,6 +3816,14 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==
+  /iconv-lite/0.6.2:
+    dependencies:
+      safer-buffer: 2.1.2
+    dev: true
+    engines:
+      node: '>=0.10.0'
+    resolution:
+      integrity: sha512-2y91h5OpQlolefMPmUlivelittSWy0rP+oYVpn6A7GwVHNE8AWzoYOBNmlwks3LobaJxgHCYZAnyNo2GgpNRNQ==
   /icss-replace-symbols/1.1.0:
     dev: true
     resolution:
@@ -3875,6 +3914,7 @@ packages:
     resolution:
       integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
   /ini/1.3.5:
+    deprecated: Please update to ini >=1.3.6 to avoid a prototype pollution issue
     dev: true
     resolution:
       integrity: sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
@@ -4928,6 +4968,16 @@ packages:
       node: '>=4.0.0'
     resolution:
       integrity: sha512-qH0WSMBtn/oHuwjy/NucEgbx5dbxxnxup9s4PVXJUDHZBQY+s0NWA9rJf53RBnQZxfch7euUui7hpoAPvALZdA==
+  /loader-utils/2.0.0:
+    dependencies:
+      big.js: 5.2.2
+      emojis-list: 3.0.0
+      json5: 2.1.3
+    dev: true
+    engines:
+      node: '>=8.9.0'
+    resolution:
+      integrity: sha512-rP4F0h2RaWSvPEkD7BLDFQnvSf+nK+wr3ESUjNTyAGobqrijmW92zc+SO6d4p4B1wh7+B/Jg1mkQe5NYUEHtHQ==
   /locate-path/2.0.0:
     dependencies:
       p-locate: 2.0.0
@@ -6352,6 +6402,16 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-5LBh1Tls8c9xgGjw3QrMwETmTMVk0oFgvrFSvWx62llR2hcEInrKNZ2GZCCuuy2lvWrdl5jhbpeqc5hRYKFOcw==
+  /schema-utils/3.0.0:
+    dependencies:
+      '@types/json-schema': 7.0.6
+      ajv: 6.12.6
+      ajv-keywords: 3.5.2_ajv@6.12.6
+    dev: true
+    engines:
+      node: '>= 10.13.0'
+    resolution:
+      integrity: sha512-6D82/xSzO094ajanoOSbe4YvXWMfn2A//8Y1+MUqFAJul5Bs+yn36xbK9OtNDcRVSBJ9jjeoXftM6CfztsjOAA==
   /semver-compare/1.0.0:
     dev: true
     resolution:
@@ -6520,6 +6580,21 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha512-FtyOnWN/wCHTVXOMwvSv26d+ko5vWlIDD6zoUJ7LW8vh+ZBC8QdljveRP+crNrtBwioEUWy/4dMtbBjA4ioNlg==
+  /source-map-loader/1.1.3:
+    dependencies:
+      abab: 2.0.5
+      iconv-lite: 0.6.2
+      loader-utils: 2.0.0
+      schema-utils: 3.0.0
+      source-map: 0.6.1
+      whatwg-mimetype: 2.3.0
+    dev: true
+    engines:
+      node: '>= 10.13.0'
+    peerDependencies:
+      webpack: ^4.0.0 || ^5.0.0
+    resolution:
+      integrity: sha512-6YHeF+XzDOrT/ycFJNI53cgEsp/tHTMl37hi7uVyqFAlTXW109JazaQCkbc+jjoL2637qkH1amLi+JzrIpt5lA==
   /source-map-resolve/0.5.3:
     dependencies:
       atob: 2.1.2

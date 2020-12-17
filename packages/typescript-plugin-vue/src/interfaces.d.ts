@@ -17,10 +17,8 @@ export interface PluginConfig {
     rename: boolean
     refactor: boolean
     goto: boolean
+    tagCompletions: boolean | Array<'html' | 'svg'>
   }
-  directories: Array<{
-    kind: 'component' | 'composition-function'
-    name: string
-    path: string
-  }>
+  /** A file to communicate with extension? */
+  extensionSocketFileName?: string
 }

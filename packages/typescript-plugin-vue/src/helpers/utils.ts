@@ -23,7 +23,7 @@ import {
 import Path from 'path'
 import QuickLRU from 'quick-lru'
 import { PluginContext } from '../context'
-import { TS } from '../interfaces'
+import { PluginConfig, TS } from '../interfaces'
 
 function createCachedAnalyzer(): (document: VueTextDocument) => ComponentInfo {
   const cache = new QuickLRU<string, ComponentInfo>({ maxSize: 1000 })
@@ -41,6 +41,8 @@ function createCachedAnalyzer(): (document: VueTextDocument) => ComponentInfo {
   }
 }
 
+type GetElementType<T> = T extends Array<infer U> ? U : T
+
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createServerHelper(
   context: PluginContext,
@@ -48,6 +50,22 @@ export function createServerHelper(
 ) {
   const getComponentInfo = createCachedAnalyzer()
 
+  function isFeatureEnabled<K extends keyof PluginConfig['features']>(
+    featureName: K,
+    checkFor: boolean | GetElementType<PluginConfig['features'][K]> = true,
+  ): boolean {
+    const feature = context.config.features[featureName]
+
+    return Array.isArray(feature)
+      ? feature.includes(checkFor)
+      : feature === true || feature === checkFor
+  }
+
+  /**
+   * Find node in template containing given position.
+   * @param fileName Vue or Virtual Block filename
+   * @param position Position or range
+   */
   function findTemplateNodeAtPosition(
     fileName: string,
     position: number | TS.TextRange,
@@ -250,6 +268,7 @@ export function createServerHelper(
   }
 
   return {
+    isFeatureEnabled,
     findTemplateChildren,
     findTemplateNodeAtPosition,
     findTypeScriptNodeAtPosition,
