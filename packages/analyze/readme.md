@@ -1,8 +1,8 @@
-<section align="center" style="text-align: center; margin-bottom: 72px">
+<div align="center" style="text-align: center; margin-bottom: 72px">
   <img src="./logo.png" width="144" style="margin-top: 72px; margin-bottom: 16px" />
   <h1>Analyze</h1>
   <p>A tool to statically analyze Vue single file components.</p>
-</section>
+</div>
 
 ## Support
 

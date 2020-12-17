@@ -1,8 +1,8 @@
-<section align="center" style="text-align: center; margin-bottom: 72px">
+<div align="center" style="text-align: center; margin-bottom: 72px">
   <img src="./logo.png" width="144" style="margin-top: 72px; margin-bottom: 16px" />
   <h1>TypeScript Plugin for Vue</h1>
   <p>Enables <code>.vue</code> file support in typescript (tsserver).</p>
-</section>
+</div>
 
 ## Support
 

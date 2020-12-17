@@ -1,8 +1,8 @@
-<section align="center" style="text-align: center; margin-bottom: 72px">
+<div align="center" style="text-align: center; margin-bottom: 72px">
   <img src="./logo.png" width="144" style="margin-top: 72px; margin-bottom: 16px" />
   <h1>TypeCheck for Vue</h1>
   <p>A command line tool to check types, functionally equivalent to <code>tsc --noEmit</code> but supports Vue.</p>
-</section>
+</div>
 
 
 ## Support
