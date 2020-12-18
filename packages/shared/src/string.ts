@@ -10,7 +10,7 @@ const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
   }) as any
 }
 
-const camelizeRE = /[^A-Za-z0-9]([A-Za-z0-9])/g
+const camelizeRE = /[^A-Za-z0-9]+([A-Za-z0-9])/g
 export const camelize = cacheStringFunction((str: string): string => {
   return str.replace(camelizeRE, (_, c) =>
     typeof c === 'string' ? c.toUpperCase() : '',

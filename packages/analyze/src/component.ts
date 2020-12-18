@@ -1,3 +1,5 @@
+import { isPascalCase, kebabCase } from '@vuedx/shared'
+
 /* eslint-disable @typescript-eslint/method-signature-style */
 export interface SourceLocation {
   offset: number
@@ -263,7 +265,8 @@ export function createComponentInfoFactory(): ComponentInfoFactory {
       loc = null as any,
       kind: LocalComponentRegistrationInfo['kind'] = 'script',
     ) {
-      component.components.push({ name, aliases: [name], kind, source, loc }) // Vue 3 — Component names are PascalCase.
+      const aliases = isPascalCase(name) ? [name, kebabCase(name)] : [name]
+      component.components.push({ name, aliases, kind, source, loc })
 
       return factory
     },
