@@ -132,7 +132,7 @@
     ],
     "typescriptServerPlugins": [
       {
-        "name": "@vuedx/typescript-plugin-vue",
+        "name": "@vuedx/typescript-standalone",
         "enableForWorkspaceTypeScriptVersions": true,
         "configNamespace": "vue",
         "languages": [
