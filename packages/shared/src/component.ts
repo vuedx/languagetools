@@ -1,5 +1,5 @@
 import Path from 'path'
-import { kebabCase, pascalCase } from './string'
+import { isKebabCase, kebabCase, pascalCase } from './string'
 
 export function getComponentName(fileName: string): string {
   return pascalCase(
@@ -10,7 +10,11 @@ export function getComponentName(fileName: string): string {
 export function getComponentNameAliases(
   fileNameOrComponentName: string,
 ): string[] {
-  const name = getComponentName(fileNameOrComponentName)
+  const name = Path.posix
+    .basename(fileNameOrComponentName)
+    .replace(/\.(vue|ts|tsx|js|jsx)$/, '')
 
-  return [kebabCase(name), name]
+  return isKebabCase(name)
+    ? [kebabCase(name)]
+    : [kebabCase(name), pascalCase(name)]
 }
