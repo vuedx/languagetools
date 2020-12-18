@@ -56,12 +56,13 @@ export const ComponentsOptionAnalyzer = createPlugin({
                     path$.scope.getBinding(declaration.value.name),
                     ctx,
                   )
-                  if (info != null)
+                  if (info != null) {
                     ctx.component.addLocalComponent(
                       name,
                       info,
                       createSourceRange(ctx, declaration),
                     )
+                  }
                 }
               }
             }
@@ -74,6 +75,7 @@ export const ComponentsOptionAnalyzer = createPlugin({
 
 function getComponentName(key: ObjectProperty['key']): string | undefined {
   if (isIdentifier(key)) return key.name
+  if (isStringLiteral(key)) return key.value
 }
 
 function resolveComponentInformation(
