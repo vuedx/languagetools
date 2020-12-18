@@ -1,4 +1,4 @@
-import { isPascalCase, kebabCase } from '@vuedx/shared'
+import { getComponentName, getComponentNameAliases, isPascalCase, kebabCase } from '@vuedx/shared'
 
 /* eslint-disable @typescript-eslint/method-signature-style */
 export interface SourceLocation {
@@ -60,7 +60,7 @@ export type TypeInfo =
 export type ValueInfo =
   | {
       kind: 'expression'
-      imports: string[]
+      imports: ImportSource[]
       expression: string
     }
   | {
@@ -107,7 +107,11 @@ export interface IdentifierSource extends Addressable {
   name: string
 }
 
-export interface ComponentInfo {
+export interface ComponentInfo extends Taggable {
+  name: string
+  aliases: string[]
+  fileName: string
+  description: string
   components: LocalComponentRegistrationInfo[]
   props: PropInfo[]
   emits: EmitInfo[]
@@ -159,8 +163,15 @@ export interface ComponentInfoFactory {
   addIdentifier: (id: string, source: string, loc: SourceRange) => void
 }
 
-export function createComponentInfoFactory(): ComponentInfoFactory {
+export function createComponentInfoFactory(
+  fileName: string,
+): ComponentInfoFactory {
   const component: ComponentInfo = {
+    name: getComponentName(fileName),
+    aliases: getComponentNameAliases(fileName),
+    fileName,
+    description: '',
+    tags: [],
     props: [],
     emits: [],
     components: [],

@@ -1,7 +1,7 @@
-import { Context, Plugin } from './types'
 import { parse, SFCBlock, SFCParseOptions } from '@vuedx/compiler-sfc'
-import { ComponentInfo, createComponentInfoFactory } from './component'
 import Path from 'path'
+import { ComponentInfo, createComponentInfoFactory } from './component'
+import { Context, Plugin } from './types'
 
 const parsers: Context['parsers'] = {
   sfc: {
@@ -22,13 +22,13 @@ const parsers: Context['parsers'] = {
 }
 
 export interface Analyzer {
-  analyze: (content: string, fileName?: string) => ComponentInfo
-  analyzeScript: (
+  analyze(content: string, fileName?: string): ComponentInfo
+  analyzeScript(
     content: string,
     fileName?: string,
     mode?: 'script' | 'scriptSetup',
-  ) => ComponentInfo
-  analyzeTemplate: (content: string, fileName?: string) => ComponentInfo
+  ): ComponentInfo
+  analyzeTemplate(content: string, fileName?: string): ComponentInfo
 }
 
 export function createAnalyzer(
@@ -49,7 +49,7 @@ export function createAnalyzer(
 
     return {
       fileName,
-      component: createComponentInfoFactory(),
+      component: createComponentInfoFactory(fileName),
       descriptor,
       plugins,
       parsers: {

@@ -10,6 +10,8 @@ import {
 } from './analyzers'
 import { Context, Plugin } from './types'
 
+export { toVeturData, VeturData } from './output/vetur'
+export { toWebTypes, WebTypes } from './output/web-types'
 export { Analyzer, createAnalyzer } from './analyzer'
 export {
   ScriptBlockAnalyzer,
