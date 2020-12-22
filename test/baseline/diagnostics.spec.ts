@@ -170,7 +170,7 @@ describe('diagnostic', () => {
       ])
 
       expect(body?.diagnostics).toEqual(
-        expected.map((item) => ({
+        expected.map((item) => expect.objectContaining({
           category: 'error',
           code: 2322,
           text: expect.stringContaining(
@@ -237,7 +237,7 @@ describe('diagnostic', () => {
       ])
 
       expect(body?.diagnostics).toEqual(
-        expected.map((item) => ({
+        expected.map((item) => expect.objectContaining({
           category: 'error',
           code: 2741,
           text: expect.stringContaining(
@@ -316,7 +316,7 @@ describe('diagnostic', () => {
       ])
 
       expect(body?.diagnostics).toEqual(
-        expected.map((item) => ({
+        expected.map((item) => expect.objectContaining({
           category: 'error',
           code: 2322,
           text: expect.stringContaining(
@@ -383,7 +383,7 @@ describe('diagnostic', () => {
       ])
 
       expect(body?.diagnostics).toEqual(
-        expected.map((item) => ({
+        expected.map((item) => expect.objectContaining({
           category: 'error',
           code: 2322,
           text: expect.stringContaining(

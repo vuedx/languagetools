@@ -201,7 +201,7 @@ export function compile(
               identifiers.size > 0
                 ? `{/*@@vue:identifiers-start*/${Array.from(identifiers).join(
                     ', ',
-                  )}/*@vue:identifiers-end*/,..._ctx}`
+                  )}/*@@vue:identifiers-end*/,..._ctx}`
                 : '_ctx'
             }: InstanceType<typeof _Ctx>) {`,
           )

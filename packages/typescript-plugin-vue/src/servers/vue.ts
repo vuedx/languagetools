@@ -68,6 +68,14 @@ export function createVueLanguageServer(
         }
       })
 
+      diagnostics.forEach((diagnostic) => {
+        if (diagnostic.code >= 59000) {
+          diagnostic.source = 'VueDX'
+        } else {
+          diagnostic.source = 'VueDX + TypeScript'
+        }
+      })
+
       return diagnostics
     },
 
@@ -90,7 +98,13 @@ export function createVueLanguageServer(
           diagnostics.push(...results)
         }
       })
-
+      diagnostics.forEach((diagnostic) => {
+        if (diagnostic.code >= 59000) {
+          diagnostic.source = 'VueDX'
+        } else {
+          diagnostic.source = 'VueDX + TypeScript'
+        }
+      })
       return diagnostics
     },
 
@@ -111,6 +125,14 @@ export function createVueLanguageServer(
             virtual.fsPath,
           )
           diagnostics.push(...results)
+        }
+      })
+
+      diagnostics.forEach((diagnostic) => {
+        if (diagnostic.code >= 59000) {
+          diagnostic.source = 'VueDX'
+        } else {
+          diagnostic.source = 'VueDX + TypeScript'
         }
       })
 

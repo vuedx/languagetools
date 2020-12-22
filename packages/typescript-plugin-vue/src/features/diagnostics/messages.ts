@@ -12,7 +12,7 @@ const context = createCoreContext({
     en: {
       [DiagnosticCode.InferredGlobalComponent_Unknown]: `The component '{tag}' cannot be resolved.`,
       [DiagnosticCode.InferredGlobalComponent_Known]: `The component '{tag}' is inferred as global component. It may not be available at runtime.`,
-      [DiagnosticCode.InferredGlobalComponent_PossibleSource]: `The component '{tag}' is found in '{source}'.`,
+      [DiagnosticCode.InferredGlobalComponent_PossibleSource]: `The component '{tag}' can be imported from '{source}'.`,
     },
   },
 })
@@ -21,5 +21,9 @@ export function getMessage(
   code: DiagnosticCode,
   options: Record<string, string | boolean | undefined | null | number> = {},
 ): string {
-  return String(translate(context, code, options))
+  try {
+    return String(translate(context, String(code), options))
+  } catch {
+    return 'Error in message translation'
+  }
 }

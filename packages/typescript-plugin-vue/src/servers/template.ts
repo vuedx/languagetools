@@ -1,11 +1,8 @@
 import { isNotNull } from '@vuedx/shared'
-import {
-  isComponentNode,
-  isElementNode,
-  traverseFast,
-} from '@vuedx/template-ast-types'
+import { isElementNode } from '@vuedx/template-ast-types'
 import { inspect } from 'util'
 import { TEMPLATE_COMPLETION_PROVIDERS } from '../features/completions'
+import { TEMPLATE_DIAGNOSTICS_PROVIDERS } from '../features/diagnostics'
 import { GOTO_PROVIDERS } from '../features/goto'
 import { REFACTOR_PROVIDERS } from '../features/refactors'
 import { RENAME_PROVIDERS } from '../features/renames'
@@ -151,104 +148,9 @@ export function createTemplateLanguageServer(
       const document = h.getRenderDoc(fileName)
       if (document == null) return []
 
-      const diagnostics = choose(document.fsPath)
-        .getSemanticDiagnostics(document.fsPath)
-        .map((diagnostic) => {
-          if (
-            diagnostic.file != null &&
-            diagnostic.file.fileName !== document.fsPath
-          ) {
-            return diagnostic
-          }
-
-          if (diagnostic.start != null) {
-            if (document.isInGeneratedRange(diagnostic.start)) {
-              const position = document.getOriginalOffsetAt(diagnostic.start)
-
-              diagnostic.start = position?.offset ?? diagnostic.start
-
-              return diagnostic
-            } else {
-              return null
-            }
-          } else {
-            return diagnostic
-          }
-        })
-        .filter(isNotNull)
-
-      // TODO: Cache it.
-      const project = context.getVueProjectForFile(document.container.fsPath)
-      if (document.ast != null && project?.kind === 'inferred') {
-        const info = h.getComponentInfo(document.container)
-        const localComponentNames = new Set(
-          info.components.flatMap((component) => component.aliases),
-        )
-        const globalComponentNames = new Set(
-          project.globalComponents.flatMap((component) => component.aliases),
-        )
-        const projectComponentNames = new Set(
-          project.components.flatMap((component) => component.aliases),
-        )
-        const projectComponents = project.components
-        const file = choose(document.fsPath)
-          .getProgram()
-          ?.getSourceFile(document.fsPath)
-        traverseFast(document.ast, (node) => {
-          if (isComponentNode(node)) {
-            if (
-              !localComponentNames.has(node.tag) &&
-              !globalComponentNames.has(node.tag) &&
-              projectComponentNames.has(node.tag)
-            ) {
-              const components = projectComponents.filter((component) =>
-                component.aliases.includes(node.tag),
-              )
-
-              let messageText = `The component '${node.tag}' is inferred as global component. It may not be available at runtime.`
-              const relatedInformation: TS.DiagnosticRelatedInformation[] = []
-
-              if (!components[0].source.moduleName.endsWith('.vue')) {
-                messageText = `The component '${node.tag}' is found in '${components[0].source.moduleName}' and it inferred as global component. It may not be available at runtime.`
-              }
-
-              if (components.length > 1) {
-                components.forEach((component) => {
-                  relatedInformation.push({
-                    code: 59002,
-                    category: context.typescript.DiagnosticCategory.Warning,
-                    messageText: `Found in '${component.source.moduleName}'`,
-                    file: undefined,
-                    start: undefined,
-                    length: undefined,
-                  })
-                })
-              }
-
-              diagnostics.push({
-                category: context.typescript.DiagnosticCategory.Warning,
-                code: 59001,
-                start: node.loc.start.offset + 1,
-                length: node.tag.length,
-                messageText,
-                file,
-                relatedInformation,
-              })
-            }
-          }
-        })
-      }
-
-      if (document.container.descriptor.template != null) {
-        const start = document.container.descriptor.template.loc.start.offset
-        const end = document.container.descriptor.template.loc.end.offset
-        return diagnostics.filter(
-          (item) =>
-            item.start == null ||
-            item.length == null ||
-            (start <= item.start && item.start + item.length <= end),
-        )
-      }
+      const diagnostics = TEMPLATE_DIAGNOSTICS_PROVIDERS.map((provider) =>
+        provider.semantic(config, fileName),
+      ).flat()
 
       return diagnostics
     },
@@ -257,35 +159,9 @@ export function createTemplateLanguageServer(
       const document = h.getRenderDoc(fileName)
       if (document == null) return []
 
-      const diagnostics = choose(document.fsPath)
-        .getSuggestionDiagnostics(document.fsPath)
-        .map((diagnostic) => {
-          if (diagnostic.start != null) {
-            if (document.isInGeneratedRange(diagnostic.start)) {
-              const position = document.getOriginalOffsetAt(diagnostic.start)
-
-              diagnostic.start = position?.offset ?? diagnostic.start
-
-              return diagnostic
-            } else {
-              return null
-            }
-          } else {
-            return diagnostic
-          }
-        })
-        .filter(isNotNull)
-
-      if (document.container.descriptor.template != null) {
-        const start = document.container.descriptor.template.loc.start.offset
-        const end = document.container.descriptor.template.loc.end.offset
-        return diagnostics.filter(
-          (item) =>
-            item.start == null ||
-            item.length == null ||
-            (start <= item.start && item.start + item.length <= end),
-        )
-      }
+      const diagnostics = TEMPLATE_DIAGNOSTICS_PROVIDERS.map((provider) =>
+        provider.suggestions(config, fileName),
+      ).flat()
 
       return diagnostics
     },
@@ -294,60 +170,9 @@ export function createTemplateLanguageServer(
       const document = h.getRenderDoc(fileName)
       if (document == null) return []
 
-      const diagnostics = choose(document.fsPath)
-        .getSyntacticDiagnostics(document.fsPath)
-        .map((diagnostic) => {
-          if (diagnostic.start != null) {
-            if (document.isInGeneratedRange(diagnostic.start)) {
-              const position = document.getOriginalOffsetAt(diagnostic.start)
-
-              diagnostic.start = position?.offset ?? diagnostic.start
-
-              return diagnostic
-            } else {
-              return null
-            }
-          } else {
-            return diagnostic
-          }
-        })
-        .filter(isNotNull)
-      if (document.parserErrors.length > 0) {
-        const sourceFile = choose(document.fsPath)
-          .getProgram()
-          ?.getSourceFile(document.fsPath)
-        const block = document.container.getBlock({ type: 'template' })
-        if (sourceFile != null && block != null) {
-          const start = block.loc.start.offset
-          const length = block.loc.end.offset - start
-
-          document.parserErrors.forEach((error) => {
-            diagnostics.push({
-              category: context.typescript.DiagnosticCategory.Error,
-              code: 50000 + error.code,
-              file: sourceFile,
-              source: error.loc?.source,
-              start: error.loc != null ? error.loc.start.offset : start,
-              length:
-                error.loc != null
-                  ? error.loc.end.offset - error.loc.start.offset
-                  : length,
-              messageText: error.message,
-            })
-          })
-        }
-      }
-
-      if (document.container.descriptor.template != null) {
-        const start = document.container.descriptor.template.loc.start.offset
-        const end = document.container.descriptor.template.loc.end.offset
-        return diagnostics.filter(
-          (item) =>
-            item.start == null ||
-            item.length == null ||
-            (start <= item.start && item.start + item.length <= end),
-        )
-      }
+      const diagnostics = TEMPLATE_DIAGNOSTICS_PROVIDERS.map((provider) =>
+        provider.syntax(config, fileName),
+      ).flat()
 
       return diagnostics
     },

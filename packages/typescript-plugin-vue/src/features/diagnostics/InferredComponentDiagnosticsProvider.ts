@@ -1,10 +1,11 @@
+import { ComponentInfo, VueProject } from '@vuedx/analyze'
 import { isComponentNode, traverseFast } from '@vuedx/template-ast-types'
-import { ComponentInfo, VueProject } from 'packages/analyze/src'
+import { getRelativeFileName } from '@vuedx/shared'
 import { TS } from '../../interfaces'
 import { defineDiagnosticProvider } from './abstract'
 import { DiagnosticCode, getMessage } from './messages'
 
-export const INFERRED_COMPONENT_PROVIDER = defineDiagnosticProvider({
+export const InferredComponentDiagnosticsProvider = defineDiagnosticProvider({
   version: '*',
 
   semantic({ context, helpers, service }, fileName) {
@@ -38,23 +39,7 @@ export const INFERRED_COMPONENT_PROVIDER = defineDiagnosticProvider({
             )
 
             const relatedInformation: TS.DiagnosticRelatedInformation[] = []
-            if (components.length > 0) {
-              components.forEach((component) => {
-                relatedInformation.push({
-                  code: DiagnosticCode.InferredGlobalComponent_PossibleSource,
-                  category: context.typescript.DiagnosticCategory.Warning,
-                  messageText: getMessage(
-                    DiagnosticCode.InferredGlobalComponent_PossibleSource,
-                    { tag: node.tag, source: component.source.moduleName },
-                  ),
-                  file: undefined,
-                  start: undefined,
-                  length: undefined,
-                })
-              })
-            }
-
-            diagnostics.push({
+            const diagnostic: TS.Diagnostic = {
               category: context.typescript.DiagnosticCategory.Warning,
               code: DiagnosticCode.InferredGlobalComponent_Known,
               start: node.loc.start.offset + 1,
@@ -65,7 +50,31 @@ export const INFERRED_COMPONENT_PROVIDER = defineDiagnosticProvider({
               ),
               file,
               relatedInformation,
-            })
+            }
+
+            if (components.length > 0) {
+              components.forEach((component) => {
+                relatedInformation.push({
+                  code: DiagnosticCode.InferredGlobalComponent_PossibleSource,
+                  category: context.typescript.DiagnosticCategory.Warning,
+                  messageText: getMessage(
+                    DiagnosticCode.InferredGlobalComponent_PossibleSource,
+                    {
+                      tag: node.tag,
+                      source: getRelativeFileName(
+                        document.fsPath,
+                        component.source.moduleName,
+                      ),
+                    },
+                  ),
+                  file: diagnostic.file,
+                  start: diagnostic.start,
+                  length: diagnostic.length,
+                })
+              })
+            }
+
+            diagnostics.push(diagnostic)
           } else {
             diagnostics.push({
               category: context.typescript.DiagnosticCategory.Warning,
@@ -103,13 +112,13 @@ function getKnownComponents(
   localComponentNames: Set<string>
   globalComponentNames: Set<string>
 } {
-  const localComponentNames = new Set(
+  const localComponentNames = new Set<string>(
     info.components.flatMap((component) => component.aliases),
   )
-  const globalComponentNames = new Set(
+  const globalComponentNames = new Set<string>(
     project.globalComponents.flatMap((component) => component.aliases),
   )
-  const projectComponentNames = new Set(
+  const projectComponentNames = new Set<string>(
     project.components.flatMap((component) => component.aliases),
   )
   return { projectComponentNames, localComponentNames, globalComponentNames }
