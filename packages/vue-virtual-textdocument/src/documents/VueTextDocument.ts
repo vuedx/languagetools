@@ -84,7 +84,7 @@ interface CreateTransformedBlockTextDocumentOptions<
   T extends Selector = Selector
 > extends CreateVirtualTextDocumentOptions<T> {
   sourceSelector?: Selector
-  transformer: (document: TransformedBlockTextDocument) => BlockTransformResult
+  transformer(document: TransformedBlockTextDocument): BlockTransformResult
 }
 
 export class VirtualTextDocument extends ProxyTextDocument {
@@ -746,7 +746,7 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
 }
 
 interface VueTextDocumentOptions {
-  getGlobalComponents: () => ComponentRegistrationInfo[]
+  getGlobalComponents(): ComponentRegistrationInfo[]
 }
 
 export class VueTextDocument extends ProxyTextDocument {
@@ -787,10 +787,12 @@ export class VueTextDocument extends ProxyTextDocument {
   }
 
   public all(): VirtualTextDocument[] {
+    this.parse()
     return Array.from(this.documents.values()).filter(isNotNull)
   }
 
   public getBlock(selector: BlockSelector): SFCBlock | null | undefined {
+    this.parse()
     switch (selector.type) {
       case SCRIPT_BLOCK_SELECTOR:
         return this.descriptor.script
@@ -995,9 +997,13 @@ export class VueTextDocument extends ProxyTextDocument {
     const source = this.getText()
     try {
       this.sfc = parseSFC(source, this.parseOptions)
-    } catch {
+    } catch (error) {
       // -- skip invalid state.
-      // TODO: Catch errors.
+      console.error(
+        `Error parsing SFC "${this.fsPath}": ${(error as Error).message} ${
+          (error as Error).stack ?? ''
+        }`,
+      )
     }
   }
 

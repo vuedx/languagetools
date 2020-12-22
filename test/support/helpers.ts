@@ -22,6 +22,18 @@ export function codeEditToTextEdit(edit: CodeEdit): TextEdit {
   }
 }
 
+export async function findEOFPosition(
+  file: string,
+): Promise<{ file: string; line: number; offset: number }> {
+  const document = await getTextDocument(file)
+  const position = document.positionAt(document.getText().length)
+
+  return {
+    file,
+    line: position.line + 1,
+    offset: position.character + 1,
+  }
+}
 export async function findPositionOrThrowIn(
   file: string,
   text: string,

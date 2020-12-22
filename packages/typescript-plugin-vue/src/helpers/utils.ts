@@ -22,6 +22,7 @@ import {
 } from '@vuedx/vue-virtual-textdocument'
 import Path from 'path'
 import QuickLRU from 'quick-lru'
+import { ORIGINAL_LANGUAGE_SERVER } from '../constants'
 import { PluginContext } from '../context'
 import { PluginConfig, TS } from '../interfaces'
 
@@ -267,8 +268,40 @@ export function createServerHelper(
     }
   }
 
+  function getLanguageServiceFor(
+    fileName: string,
+    fallback?: TS.LanguageService,
+  ): TS.LanguageService {
+    if (fallback != null) {
+      try {
+        const program = fallback.getProgram()
+        if (program != null) {
+          program.getSourceFile(fileName)
+          return fallback
+        }
+      } catch {
+        // fileName is not part of program. find correct program using project
+      }
+    }
+
+    const project = context.projectService.getDefaultProjectForFile(
+      context.typescript.server.toNormalizedPath(fileName),
+      true,
+    )
+
+    if (project == null) return fallback ?? languageService
+
+    const service = project.getLanguageService()
+    if (ORIGINAL_LANGUAGE_SERVER in service) {
+      return (service as any)[ORIGINAL_LANGUAGE_SERVER]
+    } else {
+      return service
+    }
+  }
+
   return {
     isFeatureEnabled,
+    getLanguageServiceFor,
     findTemplateChildren,
     findTemplateNodeAtPosition,
     findTypeScriptNodeAtPosition,
