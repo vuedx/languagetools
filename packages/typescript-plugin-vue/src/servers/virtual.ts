@@ -11,14 +11,7 @@ export function createVirtualLanguageServer(
   }
 
   function choose(fileName: string): TS.LanguageService {
-    return (
-      config.context.projectService
-        .getDefaultProjectForFile(
-          config.context.typescript.server.toNormalizedPath(fileName),
-          false,
-        )
-        ?.getLanguageService() ?? config.service
-    )
+    return config.helpers.getLanguageServiceFor(fileName, config.service)
   }
 
   return wrapInTrace('VirtualLanguageServer', {
@@ -27,6 +20,11 @@ export function createVirtualLanguageServer(
       const fileName = removePrefix(rawFileName)
 
       return choose(fileName).getQuickInfoAtPosition(fileName, position)
+    },
+    getSemanticDiagnostics(rawFileName) {
+      const fileName = removePrefix(rawFileName)
+
+      return choose(fileName).getSemanticDiagnostics(fileName)
     },
   })
 }

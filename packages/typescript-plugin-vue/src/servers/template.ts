@@ -27,20 +27,7 @@ export function createTemplateLanguageServer(
 ): TS.LanguageService & AdditionalFunctions {
   const { helpers: h, context, service } = config
   const choose = (fileName: string): TS.LanguageService => {
-    try {
-      service.getProgram()?.getSourceFile(fileName) // This should throw if {fileName} is not part of program.
-
-      return service
-    } catch {
-      return (
-        context.projectService
-          .getDefaultProjectForFile(
-            context.typescript.server.toNormalizedPath(fileName),
-            false,
-          )
-          ?.getLanguageService() ?? service
-      )
-    }
+    return h.getLanguageServiceFor(fileName, service)
   }
 
   return wrapInTrace('TemplateLanguageServer', {

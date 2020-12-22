@@ -35,7 +35,13 @@ export function createVueLanguageServer(
       return template
     }
 
-    return script
+    return h.getLanguageServiceFor(document.fsPath, script)
+  }
+
+  function isSupportLanguage(lang: string): boolean {
+    return /^(javascript|typescript|javascriptreact|typescriptreact)$/i.test(
+      lang,
+    )
   }
 
   return wrapInTrace('VueLanguageServer', {
@@ -48,18 +54,12 @@ export function createVueLanguageServer(
 
       const document = h.getVueDocument(fileName)
       const diagnostics: TS.Diagnostic[] = []
-      if (document != null) {
-        const selectors = ['script', '_render', 'scriptSetup'] as const
-        selectors.forEach((selector) => {
-          const virtual = document.getDocument(selector)
-          if (virtual != null) {
-            const results = choose(virtual).getSemanticDiagnostics(
-              virtual.fsPath,
-            )
-            diagnostics.push(...results)
-          }
-        })
-      }
+      document?.all().forEach((virtual) => {
+        if (isSupportLanguage(virtual.languageId)) {
+          const results = choose(virtual).getSemanticDiagnostics(virtual.fsPath)
+          diagnostics.push(...results)
+        }
+      })
 
       return diagnostics
     },
@@ -72,17 +72,14 @@ export function createVueLanguageServer(
       const document = h.getVueDocument(fileName)
 
       const diagnostics: TS.DiagnosticWithLocation[] = []
-      if (document != null) {
-        const selectors = ['script', '_render', 'scriptSetup'] as const
-        selectors.forEach((selector) => {
-          const virtual = document.getDocument(selector)
-
-          if (virtual != null)
-            diagnostics.push(
-              ...choose(virtual).getSuggestionDiagnostics(virtual.fsPath),
-            )
-        })
-      }
+      document?.all().forEach((virtual) => {
+        if (isSupportLanguage(virtual.languageId)) {
+          const results = choose(virtual).getSuggestionDiagnostics(
+            virtual.fsPath,
+          )
+          diagnostics.push(...results)
+        }
+      })
 
       return diagnostics
     },
@@ -95,17 +92,14 @@ export function createVueLanguageServer(
       const document = h.getVueDocument(fileName)
 
       const diagnostics: TS.DiagnosticWithLocation[] = []
-      if (document != null) {
-        const selectors = ['script', '_render', 'scriptSetup'] as const
-        selectors.forEach((selector) => {
-          const virtual = document.getDocument(selector)
-
-          if (virtual != null)
-            diagnostics.push(
-              ...choose(virtual).getSyntacticDiagnostics(virtual.fsPath),
-            )
-        })
-      }
+      document?.all().forEach((virtual) => {
+        if (isSupportLanguage(virtual.languageId)) {
+          const results = choose(virtual).getSyntacticDiagnostics(
+            virtual.fsPath,
+          )
+          diagnostics.push(...results)
+        }
+      })
 
       return diagnostics
     },
@@ -115,6 +109,7 @@ export function createVueLanguageServer(
 
       const document = h.getVueDocument(scope.fileName)
       if (document != null) {
+        // TODO: Organize imports in both <script> and <script setup>
         const virtual =
           document.getDocument('script') ?? document.getDocument('scriptSetup')
         if (virtual != null) {
@@ -185,7 +180,7 @@ export function createVueLanguageServer(
           findInComments,
         )
         ?.slice()
-
+      // TODO: Refactor this 🤷‍♂️
       if (locations != null && locations.length > 0) {
         const result = choose(document).getRenameInfo(
           document.fsPath,
