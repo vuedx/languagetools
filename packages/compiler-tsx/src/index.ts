@@ -34,7 +34,7 @@ import { createTransformFor } from './transforms/transformFor'
 import { createTransformIf } from './transforms/transformIf'
 import { createInterpolationTransform } from './transforms/transformInterpolation'
 import { CodegenResult, ComponentImport, Options } from './types'
-import { processBogusComment } from './utils'
+import { transformText } from './utils'
 import { getComponentName } from '@vuedx/shared'
 
 export * from './types'
@@ -116,22 +116,18 @@ export function compile(
         if (isCommentNode(node)) {
           if (node.content.includes('<') || node.content.includes('>')) {
             context.replaceNode(
-              createCompoundExpression([
-                processBogusComment(node.content.trim()),
-              ]),
+              createCompoundExpression([transformText(node.content.trim())]),
             )
           } else {
             context.removeNode(node)
           }
         } else if (isTextNode(node)) {
           context.replaceNode(
-            createCompoundExpression([processBogusComment(node.content)]),
+            createCompoundExpression([transformText(node.content)]),
           )
         } else if (isElementNode(node) && node.tag.includes('<')) {
           context.replaceNode(
-            createCompoundExpression([
-              processBogusComment(node.loc.source.trim()),
-            ]),
+            createCompoundExpression([transformText(node.loc.source.trim())]),
           )
         }
       },

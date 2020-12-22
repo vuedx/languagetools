@@ -9,7 +9,7 @@ declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render({/*@@vue:identifiers-start*//*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
+  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null}{" <> "}</>/*@@vue:end*/
 }
 `;
 
@@ -22,7 +22,7 @@ declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render({/*@@vue:identifiers-start*//*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
+  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null}{" <> "}</>/*@@vue:end*/
 }
 `;
 
@@ -65,7 +65,7 @@ declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render({/*@@vue:identifiers-start*//*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
+  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null}{" <> "}</>/*@@vue:end*/
 }
 `;
 
@@ -78,7 +78,7 @@ declare const __completionsTrigger: InstanceType<typeof _Ctx>
 __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render({/*@@vue:identifiers-start*//*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
-  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null} {'<'}{'>'} </>/*@@vue:end*/
+  return /*@@vue:start*/<><HelloWorld n /><span >Name: {name +}</span><p ></p>{() ? (<p ></p>) :null}{" <> "}</>/*@@vue:end*/
 }
 `;
 
@@ -188,6 +188,18 @@ __completionsTrigger./*@@vue:completions*/$props
 const __completionsTag = /*@@vue:completionsTag*/<div />
 export function render(_ctx: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<><Transition ><JavaScriptPropsOption /><JavaScriptSetupPropsOption /></Transition></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/JSON.vue 1`] = `
+import _Ctx from './JSON.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><pre ><code >{"{\\"key\\": \\"value\\"}"}</code></pre></>/*@@vue:end*/
 }
 `;
 

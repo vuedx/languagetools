@@ -309,7 +309,7 @@ export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,
 
 
       export function render(_ctx: InstanceType<typeof _Ctx>) {
-        return /*@@vue:start*/<><div>{'<'}/</div></>/*@@vue:end*/
+        return /*@@vue:start*/<><div>{'</'}</div></>/*@@vue:end*/
       }
     `,
   },
@@ -321,7 +321,7 @@ export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,
 
 
       export function render(_ctx: InstanceType<typeof _Ctx>) {
-        return /*@@vue:start*/<>{'<'}{'>'}</>/*@@vue:end*/
+        return /*@@vue:start*/<>{'<>'}</>/*@@vue:end*/
       }
     `,
   },
@@ -345,7 +345,7 @@ export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,
 
 
       export function render(_ctx: InstanceType<typeof _Ctx>) {
-        return /*@@vue:start*/<><div>{'<'}div{'<'}/div{'>'}</div></>/*@@vue:end*/
+        return /*@@vue:start*/<><div>{'<div</div>'}</div></>/*@@vue:end*/
       }
     `,
   },
@@ -357,7 +357,7 @@ export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,
 
 
       export function render(_ctx: InstanceType<typeof _Ctx>) {
-        return /*@@vue:start*/<><div>{'<'}{'>'}</div></>/*@@vue:end*/
+        return /*@@vue:start*/<><div>{'<>'}</div></>/*@@vue:end*/
       }
     `,
   },
@@ -369,7 +369,7 @@ export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,
 
 
       export function render(_ctx: InstanceType<typeof _Ctx>) {
-        return /*@@vue:start*/<><div><div>{'<'}/div</div></div></>/*@@vue:end*/
+        return /*@@vue:start*/<><div><div>{'</div'}</div></div></>/*@@vue:end*/
       }
     `,
   },

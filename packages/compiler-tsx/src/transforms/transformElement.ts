@@ -31,7 +31,7 @@ import {
   isTextNode,
 } from '@vuedx/template-ast-types'
 import { Options } from '../types'
-import { createLoc, processBogusComment } from '../utils'
+import { createLoc, transformText } from '../utils'
 
 function isForNode(node: unknown): node is ForNode {
   return isNode(node) && node.type === 11
@@ -476,12 +476,12 @@ export function generateChildNodes(nodes: TemplateChildNode[]): any[] {
   return nodes.flatMap((node) => {
     if (isCommentNode(node)) {
       if (node.content.includes('<') || node.content.includes('>')) {
-        return createCompoundExpression([processBogusComment(node.content)])
+        return createCompoundExpression([transformText(node.content)])
       } else {
         return []
       }
     } else if (isTextNode(node)) {
-      return createCompoundExpression([processBogusComment(node.content)])
+      return createCompoundExpression([transformText(node.content)])
     } else if (isIfNode(node) || isForNode(node)) {
       return createCompoundExpression(['{', node as any, '}'])
     } else {
