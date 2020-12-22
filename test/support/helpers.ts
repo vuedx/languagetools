@@ -1,6 +1,6 @@
 import FS from 'fs/promises'
 import Path from 'path'
-import { CodeEdit, Location } from 'typescript/lib/protocol'
+import { CodeEdit, Location, TextSpan } from 'typescript/lib/protocol'
 import {
   Position,
   TextDocument,
@@ -54,13 +54,39 @@ export async function findPositionIn(
 
   if (index >= 0) {
     const position = document.positionAt(index + offset)
+    const loc = toLoc(position)
 
     return {
       file,
-      line: position.line + 1,
-      offset: position.character + 1,
+      ...loc,
     }
   }
+}
+
+function toLoc(position: Position): Location {
+  return {
+    line: position.line + 1,
+    offset: position.character + 1,
+  }
+}
+
+export async function findAllPositionsIn(
+  file: string,
+  text: string,
+): Promise<TextSpan[]> {
+  const document = await getTextDocument(file)
+  const content = document.getText()
+  const pos: TextSpan[] = []
+
+  let index: number = 0
+  while ((index = content.indexOf(text, index + text.length)) >= 0) {
+    pos.push({
+      start: toLoc(document.positionAt(index)),
+      end: toLoc(document.positionAt(index + text.length)),
+    })
+  }
+
+  return pos
 }
 
 const cache = new Map<string, TextDocument>()

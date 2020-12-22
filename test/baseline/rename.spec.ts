@@ -1,5 +1,9 @@
 import Path from 'path'
-import { findPositionOrThrowIn, toNormalizedPath } from 'test/support/helpers'
+import {
+  findAllPositionsIn,
+  findPositionOrThrowIn,
+  toNormalizedPath,
+} from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
 describe('rename', () => {
@@ -104,4 +108,42 @@ describe('rename', () => {
       }
     })
   })
+  describe.each(['Javascript.vue', 'Typescript.vue'])(
+    'rename identifier in template of %s',
+    (source) => {
+      const file = abs(`src/${source}`)
+
+      beforeAll(async () => {
+        await server.sendCommand('updateOpen', {
+          openFiles: [{ file, projectRootPath: projectPath }],
+        })
+      })
+
+      it('should allow renaming identifiers returned from setup() fn', async () => {
+        const { body } = await server.sendCommand('rename', {
+          ...(await findPositionOrThrowIn(file, `"decrease"`, 2)),
+          findInComments: false,
+          findInStrings: false,
+        })
+
+        expect(body).toBeTruthy()
+        expect(body!.info.canRename).toBe(true)
+
+        if (body?.info.canRename === true) {
+          expect(body.locs).toHaveLength(1)
+          const changes = body.locs[0]
+
+          expect(changes.file).toBe(file)
+          expect(changes.locs).toHaveLength(3)
+          expect(changes.locs).toEqual(
+            expect.arrayContaining(
+              (await findAllPositionsIn(file, 'decrease')).map((item) =>
+                expect.objectContaining(item),
+              ),
+            ),
+          )
+        }
+      })
+    },
+  )
 })
