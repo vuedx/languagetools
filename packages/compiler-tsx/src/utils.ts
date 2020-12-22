@@ -55,6 +55,6 @@ export function createLoc(
   return { source, start, end }
 }
 
-export function processBogusComment(content: string): string {
-  return content.replace(/</g, `{'<'}`).replace(/>/g, `{'>'}`)
+export function transformText(content: string): string {
+  return /[<{}>]/i.test(content) ? `{${JSON.stringify(content)}}` : content
 }
