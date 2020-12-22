@@ -26,6 +26,36 @@ export function render({,..._ctx}: InstanceType<typeof _Ctx>) {
 }
 `;
 
+exports[`VueVirtualDocument/baseline feature-completions/src/SFC-Empty.vue 1`] = ``;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/SFC-Script.vue 1`] = ``;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/SFC-ScriptSetup.vue 1`] = ``;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/SFC-ScriptTemplate.vue 1`] = `
+import _Ctx from './SFC-ScriptTemplate.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/null/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline feature-completions/src/SFC-Template.vue 1`] = `
+import _Ctx from './SFC-Template.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/null/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-completions/src/Typescript.vue 1`] = `
 import _Ctx from './Typescript.vue?internal'
 import HelloWorld from './components/HelloWorld.vue'

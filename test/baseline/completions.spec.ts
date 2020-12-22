@@ -1,5 +1,9 @@
 import Path from 'path'
-import { findPositionOrThrowIn, toNormalizedPath } from 'test/support/helpers'
+import {
+  findEOFPosition,
+  findPositionOrThrowIn,
+  toNormalizedPath,
+} from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
 describe('completions', () => {
@@ -232,6 +236,183 @@ describe('completions', () => {
       )
 
       expect(pascalDetails).toEqual(kebabDetails)
+    })
+  })
+
+  describe('SFC completions', () => {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    async function getCompletionsIn(source: string) {
+      const file = abs(`src/${source}`)
+      await server.sendCommand('updateOpen', {
+        openFiles: [{ file, projectRootPath: projectPath }],
+      })
+
+      const position = await findEOFPosition(file)
+      const { body } = await server.sendCommand('completionInfo', position)
+      expect(body).toBeTruthy()
+
+      const entries = body!.entries
+      const result = await server.sendCommand('completionEntryDetails', {
+        ...position,
+        entryNames: entries.map((entry) => ({ name: entry.name })),
+      })
+      expect(result.body).toBeTruthy()
+      const details = result.body!
+
+      return { file, entries, details }
+    }
+
+    test('completions in empty vue file', async () => {
+      const { entries, details } = await getCompletionsIn('SFC-Empty.vue')
+
+      expect(entries).toHaveLength(details.length)
+      expect(entries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: '<script>, <template>, <style>',
+            isRecommended: true,
+          }),
+          expect.objectContaining({ name: '<template>, <script>, <style>' }),
+        ]),
+      )
+
+      expect(entries).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: '<preview>' }),
+        ]),
+      )
+      expect(details.filter((detail) => detail.name.includes(',')))
+        .toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "displayParts": Array [],
+            "documentation": Array [
+              Object {
+                "kind": "markdown",
+                "text": "\`\`\`vue
+        <script>
+        import { defineComponent } from 'vue'
+
+        export default defineComponent({})
+        </script>
+
+        <template>
+         <div></div>
+        </template>
+
+        <style>
+        </style>
+
+        \`\`\`",
+              },
+            ],
+            "kind": "",
+            "kindModifiers": "SFC blocks",
+            "name": "<script>, <template>, <style>",
+          },
+          Object {
+            "displayParts": Array [],
+            "documentation": Array [
+              Object {
+                "kind": "markdown",
+                "text": "\`\`\`vue
+        <template>
+         <div></div>
+        </template>
+
+        <script>
+        import { defineComponent } from 'vue'
+
+        export default defineComponent({})
+        </script>
+
+        <style>
+        </style>
+
+        \`\`\`",
+              },
+            ],
+            "kind": "",
+            "kindModifiers": "SFC blocks",
+            "name": "<template>, <script>, <style>",
+          },
+        ]
+      `)
+    })
+
+    test('completions when script is present', async () => {
+      const { entries, details } = await getCompletionsIn('SFC-Script.vue')
+
+      expect(entries).toHaveLength(details.length)
+      expect(entries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: '<template>' }),
+          expect.objectContaining({ name: '<script setup>' }),
+          expect.objectContaining({ name: '<style>' }),
+          expect.objectContaining({ name: '<preview>' }),
+        ]),
+      )
+      expect(entries).not.toEqual(
+        expect.arrayContaining([expect.objectContaining({ name: '<script>' })]),
+      )
+    })
+
+    test('completions when script setup is present', async () => {
+      const { entries, details } = await getCompletionsIn('SFC-ScriptSetup.vue')
+
+      expect(entries).toHaveLength(details.length)
+      expect(entries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: '<template>' }),
+          expect.objectContaining({ name: '<script>' }),
+          expect.objectContaining({ name: '<style>' }),
+        ]),
+      )
+      expect(entries).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: '<preview>' }),
+          expect.objectContaining({ name: '<script setup>' }),
+        ]),
+      )
+    })
+
+    test('completions when script + template is present', async () => {
+      const { entries, details } = await getCompletionsIn(
+        'SFC-ScriptTemplate.vue',
+      )
+
+      expect(entries).toHaveLength(details.length)
+      expect(entries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: '<style>' }),
+          expect.objectContaining({ name: '<preview>' }),
+        ]),
+      )
+      expect(entries).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: '<script>' }),
+          expect.objectContaining({ name: '<template>' }),
+        ]),
+      )
+    })
+
+    test('completions when  template is present', async () => {
+      const { entries, details } = await getCompletionsIn('SFC-Template.vue')
+
+      expect(entries).toHaveLength(details.length)
+      expect(entries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: '<script>' }),
+          expect.objectContaining({ name: '<script setup>' }),
+          expect.objectContaining({ name: '<style>' }),
+          expect.objectContaining({ name: '<preview>' }),
+        ]),
+      )
+      expect(entries).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: '<template>' }),
+        ]),
+      )
     })
   })
 })
