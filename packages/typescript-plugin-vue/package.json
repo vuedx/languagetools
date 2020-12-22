@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
+    "@intlify/core": "^9.0.0-beta.15",
     "@vuedx/analyze": "workspace:*",
     "@vuedx/compiler-sfc": "workspace:*",
     "@vuedx/projectconfig": "workspace:*",

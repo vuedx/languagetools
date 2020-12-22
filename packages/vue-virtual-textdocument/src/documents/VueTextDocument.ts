@@ -444,6 +444,7 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
   private originalRange: [number, number] = [0, 0]
   private originalMappings: CodegenResult['mappings'] = []
   private generatedRange: [number, number] = [0, 0]
+  private templateIdentifiersRange: [number, number] = [0, 0]
   private generatedMappings: CodegenResult['mappings'] = []
   private expressionsMap: Record<string, [number, number]> = {}
   private _contextCompletionsTriggerOffset: number = 0
@@ -529,6 +530,13 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
     return start <= offset && offset <= end
   }
 
+  public isInTemplateIdentifierRange(offset: number): boolean {
+    this.refresh()
+    const [start, end] = this.templateIdentifiersRange
+
+    return start <= offset && offset <= end
+  }
+
   public getGeneratedOffsetAt(
     offset: number,
   ): undefined | { length: number; offset: number } {
@@ -596,6 +604,7 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
       this.originalRange = [0, 0]
       this.originalMappings = []
       this.generatedRange = [0, 0]
+      this.templateIdentifiersRange = [0, 0]
       this.generatedMappings = []
       this.result = {
         errors: [error],
@@ -636,6 +645,10 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
       this.generatedRange = [
         this.result.code.indexOf('/*@@vue:start*/'),
         this.result.code.indexOf('/*@@vue:end*/'),
+      ]
+      this.templateIdentifiersRange = [
+        this.result.code.indexOf('/*@@vue:identifiers-start*/'),
+        this.result.code.indexOf('/*@@vue:identifiers-end*/'),
       ]
       this.generatedMappings = this.result.mappings.filter(
         (m) => this.generatedRange[0] <= m[0] && m[1] <= this.generatedRange[1],
