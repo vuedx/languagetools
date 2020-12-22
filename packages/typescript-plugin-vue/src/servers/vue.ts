@@ -56,9 +56,8 @@ export function createVueLanguageServer(
         return []
       }
 
-      const document = h.getVueDocument(fileName)
       const diagnostics: TS.Diagnostic[] = []
-      document?.all().forEach((virtual) => {
+      h.getAllDocuments(fileName).forEach((virtual) => {
         if (
           isSupportLanguage(virtual.languageId) &&
           !IGNORED_SELECTORS.has(virtual.selector.type)
@@ -84,10 +83,9 @@ export function createVueLanguageServer(
         return []
       }
 
-      const document = h.getVueDocument(fileName)
-
       const diagnostics: TS.DiagnosticWithLocation[] = []
-      document?.all().forEach((virtual) => {
+      h.getAllDocuments(fileName).forEach((virtual) => {
+        context.log(`@@debug ${virtual.languageId} => ${virtual.fsPath} `)
         if (
           isSupportLanguage(virtual.languageId) &&
           !IGNORED_SELECTORS.has(virtual.selector.type)
@@ -98,6 +96,7 @@ export function createVueLanguageServer(
           diagnostics.push(...results)
         }
       })
+
       diagnostics.forEach((diagnostic) => {
         if (diagnostic.code >= 59000) {
           diagnostic.source = 'VueDX'
@@ -113,10 +112,9 @@ export function createVueLanguageServer(
         return []
       }
 
-      const document = h.getVueDocument(fileName)
-
       const diagnostics: TS.DiagnosticWithLocation[] = []
-      document?.all().forEach((virtual) => {
+      h.getAllDocuments(fileName).forEach((virtual) => {
+        context.log(`@@debug ${virtual.languageId} => ${virtual.fsPath} `)
         if (
           isSupportLanguage(virtual.languageId) &&
           !IGNORED_SELECTORS.has(virtual.selector.type)
@@ -555,7 +553,12 @@ export function createVueLanguageServer(
             config: { preferences },
           } = context.getVueProjectForFile(fileName, true)
 
-          return getSFCCompletions(document, preferences)
+          return getSFCCompletions(
+            document,
+            preferences,
+            position,
+            options?.triggerCharacter,
+          )
         }
       }
     },
@@ -585,7 +588,7 @@ export function createVueLanguageServer(
           const {
             config: { preferences },
           } = context.getVueProjectForFile(fileName, true)
-          const { entries } = getSFCCompletions(document, preferences)
+          const { entries } = getSFCCompletions(document, preferences, position)
           const entry = entries.find((entry) => entry.name === entryName)
           if (entry != null) {
             const result: TS.CompletionEntryDetails = {
@@ -700,7 +703,10 @@ export function createVueLanguageServer(
 function getSFCCompletions(
   document: VueTextDocument,
   preferences: ProjectPreferences,
+  position: number,
+  triggerCharacter?: string,
 ): TS.WithMetadata<TS.CompletionInfo> {
+  const length = triggerCharacter?.length ?? 0
   const completions: TS.WithMetadata<TS.CompletionInfo> = {
     isGlobalCompletion: false,
     isMemberCompletion: false,
@@ -750,6 +756,10 @@ function getSFCCompletions(
       kindModifiers: 'SFC blocks',
       sortText: '0',
       insertText: [script, template, style].join('\n'),
+      replacementSpan: {
+        start: position,
+        length: length,
+      },
       isRecommended: true,
     })
 
@@ -759,6 +769,10 @@ function getSFCCompletions(
       kindModifiers: 'SFC blocks',
       sortText: '1',
       insertText: [template, script, style].join('\n'),
+      replacementSpan: {
+        start: position,
+        length: length,
+      },
     })
   }
 
@@ -785,6 +799,10 @@ function getSFCCompletions(
         '</script>',
         '',
       ].join('\n'),
+      replacementSpan: {
+        start: position,
+        length: length,
+      },
     })
   }
 
@@ -798,6 +816,10 @@ function getSFCCompletions(
       kindModifiers: 'SFC script',
       sortText: '2',
       insertText: script,
+      replacementSpan: {
+        start: position,
+        length: length,
+      },
     })
   }
 
@@ -808,6 +830,10 @@ function getSFCCompletions(
       kindModifiers: 'SFC template',
       sortText: '2',
       insertText: template,
+      replacementSpan: {
+        start: position,
+        length: length,
+      },
     })
   }
   completions.entries.push({
@@ -816,6 +842,10 @@ function getSFCCompletions(
     kindModifiers: 'SFC style',
     sortText: '3',
     insertText: style,
+    replacementSpan: {
+      start: position,
+      length: length,
+    },
   })
 
   if (
@@ -829,6 +859,10 @@ function getSFCCompletions(
       kindModifiers: 'SFC preview',
       sortText: '4',
       insertText: [`<preview>`, `  <${name} />`, `</preview>`, ``].join('\n'),
+      replacementSpan: {
+        start: position,
+        length: length,
+      },
     })
   }
 

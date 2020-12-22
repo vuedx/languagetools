@@ -1,5 +1,6 @@
 import { ComponentInfo, createFullAnalyzer, SourceRange } from '@vuedx/analyze'
 import type { SFCBlock } from '@vuedx/compiler-sfc'
+import { isNotNull } from '@vuedx/shared'
 import {
   findTemplateChildrenInRange,
   findTemplateNodeAt,
@@ -9,6 +10,7 @@ import {
 } from '@vuedx/template-ast-types'
 import {
   getContainingFile,
+  INTERNAL_MODULE_SELECTOR,
   isVirtualFile,
   isVueFile,
   MODULE_SELECTOR,
@@ -17,6 +19,7 @@ import {
   RENDER_SELECTOR,
   SCRIPT_BLOCK_SELECTOR,
   SCRIPT_SETUP_BLOCK_SELECTOR,
+  TEMPLATE_BLOCK_SELECTOR,
   VirtualTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
@@ -179,6 +182,30 @@ export function createServerHelper(
 
     return null
   }
+  function getAllDocuments(fileName: string): VirtualTextDocument[] {
+    const document = getVueDocument(fileName)
+    const documents: VirtualTextDocument[] = []
+    if (document != null) {
+      documents.push(
+        document.getDocument(RENDER_SELECTOR),
+        document.getDocument(INTERNAL_MODULE_SELECTOR),
+        document.getDocument(MODULE_SELECTOR),
+        document.getDocument(SCRIPT_BLOCK_SELECTOR),
+        document.getDocument(SCRIPT_SETUP_BLOCK_SELECTOR),
+        document.getDocument(TEMPLATE_BLOCK_SELECTOR),
+        ...document.descriptor.styles
+          .map((style) => document.getBlockSelector(style))
+          .filter(isNotNull)
+          .map((selector) => document.getDocument(selector)),
+        ...document.descriptor.customBlocks
+          .map((style) => document.getBlockSelector(style))
+          .filter(isNotNull)
+          .map((selector) => document.getDocument(selector)),
+      )
+    }
+
+    return documents.filter(isNotNull)
+  }
 
   function isRenderFunctionDocument(
     document: unknown,
@@ -322,6 +349,7 @@ export function createServerHelper(
     getComponentInfo,
     getDocument,
     getDocumentAt,
+    getAllDocuments,
     getRenderDoc,
     getTextSpan,
     getVueDocument,

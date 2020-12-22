@@ -1,5 +1,9 @@
 import Path from 'path'
-import { findPositionOrThrowIn, toNormalizedPath } from 'test/support/helpers'
+import {
+  findPositionOrThrowIn,
+  getTextDocument,
+  toNormalizedPath,
+} from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
 describe('diagnostic', () => {
@@ -457,4 +461,48 @@ describe('diagnostic', () => {
       }
     },
   )
+  test(`change script block lang`, async () => {
+    const file = abs(`src/ChangeScriptLang.vue`)
+
+    try {
+      await server.sendCommand('updateOpen', {
+        openFiles: [{ file, projectRootPath }],
+      })
+
+      const { body } = await server.waitForEvent(
+        'syntaxDiag',
+        checkEventFile(file),
+      )
+      expect(body?.diagnostics).toHaveLength(1)
+
+      await server.flush(['events'])
+      const { file: _, ...pos } = await findPositionOrThrowIn(
+        file,
+        '<script>',
+        '<script'.length,
+      )
+      await server.sendCommand('updateOpen', {
+        openFiles: [{ file, projectRootPath }],
+        changedFiles: [
+          {
+            fileName: file,
+            textChanges: [
+              {
+                start: pos,
+                end: pos,
+                newText: ' lang="ts"',
+              },
+            ],
+          },
+        ],
+      })
+      const { body: newBody } = await server.waitForEvent(
+        'syntaxDiag',
+        checkEventFile(file),
+      )
+      expect(newBody?.diagnostics).toHaveLength(0)
+    } finally {
+      await server.sendCommand('updateOpen', { closedFiles: [file] })
+    }
+  })
 })

@@ -214,7 +214,7 @@ export class TestServer {
     } catch {}
   }
 
-  private shutdown() {
+  private shutdown(): void {
     if (this.pendingResponses <= 0) {
       debug(`${this.id}: shutting down...`)
       this.stdin.end()
@@ -223,10 +223,16 @@ export class TestServer {
     }
   }
 
-  public async flush(): Promise<void> {
-    this.responses.length = 0
-    this.events.length = 0
-    this.requests.length = 0
+  public async flush(
+    what: Array<'responses' | 'events' | 'requests'> = [
+      'responses',
+      'events',
+      'requests',
+    ],
+  ): Promise<void> {
+    what.forEach((key) => {
+      this[key].length = 0
+    })
   }
 
   // Type definitions to pair event with messages.
@@ -237,7 +243,7 @@ export class TestServer {
   public async waitForEvent(
     event: Proto.ProjectLoadingFinishEventName,
   ): Promise<Proto.ProjectLoadingFinishEvent>
-  
+
   public async waitForEvent(
     event: Proto.RequestCompletedEventName,
   ): Promise<Proto.RequestCompletedEvent>
@@ -311,9 +317,11 @@ export class TestServer {
     command: 'completionEntryDetails' | Proto.CommandTypes.CompletionDetails,
     args: Proto.CompletionDetailsRequest['arguments'],
   ): Promise<Proto.CompletionDetailsResponse>
- 
+
   public async sendCommand(
-    command: 'getApplicableRefactors' | Proto.CommandTypes.GetApplicableRefactors,
+    command:
+      | 'getApplicableRefactors'
+      | Proto.CommandTypes.GetApplicableRefactors,
     args: Proto.GetApplicableRefactorsRequest['arguments'],
   ): Promise<Proto.GetApplicableRefactorsResponse>
 
