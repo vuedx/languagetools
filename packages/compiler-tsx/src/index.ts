@@ -12,6 +12,7 @@ import {
   transform,
   ParserOptions,
   RootNode,
+  RENDER_SLOT,
 } from '@vue/compiler-core'
 import {
   isCommentNode,
@@ -49,6 +50,9 @@ const typeHelpers = {
     `declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];`,
     `declare function _renderList<T extends object>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];`,
   ].join('\n'),
+  'v-slot': [
+    `declare function _renderSlot<T extends Record<string, ((...props: any[]) => any)|undefined>, K extends keyof T>(slots: T, name: K, ...props: T[K] extends undefined ? any : Parameters<T[K]>): any[];`,
+  ],
 } as const
 const components: Record<string, ComponentImport> = {}
 export function compile(
@@ -139,12 +143,18 @@ export function compile(
     },
   })
   const hasVFor = ast.helpers.includes(RENDER_LIST)
-  ;[OPEN_BLOCK, CREATE_BLOCK, CREATE_VNODE, FRAGMENT, RENDER_LIST].forEach(
-    (helper) => {
-      const index = ast.helpers.indexOf(helper)
-      if (index >= 0) ast.helpers.splice(index, 1)
-    },
-  )
+  const hasVSlot = ast.helpers.includes(RENDER_SLOT)
+  ;[
+    OPEN_BLOCK,
+    CREATE_BLOCK,
+    CREATE_VNODE,
+    FRAGMENT,
+    RENDER_LIST,
+    RENDER_SLOT,
+  ].forEach((helper) => {
+    const index = ast.helpers.indexOf(helper)
+    if (index >= 0) ast.helpers.splice(index, 1)
+  })
   if (ast.children.length > 0) {
     ast.codegenNode = createCompoundExpression([
       '/*@@vue:start*/<>',
@@ -168,6 +178,7 @@ export function compile(
           push(
             [
               hasVFor ? typeHelpers['v-for'] : null,
+              hasVSlot ? typeHelpers['v-slot'] : null,
               'declare const __completionsTrigger: InstanceType<typeof _Ctx>',
               '__completionsTrigger./*@@vue:completions*/$props',
               'const __completionsTag = /*@@vue:completionsTag*/<div />',

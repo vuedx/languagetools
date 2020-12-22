@@ -13,6 +13,7 @@ import {
   IfNode,
   isSimpleIdentifier,
   NodeTransform,
+  RENDER_SLOT,
   SlotsExpression,
   TemplateChildNode,
   TransformContext,
@@ -79,7 +80,6 @@ export function createElementTransform(
     }
 
     return () => {
-      // TODO: Transform <slot />
       if (node.tag === 'slot') {
         const slotName = findProp(node, 'name')
         const props = node.props.filter(
@@ -130,36 +130,25 @@ export function createElementTransform(
         )
         node.codegenNode = createCompoundExpression(
           [
-            '{_ctx.',
-            slotName != null
-              ? [
-                  createSimpleExpression(
-                    '$slots',
-                    false,
-                    createLoc(node.loc, 1, 4),
-                  ),
-                  '[',
-                  isAttributeNode(slotName)
-                    ? createSimpleExpression(
-                        slotName.value?.content ?? 'default',
-                        true,
-                        slotName.loc,
-                      )
-                    : slotName.exp,
-                  ']',
-                ]
-              : [
-                  createSimpleExpression(
-                    '$slots.default',
-                    false,
-                    createLoc(node.loc, 1, 4),
-                  ),
-                ],
+            '{',
+            context.helper(RENDER_SLOT),
             '(',
+            '_ctx.$slots',
+            ',',
+            isAttributeNode(slotName)
+              ? createSimpleExpression(
+                  slotName.value?.content ?? 'default',
+                  true,
+                  slotName.loc,
+                )
+              : isDirectiveNode(slotName)
+              ? slotName.exp
+              : createSimpleExpression('default', true),
+            ',',
             args,
             ')',
             node.children.length > 0
-              ? ['?? (<>', generateChildNodes(node.children), '</>)'].flat()
+              ? [' ?? (<>', generateChildNodes(node.children), '</>)'].flat()
               : [],
             '}',
           ].flat(),

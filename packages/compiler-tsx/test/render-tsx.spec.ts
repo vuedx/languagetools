@@ -426,6 +426,42 @@ export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,
       }
   `,
   },
+  {
+    name: 'Simple slot element',
+    template: `
+      <span>
+        <slot v-bind="{foo}" />
+      </span>
+    `.trim(),
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      declare function _renderSlot<T extends Record<string, ((...props: any[]) => any)|undefined>, K extends keyof T>(slots: T, name: K, ...props: T[K] extends undefined ? any : Parameters<T[K]>): any[];
+      export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<><span>{_renderSlot(_ctx.$slots, 'default', { foo })}</span></>/*@@vue:end*/
+      }
+  `,
+  },
+  {
+    name: 'Slot element with fallback',
+    template: `
+      <span>
+        <slot v-bind="{foo}">
+          <div>{{foo}}</div>
+        </slot>
+      </span>
+    `.trim(),
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      declare function _renderSlot<T extends Record<string, ((...props: any[]) => any)|undefined>, K extends keyof T>(slots: T, name: K, ...props: T[K] extends undefined ? any : Parameters<T[K]>): any[];
+      export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
+        return /*@@vue:start*/<><span>{_renderSlot(_ctx.$slots, 'default', { foo }) ?? (<><div>{foo}</div></>)}</span></>/*@@vue:end*/
+      }
+  `,
+  },
 ]
 
 describe('compile/tsx', () => {
