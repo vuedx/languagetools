@@ -1009,7 +1009,30 @@ export class VueTextDocument extends ProxyTextDocument {
     this.isDirty = false
     const source = this.getText()
     try {
-      this.sfc = parseSFC(source, this.parseOptions)
+      const sfc = parseSFC(source, this.parseOptions)
+
+      if (this.sfc != null) {
+        const { descriptor: prev } = this.sfc
+        const { descriptor: next } = sfc
+
+        if (prev.script?.lang !== next.script?.lang) {
+          this.documents.delete(
+            this.getDocumentId({ type: SCRIPT_BLOCK_SELECTOR }),
+          )
+        }
+        if (prev.scriptSetup?.lang !== next.scriptSetup?.lang) {
+          this.documents.delete(
+            this.getDocumentId({ type: SCRIPT_SETUP_BLOCK_SELECTOR }),
+          )
+        }
+        if (prev.template?.lang !== next.template?.lang) {
+          this.documents.delete(
+            this.getDocumentId({ type: TEMPLATE_BLOCK_SELECTOR }),
+          )
+        }
+      }
+
+      this.sfc = sfc
     } catch (error) {
       // -- skip invalid state.
       console.error(

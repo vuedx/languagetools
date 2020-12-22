@@ -166,6 +166,8 @@ export function render({/*@@vue:identifiers-start*/name/*@@vue:identifiers-end*/
 }
 `;
 
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/ChangeScriptLang.vue 1`] = ``;
+
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/ComponentPropUsage.vue 1`] = `
 import _Ctx from './ComponentPropUsage.vue?internal'
 import HelloWorld from './components/HelloWorld.vue'

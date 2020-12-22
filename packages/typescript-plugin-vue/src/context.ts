@@ -770,14 +770,33 @@ function patchWatchDirectory(context: PluginContext): void {
   })
 }
 
+function isSupportedFile(fileName: string): boolean {
+  return /\.(ts|js)x?$/.test(fileName)
+}
 function triggerFileUpdate(context: PluginContext, fileName: string): void {
-  if (__DEV__) context.log(`Taint ${fileName}`)
+  if (!isSupportedFile(fileName)) return
+  if (__DEV__) context.log(`Taint/MarkChanged ${fileName}`)
   const scriptInfo = context.projectService.getScriptInfo(fileName)
 
   if (scriptInfo != null) {
     // @ts-expect-error - internal method but it's better for performance compared to it's public counter part `reloadFromFile()`.
     scriptInfo.delayReloadNonMixedContentFile()
   } else if (__DEV__) context.log(`Cannot find scriptInfo for ${fileName}`)
+}
+
+function triggerFileCreate(context: PluginContext, fileName: string): void {
+  if (!isSupportedFile(fileName)) return
+  if (__DEV__) context.log(`Create ${fileName}`)
+  context.projectService.getScriptInfo(fileName)
+}
+
+function triggerFileDelete(context: PluginContext, fileName: string): void {
+  if (!isSupportedFile(fileName)) return
+  if (__DEV__) context.log(`Delete ${fileName}`)
+  const scriptInfo = context.projectService.getScriptInfo(fileName)
+  if (scriptInfo != null) {
+    scriptInfo.detachAllProjects()
+  }
 }
 
 function patchScriptInfo(
@@ -797,19 +816,35 @@ function patchScriptInfo(
         const document = context.store.get(scriptInfo.fileName)
         if (document == null)
           throw new Error('VueTextDocument should exist for every ScriptInfo.')
+
+        const prevFileNames = new Set(
+          document.all().map((document) => document.fsPath),
+        )
         const range = {
           start: document.positionAt(start),
           end: document.positionAt(end),
         }
         editContent(start, end, newText)
 
-        VueTextDocument.update(
+        const newDocument = VueTextDocument.update(
           document,
           [{ range, text: newText }],
           getLastNumberFromVersion(scriptInfo.getLatestVersion()),
         )
-          .all()
-          .forEach((document) => triggerFileUpdate(context, document.fsPath))
+
+        newDocument.all().forEach((document) => {
+          if (prevFileNames.has(document.fsPath)) {
+            // update
+            prevFileNames.delete(document.fsPath)
+            triggerFileUpdate(context, document.fsPath)
+          } else {
+            triggerFileCreate(context, document.fsPath)
+          }
+        })
+
+        prevFileNames.forEach((fileName) =>
+          triggerFileDelete(context, fileName),
+        )
       },
     )
   })
