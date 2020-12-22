@@ -170,21 +170,23 @@ describe('diagnostic', () => {
       ])
 
       expect(body?.diagnostics).toEqual(
-        expected.map((item) => expect.objectContaining({
-          category: 'error',
-          code: 2322,
-          text: expect.stringContaining(
-            `Type '{}' is missing the following properties from type`,
-          ),
-          start: {
-            line: item.line,
-            offset: item.offset,
-          },
-          end: {
-            line: item.line,
-            offset: expect.any(Number),
-          },
-        })),
+        expected.map((item) =>
+          expect.objectContaining({
+            category: 'error',
+            code: 2322,
+            text: expect.stringContaining(
+              `Type '{}' is missing the following properties from type`,
+            ),
+            start: {
+              line: item.line,
+              offset: item.offset,
+            },
+            end: {
+              line: item.line,
+              offset: expect.any(Number),
+            },
+          }),
+        ),
       )
     } finally {
       await server.sendCommand('updateOpen', { closedFiles: [file] })
@@ -237,33 +239,35 @@ describe('diagnostic', () => {
       ])
 
       expect(body?.diagnostics).toEqual(
-        expected.map((item) => expect.objectContaining({
-          category: 'error',
-          code: 2741,
-          text: expect.stringContaining(
-            `Property 'id' is missing in type '{}' but required in type 'Event'.`,
-          ),
-          start: {
-            line: item.line,
-            offset: item.offset,
-          },
-          end: {
-            line: item.line,
-            offset: expect.any(Number),
-          },
-          relatedInformation: [
-            {
-              category: 'message',
-              code: 2728,
-              message: `'id' is declared here.`,
-              span: {
-                start: expect.any(Object),
-                end: expect.any(Object),
-                file: expect.stringMatching(/\.vue$/),
-              },
+        expected.map((item) =>
+          expect.objectContaining({
+            category: 'error',
+            code: 2741,
+            text: expect.stringContaining(
+              `Property 'id' is missing in type '{}' but required in type 'Event'.`,
+            ),
+            start: {
+              line: item.line,
+              offset: item.offset,
             },
-          ],
-        })),
+            end: {
+              line: item.line,
+              offset: expect.any(Number),
+            },
+            relatedInformation: [
+              {
+                category: 'message',
+                code: 2728,
+                message: `'id' is declared here.`,
+                span: {
+                  start: expect.any(Object),
+                  end: expect.any(Object),
+                  file: expect.stringMatching(/\.vue$/),
+                },
+              },
+            ],
+          }),
+        ),
       )
     } finally {
       await server.sendCommand('updateOpen', { closedFiles: [file] })
@@ -316,21 +320,48 @@ describe('diagnostic', () => {
       ])
 
       expect(body?.diagnostics).toEqual(
-        expected.map((item) => expect.objectContaining({
-          category: 'error',
-          code: 2322,
-          text: expect.stringContaining(
-            `Type '{ id: number; unknown: string; }' is not assignable to type 'Event'.`,
-          ),
-          start: {
-            line: item.line,
-            offset: item.offset,
-          },
-          end: {
-            line: item.line,
-            offset: expect.any(Number),
-          },
-        })),
+        expected.map((item) =>
+          expect.objectContaining({
+            category: 'error',
+            code: 2322,
+            text: expect.stringContaining(
+              `Type '{ id: number; unknown: string; }' is not assignable to type 'Event'.`,
+            ),
+            start: {
+              line: item.line,
+              offset: item.offset,
+            },
+            end: {
+              line: item.line,
+              offset: expect.any(Number),
+            },
+          }),
+        ),
+      )
+    } finally {
+      await server.sendCommand('updateOpen', { closedFiles: [file] })
+    }
+  })
+
+  test('detects wrong prop type in plain JS component', async () => {
+    const file = abs(`src/ComponentPropUsage.vue`)
+    try {
+      await server.sendCommand('updateOpen', {
+        openFiles: [{ file, projectRootPath }],
+      })
+
+      const { body } = await server.waitForEvent(
+        'semanticDiag',
+        checkEventFile(file),
+      )
+
+      expect(body?.diagnostics).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 2322,
+            text: expect.stringContaining(`Type 'number' is not assignable to type`),
+          }),
+        ]),
       )
     } finally {
       await server.sendCommand('updateOpen', { closedFiles: [file] })
@@ -383,21 +414,23 @@ describe('diagnostic', () => {
       ])
 
       expect(body?.diagnostics).toEqual(
-        expected.map((item) => expect.objectContaining({
-          category: 'error',
-          code: 2322,
-          text: expect.stringContaining(
-            `Type 'number' is not assignable to type`,
-          ),
-          start: {
-            line: item.line,
-            offset: item.offset,
-          },
-          end: {
-            line: item.line,
-            offset: expect.any(Number),
-          },
-        })),
+        expected.map((item) =>
+          expect.objectContaining({
+            category: 'error',
+            code: 2322,
+            text: expect.stringContaining(
+              `Type 'number' is not assignable to type`,
+            ),
+            start: {
+              line: item.line,
+              offset: item.offset,
+            },
+            end: {
+              line: item.line,
+              offset: expect.any(Number),
+            },
+          }),
+        ),
       )
     } finally {
       await server.sendCommand('updateOpen', { closedFiles: [file] })
@@ -408,7 +441,7 @@ describe('diagnostic', () => {
     `%s should have no semantic errors`,
     async (fileName) => {
       const file = abs(`src/${fileName}`)
-      
+
       try {
         await server.sendCommand('updateOpen', {
           openFiles: [{ file, projectRootPath }],
