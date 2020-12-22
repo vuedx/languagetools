@@ -404,7 +404,7 @@ describe('diagnostic', () => {
     }
   })
 
-  test.each(['NestedVIf.vue'])(
+  test.each(['NestedVIf.vue', 'Slot.vue'])(
     `%s should have no semantic errors`,
     async (fileName) => {
       const file = abs(`src/${fileName}`)
