@@ -6,6 +6,7 @@ import {
   traverseEvery,
 } from '@vuedx/template-ast-types'
 import {
+  INTERNAL_MODULE_SELECTOR,
   isVirtualFile,
   isVueFile,
   MODULE_SELECTOR,
@@ -25,7 +26,7 @@ import { TS } from '../interfaces'
 import { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
 import { createTemplateLanguageServer } from './template'
-
+const IGNORED_SELECTORS = new Set([MODULE_SELECTOR, INTERNAL_MODULE_SELECTOR])
 export function createVueLanguageServer(
   options: LanguageServiceOptions,
 ): TS.LanguageService {
@@ -58,7 +59,10 @@ export function createVueLanguageServer(
       const document = h.getVueDocument(fileName)
       const diagnostics: TS.Diagnostic[] = []
       document?.all().forEach((virtual) => {
-        if (isSupportLanguage(virtual.languageId)) {
+        if (
+          isSupportLanguage(virtual.languageId) &&
+          !IGNORED_SELECTORS.has(virtual.selector.type)
+        ) {
           const results = choose(virtual).getSemanticDiagnostics(virtual.fsPath)
           diagnostics.push(...results)
         }
@@ -76,7 +80,10 @@ export function createVueLanguageServer(
 
       const diagnostics: TS.DiagnosticWithLocation[] = []
       document?.all().forEach((virtual) => {
-        if (isSupportLanguage(virtual.languageId)) {
+        if (
+          isSupportLanguage(virtual.languageId) &&
+          !IGNORED_SELECTORS.has(virtual.selector.type)
+        ) {
           const results = choose(virtual).getSuggestionDiagnostics(
             virtual.fsPath,
           )
@@ -96,7 +103,10 @@ export function createVueLanguageServer(
 
       const diagnostics: TS.DiagnosticWithLocation[] = []
       document?.all().forEach((virtual) => {
-        if (isSupportLanguage(virtual.languageId)) {
+        if (
+          isSupportLanguage(virtual.languageId) &&
+          !IGNORED_SELECTORS.has(virtual.selector.type)
+        ) {
           const results = choose(virtual).getSyntacticDiagnostics(
             virtual.fsPath,
           )
@@ -704,7 +714,7 @@ function getSFCCompletions(
     `<style${
       preferences.style.language === 'css'
         ? ''
-        : ` lang="${preferences.script.language}"`
+        : ` lang="${preferences.style.language}"`
     }>`,
     '</style>',
     '',
