@@ -299,9 +299,23 @@ export function createServerHelper(
     }
   }
 
+  function getSourceFile(
+    fileName: string,
+    service?: TS.LanguageService,
+  ): TS.SourceFile | undefined {
+    try {
+      return getLanguageServiceFor(fileName, service)
+        .getProgram()
+        ?.getSourceFile(fileName)
+    } catch (error) {
+      context.error(error)
+    }
+  }
+
   return {
     isFeatureEnabled,
     getLanguageServiceFor,
+    getSourceFile,
     findTemplateChildren,
     findTemplateNodeAtPosition,
     findTypeScriptNodeAtPosition,

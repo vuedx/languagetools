@@ -10,8 +10,15 @@ export interface DiagnosticProvider {
     context: LanguageServiceOptions,
     fileName: string,
   ): TS.DiagnosticWithLocation[]
+
   suggestions(
     context: LanguageServiceOptions,
     fileName: string,
   ): TS.DiagnosticWithLocation[]
+}
+
+export function defineDiagnosticProvider(
+  options: DiagnosticProvider,
+): DiagnosticProvider {
+  return options
 }

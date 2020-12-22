@@ -199,7 +199,9 @@ export function compile(
           push(
             `function render(${
               identifiers.size > 0
-                ? `{${Array.from(identifiers).join(', ')},..._ctx}`
+                ? `{/*@@vue:identifiers-start*/${Array.from(identifiers).join(
+                    ', ',
+                  )}/*@@vue:identifiers-end*/,..._ctx}`
                 : '_ctx'
             }: InstanceType<typeof _Ctx>) {`,
           )

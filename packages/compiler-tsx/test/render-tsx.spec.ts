@@ -112,7 +112,7 @@ const samples: Array<{
     render: `
     import _Ctx from './component.vue?internal'
     
-    export function render({style, key, value, handleHover, event, handleEvent, hello,..._ctx}: InstanceType<typeof _Ctx>) {
+    export function render({/*@@vue:identifiers-start*/style, key, value, handleHover, event, handleEvent, hello/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/<><div  style={style} key={value} onHover={handleHover} {...{[event]: handleEvent}}>{hello} world</div></>/*@@vue:end*/
     }
     `,
@@ -123,7 +123,7 @@ const samples: Array<{
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render({foo,..._ctx}: InstanceType<typeof _Ctx>) {
+    export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/<><input value={foo} onChange={$event => (foo = ($event as Event & {target:HTMLInputElement}).target.value)} /></>/*@@vue:end*/
     }
     `,
@@ -134,7 +134,7 @@ const samples: Array<{
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render({foo,..._ctx}: InstanceType<typeof _Ctx>) {
+    export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/<><input checked={foo} {...{'onUpdate:checked': $event => (foo = $event)}} /></>/*@@vue:end*/
     }
     `,
@@ -145,7 +145,7 @@ const samples: Array<{
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render({checked, foo,..._ctx}: InstanceType<typeof _Ctx>) {
+    export function render({/*@@vue:identifiers-start*/checked, foo/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/<><input {...{[checked]: foo}} {...{['onUpdate:'+checked]: $event => (foo = $event)}} /></>/*@@vue:end*/
     }
     `,
@@ -156,7 +156,7 @@ const samples: Array<{
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render({ bar,..._ctx }: InstanceType<typeof _Ctx>) {
+    export function render({/*@@vue:identifiers-start*/bar/*@@vue:identifiers-end*/,..._ctx }: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/<><input onFocus={$event => (bar = $event)} /></>/*@@vue:end*/
     }
     `,
@@ -167,7 +167,7 @@ const samples: Array<{
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render({isVisible,..._ctx}: InstanceType<typeof _Ctx>) {
+    export function render({/*@@vue:identifiers-start*/isVisible/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/<><div v-show={{ arg: undefined, exp: isVisible, modifiers: {}}}></div></>/*@@vue:end*/
     }
     `,
@@ -182,7 +182,7 @@ const samples: Array<{
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render({foo, bar,..._ctx}: InstanceType<typeof _Ctx>) {
+    export function render({/*@@vue:identifiers-start*/foo, bar/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/(
         <>{
             (foo) ? (<div>A</div>) :
@@ -201,7 +201,7 @@ const samples: Array<{
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render({foo,..._ctx}: InstanceType<typeof _Ctx>) {
+    export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/<>{(foo)?(<div>A</div>):(null)}</>/*@@vue:end*/
     }
     `,
@@ -218,7 +218,7 @@ const samples: Array<{
     declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];
     declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];
     declare function _renderList<T extends object>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];
-    export function render({ items, other,..._ctx }: InstanceType<typeof _Ctx>) {
+    export function render({/*@@vue:identifiers-start*/items, other/*@@vue:identifiers-end*/,..._ctx }: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/<>{_renderList(items, (item, index) => {
         return <><div>{item} {other}</div></>
       })}</>/*@@vue:end*/
@@ -234,7 +234,7 @@ const samples: Array<{
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render({foo,..._ctx}: InstanceType<typeof _Ctx>) {
+    export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/(
         <>
           <div v-text={{ arg: undefined, exp: foo, modifiers: {}}}/>
@@ -253,7 +253,7 @@ const samples: Array<{
     render: `
     import _Ctx from './component.vue?internal'
 
-    export function render({exp, arg,..._ctx}: InstanceType<typeof _Ctx>) {
+    export function render({/*@@vue:identifiers-start*/exp, arg/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
       return /*@@vue:start*/(
         <>
           <div v-known={{ arg: "arg", exp: exp, modifiers: { modifier: true }}} />
@@ -272,7 +272,7 @@ const samples: Array<{
 import _Ctx from './component.vue?internal'
 
 
-export function render({foo,..._ctx}: InstanceType<typeof _Ctx>) {
+export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
   return /*@@vue:start*/<>{foo.}</>/*@@vue:end*/
 }
 `.trim(),
@@ -419,7 +419,7 @@ export function render({foo,..._ctx}: InstanceType<typeof _Ctx>) {
       declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];
       declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];
       declare function _renderList<T extends object>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];
-      export function render({users,..._ctx}: InstanceType<typeof _Ctx>) {
+      export function render({/*@@vue:identifiers-start*/users/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
         return /*@@vue:start*/<><span>{_renderList(users, user => {
           return <><div key={user}>{user}</div></>
         })}</span></>/*@@vue:end*/
@@ -429,8 +429,8 @@ export function render({foo,..._ctx}: InstanceType<typeof _Ctx>) {
 ]
 
 describe('compile/tsx', () => {
-  test('debug', () => {
-    const result = compile('<div></div><>', {
+  test.skip('debug', () => {
+     compile('<div></div><>', {
       filename: '/foo/bar/component.vue',
       components: samples[0].components,
       onError() {},
