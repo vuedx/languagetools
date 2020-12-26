@@ -112,6 +112,7 @@ function bundle(name, plugins = [], external = []) {
     plugins: [
       define(),
       ...plugins,
+      json(),
       resolve({ mainFields: ['module', 'main'], preferBuiltins: true }),
       typescript({ tsconfig: abs(`./packages/${name}/tsconfig.build.json`) }),
     ],

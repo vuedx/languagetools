@@ -78,7 +78,13 @@ export function createTemplateLanguageServer(
           source,
           preferences,
         )
-        if (isNotNull(result)) return result
+        if (isNotNull(result)) {
+          __DEV__ &&
+            context.debug(
+              `getCompletionEntryDetails got result from "${provider.name}"`,
+            )
+          return result
+        }
       }
     },
 
@@ -186,7 +192,8 @@ export function createTemplateLanguageServer(
           preferences,
         )
         if (result != null) {
-          context.log(`@@DEBUG found getRenameInfo using "${provider.name}"`)
+          __DEV__ &&
+            context.debug(`found getRenameInfo using "${provider.name}"`)
 
           return result
         }

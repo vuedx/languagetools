@@ -33,7 +33,11 @@ const DEFAULT_CONFIG: ProjectConfigNormalized = {
     componentsDirectories: ['src/components'],
     script: { mode: 'normal', language: 'js' },
     style: { language: 'css' },
-    template: { directiveSyntax: 'shorthand' },
+    template: {
+      directiveSyntax: 'shorthand',
+      propCase: 'camel',
+      tagCase: 'auto',
+    },
   },
 }
 

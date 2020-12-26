@@ -28,6 +28,7 @@ export {
   PropInfo,
   EmitInfo,
   SetupInfo,
+  TypeInfo,
   ScriptSetupInfo,
   SourceRange,
   IdentifierSource,

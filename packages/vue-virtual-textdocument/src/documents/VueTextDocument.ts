@@ -33,6 +33,7 @@ import {
   SCRIPT_SETUP_BLOCK_SELECTOR,
   Selector,
   SelectorLike,
+  TEMPLATE_AST_SELECTOR,
   TEMPLATE_BLOCK_SELECTOR,
 } from '../types'
 import {
@@ -918,6 +919,9 @@ export class VueTextDocument extends ProxyTextDocument {
         case RENDER_SELECTOR:
           this.documents.set(id, this.createRenderDocument())
           break
+        case TEMPLATE_AST_SELECTOR:
+          this.documents.set(id, this.createTemplateASTDocument())
+          break
         default:
           this.documents.set(id, this.createBlockDocument(selector))
           break
@@ -970,6 +974,37 @@ export class VueTextDocument extends ProxyTextDocument {
     })
   }
 
+  protected createTemplateASTDocument(): TransformedBlockTextDocument {
+    return TransformedBlockTextDocument.create({
+      container: this,
+      sourceSelector: { type: RENDER_SELECTOR },
+      selector: { type: TEMPLATE_AST_SELECTOR },
+      uri: asUri(this.getDocumentFileName(TEMPLATE_AST_SELECTOR)),
+      languageId: this.getDocumentLanguage({ type: TEMPLATE_AST_SELECTOR }),
+      version: this.version,
+      content: '',
+      transformer() {
+        const code = JSON.stringify(
+          this.container.getDocument(RENDER_SELECTOR)?.ast ?? {},
+          null,
+          2,
+        )
+          .replace(/"type": 0,/g, (_) => `${_} // Root`)
+          .replace(/"type": 1,/g, (_) => `${_} // Element`)
+          .replace(/"type": 2,/g, (_) => `${_} // Text`)
+          .replace(/"type": 3,/g, (_) => `${_} // Comment`)
+          .replace(/"type": 4,/g, (_) => `${_} // Expression`)
+          .replace(/"type": 5,/g, (_) => `${_} // Interpolation`)
+          .replace(/"type": 6,/g, (_) => `${_} // Attribute`)
+          .replace(/"type": 7,/g, (_) => `${_} // Directive`)
+
+        return {
+          code,
+        }
+      },
+    })
+  }
+
   protected createRenderDocument(): RenderFunctionTextDocument {
     return RenderFunctionTextDocument.create({
       container: this,
@@ -988,6 +1023,8 @@ export class VueTextDocument extends ProxyTextDocument {
         return 'typescript'
       case RENDER_SELECTOR:
         return 'typescriptreact'
+      case TEMPLATE_AST_SELECTOR:
+        return 'jsonc'
       default:
         return getBlockLanguage(this.getBlock(selector))
     }

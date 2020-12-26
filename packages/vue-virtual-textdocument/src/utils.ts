@@ -74,9 +74,10 @@ export function parseVirtualFileName(
   const uri = URI.parse(asUri(fileName))
 
   if (uri.scheme === 'vue') {
-    const [container, selector] = uri.fsPath.split(VIRTUAL_FILENAME_SEPARATOR)
-    if (!selector.includes('.'))
-      throw new Error('Malformated virtual file uri.')
+    let [container, selector] = uri.fsPath.split(VIRTUAL_FILENAME_SEPARATOR)
+    if (!selector.includes('.')) {
+      selector += '.' // Append a dot when extension is missing.
+    }
     const [block, index] = selector
       .substr(0, selector.lastIndexOf('.'))
       .split('__')

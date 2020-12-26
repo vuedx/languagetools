@@ -107,6 +107,14 @@ export class PluginContext {
     }
   }
 
+  public debug(message: string): void {
+    if (__DEV__) {
+      if (this.projectService != null) {
+        this.projectService.logger.info(`@@debug Vue.js:: ${message}`)
+      }
+    }
+  }
+
   public getVueVersion(fileName: string): string {
     return this.getVueProjectForFile(fileName, false)?.version ?? '3.0.0'
   }
@@ -119,6 +127,23 @@ export class PluginContext {
     this.projectService.configuredProjects.forEach(fn)
     this.projectService.inferredProjects.forEach(fn)
     this.projectService.externalProjects.forEach(fn)
+  }
+
+  public getTSProjectForFile(fileName: string, ensure: true): TS.server.Project
+  public getTSProjectForFile(
+    fileName: string,
+    ensure?: false,
+  ): TS.server.Project | null
+  public getTSProjectForFile(
+    fileName: string,
+    ensure?: boolean,
+  ): TS.server.Project | null {
+    return (
+      this.projectService.getDefaultProjectForFile(
+        this.typescript.server.toNormalizedPath(fileName),
+        ensure ?? false,
+      ) ?? null
+    )
   }
 
   public getVueProjectForFile(fileName: string, ensure: true): VueProject

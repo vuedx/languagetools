@@ -64,13 +64,18 @@ export class ConfiguredVueProject extends VueProject {
       } else {
         Object.entries(option).forEach(([name, config]) => {
           const componentName = getComponentName(name)
+          const id = typeof config === 'string' ? config : config.moduleName
+          const moduleName =
+            id in this.packageJSON.dependencies ||
+            id in this.packageJSON.devDependencies
+              ? id
+              : Path.posix.resolve(Path.posix.dirname(this.configFile), id)
 
           this._globalComponents.push({
             name: componentName,
             aliases: getComponentNameAliases(name),
             source: {
-              moduleName:
-                typeof config === 'string' ? config : config.moduleName,
+              moduleName: moduleName,
               exportName:
                 typeof config !== 'string' ? config.exportName : undefined,
               localName: componentName,

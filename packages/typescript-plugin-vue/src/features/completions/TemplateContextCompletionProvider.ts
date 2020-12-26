@@ -3,6 +3,7 @@ import { isSimpleExpressionNode } from '@vuedx/template-ast-types'
 import { defineCompletionProvider } from './abstract'
 
 export const TemplateContextCompletionProvider = defineCompletionProvider({
+  name: 'context expression',
   version: '*',
 
   getCompletionsAtPosition(

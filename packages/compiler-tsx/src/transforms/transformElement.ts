@@ -170,6 +170,7 @@ export function createElementTransform(
         node.codegenNode = createCompoundExpression([
           '<',
           startTag,
+          ' ',
           ...attributes,
           ' />',
         ]) as any
@@ -192,6 +193,7 @@ export function createElementTransform(
         node.codegenNode = createCompoundExpression([
           '<',
           startTag,
+          ' ',
           ...attributes,
           ' >',
           ...children,

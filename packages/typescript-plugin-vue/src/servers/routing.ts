@@ -1,7 +1,7 @@
 import {
   getComponentName as baseGetComponentName,
   isNotNull,
-  kebabCase,
+  pascalCase,
 } from '@vuedx/shared'
 import {
   getContainingFile,
@@ -10,9 +10,11 @@ import {
   isVueFile,
   MODULE_SELECTOR,
   parseVirtualFileName,
+  RENDER_SELECTOR,
   VirtualTextDocument,
   VIRTUAL_FILENAME_SEPARATOR,
 } from '@vuedx/vue-virtual-textdocument'
+import { ORIGINAL_LANGUAGE_SERVER } from '../constants'
 import { PluginContext } from '../context'
 import { wrapInTrace } from '../helpers/logger'
 import { createServerHelper } from '../helpers/utils'
@@ -24,7 +26,6 @@ import {
 import { LanguageServiceOptions } from '../types'
 import { createVirtualLanguageServer } from './virtual'
 import { createVueLanguageServer } from './vue'
-import { ORIGINAL_LANGUAGE_SERVER } from '../constants'
 export class RoutingLanguageServer {
   constructor(private readonly context: PluginContext) {}
 
@@ -35,7 +36,7 @@ export class RoutingLanguageServer {
 
     const proxy = createLanguageServiceRouter({
       context: this.context,
-      service: languageService,
+      service: wrapInTrace('TypesScriptLanguageService', languageService),
       helpers: createServerHelper(this.context, languageService),
     })
 
@@ -262,35 +263,29 @@ function createLanguageServiceRouter(
       )
 
       if (completions?.entries != null) {
-        const additionalEntries: TS.CompletionEntry[] = []
-        completions.entries = completions.entries
-          .filter((entry) => {
+        completions.entries = completions.entries.filter(
+          /**
+           * Remove all virtual entries expect completions originating
+           * from "_module" virtual file.
+           *
+           * Rewrite `source` with the containing `.vue` file of the
+           * "_module" virtual file.
+           *
+           * @see https://github.com/znck/vue-developer-experience/wiki/Virtual-File-System#module-virtual-file
+           */
+          (entry) => {
             if (entry.source != null && isVirtualFile(entry.source)) {
-              return isVirtualFileOfType(entry.source, '_module')
-            }
-
-            return true
-          })
-          .map((entry) => {
-            if (entry.source != null && isVirtualFile(entry.source)) {
-              entry.source = getContainingFile(entry.source)
-              const componentName = getComponentName(entry.source)
-              if (componentName === entry.name) {
-                additionalEntries.push({
-                  ...entry,
-                  name: kebabCase(entry.name),
-                  isRecommended: undefined,
-                  insertText:
-                    entry.insertText != null
-                      ? kebabCase(entry.insertText)
-                      : undefined,
-                })
+              if (isVirtualFileOfType(entry.source, '_module')) {
+                entry.source = getContainingFile(entry.source)
+                return true
+              } else {
+                return false
               }
             }
 
-            return entry
-          })
-        completions.entries.push(...additionalEntries)
+            return true
+          },
+        )
       }
 
       return completions
@@ -305,18 +300,21 @@ function createLanguageServiceRouter(
       preferences,
     ) {
       let details: TS.CompletionEntryDetails | undefined
-      if (source != null && isVueFile(source)) {
-        // -> Importing from a .vue file
-        let newSource = source
-        let newEntryName = entryName
 
-        const componentName = baseGetComponentName(source)
-        if (
-          newEntryName.includes('-') &&
-          baseGetComponentName(newEntryName) === componentName
-        ) {
-          newEntryName = componentName
-        }
+      /**
+       * If source is a `.vue` file then the completion is:
+       *
+       * 1. default export or component
+       * 2. named export
+       *
+       * A `.vue` file is always referenced with the "_module"
+       * virtual file in TypeScript language service. So we
+       * rewrite source to correct value.
+       *
+       * @see https://github.com/znck/vue-developer-experience/wiki/Virtual-File-System#module-virtual-file
+       */
+      if (source != null && isVueFile(source)) {
+        let newSource = source
 
         // -> Rewrite source to _module virtual file.
         newSource = source + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR
@@ -324,32 +322,28 @@ function createLanguageServiceRouter(
         details = choose(fileName).getCompletionEntryDetails(
           fileName,
           position,
-          newEntryName,
+          entryName,
           formatOptions,
           newSource,
           preferences,
         )
+      } else {
+        details = choose(fileName).getCompletionEntryDetails(
+          fileName,
+          position,
+          entryName,
+          formatOptions,
+          source,
+          preferences,
+        )
+      }
 
-        const isComponentImport = newEntryName === componentName
-
-        if (isComponentImport) {
-          const documentAtCursor = config.helpers.getDocumentAt(
-            fileName,
-            position,
-          )
-          details?.codeActions?.forEach((codeAction) => {
-            codeAction.description = codeAction.description.replace(
-              VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
-              '',
-            )
-
-            codeAction.changes.forEach((change) => {
+      if (isVueFile(fileName)) {
+        details?.codeActions?.forEach((codeAction) => {
+          codeAction.changes.forEach((change) => {
+            if (isVirtualFileOfType(change.fileName, RENDER_SELECTOR)) {
               const document = config.helpers.getVueDocument(change.fileName)
-              if (
-                change.textChanges.length > 0 &&
-                document != null &&
-                config.helpers.isRenderFunctionDocument(documentAtCursor)
-              ) {
+              if (change.textChanges.length > 0 && document != null) {
                 const block =
                   document.descriptor.scriptSetup ?? document.descriptor.script
 
@@ -361,7 +355,7 @@ function createLanguageServiceRouter(
                   change.textChanges = registerLocalComponentWithSource(
                     document,
                     config.helpers.getComponentInfo(document),
-                    { moduleName: source, localName: newEntryName }, // <- create fake "source" as "importStatement" is available
+                    { localName: pascalCase(entryName) },
                     project.config.preferences.script,
                     change.textChanges[0].newText,
                   )
@@ -380,38 +374,59 @@ function createLanguageServiceRouter(
                       document,
                       config.helpers.getComponentInfo(document),
                       'components',
-                      newEntryName,
-                      newEntryName,
+                      pascalCase(entryName),
+                      pascalCase(entryName),
                     ).changes,
                   ]
                 }
               }
-            })
+            } else if (isVirtualFile(change.fileName)) {
+              // rewrite position to start of the block.
+              if (change.textChanges.length > 0) {
+                const document = config.helpers.getDocument(change.fileName)
+                if (document instanceof VirtualTextDocument) {
+                  const block = document.container.getBlock(
+                    document.selector as any,
+                  )
+
+                  if (block != null) {
+                    const start = Math.min(
+                      block.loc.start.offset + 1,
+                      block.loc.end.offset,
+                    )
+                    const end = block.loc.end.offset
+
+                    change.textChanges.forEach((textChange) => {
+                      textChange.span.start = Math.min(
+                        Math.max(start, textChange.span.start),
+                        end,
+                      )
+                    })
+                  }
+                }
+              }
+            }
           })
-        }
-      } else {
-        details = choose(fileName).getCompletionEntryDetails(
-          fileName,
-          position,
-          entryName,
-          formatOptions,
-          source,
-          preferences,
-        )
+        })
       }
 
       details?.codeActions?.forEach((codeAction) => {
-        codeAction.changes.forEach((change) => {
-          if (isVirtualFile(change.fileName)) {
-            change.fileName = getContainingFile(change.fileName)
-          }
+        codeAction.description = codeAction.description.replace(
+          VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
+          '',
+        )
 
+        codeAction.changes.forEach((change) => {
           change.textChanges.forEach((textChange) => {
             textChange.newText = textChange.newText.replace(
               VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR,
               '',
             )
           })
+
+          if (isVirtualFile(change.fileName)) {
+            change.fileName = getContainingFile(change.fileName)
+          }
         })
       })
 

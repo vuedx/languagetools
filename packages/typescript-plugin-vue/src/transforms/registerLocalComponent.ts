@@ -4,41 +4,46 @@ import {
   ProjectConfigNormalized,
   ProjectPreferences,
 } from '@vuedx/projectconfig'
-import { VueTextDocument } from '@vuedx/vue-virtual-textdocument'
+import { isNotNull } from '@vuedx/shared'
 import { isSimpleIdentifier } from '@vuedx/template-ast-types'
+import { VueTextDocument } from '@vuedx/vue-virtual-textdocument'
 import { getCode, getPaddingLength, indent } from '../helpers/utils'
 import { TS } from '../interfaces'
 
 export function registerLocalComponentWithSource(
   document: VueTextDocument,
   componentInfo: ComponentInfo,
-  source: ImportSource,
+  source: ImportSource | { localName: string },
   preferences: ProjectPreferences['script'],
   importStatement?: string,
 ): TS.TextChange[] {
   const { scriptSetup, script } = document.descriptor
   const changes: TS.TextChange[] = []
 
-  importStatement =
-    importStatement ??
-    `import ${
+  if (importStatement == null && 'exportName' in source) {
+    importStatement = `import ${
       source.exportName != null
         ? source.localName === source.exportName
           ? `{ ${source.exportName} }`
           : `{ ${source.exportName} as ${source.localName} }`
         : source.localName
     } from ${JSON.stringify(source.moduleName)}`
+  }
 
   if (scriptSetup != null) {
-    changes.push({
-      span: { start: scriptSetup.loc.start.offset + 1, length: 0 },
-      newText: importStatement,
-    })
+    if (importStatement != null) {
+      changes.push({
+        span: { start: scriptSetup.loc.start.offset + 1, length: 0 },
+        newText: importStatement,
+      })
+    }
   } else if (script != null) {
-    changes.push({
-      span: { start: script.loc.start.offset + 1, length: 0 },
-      newText: importStatement,
-    })
+    if (importStatement != null) {
+      changes.push({
+        span: { start: script.loc.start.offset + 1, length: 0 },
+        newText: importStatement,
+      })
+    }
     changes.push(
       ...registerComponentAPI(
         document,
@@ -65,7 +70,9 @@ export function registerLocalComponentWithSource(
               `})`,
               `</script>`,
               '\n',
-            ].join('\n')
+            ]
+              .filter(isNotNull)
+              .join('\n')
           : [
               preferences.language === 'js'
                 ? `<script setup>`
@@ -73,7 +80,9 @@ export function registerLocalComponentWithSource(
               importStatement,
               `</script>`,
               '\n',
-            ].join('\n'),
+            ]
+              .filter(isNotNull)
+              .join('\n'),
     })
   }
 

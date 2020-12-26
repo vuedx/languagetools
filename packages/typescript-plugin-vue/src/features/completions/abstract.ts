@@ -2,6 +2,7 @@ import { TS } from '../../interfaces'
 import { LanguageServiceOptions } from '../../types'
 
 export interface CompletionProvider {
+  name: string
   version: string
 
   getCompletionsAtPosition(

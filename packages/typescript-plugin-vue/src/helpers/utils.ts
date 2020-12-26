@@ -12,6 +12,7 @@ import {
   getContainingFile,
   INTERNAL_MODULE_SELECTOR,
   isVirtualFile,
+  isVirtualFileOfType,
   isVueFile,
   MODULE_SELECTOR,
   parseVirtualFileName,
@@ -47,6 +48,7 @@ function createCachedAnalyzer(): (document: VueTextDocument) => ComponentInfo {
 
 type GetElementType<T> = T extends Array<infer U> ? U : T
 
+// TODO: Use memoize one, in most common scenario helper functions are called again in same request context (which means same arguments).
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createServerHelper(
   context: PluginContext,
@@ -221,10 +223,7 @@ export function createServerHelper(
   }
 
   function isVueModuleFileName(fileName: string): boolean {
-    return (
-      isVirtualFile(fileName) &&
-      parseVirtualFileName(fileName)?.selector.type === MODULE_SELECTOR
-    )
+    return isVirtualFileOfType(fileName, MODULE_SELECTOR)
   }
 
   function getRenderDoc(

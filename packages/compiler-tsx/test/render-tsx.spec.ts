@@ -465,12 +465,14 @@ export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,
 ]
 
 describe('compile/tsx', () => {
-  test.skip('debug', () => {
-    compile('<div></div><>', {
-      filename: '/foo/bar/component.vue',
-      components: samples[0].components,
-      onError() {},
-    })
+  test('it works', () => {
+    expect(() => {
+      compile('<div></div><>', {
+        filename: '/foo/bar/component.vue',
+        components: samples[0].components,
+        onError() {},
+      })
+    }).not.toThrow()
   })
   test.each(
     samples

@@ -79,6 +79,14 @@ export class OpenVirtualFileCommand extends Installable {
                 picked: activeSelector?.type === 'template',
               }
             : null,
+          container.descriptor.template != null
+            ? {
+                label: 'Template AST',
+                value: '_ast',
+                description: 'JSON encoded abstract syntax tree',
+                picked: activeSelector?.type === '_ast',
+              }
+            : null,
           container.descriptor.script != null
             ? {
                 label: 'Script',
