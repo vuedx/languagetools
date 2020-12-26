@@ -71,6 +71,7 @@ export class PluginContext {
   public readonly _externalFiles = new WeakMap<TS.server.Project, string[]>()
   public readonly _vueProjects: Array<{
     project: VueProject
+    lastUsedAt: number
     dispose(): void
   }> = []
 
@@ -155,10 +156,11 @@ export class PluginContext {
     fileName: string,
     ensure?: boolean,
   ): VueProject | null {
-    let project =
-      this._vueProjects.find(({ project }) =>
-        fileName.startsWith(project.rootDir + '/'),
-      )?.project ?? null
+    const ref = this._vueProjects.find(({ project }) =>
+      fileName.startsWith(project.rootDir + '/'),
+    )
+    if (ref != null) ref.lastUsedAt = Date.now()
+    let project = ref?.project ?? null
 
     if (project === null && ensure === true) {
       const packageFile = this.typescript.findConfigFile(
@@ -323,7 +325,11 @@ export class PluginContext {
         disposables.push(() => packageFileWatcher.close())
       }
 
-      this._vueProjects.push({ project: newProject, dispose })
+      this._vueProjects.push({
+        project: newProject,
+        dispose,
+        lastUsedAt: Date.now(),
+      })
 
       project = newProject
     }
@@ -331,25 +337,11 @@ export class PluginContext {
     return project
   }
 
-  private lastCleanupAt = Date.now()
   public disposeUnusedProjects(force: boolean = false): void {
-    if (
-      !force &&
-      (Date.now() - this.lastCleanupAt > 5 * 60 * 1000 ||
-        this._vueProjects.length === 0)
-    ) {
-      return
-    }
+    const since = Date.now() - 5 * 60 * 1000 // 5 minutes ago
 
-    this.lastCleanupAt = Date.now()
-    const usedProjects = new Set<VueProject>()
-
-    // TODO: detect unused projects
-
-    this._vueProjects.forEach(({ project, dispose }) => {
-      if (!usedProjects.has(project)) {
-        // dispose()
-      }
+    this._vueProjects.forEach(({ project, dispose, lastUsedAt }) => {
+      if (lastUsedAt < since) dispose()
     })
   }
 

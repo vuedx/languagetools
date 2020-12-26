@@ -1,6 +1,6 @@
 import { isNotNull } from '@vuedx/shared'
 import { isElementNode } from '@vuedx/template-ast-types'
-import { inspect } from 'util'
+import { getContainingFile } from '@vuedx/vue-virtual-textdocument'
 import { TEMPLATE_COMPLETION_PROVIDERS } from '../features/completions'
 import { TEMPLATE_DIAGNOSTICS_PROVIDERS } from '../features/diagnostics'
 import { GOTO_PROVIDERS } from '../features/goto'
@@ -47,13 +47,6 @@ export function createTemplateLanguageServer(
         )
         if (isNotNull(providerResults)) {
           result.entries.push(...providerResults.entries)
-          if (isNotNull(providerResults.metadata)) {
-            context.log(
-              `@@DEBUG Found some completion metadata: ${inspect(
-                providerResults.metadata,
-              )}`,
-            )
-          }
         }
       }
 
@@ -301,7 +294,10 @@ export function createTemplateLanguageServer(
     },
 
     getJsxClosingTagAtPosition(fileName, position) {
-      const { node } = h.findTemplateNodeAtPosition(fileName, position)
+      const { node } = h.findTemplateNodeAtPosition(
+        getContainingFile(fileName),
+        position,
+      )
 
       if (isElementNode(node)) {
         return { newText: `</${node.tag}>` }

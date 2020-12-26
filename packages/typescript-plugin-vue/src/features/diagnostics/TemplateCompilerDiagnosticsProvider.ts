@@ -20,19 +20,18 @@ export const TemplateCompilerDiagnosticsProvider = defineDiagnosticProvider({
       const block = document.container.descriptor.template
       if (sourceFile != null && block != null) {
         const start = block.loc.start.offset
-        const length = block.loc.end.offset - start
 
         document.parserErrors.forEach((error) => {
+          if (error.code === 43) return // JS expression parsing error. Ignore it.
           diagnostics.push({
             category: context.typescript.DiagnosticCategory.Error,
-            code: 60000 + error.code,
+            code: 60000 + Math.max(0, error.code),
             file: sourceFile,
-            source: error.loc?.source,
             start: error.loc != null ? error.loc.start.offset : start,
             length:
               error.loc != null
-                ? error.loc.end.offset - error.loc.start.offset
-                : length,
+                ? Math.max(1, error.loc.end.offset - error.loc.start.offset)
+                : 1,
             messageText: error.message,
           })
         })

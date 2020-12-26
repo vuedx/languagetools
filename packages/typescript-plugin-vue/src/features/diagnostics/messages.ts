@@ -10,7 +10,7 @@ const context = createCoreContext({
   locale: 'en',
   messages: {
     en: {
-      [DiagnosticCode.InferredGlobalComponent_Unknown]: `The component '{tag}' cannot be resolved.`,
+      [DiagnosticCode.InferredGlobalComponent_Unknown]: `Cannot find a global component matching: '{tag}'.`,
       [DiagnosticCode.InferredGlobalComponent_Known]: `The component '{tag}' is inferred as global component. It may not be available at runtime.`,
       [DiagnosticCode.InferredGlobalComponent_PossibleSource]: `The component '{tag}' can be imported from '{source}'.`,
     },

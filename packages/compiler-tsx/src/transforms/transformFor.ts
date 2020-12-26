@@ -35,7 +35,7 @@ export function createTransformFor(
           ),
         )
 
-        trackIdentifiers(exp.content, context, addIdentifer)
+        trackIdentifiers(exp.content, context, exp.loc.start, addIdentifer)
       }
     }
 

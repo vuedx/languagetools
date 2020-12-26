@@ -39,7 +39,12 @@ export function createExpressionTracker(
         !node.content.isStatic &&
         node.content.content.trim() !== ''
       ) {
-        trackIdentifiers(node.content.content, context, addIdentifer)
+        trackIdentifiers(
+          node.content.content,
+          context,
+          node.content.loc.start,
+          addIdentifer,
+        )
       }
     } else if (isElementNode(node)) {
       node.props.forEach((dir) => {
@@ -49,7 +54,12 @@ export function createExpressionTracker(
             !dir.arg.isStatic &&
             dir.arg.content.trim() !== ''
           ) {
-            trackIdentifiers(dir.arg.content, context, addIdentifer)
+            trackIdentifiers(
+              dir.arg.content,
+              context,
+              dir.arg.loc.start,
+              addIdentifer,
+            )
           }
 
           const slot = findDir(node, 'slot')
@@ -63,6 +73,7 @@ export function createExpressionTracker(
               trackIdentifiers(
                 slot.exp.content,
                 context,
+                slot.exp.loc.start,
                 (identifier) => {
                   localIdentifiers.add(identifier)
                   context.addIdentifiers(identifier)
@@ -86,6 +97,7 @@ export function createExpressionTracker(
                 trackIdentifiers(
                   dir.exp.content,
                   context,
+                  dir.exp.loc.start,
                   addIdentifer,
                   false,
                   true,
@@ -98,7 +110,12 @@ export function createExpressionTracker(
                 isSimpleExpressionNode(dir.exp) &&
                 dir.exp.content.trim() !== ''
               ) {
-                trackIdentifiers(dir.exp.content, context, addIdentifer)
+                trackIdentifiers(
+                  dir.exp.content,
+                  context,
+                  dir.exp.loc.start,
+                  addIdentifer,
+                )
               }
             }
           }
@@ -129,6 +146,7 @@ export function isKnownIdentifier(value: string): boolean {
 export function trackIdentifiers(
   rawExp: string,
   context: TransformContext,
+  start: Position,
   addIdentifer: (identifier: string) => void,
   // some expressions like v-slot props & v-for aliases should be parsed as
   // function params
@@ -159,7 +177,7 @@ export function trackIdentifiers(
 
   try {
     const ast = parse(source, {
-      plugins: ['bigInt', 'optionalChaining', 'nullishCoalescingOperator'],
+      plugins: ['bigInt', 'optionalChaining', 'nullishCoalescingOperator'], // TODO: Allow configuring plugins.
       // @ts-expect-error
       errorRecovery: true,
     })
@@ -210,23 +228,17 @@ export function trackIdentifiers(
       },
     })
   } catch (error) {
-    if (error.loc != null) {
-      const start: Position = {
-        line: error.loc.line,
-        column: error.loc.column,
-        offset: error.pos,
-      }
-      context.onError({
-        name: error.code,
-        message: error.message,
-        code: -2,
-        loc: {
-          source: rawExp,
-          start: start,
-          end: advancePositionWithClone(start, rawExp, 1),
-        },
-      })
-    }
+    const pos = error.pos ?? 0
+    context.onError({
+      name: error.code,
+      message: `Failed to analyze expression. Error: ${String(error.message)}`,
+      code: 1000,
+      loc: {
+        source: rawExp,
+        start: advancePositionWithClone(start, rawExp, pos - 1),
+        end: advancePositionWithClone(start, rawExp, pos),
+      },
+    })
   }
 }
 

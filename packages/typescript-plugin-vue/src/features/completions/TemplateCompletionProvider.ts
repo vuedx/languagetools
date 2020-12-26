@@ -743,9 +743,12 @@ export class HTMLService {
           if (!entry.name.startsWith('on')) return
           entry.name = uncapitalize(entry.name.replace(/^on-?/, ''))
         }
+
         entry.name =
           preferences.template.propCase === 'kebab'
             ? kebabCase(entry.name)
+            : entry.name.startsWith('aria-') || entry.name.startsWith('data-')
+            ? entry.name
             : camelCase(entry.name)
 
         if (jsxAttributes.has(entry.name) || alreadyExists.has(entry.name)) {
@@ -755,6 +758,7 @@ export class HTMLService {
           result.entries.push(entry)
         }
       }
+
       if (offset != null) {
         const jsx = this.$.service.getCompletionsAtPosition(
           document.fsPath,
@@ -772,43 +776,47 @@ export class HTMLService {
     }
 
     // Directives
-    const allowedDirectives = [
-      'v-show',
-      'v-bind',
-      'v-on',
-      'v-for',
-      // TODO: Use previous element context for providing conditional context.
-      'v-if',
-      'v-else',
-      'v-else-if',
-    ]
+    if (!isDirectiveNode(attribute)) {
+      // TODO: Use directive description from vue reference.
+      const allowedDirectives = [
+        'v-show',
+        'v-bind',
+        'v-on',
+        'v-for',
+        'v-if',
+        'v-else',
+        'v-else-if',
+        'v-text',
+        'v-html',
+      ]
 
-    if (isPlainElementNode(element)) {
-      allowedDirectives.push('v-text', 'v-html')
-    }
-
-    /**
-     * v-slot is allowed on components or their immediate child
-     * template elements.
-     */
-    if (isComponentNode(element)) {
-      allowedDirectives.push('v-slot')
-    } else if (element.tag === 'template' && document.ast != null) {
-      const parent = findParentNode(document.ast, element)
-      if (isComponentNode(parent)) {
-        allowedDirectives.push('v-slot')
+      if (isPlainElementNode(element)) {
+        allowedDirectives.push('v-text', 'v-html')
       }
-    }
 
-    allowedDirectives.forEach((name) => {
-      result.entries.push({
-        name,
-        kind: 'JSX attribute' as TS.ScriptElementKind.jsxAttribute,
-        kindModifiers: '',
-        sortText: '9',
-        replacementSpan,
+      /**
+       * v-slot is allowed on components or their immediate child
+       * template elements.
+       */
+      if (isComponentNode(element)) {
+        allowedDirectives.push('v-slot')
+      } else if (element.tag === 'template' && document.ast != null) {
+        const parent = findParentNode(document.ast, element)
+        if (isComponentNode(parent)) {
+          allowedDirectives.push('v-slot')
+        }
+      }
+
+      allowedDirectives.forEach((name) => {
+        result.entries.push({
+          name,
+          kind: 'JSX attribute' as TS.ScriptElementKind.jsxAttribute,
+          kindModifiers: '',
+          sortText: '9',
+          replacementSpan,
+        })
       })
-    })
+    }
 
     return result
   }

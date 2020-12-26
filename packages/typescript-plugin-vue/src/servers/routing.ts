@@ -140,106 +140,29 @@ function createLanguageServiceRouter(
     ...config.service,
 
     getSyntacticDiagnostics(fileName) {
-      const diagnostics = choose(fileName).getSyntacticDiagnostics(fileName)
+      config.context.disposeUnusedProjects()
 
-      return diagnostics
-        .map((diagnostic) => {
-          diagnostic.messageText = applyReplacements(
-            fileName,
-            diagnostic.messageText,
-          )
-
-          if (diagnostic.relatedInformation != null) {
-            diagnostic.relatedInformation = diagnostic.relatedInformation.map(
-              (info) => {
-                info.messageText = applyReplacements(fileName, info.messageText)
-
-                if (info.file != null && isVirtualFile(info.file.fileName)) {
-                  info.file = {
-                    ...info.file,
-                    fileName: getContainingFile(info.file.fileName),
-                  }
-                }
-
-                return info
-              },
-            )
-          }
-
-          return diagnostic
-        })
+      return choose(fileName)
+        .getSyntacticDiagnostics(fileName)
+        .map(createDiagnosticProcessor(fileName))
         .filter(isNotNull)
     },
 
     getSemanticDiagnostics(fileName) {
       config.context.disposeUnusedProjects()
 
-      const diagnostics = choose(fileName).getSemanticDiagnostics(fileName)
-
-      return diagnostics
-        .map((diagnostic) => {
-          if (isVirtualSourceFile(diagnostic.file)) {
-            diagnostic.file = {
-              ...diagnostic.file,
-              fileName: getContainingFile(diagnostic.file.fileName),
-            }
-          }
-
-          diagnostic.messageText = applyReplacements(
-            fileName,
-            diagnostic.messageText,
-          )
-
-          if (diagnostic.relatedInformation != null) {
-            diagnostic.relatedInformation = diagnostic.relatedInformation.map(
-              (info) => {
-                info.messageText = applyReplacements(fileName, info.messageText)
-
-                if (info.file != null && isVirtualFile(info.file.fileName)) {
-                  info.file = {
-                    ...info.file,
-                    fileName: getContainingFile(info.file.fileName),
-                  }
-                }
-
-                return info
-              },
-            )
-          }
-
-          return diagnostic
-        })
+      return choose(fileName)
+        .getSemanticDiagnostics(fileName)
+        .map(createDiagnosticProcessor(fileName))
         .filter(isNotNull)
     },
 
     getSuggestionDiagnostics(fileName) {
-      const diagnostics = choose(fileName).getSuggestionDiagnostics(fileName)
+      config.context.disposeUnusedProjects()
 
-      return diagnostics
-        .map((diagnostic) => {
-          diagnostic.messageText = applyReplacements(
-            fileName,
-            diagnostic.messageText,
-          )
-
-          if (diagnostic.relatedInformation != null) {
-            diagnostic.relatedInformation = diagnostic.relatedInformation.map(
-              (info) => {
-                info.messageText = applyReplacements(fileName, info.messageText)
-                if (info.file != null && isVirtualFile(info.file.fileName)) {
-                  info.file = {
-                    ...info.file,
-                    fileName: getContainingFile(info.file.fileName),
-                  }
-                }
-
-                return info
-              },
-            )
-          }
-
-          return diagnostic
-        })
+      return choose(fileName)
+        .getSuggestionDiagnostics(fileName)
+        .map(createDiagnosticProcessor(fileName))
         .filter(isNotNull)
     },
 
@@ -979,6 +902,45 @@ function createLanguageServiceRouter(
   })
 
   return proxy
+
+  function createDiagnosticProcessor<T extends TS.Diagnostic>(
+    fileName: string,
+  ): (diagnostic: T) => T {
+    return (item) => {
+      const diagnostic: T = { ...item } // TS service reuses diagnostics so avoid mutating
+
+      if (isVirtualSourceFile(diagnostic.file)) {
+        diagnostic.file = {
+          ...diagnostic.file,
+          fileName: getContainingFile(diagnostic.file.fileName),
+        }
+      }
+
+      diagnostic.messageText = applyReplacements(
+        fileName,
+        diagnostic.messageText,
+      )
+
+      if (diagnostic.relatedInformation != null) {
+        diagnostic.relatedInformation = diagnostic.relatedInformation.map(
+          (info) => {
+            info.messageText = applyReplacements(fileName, info.messageText)
+
+            if (info.file != null && isVirtualFile(info.file.fileName)) {
+              info.file = {
+                ...info.file,
+                fileName: getContainingFile(info.file.fileName),
+              }
+            }
+
+            return info
+          },
+        )
+      }
+
+      return diagnostic
+    }
+  }
 }
 
 function mergeFileTextChanges(

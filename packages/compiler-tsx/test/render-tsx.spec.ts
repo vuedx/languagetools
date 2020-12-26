@@ -475,9 +475,9 @@ describe('compile/tsx', () => {
     }).not.toThrow()
   })
   test.each(
-    samples
-      // .filter((sample) => /(v-if)/.test(sample.name))
-      .map((sample, index) => [`${index + 1}`, sample.name, sample] as const),
+    samples.map(
+      (sample, index) => [`${index + 1}`, sample.name, sample] as const,
+    ),
   )('%s. %s', (_, __, sample) => {
     const result = compile(sample.template, {
       filename: '/foo/bar/component.vue',
