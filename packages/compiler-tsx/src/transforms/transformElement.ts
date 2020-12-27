@@ -14,6 +14,7 @@ import {
   isSimpleIdentifier,
   NodeTransform,
   RENDER_SLOT,
+  SimpleExpressionNode,
   SlotsExpression,
   TemplateChildNode,
   TransformContext,
@@ -43,8 +44,22 @@ function isIfNode(node: unknown): node is IfNode {
 
 export function createElementTransform(
   options: Required<Options>,
+  expressions: CompoundExpressionNode[],
 ): NodeTransform {
   let isImportAdded = false
+  let dynamicComponentCounter = 0
+  const hoist = (exp: SimpleExpressionNode): string => {
+    const name = `_DyComp${dynamicComponentCounter++}`.padEnd(
+      'component'.length,
+      '_',
+    )
+
+    expressions.push(
+      createCompoundExpression([`const `, name, ' = ', exp, ';']),
+    )
+
+    return name
+  }
   return (node, context) => {
     if (!isImportAdded) {
       context.imports.add({
@@ -58,23 +73,26 @@ export function createElementTransform(
 
     let resolvedComponentName: string | undefined
     if (isComponentNode(node)) {
-      const name = pascalCase(node.tag)
-      const component = options.components[name] ?? options.components[node.tag]
-      if ((context.identifiers[name] ?? 0) <= 0) {
-        if (component != null) {
-          context.imports.add({
-            exp:
-              component.named === true
-                ? `{ ${
-                    component.name != null && component.name !== name
-                      ? component.name + ' as '
-                      : ''
-                  }${name} }`
-                : name,
-            path: component.path,
-          })
-          context.addIdentifiers(name)
-          resolvedComponentName = name
+      if (!['component'].includes(node.tag)) {
+        const name = pascalCase(node.tag)
+        const component =
+          options.components[name] ?? options.components[node.tag]
+        if ((context.identifiers[name] ?? 0) <= 0) {
+          if (component != null) {
+            context.imports.add({
+              exp:
+                component.named === true
+                  ? `{ ${
+                      component.name != null && component.name !== name
+                        ? component.name + ' as '
+                        : ''
+                    }${name} }`
+                  : name,
+              path: component.path,
+            })
+            context.addIdentifiers(name)
+            resolvedComponentName = name
+          }
         }
       }
     }
@@ -157,13 +175,35 @@ export function createElementTransform(
         return
       }
 
-      const name: string = resolvedComponentName ?? node.tag
-      const startTag = createSimpleExpression(
+      let name: string = resolvedComponentName ?? node.tag
+      let startTag: SimpleExpressionNode = createSimpleExpression(
         name,
         false,
         createLoc(node.loc, node.loc.source.indexOf(node.tag), node.tag.length),
         false,
       )
+      if (node.tag === 'component') {
+        const isProp = findProp(node, 'is')
+        if (isAttributeNode(isProp) && isProp.value != null) {
+          name = hoist(
+            createSimpleExpression(
+              `${JSON.stringify(isProp.value.content)} as const`,
+              false,
+              isProp.value.loc,
+            ),
+          )
+          startTag = createSimpleExpression(name, false, startTag.loc)
+        } else if (
+          isDirectiveNode(isProp) &&
+          isSimpleExpressionNode(isProp.exp)
+        ) {
+          name = hoist(isProp.exp)
+          startTag = createSimpleExpression(name, false, startTag.loc)
+        } else {
+          name = ''
+          startTag = createSimpleExpression('', false)
+        }
+      }
       const attributes = generateJSXAttributes(node, context)
 
       if (node.isSelfClosing) {
@@ -175,7 +215,6 @@ export function createElementTransform(
           ' />',
         ]) as any
       } else {
-        const endTag = createSimpleExpression(name, false, undefined, false)
         const children = generateChildren(
           node,
           context,
@@ -189,7 +228,7 @@ export function createElementTransform(
           ' >',
           ...children,
           '</',
-          endTag,
+          name,
           '>',
         ]) as any
       }
@@ -210,7 +249,9 @@ function generateJSXAttributes(
 ): any[] {
   const result: any[] = []
   const alreadyProcessed = new Set<DirectiveNode>()
+  const ignore = node.tag === 'component' ? findProp(node, 'is') : undefined
   node.props.forEach((dir) => {
+    if (dir === ignore) return
     if (isAttributeNode(dir)) {
       result.push(...generateAttribute(dir, node))
     } else if (

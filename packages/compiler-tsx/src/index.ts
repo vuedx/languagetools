@@ -13,6 +13,7 @@ import {
   ParserOptions,
   RootNode,
   RENDER_SLOT,
+  CompoundExpressionNode,
 } from '@vue/compiler-core'
 import {
   isCommentNode,
@@ -75,7 +76,7 @@ export function compile(
   }
   const identifiers = new Set<string>()
   const errors: CompilerError[] = []
-
+  const hoists: CompoundExpressionNode[] = []
   transform(ast, {
     ...options,
     prefixIdentifiers: true,
@@ -135,7 +136,7 @@ export function compile(
       createTransformFor((id) => identifiers.add(id)),
       createTransformIf((id) => identifiers.add(id)),
       createExpressionTracker((id) => identifiers.add(id)),
-      createElementTransform(config),
+      createElementTransform(config, hoists),
       createInterpolationTransform(config),
     ],
     onError(error) {
@@ -157,7 +158,7 @@ export function compile(
   })
   if (ast.children.length > 0) {
     ast.codegenNode = createCompoundExpression([
-      '/*@@vue:start*/<>',
+      hoists.length > 0 ? '<>' : '/*@@vue:start*/<>',
       ...generateChildNodes(ast.children),
       '</>/*@@vue:end*/',
     ] as any)
@@ -167,6 +168,7 @@ export function compile(
     ] as any)
   }
   const mappings: Array<[number, number, number, number, number]> = []
+
   const result = generate(ast, {
     ...options,
     sourceMap: true,
@@ -202,7 +204,25 @@ export function compile(
           ])
         }
 
-        if (code.startsWith('function render(_ctx, _cache')) {
+        if (code === 'return ') {
+          if (hoists.length > 0) {
+            push(`/*@@vue:start*/`)
+            context.newline()
+            hoists.forEach((hoist) => {
+              hoist.children.forEach((child) => {
+                if (isSimpleExpressionNode(child)) {
+                  context.push(child.content, child)
+                } else if (typeof child === 'string') {
+                  push(child)
+                }
+              })
+              context.newline()
+            })
+            push(code)
+          } else {
+            push(code)
+          }
+        } else if (code.startsWith('function render(_ctx, _cache')) {
           push(
             `function render(${
               identifiers.size > 0
