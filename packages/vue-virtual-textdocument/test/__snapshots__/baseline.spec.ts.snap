@@ -181,6 +181,22 @@ export function render(_ctx: InstanceType<typeof _Ctx>) {
 }
 `;
 
+exports[`VueVirtualDocument/baseline feature-diagnostics/src/DynamicComponent.vue 1`] = `
+import _Ctx from './DynamicComponent.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({/*@@vue:identifiers-start*/div, HelloWorld/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
+  /*@@vue:start*/
+  const _DyComp0_ = "span" as const;
+  const _DyComp1_ = div;
+  const _DyComp2_ = HelloWorld;
+  return <><_DyComp0_  /><_DyComp1_  /><_DyComp2_  msg="say hi" /></>/*@@vue:end*/
+}
+`;
+
 exports[`VueVirtualDocument/baseline feature-diagnostics/src/FeatureSetup.vue 1`] = `
 import _Ctx from './FeatureSetup.vue?internal'
 
