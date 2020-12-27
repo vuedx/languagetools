@@ -1,9 +1,5 @@
 import Path from 'path'
-import {
-  findPositionOrThrowIn,
-  getTextDocument,
-  toNormalizedPath,
-} from 'test/support/helpers'
+import { findPositionOrThrowIn, toNormalizedPath } from 'test/support/helpers'
 import { TestServer } from 'test/support/TestServer'
 
 describe('diagnostic', () => {
@@ -363,7 +359,9 @@ describe('diagnostic', () => {
         expect.arrayContaining([
           expect.objectContaining({
             code: 2322,
-            text: expect.stringContaining(`Type 'number' is not assignable to type`),
+            text: expect.stringContaining(
+              `Type 'number' is not assignable to type`,
+            ),
           }),
         ]),
       )

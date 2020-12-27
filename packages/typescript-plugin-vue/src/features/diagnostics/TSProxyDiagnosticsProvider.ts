@@ -70,20 +70,35 @@ function createDiagnosticsHandler<T extends TS.Diagnostic>(
     }
   }
 
-  return (diagnostic: T): T[] => {
+  return (item: T): T[] => {
+    const diagnostic: T = { ...item } // To avoid mutating as TS server reuses diagnostics.
     try {
-      if (
-        diagnostic.file != null &&
-        diagnostic.file.fileName !== document.fsPath
-      ) {
-        return isInTemplate(diagnostic)
+      if (diagnostic.file == null) {
+        diagnostic.file = ({
+          fileName: document.fsPath,
+        } as unknown) as TS.SourceFile
       }
+      if (diagnostic.file.fileName !== document.fsPath) {
+        // In case of async diagnostics, the service may be wrapped twice.
+        if (diagnostic.file.fileName === document.container.fsPath) {
+          return [diagnostic]
+        }
 
+        return []
+      }
       if (diagnostic.start != null) {
         if (document.isInGeneratedRange(diagnostic.start)) {
           const position = document.getOriginalOffsetAt(diagnostic.start)
 
-          diagnostic.start = position?.offset ?? diagnostic.start
+          if (position != null) {
+            diagnostic.start = position.offset
+            if (diagnostic.length != null) {
+              diagnostic.length = Math.max(
+                1,
+                Math.min(position.length, diagnostic.length),
+              )
+            }
+          }
 
           return isInTemplate(diagnostic)
         } else if (document.isInTemplateIdentifierRange(diagnostic.start)) {

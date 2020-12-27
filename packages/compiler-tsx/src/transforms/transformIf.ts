@@ -5,7 +5,10 @@ import {
   processIf,
   SimpleExpressionNode,
 } from '@vue/compiler-core'
-import { isSimpleExpressionNode } from '@vuedx/template-ast-types'
+import {
+  createSimpleExpression,
+  isSimpleExpressionNode,
+} from '@vuedx/template-ast-types'
 import { trackIdentifiers } from './transformExpression'
 
 export function createTransformIf(
@@ -17,16 +20,24 @@ export function createTransformIf(
       const exp = dir.exp as SimpleExpressionNode | undefined
       const content = exp?.content
       if (isSimpleExpressionNode(dir.exp)) {
-        trackIdentifiers(dir.exp.content, context, addIdentifer)
+        trackIdentifiers(
+          dir.exp.content,
+          context,
+          dir.exp.loc.start,
+          addIdentifer,
+        )
       }
 
       return processIf(node, dir, context, (ifNode, branch, isRoot) => {
         return () => {
           let hasElse = false
 
-          if (exp != null) {
-            exp.content = content ?? 'true'
-            branch.condition = exp
+          if (dir.name !== 'else') {
+            branch.condition = createSimpleExpression(
+              content?.trimEnd() ?? 'false',
+              false,
+              exp?.loc,
+            )
           }
 
           ifNode.codegenNode = createCompoundExpression([

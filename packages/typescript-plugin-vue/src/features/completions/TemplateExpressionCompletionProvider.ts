@@ -48,6 +48,7 @@ const allowedKeywords = new Set([
 ])
 
 export const TemplateExpressionCompletionProvider = defineCompletionProvider({
+  name: 'expression',
   version: '*',
 
   getCompletionsAtPosition(

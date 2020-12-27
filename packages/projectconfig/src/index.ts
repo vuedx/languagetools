@@ -14,6 +14,8 @@ export interface ProjectPreferences {
   }
   template: {
     directiveSyntax: 'shorthand' | 'longhand'
+    propCase: 'kebab' | 'camel'
+    tagCase: 'kebab' | 'pascal' | 'auto'
   }
 }
 

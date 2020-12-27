@@ -29,6 +29,31 @@ export function findTemplateNodeAt(
 }
 
 /**
+ * Find the parent element node.
+ *
+ * @public
+ */
+export function findParentNode(
+  ast: RootNode,
+  node: Node,
+): ElementNode | undefined {
+  let result: ElementNode | undefined
+  traverseEvery(ast, (element) => {
+    if (isElementNode(element)) {
+      if (element.children.includes(node as any)) {
+        result = element
+
+        return false
+      }
+    }
+
+    return true
+  })
+
+  return result
+}
+
+/**
  * Find a child (element, component, text, interpolation, or comment) node containing the given position.
  *
  * @public

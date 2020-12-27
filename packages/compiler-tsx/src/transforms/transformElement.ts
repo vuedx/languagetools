@@ -170,20 +170,12 @@ export function createElementTransform(
         node.codegenNode = createCompoundExpression([
           '<',
           startTag,
+          ' ',
           ...attributes,
           ' />',
         ]) as any
       } else {
-        const endTag = createSimpleExpression(
-          name,
-          false,
-          createLoc(
-            node.loc,
-            node.loc.source.lastIndexOf(node.tag),
-            node.tag.length,
-          ),
-          false,
-        )
+        const endTag = createSimpleExpression(name, false, undefined, false)
         const children = generateChildren(
           node,
           context,
@@ -192,6 +184,7 @@ export function createElementTransform(
         node.codegenNode = createCompoundExpression([
           '<',
           startTag,
+          ' ',
           ...attributes,
           ' >',
           ...children,

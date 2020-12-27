@@ -12,8 +12,10 @@ const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
 
 const camelizeRE = /[^A-Za-z0-9]+([A-Za-z0-9])/g
 export const camelize = cacheStringFunction((str: string): string => {
-  return str.replace(camelizeRE, (_, c) =>
-    typeof c === 'string' ? c.toUpperCase() : '',
+  return uncapitalize(
+    str.replace(camelizeRE, (_, c) =>
+      typeof c === 'string' ? c.toUpperCase() : '',
+    ),
   )
 })
 
@@ -26,6 +28,10 @@ export const hyphenate = cacheStringFunction((str: string): string => {
 
 export const capitalize = cacheStringFunction((str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1)
+})
+
+export const uncapitalize = cacheStringFunction((str: string): string => {
+  return str.charAt(0).toLowerCase() + str.slice(1)
 })
 
 export const pascalCase = cacheStringFunction((str: string) =>

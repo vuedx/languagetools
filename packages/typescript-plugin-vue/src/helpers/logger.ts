@@ -9,15 +9,17 @@ export function wrapInTrace<T>(context: string, target: T): T {
       args: unknown,
       result: unknown,
     ): void => {
-      console.log(
-        `[TRACE] ${context} ${method}(${JSON.stringify(args)}) ${
-          performance.now() - start
-        } ${util.inspect(result, {
-          depth: 7,
-          maxArrayLength: Infinity,
-          showHidden: false,
-        })}`,
-      )
+      if (!['getProgram'].includes(method)) {
+        console.log(
+          `[TRACE] ${context} ${method}(${JSON.stringify(args)}) ${
+            performance.now() - start
+          } ${util.inspect(result, {
+            depth: 7,
+            maxArrayLength: Infinity,
+            showHidden: false,
+          })}`,
+        )
+      }
     }
 
     const clone = {} as any

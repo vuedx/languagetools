@@ -6,8 +6,8 @@ export function first<T>(items: T[] | readonly T[]): T {
   return items[0]
 }
 
-export function last<T>(items: T[] | readonly T[]): T {
-  return items[items.length - 1]
+export function last<T>(items: T[] | readonly T[], nth: number = 1): T {
+  return items[items.length - nth]
 }
 
 export function findPrevSibling<T>(
@@ -24,4 +24,13 @@ export function findNextSibling<T>(
 ): T | undefined {
   const index = items.indexOf(item)
   if (index >= 0) return items[index + 1]
+}
+
+export function concat<T>(a: T[] | undefined, b: T[] | undefined): T[] {
+  const c: T[] = []
+
+  if (isArray(a)) c.push(...a)
+  if (isArray(b)) c.push(...b)
+
+  return c
 }

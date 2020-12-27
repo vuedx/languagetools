@@ -9,6 +9,7 @@
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "resolveJsonModule": true,
 
     "lib": ["ES2020"]
   },

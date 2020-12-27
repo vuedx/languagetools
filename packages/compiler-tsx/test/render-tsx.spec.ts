@@ -465,17 +465,19 @@ export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,
 ]
 
 describe('compile/tsx', () => {
-  test.skip('debug', () => {
-    compile('<div></div><>', {
-      filename: '/foo/bar/component.vue',
-      components: samples[0].components,
-      onError() {},
-    })
+  test('it works', () => {
+    expect(() => {
+      compile('<div></div><>', {
+        filename: '/foo/bar/component.vue',
+        components: samples[0].components,
+        onError() {},
+      })
+    }).not.toThrow()
   })
   test.each(
-    samples
-      // .filter((sample) => /(v-if)/.test(sample.name))
-      .map((sample, index) => [`${index + 1}`, sample.name, sample] as const),
+    samples.map(
+      (sample, index) => [`${index + 1}`, sample.name, sample] as const,
+    ),
   )('%s. %s', (_, __, sample) => {
     const result = compile(sample.template, {
       filename: '/foo/bar/component.vue',

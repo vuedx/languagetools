@@ -92,11 +92,13 @@ describe('completions', () => {
 
       expect(body?.entries.length).toBeGreaterThan(1)
 
-      expect(body?.entries).toContainEqual(
-        expect.objectContaining({
-          name: 'name',
-          kind: 'JSX attribute',
-        }),
+      expect(body?.entries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'name',
+            kind: 'JSX attribute',
+          }),
+        ]),
       )
     })
 
@@ -133,6 +135,9 @@ describe('completions', () => {
       expect(body?.entries.length).toBeGreaterThan(1)
       expect(body?.entries).not.toContainEqual(
         expect.objectContaining({ name: 'name' }),
+      )
+      expect(body?.entries).toContainEqual(
+        expect.objectContaining({ name: 'hello-world' }),
       )
       expect(body?.entries).toContainEqual(
         expect.objectContaining({ name: 'HelloWorld' }),
@@ -235,7 +240,14 @@ describe('completions', () => {
         },
       )
 
-      expect(pascalDetails).toEqual(kebabDetails)
+      expect(pascalDetails).toHaveLength(1)
+      expect(kebabDetails).toHaveLength(1)
+
+      const p = pascalDetails![0]
+      const k = kebabDetails![0]
+      expect(p.name).toBe('MyWorld')
+      expect(k.name).toBe('my-world')
+      expect(p).toEqual({ ...k, name: 'MyWorld' })
     })
   })
 
