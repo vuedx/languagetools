@@ -357,15 +357,6 @@ export class HTMLService {
 
     HTML_ELEMENTS.forEach((element) => add({ ...element }))
 
-    const jsx = this.$.service.getCompletionsAtPosition(
-      document.fsPath,
-      document.tagCompletionsTriggerOffset,
-      {
-        ...options,
-        triggerCharacter: '<',
-      },
-    )
-
     project.globalComponents.forEach((component) =>
       addHandlingSource({
         name: component.name,
@@ -375,6 +366,15 @@ export class HTMLService {
         source: component.source.moduleName,
         hasAction: true,
       }),
+    )
+
+    const jsx = this.$.service.getCompletionsAtPosition(
+      document.fsPath,
+      document.tagCompletionsTriggerOffset,
+      {
+        ...options,
+        triggerCharacter: '<',
+      },
     )
 
     const deps = new Set(Object.keys(project.packageJSON.dependencies))
@@ -722,6 +722,7 @@ export class HTMLService {
         document.container.fsPath,
         true,
       ).config
+      // TODO: Handle <component :is="xxxx"
       const offset = document.tryGetGeneratedOffset(
         element.loc.start.offset + element.tag.length + 1,
       )

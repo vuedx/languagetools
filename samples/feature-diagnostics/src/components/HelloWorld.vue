@@ -2,11 +2,13 @@
   <h1>{{ msg }}</h1>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
   name: "HelloWorld",
   props: {
-    msg: String,
+    msg: { type: String, required: true },
   },
-};
+})
 </script>

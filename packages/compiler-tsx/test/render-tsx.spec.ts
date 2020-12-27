@@ -462,6 +462,22 @@ export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,
       }
   `,
   },
+  {
+    name: 'Dynamic component',
+    template: `
+      <component :is="foo" foo="bar" />
+    `.trim(),
+    render: `
+      import _Ctx from './component.vue?internal'
+
+
+      export function render({/*@@vue:identifiers-start*/foo/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
+        const _DyComp0_ = foo
+        return <><_DyComp0_ foo="bar" /></>/*@@vue:end*/
+      }
+  `,
+  },
 ]
 
 describe('compile/tsx', () => {
