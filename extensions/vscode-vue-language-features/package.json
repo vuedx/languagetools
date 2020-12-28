@@ -127,7 +127,7 @@
     "jsonValidation": [
       {
         "fileMatch": "vueconfig.json",
-        "url": "https://unpkg.com/@vuedx/projectconfig@0.3.2/schema.json"
+        "url": "https://unpkg.com/@vuedx/projectconfig@0.4.0/schema.json"
       }
     ],
     "typescriptServerPlugins": [

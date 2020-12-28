@@ -20,14 +20,14 @@
                 "oneOf": [
                   {
                     "type": "string",
-                    "description": "A file or a package name. It must default export a Vue component."
+                    "description": "A relative file path or a package name. It must default export a Vue component."
                   },
                   {
                     "type": "object",
                     "properties": {
                       "moduleName": {
                         "type": "string",
-                        "description": "A file or a package name."
+                        "description": "A relative file path or a package name."
                       },
                       "exportName": {
                         "type": "string",
@@ -51,7 +51,7 @@
       "properties": {
         "componentDirectories": {
           "type": "array",
-          "description": "List of directories containing components",
+          "description": "List of directories containing components. Used to provide option to 'extract to component' and other features.",
           "items": {
             "type": "string",
             "description": "Relative directory path"
@@ -91,6 +91,14 @@
             "directiveSyntax": {
               "description": "Preferred directive syntax",
               "enum": ["shorthand", "longhand"]
+            },
+            "propCase": {
+              "description": "Preferred prop/attribute case",
+              "enum": ["kebab", "camel"]
+            },
+            "tagCase": {
+              "description": "Preferred tag/component case",
+              "enum": ["kebab", "camel", "auto"]
             }
           }
         }

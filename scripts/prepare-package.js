@@ -32,6 +32,11 @@ if (Array.isArray(pkg.contributions?.typescriptServerPlugins)) {
     '@vuedx/typescript-standalone'
 }
 
+if (RELEASE_CHANNEL !== 'insiders') {
+  if (Array.isArray(pkg.contributions?.jsonValidation)) {
+    pkg.contributions.jsonValidation[0].url = `https://unpkg.com/@vuedx/projectconfig@${pkg.version}/schema.json`
+  }
+}
 const packageFile = Path.resolve(pwd, 'package.json')
 FS.writeFileSync(packageFile, JSON.stringify(pkg, null, 2))
 
