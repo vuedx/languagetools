@@ -67,9 +67,9 @@ export const InferredComponentDiagnosticsProvider = defineDiagnosticProvider({
                       ),
                     },
                   ),
-                  file: diagnostic.file,
-                  start: diagnostic.start,
-                  length: diagnostic.length,
+                  file: undefined,
+                  start: undefined,
+                  length: undefined,
                 })
               })
             }

@@ -58,7 +58,7 @@ export class TestServer {
   >()
 
   private _messageId = 0
-  private getNextMessageId() {
+  private getNextMessageId(): number {
     return this._messageId++
   }
 
@@ -128,7 +128,7 @@ export class TestServer {
           )
           this.responses.push(payload)
           this.pendingResponses -= 1
-          this.responseHandlers.get(payload.request_seq)?.call(null, payload)
+          this.responseHandlers.get(payload.request_seq)?.(payload)
         } else if (payload.type === 'request') {
           // TODO: Do we need this?
           debug(
@@ -162,7 +162,7 @@ export class TestServer {
 
   private eventHandlers: Array<(event: Proto.Event) => boolean> = []
 
-  private onEvent(payload: Proto.Event) {
+  private onEvent(payload: Proto.Event): void {
     this.eventHandlers = this.eventHandlers.filter((fn) => !fn(payload))
   }
 
@@ -186,7 +186,7 @@ export class TestServer {
 
   public async sendRequest(
     request: Omit<Proto.Request, 'seq' | 'type'>,
-  ): Promise<Proto.Response | void> {
+  ): Promise<Proto.Response | undefined> {
     const id = this.send({ type: 'request', ...request })
 
     if (!this.voidCommands.includes(request.command as Proto.CommandTypes)) {
@@ -208,7 +208,7 @@ export class TestServer {
     return await this.exitStatus
   }
 
-  private cleanup() {
+  private cleanup(): void {
     try {
       Fs.unlinkSync(abs(`../output/ti-${this.server.pid}.log`))
     } catch {}
@@ -273,6 +273,11 @@ export class TestServer {
     command: 'configure' | Proto.CommandTypes.Configure,
     args: Proto.ConfigureRequest['arguments'],
   ): Promise<Proto.ConfigureResponse>
+  
+  public async sendCommand(
+    command: 'projectInfo' | Proto.CommandTypes.ProjectInfo,
+    args: Proto.ProjectInfoRequest['arguments'],
+  ): Promise<Proto.ProjectInfoResponse>
 
   public async sendCommand(
     command:

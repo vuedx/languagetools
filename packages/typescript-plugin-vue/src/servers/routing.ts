@@ -5,6 +5,7 @@ import {
 } from '@vuedx/shared'
 import {
   getContainingFile,
+  INTERNAL_MODULE_SELECTOR,
   isVirtualFile,
   isVirtualFileOfType,
   isVueFile,
@@ -36,7 +37,7 @@ export class RoutingLanguageServer {
 
     const proxy = createLanguageServiceRouter({
       context: this.context,
-      service: wrapInTrace('TypesScriptLanguageService', languageService),
+      service: wrapInTrace('TypeScriptLanguageService', languageService),
       helpers: createServerHelper(this.context, languageService),
     })
 
@@ -136,7 +137,7 @@ function createLanguageServiceRouter(
     return file != null && isVirtualFile(file.fileName)
   }
 
-  const proxy = wrapInTrace<TS.LanguageService>('RoutingLanguageServer', {
+  const proxy = wrapInTrace<TS.LanguageService>('LanguageRoutingService', {
     ...config.service,
 
     getSyntacticDiagnostics(fileName) {
@@ -910,10 +911,7 @@ function createLanguageServiceRouter(
       const diagnostic: T = { ...item } // TS service reuses diagnostics so avoid mutating
 
       if (isVirtualSourceFile(diagnostic.file)) {
-        diagnostic.file = {
-          ...diagnostic.file,
-          fileName: getContainingFile(diagnostic.file.fileName),
-        }
+        diagnostic.file = { fileName } as any
       }
 
       diagnostic.messageText = applyReplacements(
@@ -922,20 +920,39 @@ function createLanguageServiceRouter(
       )
 
       if (diagnostic.relatedInformation != null) {
-        diagnostic.relatedInformation = diagnostic.relatedInformation.map(
-          (info) => {
-            info.messageText = applyReplacements(fileName, info.messageText)
+        diagnostic.relatedInformation = diagnostic.relatedInformation
+          .map((info) => {
+            const relatedInformation = { ...info }
 
-            if (info.file != null && isVirtualFile(info.file.fileName)) {
-              info.file = {
-                ...info.file,
-                fileName: getContainingFile(info.file.fileName),
+            relatedInformation.messageText = applyReplacements(
+              fileName,
+              relatedInformation.messageText,
+            )
+            if (
+              relatedInformation.file != null &&
+              isVirtualFile(relatedInformation.file.fileName)
+            ) {
+              if (
+                isVirtualFileOfType(
+                  relatedInformation.file.fileName,
+                  MODULE_SELECTOR,
+                ) ||
+                isVirtualFileOfType(
+                  relatedInformation.file.fileName,
+                  INTERNAL_MODULE_SELECTOR,
+                )
+              ) {
+                return null
               }
+
+              relatedInformation.file = {
+                fileName: getContainingFile(relatedInformation.file.fileName),
+              } as any
             }
 
-            return info
-          },
-        )
+            return relatedInformation
+          })
+          .filter(isNotNull)
       }
 
       return diagnostic

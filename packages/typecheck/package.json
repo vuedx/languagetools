@@ -30,8 +30,9 @@
   "dependencies": {
     "@vuedx/typescript-plugin-vue": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
-    "typescript": "^4.0.3",
     "chalk": "^4.1.0",
-    "minimist": "^1.2.5"
+    "fast-glob": "^3.2.4",
+    "minimist": "^1.2.5",
+    "typescript": "^4.0.3"
   }
 }

@@ -1,6 +1,10 @@
 import { performance } from 'perf_hooks'
 import util from 'util'
 
+const DEBUGGING = false
+function isPlainObj(o: any): boolean {
+  return typeof o === 'object' && o.constructor === Object
+}
 export function wrapInTrace<T>(context: string, target: T): T {
   if (__DEV__) {
     const write = (
@@ -13,11 +17,22 @@ export function wrapInTrace<T>(context: string, target: T): T {
         console.log(
           `[TRACE] ${context} ${method}(${JSON.stringify(args)}) ${
             performance.now() - start
-          } ${util.inspect(result, {
-            depth: 7,
-            maxArrayLength: Infinity,
-            showHidden: false,
-          })}`,
+          } ${JSON.stringify(
+            result,
+            (_, value) => {
+              if (
+                value != null &&
+                typeof value === 'object' &&
+                !Array.isArray(value)
+              ) {
+                if (isPlainObj(value)) return value
+                return `[Object ${String(value.constructor.name)}]`
+              }
+
+              return value
+            },
+            2,
+          )}`,
         )
       }
     }
@@ -58,7 +73,7 @@ export function wrapFn<T extends (...args: any[]) => any>(
   context: string,
   target: T,
 ): T {
-  if (__DEV__) {
+  if (__DEV__ && DEBUGGING) {
     const write = (start: number, args: unknown, result: unknown): void => {
       console.log(
         `[TRACE] fn ${context} (${JSON.stringify(args)}) ${
