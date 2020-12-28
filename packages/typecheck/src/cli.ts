@@ -161,7 +161,7 @@ function getErrorCount(diagnostics: Diagnostics): number {
 
 function convertToRelativePath(fileName: string): string {
   return Path.isAbsolute(fileName)
-    ? Path.relative(directory, fileName)
+    ? Path.relative(directory, fileName).replace(/\\/g, '/')
     : fileName
 }
 
