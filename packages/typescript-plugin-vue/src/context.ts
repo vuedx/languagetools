@@ -372,7 +372,7 @@ export class PluginContext {
   public error(error: Error): void {
     if (this.projectService != null) {
       this.projectService.logger.msg(
-        `Vue.js:: ${error.message} ${error.stack ?? ''}`,
+        `@@error Vue.js:: ${error.message} ${error.stack ?? ''}`,
         this.typescript.server.Msg.Err,
       )
     }
@@ -401,6 +401,7 @@ export class PluginContext {
     this._projectService = info.project.projectService
     this.setConfig(info.config)
 
+    patchProject(this, info.project)
     patchProjectService(this)
     patchServiceHost(this)
     patchLanguageServiceHost(this, info.languageServiceHost)
@@ -414,6 +415,36 @@ export class PluginContext {
       )
     }
   }
+}
+
+function patchProject(
+  context: PluginContext,
+  project: TS.server.Project,
+): void {
+  context.log(`[patch] Add support for GeterrForProject. (Project)`)
+  tryPatchMethod(
+    project,
+    'getFileNames',
+    (getFileNames) => (
+      excludeFilesFromExternalLibraries,
+      excludeConfigFiles,
+    ) => {
+      const fileNames = new Set(
+        getFileNames(
+          excludeFilesFromExternalLibraries,
+          excludeConfigFiles,
+        ).map((fileName) =>
+          isVirtualFile(fileName) ? getContainingFile(fileName) : fileName,
+        ),
+      )
+
+      context.debug(
+        `FileNames: ${JSON.stringify(Array.from(fileNames), null, 2)}`,
+      )
+
+      return Array.from(fileNames) as TS.server.NormalizedPath[]
+    },
+  )
 }
 
 function patchProjectService(context: PluginContext): void {
@@ -607,11 +638,28 @@ function patchReadFile(context: PluginContext): void {
       | undefined => {
       if (isVirtualFile(fileName)) {
         context.log(`host.readFile("${fileName}")`)
-        const document = context.store
-          .get(getContainingFile(fileName))
-          ?.getDocument(fileName)
-        if (document != null) return document.getText()
-        else return
+        const vueFile = getContainingFile(fileName)
+        const scriptInfo = context.projectService.getScriptInfo(vueFile)
+        const document = context.store.get(vueFile)
+
+        if (scriptInfo != null && document != null) {
+          if (!scriptInfo.isScriptOpen()) {
+            const version = getLastNumberFromVersion(
+              scriptInfo.getLatestVersion(),
+            )
+
+            if (version > document.version) {
+              const snapshot = scriptInfo.getSnapshot()
+              VueTextDocument.update(
+                document,
+                [{ text: snapshot.getText(0, snapshot.getLength()) }],
+                version,
+              )
+            }
+          }
+        }
+
+        return document?.getDocument(fileName)?.getText()
       }
 
       return readFile != null

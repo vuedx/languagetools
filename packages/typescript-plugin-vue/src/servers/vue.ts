@@ -71,7 +71,7 @@ export function createVueLanguageServer(
         if (diagnostic.code >= 59000) {
           diagnostic.source = 'VueDX'
         } else {
-          diagnostic.source = 'VueDX + TypeScript'
+          diagnostic.source = 'VueDX/TS'
         }
       })
 
@@ -101,7 +101,7 @@ export function createVueLanguageServer(
         if (diagnostic.code >= 59000) {
           diagnostic.source = 'VueDX'
         } else {
-          diagnostic.source = 'VueDX + TypeScript'
+          diagnostic.source = 'VueDX/TS'
         }
       })
       return diagnostics
@@ -130,7 +130,7 @@ export function createVueLanguageServer(
         if (diagnostic.code >= 59000) {
           diagnostic.source = 'VueDX'
         } else {
-          diagnostic.source = 'VueDX + TypeScript'
+          diagnostic.source = 'VueDX/TS'
         }
       })
 

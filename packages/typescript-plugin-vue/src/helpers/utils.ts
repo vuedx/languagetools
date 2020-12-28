@@ -20,7 +20,6 @@ import {
   RENDER_SELECTOR,
   SCRIPT_BLOCK_SELECTOR,
   SCRIPT_SETUP_BLOCK_SELECTOR,
-  TEMPLATE_BLOCK_SELECTOR,
   VirtualTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
@@ -186,24 +185,19 @@ export function createServerHelper(
   }
   function getAllDocuments(fileName: string): VirtualTextDocument[] {
     const document = getVueDocument(fileName)
-    const documents: VirtualTextDocument[] = []
+    const documents: Array<VirtualTextDocument | null | undefined> = []
     if (document != null) {
-      documents.push(
-        document.getDocument(RENDER_SELECTOR),
-        document.getDocument(INTERNAL_MODULE_SELECTOR),
-        document.getDocument(MODULE_SELECTOR),
-        document.getDocument(SCRIPT_BLOCK_SELECTOR),
-        document.getDocument(SCRIPT_SETUP_BLOCK_SELECTOR),
-        document.getDocument(TEMPLATE_BLOCK_SELECTOR),
-        ...document.descriptor.styles
-          .map((style) => document.getBlockSelector(style))
-          .filter(isNotNull)
-          .map((selector) => document.getDocument(selector)),
-        ...document.descriptor.customBlocks
-          .map((style) => document.getBlockSelector(style))
-          .filter(isNotNull)
-          .map((selector) => document.getDocument(selector)),
-      )
+      if (isVirtualFile(fileName)) {
+        documents.push(document.getDocument(fileName))
+      } else {
+        documents.push(
+          document.getDocument(RENDER_SELECTOR),
+          document.getDocument(INTERNAL_MODULE_SELECTOR),
+          document.getDocument(MODULE_SELECTOR),
+          document.getDocument(SCRIPT_BLOCK_SELECTOR),
+          document.getDocument(SCRIPT_SETUP_BLOCK_SELECTOR),
+        )
+      }
     }
 
     return documents.filter(isNotNull)
