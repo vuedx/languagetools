@@ -419,6 +419,22 @@ importers:
     specifiers:
       typescript: ^4.0.3
       vue: ^3.0.0
+  samples/typecheck-configured:
+    dependencies:
+      vue: 3.0.2
+    devDependencies:
+      typescript: 4.1.2
+    specifiers:
+      typescript: ^4.0.3
+      vue: ^3.0.0
+  samples/typecheck-inferred:
+    dependencies:
+      vue: 3.0.2
+    devDependencies:
+      typescript: 4.1.2
+    specifiers:
+      typescript: ^4.0.3
+      vue: ^3.0.0
   samples/typescript:
     dependencies:
       vue: 3.0.0

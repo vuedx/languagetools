@@ -910,8 +910,17 @@ function createLanguageServiceRouter(
     return (item) => {
       const diagnostic: T = { ...item } // TS service reuses diagnostics so avoid mutating
 
-      if (isVirtualSourceFile(diagnostic.file)) {
-        diagnostic.file = { fileName } as any
+      if (
+        isVirtualSourceFile(diagnostic.file) &&
+        diagnostic.file.fileName !== fileName
+      ) {
+        diagnostic.file =
+          config.helpers.getSourceFile(fileName, ts) ??
+          Object.assign(
+            Object.create(Object.getPrototypeOf(diagnostic.file)),
+            diagnostic.file,
+            { fileName },
+          )
       }
 
       diagnostic.messageText = applyReplacements(
@@ -945,9 +954,20 @@ function createLanguageServiceRouter(
                 return null
               }
 
-              relatedInformation.file = {
-                fileName: getContainingFile(relatedInformation.file.fileName),
-              } as any
+              relatedInformation.file =
+                config.helpers.getSourceFile(
+                  getContainingFile(relatedInformation.file.fileName),
+                  ts,
+                ) ??
+                Object.assign(
+                  Object.create(Object.getPrototypeOf(diagnostic.file)),
+                  diagnostic.file,
+                  {
+                    fileName: getContainingFile(
+                      relatedInformation.file.fileName,
+                    ),
+                  },
+                )
             }
 
             return relatedInformation

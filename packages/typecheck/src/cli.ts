@@ -14,7 +14,7 @@ import {
   getDiagnostics2,
 } from './diagnostics'
 import { generateCodeFrame } from './generateCodeFrame'
-const print = console.log
+
 const colors = {
   warning: chalk.yellow,
   error: chalk.red,
@@ -24,6 +24,9 @@ const colors = {
 let directory = process.cwd()
 const cache = new Map<string, TextDocument>()
 
+function print(chunk: string): void {
+  process.stdout.write(chunk)
+}
 export async function getTextDocument(file: string): Promise<TextDocument> {
   return cache.get(file) ?? (await createTextDocument(file))
 }
@@ -157,7 +160,9 @@ function getErrorCount(diagnostics: Diagnostics): number {
 }
 
 function convertToRelativePath(fileName: string): string {
-  return Path.relative(directory, fileName)
+  return Path.isAbsolute(fileName)
+    ? Path.relative(directory, fileName)
+    : fileName
 }
 
 export async function cli(): Promise<void> {
@@ -194,10 +199,11 @@ Options
       : process.cwd()
 
   if (!FS.existsSync(directory)) {
-    console.error(`Cannot find directory: "${process.argv[2]}"`)
+    console.error(`Cannot find directory: "${String(argv[0])}"`)
     process.exit(1)
   }
 
+  console.log('Running for ' + directory)
   if (!FS.statSync(directory).isDirectory()) {
     console.error(
       `Expecting a directory, but "${process.argv[2]}" is not a directory.`,
@@ -218,7 +224,9 @@ Options
   } else {
     const result = await getDiagnostics2(directory)
     await handleResults(result, { format, pretty, vue })
+
     if (getErrorCount(result) > 0) process.exit(2)
+    else process.exit(0)
   }
 }
 
@@ -226,7 +234,7 @@ Options
  * Return diagnostic result in Reviewdog Diagnostic Format
  * @see https://github.com/reviewdog/reviewdog/tree/master/proto/rdf#rdjson
  */
-function encodeRdJSON(result: Diagnostics): string {
+function encodeRdJSON(result: Diagnostics, pretty: boolean): string {
   const severityMap = {
     warning: 'WARNING',
     error: 'ERROR',
@@ -234,55 +242,60 @@ function encodeRdJSON(result: Diagnostics): string {
     message: 'INFO',
   }
 
-  return JSON.stringify({
-    source: {
-      name: 'VueDX typecheck',
-      url:
-        'https://github.com/znck/vue-developer-experience/tree/master/packages/typecheck',
-    },
-    diagnostics: result.flatMap((sourceFile) => {
-      return sourceFile.diagnostics.map((diagnostic) => ({
-        message: diagnostic.text,
-        severity: severityMap[diagnostic.category as keyof typeof severityMap],
-        location: {
-          path: sourceFile.fileName,
-          range: {
-            start: {
-              line: diagnostic.start.line,
-              column: diagnostic.start.offset,
+  return JSON.stringify(
+    {
+      source: {
+        name: 'VueDX typecheck',
+        url:
+          'https://github.com/znck/vue-developer-experience/tree/master/packages/typecheck',
+      },
+      diagnostics: result.flatMap((sourceFile) => {
+        return sourceFile.diagnostics.map((diagnostic) => ({
+          message: diagnostic.text,
+          severity:
+            severityMap[diagnostic.category as keyof typeof severityMap],
+          location: {
+            path: sourceFile.fileName,
+            range: {
+              start: {
+                line: diagnostic.start.line,
+                column: diagnostic.start.offset,
+              },
+              end: { line: diagnostic.end.line, column: diagnostic.end.offset },
             },
-            end: { line: diagnostic.end.line, column: diagnostic.end.offset },
           },
-        },
-        code: {
-          value: `${diagnostic.code ?? ''}`,
-        },
-        relatedInformation: diagnostic.relatedInformation?.map((info) => ({
-          message: info.message,
-          severity: severityMap[info.category as keyof typeof severityMap],
-          location:
-            info.span != null
-              ? {
-                  path: info.span.file,
-                  range: {
-                    start: {
-                      line: info.span.start.line,
-                      column: info.span.start.offset,
-                    },
-                    end: {
-                      line: info.span.end.line,
-                      column: info.span.end.offset,
-                    },
-                  },
-                }
-              : undefined,
           code: {
-            value: `${info.code ?? ''}`,
+            value: `${diagnostic.code ?? ''}`,
           },
-        })),
-      }))
-    }),
-  })
+          relatedInformation: diagnostic.relatedInformation?.map((info) => ({
+            message: info.message,
+            severity: severityMap[info.category as keyof typeof severityMap],
+            location:
+              info.span != null
+                ? {
+                    path: info.span.file,
+                    range: {
+                      start: {
+                        line: info.span.start.line,
+                        column: info.span.start.offset,
+                      },
+                      end: {
+                        line: info.span.end.line,
+                        column: info.span.end.offset,
+                      },
+                    },
+                  }
+                : undefined,
+            code: {
+              value: `${info.code ?? ''}`,
+            },
+          })),
+        }))
+      }),
+    },
+    null,
+    pretty ? 2 : 0,
+  )
 }
 
 async function handleResults(
@@ -301,12 +314,23 @@ async function handleResults(
     result = result.filter((item) => item.fileName.endsWith('.vue'))
   }
 
+  result.forEach((sourceFile) => {
+    sourceFile.fileName = convertToRelativePath(sourceFile.fileName)
+    sourceFile.diagnostics.forEach((diagnostic) => {
+      diagnostic.relatedInformation?.forEach((info) => {
+        if (info.span != null) {
+          info.span.file = convertToRelativePath(info.span.file)
+        }
+      })
+    })
+  })
+
   switch (format) {
     case 'json':
       print(JSON.stringify(result, null, pretty ? 2 : 0))
       break
     case 'rdjson':
-      print(encodeRdJSON(result))
+      print(encodeRdJSON(result, pretty))
       break
     case 'raw':
       {
@@ -325,7 +349,7 @@ async function handleResults(
 
         const count = getErrorCount(result)
 
-        print(`\nFound ${count} errors.`)
+        print(`\nFound ${count} ${count === 1 ? 'error' : 'errors'}.`)
       }
       break
     default:

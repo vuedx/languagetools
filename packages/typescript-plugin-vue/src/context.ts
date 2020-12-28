@@ -372,7 +372,7 @@ export class PluginContext {
   public error(error: Error): void {
     if (this.projectService != null) {
       this.projectService.logger.msg(
-        `Vue.js:: ${error.message} ${error.stack ?? ''}`,
+        `@@error Vue.js:: ${error.message} ${error.stack ?? ''}`,
         this.typescript.server.Msg.Err,
       )
     }

@@ -6,7 +6,7 @@ import Proto from 'typescript/lib/protocol'
 
 const isDebugMode = process.env.DEBUG != null
 function debug(...args: any[]): void {
-  if (isDebugMode) {
+  if (__DEV__ && isDebugMode) {
     console.debug(...args)
   }
 }
