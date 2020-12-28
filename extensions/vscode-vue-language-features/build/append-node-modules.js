@@ -14,6 +14,10 @@ execSync(
   `mkdir -p tmp/extension/node_modules/@vuedx/typescript-standalone/dist`,
   { cwd: workingDir },
 )
+execSync(
+  `mkdir -p tmp/extension/node_modules/@vuedx/typescript-standalone/runtime`,
+  { cwd: workingDir },
+)
 files.forEach((file) => {
   execSync(`cp ${file} tmp/extension/${file}`, { cwd: workingDir })
 })
