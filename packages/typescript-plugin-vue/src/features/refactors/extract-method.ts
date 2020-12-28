@@ -171,6 +171,7 @@ export const RefactorExtractMethod: RefactorProvider = {
         args.target,
         name,
         code,
+        project.version,
         project.config.preferences.script,
       )
 

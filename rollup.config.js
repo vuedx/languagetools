@@ -22,6 +22,22 @@ const config = [
   type('analyze'),
   type('vue-virtual-textdocument'),
   type('typescript-plugin-vue'),
+  {
+    ...type('typescript-plugin-vue', true),
+    input: abs('packages/typescript-plugin-vue/types/vue-2.d.ts'),
+    output: [
+      {
+        format: 'es',
+        file: abs('packages/typescript-standalone/runtime/vue-2.d.ts'),
+      },
+      {
+        format: 'es',
+        file: abs('packages/typescript-plugin-vue/runtime/vue-2.d.ts'),
+      },
+    ],
+    external: [],
+    treeshake: false,
+  },
   type('typecheck'),
   type('typescript-vetur'),
 
@@ -205,16 +221,17 @@ function extension(name, plugins = []) {
 
 /**
  * @param {string} name
+ * @param {boolean|undefined} [respectExternal]
  * @returns {import('rollup').RollupOptions}
  */
-function type(name) {
+function type(name, respectExternal) {
   return {
     input: `packages/${name}/src/index.ts`,
     output: {
       format: 'esm',
       file: abs(`./packages/${name}/dist/index.d.ts`),
     },
-    plugins: [dts()],
+    plugins: [dts({ respectExternal })],
     watch: {
       include: files,
     },
@@ -225,10 +242,12 @@ function type(name) {
  * @param {import('rollup').RollupOptions} config
  */
 function kind(config) {
-  if (Array.isArray(config.output)) return 'bundle'
-  if (config.output.file.endsWith('.d.ts')) return 'type'
-  if (config.output.file.endsWith('standalone.js')) return 'standalone'
-  return 'none'
+  const output = Array.isArray(config.output) ? config.output : [config.output]
+  if (output.every((output) => output.file.endsWith('.d.ts'))) return 'type'
+  if (output.every((output) => output.file.endsWith('standalone.js')))
+    return 'standalone'
+
+  return 'bundle'
 }
 
 /**

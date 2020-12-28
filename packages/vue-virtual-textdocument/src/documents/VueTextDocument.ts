@@ -266,6 +266,9 @@ function createVueModuleTextDocument(
     ...options,
     transformer: (document) => {
       const { script, scriptSetup, template } = document.container.descriptor
+      const api = document.container.options.vueVersion.startsWith('2.')
+        ? '@@vuedx/vue-2-support'
+        : 'vue'
 
       const lines: string[] = []
       let scriptHasDefaultExport = false
@@ -305,7 +308,7 @@ function createVueModuleTextDocument(
       }
 
       if (!usesDefineComponent) {
-        lines.unshift(`import { defineComponent } from 'vue'`)
+        lines.unshift(`import { defineComponent } from '${api}'`)
       }
       if (scriptSetupHasDefaultExport) {
         lines.push(
@@ -356,9 +359,11 @@ function createInternalModuleTextDocument(
     transformer: (document) => {
       const script = document.container.descriptor.script
       const scriptSetup = document.container.descriptor.scriptSetup
-
+      const api = document.container.options.vueVersion.startsWith('2.')
+        ? '@@vuedx/vue-2-support'
+        : 'vue'
       const lines: string[] = []
-      lines.push(`import { defineComponent } from 'vue'`)
+      lines.push(`import { defineComponent } from '${api}'`)
       if (scriptSetup != null) {
         const path = relativeVirtualImportPath(
           document.container.getDocumentFileName('scriptSetup'),
@@ -400,7 +405,7 @@ function createInternalModuleTextDocument(
           lines.push(`const component = defineComponent(script)`)
         }
       } else {
-        lines.push(`import { defineComponent } from 'vue'`)
+        lines.push(`import { defineComponent } from '${api}'`)
         lines.push(`const component = defineComponent({})`)
       }
 
@@ -760,6 +765,7 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
 }
 
 interface VueTextDocumentOptions {
+  vueVersion: string
   getGlobalComponents(): ComponentRegistrationInfo[]
 }
 
@@ -783,6 +789,7 @@ export class VueTextDocument extends ProxyTextDocument {
     super(doc)
 
     this.options = {
+      vueVersion: '3.0.0',
       getGlobalComponents: () => [],
       ...options,
     }

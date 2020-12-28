@@ -281,18 +281,13 @@ describe('completions', () => {
       expect(entries).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            name: '<script>, <template>, <style>',
+            name: '<script>, <template>',
             isRecommended: true,
           }),
-          expect.objectContaining({ name: '<template>, <script>, <style>' }),
+          expect.objectContaining({ name: '<template>, <script>' }),
         ]),
       )
 
-      expect(entries).not.toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ name: '<preview>' }),
-        ]),
-      )
       expect(details.filter((detail) => detail.name.includes(',')))
         .toMatchInlineSnapshot(`
         Array [
@@ -305,22 +300,19 @@ describe('completions', () => {
         <script>
         import { defineComponent } from 'vue'
 
-        export default defineComponent({})
+        export default defineComponent()
         </script>
 
         <template>
-         <div></div>
+          <div></div>
         </template>
-
-        <style>
-        </style>
 
         \`\`\`",
               },
             ],
             "kind": "",
-            "kindModifiers": "SFC blocks",
-            "name": "<script>, <template>, <style>",
+            "kindModifiers": "",
+            "name": "<script>, <template>",
           },
           Object {
             "displayParts": Array [],
@@ -328,25 +320,22 @@ describe('completions', () => {
               Object {
                 "kind": "markdown",
                 "text": "\`\`\`vue
-        <template>
-         <div></div>
-        </template>
-
         <script>
         import { defineComponent } from 'vue'
 
-        export default defineComponent({})
+        export default defineComponent()
         </script>
 
-        <style>
-        </style>
+        <template>
+          <div></div>
+        </template>
 
         \`\`\`",
               },
             ],
             "kind": "",
-            "kindModifiers": "SFC blocks",
-            "name": "<template>, <script>, <style>",
+            "kindModifiers": "",
+            "name": "<template>, <script>",
           },
         ]
       `)

@@ -33,6 +33,7 @@ export class DocumentService extends Installable {
       text.version,
       text.getText(),
       {
+        vueVersion: this.getProjectForFile(_uri.fsPath).version,
         getGlobalComponents: () => {
           const project = this.getProjectForFile(_uri.fsPath)
           return project.kind === 'inferred'

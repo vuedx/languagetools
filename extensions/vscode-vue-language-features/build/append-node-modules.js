@@ -5,6 +5,7 @@ const workingDir = Path.dirname(__dirname)
 const files = [
   'node_modules/@vuedx/typescript-standalone/dist/index.js',
   'node_modules/@vuedx/typescript-standalone/dist/index.js.map',
+  'node_modules/@vuedx/typescript-standalone/runtime/vue-2.d.ts',
   'node_modules/@vuedx/typescript-standalone/package.json',
 ]
 execSync(`mkdir -p tmp`, { cwd: workingDir })

@@ -987,3 +987,28 @@ export function render({/*@@vue:identifiers-start*/name/*@@vue:identifiers-end*/
   return /*@@vue:start*/<><p  >Hello {name}!</p></>/*@@vue:end*/
 }
 `;
+
+exports[`VueVirtualDocument/baseline vue-2/src/App.vue 1`] = `
+import _Ctx from './App.vue?internal'
+import HelloWorld from './components/HelloWorld.vue'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render(_ctx: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><main  ><h1  >A sample vue application</h1><HelloWorld  /></main></>/*@@vue:end*/
+}
+`;
+
+exports[`VueVirtualDocument/baseline vue-2/src/components/HelloWorld.vue 1`] = `
+import _Ctx from './HelloWorld.vue?internal'
+
+
+declare const __completionsTrigger: InstanceType<typeof _Ctx>
+__completionsTrigger./*@@vue:completions*/$props
+const __completionsTag = /*@@vue:completionsTag*/<div />
+export function render({/*@@vue:identifiers-start*/name/*@@vue:identifiers-end*/,..._ctx}: InstanceType<typeof _Ctx>) {
+  return /*@@vue:start*/<><p  >Hello {name}!</p></>/*@@vue:end*/
+}
+`;

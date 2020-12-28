@@ -4,9 +4,9 @@ import {
   ProjectConfigNormalized,
   ProjectPreferences,
 } from '@vuedx/projectconfig'
-import { isNotNull } from '@vuedx/shared'
 import { isSimpleIdentifier } from '@vuedx/template-ast-types'
 import { VueTextDocument } from '@vuedx/vue-virtual-textdocument'
+import { getScriptBlockWithContent } from '../features/completions/SFCCompletionProvider'
 import { getCode, getPaddingLength, indent } from '../helpers/utils'
 import { TS } from '../interfaces'
 
@@ -15,6 +15,7 @@ export function registerLocalComponentWithSource(
   componentInfo: ComponentInfo,
   source: ImportSource | { localName: string },
   preferences: ProjectPreferences['script'],
+  vueVersion: string,
   importStatement?: string,
 ): TS.TextChange[] {
   const { scriptSetup, script } = document.descriptor
@@ -51,38 +52,18 @@ export function registerLocalComponentWithSource(
         'components',
         source.localName,
         source.localName,
+        vueVersion,
       ).changes,
     )
   } else {
     changes.push({
       span: { start: 0, length: 0 },
-      newText:
-        preferences.mode === 'normal'
-          ? [
-              preferences.language === 'js'
-                ? `<script>`
-                : `<script lang=${JSON.stringify(preferences.language)}>`,
-              `import { defineComponent } from 'vue'`,
-              importStatement,
-              '',
-              `export default defineComponent({`,
-              `  components: { ${source.localName} }`,
-              `})`,
-              `</script>`,
-              '\n',
-            ]
-              .filter(isNotNull)
-              .join('\n')
-          : [
-              preferences.language === 'js'
-                ? `<script setup>`
-                : `<script lang=${JSON.stringify(preferences.language)} setup>`,
-              importStatement,
-              `</script>`,
-              '\n',
-            ]
-              .filter(isNotNull)
-              .join('\n'),
+      newText: getScriptBlockWithContent(
+        vueVersion,
+        preferences,
+        [`{`, `  components: { ${source.localName} }`, `}`].join('\n'),
+        importStatement,
+      ),
     })
   }
 
@@ -105,6 +86,7 @@ export function registerComponentAPI(
     | 'directives',
   name: string,
   value: string,
+  version: string,
   preferences?: ProjectConfigNormalized['preferences']['script'],
 ): {
   renameLocation?: number
@@ -122,6 +104,7 @@ export function registerComponentAPI(
       apiName,
       name,
       value,
+      version,
     )
   } else {
     return addOptionToConfigObject(
@@ -130,6 +113,7 @@ export function registerComponentAPI(
       apiName,
       name,
       value,
+      version,
       preferences,
     )
   }
@@ -141,6 +125,7 @@ export function addOptionToConfigFunction(
   apiName: 'data' | 'setupComputed' | 'setupMethods',
   name: string,
   value: string,
+  vueVersion: string,
   preferences?: ProjectConfigNormalized['preferences']['script'],
 ): {
   renameLocation?: number
@@ -238,6 +223,7 @@ export function addOptionToConfigFunction(
         )
 
         const result = addOptionToScriptConfig(
+          vueVersion,
           script,
           componentInfo.options,
           componentInfo.fnSetupOption,
@@ -274,6 +260,7 @@ function addOptionToConfigObject(
     | 'directives',
   name: string,
   value: string,
+  vueVersion: string,
   preferences?: ProjectConfigNormalized['preferences']['script'],
 ): {
   renameLocation?: number
@@ -292,6 +279,7 @@ function addOptionToConfigObject(
     )
   } else if (script != null) {
     return addOptionToScriptConfig(
+      vueVersion,
       script,
       componentInfo.options,
       componentInfo.fnSetupOption,
@@ -309,6 +297,7 @@ function addOptionToConfigObject(
     const result =
       preferences.mode === 'normal'
         ? addOptionToScriptConfig(
+            vueVersion,
             createFakeScriptBock(preferences.language),
             undefined,
             undefined,
@@ -399,6 +388,7 @@ function createFakeScriptSetupBock(lang?: string): SFCScriptBlock {
 }
 
 function addOptionToScriptConfig(
+  version: string,
   script: SFCScriptBlock,
   optionsLoc: ComponentInfo['options'],
   fnSetupOptionLoc: ComponentInfo['fnSetupOption'],
@@ -431,19 +421,22 @@ function addOptionToScriptConfig(
         },
       )
     } else {
-      const hasDefineComponent = /\bdefineComponent\b/.test(script.content)
-      if (!hasDefineComponent) {
-        const padding = getPaddingLength(script.content)
-        changes.push({
-          newText: getCode(`import { defineComponent } from 'vue';`, ''),
-          span: { start: script.loc.start.offset + padding, length: 0 },
-        })
+      const isVue2 = version.startsWith('2.')
+      if (!isVue2) {
+        const hasDefineComponent = /\bdefineComponent\b/.test(script.content)
+        if (!hasDefineComponent) {
+          const padding = getPaddingLength(script.content)
+          changes.push({
+            newText: getCode(`import { defineComponent } from 'vue';`, ''),
+            span: { start: script.loc.start.offset + padding, length: 0 },
+          })
+        }
       }
       const newText = getCode(
         '',
-        `export default defineComponent({`,
+        isVue2 ? `export default {` : `export default defineComponent({`,
         code,
-        `})`,
+        isVue2 ? '}' : `})`,
         '',
       )
       changes.push({
@@ -522,21 +515,27 @@ function addOptionToScriptConfig(
       },
     )
   } else {
-    const hasDefineComponent = /\bdefineComponent\b/.test(script.content)
-    if (!hasDefineComponent) {
-      const padding = getPaddingLength(script.content, script.loc.start.offset)
-      changes.push({
-        newText: getCode(`import { defineComponent } from 'vue';`, ''),
-        span: { start: script.loc.start.offset + padding, length: 0 },
-      })
+    const isVue2 = version.startsWith('2.')
+    if (!isVue2) {
+      const hasDefineComponent = /\bdefineComponent\b/.test(script.content)
+      if (!hasDefineComponent) {
+        const padding = getPaddingLength(
+          script.content,
+          script.loc.start.offset,
+        )
+        changes.push({
+          newText: getCode(`import { defineComponent } from 'vue';`, ''),
+          span: { start: script.loc.start.offset + padding, length: 0 },
+        })
+      }
     }
     const newText = getCode(
       '',
-      `export default defineComponent({`,
+      isVue2 ? `export default {` : `export default defineComponent({`,
       `  ${apiName}: {`,
       `    ${code}`,
       `  },`,
-      `})`,
+      isVue2 ? `}` : `})`,
       '',
     )
     renameLocation = script.loc.end.offset + newText.indexOf(code)

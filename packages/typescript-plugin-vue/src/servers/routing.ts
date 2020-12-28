@@ -263,6 +263,7 @@ function createLanguageServiceRouter(
       }
 
       if (isVueFile(fileName)) {
+        const project = config.context.getVueProjectForFile(fileName, true)
         details?.codeActions?.forEach((codeAction) => {
           codeAction.changes.forEach((change) => {
             if (isVirtualFileOfType(change.fileName, RENDER_SELECTOR)) {
@@ -281,6 +282,7 @@ function createLanguageServiceRouter(
                     config.helpers.getComponentInfo(document),
                     { localName: pascalCase(entryName) },
                     project.config.preferences.script,
+                    project.version,
                     change.textChanges[0].newText,
                   )
                 } else {
@@ -300,6 +302,8 @@ function createLanguageServiceRouter(
                       'components',
                       pascalCase(entryName),
                       pascalCase(entryName),
+                      project.version,
+                      project.config.preferences.script,
                     ).changes,
                   ]
                 }
