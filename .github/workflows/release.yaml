@@ -2,7 +2,9 @@ name: Release
 
 on:
   workflow_dispatch:
-  release: [released]
+  release:
+    - types:
+        - released
 
 defaults:
   run:
