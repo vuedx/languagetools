@@ -1,9 +1,9 @@
-import JSON5 from 'json5'
 import {
   ConfiguredVueProject,
   InferredVueProject,
   VueProject,
 } from '@vuedx/analyze'
+import { first } from '@vuedx/shared'
 import {
   asUri,
   DocumentStore,
@@ -16,6 +16,7 @@ import {
   VIRTUAL_FILENAME_SEPARATOR,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
+import JSON5 from 'json5'
 import Path from 'path'
 import { URI } from 'vscode-uri'
 import { wrapFn } from './helpers/logger'
@@ -355,6 +356,7 @@ export class PluginContext {
   public createVueDocument(fileName: string, content: string): VueTextDocument {
     const uri = URI.file(fileName).toString()
     const document = VueTextDocument.create(uri, 'vue', 0, content, {
+      vueVersion: this.getVueProjectForFile(fileName, true).version,
       getGlobalComponents: wrapFn('getGlobalComponents', () => {
         const project = this.getVueProjectForFile(fileName, true)
 
@@ -421,7 +423,9 @@ function patchProject(
   context: PluginContext,
   project: TS.server.Project,
 ): void {
-  context.log(`[patch] Add support for GeterrForProject. (Project)`)
+  const vue2supportFile = context.typescript.server.toNormalizedPath(
+    Path.join(Path.dirname(__dirname), 'runtime/vue-2.d.ts'),
+  )
   tryPatchMethod(
     project,
     'getFileNames',
@@ -437,7 +441,7 @@ function patchProject(
           isVirtualFile(fileName) ? getContainingFile(fileName) : fileName,
         ),
       )
-
+      fileNames.delete(vue2supportFile)
       context.debug(
         `FileNames: ${JSON.stringify(Array.from(fileNames), null, 2)}`,
       )
@@ -537,6 +541,12 @@ function patchGetScriptFileNames(
   context: PluginContext,
   languageServiceHost: TS.LanguageServiceHost,
 ): void {
+  context.log(`[patch] Add support for GeterrForProject. (Project)`)
+
+  const vue2supportFile = context.typescript.server.toNormalizedPath(
+    Path.join(Path.dirname(__dirname), 'runtime/vue-2.d.ts'),
+  )
+
   tryPatchMethod(
     languageServiceHost,
     'getScriptFileNames',
@@ -568,6 +578,12 @@ function patchGetScriptFileNames(
 
         if (vueFiles.size > 0) {
           const files = Array.from(vueFiles)
+          const project = context.getVueProjectForFile(first(files), true)
+
+          if (project.version.startsWith('2.')) {
+            fileNames.add(vue2supportFile)
+          }
+
           const projects = new Set(
             files
               .map((fileName) =>
@@ -688,6 +704,10 @@ function patchModuleResolution(
   context: PluginContext,
   languageServiceHost: TS.LanguageServiceHost,
 ): void {
+  const vue2supportFile = context.typescript.server.toNormalizedPath(
+    Path.join(Path.dirname(__dirname), 'runtime/vue-2.d.ts'),
+  )
+
   tryPatchMethod(
     languageServiceHost,
     'resolveModuleNames',
@@ -729,6 +749,15 @@ function patchModuleResolution(
                   options,
                 )
               : []
+
+          const index = moduleNames.indexOf('@@vuedx/vue-2-support')
+          if (index >= 0 && result[index] == null) {
+            // Vue 2
+            result[index] = {
+              resolvedFileName: vue2supportFile,
+              isExternalLibraryImport: true,
+            }
+          }
 
           result.forEach((resolved) => {
             if (resolved != null && isVirtualFile(resolved.resolvedFileName)) {

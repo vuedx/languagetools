@@ -1,5 +1,3 @@
-import { ProjectPreferences } from '@vuedx/projectconfig'
-import { getComponentName } from '@vuedx/shared'
 import {
   isSimpleExpressionNode,
   isSimpleIdentifier,
@@ -15,8 +13,8 @@ import {
   SCRIPT_SETUP_BLOCK_SELECTOR,
   VirtualTextDocument,
   VIRTUAL_FILENAME_SEPARATOR,
-  VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
+import { SFCCompletionService } from '../features/completions/SFCCompletionProvider'
 import { SCRIPT_REFACTOR_PROVIDERS } from '../features/refactors'
 import { REFACTORS } from '../features/refactors/abstract'
 import { getChangesForComponentTagRename } from '../features/renames/component-tag'
@@ -33,6 +31,7 @@ export function createVueLanguageServer(
   const template = createTemplateLanguageServer(options)
   const { helpers: h, service, context } = options
   const script = wrapInTrace('ScriptLanguageServer', service)
+  const completionProvider = new SFCCompletionService(options)
 
   function choose(document: VirtualTextDocument): TS.LanguageService {
     if (h.isRenderFunctionDocument(document)) {
@@ -546,20 +545,11 @@ export function createVueLanguageServer(
           options,
         )
       } else {
-        const document = h.getVueDocument(fileName)
-        if (document != null) {
-          // Provide completions in .vue file
-          const {
-            config: { preferences },
-          } = context.getVueProjectForFile(fileName, true)
-
-          return getSFCCompletions(
-            document,
-            preferences,
-            position,
-            options?.triggerCharacter,
-          )
-        }
+        return completionProvider.getCompletionsAtPosition(
+          fileName,
+          position,
+          options,
+        )
       }
     },
 
@@ -582,31 +572,14 @@ export function createVueLanguageServer(
           preferences,
         )
       } else {
-        const document = h.getVueDocument(fileName)
-        if (document != null) {
-          // Show inserted text in detail view.
-          const {
-            config: { preferences },
-          } = context.getVueProjectForFile(fileName, true)
-          const { entries } = getSFCCompletions(document, preferences, position)
-          const entry = entries.find((entry) => entry.name === entryName)
-          if (entry != null) {
-            const result: TS.CompletionEntryDetails = {
-              name: entry.name,
-              kind: entry.kind,
-              kindModifiers: entry.kindModifiers ?? '',
-              displayParts: [],
-              documentation: [
-                {
-                  kind: 'markdown',
-                  text: ['```vue', entry.insertText ?? '', '```'].join('\n'),
-                },
-              ],
-            }
-
-            return result
-          }
-        }
+        return completionProvider.getCompletionEntryDetails(
+          fileName,
+          position,
+          entryName,
+          formatOptions,
+          source,
+          preferences,
+        )
       }
     },
 
@@ -632,6 +605,13 @@ export function createVueLanguageServer(
           source,
         )
       }
+
+      return completionProvider.getCompletionEntrySymbol(
+        fileName,
+        position,
+        name,
+        source,
+      )
     },
 
     getDefinitionAtPosition(
@@ -698,175 +678,4 @@ export function createVueLanguageServer(
       }
     },
   })
-}
-
-function getSFCCompletions(
-  document: VueTextDocument,
-  preferences: ProjectPreferences,
-  position: number,
-  triggerCharacter?: string,
-): TS.WithMetadata<TS.CompletionInfo> {
-  const length = triggerCharacter?.length ?? 0
-  const completions: TS.WithMetadata<TS.CompletionInfo> = {
-    isGlobalCompletion: false,
-    isMemberCompletion: false,
-    isNewIdentifierLocation: false,
-    entries: [],
-  }
-  const scriptSetup = [
-    `<script${
-      preferences.script.language === 'js'
-        ? ''
-        : ` lang="${preferences.script.language}"`
-    } setup>`,
-    '</script>',
-    '',
-  ].join('\n')
-  const script =
-    preferences.script.mode === 'normal'
-      ? [
-          `<script${
-            preferences.script.language === 'js'
-              ? ''
-              : ` lang="${preferences.script.language}"`
-          }>`,
-          `import { defineComponent } from 'vue'`,
-          ``,
-          `export default defineComponent({})`,
-          '</script>',
-          '',
-        ].join('\n')
-      : scriptSetup
-  const template = [`<template>`, ' <div></div>', '</template>', ''].join('\n')
-  const style = [
-    `<style${
-      preferences.style.language === 'css'
-        ? ''
-        : ` lang="${preferences.style.language}"`
-    }>`,
-    '</style>',
-    '',
-  ].join('\n')
-
-  const contents = document.getText().trim()
-  if (contents.length < '<template '.length) {
-    completions.entries.push({
-      name: '<script>, <template>, <style>',
-      kind: '' as TS.ScriptElementKind.unknown,
-      kindModifiers: 'SFC blocks',
-      sortText: '0',
-      insertText: [script, template, style].join('\n'),
-      replacementSpan: {
-        start: position,
-        length: length,
-      },
-      isRecommended: true,
-    })
-
-    completions.entries.push({
-      name: '<template>, <script>, <style>',
-      kind: '' as TS.ScriptElementKind.unknown,
-      kindModifiers: 'SFC blocks',
-      sortText: '1',
-      insertText: [template, script, style].join('\n'),
-      replacementSpan: {
-        start: position,
-        length: length,
-      },
-    })
-  }
-
-  if (document.descriptor.scriptSetup == null) {
-    completions.entries.push({
-      name: '<script setup>',
-      kind: '' as TS.ScriptElementKind.unknown,
-      kindModifiers: 'SFC scriptSetup',
-      sortText: '2',
-      insertText: scriptSetup,
-    })
-  } else if (document.descriptor.script == null) {
-    completions.entries.push({
-      name: '<script>',
-      kind: '' as TS.ScriptElementKind.unknown,
-      kindModifiers: 'SFC script',
-      sortText: '2',
-      insertText: [
-        `<script${
-          preferences.script.language === 'js'
-            ? ''
-            : ` lang="${preferences.script.language}"`
-        }>`,
-        '</script>',
-        '',
-      ].join('\n'),
-      replacementSpan: {
-        start: position,
-        length: length,
-      },
-    })
-  }
-
-  if (
-    document.descriptor.scriptSetup == null &&
-    document.descriptor.script == null
-  ) {
-    completions.entries.push({
-      name: '<script>',
-      kind: '' as TS.ScriptElementKind.unknown,
-      kindModifiers: 'SFC script',
-      sortText: '2',
-      insertText: script,
-      replacementSpan: {
-        start: position,
-        length: length,
-      },
-    })
-  }
-
-  if (document.descriptor.template == null) {
-    completions.entries.push({
-      name: '<template>',
-      kind: '' as TS.ScriptElementKind.unknown,
-      kindModifiers: 'SFC template',
-      sortText: '2',
-      insertText: template,
-      replacementSpan: {
-        start: position,
-        length: length,
-      },
-    })
-  }
-  completions.entries.push({
-    name: '<style>',
-    kind: '' as TS.ScriptElementKind.unknown,
-    kindModifiers: 'SFC style',
-    sortText: '3',
-    insertText: style,
-    replacementSpan: {
-      start: position,
-      length: length,
-    },
-  })
-
-  if (
-    document.descriptor.template != null ||
-    document.descriptor.script != null
-  ) {
-    const name = getComponentName(document.fsPath)
-    completions.entries.push({
-      name: '<preview>',
-      kind: '' as TS.ScriptElementKind.unknown,
-      kindModifiers: 'SFC preview',
-      sortText: '4',
-      insertText: [`<preview>`, `  <${name} />`, `</preview>`, ``].join('\n'),
-      replacementSpan: {
-        start: position,
-        length: length,
-      },
-    })
-  }
-
-  // TODO: Add support for blocks from dependencies...
-
-  return completions
 }

@@ -227,8 +227,12 @@ export const RefactorExtractComponent: RefactorProvider = {
         .join('\n')
 
       if (optionsText !== '') {
-        script.unshift(`import { defineComponent } from 'vue'`)
-        script.push(`export default defineComponent({\n${optionsText}\n})`)
+        if (project.version.startsWith('2.')) {
+          script.push(`export default {\n${optionsText}\n}`)
+        } else {
+          script.unshift(`import { defineComponent } from 'vue'`)
+          script.push(`export default defineComponent({\n${optionsText}\n})`)
+        }
       }
     } else {
       // We don't need to register components in <script setup> mode, so reusing
@@ -293,7 +297,7 @@ export const RefactorExtractComponent: RefactorProvider = {
       document.container,
       info,
       componentFileName,
-      project.config,
+      project,
     )
 
     // Generate text changes to use newly created component in <template> of current component.
@@ -449,7 +453,7 @@ function genComponentsOptionsText({
   componentFileName,
 }: {
   info: ComponentInfo
-  addImport: (text: string) => void
+  addImport(text: string): void
   fileName: string
   componentFileName: string
   components: Set<string>
@@ -589,7 +593,7 @@ function getImportEditForComponent(
   document: VueTextDocument,
   info: ComponentInfo,
   fileName: string,
-  config: ProjectConfigNormalized,
+  project: VueProject,
 ): {
   name: string
   changes: TS.TextChange[]
@@ -608,7 +612,8 @@ function getImportEditForComponent(
     document,
     info,
     { moduleName: relativeFileName, localName: name },
-    config.preferences.script,
+    project.config.preferences.script,
+    project.version,
     importStatement,
   )
 

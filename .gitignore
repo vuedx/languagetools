@@ -158,5 +158,9 @@ package-lock.json
 .todo.md
 **/tmp
 
+# Generated files
+dist/
+runtime/
+
 # VS Code packages
 extensions/**/template/package.json

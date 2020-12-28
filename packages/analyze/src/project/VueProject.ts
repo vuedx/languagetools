@@ -62,6 +62,7 @@ export abstract class VueProject {
     protected readonly requireModule: NodeJS.Require = require,
   ) {
     this.packageJSON = { dependencies: {}, devDependencies: {}, ...packageJSON }
+    this.loadVueVersion()
   }
 
   public get config(): Readonly<ProjectConfigNormalized> {
@@ -102,13 +103,16 @@ export abstract class VueProject {
 
   protected reloadIfNeeded(): void {
     if (this.isDirty) {
-      this._version =
-        getPackageJSON(this.requireModule, this.rootDir, 'vue').version ??
-        '3.0.0'
+      this.loadVueVersion()
       this.loadGlobalComponents()
       this.refresh()
       this.isDirty = false
     }
+  }
+
+  private loadVueVersion(): void {
+    this._version =
+      getPackageJSON(this.requireModule, this.rootDir, 'vue').version ?? '3.0.0'
   }
 
   public setFileNames(fileNames: string[]): void {

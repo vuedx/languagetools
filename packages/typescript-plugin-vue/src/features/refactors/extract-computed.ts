@@ -179,6 +179,7 @@ export const RefactorExtractComputed: RefactorProvider = {
         args.target,
         name,
         code,
+        project.version,
         project.config.preferences.script,
       )
 

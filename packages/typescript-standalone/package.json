@@ -12,7 +12,8 @@
     "typescript"
   ],
   "files": [
-    "dist"
+    "dist",
+    "runtime"
   ],
   "repository": {
     "type": "git",
