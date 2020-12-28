@@ -15,42 +15,40 @@ This package is part of [VueDX project](https://github.com/znck/vue-developer-ex
 
 ## API
 
+
 <a href="#-vuedx-analyze-ConfiguredVueProject-class" id="-vuedx-analyze-ConfiguredVueProject-class"></a>
 
 ### [ConfiguredVueProject](#-vuedx-analyze-ConfiguredVueProject-class)
 
+
+
 <details><summary>More info</summary>
 
 **Signature:**
-
 ```ts
 declare class ConfiguredVueProject extends VueProject {
-  constructor(
-    rootDir: string,
-    packageFile: string | undefined,
-    packageJSON: Partial<PackageJSON>,
-    configFile: string,
-    config: Readonly<ProjectConfig>,
-    requireModule?: NodeJS.Require,
-  )
-  readonly configFile: string
-  kind: 'configured'
-  protected refresh(): void
-  setFileNames(fileNames: string[]): void
+  constructor(rootDir: string, packageFile: string | undefined, packageJSON: Partial<PackageJSON>, configFile: string, config: Readonly<ProjectConfig>, requireModule?: NodeJS.Require);
+  readonly configFile: string;
+  kind: "configured";
+  protected refresh(): void;
+  setFileNames(fileNames: string[]): void;
 }
 ```
 
 **Members:**
 
+
 <a href="#-vuedx-analyze-ConfiguredVueProject-refresh-member-1-" id="-vuedx-analyze-ConfiguredVueProject-refresh-member-1-"></a>
 
 #### [refresh](#-vuedx-analyze-ConfiguredVueProject-refresh-member-1-)
 
-**Signature:**
 
+
+**Signature:**
 ```ts
 protected refresh(): void;
 ```
+
 
 <br>
 
@@ -58,107 +56,113 @@ protected refresh(): void;
 
 #### [setFileNames](#-vuedx-analyze-ConfiguredVueProject-setFileNames-member-1-)
 
-**Signature:**
 
+
+**Signature:**
 ```ts
 setFileNames(fileNames: string[]): void;
 ```
 
-| Parameter | Type                  | Description |
-| --------- | --------------------- | ----------- |
-| fileNames | <code>string[]</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| fileNames | <code>string[]</code> | - |
 
 <br>
 </details>
 
 <br>
+
 
 <a href="#-vuedx-analyze-InferredVueProject-class" id="-vuedx-analyze-InferredVueProject-class"></a>
 
 ### [InferredVueProject](#-vuedx-analyze-InferredVueProject-class)
 
+
+
 <details><summary>More info</summary>
 
 **Signature:**
-
 ```ts
 declare class InferredVueProject extends VueProject {
-  kind: 'inferred'
-  protected refresh(): void
+  kind: "inferred";
+  protected refresh(): void;
 }
 ```
 
 **Members:**
 
+
 <a href="#-vuedx-analyze-InferredVueProject-refresh-member-1-" id="-vuedx-analyze-InferredVueProject-refresh-member-1-"></a>
 
 #### [refresh](#-vuedx-analyze-InferredVueProject-refresh-member-1-)
 
-**Signature:**
 
+
+**Signature:**
 ```ts
 protected refresh(): void;
 ```
+
 
 <br>
 </details>
 
 <br>
 
+
 <a href="#-vuedx-analyze-VueProject-class" id="-vuedx-analyze-VueProject-class"></a>
 
 ### [VueProject](#-vuedx-analyze-VueProject-class)
 
+
+
 <details><summary>More info</summary>
 
 **Signature:**
-
 ```ts
 declare abstract class VueProject {
-  protected _config: Readonly<ProjectConfigNormalized>
-  protected _externalComponents: ComponentRegistrationInfo[]
-  protected _fileNames: string[]
-  protected _globalComponents: ComponentRegistrationInfo[]
-  protected _projectComponents: Map<string, ComponentRegistrationInfo[]>
-  protected _version: string
-  constructor(
-    rootDir: string,
-    packageFile: string | undefined,
-    packageJSON: Partial<PackageJSON>,
-    requireModule?: NodeJS.Require,
-  )
-  get components(): ComponentRegistrationInfo[]
-  get config(): Readonly<ProjectConfigNormalized>
-  get fileNames(): string[]
-  get globalComponents(): ComponentRegistrationInfo[]
-  protected isDirty: boolean
-  abstract kind: 'inferred' | 'configured'
-  protected loadGlobalComponents(): void
-  markDirty(): void
-  readonly packageFile: string | undefined
-  packageJSON: PackageJSON
-  protected abstract refresh(): void
-  protected reloadIfNeeded(): void
-  protected readonly requireModule: NodeJS.Require
-  readonly rootDir: string
-  setConfig(config: ProjectConfig): void
-  setFileNames(fileNames: string[]): void
-  get version(): string
-  get vueFileNames(): string[]
+  protected _config: Readonly<ProjectConfigNormalized>;
+  protected _externalComponents: ComponentRegistrationInfo[];
+  protected _fileNames: string[];
+  protected _globalComponents: ComponentRegistrationInfo[];
+  protected _projectComponents: Map<string, ComponentRegistrationInfo[]>;
+  protected _version: string;
+  constructor(rootDir: string, packageFile: string | undefined, packageJSON: Partial<PackageJSON>, requireModule?: NodeJS.Require);
+  get components(): ComponentRegistrationInfo[];
+  get config(): Readonly<ProjectConfigNormalized>;
+  get fileNames(): string[];
+  get globalComponents(): ComponentRegistrationInfo[];
+  protected isDirty: boolean;
+  abstract kind: 'inferred' | 'configured';
+  protected loadGlobalComponents(): void;
+  markDirty(): void;
+  readonly packageFile: string | undefined;
+  packageJSON: PackageJSON;
+  protected abstract refresh(): void;
+  protected reloadIfNeeded(): void;
+  protected readonly requireModule: NodeJS.Require;
+  readonly rootDir: string;
+  setConfig(config: ProjectConfig): void;
+  setFileNames(fileNames: string[]): void;
+  get version(): string;
+  get vueFileNames(): string[];
 }
 ```
 
 **Members:**
 
+
 <a href="#-vuedx-analyze-VueProject-loadGlobalComponents-member-1-" id="-vuedx-analyze-VueProject-loadGlobalComponents-member-1-"></a>
 
 #### [loadGlobalComponents](#-vuedx-analyze-VueProject-loadGlobalComponents-member-1-)
 
-**Signature:**
 
+
+**Signature:**
 ```ts
 protected loadGlobalComponents(): void;
 ```
+
 
 <br>
 
@@ -166,11 +170,13 @@ protected loadGlobalComponents(): void;
 
 #### [markDirty](#-vuedx-analyze-VueProject-markDirty-member-1-)
 
-**Signature:**
 
+
+**Signature:**
 ```ts
 markDirty(): void;
 ```
+
 
 <br>
 
@@ -178,11 +184,13 @@ markDirty(): void;
 
 #### [refresh](#-vuedx-analyze-VueProject-refresh-member-1-)
 
-**Signature:**
 
+
+**Signature:**
 ```ts
 protected abstract refresh(): void;
 ```
+
 
 <br>
 
@@ -190,11 +198,13 @@ protected abstract refresh(): void;
 
 #### [reloadIfNeeded](#-vuedx-analyze-VueProject-reloadIfNeeded-member-1-)
 
-**Signature:**
 
+
+**Signature:**
 ```ts
 protected reloadIfNeeded(): void;
 ```
+
 
 <br>
 
@@ -202,15 +212,16 @@ protected reloadIfNeeded(): void;
 
 #### [setConfig](#-vuedx-analyze-VueProject-setConfig-member-1-)
 
-**Signature:**
 
+
+**Signature:**
 ```ts
 setConfig(config: ProjectConfig): void;
 ```
 
-| Parameter | Type                                                                                    | Description |
-| --------- | --------------------------------------------------------------------------------------- | ----------- |
-| config    | <code><a href="#-vuedx-projectconfig--ProjectConfig-interface">ProjectConfig</a></code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| config | <code><a href="#-vuedx-projectconfig--ProjectConfig-interface">ProjectConfig</a></code> | - |
 
 <br>
 
@@ -218,41 +229,41 @@ setConfig(config: ProjectConfig): void;
 
 #### [setFileNames](#-vuedx-analyze-VueProject-setFileNames-member-1-)
 
-**Signature:**
 
+
+**Signature:**
 ```ts
 setFileNames(fileNames: string[]): void;
 ```
 
-| Parameter | Type                  | Description |
-| --------- | --------------------- | ----------- |
-| fileNames | <code>string[]</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| fileNames | <code>string[]</code> | - |
 
 <br>
 </details>
 
 <br>
 
+
 <a href="#-vuedx-analyze-createAnalyzer-function-1-" id="-vuedx-analyze-createAnalyzer-function-1-"></a>
 
 ### [createAnalyzer](#-vuedx-analyze-createAnalyzer-function-1-)
+
+
 
 <details>
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function createAnalyzer(
-  plugins: Plugin[],
-  options?: Partial<Context['parsers']>,
-): Analyzer
+declare function createAnalyzer(plugins: Plugin[], options?: Partial<Context['parsers']>): Analyzer;
 ```
 
-| Parameter | Type                                                                                                                   | Description |
-| --------- | ---------------------------------------------------------------------------------------------------------------------- | ----------- |
-| plugins   | <code><a href="#-vuedx-analyze--Plugin-interface">Plugin</a>[]</code>                                                  | -           |
-| options   | <code><a href="#-Partial-type">Partial</a><<a href="#-vuedx-analyze--Context-interface">Context</a>['parsers']></code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| plugins | <code><a href="#-vuedx-analyze--Plugin-interface">Plugin</a>[]</code> | - |
+| options | <code><a href="#-Partial-type">Partial</a><<a href="#-vuedx-analyze--Context-interface">Context</a>['parsers']></code> | - |
 
 </details>
 <br>
@@ -261,22 +272,20 @@ declare function createAnalyzer(
 
 ### [createFullAnalyzer](#-vuedx-analyze-createFullAnalyzer-function-1-)
 
+
+
 <details>
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function createFullAnalyzer(
-  plugins?: Plugin[],
-  options?: Partial<Context['parsers']>,
-): ReturnType<typeof createAnalyzer>
+declare function createFullAnalyzer(plugins?: Plugin[], options?: Partial<Context['parsers']>): ReturnType<typeof createAnalyzer>;
 ```
 
-| Parameter | Type                                                                                                                   | Description |
-| --------- | ---------------------------------------------------------------------------------------------------------------------- | ----------- |
-| plugins   | <code><a href="#-vuedx-analyze--Plugin-interface">Plugin</a>[]</code>                                                  | -           |
-| options   | <code><a href="#-Partial-type">Partial</a><<a href="#-vuedx-analyze--Context-interface">Context</a>['parsers']></code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| plugins | <code><a href="#-vuedx-analyze--Plugin-interface">Plugin</a>[]</code> | - |
+| options | <code><a href="#-Partial-type">Partial</a><<a href="#-vuedx-analyze--Context-interface">Context</a>['parsers']></code> | - |
 
 </details>
 <br>
@@ -285,22 +294,64 @@ declare function createFullAnalyzer(
 
 ### [createSourceRange](#-vuedx-analyze-createSourceRange-function-1-)
 
+
+
 <details>
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function createSourceRange(
-  context: Context | ScriptAnalyzerContext,
-  node: Node,
-): SourceRange
+declare function createSourceRange(context: Context | ScriptAnalyzerContext, node: Node): SourceRange;
 ```
 
-| Parameter | Type                                                                                                                                                              | Description |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| context   | <code><a href="#-vuedx-analyze--Context-interface">Context</a> &#124; <a href="#-vuedx-analyze--ScriptAnalyzerContext-interface">ScriptAnalyzerContext</a></code> | -           |
-| node      | <code><a href="#-babel-types-Node-type">Node</a></code>                                                                                                           | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| context | <code><a href="#-vuedx-analyze--Context-interface">Context</a> &#124; <a href="#-vuedx-analyze--ScriptAnalyzerContext-interface">ScriptAnalyzerContext</a></code> | - |
+| node | <code><a href="#-babel-types-Node-type">Node</a></code> | - |
+
+</details>
+<br>
+
+<a href="#-vuedx-analyze-toVeturData-function-1-" id="-vuedx-analyze-toVeturData-function-1-"></a>
+
+### [toVeturData](#-vuedx-analyze-toVeturData-function-1-)
+
+
+
+<details>
+<summary>More info</summary>
+
+**Signature:**
+```ts
+declare function toVeturData(components: ComponentInfo[]): VeturData;
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| components | <code><a href="#-vuedx-analyze--ComponentInfo-interface">ComponentInfo</a>[]</code> | - |
+
+</details>
+<br>
+
+<a href="#-vuedx-analyze-toWebTypes-function-1-" id="-vuedx-analyze-toWebTypes-function-1-"></a>
+
+### [toWebTypes](#-vuedx-analyze-toWebTypes-function-1-)
+
+
+
+<details>
+<summary>More info</summary>
+
+**Signature:**
+```ts
+declare function toWebTypes(name: string, version: string, components: ComponentInfo[]): WebTypes;
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | - |
+| version | <code>string</code> | - |
+| components | <code><a href="#-vuedx-analyze--ComponentInfo-interface">ComponentInfo</a>[]</code> | - |
 
 </details>
 <br>
@@ -309,43 +360,41 @@ declare function createSourceRange(
 
 ### [transformToFunction](#-vuedx-analyze-transformToFunction-function-1-)
 
+
+
 <details>
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function transformToFunction(
-  content: string,
-  options?: FunctionTransformOptions,
-): string
+declare function transformToFunction(content: string, options?: FunctionTransformOptions): string;
 ```
 
-| Parameter | Type                                                                                                    | Description |
-| --------- | ------------------------------------------------------------------------------------------------------- | ----------- |
-| content   | <code>string</code>                                                                                     | -           |
-| options   | <code><a href="#-vuedx-analyze--FunctionTransformOptions-interface">FunctionTransformOptions</a></code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| content | <code>string</code> | - |
+| options | <code><a href="#-vuedx-analyze--FunctionTransformOptions-interface">FunctionTransformOptions</a></code> | - |
 
 </details>
 <br>
 
 ## Types
 
+
 <a href="#-vuedx-analyze-Analyzer-interface" id="-vuedx-analyze-Analyzer-interface"></a>
 
 ### [Analyzer](#-vuedx-analyze-Analyzer-interface)
 
+
+
 ```ts
 interface Analyzer {
-  analyze: (content: string, fileName?: string) => ComponentInfo
-  analyzeScript: (
-    content: string,
-    fileName?: string,
-    mode?: 'script' | 'scriptSetup',
-  ) => ComponentInfo
-  analyzeTemplate: (content: string, fileName?: string) => ComponentInfo
+  analyze(content: string, fileName?: string): ComponentInfo;
+  analyzeScript(content: string, fileName?: string, mode?: 'script' | 'scriptSetup'): ComponentInfo;
+  analyzeTemplate(content: string, fileName?: string): ComponentInfo;
 }
 ```
+
 
 <br>
 
@@ -353,18 +402,25 @@ interface Analyzer {
 
 ### [ComponentInfo](#-vuedx-analyze-ComponentInfo-interface)
 
+
+
 ```ts
-interface ComponentInfo {
-  components: LocalComponentRegistrationInfo[]
-  emits: EmitInfo[]
-  errors: SyntaxError[]
-  fnSetupOption?: SetupInfo
-  identifierSource: Record<string, IdentifierSource>
-  options?: ComponentOptionsInfo
-  props: PropInfo[]
-  scriptSetup?: ScriptSetupInfo
+interface ComponentInfo extends Taggable {
+  aliases: string[];
+  components: LocalComponentRegistrationInfo[];
+  description: string;
+  emits: EmitInfo[];
+  errors: SyntaxError[];
+  fileName: string;
+  fnSetupOption?: SetupInfo;
+  identifierSource: Record<string, IdentifierSource>;
+  name: string;
+  options?: ComponentOptionsInfo;
+  props: PropInfo[];
+  scriptSetup?: ScriptSetupInfo;
 }
 ```
+
 
 <br>
 
@@ -372,13 +428,16 @@ interface ComponentInfo {
 
 ### [ComponentRegistrationInfo](#-vuedx-analyze-ComponentRegistrationInfo-interface)
 
+
+
 ```ts
 interface ComponentRegistrationInfo {
-  aliases: string[]
-  name: string
-  source: ImportSource
+  aliases: string[];
+  name: string;
+  source: ImportSource;
 }
 ```
+
 
 <br>
 
@@ -386,16 +445,19 @@ interface ComponentRegistrationInfo {
 
 ### [EmitInfo](#-vuedx-analyze-EmitInfo-interface)
 
+
+
 ```ts
 interface EmitInfo extends Taggable, Addressable {
-  description: string
-  isDynamic: boolean
-  isInferred: boolean
-  name: string
-  references: SourceRange[]
-  type: TypeInfo[]
+  description: string;
+  isDynamic: boolean;
+  isInferred: boolean;
+  name: string;
+  references: SourceRange[];
+  type: TypeInfo[];
 }
 ```
+
 
 <br>
 
@@ -403,11 +465,14 @@ interface EmitInfo extends Taggable, Addressable {
 
 ### [IdentifierSource](#-vuedx-analyze-IdentifierSource-interface)
 
+
+
 ```ts
 interface IdentifierSource extends Addressable {
-  name: string
+  name: string;
 }
 ```
+
 
 <br>
 
@@ -415,13 +480,16 @@ interface IdentifierSource extends Addressable {
 
 ### [ImportSource](#-vuedx-analyze-ImportSource-interface)
 
+
+
 ```ts
 interface ImportSource {
-  exportName?: string
-  localName: string
-  moduleName: string
+  exportName?: string;
+  localName: string;
+  moduleName: string;
 }
 ```
+
 
 <br>
 
@@ -429,9 +497,13 @@ interface ImportSource {
 
 ### [ImportSourceWithLocation](#-vuedx-analyze-ImportSourceWithLocation-interface)
 
+
+
 ```ts
-interface ImportSourceWithLocation extends ImportSource, Addressable {}
+interface ImportSourceWithLocation extends ImportSource, Addressable {
+}
 ```
+
 
 <br>
 
@@ -439,14 +511,15 @@ interface ImportSourceWithLocation extends ImportSource, Addressable {}
 
 ### [LocalComponentRegistrationInfo](#-vuedx-analyze-LocalComponentRegistrationInfo-interface)
 
+
+
 ```ts
-interface LocalComponentRegistrationInfo
-  extends ComponentRegistrationInfo,
-    Addressable {
-  kind: 'script' | 'scriptSetup'
-  source: ImportSourceWithLocation
+interface LocalComponentRegistrationInfo extends ComponentRegistrationInfo, Addressable {
+  kind: 'script' | 'scriptSetup';
+  source: ImportSourceWithLocation;
 }
 ```
+
 
 <br>
 
@@ -454,23 +527,23 @@ interface LocalComponentRegistrationInfo
 
 ### [Plugin](#-vuedx-analyze-Plugin-2-interface)
 
+
+
 ```ts
 interface Plugin {
-  babel?: AbstractScriptAnalyzerFn | AbstractAnalyzerHandler
+  babel?: AbstractScriptAnalyzerFn | AbstractAnalyzerHandler;
   blocks?: Partial<{
-    script: BlockAnalyzer<SFCScriptBlock>
-    template: BlockAnalyzer<SFCTemplateBlock>
-    style: BlockAnalyzer<SFCStyleBlock>
-  }> &
-    Record<string, BlockAnalyzer<any>>
-  declaration?: ComponentDeclarationAnalyzer[]
-  options?:
-    | ComponentOptionsAnalyzer[]
-    | Record<string, AbstractScriptAnalyzerFn<ObjectMember>>
-  setup?: ComponentSetupFnAnalyzer[]
-  templateExpression?: (node: File, context: Context) => void
+        script: BlockAnalyzer<SFCScriptBlock>;
+        template: BlockAnalyzer<SFCTemplateBlock>;
+        style: BlockAnalyzer<SFCStyleBlock>;
+    }> & Record<string, BlockAnalyzer<any>>;
+  declaration?: ComponentDeclarationAnalyzer[];
+  options?: ComponentOptionsAnalyzer[] | Record<string, AbstractScriptAnalyzerFn<ObjectMember>>;
+  setup?: ComponentSetupFnAnalyzer[];
+  templateExpression?: (node: File, context: Context) => void;
 }
 ```
+
 
 <br>
 
@@ -478,15 +551,18 @@ interface Plugin {
 
 ### [PropInfo](#-vuedx-analyze-PropInfo-interface)
 
+
+
 ```ts
 interface PropInfo extends Taggable, Addressable {
-  defaultValue: ValueInfo | null
-  description: string
-  name: string
-  required: boolean
-  type: TypeInfo[]
+  defaultValue: ValueInfo | null;
+  description: string;
+  name: string;
+  required: boolean;
+  type: TypeInfo[];
 }
 ```
+
 
 <br>
 
@@ -494,12 +570,15 @@ interface PropInfo extends Taggable, Addressable {
 
 ### [ScriptSetupInfo](#-vuedx-analyze-ScriptSetupInfo-interface)
 
+
+
 ```ts
 interface ScriptSetupInfo {
-  defineEmit?: Addressable
-  defineProps?: Addressable
+  defineEmit?: Addressable;
+  defineProps?: Addressable;
 }
 ```
+
 
 <br>
 
@@ -507,23 +586,26 @@ interface ScriptSetupInfo {
 
 ### [SetupInfo](#-vuedx-analyze-SetupInfo-interface)
 
+
+
 ```ts
 interface SetupInfo extends Addressable {
   context?: {
-    identifiers: Partial<{
-      attrs: string
-      slots: string
-      emit: string
-    }>
-    rest?: string
-  } & Addressable
+        identifiers: Partial<{
+            attrs: string;
+            slots: string;
+            emit: string;
+        }>;
+        rest?: string;
+    } & Addressable;
   props?: {
-    identifiers: string[]
-    rest?: string
-  } & Addressable
-  return?: Addressable
+        identifiers: string[];
+        rest?: string;
+    } & Addressable;
+  return?: Addressable;
 }
 ```
+
 
 <br>
 
@@ -531,13 +613,16 @@ interface SetupInfo extends Addressable {
 
 ### [SourceRange](#-vuedx-analyze-SourceRange-interface)
 
+
+
 ```ts
 interface SourceRange {
-  end: SourceLocation
-  source: string
-  start: SourceLocation
+  end: SourceLocation;
+  source: string;
+  start: SourceLocation;
 }
 ```
+
 
 <br>
 
@@ -545,12 +630,60 @@ interface SourceRange {
 
 ### [SyntaxError](#-vuedx-analyze-SyntaxError-2-interface)
 
+
+
 ```ts
 interface SyntaxError {
-  loc: SourceLocation
-  message: string
+  loc: SourceLocation;
+  message: string;
 }
 ```
+
+
+<br>
+
+<a href="#-vuedx-analyze-VeturData-interface" id="-vuedx-analyze-VeturData-interface"></a>
+
+### [VeturData](#-vuedx-analyze-VeturData-interface)
+
+
+
+```ts
+interface VeturData {
+  attributes: Record<string, {
+        type: string;
+        description: string;
+    }>;
+  tags: Record<string, {
+        description: string;
+        attributes: string[];
+    }>;
+}
+```
+
+
+<br>
+
+<a href="#-vuedx-analyze-WebTypes-interface" id="-vuedx-analyze-WebTypes-interface"></a>
+
+### [WebTypes](#-vuedx-analyze-WebTypes-interface)
+
+
+
+```ts
+interface WebTypes {
+  contributions: {
+        'types-syntax': 'typescript';
+        'description-markup': 'html' | 'markdown' | 'none';
+        tags: Tag[];
+        attributes: Attribute[];
+    };
+  framework: 'vue';
+  name: string;
+  version: string;
+}
+```
+
 
 <br>
 <!-- #region API-DOCS -->

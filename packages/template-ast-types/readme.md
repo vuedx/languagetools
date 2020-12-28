@@ -43,6 +43,28 @@ declare function createSimpleExpression(content: SimpleExpressionNode['content']
 </details>
 <br>
 
+<a href="#-vuedx-template-ast-types-findParentNode-function-1-" id="-vuedx-template-ast-types-findParentNode-function-1-"></a>
+
+### [findParentNode](#-vuedx-template-ast-types-findParentNode-function-1-)
+
+Find the parent element node.
+
+<details>
+<summary>More info</summary>
+
+**Signature:**
+```ts
+declare function findParentNode(ast: RootNode, node: Node): ElementNode | undefined;
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| ast | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | - |
+| node | <code><a href="#-vue-compiler-core--Node-2-interface">Node</a></code> | - |
+
+</details>
+<br>
+
 <a href="#-vuedx-template-ast-types-findTemplateChildNodeAt-function-1-" id="-vuedx-template-ast-types-findTemplateChildNodeAt-function-1-"></a>
 
 ### [findTemplateChildNodeAt](#-vuedx-template-ast-types-findTemplateChildNodeAt-function-1-)

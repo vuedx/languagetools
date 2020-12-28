@@ -32,6 +32,9 @@ export { DirectiveNode }
 export { ElementNode }
 
 // @public
+export function findParentNode(ast: RootNode, node: Node_2): ElementNode | undefined;
+
+// @public
 export function findTemplateChildNodeAt(ast: RootNode, position: number, mode?: 'start' | 'end'): SearchResult;
 
 // @public

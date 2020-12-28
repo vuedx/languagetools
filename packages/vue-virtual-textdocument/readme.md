@@ -254,6 +254,7 @@ declare class RenderFunctionTextDocument extends TransformedBlockTextDocument {
         length: number;
     };
   isInGeneratedRange(offset: number): boolean;
+  isInTemplateIdentifierRange(offset: number): boolean;
   get parserErrors(): CodegenResult['errors'];
   get tagCompletionsTriggerOffset(): number;
   toDisplayMappings(): string;
@@ -399,6 +400,23 @@ getOriginalOffsetAt(offset: number): undefined | {
 **Signature:**
 ```ts
 isInGeneratedRange(offset: number): boolean;
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| offset | <code>number</code> | - |
+
+<br>
+
+<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInTemplateIdentifierRange-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInTemplateIdentifierRange-member-1-"></a>
+
+#### [isInTemplateIdentifierRange](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInTemplateIdentifierRange-member-1-)
+
+
+
+**Signature:**
+```ts
+isInTemplateIdentifierRange(offset: number): boolean;
 ```
 
 | Parameter | Type | Description |
@@ -637,6 +655,7 @@ declare class VueTextDocument extends ProxyTextDocument {
   protected createInternalModuleDocument(): TransformedBlockTextDocument;
   protected createModuleDocument(): TransformedBlockTextDocument;
   protected createRenderDocument(): RenderFunctionTextDocument;
+  protected createTemplateASTDocument(): TransformedBlockTextDocument;
   get descriptor(): SFCDescriptor;
   documentAt(position: Position | number): VirtualTextDocument | undefined;
   getBlock(selector: BlockSelector): SFCBlock | null | undefined;
@@ -764,6 +783,20 @@ protected createModuleDocument(): TransformedBlockTextDocument;
 **Signature:**
 ```ts
 protected createRenderDocument(): RenderFunctionTextDocument;
+```
+
+
+<br>
+
+<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createTemplateASTDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-createTemplateASTDocument-member-1-"></a>
+
+#### [createTemplateASTDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-createTemplateASTDocument-member-1-)
+
+
+
+**Signature:**
+```ts
+protected createTemplateASTDocument(): TransformedBlockTextDocument;
 ```
 
 

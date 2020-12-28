@@ -4,7 +4,7 @@
   "name": "vue-language-features",
   "publisher": "znck",
   "displayName": "VueDX",
-  "version": "2020.12.10",
+  "version": "0.4.0",
   "description": "Advanced TypeScript/JavaScript support for Vue",
   "icon": "logo.png",
   "main": "dist/index.js",
@@ -57,7 +57,7 @@
       }
     ],
     "configuration": {
-      "title": "Vue",
+      "title": "VueDX",
       "properties": {
         "vue.suggest.enabled": {
           "type": "boolean",
@@ -141,12 +141,15 @@
       }
     ]
   },
+  "extensionDependencies": [
+    "vscode.typescript-language-features"
+  ],
   "bugs": {
     "url": "https://github.com/znck/vue-developer-experience/issues"
   },
   "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/vscode#readme",
   "dependencies": {
-    "@vuedx/analyze": "workspace:^0.3.0",
+    "@vuedx/analyze": "workspace:*",
     "@vuedx/typescript-standalone": "workspace:*",
     "fast-glob": "^3.2.4",
     "json5": "^2.1.3"
