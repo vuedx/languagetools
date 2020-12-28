@@ -1,6 +1,5 @@
 {
   "private": true,
-  "release": 0,
   "engines": {
     "node": ">=14.0"
   },
@@ -17,7 +16,10 @@
     "watch:standalone": "pnpm recursive --filter @vuedx/typescript-standalone run watch",
     "ci:build": "node scripts/build",
     "eslint:check": "eslint --cache .",
-    "eslint:fix": "eslint --cache --fix ."
+    "eslint:fix": "eslint --cache --fix .",
+    "release": "run-s release:*",
+    "release:bump-version": "pnpm recursive --filter ./packages --filter ./extensions exec -- npm version --no-git-checks ${NEXT_VERSION:-'minor'}",
+    "release:generate-docs": "node scripts/docgen"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.12.0",

@@ -27,25 +27,35 @@ import { TypeChecker } from 'typescript';
 // @public (undocumented)
 export interface Analyzer {
     // (undocumented)
-    analyze: (content: string, fileName?: string) => ComponentInfo;
+    analyze(content: string, fileName?: string): ComponentInfo;
     // (undocumented)
-    analyzeScript: (content: string, fileName?: string, mode?: 'script' | 'scriptSetup') => ComponentInfo;
+    analyzeScript(content: string, fileName?: string, mode?: 'script' | 'scriptSetup'): ComponentInfo;
     // (undocumented)
-    analyzeTemplate: (content: string, fileName?: string) => ComponentInfo;
+    analyzeTemplate(content: string, fileName?: string): ComponentInfo;
 }
 
+// Warning: (ae-forgotten-export) The symbol "Taggable" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
-export interface ComponentInfo {
+export interface ComponentInfo extends Taggable {
+    // (undocumented)
+    aliases: string[];
     // (undocumented)
     components: LocalComponentRegistrationInfo[];
+    // (undocumented)
+    description: string;
     // (undocumented)
     emits: EmitInfo[];
     // (undocumented)
     errors: SyntaxError_2[];
     // (undocumented)
+    fileName: string;
+    // (undocumented)
     fnSetupOption?: SetupInfo;
     // (undocumented)
     identifierSource: Record<string, IdentifierSource>;
+    // (undocumented)
+    name: string;
     // Warning: (ae-forgotten-export) The symbol "ComponentOptionsInfo" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -96,7 +106,6 @@ export function createFullAnalyzer(plugins?: Plugin_2[], options?: Partial<Conte
 // @public (undocumented)
 export function createSourceRange(context: Context | ScriptAnalyzerContext, node: Node_2): SourceRange;
 
-// Warning: (ae-forgotten-export) The symbol "Taggable" needs to be exported by the entry point index.d.ts
 // Warning: (ae-forgotten-export) The symbol "Addressable" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
@@ -111,8 +120,6 @@ export interface EmitInfo extends Taggable, Addressable {
     name: string;
     // (undocumented)
     references: SourceRange[];
-    // Warning: (ae-forgotten-export) The symbol "TypeInfo" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     type: TypeInfo[];
 }
@@ -273,10 +280,42 @@ export { SyntaxError_2 as SyntaxError }
 // @public (undocumented)
 export const TemplateBlockAnalyzer: Plugin_2;
 
+// @public (undocumented)
+export function toVeturData(components: ComponentInfo[]): VeturData;
+
+// @public (undocumented)
+export function toWebTypes(name: string, version: string, components: ComponentInfo[]): WebTypes;
+
 // Warning: (ae-forgotten-export) The symbol "FunctionTransformOptions" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
 export function transformToFunction(content: string, options?: FunctionTransformOptions): string;
+
+// @public (undocumented)
+export type TypeInfo = {
+    kind: 'string' | 'number' | 'boolean';
+} | {
+    kind: 'enum';
+    values: string[];
+} | {
+    kind: 'expression';
+    imports: ImportSource[];
+    expression: string;
+};
+
+// @public (undocumented)
+export interface VeturData {
+    // (undocumented)
+    attributes: Record<string, {
+        type: string;
+        description: string;
+    }>;
+    // (undocumented)
+    tags: Record<string, {
+        description: string;
+        attributes: string[];
+    }>;
+}
 
 // @public (undocumented)
 export abstract class VueProject {
@@ -331,6 +370,28 @@ export abstract class VueProject {
     get vueFileNames(): string[];
 }
 
+// @public
+export interface WebTypes {
+    // (undocumented)
+    contributions: {
+        'types-syntax': 'typescript';
+        'description-markup': 'html' | 'markdown' | 'none';
+        tags: Tag[];
+        attributes: Attribute[];
+    };
+    // (undocumented)
+    framework: 'vue';
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    version: string;
+}
+
+
+// Warnings were encountered during analysis:
+//
+// dist/index.d.ts:317:9 - (ae-forgotten-export) The symbol "Tag" needs to be exported by the entry point index.d.ts
+// dist/index.d.ts:318:9 - (ae-forgotten-export) The symbol "Attribute" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

@@ -1,4 +1,4 @@
-> Project Status: 🚨 Pre Alpha (alpha release target: ~~30 November~~ 31 December 2020)
+> Project Status: 🚨 Alpha
 
 <div align="center" style="margin-bottom: 72px">
 
@@ -10,7 +10,7 @@
   <div style="margin: 16px">
     <img src="./extensions/vscode-vue-language-features/logo.png" width="96" />
     <h3>
-      <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features-insiders">Language Features</a>
+      <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features">Language Features</a>
     </h3>
   </div>
   
@@ -24,7 +24,7 @@
   <div style="margin: 16px">
     <img src="./extensions/vscode-vue/logo.png" width="96" />
     <h3>
-      <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue-insiders">Syntax Highlight</a>
+      <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue">Syntax Highlight</a>
     </h3>
   </div>
 </div>

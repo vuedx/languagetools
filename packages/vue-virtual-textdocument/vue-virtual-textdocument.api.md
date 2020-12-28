@@ -162,6 +162,8 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
     // (undocumented)
     isInGeneratedRange(offset: number): boolean;
     // (undocumented)
+    isInTemplateIdentifierRange(offset: number): boolean;
+    // (undocumented)
     get parserErrors(): CodegenResult['errors'];
     // (undocumented)
     get tagCompletionsTriggerOffset(): number;
@@ -187,10 +189,15 @@ export type Selector = BlockSelector | {
     type: typeof MODULE_SELECTOR;
 } | {
     type: typeof INTERNAL_MODULE_SELECTOR;
+} | {
+    type: typeof TEMPLATE_AST_SELECTOR;
 };
 
 // @public (undocumented)
-export type SelectorLike = Selector | typeof TEMPLATE_BLOCK_SELECTOR | typeof SCRIPT_BLOCK_SELECTOR | typeof SCRIPT_SETUP_BLOCK_SELECTOR | typeof RENDER_SELECTOR | typeof MODULE_SELECTOR | typeof INTERNAL_MODULE_SELECTOR;
+export type SelectorLike = Selector | typeof TEMPLATE_BLOCK_SELECTOR | typeof SCRIPT_BLOCK_SELECTOR | typeof SCRIPT_SETUP_BLOCK_SELECTOR | typeof RENDER_SELECTOR | typeof MODULE_SELECTOR | typeof TEMPLATE_AST_SELECTOR | typeof INTERNAL_MODULE_SELECTOR;
+
+// @public (undocumented)
+export const TEMPLATE_AST_SELECTOR = "_ast";
 
 // @public (undocumented)
 export const TEMPLATE_BLOCK_SELECTOR = "template";
@@ -252,6 +259,8 @@ export class VueTextDocument extends ProxyTextDocument {
     protected createModuleDocument(): TransformedBlockTextDocument;
     // (undocumented)
     protected createRenderDocument(): RenderFunctionTextDocument;
+    // (undocumented)
+    protected createTemplateASTDocument(): TransformedBlockTextDocument;
     // (undocumented)
     get descriptor(): SFCDescriptor;
     // (undocumented)

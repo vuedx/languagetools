@@ -1,10 +1,8 @@
-name: Insiders
+name: Release
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
+  release: [released]
 
 defaults:
   run:
@@ -12,7 +10,7 @@ defaults:
 
 jobs:
   default:
-    name: Insiders
+    name: Release
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Previous Runs
@@ -40,17 +38,15 @@ jobs:
           node scripts/build.js
           pnpm recursive --filter @vuedx/typescript-standalone run build
 
-      - name: Publish Insiders Extension
+      - name: Publish Extension
         run: |
           pnpm recursive --filter ./extensions run release
         env:
-          RELEASE_CHANNEL: insiders
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
 
-      - name: Publish Insiders Packages
+      - name: Publish Packages
         run: |
           echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' >> .npmrc
-          pnpm recursive --filter ./packages --filter ./extensions/coc-vue exec -- npm version prerelease --preid=insiders-$(date +%s)
-          pnpm recursive --filter ./packages --filter ./extensions/coc-vue publish --tag insiders --access public --no-git-checks
+          pnpm recursive --filter ./packages publish --filter ./extensions/coc-vue --tag latest --access public --no-git-checks
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -169,11 +169,8 @@ This extension is part of [VueDX project](https://github.com/znck/vue-developer-
 
 ## Known Issues
 
-- Requires Vue 3.0+
-- Works better if project has `tsconfig.json` or `jsconfig.json`
 - Diagnostics messages complain about JSX/TSX
 - Renaming props does not work in all cases
-- Does not work in newly created files
 
 ---
 

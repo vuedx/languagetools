@@ -127,7 +127,7 @@ importers:
     specifiers:
       '@types/vscode': ^1.50.0
       '@vercel/ncc': ^0.24.1
-      '@vuedx/analyze': 'workspace:^0.3.0'
+      '@vuedx/analyze': 'workspace:*'
       '@vuedx/typescript-plugin-vue': 'workspace:*'
       '@vuedx/typescript-standalone': 'workspace:*'
       '@vuedx/vue-virtual-textdocument': 'workspace:*'
