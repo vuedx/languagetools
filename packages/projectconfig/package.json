@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/projectconfig",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "TypeScript plugin for Vue",
   "types": "dist/index.d.ts",
   "scripts": {},
