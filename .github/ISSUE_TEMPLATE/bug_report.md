@@ -27,6 +27,8 @@ If applicable, add screenshots to help explain your problem.
  - OS [e.g. Windows/Mac/Linux]
  - IDE [e.g. VS Code, vim]
  - TypeScript Version [e.g. 4.0.1]
+ - Vue Version
+ - Other versions (e.g. Nuxt, Vue Router etc.)
 
 **Additional context**
 Add any other context about the problem here.
