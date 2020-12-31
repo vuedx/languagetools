@@ -31,4 +31,4 @@ If applicable, add screenshots to help explain your problem.
  - Other versions (e.g. Nuxt, Vue Router etc.)
 
 **Additional context**
-Add any other context about the problem here.
+Add any other context about the problem here e.g. code snippets or reproduction repository etc.
