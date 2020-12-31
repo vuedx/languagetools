@@ -33,12 +33,17 @@ export function createVueLanguageServer(
   const script = wrapInTrace('ScriptLanguageServer', service)
   const completionProvider = new SFCCompletionService(options)
 
-  function choose(document: VirtualTextDocument): TS.LanguageService {
+  function choose(
+    document: VirtualTextDocument,
+    isSyntaxOnly: boolean = false,
+  ): TS.LanguageService {
     if (h.isRenderFunctionDocument(document)) {
       return template
     }
 
-    return h.getLanguageServiceFor(document.fsPath, script)
+    return isSyntaxOnly
+      ? script
+      : h.getLanguageServiceFor(document.fsPath, script)
   }
 
   function isSupportLanguage(lang: string): boolean {
@@ -671,7 +676,7 @@ export function createVueLanguageServer(
       const document = h.getDocumentAt(fileName, position)
 
       if (document != null) {
-        return choose(document).getJsxClosingTagAtPosition(
+        return choose(document, true).getJsxClosingTagAtPosition(
           document.fsPath,
           position,
         )

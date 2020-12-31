@@ -18,13 +18,13 @@ import {
   ElementNode,
   findParentNode,
   isAttributeNode,
+  isCommentNode,
   isComponentNode,
   isDirectiveNode,
   isElementNode,
   isPlainElementNode,
   isSimpleExpressionNode,
   isTextNode,
-  TextNode,
 } from '@vuedx/template-ast-types'
 import {
   isVirtualFileOfType,
@@ -186,15 +186,26 @@ export class HTMLService {
            * If in open tag of element, we need to provide attribute completion.
            */
           return fn({ kind: 'attribute', document, element: node })
+        } else if (position > 2) {
+          if (document.container.getText(position - 2, 2) === '</') {
+            return fn({
+              kind: 'tag',
+              document,
+            })
+          }
         }
-      } else if (isTextNode(node)) {
-        this.$.context.log(`@@debug incomplete tag as text`)
+      } else if (isTextNode(node) || isCommentNode(node)) {
+        __DEV__ && this.$.context.log(`@@debug incomplete tag as text/comment`)
         /**
          * Template parser parses some incomplete elements as text.
          */
         if (
-          node.content.trim().startsWith('<') &&
-          position === node.loc.start.offset + node.loc.source.indexOf('<') + 1
+          (node.content.trim().startsWith('<') &&
+            position ===
+              node.loc.start.offset + node.loc.source.indexOf('<') + 1) ||
+          (node.content.trim().startsWith('</') &&
+            position ===
+              node.loc.start.offset + node.loc.source.indexOf('</') + 2)
         ) {
           return fn({ kind: 'tag', document })
         }
@@ -218,7 +229,8 @@ export class HTMLService {
       }
     }
 
-    __DEV__ && this.$.context.debug(`Neither "tag" or "attribute" completion`)
+    __DEV__ &&
+      this.$.context.debug`Neither "tag" or "attribute" completion: ${node}`
   }
 
   private mergeCompletionEntryDetails(
@@ -286,17 +298,17 @@ export class HTMLService {
 
   private getTagCompletionsAtPosition(
     document: RenderFunctionTextDocument,
-    _position: number,
+    position: number,
     options: TS.GetCompletionsAtPositionOptions | undefined,
-    node?: ElementNode | TextNode,
+    node?: ElementNode,
   ): TS.WithMetadata<TS.CompletionInfo> | undefined {
-    this.$.context.log('@@debug tag completion mode')
     const result: TS.WithMetadata<TS.CompletionInfo> = {
       isGlobalCompletion: false,
       isMemberCompletion: false,
       isNewIdentifierLocation: false,
       entries: [],
     }
+
     const project = this.$.context.getVueProjectForFile(
       document.container.fsPath,
       true,
@@ -310,6 +322,7 @@ export class HTMLService {
         length: node.tag.length,
       }
     }
+
     const known = new Set<string>()
     const add = (entry: TS.CompletionEntry): void => {
       const id =
@@ -352,6 +365,53 @@ export class HTMLService {
         }
       } else {
         add(entry)
+      }
+    }
+
+    const openIndex = document.container.getText(0, position).lastIndexOf('<')
+    if (openIndex >= 0) {
+      const prefixText = document.container.getText(
+        openIndex,
+        position - openIndex,
+      )
+
+      __DEV__ &&
+        this.$.context.debug`May be a closing tag: ${{
+          prefixText,
+          position,
+          openIndex,
+        }}`
+      if (prefixText.startsWith('</')) {
+        const replacementSpan: TS.TextSpan = {
+          start: openIndex,
+          length: prefixText.length,
+        }
+
+        const { ancestors } = this.$.helpers.findTemplateNodeAtPosition(
+          document.container.fsPath,
+          position,
+        )
+
+        ancestors.reverse().forEach((ancestor) => {
+          if (isElementNode(ancestor.node)) {
+            result.entries.push({
+              name: ancestor.node.tag,
+              kind: this.$.context.typescript.ScriptElementKind.jsxAttribute,
+              insertText: `</${ancestor.node.tag}>`,
+              kindModifiers: '',
+              sortText: '0',
+              isRecommended: ancestor.node.tag === node?.tag ? true : undefined,
+              replacementSpan,
+            })
+          }
+        })
+
+        return result
+      } else if (replacementSpan == null) {
+        replacementSpan = {
+          start: openIndex,
+          length: prefixText.length,
+        }
       }
     }
 
@@ -445,6 +505,7 @@ export class HTMLService {
     preferences: TS.UserPreferences | undefined,
     _element?: ElementNode,
   ): TS.CompletionEntryDetails | undefined {
+    // TODO: Use getTagCompletionsAtPosition (with extra metadata) to simplify this logic.
     let result: TS.CompletionEntryDetails | undefined
     let registration: ComponentRegistrationInfo | undefined
     let isGlobalComponent = false

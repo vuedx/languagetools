@@ -109,9 +109,23 @@ export class PluginContext {
     }
   }
 
-  public debug(message: string): void {
+  public debug(string: string): void
+  public debug(string: TemplateStringsArray, ...args: any[]): void
+  public debug(messages: string | TemplateStringsArray, ...args: any[]): void {
     if (__DEV__) {
       if (this.projectService != null) {
+        let message: string = ''
+        if (typeof messages === 'string') {
+          message += messages
+        } else {
+          for (let i = 0; i < messages.length; ++i) {
+            message += messages[i]
+            if (i < args.length) {
+              message += JSON.stringify(args[i], null, 2)
+            }
+          }
+        }
+
         this.projectService.logger.info(`@@debug Vue.js:: ${message}`)
       }
     }
