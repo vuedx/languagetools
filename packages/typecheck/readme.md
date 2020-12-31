@@ -27,9 +27,9 @@ Run `vuedx-typecheck --help` to see all available options:
 Usage: vuedx-typecheck [directory] <options>
 
 Options
-    --json      print diagnostics as json
+    --format    One of 'raw', 'json' or 'rdjson'
     --vue       process only vue files
-    --rdjson    Return diagnostic result in Reviewdog Diagnostic Format
-    --verbose   print debug output (on stderr)
+    --no-pretty Pretty print output
     --help      display help
+    --watch     Watch files for changes
 ```
