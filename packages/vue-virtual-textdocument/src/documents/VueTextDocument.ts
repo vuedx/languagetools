@@ -478,6 +478,7 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
   }
 
   public get ast(): CodegenResult['ast'] | undefined {
+    this.refresh()
     if (this.result != null) return this.result.ast
   }
 

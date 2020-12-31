@@ -296,10 +296,12 @@ export function createTemplateLanguageServer(
     getJsxClosingTagAtPosition(fileName, position) {
       const { node } = h.findTemplateNodeAtPosition(
         getContainingFile(fileName),
-        position,
+        position - 1,
       )
 
       if (isElementNode(node)) {
+        if (node.isSelfClosing && node.loc.source.trim().endsWith('/>')) return
+        if (node.loc.source.trim().endsWith(`</${node.tag}>`)) return
         return { newText: `</${node.tag}>` }
       }
     },

@@ -31,7 +31,7 @@ export class TemplateLanguageProxy
   }
 
   private readonly selector = { language: 'vue' }
-  private readonly triggerCharacters = [':']
+  private readonly triggerCharacters = [':', '/']
 
   public install(): Disposable {
     return Disposable.from(
@@ -51,7 +51,7 @@ export class TemplateLanguageProxy
   ): Promise<
     null | undefined | CompletionItem[] | CompletionList<CompletionItem>
   > {
-    if (context.triggerCharacter !== ':') return
+    if ([':', '/'].includes(context.triggerCharacter ?? '')) return
 
     const document = await this.getDocumentAt(container, position)
     if (this.isSupportDocumentType(document)) {

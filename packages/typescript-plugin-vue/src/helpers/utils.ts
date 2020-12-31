@@ -310,7 +310,6 @@ export function createServerHelper(
     )
 
     if (project == null) return fallback ?? languageService
-
     const service = project.getLanguageService()
     if (ORIGINAL_LANGUAGE_SERVER in service) {
       return (service as any)[ORIGINAL_LANGUAGE_SERVER]
