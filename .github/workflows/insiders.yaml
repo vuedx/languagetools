@@ -2,6 +2,11 @@ name: Insiders
 
 on:
   push:
+    paths-ignore:
+      - 'docs/**'
+      - 'samples/**'
+      - '.github/**'
+      - '!.github/workflows/insiders.yaml'
     branches:
       - master
   workflow_dispatch:
