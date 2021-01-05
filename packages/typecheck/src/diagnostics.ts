@@ -2,8 +2,12 @@ import glob from 'fast-glob'
 import Path from 'path'
 import FS from 'fs'
 import type ts from 'typescript/lib/tsserverlibrary'
+import TS from 'typescript/lib/tsserverlibrary'
 import { TypeScriptServerHost } from './TypeScriptServerHost'
 
+function toNormalizedPath(fileName: string): string {
+  return TS.server.toNormalizedPath(fileName)
+}
 export type Diagnostics = Array<{
   fileName: string
   diagnostics: ts.server.protocol.Diagnostic[]
@@ -161,14 +165,13 @@ export async function* getDiagnostics(
       },
     })
 
-    files = await glob(
-      ['**/*.vue', '**/*.ts', '**/*.js', '**/*.jsx', '**/*.tsx'],
-      {
+    files = (
+      await glob(['**/*.vue', '**/*.ts', '**/*.js', '**/*.jsx', '**/*.tsx'], {
         cwd: directory,
         absolute: true,
         ignore: ['node_modules', 'dist'],
-      },
-    )
+      })
+    ).map((fileName) => toNormalizedPath(fileName))
 
     await host.sendCommand('updateOpen', {
       openFiles: files.map((file) => ({ file, projectRootPath: directory })),
