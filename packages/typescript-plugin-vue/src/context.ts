@@ -456,11 +456,43 @@ function patchProject(
         ),
       )
       fileNames.delete(vue2supportFile)
-      context.debug(
-        `FileNames: ${JSON.stringify(Array.from(fileNames), null, 2)}`,
-      )
+      fileNames.forEach((fileName) => {
+        if (isVueFile(fileName)) {
+          const scriptInfo =
+            context.projectService.getScriptInfo(fileName) ??
+            context.projectService.getOrCreateScriptInfoForNormalizedPath(
+              context.typescript.server.toNormalizedPath(fileName),
+              false,
+            )
+
+          try {
+            scriptInfo?.getDefaultProject()
+          } catch {
+            scriptInfo?.attachToProject(project)
+          }
+        }
+      })
 
       return Array.from(fileNames) as TS.server.NormalizedPath[]
+    },
+  )
+
+  tryPatchMethod(
+    project,
+    'containsScriptInfo',
+    (containsScriptInfo) => (info) => {
+      if (isVueFile(info.path)) {
+        const moduleFileName = context.store
+          .get(info.path)
+          ?.getDocumentFileName(MODULE_SELECTOR)
+
+        if (moduleFileName != null) {
+          const info = context.projectService.getScriptInfo(moduleFileName)
+          if (info != null) return containsScriptInfo(info)
+        }
+      }
+
+      return containsScriptInfo(info)
     },
   )
 }

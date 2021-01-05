@@ -3,6 +3,15 @@ import Path from 'path'
 import { createInterface, Interface } from 'readline'
 import { Readable, Writable } from 'stream'
 import Proto from 'typescript/lib/protocol'
+import resolveFrom from 'resolve-from'
+
+function resolve(moduleId: string, directory: string): string {
+  try {
+    return resolveFrom(directory, moduleId)
+  } catch {
+    return require.resolve(moduleId)
+  }
+}
 
 const isDebugMode = process.env.DEBUG != null
 function debug(...args: any[]): void {
@@ -18,7 +27,7 @@ export class TypeScriptServerHost {
     Proto.CommandTypes.GeterrForProject,
   ]
 
-  public readonly serverPath = require.resolve('typescript/lib/tsserver')
+  public readonly serverPath = resolve('typescript/lib/tsserver', process.cwd())
   public readonly pluginPath = Path.dirname(
     require.resolve('@vuedx/typescript-plugin-vue/package.json'),
   )
@@ -44,9 +53,13 @@ export class TypeScriptServerHost {
   }
 
   constructor() {
+    // prettier-ignore
     const debugArgs =
       process.env.DEBUG_TS_SERVER != null
-        ? ['--logVerbosity', 'verbose', '--logFile', 'tsserver.log']
+        ? [
+            '--logVerbosity', 'verbose',
+            '--logFile', process.env.TS_SERVER_LOG_FILE ?? 'tsserver.log',
+          ]
         : []
     // prettier-ignore
     this.server = fork(this.serverPath, [

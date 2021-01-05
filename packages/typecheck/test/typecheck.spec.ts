@@ -11,7 +11,13 @@ describe('typecheck', () => {
     const p = fork(
       bin,
       [...options, Path.resolve(__dirname, '../../../samples', directory)],
-      { stdio: 'pipe' },
+      {
+        stdio: 'pipe',
+        env: {
+          DEBUG_TS_SERVER: 'yes',
+          TS_SERVER_LOG_FILE: Path.resolve(__dirname, '../../../test/output/tsserver.log'),
+        },
+      },
     )
 
     let output = ''

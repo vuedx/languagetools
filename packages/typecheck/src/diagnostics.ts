@@ -1,6 +1,7 @@
 import glob from 'fast-glob'
-import { getContainingFile } from '@vuedx/vue-virtual-textdocument'
-import ts from 'typescript/lib/tsserverlibrary' // TODO: Load from current directory.
+import Path from 'path'
+import FS from 'fs'
+import type ts from 'typescript/lib/tsserverlibrary'
 import { TypeScriptServerHost } from './TypeScriptServerHost'
 
 export type Diagnostics = Array<{
@@ -55,13 +56,12 @@ export async function* getDiagnostics(
   >()
 
   function setDiagnostics(
-    file: string,
+    fileName: string,
     kind: 'semantic' | 'syntax' | 'suggestion',
     diagnostics: ts.server.protocol.Diagnostic[],
   ): void {
-    if (file.includes('/node_modules/')) return
+    if (fileName.includes('/node_modules/')) return
     if (diagnostics.length > 0) {
-      const fileName = getContainingFile(file)
       const current = diagnosticsPerFile.get(fileName) ?? {}
       diagnosticsPerFile.set(fileName, {
         ...current,
@@ -81,14 +81,14 @@ export async function* getDiagnostics(
       }))
       .filter((item) => item.diagnostics.length > 0)
 
+  let useProject: boolean = false
   const refresh = async (files: string[]): Promise<Diagnostics> => {
     diagnosticsPerFile.clear()
     const start = Date.now()
     if (logging) console.log(`Checking...`)
-    const id = await host.sendCommand('geterrForProject', {
-      file: files[0],
-      delay: 0,
-    })
+    const id = useProject
+      ? await host.sendCommand('geterrForProject', { file: files[0], delay: 1 })
+      : await host.sendCommand('geterr', { files, delay: 1 })
 
     return await new Promise((resolve) => {
       const off = host.on('requestCompleted', async (event) => {
@@ -104,45 +104,72 @@ export async function* getDiagnostics(
       })
     })
   }
-
-  const files = await glob(
-    ['**/*.vue', '**/*.ts', '**/*.js', '**/*.jsx', '**/*.tsx'],
-    {
-      cwd: directory,
-      absolute: true,
-      ignore: ['node_modules', 'node_modules/**/*', '**/node_modules'],
-    },
-  )
   await host.sendCommand('configure', {
     hostInfo: '@vuedx/typecheck',
     preferences: { disableSuggestions: false },
   })
-  await host.sendCommand('compilerOptionsForInferredProjects', {
-    options: {
-      allowJs: true,
-      checkJs: true,
-      strict: true,
-      alwaysStrict: true,
-      allowNonTsExtensions: true,
-      jsx: 'preserve' as any,
-    },
-  })
-  if (files.length === 0) {
-    throw new Error('No ts/js/vue files found in current directory.')
-  }
 
-  const checkFile = files.find((file) => /\.(ts|js)x?/.test(file)) ?? files[0]
-  await host.sendCommand('updateOpen', {
-    openFiles: [{ file: checkFile, projectRootPath: directory }],
-  })
+  let files: string[]
+  const jsConfig = Path.resolve(directory, 'jsconfig.json')
+  const tsConfig = Path.resolve(directory, 'tsconfig.json')
+  if (FS.existsSync(tsConfig) || FS.existsSync(jsConfig)) {
+    useProject = true
+    const configFile = FS.existsSync(tsConfig) ? tsConfig : jsConfig
+    await host.sendCommand('updateOpen', {
+      openFiles: [
+        {
+          file: configFile,
+          projectRootPath: directory,
+        },
+      ],
+    })
 
-  const { body: project } = await host.sendCommand('projectInfo', {
-    file: checkFile,
-    needFileNameList: false,
-  })
+    const { body } = await host.sendCommand('projectInfo', {
+      file: configFile,
+      projectFileName: configFile,
+      needFileNameList: true,
+    })
 
-  if (project?.configFileName?.endsWith('inferredProject1*') === true) {
-    // Inferred project open all files.
+    files =
+      body?.fileNames?.filter(
+        (fileName) =>
+          !fileName.includes('/node_modules/') && !fileName.endsWith('.json'),
+      ) ?? []
+
+    if (files.length > 0) {
+      await host.sendCommand('updateOpen', {
+        closedFiles: [configFile],
+      })
+      await host.sendCommand('updateOpen', {
+        openFiles: [
+          {
+            file: files[0],
+            projectFileName: configFile,
+          },
+        ],
+      })
+    }
+  } else {
+    await host.sendCommand('compilerOptionsForInferredProjects', {
+      options: {
+        allowJs: true,
+        checkJs: true,
+        strict: true,
+        alwaysStrict: true,
+        allowNonTsExtensions: true,
+        jsx: 'preserve' as any,
+      },
+    })
+
+    files = await glob(
+      ['**/*.vue', '**/*.ts', '**/*.js', '**/*.jsx', '**/*.tsx'],
+      {
+        cwd: directory,
+        absolute: true,
+        ignore: ['node_modules', 'dist'],
+      },
+    )
+
     await host.sendCommand('updateOpen', {
       openFiles: files.map((file) => ({ file, projectRootPath: directory })),
     })

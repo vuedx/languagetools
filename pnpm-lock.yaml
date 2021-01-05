@@ -232,6 +232,7 @@ importers:
       chalk: 4.1.0
       fast-glob: 3.2.4
       minimist: 1.2.5
+      resolve-from: 5.0.0
       typescript: 4.0.3
     specifiers:
       '@vuedx/typescript-plugin-vue': 'workspace:*'
@@ -239,6 +240,7 @@ importers:
       chalk: ^4.1.0
       fast-glob: ^3.2.4
       minimist: ^1.2.5
+      resolve-from: ^5.0.0
       typescript: ^4.0.3
   packages/typescript-plugin-vue:
     dependencies:
@@ -6358,7 +6360,6 @@ packages:
     resolution:
       integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==
   /resolve-from/5.0.0:
-    dev: true
     engines:
       node: '>=8'
     resolution:
