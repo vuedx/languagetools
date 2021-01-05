@@ -85,7 +85,7 @@ export async function* getDiagnostics(
       }))
       .filter((item) => item.diagnostics.length > 0)
 
-  let useProject: boolean = false
+  let useProject: boolean = true
   const refresh = async (files: string[]): Promise<Diagnostics> => {
     diagnosticsPerFile.clear()
     const start = Date.now()
