@@ -8,21 +8,28 @@
 
 <div style="display: flex; justify-content: center; text-align: center">  
   <div style="margin: 16px">
-    <img src="./extensions/vscode-vue-language-features/logo.png" width="96" />
+    <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features">
+      <img src="./extensions/vscode-vue-language-features/logo.png" width="96" />
+    </a>
     <h3>
       <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features">Language Features</a>
     </h3>
+    </a>
   </div>
-  
+
   <div style="margin: 16px">
-    <img src="./assets/preview.png" width="96" />
+    <a href="https://github.com/znck/preview">
+      <img src="./assets/preview.png" width="96" />
+    </a>
     <h3>
       <a href="https://github.com/znck/preview">Preview</a>
     </h3>
   </div>
 
   <div style="margin: 16px">
-    <img src="./extensions/vscode-vue/logo.png" width="96" />
+    <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue">
+      <img src="./extensions/vscode-vue/logo.png" width="96" />
+    </a>
     <h3>
       <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue">Syntax Highlight</a>
     </h3>
