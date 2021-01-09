@@ -1,6 +1,5 @@
 import chalk from 'chalk'
-import FS from 'fs'
-import FSP from 'fs/promises'
+import FS, { promises as FSP } from 'fs'
 // @ts-expect-error
 import parseArgs from 'minimist'
 import Path from 'path'
