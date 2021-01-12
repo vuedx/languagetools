@@ -49,7 +49,7 @@ export async function* getDiagnostics(
   cancellationToken.onabort = async () => {
     await host.close()
   }
-
+  const projectRootPath = toNormalizedPath(directory)
   const diagnosticsPerFile = new Map<
     string,
     {
@@ -122,15 +122,15 @@ export async function* getDiagnostics(
     await host.sendCommand('updateOpen', {
       openFiles: [
         {
-          file: configFile,
-          projectRootPath: directory,
+          file: toNormalizedPath(configFile),
+          projectRootPath,
         },
       ],
     })
 
     const { body } = await host.sendCommand('projectInfo', {
-      file: configFile,
-      projectFileName: configFile,
+      file: toNormalizedPath(configFile),
+      projectFileName: toNormalizedPath(configFile),
       needFileNameList: true,
     })
 
@@ -142,13 +142,13 @@ export async function* getDiagnostics(
 
     if (files.length > 0) {
       await host.sendCommand('updateOpen', {
-        closedFiles: [configFile],
+        closedFiles: [toNormalizedPath(configFile)],
       })
       await host.sendCommand('updateOpen', {
         openFiles: [
           {
-            file: files[0],
-            projectFileName: configFile,
+            file: toNormalizedPath(files[0]),
+            projectFileName: toNormalizedPath(configFile),
           },
         ],
       })
@@ -174,7 +174,7 @@ export async function* getDiagnostics(
     ).map((fileName) => toNormalizedPath(fileName))
 
     await host.sendCommand('updateOpen', {
-      openFiles: files.map((file) => ({ file, projectRootPath: directory })),
+      openFiles: files.map((file) => ({ file, projectRootPath })),
     })
   }
 

@@ -1,4 +1,5 @@
 import FS from 'fs/promises'
+import { asFsPath, asFsUri } from '../../packages/vue-virtual-textdocument/src/utils'
 import Path from 'path'
 import { CodeEdit, Location, TextSpan } from 'typescript/lib/protocol'
 import {
@@ -6,7 +7,6 @@ import {
   TextDocument,
   TextEdit,
 } from 'vscode-languageserver-textdocument'
-import { URI } from 'vscode-uri'
 
 export function locationToPosition(loc: Location): Position {
   return { line: loc.line - 1, character: loc.offset - 1 }
@@ -98,7 +98,7 @@ export async function getTextDocument(file: string): Promise<TextDocument> {
 async function createTextDocument(file: string): Promise<TextDocument> {
   const content = await FS.readFile(file, { encoding: 'utf-8' })
   const document = TextDocument.create(
-    URI.file(file).toString(),
+    asFsUri(file).toString(),
     Path.posix.extname(file),
     0,
     content,
@@ -110,6 +110,5 @@ async function createTextDocument(file: string): Promise<TextDocument> {
 }
 
 export function toNormalizedPath(fileName: string): string {
-  const fsPath = URI.file(fileName).fsPath
-  return fsPath.replace(/\\/g, '/')
+  return asFsPath(fileName)
 }

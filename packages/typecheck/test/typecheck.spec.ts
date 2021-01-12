@@ -15,7 +15,7 @@ describe('typecheck', () => {
         stdio: 'pipe',
         env: {
           DEBUG_TS_SERVER: 'yes',
-          TS_SERVER_LOG_FILE: Path.resolve(__dirname, '../../../test/output/tsserver.log'),
+          TS_SERVER_LOG_FILE: Path.resolve(__dirname, '../../../test/output/tsserver.log')
         },
       },
     )

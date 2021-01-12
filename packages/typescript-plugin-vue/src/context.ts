@@ -5,6 +5,8 @@ import {
 } from '@vuedx/analyze'
 import { first } from '@vuedx/shared'
 import {
+  asFsPath,
+  asFsUri,
   asUri,
   DocumentStore,
   getContainingFile,
@@ -64,6 +66,11 @@ function getConfig(config: Partial<PluginConfig> = {}): PluginConfig {
   }
 }
 
+const RE_URI_PREFIX = /^[^:\\\/]+:\/\//
+function isUri(uriLike: string): boolean {
+  return RE_URI_PREFIX.test(uriLike)
+}
+
 export class PluginContext {
   public readonly store: DocumentStore<VueTextDocument>
   private _config: PluginConfig = getConfig()
@@ -76,18 +83,13 @@ export class PluginContext {
     dispose(): void
   }> = []
 
-  public constructor(public readonly typescript: typeof TS) {
+  public constructor (public readonly typescript: typeof TS) {
     this.store = new ProxyDocumentStore(
       (uri) => {
-        const fileName = URI.parse(uri).fsPath
+        const fileName = asFsPath(uri)
         const content = this.typescript.sys.readFile(fileName) ?? ''
         return this.createVueDocument(fileName, content)
-      },
-      (uri) => {
-        const fileName = URI.parse(uri).fsPath
-
-        return URI.file(this.projectService.toPath(fileName)).toString()
-      },
+      }
     )
   }
 
@@ -216,17 +218,17 @@ export class PluginContext {
       const newProject =
         configFile != null
           ? new ConfiguredVueProject(
-              rootDir,
-              packageFile,
-              packageFile != null ? tryRequire(packageFile) : {},
-              configFile,
-              tryRequire(configFile),
-            )
+            rootDir,
+            packageFile,
+            packageFile != null ? tryRequire(packageFile) : {},
+            configFile,
+            tryRequire(configFile),
+          )
           : new InferredVueProject(
-              rootDir,
-              packageFile,
-              packageFile != null ? tryRequire(packageFile) : {},
-            )
+            rootDir,
+            packageFile,
+            packageFile != null ? tryRequire(packageFile) : {},
+          )
 
       newProject.setFileNames(fileNames)
 
@@ -307,7 +309,7 @@ export class PluginContext {
             if (event === this.typescript.FileWatcherEventKind.Deleted) {
               dispose()
             } else {
-              ;(newProject as ConfiguredVueProject).setConfig(
+              ; (newProject as ConfiguredVueProject).setConfig(
                 tryRequire(configFile),
               )
               newProject.markDirty()
@@ -368,7 +370,7 @@ export class PluginContext {
   }
 
   public createVueDocument(fileName: string, content: string): VueTextDocument {
-    const uri = URI.file(fileName).toString()
+    const uri = asFsUri(fileName).toString()
     const document = VueTextDocument.create(uri, 'vue', 0, content, {
       vueVersion: this.getVueProjectForFile(fileName, true).version,
       getGlobalComponents: wrapFn('getGlobalComponents', () => {
@@ -407,7 +409,7 @@ export class PluginContext {
           patchScriptInfo(this, scriptInfo)
         }
       }
-    } catch {}
+    } catch { }
   }
 
   public load(info: TS.server.PluginCreateInfo): void {
@@ -545,8 +547,8 @@ function patchExtraFileExtensions(context: PluginContext): void {
   if (
     ((context.projectService as any)
       .hostConfiguration as TS.server.HostConfiguration).extraFileExtensions?.some(
-      (ext) => ext.extension === 'vue',
-    ) === true
+        (ext) => ext.extension === 'vue',
+      ) === true
   ) {
     return
   }
@@ -676,6 +678,8 @@ function patchFileExists(context: PluginContext): void {
           const document = context.store.get(getContainingFile(fileName))
           const result = parseVirtualFileName(fileName)
 
+          context.debug(`As per .vue file: "${document?.getDocumentFileName(result!.selector)}"`)
+
           return (
             document != null &&
             result != null &&
@@ -699,7 +703,6 @@ function patchReadFile(context: PluginContext): void {
       | string
       | undefined => {
       if (isVirtualFile(fileName)) {
-        context.log(`host.readFile("${fileName}")`)
         const vueFile = getContainingFile(fileName)
         const scriptInfo = context.projectService.getScriptInfo(vueFile)
         const document = context.store.get(vueFile)
@@ -733,6 +736,10 @@ function patchReadFile(context: PluginContext): void {
 
 function patchReadDirectory(context: PluginContext): void {
   tryPatchMethod(context.serviceHost, 'readDirectory', (readDirectory) => {
+    context.log(
+      `[patch] Override readDirectory to include .vue files. (ServiceHost)`,
+    )
+
     return wrapFn(
       'readDirectory',
       (path, extensions, exclude, include, depth) => {
@@ -778,22 +785,22 @@ function patchModuleResolution(
             isVueFile(moduleName)
               ? moduleName + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR
               : moduleName.endsWith('.vue?internal')
-              ? moduleName.replace(/\?internal$/, '') +
+                ? moduleName.replace(/\?internal$/, '') +
                 VIRTUAL_FILENAME_SEPARATOR +
                 INTERNAL_MODULE_SELECTOR
-              : moduleName,
+                : moduleName,
           )
 
           // TODO: Support paths mapped to .vue files, if needed.
           const result =
             resolveModuleNames != null
               ? resolveModuleNames(
-                  newModuleNames,
-                  containingFile,
-                  reusedNames,
-                  redirectedReferences,
-                  options,
-                )
+                newModuleNames,
+                containingFile,
+                reusedNames,
+                redirectedReferences,
+                options,
+              )
               : []
 
           const index = moduleNames.indexOf('@@vuedx/vue-2-support')
@@ -815,16 +822,15 @@ function patchModuleResolution(
             if (!containingFile.includes('node_modules')) {
               context.log(
                 `Module resolution in ${containingFile} :: ` +
-                  JSON.stringify(
-                    moduleNames.map(
-                      (name, index) =>
-                        `${name} => ${newModuleNames[index]} => ${
-                          result[index]?.resolvedFileName ?? '?'
-                        }`,
-                    ),
-                    null,
-                    2,
+                JSON.stringify(
+                  moduleNames.map(
+                    (name, index) =>
+                      `${name} => ${newModuleNames[index]} => ${result[index]?.resolvedFileName ?? '?'
+                      }`,
                   ),
+                  null,
+                  2,
+                ),
               )
             }
           }
@@ -878,7 +884,7 @@ function patchWatchFile(context: PluginContext): void {
 function patchWatchDirectory(context: PluginContext): void {
   tryPatchMethod(context.serviceHost, 'watchDirectory', (watchDirectory) => {
     context.log(
-      `[patch] Override watchFile to watch virtual files. (ServiceHost)`,
+      `[patch] Override watchDirectory to watch virtual files. (ServiceHost)`,
     )
 
     return wrapFn(

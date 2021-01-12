@@ -1,6 +1,6 @@
 import { SFCBlock } from '@vuedx/compiler-sfc'
 import Path from 'path'
-import { URI } from 'vscode-uri'
+import { URI, uriToFsPath } from 'vscode-uri'
 import { Selector } from './types'
 
 export function getLanguageIdFromExtension(ext: string): string {
@@ -45,27 +45,52 @@ export function getContainingFile(fileName: string): string {
 }
 
 export function asUri(fileNameOrUri: string): string {
-  if (/^[a-z]{2,}:\//i.test(fileNameOrUri)) return fileNameOrUri
+  if (isUri(fileNameOrUri)) return fileNameOrUri
 
-  const uri = URI.file(replaceSlashes(fileNameOrUri)).toString()
-
+  const uri = asFsUri(fileNameOrUri)
   if (isVirtualFile(fileNameOrUri)) {
-    return uri.replace(/^[^:]+/, 'vue')
+    return uri.replace(/^file:/, 'vue:')
   }
 
   return uri
 }
 
+function isUri(fileNameOrUri: string): boolean {
+  return /^[a-z]{2,}:\//i.test(fileNameOrUri)
+}
+
+function encodeURIComponentMinimal(path: string): string {
+  let res: string | undefined = undefined;
+  for (let pos = 0; pos < path.length; pos++) {
+    const code = path.charCodeAt(pos);
+    if (code === 35 || code === 63) {
+      if (res === undefined) {
+        res = path.substr(0, pos);
+      }
+      res += code === 35 ? '%23' : '%3F';
+    } else {
+      if (res !== undefined) {
+        res += path[pos];
+      }
+    }
+  }
+  return res !== undefined ? res : path;
+}
 export function asFsUri(fileName: string): string {
-  return URI.file(fileName).toString()
+  return `file://${fileName.startsWith('/') ? '' : '/'}${encodeURIComponentMinimal(replaceSlashes(fileName))}`
 }
 
 export function replaceSlashes(fileName: string): string {
-  return fileName.replace(/\\/g, '/')
+  if (fileName.includes('\\')) return fileName.replace(/\\/g, '/')
+  return fileName
 }
 
 export function asFsPath(uri: string): string {
-  return replaceSlashes(URI.parse(uri).fsPath)
+  if (isUri(uri)) {
+    return replaceSlashes(uriToFsPath(URI.parse(uri), true))
+  }
+
+  return replaceSlashes(uri)
 }
 
 export function parseVirtualFileName(
@@ -74,7 +99,7 @@ export function parseVirtualFileName(
   const uri = URI.parse(asUri(fileName))
 
   if (uri.scheme === 'vue') {
-    let [container, selector] = uri.fsPath.split(VIRTUAL_FILENAME_SEPARATOR)
+    let [container, selector] = asFsPath(fileName).split(VIRTUAL_FILENAME_SEPARATOR)
     if (!selector.includes('.')) {
       selector += '.' // Append a dot when extension is missing.
     }
