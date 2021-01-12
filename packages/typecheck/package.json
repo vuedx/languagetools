@@ -33,6 +33,7 @@
     "chalk": "^4.1.0",
     "fast-glob": "^3.2.4",
     "minimist": "^1.2.5",
+    "resolve-from": "^5.0.0",
     "typescript": "^4.0.3"
   }
 }

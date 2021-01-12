@@ -52,7 +52,7 @@ async function createTextDocument(file: string): Promise<TextDocument> {
 }
 
 function toNormalizedPath(fileName: string): string {
-  return fileName.replace(/\\/g, '/')
+  return TS.server.toNormalizedPath(fileName)
 }
 
 function formatLocation(
