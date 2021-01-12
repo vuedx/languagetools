@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@vuedx/shared",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts"
 }

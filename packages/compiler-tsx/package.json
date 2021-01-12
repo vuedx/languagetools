@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/compiler-tsx",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
