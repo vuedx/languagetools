@@ -10,6 +10,7 @@ import {
   CompletionItem,
   CompletionItemProvider,
   CompletionList,
+  CompletionTriggerKind,
   Disposable,
   languages,
   Position,
@@ -43,6 +44,11 @@ export class TemplateLanguageProxy
     )
   }
 
+  private lastQuery?: {
+    container: TextDocument
+    position: Position
+  }
+
   async provideCompletionItems(
     container: TextDocument,
     position: Position,
@@ -51,7 +57,19 @@ export class TemplateLanguageProxy
   ): Promise<
     null | undefined | CompletionItem[] | CompletionList<CompletionItem>
   > {
+    const lastQuery = this.lastQuery
+    this.lastQuery = { container, position }
+    // Ignore non-character triggers as they could cause infinite loop.
+    if (context.triggerKind !== CompletionTriggerKind.TriggerCharacter) return
+    // Only provide completions for what is not auto-triggered for TS Plugin
     if ([':', '/'].includes(context.triggerCharacter ?? '')) return
+    // Character trigger cannot happen twice at same position
+    if (
+      lastQuery?.container.uri.toString() === container.uri.toString() &&
+      lastQuery.position.isEqual(position)
+    ) {
+      return
+    }
 
     const document = await this.getDocumentAt(container, position)
     if (this.isSupportDocumentType(document)) {
