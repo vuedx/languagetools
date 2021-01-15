@@ -224,7 +224,7 @@ Options
     const result = await getDiagnostics2(directory)
     await handleResults(result, { format, pretty, vue })
 
-    if (getErrorCount(result) > 0) process.exit(2)
+    if (getErrorCount(result) > 0 && format === 'raw') process.exit(2)
     else process.exit(0)
   }
 }
