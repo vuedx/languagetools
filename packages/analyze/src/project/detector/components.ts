@@ -79,9 +79,7 @@ export function getPackageJSON(
   try {
     return requireFileFromPackage(require, packageName, 'package.json', rootDir)
   } catch (error) {
-    console.error(error)
-
-    return { name: packageName, version: 'latest' }
+    return { name: packageName, version: '3.0.0' }
   }
 }
 

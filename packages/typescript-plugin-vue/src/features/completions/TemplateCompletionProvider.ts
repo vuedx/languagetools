@@ -195,7 +195,7 @@ export class HTMLService {
           }
         }
       } else if (isTextNode(node) || isCommentNode(node)) {
-        __DEV__ && this.$.context.log(`@@debug incomplete tag as text/comment`)
+        if (__DEV__) this.$.context.debug(`incomplete tag as text/comment`)
         /**
          * Template parser parses some incomplete elements as text.
          */

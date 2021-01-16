@@ -18,7 +18,7 @@ export class OpenVirtualFileCommand extends Installable {
     super.install()
 
     return vscode.commands.registerTextEditorCommand(
-      'vue.openVirtualFile',
+      'vuedx.openVirtualFile',
       this.onExecute.bind(this) as any,
     )
   }

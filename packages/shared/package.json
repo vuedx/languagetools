@@ -1,7 +1,16 @@
 {
-  "private": true,
   "name": "@vuedx/shared",
   "version": "0.5.0",
+  "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@amplitude/node": "^1.2.0",
+    "clean-stack": "^3.0.1",
+    "node-machine-id": "^1.1.12",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/uuid": "^8.3.0"
+  }
 }

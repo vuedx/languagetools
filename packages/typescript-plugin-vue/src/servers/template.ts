@@ -6,7 +6,7 @@ import { TEMPLATE_DIAGNOSTICS_PROVIDERS } from '../features/diagnostics'
 import { GOTO_PROVIDERS } from '../features/goto'
 import { REFACTOR_PROVIDERS } from '../features/refactors'
 import { RENAME_PROVIDERS } from '../features/renames'
-import { wrapInTrace } from '../helpers/logger'
+import { wrapObject } from '../helpers/logger'
 import { TS } from '../interfaces'
 import { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
@@ -27,7 +27,7 @@ export function createTemplateLanguageServer(
     return h.getLanguageServiceFor(fileName, service)
   }
 
-  return wrapInTrace('TemplateLanguageServer', {
+  return wrapObject('TemplateLanguageServer', {
     ...noop,
 
     getCompletionsAtPosition(fileName, position, options) {
@@ -209,9 +209,8 @@ export function createTemplateLanguageServer(
         )
 
         if (result != null) {
-          context.log(
-            `@@DEBUG found findRenameLocations using "${provider.name}"`,
-          )
+          if (__DEV__)
+            context.debug(`found findRenameLocations using "${provider.name}"`)
 
           return result
         }
@@ -265,7 +264,7 @@ export function createTemplateLanguageServer(
       )
 
       if (provider != null) {
-        context.log(`@@DEBUG: Using ${provider.name}`)
+        if (__DEV__) context.debug(`Using ${provider.name}`)
         return provider.applyRefactor(
           config,
           fileName,

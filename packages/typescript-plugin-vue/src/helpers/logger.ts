@@ -1,3 +1,4 @@
+import { collectError, trace } from '@vuedx/shared'
 import { performance } from 'perf_hooks'
 import util from 'util'
 
@@ -5,7 +6,7 @@ const DEBUGGING = false
 function isPlainObj(o: any): boolean {
   return typeof o === 'object' && o.constructor === Object
 }
-export function wrapInTrace<T>(context: string, target: T): T {
+export function wrapObject<T>(context: string, target: T): T {
   if (__DEV__) {
     const write = (
       method: string,
@@ -69,6 +70,7 @@ export function wrapInTrace<T>(context: string, target: T): T {
 
   return target
 }
+
 export function wrapFn<T extends (...args: any[]) => any>(
   context: string,
   target: T,
@@ -102,4 +104,40 @@ export function wrapFn<T extends (...args: any[]) => any>(
   }
 
   return target
+}
+
+export function traceFn<T extends (...args: any[]) => any>(
+  event: string,
+  target: T,
+  context: any = null,
+): T {
+  return ((...args) => {
+    const start = performance.now()
+    try {
+      return target.call(context, ...args)
+    } catch (error) {
+      collectError(error)
+      throw error
+    } finally {
+      trace(event, performance.now() - start)
+    }
+  }) as T
+}
+
+export function traceObject<T>(context: string, target: T): T {
+  const clone = ({} as unknown) as T
+
+  for (const propertyName in target) {
+    if (typeof target[propertyName] === 'function') {
+      clone[propertyName] = traceFn(
+        `${context}.${propertyName}`,
+        target[propertyName] as any,
+        target,
+      )
+    } else {
+      clone[propertyName] = target[propertyName]
+    }
+  }
+
+  return clone
 }

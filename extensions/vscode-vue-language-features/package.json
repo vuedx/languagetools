@@ -9,7 +9,12 @@
   "icon": "logo.png",
   "main": "dist/index.js",
   "activationEvents": [
-    "onLanguage:vue"
+    "onLanguage:vue",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onCommand:vuedx.openVirtualFile"
   ],
   "files": [
     "dist"
@@ -52,54 +57,59 @@
     ],
     "commands": [
       {
-        "command": "vue.openVirtualFile",
+        "command": "vuedx.openVirtualFile",
         "title": "Vue: Show virtual file"
       }
     ],
     "configuration": {
       "title": "VueDX",
       "properties": {
-        "vue.suggest.enabled": {
+        "vuedx.suggest.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Enabled/disable autocomplete suggestions.",
           "scope": "resource"
         },
-        "vue.format.enable": {
+        "vuedx.format.enable": {
           "type": "boolean",
           "default": true,
           "description": "Enable/disable default TypeScript/JavaScript formatter.",
           "scope": "window"
         },
-        "vue.implementationsCodeLens.enabled": {
+        "vuedx.implementationsCodeLens.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Enable/disable implementations CodeLens. This CodeLens shows the implementers of an interface.",
           "scope": "window"
         },
-        "vue.suggest.completeJSDocs": {
+        "vuedx.suggest.completeJSDocs": {
           "type": "boolean",
           "default": true,
           "description": "Enable/disable suggestion to complete JSDoc comments.",
           "scope": "resource"
         },
-        "vue.referencesCodeLens.enabled": {
+        "vuedx.referencesCodeLens.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Enable/disable references CodeLens in TypeScript/JavaScript files.",
           "scope": "window"
         },
-        "vue.autoClosingTags": {
+        "vuedx.autoClosingTags": {
           "type": "boolean",
           "default": true,
           "description": "Enable/disable automatic closing of JSX tags. Requires using TypeScript 3.0 or newer in the workspace."
+        },
+        "vuedx.telemetry": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable telemetry."
         }
       }
     },
     "menus": {
       "commandPalette": [
         {
-          "command": "vue.openVirtualFile",
+          "command": "vuedx.openVirtualFile",
           "when": "editorLangId == vue"
         },
         {
@@ -127,14 +137,14 @@
     "jsonValidation": [
       {
         "fileMatch": "vueconfig.json",
-        "url": "https://unpkg.com/@vuedx/projectconfig@0.4.0/schema.json"
+        "url": "https://unpkg.com/@vuedx/projectconfig@0.5.0/schema.json"
       }
     ],
     "typescriptServerPlugins": [
       {
         "name": "@vuedx/typescript-standalone",
         "enableForWorkspaceTypeScriptVersions": true,
-        "configNamespace": "vue",
+        "configNamespace": "vuedx",
         "languages": [
           "vue"
         ]
@@ -149,19 +159,19 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/vscode#readme",
   "dependencies": {
-    "@vuedx/analyze": "workspace:*",
-    "@vuedx/typescript-standalone": "workspace:*",
-    "fast-glob": "^3.2.4",
-    "json5": "^2.1.3"
+    "@vuedx/typescript-standalone": "workspace:*"
   },
   "devDependencies": {
     "@types/vscode": "^1.50.0",
     "@vercel/ncc": "^0.24.1",
-    "@vuedx/vue-virtual-textdocument": "workspace:*",
+    "@vuedx/analyze": "workspace:*",
     "@vuedx/typescript-plugin-vue": "workspace:*",
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
     "inversify": "^5.0.1",
     "reflect-metadata": "^0.1.13",
     "typescript": "^4.0.3",
+    "fast-glob": "^3.2.4",
+    "json5": "^2.1.3",
     "vsce": "1.81.0"
   }
 }

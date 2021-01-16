@@ -22,7 +22,7 @@ export const TemplateContextCompletionProvider = defineCompletionProvider({
       isSimpleExpressionNode(node) &&
       options?.triggerCharacter !== '.' // Not a member expression
     ) {
-      context.log('@@DEBUG TemplateContext Completion')
+      context.debug('TemplateContext Completion')
       const result = service.getCompletionsAtPosition(
         document.fsPath,
         document.contextCompletionsTriggerOffset,

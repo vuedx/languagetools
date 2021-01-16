@@ -17,7 +17,7 @@ import {
 } from '@vuedx/vue-virtual-textdocument'
 import { ORIGINAL_LANGUAGE_SERVER } from '../constants'
 import { PluginContext } from '../context'
-import { wrapInTrace } from '../helpers/logger'
+import { wrapObject } from '../helpers/logger'
 import { createServerHelper } from '../helpers/utils'
 import { TS } from '../interfaces'
 import {
@@ -37,7 +37,7 @@ export class RoutingLanguageServer {
 
     const proxy = createLanguageServiceRouter({
       context: this.context,
-      service: wrapInTrace('TypeScriptLanguageService', languageService),
+      service: wrapObject('TypeScriptLanguageService', languageService),
       helpers: createServerHelper(this.context, languageService),
     })
 
@@ -137,7 +137,7 @@ function createLanguageServiceRouter(
     return file != null && isVirtualFile(file.fileName)
   }
 
-  const proxy = wrapInTrace<TS.LanguageService>('LanguageRoutingService', {
+  const proxy = wrapObject<TS.LanguageService>('LanguageRoutingService', {
     ...config.service,
 
     getSyntacticDiagnostics(fileName) {
@@ -241,7 +241,7 @@ function createLanguageServiceRouter(
         let newSource = source
 
         // -> Rewrite source to _module virtual file.
-        newSource = source + VIRTUAL_FILENAME_SEPARATOR + MODULE_SELECTOR
+        newSource = `${source}${VIRTUAL_FILENAME_SEPARATOR}${MODULE_SELECTOR}`
 
         details = choose(fileName).getCompletionEntryDetails(
           fileName,

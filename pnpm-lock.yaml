@@ -118,6 +118,7 @@ importers:
     devDependencies:
       '@types/vscode': 1.52.0
       '@vercel/ncc': 0.24.1
+      '@vuedx/shared': 'link:../../packages/shared'
       '@vuedx/typescript-plugin-vue': 'link:../../packages/typescript-plugin-vue'
       '@vuedx/vue-virtual-textdocument': 'link:../../packages/vue-virtual-textdocument'
       inversify: 5.0.1
@@ -128,6 +129,7 @@ importers:
       '@types/vscode': ^1.50.0
       '@vercel/ncc': ^0.24.1
       '@vuedx/analyze': 'workspace:*'
+      '@vuedx/shared': 'workspace:^0.5.0'
       '@vuedx/typescript-plugin-vue': 'workspace:*'
       '@vuedx/typescript-standalone': 'workspace:*'
       '@vuedx/vue-virtual-textdocument': 'workspace:*'
@@ -149,6 +151,7 @@ importers:
       '@vuedx/compiler-sfc': 'link:../compiler-sfc'
       '@vuedx/compiler-tsx': 'link:../compiler-tsx'
       '@vuedx/projectconfig': 'link:../projectconfig'
+      '@vuedx/shared': 'link:../shared'
       '@vuedx/template-ast-types': 'link:../template-ast-types'
       cli-highlight: 2.1.4
       commander: 6.1.0
@@ -158,7 +161,6 @@ importers:
     devDependencies:
       '@types/babel__traverse': 7.0.15
       '@types/node': 14.14.14
-      '@vuedx/shared': 'link:../shared'
       typescript: 4.0.3
     specifiers:
       '@babel/code-frame': ^7.10.4
@@ -202,9 +204,9 @@ importers:
       '@babel/parser': 7.12.3
       '@babel/types': 7.12.1
       '@vue/compiler-core': 3.0.1
+      '@vuedx/shared': 'link:../shared'
       '@vuedx/template-ast-types': 'link:../template-ast-types'
     devDependencies:
-      '@vuedx/shared': 'link:../shared'
       typescript: 4.0.3
     specifiers:
       '@babel/parser': 7.12.3
@@ -216,7 +218,19 @@ importers:
   packages/projectconfig:
     specifiers: {}
   packages/shared:
-    specifiers: {}
+    dependencies:
+      '@amplitude/node': 1.2.0
+      clean-stack: 3.0.1
+      node-machine-id: 1.1.12
+      uuid: 8.3.2
+    devDependencies:
+      '@types/uuid': 8.3.0
+    specifiers:
+      '@amplitude/node': ^1.2.0
+      '@types/uuid': ^8.3.0
+      clean-stack: ^3.0.1
+      node-machine-id: ^1.1.12
+      uuid: ^8.3.2
   packages/template-ast-types:
     dependencies:
       '@vue/compiler-core': 3.0.1
@@ -227,6 +241,7 @@ importers:
       typescript: ^4.0.3
   packages/typecheck:
     dependencies:
+      '@vuedx/shared': 'link:../shared'
       '@vuedx/typescript-plugin-vue': 'link:../typescript-plugin-vue'
       '@vuedx/vue-virtual-textdocument': 'link:../vue-virtual-textdocument'
       chalk: 4.1.0
@@ -235,6 +250,7 @@ importers:
       resolve-from: 5.0.0
       typescript: 4.0.3
     specifiers:
+      '@vuedx/shared': 'workspace:*'
       '@vuedx/typescript-plugin-vue': 'workspace:*'
       '@vuedx/vue-virtual-textdocument': 'workspace:*'
       chalk: ^4.1.0
@@ -248,6 +264,7 @@ importers:
       '@vuedx/analyze': 'link:../analyze'
       '@vuedx/compiler-sfc': 'link:../compiler-sfc'
       '@vuedx/projectconfig': 'link:../projectconfig'
+      '@vuedx/shared': 'link:../shared'
       '@vuedx/template-ast-types': 'link:../template-ast-types'
       '@vuedx/vue-virtual-textdocument': 'link:../vue-virtual-textdocument'
       de-indent: 1.0.2
@@ -257,7 +274,6 @@ importers:
       vscode-web-custom-data: 0.3.2
     devDependencies:
       '@vue/runtime-core': 3.0.4
-      '@vuedx/shared': 'link:../shared'
       csstype: 3.0.5
       typescript: 4.0.3
       vscode-languageserver-textdocument: 1.0.1
@@ -302,11 +318,11 @@ importers:
       '@vuedx/analyze': 'link:../analyze'
       '@vuedx/compiler-sfc': 'link:../compiler-sfc'
       '@vuedx/compiler-tsx': 'link:../compiler-tsx'
+      '@vuedx/shared': 'link:../shared'
       source-map: 0.6.1
       vscode-languageserver-textdocument: 1.0.1
       vscode-uri: 2.1.2
     devDependencies:
-      '@vuedx/shared': 'link:../shared'
       fast-glob: 3.2.4
       typescript: 4.0.3
     specifiers:
@@ -467,6 +483,37 @@ importers:
       vue: ^2.6.12
 lockfileVersion: 5.2
 packages:
+  /@amplitude/eslint-config-typescript/1.1.0:
+    dev: false
+    resolution:
+      integrity: sha512-N8sKkwtFakPD2/cSOrBnM5Wudjp4qeDD69U1cG7dZ6DDczxBhUEqnJDJ0wiYmKMPXqr+bmFOsDdbCcOmb/CLYA==
+  /@amplitude/node/1.2.0:
+    dependencies:
+      '@amplitude/types': 1.2.0
+      '@amplitude/utils': 1.2.0
+      tslib: 1.14.1
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-3XpGPiPC/haFfeZuRRQ/haY/cUmpOO39fnaxJLiChGIARBN10A+6w1oKUau6DZ2l/SvVLQIpWVD7dx8GdjhZdQ==
+  /@amplitude/types/1.2.0:
+    dependencies:
+      '@amplitude/eslint-config-typescript': 1.1.0
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-K1J/lXumpTnIwGftp4G8tpsWNQSDlGdKzdxbDKE8ZmtEt0DDpZVLPpCg3BzIEd9050zVr9FU0fFtHUWnjoWPaw==
+  /@amplitude/utils/1.2.0:
+    dependencies:
+      '@amplitude/types': 1.2.0
+      tslib: 1.14.1
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-S3XgxnRMMvzd4Tjcvx8PBmeojydJqTKSyJYQx7nl4WUExCnSJ8fROhSvbvVAJuw4p2C7wVKSxOXaYrq1s34Ljw==
   /@babel/code-frame/7.10.4:
     dependencies:
       '@babel/highlight': 7.10.4
@@ -1381,6 +1428,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-RJJrrySY7A8havqpGObOB4W92QXKJo63/jFLLgpvOtsGUqbQZ9Sbgl35KMm1DjC6j7AvmmU2bIno+3IyEaemaw==
+  /@types/uuid/8.3.0:
+    dev: true
+    resolution:
+      integrity: sha512-eQ9qFW/fhfGJF8WKHGEHZEyVWfZxrT+6CLIJGBcZPfxUh/+BnEj+UCGYMlr9qZuX/2AltsvwrGqp0LhEW8D0zQ==
   /@types/vscode/1.50.0:
     dev: true
     resolution:
@@ -2327,6 +2378,14 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==
+  /clean-stack/3.0.1:
+    dependencies:
+      escape-string-regexp: 4.0.0
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-lR9wNiMRcVQjSB3a7xXGLuz4cr4wJuuXlaAEbRutGowQTmlp7R72/DOgN21e8jdwblMWl9UOJMJXarX94pzKdg==
   /cli-cursor/3.1.0:
     dependencies:
       restore-cursor: 3.1.0
@@ -2981,6 +3040,12 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w==
+  /escape-string-regexp/4.0.0:
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==
   /escodegen/1.14.3:
     dependencies:
       esprima: 4.0.1
@@ -5430,6 +5495,10 @@ packages:
     dev: true
     resolution:
       integrity: sha1-h6kGXNs1XTGC2PlM4RGIuCXGijs=
+  /node-machine-id/1.1.12:
+    dev: false
+    resolution:
+      integrity: sha512-QNABxbrPa3qEIfrE6GOJ7BYIuignnJw7iQ2YPbc3Nla1HzRJjXzZOiikfF8m7eAMfichLt3M4VgLOetqgDmgGQ==
   /node-modules-regexp/1.0.0:
     dev: true
     engines:
@@ -7205,7 +7274,6 @@ packages:
     resolution:
       integrity: sha512-dRcuzokWhajtZWkQsDVKbWyY+jgcLC5sqJhg2PSgf4ZkH2aHPvaOY8YWGhmjb68b5qqTfasSsDO9k7RUiEmZAw==
   /tslib/1.14.1:
-    dev: true
     resolution:
       integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
   /tslib/2.0.3:
@@ -7406,6 +7474,11 @@ packages:
     optional: true
     resolution:
       integrity: sha512-FOmRr+FmWEIG8uhZv6C2bTgEVXsHk08kE7mPlrBbEe+c3r9pjceVPgupIfNIhc4yx55H69OXANrUaSuu9eInKg==
+  /uuid/8.3.2:
+    dev: false
+    hasBin: true
+    resolution:
+      integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
   /v8-compile-cache/2.2.0:
     dev: true
     resolution:

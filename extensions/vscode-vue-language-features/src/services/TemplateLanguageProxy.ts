@@ -21,7 +21,7 @@ import { Installable } from '../utils/installable'
 import { DocumentService } from './documents'
 
 /**
- * Triggers completions when ":" is typed.
+ * Triggers completions when ":" or "/" is typed.
  */
 @injectable()
 export class TemplateLanguageProxy
@@ -85,8 +85,6 @@ export class TemplateLanguageProxy
     document: VirtualTextDocument | undefined,
   ): document is RenderFunctionTextDocument {
     const result = document != null && this.languages.has(document.languageId)
-
-    console.log(`Is ${document?.languageId ?? 'null'} supported?`, result)
 
     return result
   }

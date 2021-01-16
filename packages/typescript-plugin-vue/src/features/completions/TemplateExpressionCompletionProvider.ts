@@ -65,7 +65,7 @@ export const TemplateExpressionCompletionProvider = defineCompletionProvider({
     if (isNotNull(document) && isSimpleExpressionNode(node)) {
       const loc = document.tryGetGeneratedOffset(position)
       if (isNotNull(loc)) {
-        context.log('@@DEBUG TemplateExpression Completion')
+        if (__DEV__) context.debug('TemplateExpression Completion')
         const result = service.getCompletionsAtPosition(
           document.fsPath,
           loc,

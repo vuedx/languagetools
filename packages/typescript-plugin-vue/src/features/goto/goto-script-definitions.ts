@@ -31,9 +31,10 @@ export const GotoScriptDefinitions: GotoProvider = {
     result.definitions?.forEach((definition) => {
       if (h.isRenderFunctionFileName(definition.fileName)) {
         if (definition.fileName !== document.fsPath) {
-          context.log(
-            `Unexpected bound span in ${document.fsPath} resolved to ${definition.fileName}`,
-          )
+          if (__DEV__)
+            context.debug(
+              `Unexpected bound span in ${document.fsPath} resolved to ${definition.fileName}`,
+            )
           return
         }
 
