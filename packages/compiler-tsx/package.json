@@ -27,10 +27,10 @@
     "@babel/parser": "7.12.3",
     "@babel/types": "7.12.1",
     "@vue/compiler-core": "^3.0.1",
+    "@vuedx/shared": "workspace:*",
     "@vuedx/template-ast-types": "workspace:*"
   },
   "devDependencies": {
-    "@vuedx/shared": "workspace:*",
     "typescript": "^4.0.3"
   }
 }

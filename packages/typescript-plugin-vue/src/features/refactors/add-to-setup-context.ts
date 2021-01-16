@@ -28,7 +28,7 @@ export const AddToSetupContextRefactor: RefactorProvider = {
     const document = helpers.getVueDocument(fileName)
     if (document != null) {
       const info = helpers.getComponentInfo(document)
-      context.log(`@@DEBUG: Is position in setup function?`)
+      if (__DEV__) context.debug(`Is position in setup function?`)
       if (
         info.fnSetupOption?.return != null &&
         isTextRangeInSourceRange(position, info.fnSetupOption.loc) &&

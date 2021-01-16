@@ -150,7 +150,7 @@ function createDiagnosticsHandler<T extends TS.Diagnostic>(
       }
     } finally {
       if (__DEV__ && reason != null) {
-        console.log(
+        console.debug(
           `@@debug Filtered: "${reason}" - ${diagnostic.code} ${JSON.stringify(
             diagnostic.messageText,
           )}`,

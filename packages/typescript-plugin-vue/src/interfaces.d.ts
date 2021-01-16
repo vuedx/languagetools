@@ -10,6 +10,7 @@ export type PatchedFunction<T> = T & {
 }
 
 export interface PluginConfig {
+  telemetry?: boolean
   features: {
     diagnostics: boolean | Array<'semantic' | 'syntactic' | 'suggestion'>
     organizeImports: boolean

@@ -83,6 +83,7 @@ const config = [
   bundle('typescript-vetur'),
 
   extension('coc-vue'),
+  // extension('vscode-vue-language-features'),
 ]
 
 const isWatch = process.argv.includes('-w') || process.argv.includes('--watch')
@@ -200,10 +201,24 @@ function extension(name, plugins = []) {
       define(),
       ...plugins,
       resolve({ preferBuiltins: true }),
-      commonjs({ transformMixedEsModules: true }),
       json(),
       typescript({ tsconfig: abs(`./extensions/${name}/tsconfig.build.json`) }),
+      commonjs({
+        transformMixedEsModules: true,
+        dynamicRequireTargets: [
+          // 'node_modules/inversify/lib/syntax/*.js',
+          // 'node_modules/@babel/types/**/*.js',
+          // 'node_modules/@babel/traverse/**/*.js',
+        ].reduce((items, item) => {
+          items.push(`node_modules/.pnpm/**/${item}`)
+
+          return items
+        }, []),
+      }),
     ],
+    treeshake: {
+      moduleSideEffects: () => false,
+    },
     moduleContext: () => 'undefined',
     external: [
       'vscode',

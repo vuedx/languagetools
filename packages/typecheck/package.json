@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
+    "@vuedx/shared": "workspace:*",
     "@vuedx/typescript-plugin-vue": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "chalk": "^4.1.0",

@@ -30,6 +30,7 @@
     "@vuedx/analyze": "workspace:*",
     "@vuedx/compiler-sfc": "workspace:*",
     "@vuedx/projectconfig": "workspace:*",
+    "@vuedx/shared": "workspace:*",
     "@vuedx/template-ast-types": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "de-indent": "^1.0.2",
@@ -40,7 +41,6 @@
   },
   "devDependencies": {
     "@vue/runtime-core": "^3.0.4",
-    "@vuedx/shared": "workspace:*",
     "csstype": "^3.0.5",
     "typescript": "^4.0.3",
     "vscode-languageserver-textdocument": "^1.0.1"

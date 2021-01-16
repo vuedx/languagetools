@@ -52,12 +52,12 @@
     "commander": "^6.1.0",
     "fast-glob": "^3.2.4",
     "hash-sum": "^2.0.0",
+    "@vuedx/shared": "workspace:*",
     "micromatch": "^4.0.2"
   },
   "devDependencies": {
     "@types/babel__traverse": "^7.0.15",
     "@types/node": "^14.14.14",
-    "@vuedx/shared": "workspace:*",
     "typescript": "^4.0.3"
   }
 }

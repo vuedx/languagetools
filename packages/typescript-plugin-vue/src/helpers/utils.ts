@@ -1,6 +1,6 @@
 import { ComponentInfo, createFullAnalyzer, SourceRange } from '@vuedx/analyze'
 import type { SFCBlock } from '@vuedx/compiler-sfc'
-import { isNotNull } from '@vuedx/shared'
+import { collectError, isNotNull } from '@vuedx/shared'
 import {
   findTemplateChildrenInRange,
   findTemplateNodeAt,
@@ -76,15 +76,15 @@ export function createServerHelper(
     position: number | TS.TextRange,
   ):
     | {
-      node: Node
-      ancestors: TraversalAncestors
-      document: RenderFunctionTextDocument
-    }
+        node: Node
+        ancestors: TraversalAncestors
+        document: RenderFunctionTextDocument
+      }
     | {
-      node: null
-      ancestors: TraversalAncestors
-      document: RenderFunctionTextDocument | null
-    } {
+        node: null
+        ancestors: TraversalAncestors
+        document: RenderFunctionTextDocument | null
+      } {
     const document = getRenderDoc(fileName)
 
     if (document?.ast != null) {
@@ -122,7 +122,7 @@ export function createServerHelper(
   ): VueTextDocument | VirtualTextDocument | null {
     return isVirtualFile(fileName)
       ? context.store.get(getContainingFile(fileName))?.getDocument(fileName) ??
-      null
+          null
       : context.store.get(fileName)
   }
 
@@ -130,8 +130,8 @@ export function createServerHelper(
     return isVueFile(fileName)
       ? context.store.get(fileName)
       : isVirtualFile(fileName)
-        ? context.store.get(getContainingFile(fileName))
-        : null
+      ? context.store.get(getContainingFile(fileName))
+      : null
   }
 
   function getBlockAt(
@@ -312,7 +312,10 @@ export function createServerHelper(
 
       if (project == null) return fallback ?? languageService
       const service = project.getLanguageService()
-      context.debug(`Project for "${fileName}" is ${project.getProjectName()}`)
+      if (__DEV__)
+        context.debug(
+          `Project for "${fileName}" is ${project.getProjectName()}`,
+        )
       if (ORIGINAL_LANGUAGE_SERVER in service) {
         return (service as any)[ORIGINAL_LANGUAGE_SERVER]
       } else {
@@ -332,7 +335,7 @@ export function createServerHelper(
         .getProgram()
         ?.getSourceFile(fileName)
     } catch (error) {
-      context.error({ message: `${error.name} – ${error.message}`, name: 'NotFoundSourceFileError', stack: error.stack })
+      collectError(error)
     }
   }
 

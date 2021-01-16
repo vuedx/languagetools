@@ -2,6 +2,7 @@ import chalk from 'chalk'
 import FS, { promises as FSP } from 'fs'
 // @ts-expect-error
 import parseArgs from 'minimist'
+import { collect, collectError } from '@vuedx/shared'
 import Path from 'path'
 import readline from 'readline'
 import TS from 'typescript/lib/tsserverlibrary'
@@ -164,7 +165,7 @@ function convertToRelativePath(fileName: string): string {
     : fileName
 }
 
-export async function cli(): Promise<void> {
+async function _cli(): Promise<void> {
   const { pretty, vue, help, watch, format, _: argv } = parseArgs(
     process.argv.slice(2),
     {
@@ -210,6 +211,13 @@ Options
     process.exit(1)
   }
 
+  collect('cli exec', {
+    watch,
+    format,
+    vue,
+    pretty,
+  })
+
   if (watch === true) {
     const controller = new AbortController()
     for await (const result of getDiagnostics(
@@ -226,6 +234,15 @@ Options
 
     if (getErrorCount(result) > 0 && format === 'raw') process.exit(2)
     else process.exit(0)
+  }
+}
+
+export async function cli(): Promise<void> {
+  try {
+    await _cli()
+  } catch (error) {
+    collectError(error)
+    throw error
   }
 }
 

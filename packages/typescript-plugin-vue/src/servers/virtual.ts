@@ -1,4 +1,4 @@
-import { wrapInTrace } from '../helpers/logger'
+import { wrapObject } from '../helpers/logger'
 import { TS } from '../interfaces'
 import { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
@@ -14,7 +14,7 @@ export function createVirtualLanguageServer(
     return config.helpers.getLanguageServiceFor(fileName, config.service)
   }
 
-  return wrapInTrace('VirtualLanguageServer', {
+  return wrapObject('VirtualLanguageServer', {
     ...noop,
     getQuickInfoAtPosition(rawFileName, position) {
       const fileName = removePrefix(rawFileName)
