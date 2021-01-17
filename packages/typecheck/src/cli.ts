@@ -202,8 +202,11 @@ Options
     console.error(`Cannot find directory: "${String(argv[0])}"`)
     process.exit(1)
   }
+  
+  if (format === 'raw') {
+    console.debug('Running for ' + directory)
+  }
 
-  console.debug('Running for ' + directory)
   if (!FS.statSync(directory).isDirectory()) {
     console.error(
       `Expecting a directory, but "${process.argv[2]}" is not a directory.`,
