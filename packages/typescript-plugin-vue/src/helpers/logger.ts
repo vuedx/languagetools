@@ -7,7 +7,7 @@ function isPlainObj(o: any): boolean {
   return typeof o === 'object' && o.constructor === Object
 }
 export function wrapObject<T>(context: string, target: T): T {
-  if (__DEV__) {
+  if (__DEV__ && DEBUGGING) {
     const write = (
       method: string,
       start: number,
@@ -109,30 +109,28 @@ export function wrapFn<T extends (...args: any[]) => any>(
 export function traceFn<T extends (...args: any[]) => any>(
   event: string,
   target: T,
-  context: any = null,
 ): T {
-  return ((...args) => {
-    const start = performance.now()
+  return function (this: any, ...args) {
+    const done = trace(event)
     try {
-      return target.call(context, ...args)
+      return target.call(this, ...args)
     } catch (error) {
       collectError(error)
       throw error
     } finally {
-      trace(event, performance.now() - start)
+      done()
     }
-  }) as T
+  } as T
 }
 
 export function traceObject<T>(context: string, target: T): T {
-  const clone = ({} as unknown) as T
+  const clone = Object.create(Object.getPrototypeOf(target))
 
   for (const propertyName in target) {
     if (typeof target[propertyName] === 'function') {
       clone[propertyName] = traceFn(
         `${context}.${propertyName}`,
         target[propertyName] as any,
-        target,
       )
     } else {
       clone[propertyName] = target[propertyName]

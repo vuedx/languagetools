@@ -3,7 +3,7 @@ import {
   InferredVueProject,
   VueProject,
 } from '@vuedx/analyze'
-import { collect, collectError, first } from '@vuedx/shared'
+import { collect, collectError, first, Telemetry } from '@vuedx/shared'
 import {
   asFsPath,
   asFsUri,
@@ -23,6 +23,13 @@ import Path from 'path'
 import { traceFn, wrapFn } from './helpers/logger'
 import { tryPatchMethod } from './helpers/patcher'
 import { PluginConfig, TS } from './interfaces'
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare var __non_webpack_require__: any
+
+const requireModule = (typeof __non_webpack_require__ !== 'undefined'
+  ? __non_webpack_require__
+  : require) as NodeJS.Require
 
 function getLastNumberFromVersion(version: string): number {
   const parts = version.split(/[^0-9]+/)
@@ -206,11 +213,10 @@ export class PluginContext {
                 return {}
               }
             }
-
             // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-            delete require.cache[fileName]
+            delete requireModule.cache[fileName]
 
-            return require(fileName)
+            return requireModule(fileName)
           } catch (error) {
             collectError(error)
 
@@ -226,11 +232,13 @@ export class PluginContext {
                 packageFile != null ? tryRequire(packageFile) : {},
                 configFile,
                 tryRequire(configFile),
+                requireModule,
               )
             : new InferredVueProject(
                 rootDir,
                 packageFile,
                 packageFile != null ? tryRequire(packageFile) : {},
+                requireModule,
               )
 
         newProject.setFileNames(fileNames)
@@ -355,9 +363,13 @@ export class PluginContext {
           lastUsedAt: Date.now(),
         })
 
+        Telemetry.extend({
+          vueVersion: newProject.version,
+        })
+
         collect('vue project', {
           kind: newProject.kind,
-          vue_version: newProject.version,
+          vue: newProject.version,
           dependencies: newProject.packageJSON.dependencies,
           devDependencies: newProject.packageJSON.devDependencies,
         })

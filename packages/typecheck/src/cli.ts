@@ -203,7 +203,7 @@ Options
     process.exit(1)
   }
 
-  console.log('Running for ' + directory)
+  console.debug('Running for ' + directory)
   if (!FS.statSync(directory).isDirectory()) {
     console.error(
       `Expecting a directory, but "${process.argv[2]}" is not a directory.`,

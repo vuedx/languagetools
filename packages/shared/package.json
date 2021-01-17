@@ -5,9 +5,8 @@
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@amplitude/node": "^1.2.0",
-    "clean-stack": "^3.0.1",
-    "node-machine-id": "^1.1.12",
+    "@sentry/node": "^5.30.0",
+    "node-unique-machine-id": "^1.1.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

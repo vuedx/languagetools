@@ -22,11 +22,13 @@ export async function getDiagnostics(directory: string): Promise<Diagnostics> {
 }
 
 function setup(): void {
-  Telemetry.setup('fe02b81034347289d548c44ffbc5eaeb', {
-    library: 'typecheck',
-    version_name: version,
-    event_properties: {
+  Telemetry.setup(
+    'https://212f65f46796440ebbe974f24b20ffae@o237831.ingest.sentry.io/5595698',
+    'typecheck',
+    version,
+    process.env.CI != null ? 1 : 0.25,
+    {
       ci: process.env.CI,
     },
-  })
+  )
 }
