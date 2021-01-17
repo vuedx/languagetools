@@ -19,7 +19,7 @@ export default function init({ typescript }: Modules): TS.server.PluginModule {
     'https://a1461052e1d94c7a9ee7c3f7add71b24@o237831.ingest.sentry.io/5595721',
     'typescript-plugin-vue',
     version,
-    0.25,
+    0.001, // 1 in thousand
     { typescriptVersion: typescript.versionMajorMinor },
   )
 

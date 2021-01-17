@@ -40,7 +40,7 @@ export class Telemetry {
       defaultIntegrations: false,
       release: options.release,
       environment: options.environment,
-      tracesSampleRate: options.tracesSampleRate,
+      sampleRate: options.tracesSampleRate,
     } as any)
 
     this.defaults = {
@@ -70,12 +70,12 @@ export class Telemetry {
         description,
       })
 
-      Sentry.configureScope((scope: any) => {
+      Sentry.configureScope((scope) => {
         scope.setSpan(transaction)
       })
 
       return () => {
-        Sentry.captureMessage(`[trace] ${name}`, (scope: any): any => {
+        Sentry.captureMessage(`[trace] ${name}`, (scope) => {
           scope.setSpan(transaction)
           scope.setUser(this.user)
           scope.setTags({ ...this.defaults })
