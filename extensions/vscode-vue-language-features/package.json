@@ -157,7 +157,7 @@
   "bugs": {
     "url": "https://github.com/znck/vue-developer-experience/issues"
   },
-  "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/vscode#readme",
+  "homepage": "https://github.com/znck/vue-developer-experience/blob/main/extensions/vscode#readme",
   "dependencies": {
     "@vuedx/typescript-standalone": "workspace:*"
   },

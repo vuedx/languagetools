@@ -248,7 +248,7 @@ export async function cli(): Promise<void> {
 
 /**
  * Return diagnostic result in Reviewdog Diagnostic Format
- * @see https://github.com/reviewdog/reviewdog/tree/master/proto/rdf#rdjson
+ * @see https://github.com/reviewdog/reviewdog/tree/main/proto/rdf#rdjson
  */
 function encodeRdJSON(result: Diagnostics, pretty: boolean): string {
   const severityMap = {
@@ -263,7 +263,7 @@ function encodeRdJSON(result: Diagnostics, pretty: boolean): string {
       source: {
         name: 'VueDX typecheck',
         url:
-          'https://github.com/znck/vue-developer-experience/tree/master/packages/typecheck',
+          'https://github.com/znck/vue-developer-experience/tree/main/packages/typecheck',
       },
       diagnostics: result.flatMap((sourceFile) => {
         return sourceFile.diagnostics.map((diagnostic) => ({

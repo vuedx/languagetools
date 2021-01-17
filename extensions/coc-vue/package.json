@@ -125,7 +125,7 @@
   "bugs": {
     "url": "https://github.com/znck/vue-developer-experience/issues"
   },
-  "homepage": "https://github.com/znck/vue-developer-experience/blob/master/extensions/coc-vue#readme",
+  "homepage": "https://github.com/znck/vue-developer-experience/blob/main/extensions/coc-vue#readme",
   "dependencies": {
     "@vuedx/typescript-plugin-vue": "0.3.1-insiders-1607121235.0"
   },

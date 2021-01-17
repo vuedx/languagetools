@@ -1,6 +1,6 @@
 # Vue TypeScript Standalone
 
-This is a standalone (bundled dependencies) build of [typescript-plugin-vue](https://github.com/znck/vue-developer-experience/tree/master/packages/typescript-plugin-vue).
+This is a standalone (bundled dependencies) build of [typescript-plugin-vue](https://github.com/znck/vue-developer-experience/tree/main/packages/typescript-plugin-vue).
 
 ## Support
 

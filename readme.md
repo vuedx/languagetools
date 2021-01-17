@@ -4,7 +4,7 @@
 
 # VueDX
 
-[![build](https://travis-ci.org/znck/vue-developer-experience.svg?branch=master)](https://travis-ci.org/znck/vue-developer-experience) ![CI](https://github.com/znck/vue-developer-experience/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/znck/vue-developer-experience/branch/master/graph/badge.svg?token=EF8TMXJK2D)](https://codecov.io/gh/znck/vue-developer-experience/)
+[![build](https://travis-ci.org/znck/vue-developer-experience.svg?branch=main)](https://travis-ci.org/znck/vue-developer-experience) ![CI](https://github.com/znck/vue-developer-experience/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/znck/vue-developer-experience/branch/main/graph/badge.svg?token=EF8TMXJK2D)](https://codecov.io/gh/znck/vue-developer-experience/)
 
 <div style="display: flex; justify-content: center; text-align: center">  
   <div style="margin: 16px">

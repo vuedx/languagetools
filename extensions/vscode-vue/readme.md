@@ -18,19 +18,19 @@ Following are some examples of syntax highlight.
   <tr>
     <td>
       <h3>Dark+</h3>
-      <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/Dark.png">
+      <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/main/extensions/vscode-vue/demo/Dark.png">
     </td>
     <td>
       <h3>Light+</h3>
-      <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/Light.png">
+      <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/main/extensions/vscode-vue/demo/Light.png">
     </td>
     <td>
       <h3>Night Owl</h3>
-      <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/NightOwl.png">
+      <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/main/extensions/vscode-vue/demo/NightOwl.png">
     </td>
     <td>
       <h3>Light Owl</h3>
-      <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/LightOwl.png">
+      <img src="https://raw.githubusercontent.com/znck/vue-developer-experience/main/extensions/vscode-vue/demo/LightOwl.png">
     </td>
   </tr>
   </tbody>
@@ -41,14 +41,14 @@ Following are some examples of syntax highlight.
 Use `vue` as language on fenced code block
 for embedding Vue SFC in markdown.
 <div>
-  <img width="480" src="https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/FencedCodeBlock-Vue.png" />
+  <img width="480" src="https://raw.githubusercontent.com/znck/vue-developer-experience/main/extensions/vscode-vue/demo/FencedCodeBlock-Vue.png" />
 </div>
 <br>
 
 Use `vue-html` as language on fenced code block
 for embedding Vue template DSL in markdown.
 <div>
-  <img width="480" src="https://raw.githubusercontent.com/znck/vue-developer-experience/master/extensions/vscode-vue/demo/FencedCodeBlock-VueHTML.png" />
+  <img width="480" src="https://raw.githubusercontent.com/znck/vue-developer-experience/main/extensions/vscode-vue/demo/FencedCodeBlock-VueHTML.png" />
 </div>
 <br>
 

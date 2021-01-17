@@ -1,6 +1,6 @@
 # TypeScript support for Vetur
 
-This is a special build of [typescript-plugin-vue](https://github.com/znck/vue-developer-experience/tree/master/packages/typescript-plugin-vue) for [vetur](https://github.com/vuejs/vetur).
+This is a special build of [typescript-plugin-vue](https://github.com/znck/vue-developer-experience/tree/main/packages/typescript-plugin-vue) for [vetur](https://github.com/vuejs/vetur).
 
 ## Support
 

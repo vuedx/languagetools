@@ -97,7 +97,7 @@ describe('typecheck', () => {
         "{
           \\"source\\": {
             \\"name\\": \\"VueDX typecheck\\",
-            \\"url\\": \\"https://github.com/znck/vue-developer-experience/tree/master/packages/typecheck\\"
+            \\"url\\": \\"https://github.com/znck/vue-developer-experience/tree/main/packages/typecheck\\"
           },
           \\"diagnostics\\": [
             {
