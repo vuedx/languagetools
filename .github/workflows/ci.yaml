@@ -3,6 +3,9 @@ name: CI/CD
 on:
   workflow_dispatch:
   pull_request:
+  release:
+    types:
+      - released
   push:
     paths-ignore:
       - 'docs/**'
