@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/node'
 import { machineSync } from 'node-unique-machine-id'
 import os from 'os'
 import { v4 as uuid } from 'uuid'
+import { inspect } from 'util'
 
 interface Options {
   release: string
@@ -120,10 +121,10 @@ export class Telemetry {
     })
   }
 
-  error(payload: string | Error): void {
+  error(payload: any | Error): void {
     if (this.optOut) return
-    if (typeof payload === 'string') {
-      payload = new Error(payload)
+    if (!(payload instanceof Error)) {
+      payload = new Error(inspect(payload, true, 3, false))
     }
 
     void Sentry.captureException(payload, {
