@@ -89,8 +89,8 @@ const config = [
 const isWatch = process.argv.includes('-w') || process.argv.includes('--watch')
 
 export default config
-  .filter((config) => input(config).match(process.env.FILTER ?? ''))
-  .filter((config) => kind(config).match(process.env.KIND ?? ''))
+  .filter((config) => input(config).match(process.env.FILTER || ''))
+  .filter((config) => kind(config).match(process.env.KIND || ''))
 
 /**
  * @param {string} name
@@ -389,11 +389,11 @@ function abs(fileName) {
 }
 
 function deps(fileName) {
-  return Array.from(Object.keys(require(abs(fileName)).dependencies ?? {}))
+  return Array.from(Object.keys(require(abs(fileName)).dependencies || {}))
 }
 
 function define() {
-  const BUILD = process.env.BUILD ?? 'production'
+  const BUILD = process.env.BUILD || 'production'
   const isProd = BUILD === 'production'
   return replace({
     __DEV__: JSON.stringify(!isProd),
