@@ -8,7 +8,7 @@ import {
 } from './detector/components'
 import { PackageJSON } from './detector/PackageJSON'
 import { VueProject } from './VueProject'
-import { requireModule as require } from './detector/require'
+import { requireModule as _require } from './detector/require'
 
 export class ConfiguredVueProject extends VueProject {
   kind = 'configured' as const
@@ -19,7 +19,7 @@ export class ConfiguredVueProject extends VueProject {
     packageJSON: Partial<PackageJSON>,
     public readonly configFile: string,
     config: Readonly<ProjectConfig>,
-    requireModule: NodeJS.Require = require,
+    requireModule: NodeJS.Require = _require,
   ) {
     super(rootDir, packageFile, packageJSON, requireModule)
     this.setConfig(config)

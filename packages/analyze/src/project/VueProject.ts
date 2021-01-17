@@ -6,7 +6,7 @@ import {
   getPackageJSON,
 } from './detector/components'
 import { PackageJSON } from './detector/PackageJSON'
-import { requireModule as require } from './detector/require'
+import { requireModule as _require } from './detector/require'
 
 function deepDefaults<T extends object>(a: {}, b: T): T
 function deepDefaults<T extends object>(a: T, b: Partial<T>): T
@@ -60,7 +60,7 @@ export abstract class VueProject {
     public readonly rootDir: string,
     public readonly packageFile: string | undefined,
     packageJSON: Partial<PackageJSON>,
-    protected readonly requireModule: NodeJS.Require = require,
+    protected readonly requireModule: NodeJS.Require = _require,
   ) {
     this.packageJSON = { dependencies: {}, devDependencies: {}, ...packageJSON }
     this.loadVueVersion()
