@@ -40,7 +40,7 @@ export class Telemetry {
       release: options.release,
       environment: options.environment,
       tracesSampleRate: options.tracesSampleRate,
-    })
+    } as any)
 
     this.defaults = {
       sessionId: uuid(),
