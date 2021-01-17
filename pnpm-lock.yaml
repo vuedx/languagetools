@@ -33,7 +33,7 @@ importers:
       nyc: 15.1.0
       prettier: 2.1.2
       rollup: 2.32.0
-      rollup-plugin-dts: 1.4.13_rollup@2.32.0+typescript@4.0.3
+      rollup-plugin-dts: 2.0.1_rollup@2.32.0+typescript@4.0.3
       ts-jest: 26.4.1_jest@26.5.3+typescript@4.0.3
       tslib: 2.0.3
       typescript: 4.0.3
@@ -72,7 +72,7 @@ importers:
       nyc: ^15.1.0
       prettier: ^2.1.2
       rollup: ^2.32.0
-      rollup-plugin-dts: ^1.4.13
+      rollup-plugin-dts: ^2.0.1
       ts-jest: ^26.4.1
       tslib: ^2.0.3
       typescript: ^4.0.3
@@ -6538,18 +6538,19 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==
-  /rollup-plugin-dts/1.4.13_rollup@2.32.0+typescript@4.0.3:
+  /rollup-plugin-dts/2.0.1_rollup@2.32.0+typescript@4.0.3:
     dependencies:
+      magic-string: 0.25.7
       rollup: 2.32.0
       typescript: 4.0.3
     dev: true
     optionalDependencies:
       '@babel/code-frame': 7.10.4
     peerDependencies:
-      rollup: ^2.26.8
-      typescript: ^4.0.2
+      rollup: ^2.34.2
+      typescript: ^4.1.2
     resolution:
-      integrity: sha512-7mxoQ6PcmCkBE5ZhrjGDL4k42XLy8BkSqpiRi1MipwiGs+7lwi4mQkp2afX+OzzLjJp/TGM8llfe8uayIUhPEw==
+      integrity: sha512-y38NSXIY37YExCumbGBTL5dXg7pL7XD+Kbe98iEHWFN9yiKJf7t4kKBOkml5ylUDjQIXBnNClGDeRktc1T5dmA==
   /rollup/2.32.0:
     dev: true
     engines:

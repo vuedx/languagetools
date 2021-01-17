@@ -35,8 +35,6 @@ export class Telemetry {
     options: Options,
     defaults?: Partial<EventDefaults>,
   ) {
-    // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-    // @ts-ignore
     Sentry.init({
       dsn: key,
       defaultIntegrations: false,
@@ -72,15 +70,11 @@ export class Telemetry {
         description,
       })
 
-      // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-      // @ts-ignore
       Sentry.configureScope((scope) => {
         scope.setSpan(transaction)
       })
 
       return () => {
-        // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-        // @ts-ignore
         Sentry.captureMessage(`[trace] ${name}`, (scope) => {
           scope.setSpan(transaction)
           scope.setUser(this.user)

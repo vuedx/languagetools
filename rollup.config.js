@@ -211,7 +211,9 @@ function type(name, respectExternal) {
       format: 'esm',
       file: abs(`./packages/${name}/dist/index.d.ts`),
     },
-    plugins: [dts({ respectExternal })],
+    plugins: [
+      dts({ respectExternal, compilerOptions: { noImplicitAny: false } }),
+    ],
     watch: {
       include: files,
     },
