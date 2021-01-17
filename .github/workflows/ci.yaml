@@ -51,7 +51,6 @@ jobs:
       - name: Build
         run: node scripts/build.js
       - name: Test
-        if: matrix.os != 'ubuntu-latest' && matrix.node != '14'
         run: pnpm run ${{ matrix.command || 'test' }}
         env:
           VUEDX_TELEMETRY: 'off'
