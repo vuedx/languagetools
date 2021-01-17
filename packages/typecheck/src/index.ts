@@ -26,6 +26,7 @@ function setup(): void {
     'https://212f65f46796440ebbe974f24b20ffae@o237831.ingest.sentry.io/5595698',
     'typecheck',
     version,
+    process.env.CI != null ? 1 : 0.25,
     {
       ci: process.env.CI,
     },

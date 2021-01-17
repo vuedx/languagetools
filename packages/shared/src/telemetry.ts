@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid'
 interface Options {
   release: string
   environment: string
+  tracesSampleRate: number
 }
 interface EventDefaults {
   sessionId: string
@@ -38,7 +39,7 @@ export class Telemetry {
       defaultIntegrations: false,
       release: options.release,
       environment: options.environment,
-      tracesSampleRate: 1,
+      tracesSampleRate: options.tracesSampleRate,
     })
 
     this.defaults = {
@@ -149,6 +150,7 @@ export class Telemetry {
     key: string,
     packageName: string,
     packageVersion: string,
+    tracesSampleRate: number,
     defaults: Partial<EventDefaults>,
   ): void {
     this._instance = new Telemetry(
@@ -156,6 +158,7 @@ export class Telemetry {
       {
         release: packageVersion,
         environment: packageVersion.includes('-') ? 'insiders' : 'production',
+        tracesSampleRate,
       },
       {
         ...defaults,
