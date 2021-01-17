@@ -89,8 +89,8 @@ const config = [
 const isWatch = process.argv.includes('-w') || process.argv.includes('--watch')
 
 export default config
-  .filter((config) => input(config).match(process.env.FILTER ?? ''))
-  .filter((config) => kind(config).match(process.env.KIND ?? ''))
+  .filter((config) => input(config).match(process.env.FILTER || ''))
+  .filter((config) => kind(config).match(process.env.KIND || ''))
 
 /**
  * @param {string} name
@@ -140,44 +140,9 @@ function bundle(name, plugins = [], external = []) {
       ...deps(`./packages/${name}/package.json`),
       ...external,
       ...builtIns,
-      'fs/promises',
     ],
     watch: {
       include: files,
-    },
-  }
-}
-
-/**
- * @param {string} name
- * @param {import('rollup').Plugin[]} [plugins]
- * @returns {import('rollup').RollupOptions}
- */
-function standalone(name, plugins = []) {
-  return {
-    input: `packages/${name}/src/index.ts`,
-    output: {
-      format: 'cjs',
-      file: abs(`./packages/${name}/standalone.js`),
-      preferConst: true,
-      sourcemap: true,
-      exports: 'auto',
-    },
-    plugins: [
-      define(),
-      ...plugins,
-      resolve({ preferBuiltins: true }),
-      commonjs(),
-      json(),
-      typescript({ tsconfig: abs(`./packages/${name}/tsconfig.build.json`) }),
-    ],
-    treeshake: false,
-    moduleContext: () => 'undefined',
-    external: [...builtIns],
-    onwarn(warning, warn) {
-      if (warning.code === 'THIS_IS_UNDEFINED') return
-      if (warning.code === 'CIRCULAR_DEPENDENCY') return
-      warn(warning)
     },
   }
 }
@@ -389,11 +354,11 @@ function abs(fileName) {
 }
 
 function deps(fileName) {
-  return Array.from(Object.keys(require(abs(fileName)).dependencies ?? {}))
+  return Array.from(Object.keys(require(abs(fileName)).dependencies || {}))
 }
 
 function define() {
-  const BUILD = process.env.BUILD ?? 'production'
+  const BUILD = process.env.BUILD || 'production'
   const isProd = BUILD === 'production'
   return replace({
     __DEV__: JSON.stringify(!isProd),

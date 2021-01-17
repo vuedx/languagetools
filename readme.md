@@ -2,12 +2,9 @@
 
 <div align="center" style="margin-bottom: 72px">
 
-# VueDX
-
-[![build](https://travis-ci.org/znck/vue-developer-experience.svg?branch=main)](https://travis-ci.org/znck/vue-developer-experience) ![CI](https://github.com/znck/vue-developer-experience/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/znck/vue-developer-experience/branch/main/graph/badge.svg?token=EF8TMXJK2D)](https://codecov.io/gh/znck/vue-developer-experience/)
-
-<div style="display: flex; justify-content: center; text-align: center">  
-  <div style="margin: 16px">
+<table border="0">  
+  <tr>
+  <td align="center">
     <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features">
       <img src="./extensions/vscode-vue-language-features/logo.png" width="96" />
     </a>
@@ -15,28 +12,37 @@
       <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features">Language Features</a>
     </h3>
     </a>
-  </div>
+  </td>
 
-  <div style="margin: 16px">
+  <td align="center">
     <a href="https://github.com/znck/preview">
       <img src="./assets/preview.png" width="96" />
     </a>
     <h3>
       <a href="https://github.com/znck/preview">Preview</a>
     </h3>
-  </div>
+  </td>
 
-  <div style="margin: 16px">
+  <td align="center">
     <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue">
       <img src="./extensions/vscode-vue/logo.png" width="96" />
     </a>
     <h3>
       <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue">Syntax Highlight</a>
     </h3>
-  </div>
-</div>
+  </td>
+</tr>
+</table>
 
-A set of tools for better developer experience aka Vue Developer Experience.
+<br>
+<br>
+<br>
+
+# VueDX
+
+A set of tools for better developer experience aka Vue Developer Experience or VueDX.
+
+![CI](https://github.com/znck/vue-developer-experience/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/znck/vue-developer-experience/branch/main/graph/badge.svg?token=EF8TMXJK2D)](https://codecov.io/gh/znck/vue-developer-experience/)
 
 </div>
 
