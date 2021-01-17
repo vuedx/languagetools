@@ -140,7 +140,6 @@ function bundle(name, plugins = [], external = []) {
       ...deps(`./packages/${name}/package.json`),
       ...external,
       ...builtIns,
-      'fs/promises',
     ],
     watch: {
       include: files,

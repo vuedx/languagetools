@@ -1,5 +1,8 @@
-import FS from 'fs/promises'
-import { asFsPath, asFsUri } from '../../packages/vue-virtual-textdocument/src/utils'
+import _FS from 'fs'
+import {
+  asFsPath,
+  asFsUri,
+} from '../../packages/vue-virtual-textdocument/src/utils'
 import Path from 'path'
 import { CodeEdit, Location, TextSpan } from 'typescript/lib/protocol'
 import {
@@ -7,6 +10,8 @@ import {
   TextDocument,
   TextEdit,
 } from 'vscode-languageserver-textdocument'
+
+const FS = _FS.promises
 
 export function locationToPosition(loc: Location): Position {
   return { line: loc.line - 1, character: loc.offset - 1 }
