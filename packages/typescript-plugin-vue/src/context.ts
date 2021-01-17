@@ -25,7 +25,11 @@ import { tryPatchMethod } from './helpers/patcher'
 import { PluginConfig, TS } from './interfaces'
 
 // eslint-disable-next-line no-eval
+// This package is bundled as @vuedx/typescript-standalone using ncc
+// which rewrites `require()` to webpack `require()`.
+// eslint-disable-next-line no-eval
 const run = eval
+const requireModule = run('require') as NodeJS.Require
 
 function getLastNumberFromVersion(version: string): number {
   const parts = version.split(/[^0-9]+/)
@@ -209,14 +213,10 @@ export class PluginContext {
                 return {}
               }
             }
-            // This package is bundled as @vuedx/typescript-standalone using ncc
-            // which rewrites `require()` to webpack `require()`.
-            const require = run('require')
-
             // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-            delete require.cache[fileName]
+            delete requireModule.cache[fileName]
 
-            return require(fileName)
+            return requireModule(fileName)
           } catch (error) {
             collectError(error)
 

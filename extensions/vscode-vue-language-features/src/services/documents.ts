@@ -19,6 +19,8 @@ import Path from 'path'
 import vscode, { TextDocument } from 'vscode'
 import { Installable } from '../utils/installable'
 
+const requireModule = eval('require') as NodeJS.Require
+
 @injectable()
 export class DocumentService extends Installable {
   private readonly emitter = new vscode.EventEmitter<{ uri: vscode.Uri }>()
@@ -94,7 +96,6 @@ export class DocumentService extends Installable {
 
     const rootDir = Path.posix.dirname(packageFile ?? fileName)
     const fileNames = readDirectory(rootDir)
-    const requireModule = eval('require') as NodeJS.Require
     const readJSON = (fileName: string): any => {
       const contents = FS.readFileSync(fileName, { encoding: 'utf-8' })
 
