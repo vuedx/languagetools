@@ -7,6 +7,13 @@ import { inject, injectable } from 'inversify'
 import Path from 'path'
 import vscode from 'vscode'
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare var __non_webpack_require__: any
+
+const requireModule = (typeof __non_webpack_require__ !== 'undefined'
+  ? __non_webpack_require__
+  : require) as NodeJS.Require
+
 @injectable()
 export class GenerateGrammarCommand extends Installable {
   private readonly rootDir: string
@@ -22,8 +29,7 @@ export class GenerateGrammarCommand extends Installable {
     super()
 
     this.rootDir = this.context.extensionPath
-    // eslint-disable-next-line no-eval
-    this.supported = eval('require')(
+    this.supported = requireModule(
       Path.resolve(this.context.extensionPath, 'scripts', 'supported.json'),
     )
   }
@@ -127,8 +133,7 @@ export class GenerateGrammarCommand extends Installable {
 
       await this.configuration.save('blocks', config)
 
-      // eslint-disable-next-line no-eval
-      eval('require')(
+      requireModule(
         Path.resolve(this.rootDir, 'scripts', 'generate-grammar.js'),
       ).generate()
 

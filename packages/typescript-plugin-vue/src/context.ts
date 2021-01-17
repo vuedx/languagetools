@@ -24,12 +24,12 @@ import { traceFn, wrapFn } from './helpers/logger'
 import { tryPatchMethod } from './helpers/patcher'
 import { PluginConfig, TS } from './interfaces'
 
-// eslint-disable-next-line no-eval
-// This package is bundled as @vuedx/typescript-standalone using ncc
-// which rewrites `require()` to webpack `require()`.
-// eslint-disable-next-line no-eval
-const run = eval
-const requireModule = run('require') as NodeJS.Require
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare var __non_webpack_require__: any
+
+const requireModule = (typeof __non_webpack_require__ !== 'undefined'
+  ? __non_webpack_require__
+  : require) as NodeJS.Require
 
 function getLastNumberFromVersion(version: string): number {
   const parts = version.split(/[^0-9]+/)
@@ -232,11 +232,13 @@ export class PluginContext {
                 packageFile != null ? tryRequire(packageFile) : {},
                 configFile,
                 tryRequire(configFile),
+                requireModule,
               )
             : new InferredVueProject(
                 rootDir,
                 packageFile,
                 packageFile != null ? tryRequire(packageFile) : {},
+                requireModule,
               )
 
         newProject.setFileNames(fileNames)

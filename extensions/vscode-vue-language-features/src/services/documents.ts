@@ -1,4 +1,3 @@
-/* eslint-disable no-eval */
 import JSON5 from 'json5'
 import {
   ConfiguredVueProject,
@@ -19,7 +18,12 @@ import Path from 'path'
 import vscode, { TextDocument } from 'vscode'
 import { Installable } from '../utils/installable'
 
-const requireModule = eval('require') as NodeJS.Require
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare var __non_webpack_require__: any
+
+const requireModule = (typeof __non_webpack_require__ !== 'undefined'
+  ? __non_webpack_require__
+  : require) as NodeJS.Require
 
 @injectable()
 export class DocumentService extends Installable {

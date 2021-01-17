@@ -6,6 +6,7 @@ import {
   getPackageJSON,
 } from './detector/components'
 import { PackageJSON } from './detector/PackageJSON'
+import { requireModule as require } from './detector/require'
 
 function deepDefaults<T extends object>(a: {}, b: T): T
 function deepDefaults<T extends object>(a: T, b: Partial<T>): T

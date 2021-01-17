@@ -8,6 +8,7 @@ import {
 } from './detector/components'
 import { PackageJSON } from './detector/PackageJSON'
 import { VueProject } from './VueProject'
+import { requireModule as require } from './detector/require'
 
 export class ConfiguredVueProject extends VueProject {
   kind = 'configured' as const

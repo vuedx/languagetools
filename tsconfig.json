@@ -1,7 +1,18 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2018",
+    "moduleResolution": "node",
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+
+    "lib": ["ES2020"],
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
