@@ -3,7 +3,7 @@ import {
   InferredVueProject,
   VueProject,
 } from '@vuedx/analyze'
-import { collect, collectError, first } from '@vuedx/shared'
+import { collect, collectError, first, Telemetry } from '@vuedx/shared'
 import {
   asFsPath,
   asFsUri,
@@ -355,9 +355,13 @@ export class PluginContext {
           lastUsedAt: Date.now(),
         })
 
+        Telemetry.extend({
+          vueVersion: newProject.version,
+        })
+
         collect('vue project', {
           kind: newProject.kind,
-          vue_version: newProject.version,
+          vue: newProject.version,
           dependencies: newProject.packageJSON.dependencies,
           devDependencies: newProject.packageJSON.devDependencies,
         })

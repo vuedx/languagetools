@@ -1,88 +1,137 @@
+import * as Sentry from '@sentry/node'
+import { machineSync } from 'node-unique-machine-id'
 import os from 'os'
-import clean from 'clean-stack'
-import { Event, init, NodeClient } from '@amplitude/node'
-import { machineIdSync } from 'node-machine-id'
 import { v4 as uuid } from 'uuid'
-import { performance } from 'perf_hooks'
+
+interface Options {
+  release: string
+  environment: string
+}
+interface EventDefaults {
+  sessionId: string
+  os: string
+  packageName?: string
+  typescriptVersion?: string
+  nodeVersion: string
+  vueVersion?: string
+  [key: string]: string | number | boolean | undefined
+}
 
 export class Telemetry {
-  private readonly client: NodeClient
-  private readonly defaults: Partial<Event>
-  private optOut: boolean = __DEV__ || process.env.VUEDX_TELEMETRY === 'off'
+  private readonly defaults: EventDefaults
+  private readonly user = {
+    id: this.getUserId(),
+  }
 
-  constructor(key: string, defaults?: Partial<Event>) {
-    this.client = init(key, {
-      debug: __DEV__,
+  private optOut: boolean =
+    __DEV__ ||
+    process.env.VUEDX_TELEMETRY?.toLowerCase() === 'off' ||
+    process.env.VUEDX_TELEMETRY?.toLowerCase() === 'false'
+
+  constructor(
+    key: string,
+    options: Options,
+    defaults?: Partial<EventDefaults>,
+  ) {
+    Sentry.init({
+      dsn: key,
+      defaultIntegrations: false,
+      release: options.release,
+      environment: options.environment,
+      tracesSampleRate: 1,
     })
 
     this.defaults = {
+      sessionId: uuid(),
+      nodeVersion: process.version,
+      os: os.platform(),
       ...defaults,
-      device_id: machineIdSync(),
-      user_properties: {
-        ...defaults?.user_properties,
-        os: os.platform(),
-        node_version: process.version,
-      },
-      event_properties: {
-        ...defaults?.event_properties,
-        session_id: uuid(),
-      },
     }
   }
 
-  trace(event: string, duration?: number): void {
-    if (this.optOut) return
-    void this.client.logEvent({
-      ...this.defaults,
-      event_type: `[trace] ${event}`,
-      event_properties: {
-        ...this.defaults,
-        duration,
-      },
-    })
+  private getUserId(): string {
+    try {
+      return machineSync(false, true)
+    } catch {
+      return ''
+    }
+  }
+
+  trace(name: string, description?: string): () => void {
+    if (this.optOut) return () => {}
+    const activeTransaction = Sentry.getCurrentHub()
+      .getScope()
+      ?.getTransaction()
+    if (activeTransaction == null) {
+      const transaction = Sentry.startTransaction({
+        name,
+        description,
+      })
+
+      Sentry.configureScope((scope: any) => {
+        scope.setSpan(transaction)
+      })
+
+      return () => {
+        Sentry.captureMessage(`[trace] ${name}`, (scope: any): any => {
+          scope.setSpan(transaction)
+          scope.setUser(this.user)
+          scope.setTags({ ...this.defaults })
+          scope.setLevel(Sentry.Severity.Info)
+
+          return scope
+        })
+        transaction.finish()
+        Sentry.configureScope((scope: any) => {
+          scope.setSpan(undefined)
+        })
+      }
+    } else {
+      const child = activeTransaction.startChild({
+        op: name,
+        description,
+      })
+
+      return () => {
+        child.finish()
+      }
+    }
   }
 
   collect(key: string, value: Record<string, any>): void {
     if (this.optOut) return
-    void this.client.logEvent({
-      ...this.defaults,
-      event_type: key,
-      event_properties: {
-        ...this.defaults.event_properties,
-        ...value,
+    const tags: Record<string, string | number | boolean> = {}
+    const allowed = new Set(['string', 'number', 'boolean'])
+    Object.entries(value).forEach(([key, value]) => {
+      if (allowed.has(typeof value)) {
+        tags[`data_${key}`] = value
+      }
+    })
+    Sentry.captureEvent({
+      message: `${key}`,
+      level: Sentry.Severity.Info,
+      user: this.user,
+      tags: {
+        ...this.defaults,
+        ...tags,
       },
+      extra: value,
     })
   }
 
   error(payload: string | Error): void {
     if (this.optOut) return
-    if (typeof payload !== 'string') {
-      void this.client.logEvent({
-        ...this.defaults,
-        event_type: `[error] ${payload.name}`,
-        event_properties: {
-          ...this.defaults.event_properties,
-          ...payload,
-          stack: this.processStackTrace(payload.stack),
-        },
-      })
-    } else {
-      void this.client.logEvent({
-        ...this.defaults,
-        event_type: `[error] unknown`,
-        event_properties: {
-          ...this.defaults.event_properties,
-          message: payload,
-          stack: this.processStackTrace(new Error().stack),
-        },
-      })
+    if (typeof payload === 'string') {
+      payload = new Error(payload)
     }
-  }
 
-  private processStackTrace(stack?: string): string | undefined {
-    if (stack == null) return
-
-    return clean(stack, { pretty: true })
+    void Sentry.captureException(payload, {
+      level: Sentry.Severity.Fatal,
+      user: this.user,
+      tags: {
+        ...this.defaults,
+      },
+    })
   }
 
   private static _instance?: Telemetry
@@ -98,24 +147,24 @@ export class Telemetry {
 
   static setup(
     key: string,
-    {
-      library,
-      version_name: version,
-      ...defaults
-    }: Pick<Required<Event>, 'library' | 'version_name'> & Partial<Event>,
+    packageName: string,
+    packageVersion: string,
+    defaults: Partial<EventDefaults>,
   ): void {
-    this._instance = new Telemetry(key, {
-      ...defaults,
-      user_properties: {
-        ...defaults.user_properties,
-        package_name: library,
-        package_version: version,
-        app_version: version, // For release tracking.
+    this._instance = new Telemetry(
+      key,
+      {
+        release: packageVersion,
+        environment: packageVersion.includes('-') ? 'insiders' : 'production',
       },
-    })
+      {
+        ...defaults,
+        packageName,
+      },
+    )
   }
 
-  static extend(defaults: Partial<Event>): void {
+  static extend(defaults: Partial<EventDefaults>): void {
     Object.assign(this.instance.defaults, defaults)
   }
 
@@ -130,19 +179,19 @@ export async function tracePromise<T>(
   event: string,
   promise: Promise<T> | Thenable<T>,
 ): Promise<T> {
-  const start = performance.now()
+  const done = trace(event)
   try {
     return await promise
   } catch (error) {
     collectError(error)
     throw error
   } finally {
-    trace(event, performance.now() - start)
+    done()
   }
 }
 
-export function trace(event: string, duration?: number): void {
-  return Telemetry.instance.trace(event, duration)
+export function trace(event: string, description?: string): () => void {
+  return Telemetry.instance.trace(event, description)
 }
 
 export function collectError(error: string | Error): void {

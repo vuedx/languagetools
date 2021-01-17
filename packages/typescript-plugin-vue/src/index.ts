@@ -15,14 +15,12 @@ export default function init({ typescript }: Modules): TS.server.PluginModule {
   context = context ?? new PluginContext(typescript)
   server = server ?? new RoutingLanguageServer(context)
 
-  Telemetry.setup('e3ca0c16c380c4a1403162d14466c756', {
-    library: 'typescript-plugin-vue',
-    version_name: version,
-    event_properties: {
-      typescript: typescript.versionMajorMinor,
-      typescript_version: typescript.version,
-    },
-  })
+  Telemetry.setup(
+    'https://a1461052e1d94c7a9ee7c3f7add71b24@o237831.ingest.sentry.io/5595721',
+    'typescript-plugin-vue',
+    version,
+    { typescriptVersion: typescript.versionMajorMinor },
+  )
 
   return {
     create(
