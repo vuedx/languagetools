@@ -4,7 +4,7 @@
   "name": "vue-language-features",
   "publisher": "znck",
   "displayName": "VueDX",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Advanced TypeScript/JavaScript support for Vue",
   "icon": "logo.png",
   "main": "dist/index.js",
@@ -137,7 +137,7 @@
     "jsonValidation": [
       {
         "fileMatch": "vueconfig.json",
-        "url": "https://unpkg.com/@vuedx/projectconfig@0.5.0/schema.json"
+        "url": "https://unpkg.com/@vuedx/projectconfig@0.6.0/schema.json"
       }
     ],
     "typescriptServerPlugins": [
