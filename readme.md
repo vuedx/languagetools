@@ -60,3 +60,7 @@ A set of tools for better developer experience aka Vue Developer Experience or V
 - [Vue Syntax Highlight](./extensions/vscode-vue) — provides syntax highlight for VS Code.
 - [Vue Language Features](./extensions/vscode-vue-language-features) — provides typescript integration for VS Code.
 - [Vue Virtual TextDocument](./packages/vue-virtual-textdocument) — creates a virtual file system to represent blocks in SFC as files.
+
+## Contributing
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [How to Build](CONTRIBUTING.md)
