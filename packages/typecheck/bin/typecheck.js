@@ -12,6 +12,7 @@ try {
       ),
     )
     console.error(error)
+    process.exit(1)
   })
 } catch (error) {
   console.error(
@@ -20,4 +21,5 @@ try {
     ),
   )
   console.error(error)
+  process.exit(1)
 }
