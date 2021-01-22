@@ -15,6 +15,7 @@ import {
   isRootNode,
   isSimpleExpressionNode,
   isTextNode,
+  isCommentNode,
 } from './assert'
 
 /**
@@ -80,6 +81,8 @@ function genNode(
     return genExpressionNode(node, indent, options)
   } else if (isTextNode(node)) {
     return genTextNode(node, indent, options)
+  } else if (isCommentNode(node)) {
+    return ' '.repeat(indent) + '<!--' + genMultilineText(node.content, indent, options) + '-->'
   } else {
     throw new Error(`Unsupported node type: ${node.type}`)
   }
