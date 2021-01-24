@@ -6,16 +6,16 @@ const workspaceFile = Path.resolve(__dirname, '../pnpm-workspace.yaml')
 
 let content = FS.readFileSync(workspaceFile, 'utf-8')
 
-const strings = [`  - 'samples/*'`]
+const lines = [`  - 'samples/*'`]
 if (isBackup) {
-  content = strings.reduce(
-    (content, string) => content.replace(string, `# ${string}`),
+  content = lines.reduce(
+    (content, string) => content.replace(`\n${string}`, `\n# ${string}`),
     content,
   )
 }
 
 if (isRestore) {
-  content = strings.reduce(
+  content = lines.reduce(
     (content, string) => content.replace(`# ${string}`, string),
     content,
   )
