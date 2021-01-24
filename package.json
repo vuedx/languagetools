@@ -18,7 +18,7 @@
     "eslint:check": "eslint --cache .",
     "eslint:fix": "eslint --cache --fix .",
     "release": "run-s release:*",
-    "release:bump-version": "pnpm recursive --filter ./packages --filter ./extensions exec -- npm version --no-git-checks ${NEXT_VERSION:-'minor'}",
+    "release:changeset": "npm run :changeset -- version",
     "release:generate-docs": "node scripts/docgen",
     "pre:changeset": "node scripts/changeset --backup",
     ":changeset": "changeset",

@@ -8,7 +8,7 @@
   "linked": [
     ["coc-vue", "vue", "vue-language-features"],
     [
-      "@vuedx/typescript-typecheck",
+      "@vuedx/typecheck",
       "@vuedx/typescript-plugin-vue",
       "@vuedx/typescript-standalone",
       "@vuedx/typescript-vetur"
