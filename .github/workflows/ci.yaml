@@ -111,6 +111,7 @@ jobs:
     environment: Insiders
     needs:
       - build
+      - cancel
       - test
     if: |
       github.event_name == 'push' ||
