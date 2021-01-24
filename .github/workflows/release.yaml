@@ -5,11 +5,15 @@ on:
     types:
       - closed
   workflow_dispatch:
+  push:
+    branches:
+      - main
 jobs:
   create:
     name: Create release PR
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
