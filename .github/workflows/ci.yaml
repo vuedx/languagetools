@@ -55,6 +55,8 @@ jobs:
 
   test:
     name: Test Suite
+    needs:
+      - build
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -106,6 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: Insiders
     needs:
+      - build
       - test
       - cancel
     if: |
@@ -152,6 +155,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: Production
     needs:
+      - build
       - test
       - cancel
     if: |
