@@ -17,14 +17,23 @@ on:
     paths-ignore:
       - 'docs/**'
       - 'samples/**'
-      - '.github/**'
     branches:
       - main
 
 jobs:
+  cancel:
+    name: Cancel Release
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.4.1
+        with:
+          access_token: ${{ github.token }}
+
   build:
     name: Build
     runs-on: ubuntu-20.04
+    needs: cancel
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -93,16 +102,6 @@ jobs:
         with:
           file: ./coverage/coverage-final.json
 
-  cancel:
-    name: Cancel Release
-    runs-on: ubuntu-20.04
-    needs: test
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.4.1
-        with:
-          access_token: ${{ github.token }}
-
   insiders:
     name: Insiders Release
     runs-on: ubuntu-latest
@@ -110,7 +109,6 @@ jobs:
     needs:
       - build
       - test
-      - cancel
     if: |
       github.event_name == 'push' ||
       github.event.inputs.release == 'Insiders'
@@ -157,7 +155,6 @@ jobs:
     needs:
       - build
       - test
-      - cancel
     if: |
       (
         github.event_name == 'release' && 
@@ -191,6 +188,28 @@ jobs:
           pnpm recursive --filter ./extensions run release
         env:
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+
+      - name: Upload vue Extension
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./extensions/vscode-vue/vue.vsix
+          asset_name: vue.vsix
+          asset_content_type: application/octet-stream
+
+      - name: Upload vue-language-features Extension
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./extensions/vscode-vue-language-features/vue-language-features.vsix
+          asset_name: vue-language-features.vsix
+          asset_content_type: application/octet-stream
 
       - name: Publish Packages
         run: |
