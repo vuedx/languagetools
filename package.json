@@ -18,7 +18,7 @@
     "eslint:check": "eslint --cache .",
     "eslint:fix": "eslint --cache --fix .",
     "release": "run-s release:*",
-    "release:changeset": "npm run :changeset -- version",
+    "release:changeset": "changeset version",
     "release:generate-docs": "node scripts/docgen",
     "pr": "npm run changeset"
   },
