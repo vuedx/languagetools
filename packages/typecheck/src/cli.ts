@@ -1,6 +1,5 @@
 import chalk from 'chalk'
 import FS, { promises as FSP } from 'fs'
-// @ts-expect-error
 import parseArgs from 'minimist'
 import { collect, collectError } from '@vuedx/shared'
 import Path from 'path'
@@ -202,7 +201,7 @@ Options
     console.error(`Cannot find directory: "${String(argv[0])}"`)
     process.exit(1)
   }
-  
+
   if (format === 'raw') {
     console.debug('Running for ' + directory)
   }

@@ -29,8 +29,6 @@ jobs:
           run_install: |
             - args: [--frozen-lockfile, --silent]
 
-      - run: npm run pre:changeset
-
       - name: Create Release Pull Request
         uses: znck/changesets@master
         with:
