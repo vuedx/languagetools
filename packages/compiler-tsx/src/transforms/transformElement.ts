@@ -9,8 +9,6 @@ import {
   DynamicSlotsExpression,
   ElementNode,
   findProp,
-  ForNode,
-  IfNode,
   isSimpleIdentifier,
   NodeTransform,
   RENDER_SLOT,
@@ -27,20 +25,11 @@ import {
   isComponentNode,
   isDirectiveNode,
   isElementNode,
-  isNode,
   isSimpleExpressionNode,
   isTextNode,
 } from '@vuedx/template-ast-types'
 import { Options } from '../types'
 import { createLoc, transformText } from '../utils'
-
-function isForNode(node: unknown): node is ForNode {
-  return isNode(node) && node.type === 11
-}
-
-function isIfNode(node: unknown): node is IfNode {
-  return isNode(node) && node.type === 9
-}
 
 export function createElementTransform(
   options: Required<Options>,
@@ -420,16 +409,30 @@ function generateVOn(dir: DirectiveNode, node: ElementNode): any[] {
   code.push(' ')
   if (isSimpleExpressionNode(dir.arg)) {
     if (dir.arg.isStatic) {
-      code.push(
-        createSimpleExpression(
-          camelCase('on-' + dir.arg.content),
-          false,
-          dir.arg.loc,
-        ),
-        '={',
-        ...exp,
-        '}',
-      )
+      if (dir.arg.content.includes(':')) {
+        code.push(
+          '{...({"',
+          createSimpleExpression(
+            getEventName(dir.arg.content),
+            false,
+            dir.arg.loc,
+          ),
+          '":',
+          ...exp,
+          '})}',
+        )
+      } else {
+        code.push(
+          createSimpleExpression(
+            getEventName(dir.arg.content),
+            false,
+            dir.arg.loc,
+          ),
+          '={',
+          ...exp,
+          '}',
+        )
+      }
     } else {
       code.push('{...({[', dir.arg, ']: ', ...exp, '})}')
     }
@@ -437,6 +440,15 @@ function generateVOn(dir: DirectiveNode, node: ElementNode): any[] {
     code.push('{...(', dir.exp, ')}')
   }
   return code
+}
+
+function getEventName(dir: string): string {
+  if (dir.includes(':')) {
+    const parts = dir.split(':')
+
+    return camelCase('on-' + parts[0]) + ':' + parts.slice(1).join(':')
+  }
+  return camelCase('on-' + dir)
 }
 
 function generateVBind(dir: DirectiveNode, node: ElementNode): any[] {
@@ -516,8 +528,6 @@ export function generateChildNodes(nodes: TemplateChildNode[]): any[] {
       }
     } else if (isTextNode(node)) {
       return createCompoundExpression([transformText(node.content)])
-    } else if (isIfNode(node) || isForNode(node)) {
-      return createCompoundExpression(['{', node as any, '}'])
     } else {
       return (node as unknown) as CompoundExpressionNode
     }

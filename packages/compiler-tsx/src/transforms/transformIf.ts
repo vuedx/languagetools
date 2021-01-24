@@ -40,8 +40,9 @@ export function createTransformIf(
             )
           }
 
-          ifNode.codegenNode = createCompoundExpression([
-            ...(ifNode.branches.flatMap((branch) => {
+          const expressions = [
+            '{',
+            ...ifNode.branches.flatMap((branch) => {
               hasElse = hasElse || branch.condition == null
 
               return branch.condition != null
@@ -53,9 +54,12 @@ export function createTransformIf(
                     ') :',
                   ]
                 : ['(', ...normalizeChildren(branch.children), ')']
-            }) as any),
+            }),
             `${hasElse ? '' : 'null'}`,
-          ]) as any
+            '}',
+          ]
+
+          ifNode.codegenNode = createCompoundExpression(expressions) as any
         }
       })
     },

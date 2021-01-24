@@ -19,7 +19,11 @@
     "eslint:fix": "eslint --cache --fix .",
     "release": "run-s release:*",
     "release:bump-version": "pnpm recursive --filter ./packages --filter ./extensions exec -- npm version --no-git-checks ${NEXT_VERSION:-'minor'}",
-    "release:generate-docs": "node scripts/docgen"
+    "release:generate-docs": "node scripts/docgen",
+    "pre:changeset": "node scripts/changeset --backup",
+    ":changeset": "changeset",
+    "post:changeset": "node scripts/changeset --restore",
+    "pr": "npm run :changeset"
   },
   "devDependencies": {
     "@changesets/cli": "^2.13.1",
