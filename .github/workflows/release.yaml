@@ -37,7 +37,10 @@ jobs:
   publish:
     name: Publish release
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.ref == 'changesets/main' &&
+      github.event.pull_request.merged == true
     steps:
       - name: Get current time
         uses: 1466587594/get-current-time@v2
@@ -49,6 +52,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ steps.timestamp.formattedTime }}
-          release_name: Release v${{ steps.timestamp.formattedTime }}
+          tag_name: v${{ steps.timestamp.outputs.formattedTime }}
+          release_name: Release v${{ steps.timestamp.outputs.formattedTime }}
           body: ${{ github.event.pull_request.body }}
