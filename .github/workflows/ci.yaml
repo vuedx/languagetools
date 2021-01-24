@@ -21,19 +21,9 @@ on:
       - main
 
 jobs:
-  cancel:
-    name: Cancel Release
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.4.1
-        with:
-          access_token: ${{ github.token }}
-
   build:
     name: Build
     runs-on: ubuntu-20.04
-    needs: cancel
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -101,6 +91,19 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           file: ./coverage/coverage-final.json
+
+  cancel:
+    name: Cancel Insiders Release
+    runs-on: ubuntu-20.04
+    needs: test
+    if: |
+      github.event_name == 'push' ||
+      github.event.inputs.release == 'Insiders'
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.4.1
+        with:
+          access_token: ${{ github.token }}
 
   insiders:
     name: Insiders Release
