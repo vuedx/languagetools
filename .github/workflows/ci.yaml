@@ -82,6 +82,9 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: dist
+      - run: |
+          cd samples
+          pnpm install
       - name: Test
         run: pnpm run ${{ matrix.command || 'test' }}
         env:

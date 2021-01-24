@@ -32,7 +32,7 @@ jobs:
       - run: pnpm run pre:changeset
 
       - name: Create Release Pull Request
-        uses: znck/changesets@master
+        uses: changesets/action@master
         with:
           version: npm run release
         env:
