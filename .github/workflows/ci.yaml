@@ -117,7 +117,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           cancelMode: namedJobs
           cancelFutureDuplicates: false
-          jobNameRegexps: '["Branch: .* Repo: .* Event: .* "]'
+          jobNameRegexps: '["insiders"]'
           skipEventTypes: '["release"]'
 
   insiders:
