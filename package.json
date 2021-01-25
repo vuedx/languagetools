@@ -20,7 +20,7 @@
     "release": "run-s release:*",
     "release:changeset": "changeset version",
     "release:generate-docs": "node scripts/docgen",
-    "pr": "npm run changeset"
+    "pr": "changeset"
   },
   "devDependencies": {
     "@changesets/cli": "^2.13.1",

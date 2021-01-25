@@ -5,15 +5,32 @@ on:
     types:
       - closed
   workflow_dispatch:
+    inputs:
+      action:
+        description: Action (pr/release)
+        default: pr
+        required: true
   push:
     branches:
       - main
 jobs:
+  debug:
+    name: Debug
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Print context
+        run: echo "$GITHUB_CONTEXT"
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+
   create:
     name: Create release PR
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' ||
+    runs-on: ubuntu-20.04
+    if: (
       github.event_name == 'push'
+      ) || (
+      github.event.inputs.action == 'pr'
+      )
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -36,15 +53,20 @@ jobs:
       - name: Create Release Pull Request
         uses: changesets/action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_PERSONAL_TOKEN }}
 
   publish:
     name: Publish release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     if: |
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.ref == 'changesets/main' &&
-      github.event.pull_request.merged == true
+      (
+        github.event_name == 'pull_request' &&
+        github.event.action == 'closed' &&
+        github.event.pull_request.merged == true &&
+        github.event.pull_request.head.ref == 'changesets/main'
+      ) || (
+        github.event.inputs.action == 'release'
+      )
     steps:
       - name: Get current time
         uses: 1466587594/get-current-time@v2

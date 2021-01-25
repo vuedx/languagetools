@@ -14,7 +14,6 @@ export default defineComponent({
     },
     stringFullDefault: {
       type: String,
-      required: true,
       default: 'default',
     },
     optionalStringFull: {
@@ -28,7 +27,6 @@ export default defineComponent({
     },
     numberFullDefault: {
       type: Number,
-      required: true,
       default: 1,
     },
     optionalNumberFull: {
@@ -42,7 +40,6 @@ export default defineComponent({
     },
     booleanFullDefault: {
       type: Boolean,
-      required: true,
       default: true,
     },
     optionalBooleanFull: {
@@ -56,7 +53,6 @@ export default defineComponent({
     },
     objectFullDefault: {
       type: Object as PropType<Event>,
-      required: true,
       default: () => ({ id: 1 }),
     },
     optionalObjectFull: {
@@ -70,7 +66,6 @@ export default defineComponent({
     },
     arrayFullDefault: {
       type: Array as PropType<Event[]>,
-      required: true,
       default: () => [{ id: 1 }],
     },
     optionalArrayFull: {
@@ -84,7 +79,6 @@ export default defineComponent({
     },
     unionFullDefault: {
       type: [String, Number],
-      required: true,
       default: () => [{ id: 1 }],
     },
     optionalUnionFull: {
