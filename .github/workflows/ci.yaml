@@ -103,10 +103,12 @@ jobs:
       github.event_name == 'push' ||
       github.event.inputs.release == 'Insiders'
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.4.1
+      - name: Cancel Workflow Runs
+        uses: potiuk/cancel-workflow-runs@v4_7
         with:
-          access_token: ${{ github.token }}
+          cancelMode: self
+          token: ${{ secrets.GITHUB_TOKEN }}
+          cancelFutureDuplicates: false
 
   insiders:
     name: Insiders Release
