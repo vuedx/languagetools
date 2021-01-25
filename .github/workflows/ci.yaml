@@ -116,7 +116,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           cancelMode: allDuplicates
-          cancelFutureDuplicates: false
           skipEventTypes: '["release"]'
 
   insiders:
