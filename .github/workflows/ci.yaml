@@ -115,7 +115,6 @@ jobs:
       - name: Cancel Workflow Runs
         uses: potiuk/cancel-workflow-runs@v4_7
         with:
-          cancelMode: self
           token: ${{ secrets.GITHUB_TOKEN }}
           cancelFutureDuplicates: false
 
