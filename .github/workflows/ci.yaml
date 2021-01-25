@@ -21,6 +21,15 @@ on:
       - main
 
 jobs:
+  debug:
+    name: Debug
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Print context
+        run: echo "$GITHUB_CONTEXT"
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+
   build:
     name: Build
     runs-on: ubuntu-20.04
