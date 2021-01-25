@@ -112,10 +112,8 @@ jobs:
       github.event.inputs.release == 'Insiders'
     steps:
       - name: Cancel Workflow Runs
-        uses: potiuk/cancel-workflow-runs@v4_7
+        uses: everphone-gmbh/cancel-previous-workflows@v5
         with:
-          cancelMode: allDuplicates
-          skipEventTypes: '["release"]'
           token: ${{ secrets.GITHUB_TOKEN }}
 
   insiders:
