@@ -114,9 +114,9 @@ jobs:
       - name: Cancel Workflow Runs
         uses: potiuk/cancel-workflow-runs@v4_7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           cancelMode: allDuplicates
           skipEventTypes: '["release"]'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   insiders:
     name: Insiders Release
