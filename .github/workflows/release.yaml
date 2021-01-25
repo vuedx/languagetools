@@ -63,7 +63,7 @@ jobs:
         github.event_name == 'pull_request' &&
         github.event.action == 'closed' &&
         github.event.pull_request.merged == true &&
-        github.event.pull_request.head.ref == 'changesets/main'
+        github.event.pull_request.head.ref == 'changeset-release/main'
       ) || (
         github.event.inputs.action == 'release'
       )
