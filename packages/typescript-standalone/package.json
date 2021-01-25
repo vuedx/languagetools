@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/typescript-standalone",
-  "version": "0.6.0",
+  "version": "0.6.2",
   "description": "TypeScript plugin for Vue (Standalone Mode)",
   "main": "dist/index.js",
   "scripts": {
