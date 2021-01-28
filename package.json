@@ -18,10 +18,12 @@
     "eslint:check": "eslint --cache .",
     "eslint:fix": "eslint --cache --fix .",
     "release": "run-s release:*",
-    "release:bump-version": "pnpm recursive --filter ./packages --filter ./extensions exec -- npm version --no-git-checks ${NEXT_VERSION:-'minor'}",
-    "release:generate-docs": "node scripts/docgen"
+    "release:changeset": "changeset version",
+    "release:generate-docs": "node scripts/docgen",
+    "pr": "changeset"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.13.1",
     "@microsoft/api-extractor": "^7.12.0",
     "@rollup/plugin-alias": "^3.1.1",
     "@rollup/plugin-commonjs": "^13.0.2",

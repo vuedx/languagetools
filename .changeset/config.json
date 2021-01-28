@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@1.4.0/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "linked": [
+    ["coc-vue", "vue", "vue-language-features"],
+    [
+      "@vuedx/typecheck",
+      "@vuedx/typescript-plugin-vue",
+      "@vuedx/typescript-standalone",
+      "@vuedx/typescript-vetur"
+    ]
+  ]
+}

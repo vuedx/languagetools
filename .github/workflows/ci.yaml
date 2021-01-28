@@ -2,40 +2,38 @@ name: CI/CD
 
 on:
   workflow_dispatch:
+    inputs:
+      release:
+        required: false
+        description: Publish to Insiders/Production
+        default: 'Insiders'
   pull_request:
+    branches:
+      - main
   release:
     types:
-      - released
+      - published
   push:
     paths-ignore:
       - 'docs/**'
       - 'samples/**'
-      - '.github/**'
-      - '!.github/workflows/ci.yaml'
     branches:
       - main
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
-  test:
-    name: Test Suite
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        node: ['12', '14']
-        include:
-          - os: ubuntu-latest
-            node: '14'
-            command: 'coverage'
-    runs-on: ${{ matrix.os }}
+  debug:
+    name: Debug
+    runs-on: ubuntu-20.04
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.4.1
-        with:
-          access_token: ${{ github.token }}
+      - name: Print context
+        run: echo "$GITHUB_CONTEXT"
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup Node
@@ -49,7 +47,53 @@ jobs:
           run_install: |
             - args: [--frozen-lockfile, --silent]
       - name: Build
-        run: node scripts/build.js
+        run: |
+          node scripts/build.js
+          pnpm recursive --filter @vuedx/typescript-standalone run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: |
+            ./packages/*/dist
+            ./packages/*/runtime
+            ./extension/*/dist
+          retention-days: 1
+
+  test:
+    name: Test Suite
+    needs:
+      - build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['12', '14']
+        include:
+          - os: ubuntu-latest
+            node: '14'
+            command: 'coverage'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v1.2.1
+        with:
+          version: 5.5.4
+          run_install: |
+            - args: [--frozen-lockfile, --silent]
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+      - run: |
+          cd samples
+          pnpm install
       - name: Test
         run: pnpm run ${{ matrix.command || 'test' }}
         env:
@@ -60,19 +104,30 @@ jobs:
         with:
           file: ./coverage/coverage-final.json
 
+  cancel:
+    name: Cancel Insiders Release
+    runs-on: ubuntu-20.04
+    if: |
+      github.event_name == 'push' ||
+      github.event.inputs.release == 'Insiders'
+    steps:
+      - name: Cancel Workflow Runs
+        uses: styfle/cancel-workflow-action@0.7.0
+        with:
+          access_token: ${{ github.token }}
+
   insiders:
     name: Insiders Release
     runs-on: ubuntu-latest
     environment: Insiders
-    needs: test
+    needs:
+      - build
+      - cancel
+      - test
     if: |
-      github.ref == 'refs/heads/main'
+      github.event_name == 'push' ||
+      github.event.inputs.release == 'Insiders'
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.4.1
-        with:
-          access_token: ${{ github.token }}
-
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -88,10 +143,10 @@ jobs:
           run_install: |
             - args: [--frozen-lockfile, --silent]
 
-      - name: Build Packages
-        run: |
-          node scripts/build.js
-          pnpm recursive --filter @vuedx/typescript-standalone run build
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
 
       - name: Publish Insiders Extension
         run: |
@@ -112,11 +167,15 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     environment: Production
-    needs: test
+    needs:
+      - build
     if: |
-      github.ref == 'refs/heads/main' && 
-      github.event_name == 'release' &&
-      github.event.action == 'released'
+      (
+        github.event_name == 'release' && 
+        github.event.action == 'published'
+      ) || (
+        github.event.inputs.release == 'Production'
+      )
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -143,6 +202,28 @@ jobs:
           pnpm recursive --filter ./extensions run release
         env:
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+
+      - name: Upload vue Extension
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./extensions/vscode-vue/vue.vsix
+          asset_name: vue.vsix
+          asset_content_type: application/octet-stream
+
+      - name: Upload vue-language-features Extension
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./extensions/vscode-vue-language-features/vue-language-features.vsix
+          asset_name: vue-language-features.vsix
+          asset_content_type: application/octet-stream
 
       - name: Publish Packages
         run: |
