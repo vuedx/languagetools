@@ -2,26 +2,26 @@ import {
   baseParse,
   CompilerError,
   CompilerOptions,
+  CompoundExpressionNode,
   createCompoundExpression,
   CREATE_BLOCK,
   CREATE_VNODE,
-  RENDER_LIST,
   FRAGMENT,
   generate,
   OPEN_BLOCK,
-  transform,
   ParserOptions,
-  RootNode,
+  RENDER_LIST,
   RENDER_SLOT,
-  CompoundExpressionNode,
+  RootNode,
+  transform,
 } from '@vue/compiler-core'
+import { getComponentName } from '@vuedx/shared'
 import {
   isCommentNode,
   isDirectiveNode,
   isElementNode,
   isInterpolationNode,
   isSimpleExpressionNode,
-  isTextNode,
 } from '@vuedx/template-ast-types'
 import Path from 'path'
 import { parserOptions } from './parserOptions'
@@ -35,26 +35,13 @@ import { createTransformFor } from './transforms/transformFor'
 import { createTransformIf } from './transforms/transformIf'
 import { createInterpolationTransform } from './transforms/transformInterpolation'
 import { CodegenResult, ComponentImport, Options } from './types'
-import { transformText } from './utils'
-import { getComponentName } from '@vuedx/shared'
 
 export * from './types'
 
 function clone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj))
 }
-const typeHelpers = {
-  'v-for': [
-    `declare function _renderList(source: string, renderItem: (value: string, index: number) => any): any[];`,
-    `declare function _renderList(source: number, renderItem: (value: number, index: number) => any): any[];`,
-    `declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];`,
-    `declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];`,
-    `declare function _renderList<T extends object>(source: T, renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any): any[];`,
-  ].join('\n'),
-  'v-slot': [
-    `declare function _renderSlot<T extends Record<string, ((...props: any[]) => any)|undefined>, K extends keyof T>(slots: T, name: K, ...props: T[K] extends undefined ? any : Parameters<T[K]>): any[];`,
-  ],
-} as const
+
 const components: Record<string, ComponentImport> = {}
 export function compile(
   template: string,
@@ -75,6 +62,11 @@ export function compile(
     },
   }
   const identifiers = new Set<string>()
+  const addIdentifier = (id: string): void => {
+    if (id.trim() !== '') {
+      identifiers.add(id.trim())
+    }
+  }
   const errors: CompilerError[] = []
   const hoists: CompoundExpressionNode[] = []
   transform(ast, {
@@ -115,27 +107,17 @@ export function compile(
       // Drop Comments
       (node, context) => {
         if (isCommentNode(node)) {
-          if (node.content.includes('<') || node.content.includes('>')) {
-            context.replaceNode(
-              createCompoundExpression([transformText(node.content.trim())]),
-            )
-          } else {
-            context.removeNode(node)
-          }
-        } else if (isTextNode(node)) {
           context.replaceNode(
-            createCompoundExpression([transformText(node.content)]),
+            createCompoundExpression(['/* ', node.content, ' */']),
           )
         } else if (isElementNode(node) && node.tag.includes('<')) {
-          context.replaceNode(
-            createCompoundExpression([transformText(node.loc.source.trim())]),
-          )
+          node.tag = node.tag.replace(/[<]/g, ' ')
         }
       },
 
-      createTransformFor((id) => identifiers.add(id)),
-      createTransformIf((id) => identifiers.add(id)),
-      createExpressionTracker((id) => identifiers.add(id)),
+      createTransformFor(addIdentifier, hoists),
+      createTransformIf(addIdentifier),
+      createExpressionTracker(addIdentifier),
       createElementTransform(config, hoists),
       createInterpolationTransform(config),
     ],
@@ -158,7 +140,7 @@ export function compile(
   })
   if (ast.children.length > 0) {
     ast.codegenNode = createCompoundExpression([
-      hoists.length > 0 ? '<>' : '/*@@vue:start*/<>',
+      '<>',
       ...generateChildNodes(ast.children),
       '</>/*@@vue:end*/',
     ] as any)
@@ -169,6 +151,7 @@ export function compile(
   }
   const mappings: Array<[number, number, number, number, number]> = []
 
+  let isStartInjected = false
   const result = generate(ast, {
     ...options,
     sourceMap: true,
@@ -179,8 +162,12 @@ export function compile(
         if (code.startsWith('export ')) {
           push(
             [
-              hasVFor ? typeHelpers['v-for'] : null,
-              hasVSlot ? typeHelpers['v-slot'] : null,
+              hasVFor
+                ? `import { _renderList } from '__vuedx_runtime__render__'`
+                : null,
+              hasVSlot
+                ? `import { _renderSlot } from '__vuedx_runtime__render__'`
+                : null,
               'declare const __completionsTrigger: InstanceType<typeof _Ctx>',
               '__completionsTrigger./*@@vue:completions*/$props',
               'const __completionsTag = /*@@vue:completionsTag*/<div />',
@@ -205,7 +192,8 @@ export function compile(
         }
 
         if (code === 'return ') {
-          if (hoists.length > 0) {
+          if (!isStartInjected) {
+            isStartInjected = true
             push(`/*@@vue:start*/`)
             context.newline()
             hoists.forEach((hoist) => {

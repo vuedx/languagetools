@@ -1,5 +1,13 @@
 import { format } from 'prettier'
-import { compile } from '../src'
+import { compile as baseCompile } from '../src'
+
+const compile: typeof baseCompile = (template, options) => {
+  template = template
+    .replace('<!' + '--html-->', '')
+    .replace('<!' + '--!html-->', '')
+    .trim()
+  return baseCompile(template, options)
+}
 
 expect.addSnapshotSerializer({
   serialize(val) {
@@ -20,7 +28,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -32,9 +40,10 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
-            <div>foo</div>
+          <>
+            <div>{'foo'}</div>
           </>
         ); /*@@vue:end*/
       }
@@ -54,7 +63,7 @@ describe('compile/tsx', () => {
         components: {
           Foo: { path: './Foo.vue' },
         },
-        onError() { },
+        onError() {},
       },
     )
 
@@ -67,9 +76,16 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
-            <Foo>{{ default: () => <>foo</> }}</Foo>
+          <>
+            <Foo>
+              {{
+                default: () => {
+                  return <>{'foo'}</>;
+                },
+              }}
+            </Foo>
           </>
         ); /*@@vue:end*/
       }
@@ -92,7 +108,7 @@ describe('compile/tsx', () => {
             named: true,
           },
         },
-        onError() { },
+        onError() {},
       },
     )
 
@@ -105,9 +121,16 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
-            <Foo>{{ default: () => <>foo</> }}</Foo>
+          <>
+            <Foo>
+              {{
+                default: () => {
+                  return <>{'foo'}</>;
+                },
+              }}
+            </Foo>
           </>
         ); /*@@vue:end*/
       }
@@ -125,7 +148,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -137,9 +160,10 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
-            <Foo>foo</Foo>
+          <>
+            <Foo>{'foo'}</Foo>
           </>
         ); /*@@vue:end*/
       }
@@ -157,7 +181,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -169,9 +193,10 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
-            <web-component>foo</web-component>
+          <>
+            <web-component>{'foo'}</web-component>
           </>
         ); /*@@vue:end*/
       }
@@ -190,7 +215,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -202,8 +227,9 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <input type="text" />
             <Foo type="text" />
           </>
@@ -223,7 +249,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -235,8 +261,9 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <input onFocus={() => {}} {...{ 'onUpdate:value': () => {} }} />
           </>
         ); /*@@vue:end*/
@@ -255,7 +282,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -276,10 +303,12 @@ describe('compile/tsx', () => {
         hello /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <div style={style} key={value} onHover={handleHover} {...{ [event]: handleEvent }}>
-              {hello} world
+              {hello}
+              {' world'}
             </div>
           </>
         ); /*@@vue:end*/
@@ -298,7 +327,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -313,8 +342,9 @@ describe('compile/tsx', () => {
         /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <input value={foo} onChange={($event) => (foo = ($event as Event & { target: HTMLInputElement }).target.value)} />
           </>
         ); /*@@vue:end*/
@@ -333,7 +363,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -348,8 +378,9 @@ describe('compile/tsx', () => {
         /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <input checked={foo} {...{ 'onUpdate:checked': ($event) => (foo = $event) }} />
           </>
         ); /*@@vue:end*/
@@ -368,7 +399,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -384,8 +415,9 @@ describe('compile/tsx', () => {
         foo /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <input {...{ [checked]: foo }} {...{ ['onUpdate:' + checked]: ($event) => (foo = $event) }} />
           </>
         ); /*@@vue:end*/
@@ -404,7 +436,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -419,8 +451,9 @@ describe('compile/tsx', () => {
         /*@@vue:identifiers-start*/ bar /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <input onFocus={($event) => (bar = $event)} />
           </>
         ); /*@@vue:end*/
@@ -439,7 +472,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -454,8 +487,9 @@ describe('compile/tsx', () => {
         /*@@vue:identifiers-start*/ isVisible /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <div v-show={{ arg: undefined, exp: isVisible, modifiers: {} }}></div>
           </>
         ); /*@@vue:end*/
@@ -465,6 +499,34 @@ describe('compile/tsx', () => {
     `)
   })
 
+  test('v-if missing expression', () => {
+    const result = compile(
+      `
+    <!--html-->
+    <div v-if="  ">A</div>
+    <!--!html-->`,
+      {
+        filename: '/foo/bar/component.vue',
+        components: {},
+        onError() {},
+      },
+    )
+
+    expect(prepare(result.code)).toMatchInlineSnapshot(`
+      //js
+      import _Ctx from './component.vue?internal';
+
+      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      __completionsTrigger./*@@vue:completions*/ $props;
+      const __completionsTag = /*@@vue:completionsTag*/ <div />;
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
+        return <>{false ? <div>{'A'}</div> : null}</>; /*@@vue:end*/
+      }
+
+      //!js
+    `)
+  })
   test('convert v-if, v-else-if, v-else to ternary', () => {
     const result = compile(
       `
@@ -476,7 +538,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -492,7 +554,8 @@ describe('compile/tsx', () => {
         bar /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
-        return /*@@vue:start*/ <>{foo ? <div>A</div> : foo + bar < 50 ? <div>B</div> : <div>C</div>}</>; /*@@vue:end*/
+        /*@@vue:start*/
+        return <>{foo ? <div>{'A'}</div> : foo + bar < 50 ? <div>{'B'}</div> : <div>{'C'}</div>}</>; /*@@vue:end*/
       }
 
       //!js
@@ -508,7 +571,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -523,7 +586,8 @@ describe('compile/tsx', () => {
         /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
-        return /*@@vue:start*/ <>{foo ? <div>A</div> : null}</>; /*@@vue:end*/
+        /*@@vue:start*/
+        return <>{foo ? <div>{'A'}</div> : null}</>; /*@@vue:end*/
       }
 
       //!js
@@ -539,7 +603,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -547,14 +611,7 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare function _renderList(source: string, renderItem: (value: string, index: number) => any): any[];
-      declare function _renderList(source: number, renderItem: (value: number, index: number) => any): any[];
-      declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];
-      declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];
-      declare function _renderList<T extends object>(
-        source: T,
-        renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any,
-      ): any[];
+      import { _renderList } from '__vuedx_runtime__render__';
       declare const __completionsTrigger: InstanceType<typeof _Ctx>;
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
@@ -563,8 +620,9 @@ describe('compile/tsx', () => {
         other /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             {_renderList(items, (item, index) => {
               return (
                 <>
@@ -592,7 +650,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -607,8 +665,9 @@ describe('compile/tsx', () => {
         /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <div v-text={{ arg: undefined, exp: foo, modifiers: {} }} />
             <div v-html={{ arg: undefined, exp: foo, modifiers: {} }} />
           </>
@@ -629,7 +688,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -645,8 +704,9 @@ describe('compile/tsx', () => {
         arg /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <div v-known={{ arg: 'arg', exp: exp, modifiers: { modifier: true } }} />
             <div v-unknown={{ arg: arg, exp: exp, modifiers: { modifier: true } }} />
           </>
@@ -666,7 +726,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -678,7 +738,8 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
-        return /*@@vue:start*/ <>{' < '}</>; /*@@vue:end*/
+        /*@@vue:start*/
+        return <>{'<'}</>; /*@@vue:end*/
       }
 
       //!js
@@ -694,7 +755,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -706,9 +767,10 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
-            <div>{'<!--!html--'}</div>
+          <>
+            <div>{'</'}</div>
           </>
         ); /*@@vue:end*/
       }
@@ -726,7 +788,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -738,7 +800,8 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
-        return /*@@vue:start*/ <>{' <> '}</>; /*@@vue:end*/
+        /*@@vue:start*/
+        return <>{'<>'}</>; /*@@vue:end*/
       }
 
       //!js
@@ -754,7 +817,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -766,8 +829,9 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <div>{'<'}</div>
           </>
         ); /*@@vue:end*/
@@ -786,7 +850,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -798,9 +862,12 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
-            <div>{'<div</div>\\n      <!--!html-->'}</div>
+          <>
+            <div>
+              <div div></div>
+            </div>
           </>
         ); /*@@vue:end*/
       }
@@ -818,7 +885,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -830,8 +897,9 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <div>{'<>'}</div>
           </>
         ); /*@@vue:end*/
@@ -850,7 +918,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -862,10 +930,11 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <div>
-              <div>{'</div'}</div>
+              <div>{/* </div */}</div>
             </div>
           </>
         ); /*@@vue:end*/
@@ -884,7 +953,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -896,8 +965,9 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <span></span> {}
             <span></span>
           </>
@@ -918,7 +988,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -930,8 +1000,10 @@ describe('compile/tsx', () => {
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
       export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
+            {/*  comment  */}
             <span></span>
           </>
         ); /*@@vue:end*/
@@ -953,7 +1025,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -961,14 +1033,7 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare function _renderList(source: string, renderItem: (value: string, index: number) => any): any[];
-      declare function _renderList(source: number, renderItem: (value: number, index: number) => any): any[];
-      declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];
-      declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];
-      declare function _renderList<T extends object>(
-        source: T,
-        renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any,
-      ): any[];
+      import { _renderList } from '__vuedx_runtime__render__';
       declare const __completionsTrigger: InstanceType<typeof _Ctx>;
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
@@ -976,9 +1041,11 @@ describe('compile/tsx', () => {
         /*@@vue:identifiers-start*/ users /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <span>
+              {/*  comment  */}
               {_renderList(users, (user) => {
                 return (
                   <>
@@ -1006,7 +1073,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -1014,11 +1081,7 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare function _renderSlot<T extends Record<string, ((...props: any[]) => any) | undefined>, K extends keyof T>(
-        slots: T,
-        name: K,
-        ...props: T[K] extends undefined ? any : Parameters<T[K]>
-      ): any[];
+      import { _renderSlot } from '__vuedx_runtime__render__';
       declare const __completionsTrigger: InstanceType<typeof _Ctx>;
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
@@ -1026,8 +1089,9 @@ describe('compile/tsx', () => {
         /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <span>{_renderSlot(_ctx.$slots, 'default', { foo })}</span>
           </>
         ); /*@@vue:end*/
@@ -1050,7 +1114,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -1058,11 +1122,7 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare function _renderSlot<T extends Record<string, ((...props: any[]) => any) | undefined>, K extends keyof T>(
-        slots: T,
-        name: K,
-        ...props: T[K] extends undefined ? any : Parameters<T[K]>
-      ): any[];
+      import { _renderSlot } from '__vuedx_runtime__render__';
       declare const __completionsTrigger: InstanceType<typeof _Ctx>;
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
@@ -1070,8 +1130,9 @@ describe('compile/tsx', () => {
         /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             <span>
               {_renderSlot(_ctx.$slots, 'default', { foo }) ?? (
                 <>
@@ -1096,7 +1157,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -1147,7 +1208,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -1163,8 +1224,9 @@ describe('compile/tsx', () => {
         bar /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             {foo ? (
               <div>{foo ? <div></div> : bar ? <div></div> : <div></div>}</div>
             ) : bar ? (
@@ -1194,7 +1256,7 @@ describe('compile/tsx', () => {
       {
         filename: '/foo/bar/component.vue',
         components: {},
-        onError() { },
+        onError() {},
       },
     )
 
@@ -1202,14 +1264,7 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare function _renderList(source: string, renderItem: (value: string, index: number) => any): any[];
-      declare function _renderList(source: number, renderItem: (value: number, index: number) => any): any[];
-      declare function _renderList<T>(source: T[], renderItem: (value: T, index: number) => any): any[];
-      declare function _renderList<T>(source: Iterable<T>, renderItem: (value: T, index: number) => any): any[];
-      declare function _renderList<T extends object>(
-        source: T,
-        renderItem: <K extends keyof T>(value: T[K], key: K, index: number) => any,
-      ): any[];
+      import { _renderList } from '__vuedx_runtime__render__';
       declare const __completionsTrigger: InstanceType<typeof _Ctx>;
       __completionsTrigger./*@@vue:completions*/ $props;
       const __completionsTag = /*@@vue:completionsTag*/ <div />;
@@ -1217,11 +1272,374 @@ describe('compile/tsx', () => {
         /*@@vue:identifiers-start*/ items /*@@vue:identifiers-end*/,
         ..._ctx
       }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
         return (
-          /*@@vue:start*/ <>
+          <>
             {_renderList(items, (item, index) => {
               return <>{item != null ? <div v-text={{ arg: undefined, exp: item.content, modifiers: {} }} /> : null}</>;
             })}
+          </>
+        ); /*@@vue:end*/
+      }
+
+      //!js
+    `)
+  })
+
+  test('dynamic component in v-for', () => {
+    const result = compile(
+      `
+    <!--html-->
+    <Foo v-for="item of items">
+      <component :is="item.component" />
+    </Foo>
+    <!--!html-->`,
+      {
+        filename: '/foo/bar/component.vue',
+        components: {},
+        onError() {},
+      },
+    )
+
+    expect(prepare(result.code)).toMatchInlineSnapshot(`
+      //js
+      import _Ctx from './component.vue?internal';
+
+      import { _renderList } from '__vuedx_runtime__render__';
+      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      __completionsTrigger./*@@vue:completions*/ $props;
+      const __completionsTag = /*@@vue:completionsTag*/ <div />;
+      export function render({
+        /*@@vue:identifiers-start*/ items /*@@vue:identifiers-end*/,
+        ..._ctx
+      }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
+        return (
+          <>
+            {_renderList(items, (item) => {
+              return (
+                <>
+                  <Foo>
+                    <_DyComp0_ />
+                  </Foo>
+                </>
+              );
+            })}
+          </>
+        ); /*@@vue:end*/
+      }
+
+      //!js
+    `)
+  })
+
+  test('nested dynamic component in v-for', () => {
+    const result = compile(
+      `
+    <!--html-->
+    <component :is="foo">
+      <component :is="bar" v-for="item of items">
+        <component :is="item.component" v-for="i of item">
+        <component :is="i.component" />
+        </component>
+      </Foo>
+    </component>
+    <!--!html-->`,
+      {
+        filename: '/foo/bar/component.vue',
+        components: {},
+        onError() {},
+      },
+    )
+
+    expect(prepare(result.code)).toMatchInlineSnapshot(`
+      //js
+      import _Ctx from './component.vue?internal';
+
+      import { _renderList } from '__vuedx_runtime__render__';
+      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      __completionsTrigger./*@@vue:completions*/ $props;
+      const __completionsTag = /*@@vue:completionsTag*/ <div />;
+      export function render({
+        /*@@vue:identifiers-start*/ foo,
+        items,
+        bar /*@@vue:identifiers-end*/,
+        ..._ctx
+      }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
+        const _DyComp3_ = foo;
+        return (
+          <>
+            <_DyComp3_>
+              {{
+                default: () => {
+                  return (
+                    <>
+                      {_renderList(items, (item) => {
+                        const _DyComp2_ = bar;
+
+                        return (
+                          <>
+                            <_DyComp2_>
+                              {{
+                                default: () => {
+                                  return (
+                                    <>
+                                      {_renderList(item, (i) => {
+                                        const _DyComp1_ = item.component;
+
+                                        return (
+                                          <>
+                                            <_DyComp1_>
+                                              {{
+                                                default: () => {
+                                                  const _DyComp0_ = i.component;
+
+                                                  return (
+                                                    <>
+                                                      <_DyComp0_ />
+                                                    </>
+                                                  );
+                                                },
+                                              }}
+                                            </_DyComp1_>
+                                          </>
+                                        );
+                                      })}{' '}
+                                    </>
+                                  );
+                                },
+                              }}
+                            </_DyComp2_>
+                          </>
+                        );
+                      })}
+                    </>
+                  );
+                },
+              }}
+            </_DyComp3_>
+          </>
+        ); /*@@vue:end*/
+      }
+
+      //!js
+    `)
+  })
+
+  test('nested dynamic component in v-slot', () => {
+    const result = compile(
+      `
+    <!--html-->
+    <component :is="foo" #default="{bar}">
+      <component :is="bar" #default="{baz}">
+        <component :is="baz">
+          <template #other="{ foo }">
+            <component :is="foo" />
+          </template>
+          <template #default="{ bar }">
+            <component :is="bar" />
+          </template>
+        </component>
+      </Foo>
+    </component>
+    <!--!html-->`,
+      {
+        filename: '/foo/bar/component.vue',
+        components: {},
+        onError() {},
+      },
+    )
+
+    expect(prepare(result.code)).toMatchInlineSnapshot(`
+      //js
+      import _Ctx from './component.vue?internal';
+
+      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      __completionsTrigger./*@@vue:completions*/ $props;
+      const __completionsTag = /*@@vue:completionsTag*/ <div />;
+      export function render({
+        /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
+        ..._ctx
+      }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
+        const _DyComp4_ = foo;
+        return (
+          <>
+            <_DyComp4_>
+              {{
+                default: ({ bar }) => {
+                  const _DyComp3_ = bar;
+
+                  return (
+                    <>
+                      <_DyComp3_>
+                        {{
+                          default: ({ baz }) => {
+                            const _DyComp2_ = baz;
+
+                            return (
+                              <>
+                                <_DyComp2_>
+                                  {{
+                                    other: ({ foo }) => {
+                                      const _DyComp0_ = foo;
+
+                                      return (
+                                        <>
+                                          <_DyComp0_ />
+                                        </>
+                                      );
+                                    },
+                                    default: ({ bar }) => {
+                                      const _DyComp1_ = bar;
+
+                                      return (
+                                        <>
+                                          <_DyComp1_ />
+                                        </>
+                                      );
+                                    },
+                                  }}
+                                </_DyComp2_>{' '}
+                              </>
+                            );
+                          },
+                        }}
+                      </_DyComp3_>
+                    </>
+                  );
+                },
+              }}
+            </_DyComp4_>
+          </>
+        ); /*@@vue:end*/
+      }
+
+      //!js
+    `)
+  })
+
+  test('dynamic component in  v-for + v-slot', () => {
+    const result = compile(
+      `
+    <!--html-->
+    <component :is="bar" v-for="bar of bars">
+      <component :is="bar" #default="{baz}">
+        <component :is="baz[bar]" v-for="item of baz" >
+          <component :is="item" />
+        </component>
+      </Foo>
+    </component>
+    <!--!html-->`,
+      {
+        filename: '/foo/bar/component.vue',
+        components: {},
+        onError() {},
+      },
+    )
+
+    expect(prepare(result.code)).toMatchInlineSnapshot(`
+      //js
+      import _Ctx from './component.vue?internal';
+
+      import { _renderList } from '__vuedx_runtime__render__';
+      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      __completionsTrigger./*@@vue:completions*/ $props;
+      const __completionsTag = /*@@vue:completionsTag*/ <div />;
+      export function render({
+        /*@@vue:identifiers-start*/ bars /*@@vue:identifiers-end*/,
+        ..._ctx
+      }: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
+        return (
+          <>
+            {_renderList(bars, (bar) => {
+              const _DyComp3_ = bar;
+
+              return (
+                <>
+                  <_DyComp3_>
+                    {{
+                      default: () => {
+                        const _DyComp2_ = bar;
+
+                        return (
+                          <>
+                            <_DyComp2_>
+                              {{
+                                default: ({ baz }) => {
+                                  return (
+                                    <>
+                                      {_renderList(baz, (item) => {
+                                        const _DyComp1_ = baz[bar];
+
+                                        return (
+                                          <>
+                                            <_DyComp1_>
+                                              {{
+                                                default: () => {
+                                                  const _DyComp0_ = item;
+
+                                                  return (
+                                                    <>
+                                                      <_DyComp0_ />
+                                                    </>
+                                                  );
+                                                },
+                                              }}
+                                            </_DyComp1_>
+                                          </>
+                                        );
+                                      })}{' '}
+                                    </>
+                                  );
+                                },
+                              }}
+                            </_DyComp2_>
+                          </>
+                        );
+                      },
+                    }}
+                  </_DyComp3_>
+                </>
+              );
+            })}
+          </>
+        ); /*@@vue:end*/
+      }
+
+      //!js
+    `)
+  })
+
+  test('@ts-ignore', () => {
+    const result = compile(
+      `
+    <!--html-->
+    <!-- @ts-ignore -->
+    <Foo />
+    <!--!html-->`,
+      {
+        filename: '/foo/bar/component.vue',
+        components: {},
+        onError() {},
+      },
+    )
+
+    expect(prepare(result.code)).toMatchInlineSnapshot(`
+      //js
+      import _Ctx from './component.vue?internal';
+
+      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      __completionsTrigger./*@@vue:completions*/ $props;
+      const __completionsTag = /*@@vue:completionsTag*/ <div />;
+      export function render(_ctx: InstanceType<typeof _Ctx>) {
+        /*@@vue:start*/
+        return (
+          <>
+            {/*  @ts-ignore  */}
+            <Foo />
           </>
         ); /*@@vue:end*/
       }

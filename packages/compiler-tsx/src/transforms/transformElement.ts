@@ -2,12 +2,14 @@ import {
   AttributeNode,
   buildSlots,
   CompoundExpressionNode,
+  createBlockStatement,
   createCompoundExpression,
   createFunctionExpression,
   createSimpleExpression,
   DirectiveNode,
   DynamicSlotsExpression,
   ElementNode,
+  findDir,
   findProp,
   isSimpleIdentifier,
   NodeTransform,
@@ -21,7 +23,6 @@ import {
 import { camelCase, pascalCase } from '@vuedx/shared'
 import {
   isAttributeNode,
-  isCommentNode,
   isComponentNode,
   isDirectiveNode,
   isElementNode,
@@ -29,7 +30,7 @@ import {
   isTextNode,
 } from '@vuedx/template-ast-types'
 import { Options } from '../types'
-import { createLoc, transformText } from '../utils'
+import { createLoc } from '../utils'
 
 export function createElementTransform(
   options: Required<Options>,
@@ -37,6 +38,18 @@ export function createElementTransform(
 ): NodeTransform {
   let isImportAdded = false
   let dynamicComponentCounter = 0
+  const globalsExpressions: CompoundExpressionNode[][] = []
+  const addHoistScope = (): void => {
+    globalsExpressions.push(expressions.slice())
+    expressions.length = 0
+  }
+  const removeHoistScope = (): void => {
+    const exps = globalsExpressions.pop()
+    if (Array.isArray(exps)) {
+      expressions.length = 0
+      expressions.push(...exps)
+    }
+  }
   const hoist = (exp: SimpleExpressionNode): string => {
     const name = `_DyComp${dynamicComponentCounter++}`.padEnd(
       'component'.length,
@@ -49,6 +62,7 @@ export function createElementTransform(
 
     return name
   }
+
   return (node, context) => {
     if (!isImportAdded) {
       context.imports.add({
@@ -58,11 +72,17 @@ export function createElementTransform(
       isImportAdded = true
     }
 
+    if (isTextNode(node)) {
+      markNonElementNode(node)
+    }
     if (!isElementNode(node)) return
 
     let resolvedComponentName: string | undefined
+    const slotDir = findDir(node, 'slot')
+    const hasScope = isComponentNode(node) || slotDir != null
+    if (hasScope) addHoistScope()
     if (isComponentNode(node)) {
-      if (!['component'].includes(node.tag)) {
+      if (!['component', 'slot'].includes(node.tag)) {
         const name = pascalCase(node.tag)
         const component =
           options.components[name] ?? options.components[node.tag]
@@ -87,6 +107,16 @@ export function createElementTransform(
     }
 
     return () => {
+      const exprs = expressions.slice()
+      if (hasScope) {
+        removeHoistScope()
+        if (slotDir != null) {
+          if (slotDir.exp == null)
+            slotDir.exp = createSimpleExpression('{}', false)
+          ;(slotDir.exp as any).exprs = exprs
+        }
+      }
+
       if (node.tag === 'slot') {
         const slotName = findProp(node, 'name')
         const props = node.props.filter(
@@ -137,7 +167,6 @@ export function createElementTransform(
         )
         node.codegenNode = createCompoundExpression(
           [
-            '{',
             context.helper(RENDER_SLOT),
             '(',
             '_ctx.$slots',
@@ -157,13 +186,13 @@ export function createElementTransform(
             node.children.length > 0
               ? [' ?? (<>', generateChildNodes(node.children), '</>)'].flat()
               : [],
-            '}',
           ].flat(),
         ) as any
 
         return
       }
 
+      let isHoistedComponentExpression = false
       let name: string = resolvedComponentName ?? node.tag
       let startTag: SimpleExpressionNode = createSimpleExpression(
         name,
@@ -174,6 +203,7 @@ export function createElementTransform(
       if (node.tag === 'component') {
         const isProp = findProp(node, 'is')
         if (isAttributeNode(isProp) && isProp.value != null) {
+          isHoistedComponentExpression = true
           name = hoist(
             createSimpleExpression(
               `${JSON.stringify(isProp.value.content)} as const`,
@@ -186,6 +216,7 @@ export function createElementTransform(
           isDirectiveNode(isProp) &&
           isSimpleExpressionNode(isProp.exp)
         ) {
+          isHoistedComponentExpression = true
           name = hoist(isProp.exp)
           startTag = createSimpleExpression(name, false, startTag.loc)
         } else {
@@ -203,11 +234,13 @@ export function createElementTransform(
           ...attributes,
           ' />',
         ]) as any
+        markElementNode(node.codegenNode)
       } else {
         const children = generateChildren(
           node,
           context,
-          resolvedComponentName != null,
+          isHoistedComponentExpression || resolvedComponentName != null,
+          exprs,
         )
         node.codegenNode = createCompoundExpression([
           '<',
@@ -220,9 +253,20 @@ export function createElementTransform(
           name,
           '>',
         ]) as any
+        markElementNode(node.codegenNode)
       }
     }
   }
+}
+
+function markElementNode(node: any): void {
+  node._isElementNode = true
+}
+function markNonElementNode(node: any): void {
+  node._isElementNode = false
+}
+function isMarkedElementNode(node: any): boolean {
+  return node?._isElementNode === true
 }
 
 function getInternalPath(options: Required<Options>): string {
@@ -483,16 +527,29 @@ function generateChildren(
   node: ElementNode,
   context: TransformContext,
   isResolvedComponent: boolean,
+  expressions: CompoundExpressionNode[],
 ): any[] {
   if (isResolvedComponent) {
-    const { slots } = buildSlots(node, context, (props, children) => {
+    const { slots } = buildSlots(node, context, (props, children, loc) => {
+      if ((props as any)?.exprs != null) {
+        expressions = (props as any)?.exprs
+      }
       const nodes = generateChildNodes(children)
-      return createFunctionExpression(
-        props,
-        createCompoundExpression(
-          nodes.length > 0 ? ['(<>', ...nodes, '</>)'] : ['null'],
-        ),
+      const returns = createCompoundExpression(
+        nodes.length > 0 ? ['(<>', ...nodes, '</>)'] : ['null'],
       )
+      const fn = createFunctionExpression(props, undefined, true)
+
+      if (expressions.length > 0) {
+        fn.body = createBlockStatement([
+          ...expressions,
+          createCompoundExpression(['\nreturn ', returns]),
+        ])
+      } else {
+        fn.returns = returns
+      }
+
+      return fn
     })
     context.helpers.delete(WITH_CTX)
 
@@ -520,16 +577,16 @@ function generateChildren(
 
 export function generateChildNodes(nodes: TemplateChildNode[]): any[] {
   return nodes.flatMap((node) => {
-    if (isCommentNode(node)) {
-      if (node.content.includes('<') || node.content.includes('>')) {
-        return createCompoundExpression([transformText(node.content)])
-      } else {
-        return []
-      }
-    } else if (isTextNode(node)) {
-      return createCompoundExpression([transformText(node.content)])
+    if (isTextNode(node)) {
+      return createCompoundExpression([
+        '{',
+        JSON.stringify(node.content),
+        '}\n',
+      ])
+    } else if (isMarkedElementNode((node as any).codegenNode)) {
+      return createCompoundExpression([node as any, '\n'])
     } else {
-      return (node as unknown) as CompoundExpressionNode
+      return createCompoundExpression(['{', node as any, '}\n'])
     }
   })
 }

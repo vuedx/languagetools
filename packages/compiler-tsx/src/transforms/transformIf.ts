@@ -34,14 +34,13 @@ export function createTransformIf(
 
           if (dir.name !== 'else') {
             branch.condition = createSimpleExpression(
-              content?.trimEnd() ?? 'false',
+              content == null || content.trim() === '' ? 'false' : content,
               false,
               exp?.loc,
             )
           }
 
           const expressions = [
-            '{',
             ...ifNode.branches.flatMap((branch) => {
               hasElse = hasElse || branch.condition == null
 
@@ -56,7 +55,6 @@ export function createTransformIf(
                 : ['(', ...normalizeChildren(branch.children), ')']
             }),
             `${hasElse ? '' : 'null'}`,
-            '}',
           ]
 
           ifNode.codegenNode = createCompoundExpression(expressions) as any
