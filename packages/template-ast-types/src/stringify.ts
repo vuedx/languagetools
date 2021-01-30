@@ -17,6 +17,8 @@ import {
   isTextNode,
   isCommentNode,
 } from './assert'
+  
+const selfClosingTag = ['area','base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']
 
 /**
  * @public
@@ -164,7 +166,12 @@ function genElementNode(
     if (!shouldIndentClosing) code.push(' ')
     code.push('/>')
   } else {
-    code.push('>', genChildren(node, indent, options), '</', node.tag, '>')
+    if(selfClosingTag.find(k => k === node.tag)){
+      code.push(" " ,"/>")
+    }else{
+      code.push('>', genChildren(node, indent, options), '</', node.tag, '>')
+    }
+    
   }
 
   return code.join('')
