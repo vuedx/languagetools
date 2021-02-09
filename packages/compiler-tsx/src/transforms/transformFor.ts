@@ -1,4 +1,6 @@
 import {
+  CompoundExpressionNode,
+  createBlockStatement,
   createCallExpression,
   createCompoundExpression,
   createForLoopParams,
@@ -13,12 +15,27 @@ import {
 } from '@vue/compiler-core'
 import { isSimpleExpressionNode } from '@vuedx/template-ast-types'
 import { createLoc } from '../utils'
+import { generateChildNodes } from './transformElement'
 import { trackIdentifiers } from './transformExpression'
 
 export const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
 export function createTransformFor(
   addIdentifer: (value: string) => void,
+  expressions: CompoundExpressionNode[],
 ): NodeTransform {
+  const globalsExpressions: CompoundExpressionNode[][] = []
+  const addHoistScope = (): void => {
+    globalsExpressions.push(expressions.slice())
+    expressions.length = 0
+  }
+  const removeHoistScope = (): void => {
+    const exps = globalsExpressions.pop()
+    if (Array.isArray(exps)) {
+      expressions.length = 0
+      expressions.push(...exps)
+    }
+  }
+
   return createStructuralDirectiveTransform(/^for$/, (node, dir, context) => {
     let exp: any
     if (isSimpleExpressionNode(dir.exp)) {
@@ -44,28 +61,38 @@ export function createTransformFor(
         exp,
       ]) as ForRenderListExpression
 
-      forNode.codegenNode = createCompoundExpression([
-        '{',
-        renderExp as any,
-        '}',
-      ]) as any
+      forNode.codegenNode = createCompoundExpression([renderExp as any]) as any
+
+      addHoistScope()
+
       return () => {
         const childBlock =
           forNode.children.length === 0
             ? createCompoundExpression(['null'])
             : createCompoundExpression([
                 '<>',
-                ...(forNode.children as any),
+                ...generateChildNodes(forNode.children),
                 '</>',
               ])
 
-        renderExp.arguments.push(
-          createFunctionExpression(
-            createForLoopParams(forNode.parseResult),
-            childBlock,
-            true /* force newline */,
-          ) as ForIteratorExpression,
+        const fn = createFunctionExpression(
+          createForLoopParams(forNode.parseResult),
+          undefined,
+          true /* force newline */,
         )
+
+        if (expressions.length > 0) {
+          fn.body = createBlockStatement([
+            ...expressions,
+            createCompoundExpression(['\nreturn ', childBlock]),
+          ])
+        } else {
+          fn.returns = childBlock
+        }
+
+        renderExp.arguments.push(fn as ForIteratorExpression)
+
+        removeHoistScope()
       }
     })
   })

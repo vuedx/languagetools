@@ -159,6 +159,7 @@ export function trackIdentifiers(
     // Handle common incomplete expressions
     .replace(/(\.|\[\]?)$/, '')
 
+  if (rawExp.trim() === '') return
   if (isSimpleIdentifier(rawExp)) {
     if (
       !asParams &&

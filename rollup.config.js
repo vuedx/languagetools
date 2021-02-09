@@ -22,22 +22,9 @@ const config = [
   type('analyze'),
   type('vue-virtual-textdocument'),
   type('typescript-plugin-vue'),
-  {
-    ...type('typescript-plugin-vue', true),
-    input: abs('packages/typescript-plugin-vue/types/vue-2.d.ts'),
-    output: [
-      {
-        format: 'es',
-        file: abs('packages/typescript-standalone/runtime/vue-2.d.ts'),
-      },
-      {
-        format: 'es',
-        file: abs('packages/typescript-plugin-vue/runtime/vue-2.d.ts'),
-      },
-    ],
-    external: [],
-    treeshake: false,
-  },
+  tsPluginRuntimeTypes('vue2'),
+  tsPluginRuntimeTypes('jsx'),
+  tsPluginRuntimeTypes('render'),
   type('typecheck'),
   type('typescript-vetur'),
 
@@ -91,6 +78,29 @@ const isWatch = process.argv.includes('-w') || process.argv.includes('--watch')
 export default config
   .filter((config) => input(config).match(process.env.FILTER || ''))
   .filter((config) => kind(config).match(process.env.KIND || ''))
+
+/**
+ * @param {string} name
+ * @returns {import('rollup').RollupOptions}
+ */
+function tsPluginRuntimeTypes(name) {
+  return {
+    ...type('typescript-plugin-vue', true),
+    input: abs(`packages/typescript-plugin-vue/types/${name}.d.ts`),
+    output: [
+      {
+        format: 'es',
+        file: abs(`packages/typescript-standalone/runtime/${name}.d.ts`),
+      },
+      {
+        format: 'es',
+        file: abs(`packages/typescript-plugin-vue/runtime/${name}.d.ts`),
+      },
+    ],
+    external: [],
+    treeshake: false,
+  }
+}
 
 /**
  * @param {string} name

@@ -267,7 +267,7 @@ function createVueModuleTextDocument(
     transformer: (document) => {
       const { script, scriptSetup, template } = document.container.descriptor
       const api = document.container.options.vueVersion.startsWith('2.')
-        ? '@@vuedx/vue-2-support'
+        ? '__vuedx_runtime__vue2__'
         : 'vue'
 
       const lines: string[] = []
@@ -360,7 +360,7 @@ function createInternalModuleTextDocument(
       const script = document.container.descriptor.script
       const scriptSetup = document.container.descriptor.scriptSetup
       const api = document.container.options.vueVersion.startsWith('2.')
-        ? '@@vuedx/vue-2-support'
+        ? '__vuedx_runtime__vue2__'
         : 'vue'
       const lines: string[] = []
       lines.push(`import { defineComponent } from '${api}'`)

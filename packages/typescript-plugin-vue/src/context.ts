@@ -463,9 +463,6 @@ function patchProject(
   context: PluginContext,
   project: TS.server.Project,
 ): void {
-  const vue2supportFile = context.typescript.server.toNormalizedPath(
-    Path.join(Path.dirname(__dirname), 'runtime/vue-2.d.ts'),
-  )
   tryPatchMethod(
     project,
     'getFileNames',
@@ -481,7 +478,6 @@ function patchProject(
           isVirtualFile(fileName) ? getContainingFile(fileName) : fileName,
         ),
       )
-      fileNames.delete(vue2supportFile)
       fileNames.forEach((fileName) => {
         if (isVueFile(fileName)) {
           const scriptInfo =
@@ -616,9 +612,7 @@ function patchGetScriptFileNames(
 ): void {
   context.log(`[patch] Add support for GeterrForProject. (Project)`)
 
-  const vue2supportFile = context.typescript.server.toNormalizedPath(
-    Path.join(Path.dirname(__dirname), 'runtime/vue-2.d.ts'),
-  )
+  const types = getRuntimeTypes(context)
 
   tryPatchMethod(
     languageServiceHost,
@@ -630,7 +624,6 @@ function patchGetScriptFileNames(
 
       return wrapFn('getScriptFileNames', (): string[] => {
         const fileNames = new Set<string>()
-
         const vueFiles = new Set<string>()
 
         getScriptFileNames()
@@ -654,7 +647,7 @@ function patchGetScriptFileNames(
           const project = context.getVueProjectForFile(first(files), true)
 
           if (project.version.startsWith('2.')) {
-            fileNames.add(vue2supportFile)
+            fileNames.add(types.vue2)
           }
 
           const projects = new Set(
@@ -787,9 +780,7 @@ function patchModuleResolution(
   context: PluginContext,
   languageServiceHost: TS.LanguageServiceHost,
 ): void {
-  const vue2supportFile = context.typescript.server.toNormalizedPath(
-    Path.join(Path.dirname(__dirname), 'runtime/vue-2.d.ts'),
-  )
+  const types = Array.from(Object.entries(getRuntimeTypes(context)))
 
   tryPatchMethod(
     languageServiceHost,
@@ -833,12 +824,13 @@ function patchModuleResolution(
                 )
               : []
 
-          const index = moduleNames.indexOf('@@vuedx/vue-2-support')
-          if (index >= 0 && result[index] == null) {
-            // Vue 2
-            result[index] = {
-              resolvedFileName: vue2supportFile,
-              isExternalLibraryImport: true,
+          for (const [key, file] of types) {
+            const index = moduleNames.indexOf(`__vuedx_runtime__${key}__`)
+            if (index >= 0 && result[index] == null) {
+              result[index] = {
+                resolvedFileName: file,
+                isExternalLibraryImport: true,
+              }
             }
           }
 
@@ -872,6 +864,26 @@ function patchModuleResolution(
       )
     },
   )
+}
+
+function getRuntimeTypes(
+  context: PluginContext,
+): Record<'vue2' | 'jsx' | 'render', string> {
+  const runtimeDir = context.typescript.server.toNormalizedPath(
+    Path.join(Path.dirname(__dirname), 'runtime'),
+  )
+
+  return {
+    vue2: context.typescript.server.toNormalizedPath(
+      Path.join(runtimeDir, 'vue2.d.ts'),
+    ),
+    jsx: context.typescript.server.toNormalizedPath(
+      Path.join(runtimeDir, 'jsx.d.ts'),
+    ),
+    render: context.typescript.server.toNormalizedPath(
+      Path.join(runtimeDir, 'render.d.ts'),
+    ),
+  }
 }
 
 function patchServiceHost(context: PluginContext): void {
