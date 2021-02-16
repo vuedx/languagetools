@@ -38,6 +38,8 @@
 <br>
 <br>
 
+:warning: This package contains telemetry and submits various actions to Sentry.io. Set the environment variable `VUEDX_TELEMETRY=off` to opt out.
+
 # VueDX
 
 A set of tools for better developer experience aka Vue Developer Experience or VueDX.
