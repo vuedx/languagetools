@@ -1,5 +1,15 @@
 # @vuedx/analyze
 
+## 0.6.4
+
+### Patch Changes
+
+- Updated dependencies [084c055]
+- Updated dependencies [42aeeef]
+- Updated dependencies [084c055]
+  - @vuedx/compiler-tsx@0.7.0
+  - @vuedx/template-ast-types@0.6.3
+
 ## 0.6.3
 
 ### Patch Changes

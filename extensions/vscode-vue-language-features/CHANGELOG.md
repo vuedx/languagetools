@@ -1,5 +1,11 @@
 # vue-language-features
 
+## 0.6.4
+
+### Patch Changes
+
+- @vuedx/typescript-standalone@0.6.3
+
 ## 0.6.3
 
 ### Patch Changes

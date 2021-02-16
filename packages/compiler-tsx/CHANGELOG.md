@@ -1,5 +1,17 @@
 # @vuedx/compiler-tsx
 
+## 0.7.0
+
+### Minor Changes
+
+- 084c055: Use **vuedx_runtime**<name>\_\_ format for runtime typecheck helpers
+
+### Patch Changes
+
+- 084c055: Alias dynamic components in v-for/v-slot scope
+- Updated dependencies [42aeeef]
+  - @vuedx/template-ast-types@0.6.3
+
 ## 0.6.3
 
 ### Patch Changes

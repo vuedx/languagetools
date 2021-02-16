@@ -2,7 +2,7 @@
   "name": "coc-vue",
   "publisher": "znck",
   "displayName": "Vue Language Features",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Enhanced TypeScript/JavaScript Support",
   "main": "dist/index.js",
   "activationEvents": [

@@ -1,5 +1,18 @@
 # @vuedx/vue-virtual-textdocument
 
+## 0.7.0
+
+### Minor Changes
+
+- 084c055: Use **vuedx_runtime**<name>\_\_ format for runtime typecheck helpers
+
+### Patch Changes
+
+- Updated dependencies [084c055]
+- Updated dependencies [084c055]
+  - @vuedx/compiler-tsx@0.7.0
+  - @vuedx/analyze@0.6.4
+
 ## 0.6.3
 
 ### Patch Changes

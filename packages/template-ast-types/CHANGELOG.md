@@ -1,5 +1,11 @@
 # @vuedx/template-ast-types
 
+## 0.6.3
+
+### Patch Changes
+
+- 42aeeef: Support void tags as self closing tags
+
 ## 0.6.2
 
 ### Patch Changes
