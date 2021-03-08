@@ -65,7 +65,7 @@ export function createElementTransform(
 
   return (node, context) => {
     if (!isImportAdded) {
-      context.imports.add({
+      context.imports.push({
         exp: '_Ctx',
         path: getInternalPath(options),
       })
@@ -88,7 +88,7 @@ export function createElementTransform(
           options.components[name] ?? options.components[node.tag]
         if ((context.identifiers[name] ?? 0) <= 0) {
           if (component != null) {
-            context.imports.add({
+            context.imports.push({
               exp:
                 component.named === true
                   ? `{ ${
