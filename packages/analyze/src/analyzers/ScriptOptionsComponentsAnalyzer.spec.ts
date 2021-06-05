@@ -37,17 +37,39 @@ describe('script/options/components', () => {
     })
   })
 
-  test('exported from script setup', () => {
-    const info = analyzer.analyzeScript(`
-      export { default as Foo } from './foo.vue'
-    `)
+  test('imported in script setup from .vue file', () => {
+    const info = analyzer.analyzeScript(
+      `import Foo from './foo.vue'
+      `,
+      undefined,
+      'scriptSetup',
+    )
 
     expect(info.components).toHaveLength(1)
     expect(info.components[0]).toMatchObject({
       name: 'Foo',
-      kind: 'script',
+      kind: 'scriptSetup',
       source: {
         moduleName: './foo.vue',
+      },
+    })
+  })
+
+  test('imported in script setup from anywhere', () => {
+    const info = analyzer.analyzeScript(
+      `import { Foo } from './foo'
+      `,
+      undefined,
+      'scriptSetup',
+    )
+
+    expect(info.components).toHaveLength(1)
+    expect(info.components[0]).toMatchObject({
+      name: 'Foo',
+      kind: 'scriptSetup',
+      source: {
+        moduleName: './foo',
+        exportName: 'Foo',
       },
     })
   })
@@ -102,6 +124,26 @@ describe('script/options/components', () => {
       },
     })
     expect(info.components[1]).toMatchObject({
+      name: 'MyBar',
+      kind: 'script',
+      source: {
+        moduleName: 'external-library',
+        exportName: 'Bar',
+      },
+    })
+  })
+
+  test('nested component', () => {
+    const info = analyzer.analyzeScript(`
+      import { Bar } from 'external-library'
+
+      export default {
+        components: { MyBar: Bar.Comp.Bar }
+      }
+    `)
+
+    expect(info.components).toHaveLength(1)
+    expect(info.components[0]).toMatchObject({
       name: 'MyBar',
       kind: 'script',
       source: {

@@ -1,4 +1,9 @@
-import { getComponentName, getComponentNameAliases, isPascalCase, kebabCase } from '@vuedx/shared'
+import {
+  getComponentName,
+  getComponentNameAliases,
+  isPascalCase,
+  kebabCase,
+} from '@vuedx/shared'
 
 /* eslint-disable @typescript-eslint/method-signature-style */
 export interface SourceLocation {
@@ -148,6 +153,7 @@ export interface ComponentInfoFactory {
     name: string,
     source: ImportSourceWithLocation,
     loc?: SourceRange,
+    kind?: LocalComponentRegistrationInfo['kind'],
   ) => ComponentInfoFactory
   addOption: (name: string, address: Addressable) => ComponentInfoFactory
   addSetup(name: '', info: Addressable): ComponentInfoFactory

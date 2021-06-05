@@ -1,44 +1,46 @@
 import { Binding, NodePath } from '@babel/traverse'
 import {
+  Identifier,
   ImportDeclaration,
   isIdentifier,
+  isImportSpecifier,
   isObjectExpression,
   isObjectProperty,
+  isMemberExpression,
   isStringLiteral,
-  isExportSpecifier,
   ObjectProperty,
-  ExportSpecifier,
+  MemberExpression,
 } from '@babel/types'
+import { isPascalCase } from '@vuedx/shared'
 import { ImportSourceWithLocation } from '../component'
 import { createPlugin, ScriptAnalyzerContext } from '../types'
 import { createSourceRange } from '../utilities'
 
 export const ComponentsOptionAnalyzer = createPlugin({
   babel: (path$, ctx) => {
-    if (path$.isExportNamedDeclaration()) {
+    if (ctx.mode === 'setup' && path$.isImportDeclaration()) {
       const node = path$.node
-      if (node.source?.value.endsWith('.vue') === true) {
-        const specifier = node.specifiers.find(
-          (specifier) =>
-            isExportSpecifier(specifier) &&
-            isIdentifier(specifier.local) &&
-            specifier.local.name === 'default',
-        ) as ExportSpecifier | undefined
-
-        if (specifier != null) {
-          const name = getComponentName(specifier.exported) as string
-
+      node.specifiers.filter((specifier) => {
+        if (
+          isIdentifier(specifier.local) &&
+          (node.source.value.endsWith('.vue') ||
+            isPascalCase(specifier.local.name))
+        ) {
           ctx.component.addLocalComponent(
-            name,
+            specifier.local.name,
             {
               moduleName: node.source.value,
-              localName: name,
+              exportName: isImportSpecifier(specifier)
+                ? getComponentName(specifier.imported)
+                : undefined,
+              localName: specifier.local.name,
               loc: createSourceRange(ctx, node),
             },
             createSourceRange(ctx, node),
+            'scriptSetup',
           )
         }
-      }
+      })
     }
   },
   options: {
@@ -63,6 +65,23 @@ export const ComponentsOptionAnalyzer = createPlugin({
                       createSourceRange(ctx, declaration),
                     )
                   }
+                } else if (isMemberExpression(declaration.value)) {
+                  const id = getIdentifierFromMemberExpression(
+                    declaration.value,
+                  )
+                  if (id != null) {
+                    const info = resolveComponentInformation(
+                      path$.scope.getBinding(id.name),
+                      ctx,
+                    )
+                    if (info != null) {
+                      ctx.component.addLocalComponent(
+                        name,
+                        info,
+                        createSourceRange(ctx, declaration),
+                      )
+                    }
+                  }
                 }
               }
             }
@@ -76,6 +95,14 @@ export const ComponentsOptionAnalyzer = createPlugin({
 function getComponentName(key: ObjectProperty['key']): string | undefined {
   if (isIdentifier(key)) return key.name
   if (isStringLiteral(key)) return key.value
+}
+
+function getIdentifierFromMemberExpression(
+  exp: MemberExpression,
+): Identifier | undefined {
+  if (isIdentifier(exp.object)) return exp.object
+  if (isMemberExpression(exp.object))
+    return getIdentifierFromMemberExpression(exp.object)
 }
 
 function resolveComponentInformation(
