@@ -2,13 +2,16 @@
   "name": "@vuedx/typescript-vetur",
   "version": "0.6.3",
   "description": "TypeScript plugin for Vue (Vetur Mode)",
-  "main": "dist/index.cjs.js",
-  "private": false,
-  "scripts": {},
-  "keywords": [],
+  "main": "src/index.ts",
+  "module": "lib/index.mjs",
+  "publishConfig": {
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts"
+  },
   "files": [
-    "dist"
+    "lib"
   ],
+  "private": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/znck/vue-developer-experience.git"
@@ -26,7 +29,6 @@
   "dependencies": {
     "@vuedx/typescript-plugin-vue": "workspace:*"
   },
-  "build": {},
   "devDependencies": {
     "typescript": "^4.0.3"
   }

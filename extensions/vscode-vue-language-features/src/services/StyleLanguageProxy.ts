@@ -1,4 +1,4 @@
-import { VirtualTextDocument } from '@vuedx/vue-virtual-textdocument'
+import type { VirtualTextDocument } from '@vuedx/vue-virtual-textdocument'
 import { injectable } from 'inversify'
 import {
   CancellationToken,
@@ -10,7 +10,6 @@ import {
   Disposable,
   languages,
   Position,
-  Range,
   TextDocument,
   Uri,
 } from 'vscode'
@@ -26,7 +25,6 @@ export class StyleLanguageProxy
   }
 
   private readonly selector = { language: 'vue' }
-  private readonly triggerCharacters = ['.']
 
   public install(): Disposable {
     return Disposable.from(
@@ -81,26 +79,6 @@ export class StyleLanguageProxy
     const document = await this.documents.asVueDocument(container)
 
     return document.documentAt(position)
-  }
-
-  private async getStyleDocuments(
-    container: TextDocument,
-    range?: Range,
-  ): Promise<VirtualTextDocument[]> {
-    const document = await this.documents.asVueDocument(container)
-    let styles = document.descriptor.styles
-    if (range != null) {
-      styles = styles.filter(({ loc: { start, end } }) =>
-        range.contains(
-          new Range(start.line, start.column, end.line, end.column),
-        ),
-      )
-    }
-
-    return styles.map((style) =>
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      document.getDocument(document.getBlockSelector(style)!),
-    )
   }
 
   private getUri(document: VirtualTextDocument): Uri {

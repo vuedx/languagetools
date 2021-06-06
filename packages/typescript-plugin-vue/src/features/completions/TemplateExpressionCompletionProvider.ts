@@ -124,6 +124,7 @@ export const TemplateExpressionCompletionProvider = defineCompletionProvider({
           formatOptions,
           source,
           preferences,
+          undefined,
         )
       }
     }

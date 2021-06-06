@@ -1,3 +1,5 @@
+/// <reference path="./augment-node.d.ts" />
+
 import { parse, parseExpression } from '@babel/parser'
 import {
   Expression,
@@ -39,7 +41,7 @@ export class Scope {
   }
 
   public getBinding(identifier: string): null | Node {
-    if (identifier in this.bindings) return this.bindings[identifier]
+    if (identifier in this.bindings) return this.bindings[identifier] ?? null
     if (this.parent != null) {
       return (this.bindings[identifier] = this.parent.getBinding(identifier))
     } else {
@@ -94,14 +96,16 @@ export function withScope(ast: RootNode): RootNode {
               const match = forAliasRE.exec(prop.exp.content)
               if (match != null) {
                 const [, LHS, RHS] = match
-                getIdentifiers(RHS).forEach((identifier) => {
-                  localScope.getBinding(identifier)
-                })
+                if (RHS != null) {
+                  getIdentifiers(RHS).forEach((identifier) => {
+                    localScope.getBinding(identifier)
+                  })
 
-                getIdentifiers(`${LHS} => {}`).forEach((identifier) => {
-                  scope.setBinding(identifier, node)
-                  localScope.getBinding(identifier)
-                })
+                  getIdentifiers(`${LHS} => {}`).forEach((identifier) => {
+                    scope.setBinding(identifier, node)
+                    localScope.getBinding(identifier)
+                  })
+                }
               }
             }
           }
@@ -129,7 +133,7 @@ function getIdentifiers(source: string): Set<string> {
     traverseBabel(ast, (node, ancestors) => {
       if (isIdentifier(node)) {
         if (ancestors.length > 0) {
-          if (shouldTrack(node, ancestors[ancestors.length - 1].node)) {
+          if (shouldTrack(node, ancestors[ancestors.length - 1]!.node)) {
             identifers.add(node.name)
           }
         } else {

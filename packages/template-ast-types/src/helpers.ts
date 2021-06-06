@@ -1,10 +1,10 @@
-import { ElementNode, Node, RootNode } from '@vue/compiler-core'
+import type { ElementNode, Node, RootNode } from '@vue/compiler-core'
 import {
   isCommentNode,
   isElementNode,
   isInterpolationNode,
   isRootNode,
-  isTextNode,
+  isTextNode
 } from './assert'
 import { TraversalAncestors, traverseEvery, traverseFast } from './traverse'
 

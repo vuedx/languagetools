@@ -2,16 +2,21 @@
   "name": "@vuedx/template-ast-types",
   "version": "0.6.2",
   "description": "Helper functions for Vue template AST",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "module": "lib/index.mjs",
+  "publishConfig": {
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts"
+  },
   "files": [
-    "dist"
+    "lib"
   ],
   "keywords": [
-    "vue-template-compiler",
+    "ast",
+    "ast-helpers",
     "vue",
-    "ast"
+    "vue-compiler",
+    "vue-template-compiler"
   ],
   "repository": {
     "type": "git",

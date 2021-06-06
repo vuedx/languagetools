@@ -2,7 +2,7 @@ import { collect, Telemetry } from '@vuedx/shared'
 import { version } from '../package.json'
 import { PluginContext } from './context'
 import { traceFn } from './helpers/logger'
-import { Modules, PluginConfig, TS } from './interfaces'
+import type { Modules, PluginConfig, TS } from './interfaces'
 import { RoutingLanguageServer } from './servers/routing'
 
 let context: PluginContext

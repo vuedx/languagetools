@@ -34,7 +34,7 @@ import { createExpressionTracker } from './transforms/transformExpression'
 import { createTransformFor } from './transforms/transformFor'
 import { createTransformIf } from './transforms/transformIf'
 import { createInterpolationTransform } from './transforms/transformInterpolation'
-import { CodegenResult, ComponentImport, Options } from './types'
+import type { CodegenResult, ComponentImport, Options } from './types'
 
 export * from './types'
 

@@ -8,8 +8,8 @@ import t, {
   isTSTypeAliasDeclaration,
   traverseFast,
 } from '@babel/types'
-import { ImportSource } from '../component'
-import { Context, ScriptAnalyzerContext } from '../types'
+import type { ImportSource } from '../component'
+import type { Context, ScriptAnalyzerContext } from '../types'
 
 export function getTypeAnnotation(
   node$:

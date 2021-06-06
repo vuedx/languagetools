@@ -28,3 +28,5 @@ export interface ProjectConfig {
   globalComponents?: Array<string | Record<string, string | ImportSource>>
   preferences?: Partial<ProjectPreferences>
 }
+
+export { version } from '../package.json'

@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": ["*.mjs", "*.js"],
+  "exclude": [],
+  "compilerOptions": {
+    "rootDir": ".",
+    "module": "ES2020",
+    "checkJs": true
+  }
+}

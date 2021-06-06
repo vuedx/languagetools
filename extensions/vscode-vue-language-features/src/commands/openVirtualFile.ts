@@ -1,4 +1,4 @@
-import {
+import type {
   Selector,
   VirtualTextDocument,
   VueTextDocument,
@@ -138,7 +138,7 @@ export class OpenVirtualFileCommand extends Installable {
 
   private async showDocument(
     document: VirtualTextDocument,
-    editor: vscode.TextEditor,
+    _editor: vscode.TextEditor,
     viewColumn = vscode.ViewColumn.Beside,
   ): Promise<void> {
     const virtualUri = vscode.Uri.parse(document.uri)

@@ -2,9 +2,15 @@
   "name": "@vuedx/vue-virtual-textdocument",
   "version": "0.6.3",
   "description": "",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "module": "lib/index.mjs",
+  "publishConfig": {
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts"
+  },
+  "files": [
+    "lib"
+  ],
   "private": false,
   "scripts": {},
   "keywords": [
@@ -12,9 +18,6 @@
     "vue sfc",
     "sfc",
     "vue virtual files"
-  ],
-  "files": [
-    "dist"
   ],
   "repository": {
     "type": "git",

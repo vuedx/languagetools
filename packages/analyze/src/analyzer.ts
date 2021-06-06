@@ -1,7 +1,9 @@
-import { parse, SFCBlock, SFCParseOptions } from '@vuedx/compiler-sfc'
+import type { SFCBlock, SFCParseOptions } from '@vuedx/compiler-sfc'
+import { parse } from '@vuedx/compiler-sfc'
 import Path from 'path'
-import { ComponentInfo, createComponentInfoFactory } from './component'
-import { Context, Plugin } from './types'
+import type { ComponentInfo } from './component'
+import { createComponentInfoFactory } from './component'
+import type { Context, Plugin } from './types'
 
 const parsers: Context['parsers'] = {
   sfc: {
@@ -121,8 +123,9 @@ function processSFC(context: Context): void {
   function call<T extends SFCBlock>(block: T): void {
     const kind = block.type
     context.plugins.forEach(({ blocks }) => {
-      if (blocks != null && kind in blocks) {
-        blocks[kind](block, context)
+      const blockFn = blocks?.[kind]
+      if (blockFn != null) {
+        blockFn(block, context)
       }
     })
   }

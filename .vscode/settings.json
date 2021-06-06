@@ -1,4 +1,14 @@
 {
-  "cSpell.words": ["textdocument", "typecheck", "vetur", "vuedx"],
+  "cSpell.words": [
+    "Builtins",
+    "Codegen",
+    "hygen",
+    "onwarn",
+    "textdocument",
+    "treeshake",
+    "typecheck",
+    "vetur",
+    "vuedx"
+  ],
   "grammarly.userWords": ["textdocument", "tsserver", "znck"]
 }

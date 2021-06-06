@@ -1,14 +1,14 @@
-import { ComponentInfo, ImportSource } from '@vuedx/analyze'
+import type { ComponentInfo, ImportSource } from '@vuedx/analyze'
 import type { SFCScriptBlock } from '@vuedx/compiler-sfc'
-import {
+import type {
   ProjectConfigNormalized,
   ProjectPreferences,
 } from '@vuedx/projectconfig'
 import { isSimpleIdentifier } from '@vuedx/template-ast-types'
-import { VueTextDocument } from '@vuedx/vue-virtual-textdocument'
+import type { VueTextDocument } from '@vuedx/vue-virtual-textdocument'
 import { getScriptBlockWithContent } from '../features/completions/SFCCompletionProvider'
 import { getCode, getPaddingLength, indent } from '../helpers/utils'
-import { TS } from '../interfaces'
+import type { TS } from '../interfaces'
 
 export function registerLocalComponentWithSource(
   document: VueTextDocument,
@@ -126,7 +126,7 @@ export function addOptionToConfigFunction(
   name: string,
   value: string,
   vueVersion: string,
-  preferences?: ProjectConfigNormalized['preferences']['script'],
+  _preferences?: ProjectConfigNormalized['preferences']['script'],
 ): {
   renameLocation?: number
   changes: TS.TextChange[]

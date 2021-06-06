@@ -1,4 +1,4 @@
-import { Node } from '@vue/compiler-core'
+import type { Node } from '@vue/compiler-core'
 import { isNode } from './assert'
 
 const VISITOR_KEYS = ([

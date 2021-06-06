@@ -1,7 +1,7 @@
-import { ComponentInfo, VueProject } from '@vuedx/analyze'
+import type { ComponentInfo, VueProject } from '@vuedx/analyze'
 import { isComponentNode, traverseFast } from '@vuedx/template-ast-types'
 import { getRelativeFileName } from '@vuedx/shared'
-import { TS } from '../../interfaces'
+import type { TS } from '../../interfaces'
 import { defineDiagnosticProvider } from './abstract'
 import { DiagnosticCode, getMessage } from './messages'
 
@@ -95,11 +95,11 @@ export const InferredComponentDiagnosticsProvider = defineDiagnosticProvider({
     return diagnostics
   },
 
-  suggestions(context, fileName) {
+  suggestions(_context, _fileName) {
     return []
   },
 
-  syntax(context, fileName) {
+  syntax(_context, _fileName) {
     return []
   },
 })

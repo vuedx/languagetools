@@ -199,6 +199,7 @@ export function trackIdentifiers(
             traverseFast(param, (node, ancestors) => {
               const parent = ancestors[ancestors.length - 1]?.node
               if (
+                parent != null &&
                 isIdentifier(node) &&
                 !isStaticProperty(parent) &&
                 !(isAssignmentPattern(parent) && parent.right === node)
@@ -251,7 +252,9 @@ export function isStaticPropertyKey(node: Node, parent: Node): boolean {
   return isStaticProperty(parent) && parent.key === node
 }
 
-export function shouldTrack(identifier: Identifier, parent: Node): boolean {
+export function shouldTrack(identifier: Identifier, parent?: Node): boolean {
+  if (parent == null) return true
+
   if (
     !(
       isFunction(parent) &&

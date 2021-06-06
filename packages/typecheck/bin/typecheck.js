@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 console.info = console.debug = console.warn = console.log = console.error
-const cli = require('../dist/index.cjs').cli
+const cli = require('../lib/index.js').cli
 const chalk = require('chalk')
 
 try {

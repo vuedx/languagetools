@@ -1,4 +1,4 @@
-import { ParserOptions } from '@vue/compiler-core'
+import type { ParserOptions } from '@vue/compiler-core'
 import namedCharacterReferences from './namedChars'
 
 const maxCRNameLength: number = Object.keys(namedCharacterReferences).reduce(
@@ -36,7 +36,7 @@ export const decodeHtml: ParserOptions['decodeEntities'] = (
       // Named character reference.
       let name = ''
       let value: string | undefined
-      if (/[0-9a-z]/i.test(rawText[1])) {
+      if (/[0-9a-z]/i.test(rawText[1]!)) {
         for (
           let length = maxCRNameLength;
           value != null && length > 0;
@@ -73,10 +73,10 @@ export const decodeHtml: ParserOptions['decodeEntities'] = (
       const body = pattern.exec(rawText)
       if (body == null) {
         decodedText += head[0]
-        advance(head[0].length)
+        advance(head[0]!.length)
       } else {
         // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
-        let cp = Number.parseInt(body[1], hex ? 16 : 10)
+        let cp = Number.parseInt(body[1]!, hex ? 16 : 10)
         if (cp === 0) {
           cp = 0xfffd
         } else if (cp > 0x10ffff) {
@@ -94,7 +94,7 @@ export const decodeHtml: ParserOptions['decodeEntities'] = (
           cp = CCR_REPLACEMENTS[cp] ?? cp
         }
         decodedText += String.fromCodePoint(cp)
-        advance(body[0].length)
+        advance(body[0]!.length)
       }
     }
   }

@@ -1,23 +1,25 @@
-import {
+import type {
   AttributeNode,
-  buildSlots,
   CompoundExpressionNode,
-  createBlockStatement,
-  createCompoundExpression,
-  createFunctionExpression,
-  createSimpleExpression,
   DirectiveNode,
   DynamicSlotsExpression,
   ElementNode,
-  findDir,
-  findProp,
-  isSimpleIdentifier,
   NodeTransform,
-  RENDER_SLOT,
   SimpleExpressionNode,
   SlotsExpression,
   TemplateChildNode,
   TransformContext,
+} from '@vue/compiler-core'
+import {
+  buildSlots,
+  createBlockStatement,
+  createCompoundExpression,
+  createFunctionExpression,
+  createSimpleExpression,
+  findDir,
+  findProp,
+  isSimpleIdentifier,
+  RENDER_SLOT,
   WITH_CTX,
 } from '@vue/compiler-core'
 import { camelCase, pascalCase } from '@vuedx/shared'
@@ -29,7 +31,7 @@ import {
   isSimpleExpressionNode,
   isTextNode,
 } from '@vuedx/template-ast-types'
-import { Options } from '../types'
+import type { Options } from '../types'
 import { createLoc } from '../utils'
 
 export function createElementTransform(
@@ -65,7 +67,7 @@ export function createElementTransform(
 
   return (node, context) => {
     if (!isImportAdded) {
-      context.imports.add({
+      context.imports.push({
         exp: '_Ctx',
         path: getInternalPath(options),
       })
@@ -88,7 +90,7 @@ export function createElementTransform(
           options.components[name] ?? options.components[node.tag]
         if ((context.identifiers[name] ?? 0) <= 0) {
           if (component != null) {
-            context.imports.add({
+            context.imports.push({
               exp:
                 component.named === true
                   ? `{ ${
@@ -198,7 +200,6 @@ export function createElementTransform(
         name,
         false,
         createLoc(node.loc, node.loc.source.indexOf(node.tag), node.tag.length),
-        false,
       )
       if (node.tag === 'component') {
         const isProp = findProp(node, 'is')
@@ -278,7 +279,7 @@ function getInternalPath(options: Required<Options>): string {
 const ControlDirectiveNameRE = /^(if|for|else-if|else|slot)$/
 function generateJSXAttributes(
   node: ElementNode,
-  context: TransformContext,
+  _context: TransformContext,
 ): any[] {
   const result: any[] = []
   const alreadyProcessed = new Set<DirectiveNode>()
@@ -407,7 +408,7 @@ function generateVModel(dir: DirectiveNode, node: ElementNode): any[] {
 
 function generateAttribute(
   attr: AttributeNode,
-  node: ElementNode,
+  _node: ElementNode,
   sep: '=' | ':' = '=',
 ): any[] {
   const code: any[] = []
@@ -439,7 +440,7 @@ function generateAttribute(
 }
 
 const InlineVOnHandlerRE = /\bfunction\b|\b=>\b/
-function generateVOn(dir: DirectiveNode, node: ElementNode): any[] {
+function generateVOn(dir: DirectiveNode, _node: ElementNode): any[] {
   const code: any[] = []
   const exp = isSimpleExpressionNode(dir.exp)
     ? isSimpleIdentifier(dir.exp.content.trim()) ||
@@ -495,7 +496,7 @@ function getEventName(dir: string): string {
   return camelCase('on-' + dir)
 }
 
-function generateVBind(dir: DirectiveNode, node: ElementNode): any[] {
+function generateVBind(dir: DirectiveNode, _node: ElementNode): any[] {
   const code: any[] = []
   if (isSimpleExpressionNode(dir.arg)) {
     if (dir.arg.isStatic || dir.arg.content === 'key') {
@@ -530,7 +531,7 @@ function generateChildren(
   expressions: CompoundExpressionNode[],
 ): any[] {
   if (isResolvedComponent) {
-    const { slots } = buildSlots(node, context, (props, children, loc) => {
+    const { slots } = buildSlots(node, context, (props, children, _loc) => {
       if ((props as any)?.exprs != null) {
         expressions = (props as any)?.exprs
       }

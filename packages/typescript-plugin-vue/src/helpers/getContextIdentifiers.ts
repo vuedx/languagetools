@@ -1,4 +1,4 @@
-import { ComponentInfo } from '@vuedx/analyze'
+import type { ComponentInfo } from '@vuedx/analyze'
 
 export function getContextIdentifiers(
   info: ComponentInfo,

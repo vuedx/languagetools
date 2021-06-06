@@ -8,22 +8,29 @@
   "description": "Syntax Highlight",
   "icon": "logo.png",
   "main": "dist/index.js",
+  "buildConfig": {
+    "useMain": false,
+    "sources": {
+      "src/index.ts": [
+        {
+          "format": "commonjs",
+          "file": "dist/index.js",
+          "bundle": {
+            "external": [
+              "vscode"
+            ]
+          }
+        }
+      ]
+    },
+    "external": [
+      "vscode"
+    ]
+  },
   "activationEvents": [
     "onLanguage:vue",
     "onCommand:vue.generateGrammar"
   ],
-  "scripts": {
-    "build": "pnpm build:grammar && pnpm build:bundle && pnpm build:prepare && pnpm build:vscode",
-    "build:grammar": "node build/prepare-grammar && node build/grammar",
-    "build:bundle": "ncc build src/index.ts",
-    "build:prepare": "node ../../scripts/prepare-package",
-    "build:vscode": "vsce package --out vue.vsix",
-    "postbuild": "node ../../scripts/reset-package",
-    "prerelease": "pnpm build",
-    "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath ./vue.vsix",
-    "prewatch": "pnpm build:grammar",
-    "watch": "ncc build --source-map --no-source-map-register --watch src/index.ts"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/znck/vue-developer-experience"
@@ -167,15 +174,21 @@
     "url": "https://github.com/znck/vue-developer-experience/issues"
   },
   "homepage": "https://github.com/znck/vue-developer-experience/blob/main/extensions/vscode#readme",
+  "dependencies": {
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
+    "inversify": "^5.0.1",
+    "reflect-metadata": "^0.1.13"
+  },
   "devDependencies": {
     "@types/vscode": "^1.50.0",
-    "@vercel/ncc": "^0.24.1",
-    "@vuedx/vue-virtual-textdocument": "workspace:*",
     "fast-glob": "^3.2.4",
-    "inversify": "^5.0.1",
-    "reflect-metadata": "^0.1.13",
     "typescript": "^4.0.3",
     "vsce": "1.81.0",
     "yaml": "^1.10.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prerelease": "pnpm build",
+    "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath ./vue.vsix"
   }
 }

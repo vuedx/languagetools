@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 process.env.NODE_ENV = process.env.NODE_ENV || 'production'
 
+// FIXME: Move to .ts file
 const glob = require('fast-glob')
 const Path = require('path')
 const FS = require('fs')
@@ -9,7 +10,7 @@ const {
   createFullAnalyzer,
   toVeturData,
   toWebTypes,
-} = /** @type {{createFullAnalyzer: import('..').createFullAnalyzer, toVeturData: import('..').toVeturData, toWebTypes: import('..').toWebTypes}} */ (require('../dist/index.cjs'))
+} = /** @type {{createFullAnalyzer: import('..').createFullAnalyzer, toVeturData: import('..').toVeturData, toWebTypes: import('..').toWebTypes}} */ (require('../lib/index.js'))
 const { codeFrameColumns } = require('@babel/code-frame')
 const { highlight } = require('cli-highlight')
 

@@ -1,10 +1,16 @@
-import {
+import type {
   ComponentInfo,
   ImportSourceWithLocation,
   VueProject,
 } from '@vuedx/analyze'
-import { ProjectConfigNormalized } from '@vuedx/projectconfig'
-import { findNextSibling, first, last, getComponentName } from '@vuedx/shared'
+import type { ProjectConfigNormalized } from '@vuedx/projectconfig'
+import {
+  findNextSibling,
+  first,
+  last,
+  getComponentName,
+  isNotNull,
+} from '@vuedx/shared'
 import {
   createSimpleExpression,
   ElementNode,
@@ -19,14 +25,14 @@ import {
   stringify,
   traverseFast,
 } from '@vuedx/template-ast-types'
-import {
+import type {
   RenderFunctionTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import Path from 'path'
-import { PluginContext } from '../../context'
+import type { PluginContext } from '../../context'
 import { getFilenameForNewComponent } from '../../helpers/utils'
-import { TS } from '../../interfaces'
+import type { TS } from '../../interfaces'
 import { registerLocalComponentWithSource } from '../../transforms/registerLocalComponent'
 import {
   decode,
@@ -346,7 +352,7 @@ export const RefactorExtractComponent: RefactorProvider = {
 }
 
 function genEmits(
-  context: PluginContext,
+  _context: PluginContext,
   emits: string[],
   models: string[],
 ): string {
@@ -355,7 +361,7 @@ function genEmits(
     .join(', ')}]`
 }
 
-function genProps(context: PluginContext, identifiers: string[]): string {
+function genProps(_context: PluginContext, identifiers: string[]): string {
   return `[${identifiers.map((id) => `'${id}'`).join(', ')}]`
 }
 
@@ -469,8 +475,10 @@ function genComponentsOptionsText({
 
         return registration
       }
+
+      return undefined
     })
-    .filter(Boolean)
+    .filter(isNotNull)
     .join(', ')
 
   return text !== '' ? `components: {${text}},` : ''
@@ -516,6 +524,8 @@ function detectConditionType(
           isDirectiveNode(prop) && /^(if|else-if|else)$/.test(prop.name),
       )
     }
+
+    return undefined
   })
 
   const nonNullConditions = conditions.filter((condition) => condition != null)
@@ -621,8 +631,8 @@ function getImportEditForComponent(
     renameLocation += scriptSetup.loc.start.offset
   } else if (script != null) {
     renameLocation += script.loc.start.offset
-  } else {
-    renameLocation += changes[0].newText.indexOf(importStatement)
+  } else if (changes.length > 0) {
+    renameLocation += changes[0]!.newText.indexOf(importStatement)
   }
 
   return { name, changes, renameLocation }

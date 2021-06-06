@@ -15,5 +15,10 @@ export function createSimpleExpression(
   loc?: SourceLocation,
   isConstant?: boolean,
 ): SimpleExpressionNode {
-  return _createSimpleExpression(content, isStatic, loc, isConstant)
+  return _createSimpleExpression(
+    content,
+    isStatic,
+    loc,
+    isConstant ? 0 : undefined,
+  )
 }

@@ -1,5 +1,5 @@
 import { kebabCase } from '@vuedx/shared'
-import { ComponentInfo } from '../component'
+import type { ComponentInfo } from '../component'
 
 export interface VeturData {
   tags: Record<
@@ -24,14 +24,14 @@ export function toVeturData(components: ComponentInfo[]): VeturData {
   components.forEach((component) => {
     const name = kebabCase(component.name)
 
-    data.tags[name] = {
+    const info: VeturData['tags'][0] = (data.tags[name] = {
       description: component.description,
       attributes: [],
-    }
+    })
 
     component.props.forEach((prop) => {
       const propName = kebabCase(prop.name)
-      data.tags[name].attributes.push(propName)
+      info.attributes.push(propName)
       data.attributes[`${name}/${propName}`] = {
         description: prop.description,
         type: prop.type

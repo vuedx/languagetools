@@ -1,8 +1,8 @@
 import { ChildProcess, fork } from 'child_process'
 import Path from 'path'
 import { createInterface, Interface } from 'readline'
-import { Readable, Writable } from 'stream'
-import Proto from 'typescript/lib/protocol'
+import type { Readable, Writable } from 'stream'
+import type Proto from 'typescript/lib/protocol'
 import resolveFrom from 'resolve-from'
 
 function resolve(moduleId: string, directory: string): string {
@@ -13,7 +13,7 @@ function resolve(moduleId: string, directory: string): string {
   }
 }
 
-const isDebugMode = process.env.DEBUG != null
+const isDebugMode = process.env['DEBUG'] != null
 function debug(...args: any[]): void {
   if (__DEV__ && isDebugMode) {
     console.debug(...args)
@@ -22,9 +22,9 @@ function debug(...args: any[]): void {
 
 export class TypeScriptServerHost {
   private readonly voidCommands: Proto.CommandTypes[] = [
-    Proto.CommandTypes.Open,
-    Proto.CommandTypes.Geterr,
-    Proto.CommandTypes.GeterrForProject,
+    'open' as Proto.CommandTypes.Open,
+    'geterr' as Proto.CommandTypes.Geterr,
+    'geterrForProject' as Proto.CommandTypes.GeterrForProject,
   ]
 
   public readonly serverPath = resolve('typescript/lib/tsserver', process.cwd())
@@ -55,10 +55,10 @@ export class TypeScriptServerHost {
   constructor() {
     // prettier-ignore
     const debugArgs =
-      process.env.DEBUG_TS_SERVER != null
+      process.env['DEBUG_TS_SERVER'] != null
         ? [
             '--logVerbosity', 'verbose',
-            '--logFile', process.env.TS_SERVER_LOG_FILE ?? 'tsserver.log',
+            '--logFile', process.env['TS_SERVER_LOG_FILE'] ?? 'tsserver.log',
           ]
         : []
     // prettier-ignore
@@ -72,8 +72,8 @@ export class TypeScriptServerHost {
       cwd: process.cwd(),
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
       execArgv: 
-        process.env.TS_SERVER_INSPECT != null ? ['--inspect'] :
-        process.env.TS_SERVER_INSPECT_BRK != null ? ['--inspect-brk=9229'] :
+        process.env['TS_SERVER_INSPECT'] != null ? ['--inspect'] :
+        process.env['TS_SERVER_INSPECT_BRK'] != null ? ['--inspect-brk=9229'] :
         []
     });
 

@@ -1,9 +1,10 @@
-import { NodeTransform, createCompoundExpression } from '@vue/compiler-core'
+import type { NodeTransform } from '@vue/compiler-core'
+import { createCompoundExpression } from '@vue/compiler-core'
 import { isInterpolationNode } from '@vuedx/template-ast-types'
-import { Options } from '../types'
+import type { Options } from '../types'
 
 export function createInterpolationTransform(
-  options: Required<Options>,
+  _options: Required<Options>,
 ): NodeTransform {
   return function transform(node, context) {
     if (isInterpolationNode(node)) {

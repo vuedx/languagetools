@@ -2,17 +2,26 @@
   "name": "@vuedx/typecheck",
   "version": "0.6.3",
   "description": "TypeScript plugin for Vue",
-  "main": "dist/index.cjs.js",
+  "main": "src/index.ts",
+  "module": "lib/index.mjs",
+  "publishConfig": {
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts"
+  },
+  "files": [
+    "lib",
+    "bin"
+  ],
   "bin": {
     "vuedx-typecheck": "bin/typecheck.js"
   },
-  "types": "dist/index.d.ts",
-  "scripts": {},
+  "buildConfig": {
+    "external": [
+      "typescript",
+      "typescript/lib/tsserverlibrary"
+    ]
+  },
   "keywords": [],
-  "files": [
-    "dist",
-    "bin"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/znck/vue-developer-experience.git"

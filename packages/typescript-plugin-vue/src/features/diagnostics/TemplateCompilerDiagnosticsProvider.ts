@@ -1,14 +1,14 @@
-import { TS } from '../../interfaces'
+import type { TS } from '../../interfaces'
 import { defineDiagnosticProvider } from './abstract'
 
 export const TemplateCompilerDiagnosticsProvider = defineDiagnosticProvider({
   version: '*',
 
-  semantic({ context, helpers, service }, fileName) {
+  semantic({}, _fileName) {
     return []
   },
 
-  suggestions(context, fileName) {
+  suggestions(_context, _fileName) {
     return []
   },
 

@@ -1,6 +1,6 @@
-import { Node } from '@babel/types'
-import { SourceRange } from './component'
-import { Context, ScriptAnalyzerContext } from './types'
+import type { Node } from '@babel/types'
+import type { SourceRange } from './component'
+import type { Context, ScriptAnalyzerContext } from './types'
 
 export function createSourceRange(
   context: Context | ScriptAnalyzerContext,

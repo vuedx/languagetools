@@ -50,19 +50,31 @@ A set of tools for better developer experience aka Vue Developer Experience or V
 
 ## VueDX includes:
 
-- [Analyze](./packages/analyze) — statically analyzes Vue components and provides API info.
-- [Compiler SFC](./packages/compiler-sfc) — a light weight build of `@vue/compiler-sfc` (only `parse()` functionality is provided).
-- [Compiler TSX](./packages/compiler-tsx) — a `<template>` to representational `TSX` compiler (generated TSX may not be functional but ensures type consistency).
-- [Preview](https://github.com/znck/preview) — a quick-prototyping and component management tool
-- [ProjectConfig](./packages/projectconfig) — a json config file to define project preferences.
-- [Template AST Types](./packages/template-ast-types) — a collection of utility functions to work with `<template>` AST, think `@babel/types` but for Vue.
-- [Typecheck](./packages/typecheck) — a command line tool to check types, functionally equivalent to `tsc --noEmit` but includes .vue support.
-- [TS Plugin](./packages/typescript-plugin-vue) — enables TypeScript language server to understand `.vue` files.
-- [TS Plugin for Vetur](./packages/typescript-vetur) — provides missing features to vetur, same as **TS Plugin** but. [#2145](https://github.com/vuejs/vetur/pull/2145)
-- [Vue Syntax Highlight](./extensions/vscode-vue) — provides syntax highlight for VS Code.
-- [Vue Language Features](./extensions/vscode-vue-language-features) — provides typescript integration for VS Code.
-- [Vue Virtual TextDocument](./packages/vue-virtual-textdocument) — creates a virtual file system to represent blocks in SFC as files.
+### VS Code Extensions
+
+- [Preview](https://github.com/znck/preview/tree/main/extension) — a quick-prototyping and component management tool — [insiders](https://marketplace.visualstudio.com/items?itemName=znck.preview-insiders) [stable](https://marketplace.visualstudio.com/items?itemName=znck.preview)
+- [Vue Syntax Highlight](./extensions/vscode-vue) — provides syntax highlight — [insiders](https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features-insiders) [stable](https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features)
+- [Vue Language Features](./extensions/vscode-vue-language-features) — provides typescript integration for VS Code — [insiders](https://marketplace.visualstudio.com/items?itemName=znck.vue-insiders) [stable](https://marketplace.visualstudio.com/items?itemName=znck.vue)
+
+### Packages
+
+- [@vuedx/analyze](./packages/analyze) — statically analyzes Vue components and provides API info
+- [@vuedx/compiler-sfc](./packages/compiler-sfc) — a light weight build of `@vue/compiler-sfc` (only `parse()` functionality is provided)
+- [@vuedx/compiler-tsx](./packages/compiler-tsx) — a `<template>` to representational `TSX` compiler (generated TSX may not be functional but ensures type consistency)
+- [@vuedx/monorepo-tools](./packages/monorepo-tools) — Utility functions for monorepo management
+- [@vuedx/preview-compiler](https://github.com/znck/preview/tree/main/preview-compiler) — Add support for `<preview>` block in .vue files
+- [@vuedx/preview-provider](https://github.com/znck/preview/tree/main/preview-provider) — Utilities for mocking and stubbing components in `<preview>` block
+- [@vuedx/preview-shell](https://github.com/znck/preview/tree/main/preview-provider) — A webapp to provide sandbox environment for Vue components
+- [@vuedx/preview-test-utils](https://github.com/znck/preview/tree/main/preview-provider) — Reuse `<preview>` blocks for unit test fixtures
+- [@vuedx/projectconfig](./packages/projectconfig) — a json config file to define project preferences
+- [@vuedx/template-ast-types](./packages/template-ast-types) — a collection of utility functions to work with `<template>` AST, think `@babel/types` but for Vue
+- [@vuedx/typecheck](./packages/typecheck) — a command line tool to check types, functionally equivalent to `tsc --noEmit` but includes .vue support
+- [@vuedx/typescript-plugin-vue](./packages/typescript-plugin-vue) — enables TypeScript language server to understand `.vue` files
+- [@vuedx/typescript-vetur](./packages/typescript-vetur) — provides missing features to vetur, same as **TS Plugin** but for Vetur [#2145](https://github.com/vuejs/vetur/pull/2145)
+- [@vuedx/vue-virtual-textdoucment](./packages/vue-virtual-textdocument) — creates a virtual file system to represent blocks in SFC as files
+<!--EOL:Packages-->
 
 ## Contributing
+
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [How to Build](CONTRIBUTING.md)

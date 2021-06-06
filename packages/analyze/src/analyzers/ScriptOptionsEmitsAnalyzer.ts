@@ -1,6 +1,6 @@
 import traverse, { NodePath } from '@babel/traverse'
 import t, { isStringLiteral } from '@babel/types'
-import { ImportSource, TypeInfo } from '../component'
+import type { ImportSource, TypeInfo } from '../component'
 import { Context, createPlugin, ScriptAnalyzerContext } from '../types'
 import { createSourceRange } from '../utilities'
 import {
@@ -73,6 +73,8 @@ export const ImplicitEmitsAnalyzer = createPlugin({
               return key$.node.name === 'emits'
             }
           }
+
+          return undefined
         })
       ) {
         return // emits option is defined
@@ -84,7 +86,7 @@ export const ImplicitEmitsAnalyzer = createPlugin({
   templateExpression: (node$, context) => {
     const info = context.component.info() // script is already processed at this point
 
-    if (info.options?.properties.emits != null) return // Explicit emits
+    if (info.options?.properties['emits'] != null) return // Explicit emits
     if (info.scriptSetup?.defineEmit != null) return // Explicit emits
 
     processInferredEmits(node$, context, true)

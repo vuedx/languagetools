@@ -1,8 +1,8 @@
 import * as Sentry from '@sentry/node'
 import { machineSync } from 'node-unique-machine-id'
 import os from 'os'
-import { v4 as uuid } from 'uuid'
 import { inspect } from 'util'
+import { v4 as uuid } from 'uuid'
 
 interface Options {
   release: string
@@ -26,9 +26,8 @@ export class Telemetry {
   }
 
   private optOut: boolean =
-    __DEV__ ||
-    process.env.VUEDX_TELEMETRY?.toLowerCase() === 'off' ||
-    process.env.VUEDX_TELEMETRY?.toLowerCase() === 'false'
+    process.env['VUEDX_TELEMETRY']?.toLowerCase() === 'off' ||
+    process.env['VUEDX_TELEMETRY']?.toLowerCase() === 'false'
 
   constructor(
     key: string,
@@ -70,12 +69,14 @@ export class Telemetry {
         description,
       })
 
-      Sentry.configureScope((scope) => {
+      Sentry.configureScope((s: unknown) => {
+        const scope = s as Sentry.Scope
         scope.setSpan(transaction)
       })
 
       return () => {
-        Sentry.captureMessage(`[trace] ${name}`, (scope) => {
+        Sentry.captureMessage(`[trace] ${name}`, (s: unknown) => {
+          const scope = s as Sentry.Scope
           scope.setSpan(transaction)
           scope.setUser(this.user)
           scope.setTags({ ...this.defaults })
@@ -84,7 +85,8 @@ export class Telemetry {
           return scope
         })
         transaction.finish()
-        Sentry.configureScope((scope: any) => {
+        Sentry.configureScope((s: unknown) => {
+          const scope = s as Sentry.Scope
           scope.setSpan(undefined)
         })
       }
@@ -181,7 +183,7 @@ export class Telemetry {
 
 export async function tracePromise<T>(
   event: string,
-  promise: Promise<T> | Thenable<T>,
+  promise: Promise<T>,
 ): Promise<T> {
   const done = trace(event)
   try {

@@ -8,7 +8,7 @@ import {
 import { detectRefsAndProps } from '../../helpers/detectRefsAndProps'
 import { genSetupFnParams } from '../../helpers/genSetupFnParams'
 import { getContextIdentifiers } from '../../helpers/getContextIdentifiers'
-import { TS } from '../../interfaces'
+import type { TS } from '../../interfaces'
 import { registerComponentAPI } from '../../transforms/registerLocalComponent'
 import { decode, encode, RefactorProvider, REFACTORS } from './abstract'
 interface RefactorExtractComputedArgs {
@@ -20,7 +20,7 @@ export const RefactorExtractComputed: RefactorProvider = {
 
   name: REFACTORS.EXTRACT_COMPUTED,
 
-  findRefactors({ helpers, service }, fileName, position, preferences) {
+  findRefactors({ helpers }, fileName, position, _preferences) {
     const extractAsComputedProperty: TS.RefactorActionInfo = {
       name: encode<RefactorExtractComputedArgs>({ target: 'computed' }),
       description: 'Extract to computed property',
@@ -198,5 +198,7 @@ export const RefactorExtractComputed: RefactorProvider = {
         ],
       }
     }
+
+    return undefined
   },
 }

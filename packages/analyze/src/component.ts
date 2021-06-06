@@ -222,11 +222,10 @@ export function createComponentInfoFactory(
       return factory
     },
     addEmit(name, options = {}) {
-      const index = component.emits.findIndex((emit) => emit.name === name)
-
-      if (index >= 0) {
-        const emit = component.emits[index]
-
+      const emit = component.emits.find((emit) => emit.name === name)
+      
+      // TODO: Create an emit merge function.
+      if (emit != null) {
         if (options.isInferred === true) {
           if (options.loc != null) {
             options.references = emit.references

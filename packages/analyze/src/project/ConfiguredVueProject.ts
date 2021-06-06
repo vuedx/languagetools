@@ -1,14 +1,14 @@
-import { ProjectConfig } from '@vuedx/projectconfig'
+import type { ProjectConfig } from '@vuedx/projectconfig'
+import { getComponentName, getComponentNameAliases } from '@vuedx/shared'
 import micromatch from 'micromatch'
 import Path from 'path'
-import { getComponentName, getComponentNameAliases } from '@vuedx/shared'
 import {
   getComponentFromFile,
   getComponentsFromPackage,
 } from './detector/components'
-import { PackageJSON } from './detector/PackageJSON'
-import { VueProject } from './VueProject'
+import type { PackageJSON } from './detector/PackageJSON'
 import { requireModule as _require } from './detector/require'
+import { VueProject } from './VueProject'
 
 export class ConfiguredVueProject extends VueProject {
   kind = 'configured' as const

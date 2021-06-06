@@ -20,8 +20,8 @@ import { REFACTORS } from '../features/refactors/abstract'
 import { getChangesForComponentTagRename } from '../features/renames/component-tag'
 import { traceObject, wrapObject } from '../helpers/logger'
 import { isSpanInSourceRange } from '../helpers/utils'
-import { TS } from '../interfaces'
-import { LanguageServiceOptions } from '../types'
+import type { TS } from '../interfaces'
+import type { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
 import { createTemplateLanguageServer } from './template'
 const IGNORED_SELECTORS = new Set([MODULE_SELECTOR, INTERNAL_MODULE_SELECTOR])
@@ -171,11 +171,14 @@ export function createVueLanguageServer(
 
         // TODO: Provide better quick info for components and props.
         const document = h.getDocumentAt(fileName, position)
-        if (document != null)
+        if (document != null) {
           return choose(document).getQuickInfoAtPosition(
             document.fsPath,
             position,
           )
+        }
+
+        return undefined
       },
 
       getRenameInfo(fileName, position, options): TS.RenameInfo {
@@ -516,6 +519,8 @@ export function createVueLanguageServer(
 
           return result
         }
+
+        return undefined
       },
 
       getDocumentHighlights(
@@ -548,6 +553,8 @@ export function createVueLanguageServer(
               .filter(Boolean) as string[],
           )
         }
+
+        return undefined
       },
 
       getCompletionsAtPosition(fileName, position, options) {
@@ -584,6 +591,7 @@ export function createVueLanguageServer(
             formatOptions,
             source,
             preferences,
+            undefined,
           )
         } else {
           return completionProvider.getCompletionEntryDetails(
@@ -607,6 +615,8 @@ export function createVueLanguageServer(
             options,
           )
         }
+
+        return undefined
       },
 
       getCompletionEntrySymbol(fileName, position, name, source) {
@@ -640,6 +650,8 @@ export function createVueLanguageServer(
             position,
           )
         }
+
+        return undefined
       },
 
       getDefinitionAndBoundSpan(
@@ -656,6 +668,8 @@ export function createVueLanguageServer(
             position,
           )
         }
+
+        return undefined
       },
 
       getCodeFixesAtPosition(
@@ -690,6 +704,8 @@ export function createVueLanguageServer(
             position,
           )
         }
+
+        return undefined
       },
     }),
   })

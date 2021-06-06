@@ -1,4 +1,4 @@
-import { TS } from '../../interfaces'
+import type { TS } from '../../interfaces'
 import { LanguageServiceOptions } from '../../types'
 
 export interface RenameProvider {

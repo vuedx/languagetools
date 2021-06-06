@@ -1,8 +1,8 @@
-import { ComponentInfo } from '@vuedx/analyze'
-import * as t from '@vuedx/template-ast-types'
-import { VueTextDocument } from '@vuedx/vue-virtual-textdocument'
+import type { ComponentInfo } from '@vuedx/analyze'
+import type * as t from '@vuedx/template-ast-types'
+import type { VueTextDocument } from '@vuedx/vue-virtual-textdocument'
 import { getScriptFileName } from './utils'
-import { TS } from '../interfaces'
+import type { TS } from '../interfaces'
 
 export function detectRefsAndProps(
   service: TS.LanguageService,
@@ -38,7 +38,7 @@ export function detectRefsAndProps(
     node.scope.identifiers.forEach((id) => {
       if (node.scope.getBinding(id) == null && id in info.identifierSource) {
         const source = info.identifierSource[id]
-        if (source.name === 'setup' || source.name.startsWith('scriptSetup:')) {
+        if (source?.name === 'setup' || source?.name.startsWith('scriptSetup:')) {
           const node = findNodeAt(
             source.loc.start.offset,
             source.loc.end.offset,
@@ -51,7 +51,7 @@ export function detectRefsAndProps(
               refs.push(id)
             }
           }
-        } else if (source.name === 'props') {
+        } else if (source?.name === 'props') {
           props.push(id)
         }
       }

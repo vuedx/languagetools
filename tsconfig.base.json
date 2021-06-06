@@ -1,17 +1,52 @@
 {
+  "exclude": [
+    "node_modules/",
+    ".pnpm/",
+    "lib/",
+    "**/node_modules/**",
+    "**/.pnpm/**",
+    "**/lib/**"
+  ],
   "compilerOptions": {
     "module": "ESNext",
-    "target": "ES2018",
-    "moduleResolution": "node",
-    "strict": true,
+    "target": "ES2019",
+
+    "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    "strict": true,
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "forceConsistentCasingInFileNames": true,
+    "importsNotUsedAsValues": "error",
+
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
 
-    "lib": ["ES2020"]
-  },
-  "exclude": ["**/node_modules/**"]
+    "resolveJsonModule": true,
+    "declaration": false,
+
+    "pretty": true,
+
+    "allowJs": false,
+    "checkJs": false,
+
+    "sourceMap": true,
+
+    "lib": ["ES2019"]
+  }
 }

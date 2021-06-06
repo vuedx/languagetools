@@ -2,14 +2,77 @@
   "name": "@vuedx/typescript-plugin-vue",
   "version": "0.6.3",
   "description": "TypeScript plugin for Vue",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
-  "private": false,
-  "keywords": [],
+  "main": "src/index.ts",
+  "module": "lib/index.mjs",
   "files": [
     "dist",
     "runtime"
+  ],
+  "publishConfig": {
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts"
+  },
+  "buildConfig": {
+    "useMain": false,
+    "sources": {
+      "src/index.ts": [
+        {
+          "format": "dts",
+          "file": "lib/index.d.ts"
+        },
+        {
+          "format": "commonjs",
+          "file": "lib/index.js",
+          "exports": "default"
+        },
+        {
+          "format": "module",
+          "file": "lib/index.mjs",
+          "exports": "named"
+        },
+        {
+          "format": "commonjs",
+          "file": "lib/standalone.js",
+          "exports": "default",
+          "bundle": true
+        },
+        {
+          "format": "module",
+          "file": "lib/standalone.mjs",
+          "exports": "named",
+          "bundle": true
+        }
+      ],
+      "types/jsx.d.ts": [
+        {
+          "format": "dts",
+          "file": "runtime/jsx.d.ts"
+        }
+      ],
+      "types/render.d.ts": [
+        {
+          "format": "dts",
+          "file": "runtime/render.d.ts"
+        }
+      ],
+      "types/vue2.d.ts": [
+        {
+          "format": "dts",
+          "file": "runtime/vue2.d.ts"
+        }
+      ]
+    },
+    "external": [
+      "typescript",
+      "typescript/lib/tsserverlibrary"
+    ]
+  },
+  "private": false,
+  "keywords": [
+    "vue",
+    "vue-plugin",
+    "typescript",
+    "typescript-plugin"
   ],
   "repository": {
     "type": "git",

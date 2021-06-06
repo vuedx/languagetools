@@ -1,5 +1,5 @@
 import { isSimpleExpressionNode } from '@vuedx/template-ast-types'
-import { RenameProvider } from './abstract'
+import type { RenameProvider } from './abstract'
 
 export const RenameExpression: RenameProvider = {
   version: '*',
@@ -44,6 +44,8 @@ export const RenameExpression: RenameProvider = {
           'Cannot find mapped position in render function.',
       }
     }
+
+    return undefined
   },
   applyRename(config, fileName, position, findInStrings, findInComments) {
     const { node, document } = config.helpers.findTemplateNodeAtPosition(
@@ -67,6 +69,8 @@ export const RenameExpression: RenameProvider = {
         return result
       }
     }
+
+    return undefined
   },
   applyFileRename() {
     return undefined

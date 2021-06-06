@@ -2,12 +2,21 @@
   "name": "@vuedx/projectconfig",
   "version": "0.6.2",
   "description": "TypeScript plugin for Vue",
-  "types": "dist/index.d.ts",
-  "scripts": {},
-  "keywords": [],
+  "main": "src/index.ts",
+  "module": "lib/index.mjs",
+  "publishConfig": {
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts"
+  },
   "files": [
-    "dist",
+    "lib",
     "schema.json"
+  ],
+  "keywords": [
+    "vue",
+    "typescript",
+    "vue-typescript",
+    "projectconfig"
   ],
   "repository": {
     "type": "git",

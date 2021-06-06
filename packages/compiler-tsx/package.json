@@ -1,13 +1,22 @@
 {
   "name": "@vuedx/compiler-tsx",
   "version": "0.6.3",
-  "description": "",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
-  "keywords": [],
+  "description": "Converts .vue file to .tsx for typechecking and intellisense",
+  "main": "src/index.ts",
+  "module": "lib/index.mjs",
+  "publishConfig": {
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts"
+  },
   "files": [
-    "dist"
+    "lib"
+  ],
+  "keywords": [
+    "vue",
+    "vue-compiler",
+    "vue-compiler-plugin",
+    "tsx",
+    "vue-tsx"
   ],
   "repository": {
     "type": "git",

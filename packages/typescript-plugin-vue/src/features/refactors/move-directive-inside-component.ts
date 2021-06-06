@@ -11,8 +11,8 @@ import {
   traverseFast,
 } from '@vuedx/template-ast-types'
 import { isVueFile } from '@vuedx/vue-virtual-textdocument'
-import { TS } from '../../interfaces'
-import { LanguageServiceOptions } from '../../types'
+import type { TS } from '../../interfaces'
+import type { LanguageServiceOptions } from '../../types'
 import { encode, RefactorProvider, REFACTORS } from './abstract'
 
 export const MoveDirectiveToComponent: RefactorProvider = {

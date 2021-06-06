@@ -1,4 +1,9 @@
-import { ComponentInfo, ImportSource, PropInfo, TypeInfo } from '../component'
+import type {
+  ComponentInfo,
+  ImportSource,
+  PropInfo,
+  TypeInfo,
+} from '../component'
 
 type Source =
   | {
@@ -211,7 +216,7 @@ function toValue(typeInfo: TypeInfo[], isRequired: boolean): Value {
     return { kind: 'no-value' }
   } else if (typeInfo.length === 1) {
     const info = typeInfo[0]
-    switch (info.kind) {
+    switch (info?.kind) {
       case 'string':
       case 'number':
       case 'boolean':

@@ -1,6 +1,6 @@
-import { ComponentInfo } from '@vuedx/analyze'
-import * as t from '@vuedx/template-ast-types'
-import { TS } from '../interfaces'
+import type { ComponentInfo } from '@vuedx/analyze'
+import type * as t from '@vuedx/template-ast-types'
+import type { TS } from '../interfaces'
 import { getPaddingLength } from './utils'
 
 export function genSetupFnParams(

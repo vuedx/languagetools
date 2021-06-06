@@ -1,5 +1,5 @@
-import { TS } from '../../interfaces'
-import { LanguageServiceOptions } from '../../types'
+import type { TS } from '../../interfaces'
+import type { LanguageServiceOptions } from '../../types'
 
 export interface DiagnosticProvider {
   version: string

@@ -1,4 +1,4 @@
-import { TS } from '../../../interfaces'
+import type { TS } from '../../../interfaces'
 
 export const BUILTIN_DIRECTIVES_DETAIL: Record<
   string,
@@ -15,6 +15,6 @@ export const BUILTIN_DIRECTIVES_DETAIL: Record<
         kind: 'markdown',
       },
     ],
-    tags: [{ name: 'version', text: '3.0.1' }],
+    tags: [{ name: 'version', text: [{ kind: 'string', text: '3.0.1' }] }],
   },
 }

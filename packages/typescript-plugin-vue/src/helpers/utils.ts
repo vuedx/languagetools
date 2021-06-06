@@ -26,8 +26,8 @@ import {
 import Path from 'path'
 import QuickLRU from 'quick-lru'
 import { ORIGINAL_LANGUAGE_SERVER } from '../constants'
-import { PluginContext } from '../context'
-import { PluginConfig, TS } from '../interfaces'
+import type { PluginContext } from '../context'
+import type { PluginConfig, TS } from '../interfaces'
 
 function createCachedAnalyzer(): (document: VueTextDocument) => ComponentInfo {
   const cache = new QuickLRU<string, ComponentInfo>({ maxSize: 1000 })
@@ -62,7 +62,7 @@ export function createServerHelper(
     const feature = context.config.features[featureName]
 
     return Array.isArray(feature)
-      ? feature.includes(checkFor)
+      ? new Set(feature).has(checkFor)
       : feature === true || feature === checkFor
   }
 
@@ -229,7 +229,7 @@ export function createServerHelper(
   function getTextSpan(
     document: VirtualTextDocument,
     span: TS.TextSpan,
-    node?: Node | null,
+    _node?: Node | null,
   ): TS.TextSpan {
     if (isRenderFunctionDocument(document)) {
       const result = document.getOriginalOffsetAt(span.start)
@@ -286,6 +286,8 @@ export function createServerHelper(
 
       if (result !== scriptFile) return result
     }
+
+    return undefined
   }
 
   function getLanguageServiceFor(
@@ -336,6 +338,7 @@ export function createServerHelper(
         ?.getSourceFile(fileName)
     } catch (error) {
       collectError(error)
+      return undefined
     }
   }
 
@@ -371,7 +374,7 @@ export function computeIdentifierReplacement(
 
   return {
     prefixText: source.substr(0, match.index),
-    suffixText: source.substr(match.index + match[0].length),
+    suffixText: source.substr(match.index + match[0]!.length),
   }
 }
 
@@ -379,7 +382,7 @@ export function getPaddingLength(source: string, offset: number = 0): number {
   source = source.substr(offset)
   const match = /^[\s\r\n]+/m.exec(source)
 
-  return match != null ? match[0].length : 0
+  return match != null ? match[0]!.length : 0
 }
 
 export function getFilenameForNewComponent(

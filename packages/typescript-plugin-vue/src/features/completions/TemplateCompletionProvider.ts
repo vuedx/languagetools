@@ -1,4 +1,5 @@
-import { ComponentRegistrationInfo, TypeInfo } from '@vuedx/analyze'
+/// <reference path="../../global.d.ts" />
+import type { ComponentRegistrationInfo, TypeInfo } from '@vuedx/analyze'
 import {
   camelCase,
   concat,
@@ -33,8 +34,8 @@ import {
 } from '@vuedx/vue-virtual-textdocument'
 import Path from 'path'
 import { getScriptFileName } from '../../helpers/utils'
-import { TS } from '../../interfaces'
-import { LanguageServiceOptions } from '../../types'
+import type { TS } from '../../interfaces'
+import type { LanguageServiceOptions } from '../../types'
 import { defineCompletionProvider } from './abstract'
 import { BUILTIN_DIRECTIVES_DETAIL } from './data/directives'
 import {
@@ -49,7 +50,7 @@ function stringifyTypeInfo(typeInfo: TypeInfo[]): string {
   if (typeInfo.length === 0) {
     return 'never'
   } else if (typeInfo.length === 1) {
-    const info = typeInfo[0]
+    const info = typeInfo[0]!
     switch (info.kind) {
       case 'string':
       case 'number':
@@ -101,6 +102,8 @@ export class HTMLService {
           args.attribute,
         )
       }
+
+      return undefined
     })
   }
 
@@ -136,6 +139,8 @@ export class HTMLService {
           args.attribute,
         )
       }
+
+      return undefined
     })
   }
 
@@ -231,6 +236,8 @@ export class HTMLService {
 
     __DEV__ &&
       this.$.context.debug`Neither "tag" or "attribute" completion: ${node}`
+
+    return undefined
   }
 
   private mergeCompletionEntryDetails(
@@ -260,6 +267,8 @@ export class HTMLService {
     } else if (details2 != null) {
       return { ...details2 }
     }
+
+    return undefined
   }
 
   private isPositionInElementOpenTag(
@@ -550,6 +559,7 @@ export class HTMLService {
         formatOptions,
         source,
         preferences,
+        undefined, // TODO: Figure out data parameter.
       ),
     )
 
@@ -923,6 +933,7 @@ export class HTMLService {
           formatOptions,
           source,
           preferences,
+          undefined,
         )
         __DEV__ &&
           this.$.context.debug(

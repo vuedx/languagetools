@@ -28,7 +28,7 @@ export function createTransformIf(
         )
       }
 
-      return processIf(node, dir, context, (ifNode, branch, isRoot) => {
+      return processIf(node, dir, context, (ifNode, branch, _isRoot) => {
         return () => {
           let hasElse = false
 

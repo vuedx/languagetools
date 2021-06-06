@@ -8,7 +8,7 @@ import {
 import { detectRefsAndProps } from '../../helpers/detectRefsAndProps'
 import { genSetupFnParams } from '../../helpers/genSetupFnParams'
 import { getContextIdentifiers } from '../../helpers/getContextIdentifiers'
-import { TS } from '../../interfaces'
+import type { TS } from '../../interfaces'
 import { registerComponentAPI } from '../../transforms/registerLocalComponent'
 import { decode, encode, RefactorProvider, REFACTORS } from './abstract'
 
@@ -190,5 +190,7 @@ export const RefactorExtractMethod: RefactorProvider = {
         ],
       }
     }
+
+    return undefined
   },
 }

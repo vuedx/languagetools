@@ -4,6 +4,7 @@ import FS from 'fs'
 import type ts from 'typescript/lib/tsserverlibrary'
 import TS from 'typescript/lib/tsserverlibrary'
 import { TypeScriptServerHost } from './TypeScriptServerHost'
+import { flatten } from '@vuedx/shared'
 
 function toNormalizedPath(fileName: string): string {
   return TS.server.toNormalizedPath(fileName)
@@ -26,7 +27,7 @@ class AbortSignal {
     this._onabort = fn
   }
 
-  private async dispatchEvent(event: 'aborted'): Promise<void> {
+  private async dispatchEvent(_event: 'aborted'): Promise<void> {
     this._aborted = true
     return await this._onabort?.()
   }
@@ -90,9 +91,13 @@ export async function* getDiagnostics(
     diagnosticsPerFile.clear()
     const start = Date.now()
     if (logging) console.log(`Checking...`)
-    const id = useProject
-      ? await host.sendCommand('geterrForProject', { file: files[0], delay: 1 })
-      : await host.sendCommand('geterr', { files, delay: 1 })
+    const id =
+      useProject && files.length > 0
+        ? await host.sendCommand('geterrForProject', {
+            file: files[0]!,
+            delay: 1,
+          })
+        : await host.sendCommand('geterr', { files, delay: 1 })
 
     return await new Promise((resolve) => {
       const off = host.on('requestCompleted', async (event) => {
@@ -147,7 +152,7 @@ export async function* getDiagnostics(
       await host.sendCommand('updateOpen', {
         openFiles: [
           {
-            file: toNormalizedPath(files[0]),
+            file: toNormalizedPath(files[0]!),
             projectFileName: toNormalizedPath(configFile),
           },
         ],
@@ -190,7 +195,7 @@ export async function* getDiagnostics(
     })
   }
 
-  host.on('projectsUpdatedInBackground', async (event) => {
+  host.on('projectsUpdatedInBackground', async () => {
     done(await refresh(files))
   })
 
@@ -224,5 +229,5 @@ export async function getDiagnostics2(directory: string): Promise<Diagnostics> {
 }
 
 function merge<T>(...items: Array<T[] | undefined>): T[] {
-  return items.flatMap((item) => item ?? [])
+  return flatten(items.map((item) => item ?? []))
 }

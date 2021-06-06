@@ -1,4 +1,4 @@
-import { Position, SourceLocation } from '@vue/compiler-core'
+import type { Position, SourceLocation } from '@vue/compiler-core'
 
 export function advancePositionWithClone(
   pos: Position,

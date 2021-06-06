@@ -35,7 +35,7 @@ export class TestServer {
   )
 
   public readonly pluginPath = abs(
-    '../../packages/typescript-plugin-vue/dist/index.cjs.js',
+    '../../packages/typescript-plugin-vue/dist/index.js',
   )
 
   public readonly logPath = abs(`../output/tsserver.${this.id}.log`)
@@ -273,7 +273,7 @@ export class TestServer {
     command: 'configure' | Proto.CommandTypes.Configure,
     args: Proto.ConfigureRequest['arguments'],
   ): Promise<Proto.ConfigureResponse>
-  
+
   public async sendCommand(
     command: 'projectInfo' | Proto.CommandTypes.ProjectInfo,
     args: Proto.ProjectInfoRequest['arguments'],

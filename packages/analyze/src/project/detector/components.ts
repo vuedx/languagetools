@@ -1,7 +1,7 @@
-import { ComponentRegistrationInfo } from '../../component'
 import { getComponentName, getComponentNameAliases } from '@vuedx/shared'
-import { PackageJSON } from './PackageJSON'
 import Path from 'path'
+import type { ComponentRegistrationInfo } from '../../component'
+import type { PackageJSON } from './PackageJSON'
 
 export function getComponentFromFile(
   fileName: string,
@@ -184,7 +184,7 @@ export function getComponentsFromVuePackage(
 }
 
 export function getComponentsFromVueRouterPackage(
-  version: string,
+  _version: string,
 ): ComponentRegistrationInfo[] {
   const components: ComponentRegistrationInfo[] = []
 

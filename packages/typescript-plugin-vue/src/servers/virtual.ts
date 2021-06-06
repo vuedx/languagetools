@@ -1,6 +1,6 @@
 import { wrapObject } from '../helpers/logger'
-import { TS } from '../interfaces'
-import { LanguageServiceOptions } from '../types'
+import type { TS } from '../interfaces'
+import type { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
 
 export function createVirtualLanguageServer(

@@ -1,6 +1,6 @@
 import { isPlainElementNode, PlainElementNode } from '@vuedx/template-ast-types'
-import { TS } from '../../interfaces'
-import { RenameProvider } from './abstract'
+import type { TS } from '../../interfaces'
+import type { RenameProvider } from './abstract'
 
 export const RenameElementTag: RenameProvider = {
   version: '*',
@@ -23,6 +23,8 @@ export const RenameElementTag: RenameProvider = {
         },
       }
     }
+
+    return undefined
   },
   applyRename(config, fileName, position) {
     const { node, document } = config.helpers.findTemplateNodeAtPosition(
@@ -59,6 +61,8 @@ export const RenameElementTag: RenameProvider = {
 
       return locations
     }
+
+    return undefined
   },
   applyFileRename() {
     return undefined

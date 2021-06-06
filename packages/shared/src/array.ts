@@ -3,11 +3,15 @@ export function isArray<T>(value: any): value is T[] {
 }
 
 export function first<T>(items: T[] | readonly T[]): T {
-  return items[0]
+  if (items.length === 0) throw new Error('IndexOutOfBounds')
+
+  return items[0]!
 }
 
 export function last<T>(items: T[] | readonly T[], nth: number = 1): T {
-  return items[items.length - nth]
+  const index = items.length - nth
+  if (index < 0 || index >= items.length) throw new Error('IndexOutOfBounds')
+  return items[index]!
 }
 
 export function findPrevSibling<T>(
@@ -16,6 +20,7 @@ export function findPrevSibling<T>(
 ): T | undefined {
   const index = items.indexOf(item)
   if (index > 0) return items[index - 1]
+  return undefined
 }
 
 export function findNextSibling<T>(
@@ -24,6 +29,7 @@ export function findNextSibling<T>(
 ): T | undefined {
   const index = items.indexOf(item)
   if (index >= 0) return items[index + 1]
+  return undefined
 }
 
 export function concat<T>(a: T[] | undefined, b: T[] | undefined): T[] {
@@ -33,4 +39,19 @@ export function concat<T>(a: T[] | undefined, b: T[] | undefined): T[] {
   if (isArray(b)) c.push(...b)
 
   return c
+}
+
+export function flatten<T>(array: (T | T[])[], depth: number = 1): T[] {
+  const items: T[] = []
+
+  array.forEach((item) => {
+    if (Array.isArray(item)) {
+      if (depth > 0) items.push(...flatten(item, depth - 1))
+      else items.push(...item)
+    } else {
+      items.push(item)
+    }
+  })
+
+  return items
 }

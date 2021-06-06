@@ -43,12 +43,12 @@ export function createTransformFor(
 
       if (parseResult != null) {
         exp = createSimpleExpression(
-          parseResult[2],
+          parseResult[2]!,
           false,
           createLoc(
             dir.exp.loc,
-            dir.exp.content.indexOf(parseResult[2]),
-            parseResult[2].length,
+            dir.exp.content.indexOf(parseResult[2]!),
+            parseResult[2]!.length,
           ),
         )
 

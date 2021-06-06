@@ -185,6 +185,8 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
         )
       }
     }
+
+    return undefined
   }
 
   tryGetGeneratedOffset(offset: number): number | undefined {
@@ -205,6 +207,8 @@ export class TransformedBlockTextDocument extends VirtualTextDocument {
         return this.doc.offsetAt(this.toTextDocumentPosition(generated)) + delta
       }
     }
+
+    return undefined
   }
 
   protected refresh(): void {
@@ -480,6 +484,8 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
   public get ast(): CodegenResult['ast'] | undefined {
     this.refresh()
     if (this.result != null) return this.result.ast
+
+    return undefined
   }
 
   public get parserErrors(): CodegenResult['errors'] {
@@ -516,6 +522,8 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
         }
       }
     }
+
+    return undefined
   }
 
   public findExpression(
@@ -528,6 +536,8 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
     if (expression != null) {
       return { offset: expression[0], length: expression[1] }
     }
+
+    return undefined
   }
 
   public isInGeneratedRange(offset: number): boolean {
@@ -568,6 +578,8 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
         }
       }
     }
+
+    return undefined
   }
 
   public getAllGeneratedOffsetsAt(
@@ -614,6 +626,7 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
       this.templateIdentifiersRange = [0, 0]
       this.generatedMappings = []
       this.result = {
+        preamble: '',
         errors: [error],
         code,
         ast: null as any,
@@ -831,6 +844,8 @@ export class VueTextDocument extends ProxyTextDocument {
           return blocks[selector.index]
         }
     }
+
+    return undefined
   }
 
   public blockAt(position: Position | number): SFCBlock | null | undefined {
@@ -859,6 +874,8 @@ export class VueTextDocument extends ProxyTextDocument {
         return this.getDocument(selector)
       }
     }
+
+    return undefined
   }
 
   public getBlockSelector(block: SFCBlock): BlockSelector | undefined {
@@ -884,6 +901,8 @@ export class VueTextDocument extends ProxyTextDocument {
         break
       }
     }
+
+    return undefined
   }
 
   public getDocumentFileName(selectorLike: SelectorLike): string {

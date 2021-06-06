@@ -1,7 +1,7 @@
-import { SFCBlock } from '@vuedx/compiler-sfc'
+import type { SFCBlock } from '@vuedx/compiler-sfc'
 import Path from 'path'
 import { URI, uriToFsPath } from 'vscode-uri'
-import { Selector } from './types'
+import type { Selector } from './types'
 
 export function getLanguageIdFromExtension(ext: string): string {
   switch (ext) {
@@ -60,24 +60,26 @@ function isUri(fileNameOrUri: string): boolean {
 }
 
 function encodeURIComponentMinimal(path: string): string {
-  let res: string | undefined = undefined;
+  let res: string | undefined = undefined
   for (let pos = 0; pos < path.length; pos++) {
-    const code = path.charCodeAt(pos);
+    const code = path.charCodeAt(pos)
     if (code === 35 || code === 63) {
       if (res === undefined) {
-        res = path.substr(0, pos);
+        res = path.substr(0, pos)
       }
-      res += code === 35 ? '%23' : '%3F';
+      res += code === 35 ? '%23' : '%3F'
     } else {
       if (res !== undefined) {
-        res += path[pos];
+        res += path[pos]
       }
     }
   }
-  return res !== undefined ? res : path;
+  return res !== undefined ? res : path
 }
 export function asFsUri(fileName: string): string {
-  return `file://${fileName.startsWith('/') ? '' : '/'}${encodeURIComponentMinimal(replaceSlashes(fileName))}`
+  return `file://${
+    fileName.startsWith('/') ? '' : '/'
+  }${encodeURIComponentMinimal(replaceSlashes(fileName))}`
 }
 
 export function replaceSlashes(fileName: string): string {
@@ -99,7 +101,10 @@ export function parseVirtualFileName(
   const uri = URI.parse(asUri(fileName))
 
   if (uri.scheme === 'vue') {
-    let [container, selector] = asFsPath(fileName).split(VIRTUAL_FILENAME_SEPARATOR)
+    let [container, selector] = asFsPath(fileName).split(
+      VIRTUAL_FILENAME_SEPARATOR,
+    )
+    if (container == null || selector == null) return null
     if (!selector.includes('.')) {
       selector += '.' // Append a dot when extension is missing.
     }
@@ -169,7 +174,7 @@ export function binarySearch<T>(
 
   while (lo <= hi) {
     const mid = ~~(lo + (hi - lo) / 2)
-    const result = isMatch(array[mid])
+    const result = isMatch(array[mid]!) // Mid always exists.
 
     if (result === 0) {
       return array[mid]
@@ -181,4 +186,6 @@ export function binarySearch<T>(
   if (returnMin === true) {
     return array[lo]
   }
+
+  return undefined
 }

@@ -5,13 +5,31 @@
   "version": "0.6.3",
   "description": "Enhanced TypeScript/JavaScript Support",
   "main": "dist/index.js",
+  "buildConfig": {
+    "useMain": false,
+    "sources": {
+      "src/index.ts": [
+        {
+          "format": "commonjs",
+          "file": "dist/index.js",
+          "bundle": {
+            "external": [
+              "coc.nvim"
+            ]
+          }
+        }
+      ]
+    },
+    "external": [
+      "coc.nvim"
+    ]
+  },
   "activationEvents": [
     "onLanguage:vue"
   ],
   "files": [
     "dist"
   ],
-  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/znck/vue-developer-experience"

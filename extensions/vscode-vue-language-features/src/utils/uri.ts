@@ -1,4 +1,4 @@
-import vscode from 'vscode'
+import type vscode from 'vscode'
 
 export function stringifyUri(uri: vscode.Uri) {
   const str = uri.toString()

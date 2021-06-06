@@ -1,11 +1,15 @@
-import { ProjectConfig, ProjectConfigNormalized } from '@vuedx/projectconfig'
-import { ComponentRegistrationInfo } from '../component'
+import type {
+  ProjectConfig,
+  ProjectConfigNormalized,
+} from '@vuedx/projectconfig'
+import { flatten } from '@vuedx/shared'
+import type { ComponentRegistrationInfo } from '../component'
 import {
   getComponentFromFile,
   getComponentsFromPackageJSON,
   getPackageJSON,
 } from './detector/components'
-import { PackageJSON } from './detector/PackageJSON'
+import type { PackageJSON } from './detector/PackageJSON'
 import { requireModule as _require } from './detector/require'
 
 function deepDefaults<T extends object>(a: {}, b: T): T
@@ -147,11 +151,14 @@ export abstract class VueProject {
   public get components(): ComponentRegistrationInfo[] {
     this.reloadIfNeeded()
 
-    return [
-      this._globalComponents,
-      this._externalComponents,
-      ...this._projectComponents.values(),
-    ].flat(2)
+    return flatten(
+      [
+        this._globalComponents,
+        this._externalComponents,
+        ...this._projectComponents.values(),
+      ],
+      2,
+    )
   }
 
   get globalComponents(): ComponentRegistrationInfo[] {

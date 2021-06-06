@@ -1,8 +1,8 @@
-import { TypeInfo } from '@vuedx/analyze'
-import { ProjectPreferences } from '@vuedx/projectconfig'
+import type { TypeInfo } from '@vuedx/analyze'
+import type { ProjectPreferences } from '@vuedx/projectconfig'
 import { isNotNull } from '@vuedx/shared'
-import { TS } from '../../interfaces'
-import { LanguageServiceOptions } from '../../types'
+import type { TS } from '../../interfaces'
+import type { LanguageServiceOptions } from '../../types'
 
 interface BlockCompletionInfo {
   name: string
@@ -39,7 +39,7 @@ export class SFCCompletionService {
   public getCompletionsAtPosition(
     fileName: string,
     position: number,
-    options: TS.GetCompletionsAtPositionOptions | undefined,
+    _options: TS.GetCompletionsAtPositionOptions | undefined,
   ): TS.WithMetadata<TS.CompletionInfo> | undefined {
     const completions: TS.WithMetadata<TS.CompletionInfo> = {
       isGlobalCompletion: false,
@@ -216,9 +216,9 @@ export class SFCCompletionService {
     fileName: string,
     position: number,
     entryName: string,
-    formatOptions: TS.FormatCodeOptions | TS.FormatCodeSettings | undefined,
-    source: string | undefined,
-    preferences: TS.UserPreferences | undefined,
+    _formatOptions: TS.FormatCodeOptions | TS.FormatCodeSettings | undefined,
+    _source: string | undefined,
+    _preferences: TS.UserPreferences | undefined,
   ): TS.CompletionEntryDetails | undefined {
     const entry = this.getCompletionEntries(fileName, position).find(
       (entry) => entry.name === entryName,

@@ -1,4 +1,4 @@
-import { TS } from '../../../interfaces'
+import type { TS } from '../../../interfaces'
 import data from 'vscode-web-custom-data/data/browsers.html-data.json'
 
 const enum TagOrder {
@@ -24,7 +24,7 @@ const HTML_ELEMENT_EVENT_NAME_RE = /^on(beforeinput|change|input|invalid)$/
 
 function getAdditionalDocumentation(
   attribute: string,
-  element?: string,
+  _element?: string,
 ): TS.SymbolDisplayPart[] {
   if (attribute.startsWith('on')) {
     const source = HTML_ELEMENT_EVENT_NAME_RE.test(attribute)

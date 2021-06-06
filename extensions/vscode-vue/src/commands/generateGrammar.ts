@@ -1,18 +1,11 @@
-import { ConfigurationService } from '../services/configuration'
-import { DocumentService } from '../services/documents'
+import type { ConfigurationService } from '../services/configuration'
+import type { DocumentService } from '../services/documents'
 import { Installable } from '../utils/installable'
 import { isVueFile } from '@vuedx/vue-virtual-textdocument'
 import Fs from 'fs'
 import { inject, injectable } from 'inversify'
 import Path from 'path'
 import vscode from 'vscode'
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-declare var __non_webpack_require__: any
-
-const requireModule = (typeof __non_webpack_require__ !== 'undefined'
-  ? __non_webpack_require__
-  : require) as NodeJS.Require
 
 @injectable()
 export class GenerateGrammarCommand extends Installable {
@@ -29,9 +22,11 @@ export class GenerateGrammarCommand extends Installable {
     super()
 
     this.rootDir = this.context.extensionPath
-    this.supported = requireModule(
-      Path.resolve(this.context.extensionPath, 'scripts', 'supported.json'),
-    )
+    this.supported = require(Path.resolve(
+      this.context.extensionPath,
+      'scripts',
+      'supported.json',
+    ))
   }
 
   public install(): vscode.Disposable {
@@ -133,9 +128,11 @@ export class GenerateGrammarCommand extends Installable {
 
       await this.configuration.save('blocks', config)
 
-      requireModule(
-        Path.resolve(this.rootDir, 'scripts', 'generate-grammar.js'),
-      ).generate()
+      require(Path.resolve(
+        this.rootDir,
+        'scripts',
+        'generate-grammar.js',
+      )).generate()
 
       if (changes.length > 0) {
         const ans = await vscode.window.showInformationMessage(

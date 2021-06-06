@@ -1,4 +1,4 @@
-import { CodegenResult as Result, CompilerError } from '@vue/compiler-core'
+import type { CodegenResult as Result, CompilerError } from '@vue/compiler-core'
 
 export interface ComponentImport {
   path: string

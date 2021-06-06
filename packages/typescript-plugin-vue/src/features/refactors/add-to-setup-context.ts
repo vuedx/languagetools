@@ -1,6 +1,6 @@
 import { isSimpleIdentifier } from '@vuedx/template-ast-types'
 import { getCode, isTextRangeInSourceRange } from '../../helpers/utils'
-import { TS } from '../../interfaces'
+import type { TS } from '../../interfaces'
 import { RefactorProvider, REFACTORS } from './abstract'
 
 export const AddToSetupContextRefactor: RefactorProvider = {
@@ -12,7 +12,7 @@ export const AddToSetupContextRefactor: RefactorProvider = {
     { helpers, context, service },
     fileName,
     position,
-    preferences,
+    _preferences,
   ) {
     const addToSetupContext: TS.RefactorActionInfo = {
       name: 'default',
@@ -82,12 +82,12 @@ export const AddToSetupContextRefactor: RefactorProvider = {
   },
 
   applyRefactor(
-    { helpers, context, service },
+    { helpers, context },
     fileName,
     _,
     position,
     refactorName,
-    action,
+    _action,
   ) {
     if (refactorName !== REFACTORS.ADD_TO_SETUP_CONTEXT) return
     const changes: TS.TextChange[] = []
@@ -139,5 +139,7 @@ export const AddToSetupContextRefactor: RefactorProvider = {
         ],
       }
     }
+
+    return undefined
   },
 }

@@ -4,40 +4,40 @@ import {
   EmitsOptionsAnalyzer,
   PropsOptionsAnalyzer,
   ScriptBlockAnalyzer,
-  SetupOptionsAnalyzer,
   ScriptIdentifierSourceAnalyzer,
+  SetupOptionsAnalyzer,
   TemplateBlockAnalyzer,
 } from './analyzers'
-import { Context, Plugin } from './types'
+import type { Context, Plugin } from './types'
 
-export { toVeturData, VeturData } from './output/vetur'
-export { toWebTypes, WebTypes } from './output/web-types'
 export { Analyzer, createAnalyzer } from './analyzer'
 export {
+  ComponentsOptionAnalyzer,
+  EmitsOptionsAnalyzer,
+  ImplicitEmitsAnalyzer,
+  PropsOptionsAnalyzer,
   ScriptBlockAnalyzer,
   ScriptIdentifierSourceAnalyzer,
   SetupOptionsAnalyzer,
   TemplateBlockAnalyzer,
-  ComponentsOptionAnalyzer,
-  EmitsOptionsAnalyzer,
-  PropsOptionsAnalyzer,
-  ImplicitEmitsAnalyzer,
 } from './analyzers'
 export {
   ComponentInfo,
-  PropInfo,
+  ComponentRegistrationInfo,
   EmitInfo,
-  SetupInfo,
-  TypeInfo,
-  ScriptSetupInfo,
-  SourceRange,
   IdentifierSource,
-  SyntaxError,
   ImportSource,
   ImportSourceWithLocation,
-  ComponentRegistrationInfo,
   LocalComponentRegistrationInfo,
+  PropInfo,
+  ScriptSetupInfo,
+  SetupInfo,
+  SourceRange,
+  SyntaxError,
+  TypeInfo,
 } from './component'
+export { toVeturData, VeturData } from './output/vetur'
+export { toWebTypes, WebTypes } from './output/web-types'
 export { ConfiguredVueProject } from './project/ConfiguredVueProject'
 export { InferredVueProject } from './project/InferredVueProject'
 export { VueProject } from './project/VueProject'

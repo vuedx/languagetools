@@ -1,18 +1,20 @@
-import { Binding, NodePath } from '@babel/traverse'
-import {
+import type { Binding, NodePath } from '@babel/traverse'
+import type {
   Identifier,
   ImportDeclaration,
+  MemberExpression,
+  ObjectProperty,
+} from '@babel/types'
+import {
   isIdentifier,
   isImportSpecifier,
+  isMemberExpression,
   isObjectExpression,
   isObjectProperty,
-  isMemberExpression,
   isStringLiteral,
-  ObjectProperty,
-  MemberExpression,
 } from '@babel/types'
 import { isPascalCase } from '@vuedx/shared'
-import { ImportSourceWithLocation } from '../component'
+import type { ImportSourceWithLocation } from '../component'
 import { createPlugin, ScriptAnalyzerContext } from '../types'
 import { createSourceRange } from '../utilities'
 
@@ -95,6 +97,7 @@ export const ComponentsOptionAnalyzer = createPlugin({
 function getComponentName(key: ObjectProperty['key']): string | undefined {
   if (isIdentifier(key)) return key.name
   if (isStringLiteral(key)) return key.value
+  return undefined
 }
 
 function getIdentifierFromMemberExpression(
@@ -103,13 +106,14 @@ function getIdentifierFromMemberExpression(
   if (isIdentifier(exp.object)) return exp.object
   if (isMemberExpression(exp.object))
     return getIdentifierFromMemberExpression(exp.object)
+  return undefined
 }
 
 function resolveComponentInformation(
   binding: Binding | undefined,
   context: ScriptAnalyzerContext,
 ): ImportSourceWithLocation | undefined {
-  if (binding == null) return
+  if (binding == null) return undefined
 
   switch (binding.kind) {
     case 'module':
@@ -140,4 +144,6 @@ function resolveComponentInformation(
       }
       break
   }
+
+  return undefined
 }

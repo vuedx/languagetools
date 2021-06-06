@@ -1,6 +1,6 @@
-import {
+import type {
   RenderFunctionTextDocument,
-  VirtualTextDocument,
+  VirtualTextDocument
 } from '@vuedx/vue-virtual-textdocument'
 import { injectable } from 'inversify'
 import {
@@ -14,8 +14,7 @@ import {
   Disposable,
   languages,
   Position,
-  TextDocument,
-  Uri,
+  TextDocument
 } from 'vscode'
 import { Installable } from '../utils/installable'
 import { DocumentService } from './documents'
@@ -68,7 +67,7 @@ export class TemplateLanguageProxy
       lastQuery?.container.uri.toString() === container.uri.toString() &&
       lastQuery.position.isEqual(position)
     ) {
-      return
+      return undefined
     }
 
     const document = await this.getDocumentAt(container, position)
@@ -77,6 +76,8 @@ export class TemplateLanguageProxy
         CompletionItem[] | CompletionList<CompletionItem>
       >('vscode.executeCompletionItemProvider', container.uri, position)
     }
+
+    return undefined
   }
 
   private readonly languages = new Set(['vue-html'])
@@ -96,9 +97,5 @@ export class TemplateLanguageProxy
     const document = await this.documents.asVueDocument(container)
 
     return document.documentAt(position)
-  }
-
-  private getUri(document: VirtualTextDocument): Uri {
-    return Uri.parse(document.uri)
   }
 }

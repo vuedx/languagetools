@@ -76,6 +76,7 @@ export const TemplateContextCompletionProvider = defineCompletionProvider({
         formatOptions,
         source,
         preferences,
+        undefined,
       )
     }
 

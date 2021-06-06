@@ -1,15 +1,38 @@
 {
   "name": "@vuedx/compiler-sfc",
   "version": "0.6.2",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "module": "lib/index.mjs",
+  "publishConfig": {
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts"
+  },
+  "files": [
+    "lib"
+  ],
+  "buildConfig": {
+    "external": [
+      "@babel/parser",
+      "@babel/types",
+      "@vue/compiler-dom",
+      "@vue/compiler-ssr",
+      "consolidate",
+      "estree-walker",
+      "lru-cache",
+      "hash-sum",
+      "magic-string",
+      "merge-source-map",
+      "path",
+      "postcss-modules",
+      "postcss-selector-parser",
+      "postcss",
+      "source-map",
+      "url"
+    ]
+  },
   "scripts": {
     "test": "node __tests__/run"
   },
-  "files": [
-    "dist"
-  ],
   "keywords": [
     "vue",
     "compiler",

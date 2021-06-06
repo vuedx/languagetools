@@ -7,8 +7,8 @@ import { GOTO_PROVIDERS } from '../features/goto'
 import { REFACTOR_PROVIDERS } from '../features/refactors'
 import { RENAME_PROVIDERS } from '../features/renames'
 import { wrapObject } from '../helpers/logger'
-import { TS } from '../interfaces'
-import { LanguageServiceOptions } from '../types'
+import type { TS } from '../interfaces'
+import type { LanguageServiceOptions } from '../types'
 import { noop } from './noop'
 interface AdditionalFunctions {
   getEditsForFileRenameIn(
@@ -79,6 +79,8 @@ export function createTemplateLanguageServer(
           return result
         }
       }
+
+      return undefined
     },
 
     getCompletionEntrySymbol(fileName, position, name, source) {
@@ -92,6 +94,8 @@ export function createTemplateLanguageServer(
         )
         if (isNotNull(result)) return result
       }
+
+      return undefined
     },
 
     getSignatureHelpItems(fileName, position, options) {
@@ -105,6 +109,8 @@ export function createTemplateLanguageServer(
           options,
         )
       }
+
+      return undefined
     },
 
     getQuickInfoAtPosition(fileName, position) {
@@ -215,6 +221,8 @@ export function createTemplateLanguageServer(
           return result
         }
       }
+
+      return undefined
     },
 
     getEditsForFileRenameIn(fileName, oldFilePath, newFilePath) {
@@ -275,6 +283,8 @@ export function createTemplateLanguageServer(
           preferences,
         )
       }
+
+      return undefined
     },
 
     getDefinitionAndBoundSpan(
@@ -290,6 +300,8 @@ export function createTemplateLanguageServer(
 
         if (result != null) return result
       }
+
+      return undefined
     },
 
     getJsxClosingTagAtPosition(fileName, position) {
@@ -303,6 +315,8 @@ export function createTemplateLanguageServer(
         if (node.loc.source.trim().endsWith(`</${node.tag}>`)) return
         return { newText: `</${node.tag}>` }
       }
+
+      return undefined
     },
   })
 }

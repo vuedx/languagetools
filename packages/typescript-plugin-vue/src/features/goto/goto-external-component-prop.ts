@@ -1,4 +1,4 @@
-import { GotoProvider } from './abstract'
+import type { GotoProvider } from './abstract'
 import {
   Node,
   isAttributeNode,
@@ -90,13 +90,13 @@ export const GotoExternalComponentProp: GotoProvider = {
           containerKind: context.typescript.ScriptElementKind.unknown,
           containerName: '',
           contextSpan:
-            externalComponentInfo.options?.properties.props != null
+            externalComponentInfo.options?.properties['props'] != null
               ? {
                   start:
-                    externalComponentInfo.options.properties.props.loc.start
+                    externalComponentInfo.options.properties['props'].loc.start
                       .offset,
                   length:
-                    externalComponentInfo.options.properties.props.loc.source
+                    externalComponentInfo.options.properties['props'].loc.source
                       .length,
                 }
               : undefined,

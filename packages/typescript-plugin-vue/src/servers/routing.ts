@@ -16,17 +16,18 @@ import {
   VIRTUAL_FILENAME_SEPARATOR,
 } from '@vuedx/vue-virtual-textdocument'
 import { ORIGINAL_LANGUAGE_SERVER } from '../constants'
-import { PluginContext } from '../context'
+import type { PluginContext } from '../context'
 import { wrapObject } from '../helpers/logger'
 import { createServerHelper } from '../helpers/utils'
-import { TS } from '../interfaces'
+import type { TS } from '../interfaces'
 import {
   registerComponentAPI,
   registerLocalComponentWithSource,
 } from '../transforms/registerLocalComponent'
-import { LanguageServiceOptions } from '../types'
+import type { LanguageServiceOptions } from '../types'
 import { createVirtualLanguageServer } from './virtual'
 import { createVueLanguageServer } from './vue'
+
 export class RoutingLanguageServer {
   constructor(private readonly context: PluginContext) {}
 
@@ -250,6 +251,7 @@ function createLanguageServiceRouter(
           formatOptions,
           newSource,
           preferences,
+          undefined, // TODO: Check what is data?
         )
       } else {
         details = choose(fileName).getCompletionEntryDetails(
@@ -259,6 +261,7 @@ function createLanguageServiceRouter(
           formatOptions,
           source,
           preferences,
+          undefined,
         )
       }
 
@@ -283,7 +286,7 @@ function createLanguageServiceRouter(
                     { localName: pascalCase(entryName) },
                     project.config.preferences.script,
                     project.version,
-                    change.textChanges[0].newText,
+                    change.textChanges[0]?.newText,
                   )
                 } else {
                   change.textChanges.forEach((textChange) => {
@@ -996,7 +999,7 @@ function mergeFileTextChanges(
         textChanges: [],
       }
     }
-    const currentEdit = editsByFileName[edit.fileName]
+    const currentEdit = editsByFileName[edit.fileName]!
 
     currentEdit.textChanges = combineTextChanges(
       currentEdit.textChanges,

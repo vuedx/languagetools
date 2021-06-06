@@ -1,14 +1,14 @@
 import generate from '@babel/generator'
-import { NodePath } from '@babel/traverse'
+import type { NodePath } from '@babel/traverse'
+import type { ObjectMember } from '@babel/types'
 import {
   isBooleanLiteral,
   isIdentifier,
   isObjectProperty,
   isStringLiteral,
-  ObjectMember,
 } from '@babel/types'
-import { isNotNull } from '@vuedx/shared'
-import { PropInfo, TypeInfo } from '../component'
+import { flatten, isNotNull } from '@vuedx/shared'
+import type { PropInfo, TypeInfo } from '../component'
 import { createPlugin } from '../types'
 import { createSourceRange } from '../utilities'
 
@@ -40,16 +40,18 @@ export const PropsOptionsAnalyzer = createPlugin({
                 const options = toObjectExpressionMap(value$)
                 const info: Partial<PropInfo> = {}
 
-                if (options.required != null) {
-                  const node = options.required.node
+                if (options['required'] != null) {
+                  const node = options['required'].node
                   info.required =
                     isObjectProperty(node) &&
                     isBooleanLiteral(node.value) &&
                     node.value.value
                 }
 
-                if (options.type != null) {
-                  info.type = getTypeInfo(options.type.get('value') as NodePath)
+                if (options['type'] != null) {
+                  info.type = getTypeInfo(
+                    options['type'].get('value') as NodePath,
+                  )
                 }
 
                 context.component.addProp(name, info)
@@ -92,11 +94,12 @@ function getTypeInfo(path$: NodePath): TypeInfo[] | undefined {
         return [{ kind: 'expression', imports: [], expression: 'any[]' }]
     }
   } else if (path$.isArrayExpression()) {
-    return (path$.get('elements') as NodePath[])
-      .filter((element$) => element$.isIdentifier())
-      .map(getTypeInfo)
-      .filter(isNotNull)
-      .flat()
+    return flatten(
+      (path$.get('elements') as NodePath[])
+        .filter((element$) => element$.isIdentifier())
+        .map(getTypeInfo)
+        .filter(isNotNull),
+    )
   } else if (path$.isTSAsExpression()) {
     return [
       {
@@ -107,6 +110,8 @@ function getTypeInfo(path$: NodePath): TypeInfo[] | undefined {
       },
     ]
   }
+  
+  return undefined
 }
 
 function toObjectExpressionMap(

@@ -28,7 +28,6 @@ const requireModule = (typeof __non_webpack_require__ !== 'undefined'
 @injectable()
 export class DocumentService extends Installable {
   private readonly emitter = new vscode.EventEmitter<{ uri: vscode.Uri }>()
-  private readonly projects: VueProject[] = []
   private readonly store = new AsyncDocumentStore(async (uri) => {
     const _uri = vscode.Uri.parse(uri)
     const text = await vscode.workspace.openTextDocument(_uri)
@@ -168,4 +167,6 @@ function findConfigFile(
     if (exists(configFile)) return configFile
     dir = Path.dirname(dir)
   }
+
+  return undefined
 }

@@ -1,9 +1,19 @@
 {
   "name": "@vuedx/shared",
   "version": "0.6.2",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "module": "lib/index.mjs",
+  "exports": {
+    "require": "./lib/index.js",
+    "import": "./lib/index.mjs"
+  },
+  "publishConfig": {
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts"
+  },
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "@sentry/node": "^5.30.0",
     "node-unique-machine-id": "^1.1.0",

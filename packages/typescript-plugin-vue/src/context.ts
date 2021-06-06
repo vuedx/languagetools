@@ -22,7 +22,7 @@ import JSON5 from 'json5'
 import Path from 'path'
 import { traceFn, wrapFn } from './helpers/logger'
 import { tryPatchMethod } from './helpers/patcher'
-import { PluginConfig, TS } from './interfaces'
+import type { PluginConfig, TS } from './interfaces'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 declare var __non_webpack_require__: any
@@ -389,7 +389,7 @@ export class PluginContext {
     }
   }
 
-  public hasAnyVueReference(fileName: string): boolean {
+  public hasAnyVueReference(_fileName: string): boolean {
     // TODO: check if there is an import from .vue file or not.
     // This could be used in routing service to skip some work when .vue
     // is not in the play.

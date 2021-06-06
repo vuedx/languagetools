@@ -1,12 +1,14 @@
 import { parse } from '@babel/parser'
-import traverse, { NodePath } from '@babel/traverse'
+import type { NodePath } from '@babel/traverse'
+import traverse from '@babel/traverse'
 import type * as t from '@babel/types'
 import { isIdentifier, traverseFast } from '@babel/types'
-import { SFCScriptBlock } from '@vuedx/compiler-sfc'
+import type { SFCScriptBlock } from '@vuedx/compiler-sfc'
+import { flatten, isNotNull } from '@vuedx/shared'
 import type { SourceFile } from 'typescript'
-import { Context, createPlugin, ScriptAnalyzerContext } from '../types'
+import type { Context, ScriptAnalyzerContext } from '../types'
+import { createPlugin } from '../types'
 import { createSourceRange } from '../utilities'
-import { isNotNull } from '@vuedx/shared'
 
 export const ScriptBlockAnalyzer = createPlugin({
   blocks: {
@@ -115,6 +117,7 @@ function processScript(context: ScriptAnalyzerContext): void {
           return plugin.babel.enter
         }
       }
+      return undefined
     })
     .filter(isNotNull)
 
@@ -123,24 +126,25 @@ function processScript(context: ScriptAnalyzerContext): void {
       if (plugin.babel != null && 'exit' in plugin.babel) {
         return plugin.babel.exit
       }
+
+      return undefined
     })
     .filter(isNotNull)
 
-  const setupHandlers = context.plugins
-    .map((plugin) => plugin.setup)
-    .filter(isNotNull)
-    .flat()
-  const optionsHandlers = context.plugins
-    .map((plugin) => (Array.isArray(plugin.options) ? plugin.options : null))
-    .filter(isNotNull)
-    .flat()
+  const setupHandlers = flatten(
+    context.plugins.map((plugin) => plugin.setup).filter(isNotNull),
+  )
+  const optionsHandlers = flatten(
+    context.plugins
+      .map((plugin) => (Array.isArray(plugin.options) ? plugin.options : null))
+      .filter(isNotNull),
+  )
   const optionsByNameHandlers = context.plugins
     .map((plugin) => (Array.isArray(plugin.options) ? null : plugin.options))
     .filter(isNotNull)
-  const declarationHandlers = context.plugins
-    .map((plugin) => plugin.declaration)
-    .filter(isNotNull)
-    .flat()
+  const declarationHandlers = flatten(
+    context.plugins.map((plugin) => plugin.declaration).filter(isNotNull),
+  )
 
   function call<T>(
     fns: Array<(node: T, context: ScriptAnalyzerContext) => void>,
@@ -232,7 +236,7 @@ function processScript(context: ScriptAnalyzerContext): void {
             loc: createSourceRange(context, path.node),
           })
           optionsByNameHandlers.forEach((handlers) => {
-            const fn = handlers.props
+            const fn = handlers['props']
             if (fn != null) {
               try {
                 fn(options$ as any, context)
@@ -247,7 +251,7 @@ function processScript(context: ScriptAnalyzerContext): void {
             loc: createSourceRange(context, path.node),
           })
           optionsByNameHandlers.forEach((handlers) => {
-            const fn = handlers.emits
+            const fn = handlers['emits']
             if (fn != null) {
               try {
                 fn(options$ as any, context)

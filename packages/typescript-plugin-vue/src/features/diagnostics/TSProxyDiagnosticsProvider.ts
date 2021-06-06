@@ -3,8 +3,8 @@ import {
   SimpleExpressionNode,
   traverseFast,
 } from '@vuedx/template-ast-types'
-import { RenderFunctionTextDocument } from '@vuedx/vue-virtual-textdocument'
-import { TS } from '../../interfaces'
+import type { RenderFunctionTextDocument } from '@vuedx/vue-virtual-textdocument'
+import type { TS } from '../../interfaces'
 import { defineDiagnosticProvider } from './abstract'
 
 export const TSProxyDiagnosticsProvider = defineDiagnosticProvider({
@@ -174,8 +174,7 @@ function getIdentifier(diagnostic: TS.Diagnostic): string | undefined {
         }
       }
       break
-
-    default:
-      break
   }
+
+  return undefined
 }

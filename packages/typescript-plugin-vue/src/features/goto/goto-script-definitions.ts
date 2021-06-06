@@ -2,11 +2,11 @@ import {
   findTemplateNodeAt,
   isAttributeNode,
   isElementNode,
-  isSimpleExpressionNode,
+  isSimpleExpressionNode
 } from '@vuedx/template-ast-types'
-import { RenderFunctionTextDocument } from '@vuedx/vue-virtual-textdocument'
-import { TS } from '../../interfaces'
-import { GotoProvider } from './abstract'
+import type { RenderFunctionTextDocument } from '@vuedx/vue-virtual-textdocument'
+import type { TS } from '../../interfaces'
+import type { GotoProvider } from './abstract'
 
 export const GotoScriptDefinitions: GotoProvider = {
   version: '*',
@@ -68,13 +68,13 @@ export const GotoScriptDefinitions: GotoProvider = {
                 containerKind: context.typescript.ScriptElementKind.unknown,
                 containerName: '',
                 contextSpan:
-                  componentInfo.options?.properties.props != null
+                  componentInfo.options?.properties['props'] != null
                     ? {
                         start:
-                          componentInfo.options.properties.props.loc.start
+                          componentInfo.options.properties['props'].loc.start
                             .offset,
                         length:
-                          componentInfo.options.properties.props.loc.source
+                          componentInfo.options.properties['props'].loc.source
                             .length,
                       }
                     : undefined,

@@ -42,6 +42,8 @@ export class VueVirtualDocumentProvider
       if (error instanceof Error) {
         return `/*\nError: ${error.message}\n${error.stack ?? ''}\n*/`
       }
+
+      return `/*\nError: ${String(error)}\n*/`
     }
   }
 }

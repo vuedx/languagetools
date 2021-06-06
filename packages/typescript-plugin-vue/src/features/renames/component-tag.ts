@@ -1,4 +1,4 @@
-import { LocalComponentRegistrationInfo } from '@vuedx/analyze'
+import type { LocalComponentRegistrationInfo } from '@vuedx/analyze'
 import { getComponentName } from '@vuedx/shared'
 import {
   ComponentNode,
@@ -12,13 +12,13 @@ import {
   SCRIPT_SETUP_BLOCK_SELECTOR,
 } from '@vuedx/vue-virtual-textdocument'
 import { computeIdentifierReplacement } from '../../helpers/utils'
-import { TS } from '../../interfaces'
-import { RenameProvider } from './abstract'
+import type { TS } from '../../interfaces'
+import type { RenameProvider } from './abstract'
 
 export const RenameComponentTag: RenameProvider = {
   version: '*',
   name: 'component-tag',
-  canRename(config, fileName, position, options) {
+  canRename(config, fileName, position, _options) {
     const { node, document } = config.helpers.findTemplateNodeAtPosition(
       fileName,
       position,
@@ -54,6 +54,8 @@ export const RenameComponentTag: RenameProvider = {
         },
       }
     }
+
+    return undefined
   },
   applyRename(
     { helpers, service },
@@ -133,8 +135,8 @@ export const RenameComponentTag: RenameProvider = {
     containerFile,
     oldFileName,
     newFileName,
-    options,
-    preferences,
+    _options,
+    _preferences,
   ) {
     const fileTextChanges: TS.FileTextChanges[] = []
     if (isVueFile(oldFileName)) {
@@ -241,6 +243,8 @@ export const RenameComponentTag: RenameProvider = {
       }
     }
     if (fileTextChanges.length > 0) return fileTextChanges
+
+    return undefined
   },
 }
 
