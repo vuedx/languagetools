@@ -5,7 +5,7 @@
     "pnpm": "^6.0.0"
   },
   "scripts": {
-    "prepare": "pnpm --filter @vuedx/monorepo-tools recursive run build",
+    "prepare": "node scripts/build-monorepo-tools.mjs",
     "test": "jest",
     "coverage": "nyc --reporter=json --reporter=text-summary jest --coverage",
     "build": "rollup -c",

@@ -3,6 +3,7 @@ import { execSync } from 'child_process'
 import Path from 'path'
 import { fileURLToPath } from 'url'
 
+// @ts-ignore — tsconfig.json "include" does not support .mjs files
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = Path.dirname(__filename)
 

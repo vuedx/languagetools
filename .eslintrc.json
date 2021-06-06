@@ -13,7 +13,11 @@
         "ecmaVersion": 2020,
         "sourceType": "module"
       },
-      "extends": ["standard", "prettier"]
+      "extends": ["standard", "prettier"],
+      "rules": {
+        "no-void": "off",
+        "dot-notation": "off"
+      }
     },
     {
       "files": ["**/*.ts"],
@@ -30,6 +34,7 @@
       ],
       "rules": {
         "no-void": "off",
+        "dot-notation": "off",
         "@typescript-eslint/method-signature-style": [2, "method"]
       }
     },
