@@ -160,16 +160,6 @@ jobs:
         with:
           name: build-artefact
           path: .
-      - uses: marvinpinto/action-automatic-releases@latest
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: insiders
-          prerelease: true
-          title: Insiders Build
-          files: |
-            extension/CHANGELOG.md
-            extension/preview.vsix
-            packages/*/CHANGELOG.md
       - name: Publish Insiders Extension
         run: |
           pnpm recursive --filter ./extension run release
@@ -187,6 +177,16 @@ jobs:
           publish --tag insiders --access public --no-git-checks
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: insiders
+          prerelease: true
+          title: Insiders Build
+          files: |
+            extension/CHANGELOG.md
+            extension/preview.vsix
+            packages/*/CHANGELOG.md
   release:
     name: Release
     runs-on: ubuntu-latest
@@ -227,16 +227,6 @@ jobs:
         with:
           name: build-artefact
           path: .
-      - null
-      - uses: marvinpinto/action-automatic-releases@latest
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: latest
-          prerelease: true
-          files: |
-            extensions/*/CHANGELOG.md
-            extension/*/*.vsix
-            packages/*/CHANGELOG.md
       - name: Publish Insiders Extension
         run: |
           pnpm recursive run release
@@ -248,3 +238,12 @@ jobs:
           pnpm recursive publish --tag latest --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: latest
+          prerelease: true
+          files: |
+            extensions/*/CHANGELOG.md
+            extension/*/*.vsix
+            packages/*/CHANGELOG.md
