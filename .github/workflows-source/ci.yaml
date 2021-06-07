@@ -112,67 +112,67 @@ jobs:
         with:
           file: ./coverage/coverage-final.json
 
-insiders:
-  name: Insiders Release
-  runs-on: ubuntu-latest
-  environment:
-    name: Insiders
-    url: https://marketplace.visualstudio.com/items?itemName=znck.preview-insiders
-  needs: test
-  steps:
-    - *setup
-    - *download
-    - uses: 'marvinpinto/action-automatic-releases@latest'
-      with:
-        repo_token: '${{ secrets.GITHUB_TOKEN }}'
-        automatic_release_tag: 'insiders'
-        prerelease: true
-        title: 'Insiders Build'
-        files: |
-          extension/CHANGELOG.md
-          extension/preview.vsix
-          packages/*/CHANGELOG.md
-    - name: Publish Insiders Extension
-      run: |
-        pnpm recursive --filter ./extension run release
-      env:
-        RELEASE_CHANNEL: insiders
-        VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
-    - name: Publish Insiders Packages
-      run: |
-        echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
-        pnpm recursive --filter ./packages --filter ./extensions/coc-vue exec -- npm version prerelease --preid=insiders-$(date +%s)
-        pnpm recursive --filter ./packages --filter ./extensions/coc-vue publish --tag insiders --access public --no-git-checks
-      env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  insiders:
+    name: Insiders Release
+    runs-on: ubuntu-latest
+    environment:
+      name: Insiders
+      url: https://marketplace.visualstudio.com/items?itemName=znck.preview-insiders
+    needs: test
+    steps:
+      - *setup
+      - *download
+      - uses: 'marvinpinto/action-automatic-releases@latest'
+        with:
+          repo_token: '${{ secrets.GITHUB_TOKEN }}'
+          automatic_release_tag: 'insiders'
+          prerelease: true
+          title: 'Insiders Build'
+          files: |
+            extension/CHANGELOG.md
+            extension/preview.vsix
+            packages/*/CHANGELOG.md
+      - name: Publish Insiders Extension
+        run: |
+          pnpm recursive --filter ./extension run release
+        env:
+          RELEASE_CHANNEL: insiders
+          VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+      - name: Publish Insiders Packages
+        run: |
+          echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
+          pnpm recursive --filter ./packages --filter ./extensions/coc-vue exec -- npm version prerelease --preid=insiders-$(date +%s)
+          pnpm recursive --filter ./packages --filter ./extensions/coc-vue publish --tag insiders --access public --no-git-checks
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-release:
-  name: Release
-  runs-on: ubuntu-latest
-  environment:
-    name: Production
-  needs: test
-  steps:
-    - *setup
-    - *download
-    -  # Check version and abort
-    - uses: 'marvinpinto/action-automatic-releases@latest'
-      with:
-        repo_token: '${{ secrets.GITHUB_TOKEN }}'
-        automatic_release_tag: 'latest'
-        prerelease: true
-        files: |
-          extensions/*/CHANGELOG.md
-          extension/*/*.vsix
-          packages/*/CHANGELOG.md
-    - name: Publish Insiders Extension
-      run: |
-        pnpm recursive run release
-      env:
-        VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
-    - name: Publish Insiders Packages
-      run: |
-        echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
-        pnpm recursive publish --tag latest --access public
-      env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+    needs: test
+    steps:
+      - *setup
+      - *download
+      -  # Check version and abort
+      - uses: 'marvinpinto/action-automatic-releases@latest'
+        with:
+          repo_token: '${{ secrets.GITHUB_TOKEN }}'
+          automatic_release_tag: 'latest'
+          prerelease: true
+          files: |
+            extensions/*/CHANGELOG.md
+            extension/*/*.vsix
+            packages/*/CHANGELOG.md
+      - name: Publish Insiders Extension
+        run: |
+          pnpm recursive run release
+        env:
+          VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+      - name: Publish Insiders Packages
+        run: |
+          echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
+          pnpm recursive publish --tag latest --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

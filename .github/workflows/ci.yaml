@@ -118,132 +118,133 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           file: ./coverage/coverage-final.json
-insiders:
-  name: Insiders Release
-  runs-on: ubuntu-latest
-  environment:
-    name: Insiders
-    url: https://marketplace.visualstudio.com/items?itemName=znck.preview-insiders
-  needs: test
-  steps:
-    - - - name: Checkout
-          uses: actions/checkout@v2
-      - - name: Cache node packages
-          uses: actions/cache@v2
-          env:
-            cache-name: pnpm-modules
-          with:
-            key: >-
-              ${{ runner.os }}-build-${{ env.cache-name }}-${{
-              hashFiles('**/pnpm-lock.yaml') }}
-            restore-keys: |
-              ${{ runner.os }}-build-${{ env.cache-name }}-
-              ${{ runner.os }}-build-
-              ${{ runner.os }}-
-            path: |
-              ~/.pnpm-store
-              ${{ github.workspace }}/.pnpm
-      - - name: Setup Node
-          uses: actions/setup-node@v2
-          with:
-            node-version: '16'
-      - - name: Setup PNPM
-          uses: pnpm/action-setup@v2.0.1
-          with:
-            version: 6.2.5
-            run_install: |
-              - recursive: true
-                args: [--frozen-lockfile]
-    - - name: Download build artefact
+  insiders:
+    name: Insiders Release
+    runs-on: ubuntu-latest
+    environment:
+      name: Insiders
+      url: >-
+        https://marketplace.visualstudio.com/items?itemName=znck.preview-insiders
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cache node packages
+        uses: actions/cache@v2
+        env:
+          cache-name: pnpm-modules
+        with:
+          key: >-
+            ${{ runner.os }}-build-${{ env.cache-name }}-${{
+            hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+          path: |
+            ~/.pnpm-store
+            ${{ github.workspace }}/.pnpm
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.2.5
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile]
+      - name: Download build artefact
         uses: actions/download-artifact@v2
         with:
           name: build-artefact
           path: .
-    - uses: marvinpinto/action-automatic-releases@latest
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        automatic_release_tag: insiders
-        prerelease: true
-        title: Insiders Build
-        files: |
-          extension/CHANGELOG.md
-          extension/preview.vsix
-          packages/*/CHANGELOG.md
-    - name: Publish Insiders Extension
-      run: |
-        pnpm recursive --filter ./extension run release
-      env:
-        RELEASE_CHANNEL: insiders
-        VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
-    - name: Publish Insiders Packages
-      run: >
-        echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
+      - uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: insiders
+          prerelease: true
+          title: Insiders Build
+          files: |
+            extension/CHANGELOG.md
+            extension/preview.vsix
+            packages/*/CHANGELOG.md
+      - name: Publish Insiders Extension
+        run: |
+          pnpm recursive --filter ./extension run release
+        env:
+          RELEASE_CHANNEL: insiders
+          VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+      - name: Publish Insiders Packages
+        run: >
+          echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
 
-        pnpm recursive --filter ./packages --filter ./extensions/coc-vue exec --
-        npm version prerelease --preid=insiders-$(date +%s)
+          pnpm recursive --filter ./packages --filter ./extensions/coc-vue exec
+          -- npm version prerelease --preid=insiders-$(date +%s)
 
-        pnpm recursive --filter ./packages --filter ./extensions/coc-vue publish
-        --tag insiders --access public --no-git-checks
-      env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-release:
-  name: Release
-  runs-on: ubuntu-latest
-  environment:
-    name: Production
-  needs: test
-  steps:
-    - - - name: Checkout
-          uses: actions/checkout@v2
-      - - name: Cache node packages
-          uses: actions/cache@v2
-          env:
-            cache-name: pnpm-modules
-          with:
-            key: >-
-              ${{ runner.os }}-build-${{ env.cache-name }}-${{
-              hashFiles('**/pnpm-lock.yaml') }}
-            restore-keys: |
-              ${{ runner.os }}-build-${{ env.cache-name }}-
-              ${{ runner.os }}-build-
-              ${{ runner.os }}-
-            path: |
-              ~/.pnpm-store
-              ${{ github.workspace }}/.pnpm
-      - - name: Setup Node
-          uses: actions/setup-node@v2
-          with:
-            node-version: '16'
-      - - name: Setup PNPM
-          uses: pnpm/action-setup@v2.0.1
-          with:
-            version: 6.2.5
-            run_install: |
-              - recursive: true
-                args: [--frozen-lockfile]
-    - - name: Download build artefact
+          pnpm recursive --filter ./packages --filter ./extensions/coc-vue
+          publish --tag insiders --access public --no-git-checks
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cache node packages
+        uses: actions/cache@v2
+        env:
+          cache-name: pnpm-modules
+        with:
+          key: >-
+            ${{ runner.os }}-build-${{ env.cache-name }}-${{
+            hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+          path: |
+            ~/.pnpm-store
+            ${{ github.workspace }}/.pnpm
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.2.5
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile]
+      - name: Download build artefact
         uses: actions/download-artifact@v2
         with:
           name: build-artefact
           path: .
-    - null
-    - uses: marvinpinto/action-automatic-releases@latest
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        automatic_release_tag: latest
-        prerelease: true
-        files: |
-          extensions/*/CHANGELOG.md
-          extension/*/*.vsix
-          packages/*/CHANGELOG.md
-    - name: Publish Insiders Extension
-      run: |
-        pnpm recursive run release
-      env:
-        VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
-    - name: Publish Insiders Packages
-      run: |
-        echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
-        pnpm recursive publish --tag latest --access public
-      env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - null
+      - uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: latest
+          prerelease: true
+          files: |
+            extensions/*/CHANGELOG.md
+            extension/*/*.vsix
+            packages/*/CHANGELOG.md
+      - name: Publish Insiders Extension
+        run: |
+          pnpm recursive run release
+        env:
+          VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+      - name: Publish Insiders Packages
+        run: |
+          echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
+          pnpm recursive publish --tag latest --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
