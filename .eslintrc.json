@@ -25,18 +25,10 @@
       "parserOptions": {
         "ecmaVersion": 2020,
         "sourceType": "module",
-        "project": [
-          "./extensions/*/tsconfig.json",
-          "./packages/*/tsconfig.json",
-          "./tsconfig.base.json"
-        ]
+        "project": ["./**/tsconfig.json"]
       },
       "plugins": ["@typescript-eslint"],
-      "extends": [
-        "standard-with-typescript",
-        "prettier",
-        "prettier/@typescript-eslint"
-      ],
+      "extends": ["standard-with-typescript", "prettier"],
       "rules": {
         "no-void": "off",
         "dot-notation": "off",

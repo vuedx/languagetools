@@ -26,8 +26,8 @@ export class Telemetry {
   }
 
   private isTelemetryEnabled: boolean =
-    process.env.VUEDX_TELEMETRY?.toLowerCase() === 'on' ||
-    process.env.VUEDX_TELEMETRY?.toLowerCase() === 'true' ||
+    process.env['VUEDX_TELEMETRY']?.toLowerCase() === 'on' ||
+    process.env['VUEDX_TELEMETRY']?.toLowerCase() === 'true' ||
     false
 
   constructor(

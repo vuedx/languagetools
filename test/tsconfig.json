@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": ["./setupEnv.ts", "support/*.ts", "baseline/*.ts"],
+  "compilerOptions": {
+    "types": ["jest"]
+  }
+}
