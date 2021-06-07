@@ -69,11 +69,10 @@ jobs:
           - ubuntu-latest
           - windows-latest
         node_version:
-          - '12'
-          - '14'
+          - '16'
         include:
           - os: ubuntu-latest
-            node: '14'
+            node: '16'
             command: coverage
     runs-on: ${{ matrix.os }}
     name: Node ${{ matrix.node_version }} on ${{ matrix.os }}
