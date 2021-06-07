@@ -118,7 +118,7 @@ jobs:
     environment:
       name: Insiders
       url: https://marketplace.visualstudio.com/items?itemName=znck.preview-insiders
-    needs: test
+    needs: unit
     steps:
       - *setup
       - *download
@@ -151,7 +151,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: Production
-    needs: test
+    needs: unit
     steps:
       - *setup
       - *download
