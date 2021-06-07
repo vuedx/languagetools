@@ -49,6 +49,7 @@
     "hygen": "^6.1.0",
     "jest": "^26.5.3",
     "jest-expect-message": "^1.0.2",
+    "js-yaml": "^4.1.0",
     "lint-staged": "^10.4.2",
     "magic-string": "^0.25.7",
     "minimist": "^1.2.5",

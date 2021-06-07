@@ -24,7 +24,11 @@
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
         "ecmaVersion": 2020,
-        "sourceType": "module"
+        "sourceType": "module",
+        "project": [
+          "./extensions/*/tsconfig.json",
+          "./packages/*/tsconfig.json"
+        ]
       },
       "plugins": ["@typescript-eslint"],
       "extends": [

@@ -1,41 +1,15 @@
 name: Release
 
 on:
-  pull_request:
-    types:
-      - closed
   workflow_dispatch:
-    inputs:
-      action:
-        description: Action (pr/release)
-        default: pr
-        required: true
-  push:
-    branches:
-      - main
 jobs:
-  debug:
-    name: Debug
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Print context
-        run: echo "$GITHUB_CONTEXT"
-        env:
-          GITHUB_CONTEXT: ${{ toJSON(github) }}
-
   create:
     name: Create release PR
-    runs-on: ubuntu-20.04
-    if: (
-      github.event_name == 'push'
-      ) || (
-      github.event.inputs.action == 'pr'
-      )
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
 
       - name: Setup Node
@@ -53,31 +27,4 @@ jobs:
       - name: Create Release Pull Request
         uses: changesets/action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-  publish:
-    name: Publish release
-    runs-on: ubuntu-20.04
-    if: |
-      (
-        github.event_name == 'pull_request' &&
-        github.event.action == 'closed' &&
-        github.event.pull_request.merged == true &&
-        github.event.pull_request.head.ref == 'changeset-release/main'
-      ) || (
-        github.event.inputs.action == 'release'
-      )
-    steps:
-      - name: Get current time
-        uses: 1466587594/get-current-time@v2
-        id: timestamp
-        with:
-          format: YYYY.MM.DD-HH.mm.ss
-      - name: 'Create Release'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          tag_name: v${{ steps.timestamp.outputs.formattedTime }}
-          release_name: Release v${{ steps.timestamp.outputs.formattedTime }}
-          body: ${{ github.event.pull_request.body }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

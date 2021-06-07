@@ -25,9 +25,10 @@ export class Telemetry {
     id: this.getUserId(),
   }
 
-  private optOut: boolean =
-    process.env['VUEDX_TELEMETRY']?.toLowerCase() === 'off' ||
-    process.env['VUEDX_TELEMETRY']?.toLowerCase() === 'false'
+  private isTelemetryEnabled: boolean =
+    process.env.VUEDX_TELEMETRY?.toLowerCase() === 'on' ||
+    process.env.VUEDX_TELEMETRY?.toLowerCase() === 'true' ||
+    false
 
   constructor(
     key: string,
@@ -59,7 +60,7 @@ export class Telemetry {
   }
 
   trace(name: string, description?: string): () => void {
-    if (this.optOut) return () => {}
+    if (!this.isTelemetryEnabled) return () => {}
     const activeTransaction = Sentry.getCurrentHub()
       .getScope()
       ?.getTransaction()
@@ -103,7 +104,7 @@ export class Telemetry {
   }
 
   collect(key: string, value: Record<string, any>): void {
-    if (this.optOut) return
+    if (!this.isTelemetryEnabled) return
     const tags: Record<string, string | number | boolean> = {}
     const allowed = new Set(['string', 'number', 'boolean'])
     Object.entries(value).forEach(([key, value]) => {
@@ -124,7 +125,7 @@ export class Telemetry {
   }
 
   error(payload: any | Error): void {
-    if (this.optOut) return
+    if (!this.isTelemetryEnabled) return
     if (!(payload instanceof Error)) {
       payload = new Error(inspect(payload, true, 3, false))
     }
@@ -176,7 +177,7 @@ export class Telemetry {
 
   static optOut(): void {
     if (this._instance != null) {
-      this._instance.optOut = true
+      this._instance.isTelemetryEnabled = false
     }
   }
 }

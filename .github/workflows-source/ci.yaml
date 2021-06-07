@@ -1,0 +1,178 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+.checkout: &checkout
+  - name: Checkout
+    uses: actions/checkout@v2
+
+.node_modules_cache: &node_modules_cache
+  - name: Cache node packages
+    uses: actions/cache@v2
+    env:
+      cache-name: pnpm-modules
+    with:
+      key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+      restore-keys: |
+        ${{ runner.os }}-build-${{ env.cache-name }}-
+        ${{ runner.os }}-build-
+        ${{ runner.os }}-
+      path: |
+        ~/.pnpm-store
+        ${{ github.workspace }}/.pnpm
+.node: &node
+  - name: Setup Node
+    uses: actions/setup-node@v2
+    with:
+      node-version: '16'
+
+.pnpm: &pnpm
+  - name: Setup PNPM
+    uses: pnpm/action-setup@v2.0.1
+    with:
+      version: '6.2.5'
+      run_install: |
+        - recursive: true
+          args: [--frozen-lockfile]
+
+.setup: &setup
+  - *checkout
+  - *node_modules_cache
+  - *node
+  - *pnpm
+
+.download: &download
+  - name: Download build artefact
+    uses: actions/download-artifact@v2
+    with:
+      name: build-artefact
+      path: '.'
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - *setup
+      - run: |
+          cd samples
+          pnpm install --frozen-lockfile --silent
+      - name: Build
+        run: |
+          pnpm recursive --filter @vuedx/monorepo-tools run build
+          pnpm run ci:build
+          pnpm recursive --filter ./extensions run build
+      - name: Upload build artefact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artefact
+          retention-days: 30
+          path: |
+            ./packages/*/lib
+            ./packages/*/runtime
+            ./extensions/coc-vue/dist
+            ./extensions/*/*.vsix
+
+  unit:
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node_version: ['12', '14']
+        include:
+          - os: ubuntu-latest
+            node: '14'
+            command: 'coverage'
+    runs-on: ${{ matrix.os }}
+    name: Node ${{ matrix.node_version }} on ${{ matrix.os }}
+    steps:
+      - *checkout
+      - *node_modules_cache
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node_version }}
+      - *pnpm
+      - *download
+      - name: Test
+        run: pnpm ${{ matrix.command || 'test' }}
+      - name: Collect coverage
+        if: matrix.command == 'coverage'
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage/coverage-final.json
+
+insiders:
+  name: Insiders Release
+  runs-on: ubuntu-latest
+  environment:
+    name: Insiders
+    url: https://marketplace.visualstudio.com/items?itemName=znck.preview-insiders
+  needs: test
+  steps:
+    - *setup
+    - *download
+    - uses: 'marvinpinto/action-automatic-releases@latest'
+      with:
+        repo_token: '${{ secrets.GITHUB_TOKEN }}'
+        automatic_release_tag: 'insiders'
+        prerelease: true
+        title: 'Insiders Build'
+        files: |
+          extension/CHANGELOG.md
+          extension/preview.vsix
+          packages/*/CHANGELOG.md
+    - name: Publish Insiders Extension
+      run: |
+        pnpm recursive --filter ./extension run release
+      env:
+        RELEASE_CHANNEL: insiders
+        VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+    - name: Publish Insiders Packages
+      run: |
+        echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
+        pnpm recursive --filter ./packages --filter ./extensions/coc-vue exec -- npm version prerelease --preid=insiders-$(date +%s)
+        pnpm recursive --filter ./packages --filter ./extensions/coc-vue publish --tag insiders --access public --no-git-checks
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+release:
+  name: Release
+  runs-on: ubuntu-latest
+  environment:
+    name: Production
+  needs: test
+  steps:
+    - *setup
+    - *download
+    -  # Check version and abort
+    - uses: 'marvinpinto/action-automatic-releases@latest'
+      with:
+        repo_token: '${{ secrets.GITHUB_TOKEN }}'
+        automatic_release_tag: 'latest'
+        prerelease: true
+        files: |
+          extensions/*/CHANGELOG.md
+          extension/*/*.vsix
+          packages/*/CHANGELOG.md
+    - name: Publish Insiders Extension
+      run: |
+        pnpm recursive run release
+      env:
+        VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+    - name: Publish Insiders Packages
+      run: |
+        echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
+        pnpm recursive publish --tag latest --access public
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
