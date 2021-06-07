@@ -23,7 +23,7 @@ for (const sourceFile of sourceFiles) {
   )
 
   Object.values(data.jobs).forEach((job) => {
-    job.steps = [...job.steps].flat()
+    job.steps = [...job.steps].flat(2)
   })
 
   const output = YAML.dump(data, { noRefs: true })
