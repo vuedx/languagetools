@@ -112,6 +112,13 @@ jobs:
         with:
           file: ./coverage/coverage-final.json
 
+  eslint:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - *setup
+      - run: pnpm eslint:check
+
   insiders:
     name: Insiders Release
     runs-on: ubuntu-latest
