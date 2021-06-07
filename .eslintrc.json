@@ -27,7 +27,8 @@
         "sourceType": "module",
         "project": [
           "./extensions/*/tsconfig.json",
-          "./packages/*/tsconfig.json"
+          "./packages/*/tsconfig.json",
+          "./tsconfig.base.json"
         ]
       },
       "plugins": ["@typescript-eslint"],
@@ -39,7 +40,6 @@
       "rules": {
         "no-void": "off",
         "dot-notation": "off",
-        "@typscript-eslint/dot-notation": "off",
         "@typescript-eslint/method-signature-style": [2, "method"]
       }
     },
