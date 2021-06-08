@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="../global.d.ts" />
+
 import {
   isSimpleExpressionNode,
   isSimpleIdentifier,
@@ -538,12 +541,12 @@ export function createVueLanguageServer(
               .map((fileName) => {
                 if (isVueFile(fileName)) {
                   const document = h.getVueDocument(fileName)
-                  if (document == null) return
+                  if (document == null) return undefined
 
                   const script =
                     document.getDocument('script') ??
                     document.getDocument('scriptSetup')
-                  if (script == null) return
+                  if (script == null) return undefined
 
                   return script.fsPath
                 }
