@@ -29,7 +29,7 @@ import type {
   RenderFunctionTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
-import Path from 'path'
+import * as Path from 'path'
 import type { PluginContext } from '../../context'
 import { getFilenameForNewComponent } from '../../helpers/utils'
 import type { TS } from '../../interfaces'
@@ -631,8 +631,8 @@ function getImportEditForComponent(
     renameLocation += scriptSetup.loc.start.offset
   } else if (script != null) {
     renameLocation += script.loc.start.offset
-  } else if (changes.length > 0) {
-    renameLocation += changes[0]!.newText.indexOf(importStatement)
+  } else if (changes[0] != null) {
+    renameLocation += changes[0].newText.indexOf(importStatement)
   }
 
   return { name, changes, renameLocation }

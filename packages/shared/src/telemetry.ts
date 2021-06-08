@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node'
 import { machineSync } from 'node-unique-machine-id'
-import os from 'os'
+import { platform } from 'os'
 import { inspect } from 'util'
 import { v4 as uuid } from 'uuid'
 
@@ -46,7 +46,7 @@ export class Telemetry {
     this.defaults = {
       sessionId: uuid(),
       nodeVersion: process.version,
-      os: os.platform(),
+      os: platform(),
       ...defaults,
     }
   }

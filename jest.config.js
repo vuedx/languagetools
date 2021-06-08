@@ -5,10 +5,6 @@ module.exports = {
   testMatch: ['**/*.spec.ts'],
   globals: {
     __DEV__: true,
-    'ts-jest': {
-      packageJson: 'package.json',
-      tsconfig: 'tsconfig.json',
-    },
   },
   coverageReporters: ['none'],
   coverageProvider: 'v8',
@@ -16,10 +12,7 @@ module.exports = {
     'packages/**/*.ts',
     '!**/node_modules/**',
     '!**/dist/**',
+    '!**/lib/**',
   ],
-  moduleNameMapper: {
-    '^@vuedx/(.+)$': '<rootDir>packages/$1/src/index.ts',
-    '^test/(.+)$': '<rootDir>test/$1',
-  },
   testTimeout: 60000,
 }

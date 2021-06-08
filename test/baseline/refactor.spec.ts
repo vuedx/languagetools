@@ -1,11 +1,11 @@
-import Path from 'path'
+import * as Path from 'path'
 import {
   codeEditToTextEdit,
   findPositionOrThrowIn,
   getTextDocument,
   toNormalizedPath,
-} from 'test/support/helpers'
-import { TestServer } from 'test/support/TestServer'
+} from '../support/helpers'
+import { TestServer } from '../support/TestServer'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
 describe('rename', () => {
@@ -132,11 +132,11 @@ describe('rename', () => {
 
     expect(response.body?.edits).toHaveLength(1)
     const edit = response.body!.edits[0]
-    expect(edit.fileName).toBe(inputFile)
+    expect(edit?.fileName).toBe(inputFile)
 
     const content = TextDocument.applyEdits(
       await getTextDocument(inputFile),
-      edit.textChanges.map(codeEditToTextEdit),
+      edit!.textChanges.map(codeEditToTextEdit),
     )
 
     expectToEqual((await getTextDocument(outputFile)).getText(), content)

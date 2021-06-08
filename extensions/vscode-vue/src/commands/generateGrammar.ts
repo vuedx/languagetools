@@ -2,9 +2,9 @@ import type { ConfigurationService } from '../services/configuration'
 import type { DocumentService } from '../services/documents'
 import { Installable } from '../utils/installable'
 import { isVueFile } from '@vuedx/vue-virtual-textdocument'
-import Fs from 'fs'
+import * as FS from 'fs'
 import { inject, injectable } from 'inversify'
-import Path from 'path'
+import * as Path from 'path'
 import vscode from 'vscode'
 
 @injectable()
@@ -114,12 +114,12 @@ export class GenerateGrammarCommand extends Installable {
     try {
       this.isActive = true
       const current = JSON.parse(
-        Fs.readFileSync(Path.resolve(this.rootDir, 'scripts', 'config.json'), {
+        FS.readFileSync(Path.resolve(this.rootDir, 'scripts', 'config.json'), {
           encoding: 'utf-8',
         }),
       )
 
-      Fs.writeFileSync(
+      FS.writeFileSync(
         Path.resolve(this.rootDir, 'scripts', 'config.runtime.json'),
         JSON.stringify({ ...blocks, ...current }),
       )
@@ -128,6 +128,7 @@ export class GenerateGrammarCommand extends Installable {
 
       await this.configuration.save('blocks', config)
 
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       require(Path.resolve(
         this.rootDir,
         'scripts',

@@ -22,7 +22,7 @@ import {
   RENDER_SLOT,
   WITH_CTX,
 } from '@vue/compiler-core'
-import { camelCase, pascalCase } from '@vuedx/shared'
+import { camelCase, flatten, pascalCase } from '@vuedx/shared'
 import {
   isAttributeNode,
   isComponentNode,
@@ -133,42 +133,44 @@ export function createElementTransform(
               isDirectiveNode(props[0]) &&
               props[0].arg == null
             ? [props[0].exp]
-            : [
+            : flatten([
                 '{',
 
-                props.flatMap<any>((prop) => {
-                  if (isAttributeNode(prop)) {
-                    return generateAttribute(prop, node, ':')
-                  } else if (prop.name === 'bind') {
-                    if (isSimpleExpressionNode(prop.arg)) {
-                      return [
-                        '[',
-                        prop.arg.isStatic
-                          ? prop.arg
-                          : createSimpleExpression(
-                              prop.arg.content,
-                              prop.arg.isStatic,
-                              createLoc(
-                                prop.arg.loc,
-                                1,
-                                prop.arg.content.length,
+                flatten(
+                  props.map<any>((prop) => {
+                    if (isAttributeNode(prop)) {
+                      return generateAttribute(prop, node, ':')
+                    } else if (prop.name === 'bind') {
+                      if (isSimpleExpressionNode(prop.arg)) {
+                        return [
+                          '[',
+                          prop.arg.isStatic
+                            ? prop.arg
+                            : createSimpleExpression(
+                                prop.arg.content,
+                                prop.arg.isStatic,
+                                createLoc(
+                                  prop.arg.loc,
+                                  1,
+                                  prop.arg.content.length,
+                                ),
                               ),
-                            ),
-                        ']:',
-                        prop.exp ?? 'true',
-                        ',',
-                      ]
-                    } else if (prop.exp != null) {
-                      return ['...(', prop.exp, '),']
+                          ']:',
+                          prop.exp ?? 'true',
+                          ',',
+                        ]
+                      } else if (prop.exp != null) {
+                        return ['...(', prop.exp, '),']
+                      }
                     }
-                  }
-                  return []
-                }),
+                    return []
+                  }),
+                ),
                 '}',
-              ].flat(),
+              ]),
         )
         node.codegenNode = createCompoundExpression(
-          [
+          flatten([
             context.helper(RENDER_SLOT),
             '(',
             '_ctx.$slots',
@@ -186,9 +188,9 @@ export function createElementTransform(
             args,
             ')',
             node.children.length > 0
-              ? [' ?? (<>', generateChildNodes(node.children), '</>)'].flat()
+              ? flatten([' ?? (<>', generateChildNodes(node.children), '</>)'])
               : [],
-          ].flat(),
+          ]),
         ) as any
 
         return
@@ -491,9 +493,9 @@ function getEventName(dir: string): string {
   if (dir.includes(':')) {
     const parts = dir.split(':')
 
-    return camelCase('on-' + parts[0]) + ':' + parts.slice(1).join(':')
+    return `${camelCase(`on-${parts[0] ?? ''}`)}:${parts.slice(1).join(':')}`
   }
-  return camelCase('on-' + dir)
+  return camelCase(`on-${dir}`)
 }
 
 function generateVBind(dir: DirectiveNode, _node: ElementNode): any[] {
@@ -577,19 +579,21 @@ function generateChildren(
 }
 
 export function generateChildNodes(nodes: TemplateChildNode[]): any[] {
-  return nodes.flatMap((node) => {
-    if (isTextNode(node)) {
-      return createCompoundExpression([
-        '{',
-        JSON.stringify(node.content),
-        '}\n',
-      ])
-    } else if (isMarkedElementNode((node as any).codegenNode)) {
-      return createCompoundExpression([node as any, '\n'])
-    } else {
-      return createCompoundExpression(['{', node as any, '}\n'])
-    }
-  })
+  return flatten(
+    nodes.map((node) => {
+      if (isTextNode(node)) {
+        return createCompoundExpression([
+          '{',
+          JSON.stringify(node.content),
+          '}\n',
+        ])
+      } else if (isMarkedElementNode((node as any).codegenNode)) {
+        return createCompoundExpression([node as any, '\n'])
+      } else {
+        return createCompoundExpression(['{', node as any, '}\n'])
+      }
+    }),
+  )
 }
 
 function isDynamicSlotsExpression(

@@ -1,4 +1,4 @@
-import Path from 'path'
+import * as Path from 'path'
 
 export function getRelativeFileName(
   importingFileName: string,

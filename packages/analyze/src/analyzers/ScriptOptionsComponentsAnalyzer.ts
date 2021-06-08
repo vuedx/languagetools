@@ -42,6 +42,8 @@ export const ComponentsOptionAnalyzer = createPlugin({
             'scriptSetup',
           )
         }
+
+        return false
       })
     }
   },

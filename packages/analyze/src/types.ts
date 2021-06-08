@@ -30,13 +30,13 @@ export interface Context {
   parsers: {
     sfc: SFCParseOptions
     babel: ParserOptions
-    typescript?: (
+    typescript?(
       fileName: string,
       source: string,
       options: {
         language: 'js' | 'jsx' | 'ts' | 'tsx'
       },
-    ) => {
+    ): {
       ast: File
       sourceFile: SourceFile
       typeChecker: TypeChecker
@@ -60,8 +60,8 @@ type AbstractScriptAnalyzerFn<T extends Node = Node> = (
 ) => void
 
 interface AbstractAnalyzerHandler<T extends Node = Node> {
-  enter: (node: NodePath<T>, context: ScriptAnalyzerContext) => void
-  exit: (node: NodePath<T>, context: ScriptAnalyzerContext) => void
+  enter(node: NodePath<T>, context: ScriptAnalyzerContext): void
+  exit(node: NodePath<T>, context: ScriptAnalyzerContext): void
 }
 
 export type ComponentDeclarationAnalyzer = AbstractScriptAnalyzerFn
@@ -80,7 +80,7 @@ export type BlockAnalyzer<T extends SFCBlock = SFCBlock> = (
 export interface Plugin {
   babel?: AbstractScriptAnalyzerFn | AbstractAnalyzerHandler
   setup?: ComponentSetupFnAnalyzer[]
-  templateExpression?: (node: File, context: Context) => void
+  templateExpression?(node: File, context: Context): void
   options?:
     | ComponentOptionsAnalyzer[]
     | Record<string, AbstractScriptAnalyzerFn<ObjectMember>>

@@ -1,5 +1,5 @@
 import type { SFCBlock } from '@vuedx/compiler-sfc'
-import Path from 'path'
+import * as Path from 'path'
 import { URI, uriToFsPath } from 'vscode-uri'
 import type { Selector } from './types'
 
@@ -60,7 +60,7 @@ function isUri(fileNameOrUri: string): boolean {
 }
 
 function encodeURIComponentMinimal(path: string): string {
-  let res: string | undefined = undefined
+  let res: string | undefined
   for (let pos = 0; pos < path.length; pos++) {
     const code = path.charCodeAt(pos)
     if (code === 35 || code === 63) {
@@ -70,7 +70,7 @@ function encodeURIComponentMinimal(path: string): string {
       res += code === 35 ? '%23' : '%3F'
     } else {
       if (res !== undefined) {
-        res += path[pos]
+        res = `${res}${path[pos] ?? ''}`
       }
     }
   }
@@ -174,6 +174,7 @@ export function binarySearch<T>(
 
   while (lo <= hi) {
     const mid = ~~(lo + (hi - lo) / 2)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const result = isMatch(array[mid]!) // Mid always exists.
 
     if (result === 0) {

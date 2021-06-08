@@ -23,6 +23,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.26.0
       '@typescript-eslint/parser': ^4.26.0
       '@vuedx/monorepo-tools': workspace:*
+      '@vuedx/typescript-plugin-vue': link:packages/typescript-plugin-vue
       builtin-modules: ^3.1.0
       doctrine: ^3.0.0
       eslint: ^7.28.0
@@ -63,6 +64,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 4.26.0_20402444dce539b9a5aa61b9d15feae1
       '@typescript-eslint/parser': 4.26.0_eslint@7.28.0+typescript@4.3.2
       '@vuedx/monorepo-tools': link:packages/monorepo-tools
+      '@vuedx/typescript-plugin-vue': link:packages/typescript-plugin-vue
       builtin-modules: 3.1.0
       doctrine: 3.0.0
       eslint: 7.28.0
@@ -340,6 +342,14 @@ importers:
       '@vuedx/typescript-plugin-vue': link:../typescript-plugin-vue
     devDependencies:
       typescript: 4.3.2
+
+  packages/vue-as-tsx:
+    specifiers:
+      '@vuedx/compiler-sfc': link:../compiler-sfc
+      vscode-languageserver-textdocument: ^1.0.1
+    dependencies:
+      '@vuedx/compiler-sfc': link:../compiler-sfc
+      vscode-languageserver-textdocument: 1.0.1
 
   packages/vue-virtual-textdocument:
     specifiers:

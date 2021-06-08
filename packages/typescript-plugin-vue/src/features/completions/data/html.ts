@@ -1,5 +1,5 @@
 import type { TS } from '../../../interfaces'
-import data from 'vscode-web-custom-data/data/browsers.html-data.json'
+import * as data from 'vscode-web-custom-data/data/browsers.html-data.json'
 
 const enum TagOrder {
   LocalComponent = '0',

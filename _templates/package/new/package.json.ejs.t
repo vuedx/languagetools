@@ -7,14 +7,14 @@ to: packages/<%= name %>/package.json
   "version": "0.0.0",
   "displayName": "<%= h.changeCase.sentence(name) %>",
   "description": "<%= locals.description %>",
-  "main": "src/index.ts",
+  "main": "lib/index.js",
   "module": "lib/index.mjs",
+  "types": "src/index.ts",
   "exports": {
     "require": "./lib/index.js",
     "import": "./lib/index.mjs"
   },
   "publishConfig": {
-    "main": "lib/index.js",
     "types": "lib/index.d.ts"
   },
   "buildConfig": {

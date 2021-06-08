@@ -4,14 +4,14 @@
   "version": "0.0.0",
   "displayName": "Monorepo tools",
   "description": "Utility functions for monorepo management",
-  "main": "src/index.ts",
+  "main": "lib/index.js",
   "module": "lib/index.mjs",
+  "types": "src/index.ts",
   "exports": {
     "require": "./lib/index.js",
     "import": "./lib/index.mjs"
   },
   "publishConfig": {
-    "main": "lib/index.js",
     "types": "lib/index.d.ts"
   },
   "buildConfig": {

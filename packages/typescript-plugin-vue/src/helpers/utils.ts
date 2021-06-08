@@ -23,7 +23,7 @@ import {
   VirtualTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
-import Path from 'path'
+import * as Path from 'path'
 import QuickLRU from 'quick-lru'
 import { ORIGINAL_LANGUAGE_SERVER } from '../constants'
 import type { PluginContext } from '../context'
@@ -370,11 +370,11 @@ export function computeIdentifierReplacement(
   const RE = new RegExp(`\\b${identifer}\\b`)
   const match = RE.exec(source)
 
-  if (match == null) return { prefixText: source, suffixText: '' }
+  if (match?.[0] == null) return { prefixText: source, suffixText: '' }
 
   return {
     prefixText: source.substr(0, match.index),
-    suffixText: source.substr(match.index + match[0]!.length),
+    suffixText: source.substr(match.index + match[0].length),
   }
 }
 
@@ -382,7 +382,7 @@ export function getPaddingLength(source: string, offset: number = 0): number {
   source = source.substr(offset)
   const match = /^[\s\r\n]+/m.exec(source)
 
-  return match != null ? match[0]!.length : 0
+  return match?.[0] != null ? match[0].length : 0
 }
 
 export function getFilenameForNewComponent(

@@ -1,6 +1,6 @@
-import Path from 'path'
-import { findPositionOrThrowIn, toNormalizedPath } from 'test/support/helpers'
-import { TestServer } from 'test/support/TestServer'
+import * as Path from 'path'
+import { findPositionOrThrowIn, toNormalizedPath } from '../support/helpers'
+import { TestServer } from '../support/TestServer'
 
 let server: TestServer
 beforeAll(async () => {

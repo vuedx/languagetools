@@ -1,6 +1,6 @@
 import generate from '@babel/generator'
 import traverse, { NodePath } from '@babel/traverse'
-import t, {
+import {
   cloneNode,
   isExportSpecifier,
   isIdentifier,
@@ -8,6 +8,7 @@ import t, {
   isTSTypeAliasDeclaration,
   traverseFast,
 } from '@babel/types'
+import type * as t from '@babel/types'
 import type { ImportSource } from '../component'
 import type { Context, ScriptAnalyzerContext } from '../types'
 
@@ -70,7 +71,7 @@ export function getTypeAnnotation(
       if (isIdentifier(node) && !knownImports.has(node.name)) {
         const identifier = identifiers[node.name]
         if (identifier != null) {
-          if (identifier.length === 1) {
+          if (identifier[0] != null) {
             node.name = `(${identifier[0]})`
           } else if (identifier.length > 1) {
             node.name = `(${identifier.map((id) => `(${id})`).join(' & ')})`
@@ -98,7 +99,7 @@ export function stringifyBabelNode(node: t.Node): string {
 
 function getIdentifierSource(
   name$: NodePath<t.Identifier>,
-  context: Context| ScriptAnalyzerContext,
+  context: Context | ScriptAnalyzerContext,
 ): Array<ImportSource | string> {
   const name = name$.node.name
   const binding = name$.scope.getBinding(name)

@@ -23,7 +23,7 @@ import {
   isInterpolationNode,
   isSimpleExpressionNode,
 } from '@vuedx/template-ast-types'
-import Path from 'path'
+import * as Path from 'path'
 import { parserOptions } from './parserOptions'
 import { withScope } from './scope'
 import {

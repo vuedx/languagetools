@@ -1,16 +1,16 @@
-import Path from 'path'
-import Fs from 'fs'
+import * as Path from 'path'
+import * as FS from 'fs'
 import { ChildProcess, fork } from 'child_process'
-import { Readable, Writable } from 'stream'
+import type { Readable, Writable } from 'stream'
 import { createInterface, Interface } from 'readline'
-import Proto from 'typescript/lib/protocol'
+import type * as Proto from 'typescript/lib/protocol'
 import { inspect } from 'util'
 
 function abs(fileName: string): string {
   return Path.resolve(__dirname, fileName)
 }
 
-const isDebugMode = process.env.DEBUG_TESTS != null
+const isDebugMode = process.env['DEBUG_TESTS'] != null
 function debug(...args: any[]): void {
   if (isDebugMode) {
     console.debug(...args)
@@ -24,18 +24,14 @@ export class TestServer {
   }
 
   private readonly voidCommands: Proto.CommandTypes[] = [
-    Proto.CommandTypes.Open,
-    Proto.CommandTypes.Geterr,
+    'open' as Proto.CommandTypes.Open,
+    'geterr' as Proto.CommandTypes.Geterr,
   ]
 
   public readonly id = TestServer.getNextId()
   public readonly workingDir = abs('../../')
   public readonly serverPath = abs(
     '../../node_modules/typescript/lib/tsserver.js',
-  )
-
-  public readonly pluginPath = abs(
-    '../../packages/typescript-plugin-vue/dist/index.js',
   )
 
   public readonly logPath = abs(`../output/tsserver.${this.id}.log`)
@@ -67,15 +63,15 @@ export class TestServer {
     this.server = fork(this.serverPath, [
       '--logVerbosity', 'verbose',
       '--logFile', this.logPath,
-      '--globalPlugins', this.pluginPath,
-      '--pluginProbeLocations', this.workingDir,
+      '--globalPlugins', '@vuedx/typescript-plugin-vue',
+      '--pluginProbeLocations', `${this.workingDir}`,
       '--allowLocalPluginLoads'
     ], {
       cwd: this.workingDir,
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
       execArgv: 
-        process.env.INSPECT != null ? ['--inspect'] :
-        process.env.INSPECT_BRK != null ? ['--inspect-brk=9229'] :
+        process.env['INSPECT'] != null ? ['--inspect'] :
+        process.env['INSPECT_BRK'] != null ? ['--inspect-brk=9229'] :
         []
     });
 
@@ -195,6 +191,8 @@ export class TestServer {
         this.responseHandlers.set(id, (response) => resolve(response))
       })
     }
+
+    return undefined
   }
 
   public sendEvent(event: Omit<Proto.Request, 'seq' | 'type'>): void {
@@ -210,7 +208,7 @@ export class TestServer {
 
   private cleanup(): void {
     try {
-      Fs.unlinkSync(abs(`../output/ti-${this.server.pid}.log`))
+      FS.unlinkSync(abs(`../output/ti-${this.server.pid}.log`))
     } catch {}
   }
 

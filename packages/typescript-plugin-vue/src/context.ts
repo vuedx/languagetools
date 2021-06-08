@@ -19,13 +19,13 @@ import {
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import JSON5 from 'json5'
-import Path from 'path'
+import * as Path from 'path'
 import { traceFn, wrapFn } from './helpers/logger'
 import { tryPatchMethod } from './helpers/patcher'
 import type { PluginConfig, TS } from './interfaces'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-declare var __non_webpack_require__: any
+declare let __non_webpack_require__: any
 
 const requireModule = (typeof __non_webpack_require__ !== 'undefined'
   ? __non_webpack_require__
@@ -121,7 +121,7 @@ export class PluginContext {
           message += messages
         } else {
           for (let i = 0; i < messages.length; ++i) {
-            message += messages[i]
+            message = `${message}${messages[i] ?? ''}`
             if (i < args.length) {
               message += JSON.stringify(args[i], null, 2)
             }
@@ -848,7 +848,7 @@ function patchModuleResolution(
                     JSON.stringify(
                       moduleNames.map(
                         (name, index) =>
-                          `${name} => ${newModuleNames[index]} => ${
+                          `${name} => ${newModuleNames[index] ?? '?'} => ${
                             result[index]?.resolvedFileName ?? '?'
                           }`,
                       ),

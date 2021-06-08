@@ -1,5 +1,6 @@
 import traverse, { NodePath } from '@babel/traverse'
-import t, { isStringLiteral } from '@babel/types'
+import type * as t from '@babel/types'
+import { isStringLiteral } from '@babel/types'
 import type { ImportSource, TypeInfo } from '../component'
 import { Context, createPlugin, ScriptAnalyzerContext } from '../types'
 import { createSourceRange } from '../utilities'
@@ -171,8 +172,6 @@ function getTypeInfo(
     const imports: ImportSource[] = []
     const types = params$.map((param$, index) => {
       let type = 'any'
-      if ('sourceFile' in context && context.sourceFile != null) {
-      }
       const name =
         inFunctionParams && param$.isIdentifier()
           ? param$.node.name

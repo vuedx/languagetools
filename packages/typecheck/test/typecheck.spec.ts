@@ -1,5 +1,5 @@
 import { fork } from 'child_process'
-import Path from 'path'
+import * as Path from 'path'
 
 describe('typecheck', () => {
   const TIMEOUT = 30000

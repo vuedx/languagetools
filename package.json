@@ -34,6 +34,7 @@
     "@typescript-eslint/eslint-plugin": "^4.26.0",
     "@typescript-eslint/parser": "^4.26.0",
     "@vuedx/monorepo-tools": "workspace:*",
+    "@vuedx/typescript-plugin-vue": "link:packages/typescript-plugin-vue",
     "builtin-modules": "^3.1.0",
     "doctrine": "^3.0.0",
     "eslint": "^7.28.0",

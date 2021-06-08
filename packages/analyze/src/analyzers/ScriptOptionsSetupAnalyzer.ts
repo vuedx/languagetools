@@ -1,4 +1,5 @@
-import t, {
+import type * as t from '@babel/types'
+import {
   isBlockStatement,
   isIdentifier,
   isObjectExpression,

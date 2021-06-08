@@ -12,14 +12,14 @@ import {
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import glob from 'fast-glob'
-import FS from 'fs'
+import * as FS from 'fs'
 import { injectable } from 'inversify'
-import Path from 'path'
+import * as Path from 'path'
 import vscode, { TextDocument } from 'vscode'
 import { Installable } from '../utils/installable'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-declare var __non_webpack_require__: any
+declare let __non_webpack_require__: any
 
 const requireModule = (typeof __non_webpack_require__ !== 'undefined'
   ? __non_webpack_require__

@@ -1,4 +1,3 @@
-/// <reference path="../../global.d.ts" />
 import type { ComponentRegistrationInfo, TypeInfo } from '@vuedx/analyze'
 import {
   camelCase,
@@ -32,7 +31,7 @@ import {
   MODULE_SELECTOR,
   RenderFunctionTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
-import Path from 'path'
+import * as Path from 'path'
 import { getScriptFileName } from '../../helpers/utils'
 import type { TS } from '../../interfaces'
 import type { LanguageServiceOptions } from '../../types'
@@ -44,13 +43,14 @@ import {
   HTML_ELEMENTS,
   HTML_ELEMENTS_BY_NAME,
   isHTMLTag,
+  isSVGTag,
 } from './data/html'
 
 function stringifyTypeInfo(typeInfo: TypeInfo[]): string {
   if (typeInfo.length === 0) {
     return 'never'
-  } else if (typeInfo.length === 1) {
-    const info = typeInfo[0]!
+  } else if (typeInfo.length === 1 && typeInfo[0] != null) {
+    const info = typeInfo[0]
     switch (info.kind) {
       case 'string':
       case 'number':
@@ -424,7 +424,12 @@ export class HTMLService {
       }
     }
 
-    HTML_ELEMENTS.forEach((element) => add({ ...element }))
+    HTML_ELEMENTS.forEach((element) => {
+      // FIX: Add svg back later.
+      if (isSVGTag(element.name)) {
+        add({ ...element })
+      }
+    })
 
     project.globalComponents.forEach((component) =>
       addHandlingSource({

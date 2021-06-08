@@ -1,11 +1,15 @@
 {
   "name": "@vuedx/vue-virtual-textdocument",
   "version": "0.6.3",
-  "description": "",
-  "main": "src/index.ts",
+  "description": "A virtual filesystem to access blocks in SFC as files",
+  "main": "lib/index.js",
   "module": "lib/index.mjs",
+  "types": "src/index.ts",
+  "exports": {
+    "require": "./lib/index.js",
+    "import": "./lib/index.mjs"
+  },
   "publishConfig": {
-    "main": "lib/index.js",
     "types": "lib/index.d.ts"
   },
   "files": [

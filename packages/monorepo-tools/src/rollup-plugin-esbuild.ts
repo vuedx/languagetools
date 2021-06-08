@@ -1,6 +1,3 @@
-import { build, BuildOptions, PartialMessage, version } from 'esbuild'
-import Path from 'path'
-import resolveModule from 'resolve'
 import type {
   ExternalOption,
   ModuleFormat,
@@ -8,6 +5,10 @@ import type {
   OutputOptions,
   Plugin,
 } from 'rollup'
+
+import { build, BuildOptions, PartialMessage, version } from 'esbuild'
+import * as Path from 'path'
+import resolveModule from 'resolve'
 
 export function esbuild(
   config: boolean | BuildOptions,
@@ -55,6 +56,7 @@ export function esbuild(
         throw new Error(`'bundle' is supported only for 'file' output`)
       }
 
+      const fileName = options.file
       const key = Path.basename(options.file)
       const file = bundle[key]
 
@@ -163,13 +165,12 @@ export function esbuild(
                 }
               : undefined,
         })
-        result.outputFiles
       })
 
       result.outputFiles.forEach((outFile) => {
         if (outFile.path === options.file) {
           file.code = outFile.text
-        } else if (outFile.path === options.file + '.map') {
+        } else if (outFile.path === `${fileName}.map`) {
           file.map = {
             ...JSON.parse(outFile.text),
             toString() {

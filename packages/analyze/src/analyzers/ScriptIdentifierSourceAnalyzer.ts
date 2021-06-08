@@ -1,4 +1,4 @@
-import T from '@babel/types'
+import * as T from '@babel/types'
 import { createPlugin, ScriptAnalyzerContext } from '../types'
 import { createSourceRange } from '../utilities'
 
@@ -140,6 +140,6 @@ function getReturnExpression(
   } else if (T.isExpression(node.body)) {
     return node.body
   }
-  
+
   return undefined
 }

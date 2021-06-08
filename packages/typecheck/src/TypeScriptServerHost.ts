@@ -1,9 +1,9 @@
 import { ChildProcess, fork } from 'child_process'
-import Path from 'path'
+import * as Path from 'path'
 import { createInterface, Interface } from 'readline'
-import type { Readable, Writable } from 'stream'
-import type Proto from 'typescript/lib/protocol'
 import resolveFrom from 'resolve-from'
+import type { Readable, Writable } from 'stream'
+import type * as Proto from 'typescript/lib/protocol'
 
 function resolve(moduleId: string, directory: string): string {
   try {

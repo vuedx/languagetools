@@ -1,10 +1,10 @@
-import Path from 'path'
+import * as Path from 'path'
 import {
   findPositionIn,
   findPositionOrThrowIn,
   toNormalizedPath,
-} from 'test/support/helpers'
-import { TestServer } from 'test/support/TestServer'
+} from '../support/helpers'
+import { TestServer } from '../support/TestServer'
 
 describe('goto-definition', () => {
   const projectPath = toNormalizedPath(

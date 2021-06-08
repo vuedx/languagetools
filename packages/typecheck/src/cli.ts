@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import FS, { promises as FSP } from 'fs'
 import parseArgs from 'minimist'
 import { collect, collectError } from '@vuedx/shared'
-import Path from 'path'
+import * as Path from 'path'
 import readline from 'readline'
 import TS from 'typescript/lib/tsserverlibrary'
 import { Position, TextDocument } from 'vscode-languageserver-textdocument'
@@ -208,7 +208,9 @@ Options
 
   if (!FS.statSync(directory).isDirectory()) {
     console.error(
-      `Expecting a directory, but "${process.argv[2]}" is not a directory.`,
+      `Expecting a directory, but "${
+        process.argv[2] ?? ''
+      }" is not a directory.`,
     )
     process.exit(1)
   }

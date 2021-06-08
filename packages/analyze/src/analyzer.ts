@@ -1,6 +1,6 @@
 import type { SFCBlock, SFCParseOptions } from '@vuedx/compiler-sfc'
 import { parse } from '@vuedx/compiler-sfc'
-import Path from 'path'
+import * as Path from 'path'
 import type { ComponentInfo } from './component'
 import { createComponentInfoFactory } from './component'
 import type { Context, Plugin } from './types'

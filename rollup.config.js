@@ -9,6 +9,13 @@ const configs = [
   generateRollupOptions({
     extend(kind, { rollupOptions, tsconfig, packageJson, packageRoot }) {
       if (kind === 'dts') {
+        if (packageJson.name === '@vuedx/compiler-sfc') {
+          rollupOptions.onwarn = (warning, warn) => {
+            if (warning.code === 'UNUSED_EXTERNAL_IMPORT') return // Some imports are left unused after rewriting cjs to esm
+            warn(warning)
+          }
+        }
+
         return rollupOptions
       }
 

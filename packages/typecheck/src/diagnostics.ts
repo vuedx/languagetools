@@ -1,10 +1,11 @@
-import glob from 'fast-glob'
-import Path from 'path'
-import FS from 'fs'
-import type ts from 'typescript/lib/tsserverlibrary'
-import TS from 'typescript/lib/tsserverlibrary'
-import { TypeScriptServerHost } from './TypeScriptServerHost'
+import type * as ts from 'typescript/lib/tsserverlibrary'
+
 import { flatten } from '@vuedx/shared'
+import glob from 'fast-glob'
+import * as FS from 'fs'
+import * as Path from 'path'
+import * as TS from 'typescript/lib/tsserverlibrary'
+import { TypeScriptServerHost } from './TypeScriptServerHost'
 
 function toNormalizedPath(fileName: string): string {
   return TS.server.toNormalizedPath(fileName)
@@ -92,9 +93,9 @@ export async function* getDiagnostics(
     const start = Date.now()
     if (logging) console.log(`Checking...`)
     const id =
-      useProject && files.length > 0
+      useProject && files[0] != null
         ? await host.sendCommand('geterrForProject', {
-            file: files[0]!,
+            file: files[0],
             delay: 1,
           })
         : await host.sendCommand('geterr', { files, delay: 1 })
@@ -145,14 +146,14 @@ export async function* getDiagnostics(
           !fileName.includes('/node_modules/') && !fileName.endsWith('.json'),
       ) ?? []
 
-    if (files.length > 0) {
+    if (files[0] != null) {
       await host.sendCommand('updateOpen', {
         closedFiles: [toNormalizedPath(configFile)],
       })
       await host.sendCommand('updateOpen', {
         openFiles: [
           {
-            file: toNormalizedPath(files[0]!),
+            file: toNormalizedPath(files[0]),
             projectFileName: toNormalizedPath(configFile),
           },
         ],

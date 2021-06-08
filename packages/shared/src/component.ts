@@ -1,4 +1,4 @@
-import Path from 'path'
+import * as Path from 'path'
 import { isKebabCase, kebabCase, pascalCase } from './string'
 
 export function getComponentName(fileName: string): string {

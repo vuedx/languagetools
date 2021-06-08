@@ -1,10 +1,10 @@
-import _FS from 'fs'
+import * as _FS from 'fs'
 import {
   asFsPath,
   asFsUri,
 } from '../../packages/vue-virtual-textdocument/src/utils'
-import Path from 'path'
-import { CodeEdit, Location, TextSpan } from 'typescript/lib/protocol'
+import * as Path from 'path'
+import type { CodeEdit, Location, TextSpan } from 'typescript/lib/protocol'
 import {
   Position,
   TextDocument,
@@ -66,6 +66,8 @@ export async function findPositionIn(
       ...loc,
     }
   }
+
+  return undefined
 }
 
 function toLoc(position: Position): Location {

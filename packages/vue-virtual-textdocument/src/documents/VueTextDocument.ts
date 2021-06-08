@@ -13,7 +13,7 @@ import {
 } from '@vuedx/compiler-sfc'
 import { CodegenResult, compile, ComponentImport } from '@vuedx/compiler-tsx'
 import { getComponentName, isNotNull, isNumber, isString } from '@vuedx/shared'
-import Path from 'path'
+import * as Path from 'path'
 import {
   Position as SourceMapPosition,
   RawSourceMap,

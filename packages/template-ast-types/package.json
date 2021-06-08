@@ -2,10 +2,14 @@
   "name": "@vuedx/template-ast-types",
   "version": "0.6.2",
   "description": "Helper functions for Vue template AST",
-  "main": "src/index.ts",
+  "main": "lib/index.js",
   "module": "lib/index.mjs",
+  "types": "src/index.ts",
+  "exports": {
+    "require": "./lib/index.js",
+    "import": "./lib/index.mjs"
+  },
   "publishConfig": {
-    "main": "lib/index.js",
     "types": "lib/index.d.ts"
   },
   "files": [
