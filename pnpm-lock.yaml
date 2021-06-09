@@ -35,7 +35,7 @@ importers:
       eslint-plugin-prettier: ^3.4.0
       eslint-plugin-promise: ^5.1.0
       fast-glob: ^3.2.4
-      husky: ^4.3.0
+      husky: ^6.0.0
       hygen: ^6.1.0
       jest: ^26.5.3
       jest-expect-message: ^1.0.2
@@ -77,7 +77,7 @@ importers:
       eslint-plugin-prettier: 3.4.0_e05b57e2e1706c35022300aa1118671d
       eslint-plugin-promise: 5.1.0_eslint@7.28.0
       fast-glob: 3.2.4
-      husky: 4.3.0
+      husky: 6.0.0
       hygen: 6.1.0
       jest: 26.5.3
       jest-expect-message: 1.0.2
@@ -3378,13 +3378,6 @@ packages:
     resolution: { integrity: sha1-3dgA2gxmEnOTzKWVDqloo6rxJTs= }
     dev: true
 
-  /compare-versions/3.6.0:
-    resolution:
-      {
-        integrity: sha512-W6Af2Iw1z4CB7q4uU4hv646dW9GQuBM+YpC0UvUCWSD8w90SJjp+ujJuXaEMtAXBtSqGfMPuFOVn4/+FlaqfBA==,
-      }
-    dev: true
-
   /component-emitter/1.3.0:
     resolution:
       {
@@ -4809,16 +4802,6 @@ packages:
       path-exists: 4.0.0
     dev: true
 
-  /find-versions/3.2.0:
-    resolution:
-      {
-        integrity: sha512-P8WRou2S+oe222TOCHitLy8zj+SIsVJh52VP4lvXkaFVnOFFdoWv1H1Jjvel1aI6NCFOAaeAVm8qrI0odiLcww==,
-      }
-    engines: { node: '>=6' }
-    dependencies:
-      semver-regex: 2.0.0
-    dev: true
-
   /find-yarn-workspace-root2/1.2.16:
     resolution:
       {
@@ -5462,25 +5445,12 @@ packages:
     engines: { node: '>=10.17.0' }
     dev: true
 
-  /husky/4.3.0:
+  /husky/6.0.0:
     resolution:
       {
-        integrity: sha512-tTMeLCLqSBqnflBZnlVDhpaIMucSGaYyX6855jM4AguGeWCeSzNdb1mfyWduTZ3pe3SJVvVWGL0jO1iKZVPfTA==,
+        integrity: sha512-SQS2gDTB7tBN486QSoKPKQItZw97BMOd+Kdb6ghfpBc0yXyzrddI0oDV5MkDAbuB4X2mO3/nj60TRMcYxwzZeQ==,
       }
-    engines: { node: '>=10' }
     hasBin: true
-    requiresBuild: true
-    dependencies:
-      chalk: 4.1.0
-      ci-info: 2.0.0
-      compare-versions: 3.6.0
-      cosmiconfig: 7.0.0
-      find-versions: 3.2.0
-      opencollective-postinstall: 2.0.3
-      pkg-dir: 4.2.0
-      please-upgrade-node: 3.2.0
-      slash: 3.0.0
-      which-pm-runs: 1.0.0
     dev: true
 
   /hygen/6.1.0:
@@ -7858,14 +7828,6 @@ packages:
       mimic-fn: 2.1.0
     dev: true
 
-  /opencollective-postinstall/2.0.3:
-    resolution:
-      {
-        integrity: sha512-8AV/sCtuzUeTo8gQK5qDZzARrulB3egtLzFgteqB2tcT4Mw7B8Kt7JcDHmltjz6FOAHsvTevk70gZEbhM4ZS9Q==,
-      }
-    hasBin: true
-    dev: true
-
   /optionator/0.8.3:
     resolution:
       {
@@ -9080,14 +9042,6 @@ packages:
 
   /semver-compare/1.0.0:
     resolution: { integrity: sha1-De4hahyUGrN+nvsXiPavxf9VN/w= }
-    dev: true
-
-  /semver-regex/2.0.0:
-    resolution:
-      {
-        integrity: sha512-mUdIBBvdn0PLOeP3TEkMH7HHeUP3GjsXCwKarjv/kGmUFOYg1VqEemKhoQpWMu6X2I8kHeuVdGibLGkVK+/5Qw==,
-      }
-    engines: { node: '>=6' }
     dev: true
 
   /semver/5.7.1:
@@ -10530,10 +10484,6 @@ packages:
 
   /which-module/2.0.0:
     resolution: { integrity: sha1-2e8H3Od7mQK4o6j6SzHD4/fm6Ho= }
-
-  /which-pm-runs/1.0.0:
-    resolution: { integrity: sha1-Zws6+8VS4LVd9rd4DKdGFfI60cs= }
-    dev: true
 
   /which-pm/2.0.0:
     resolution:

@@ -6,5 +6,8 @@ if (process.env['CI'] == null) {
     cwd: resolve(process.cwd(), 'samples'),
     stdio: 'inherit',
   })
-  execSync(`pnpm recursive --filter @vuedx/monorepo-tools run build`)
+  execSync(`pnpm recursive --filter @vuedx/monorepo-tools run build`, {
+    stdio: 'inherit',
+  })
+  execSync(`$(pnpm bin)/husky install`, { stdio: 'inherit' })
 }

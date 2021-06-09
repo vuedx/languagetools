@@ -46,7 +46,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-promise": "^5.1.0",
     "fast-glob": "^3.2.4",
-    "husky": "^4.3.0",
+    "husky": "^6.0.0",
     "hygen": "^6.1.0",
     "jest": "^26.5.3",
     "jest-expect-message": "^1.0.2",
@@ -63,11 +63,6 @@
     "typescript": "^4.3.2",
     "vscode-languageserver-textdocument": "^1.0.1",
     "vscode-uri": "^2.1.2"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "pnpm": {
     "overrides": {
