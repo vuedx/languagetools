@@ -104,6 +104,9 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - *pnpm
       - *download
+      - run: |
+          cd samples
+          pnpm install --frozen-lockfile --silent
       - name: Test
         run: pnpm ${{ matrix.command || 'test' }}
       - name: Collect coverage

@@ -110,6 +110,9 @@ jobs:
         with:
           name: build-artefact
           path: .
+      - run: |
+          cd samples
+          pnpm install --frozen-lockfile --silent
       - name: Test
         run: pnpm ${{ matrix.command || 'test' }}
       - name: Collect coverage
