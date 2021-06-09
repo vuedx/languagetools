@@ -15,7 +15,7 @@ import {
   CodegenResult,
   compile,
   ComponentImport,
-  getIdentifiers,
+  getTopLevelIdentifiers,
 } from '@vuedx/compiler-tsx'
 import { getComponentName, isNotNull, isNumber, isString } from '@vuedx/shared'
 import * as Path from 'path'
@@ -410,26 +410,22 @@ function createScriptSetupTextDocument(
       const { scriptSetup } = document.container.descriptor
       if (scriptSetup == null) return { code: '' }
 
-      // TODO: Transform
-      // TODO: Remove this hack and put a proper transform.
-      const RE_DEFINE_PROPS = /(?:const|let)\s+([^\s]+)[\s\r\n]*=[\s\r\n]*defineProps/
-      const RE_DEFINE_EMIT = /(?:const|let)\s+([^\s]+)[\s\r\n]*=[\s\r\n]*defineEmit/
-      const props = RE_DEFINE_PROPS.exec(scriptSetup.content)
-      const emit = RE_DEFINE_EMIT.exec(scriptSetup.content)
-      const identifiers = getIdentifiers(scriptSetup.content, true)
+      const {
+        identifiers,
+        propsIdentifier,
+        emitIdentifier,
+      } = getTopLevelIdentifiers(scriptSetup.content, ['vue'])
 
-      if (props?.[1] != null) {
-        identifiers.delete(props[1].trim())
+      if (propsIdentifier != null) {
+        identifiers.delete(propsIdentifier)
       }
 
-      if (emit?.[1] != null) {
-        identifiers.delete(emit[1].trim())
+      if (emitIdentifier != null) {
+        identifiers.delete(emitIdentifier)
       }
 
-      identifiers.delete('defineEmit')
-      identifiers.delete('defineProps')
-
-      const propType = props?.[1] != null ? `typeof ${props[1]}` : '{}'
+      const propType =
+        propsIdentifier != null ? `typeof ${propsIdentifier}` : '{}'
       return {
         code: [
           scriptSetup.content,

@@ -37,7 +37,7 @@ import { createInterpolationTransform } from './transforms/transformInterpolatio
 import type { CodegenResult, ComponentImport, Options } from './types'
 
 export * from './types'
-export { getIdentifiers } from './scope'
+export { getTopLevelIdentifiers } from './scope'
 
 function clone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj))
@@ -164,9 +164,9 @@ export function compile(
           push(
             [
               `type I<T> = T`,
-              `interface ${getComponentName(
+              `type ${getComponentName(
                 options.filename,
-              )} extends I<InstanceType<typeof _Ctx>> {}`,
+              )} = I<InstanceType<typeof _Ctx>>`,
               hasVFor
                 ? `import { _renderList } from '__vuedx_runtime__render__'`
                 : null,

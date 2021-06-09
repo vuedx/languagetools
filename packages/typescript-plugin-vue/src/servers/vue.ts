@@ -174,26 +174,25 @@ export function createVueLanguageServer(
               ),
             )
 
-            if (scriptSetupDoc.selector.type === SCRIPT_SETUP_BLOCK_SELECTOR) {
-              const index = scriptSetupDoc
-                .getText()
-                .indexOf('@@vuedx:script-setup-export')
-              if (index >= 0) {
-                return results.map((item) => {
-                  if (item.fileName === scriptSetupDoc.fsPath) {
-                    return {
-                      ...item,
-                      textChanges: item.textChanges.filter((change) => {
-                        return (
-                          change.span.start < index &&
-                          !change.newText.includes('_VueDX_defineComponent')
-                        )
-                      }),
-                    }
+            const index = scriptSetupDoc
+              .getText()
+              .indexOf('/*@@vuedx:script-setup-export*/')
+
+            if (index >= 0) {
+              return results.map((item) => {
+                if (item.fileName === scriptSetupDoc.fsPath) {
+                  return {
+                    ...item,
+                    textChanges: item.textChanges.filter((change) => {
+                      return (
+                        change.span.start < index &&
+                        !change.newText.includes('_VueDX_defineComponent')
+                      )
+                    }),
                   }
-                  return item
-                })
-              }
+                }
+                return item
+              })
             }
 
             return results

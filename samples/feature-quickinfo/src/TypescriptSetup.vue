@@ -2,11 +2,7 @@
 import { computed, defineProps, ref, defineComponent } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
 
-const props = defineProps({
-  name: String,
-  email: { type: String },
-  code: [String, Number],
-})
+const props = defineProps<{ name: string, email: string, code: string | number }>()
 
 const fullname = ref('')
 const altCode: number = 1

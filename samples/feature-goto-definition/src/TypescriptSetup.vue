@@ -2,11 +2,7 @@
 import { ref, computed, defineProps } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
 
-const props = defineProps({
-  name: { type: String },
-  email: { type: String, required: true },
-  code: { type: Number },
-})
+const props = defineProps<{ name?: string, email: string, code?: number}>()
 
 const one = ref(1)
 const two = computed(() => one.value * 2)
