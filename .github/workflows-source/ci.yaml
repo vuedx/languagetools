@@ -156,7 +156,7 @@ jobs:
           title: 'Insiders Build'
           files: |
             extension/CHANGELOG.md
-            extension/preview.vsix
+            extensions/*/*.vsix
             packages/*/CHANGELOG.md
 
   check_release:
@@ -194,8 +194,8 @@ jobs:
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
           automatic_release_tag: 'latest'
-          prerelease: true
+          prerelease: false
           files: |
             extensions/*/CHANGELOG.md
-            extension/*/*.vsix
+            extensions/*/*.vsix
             packages/*/CHANGELOG.md
