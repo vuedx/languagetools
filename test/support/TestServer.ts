@@ -17,6 +17,13 @@ function debug(...args: any[]): void {
   }
 }
 
+const inspectOptions = {
+  maxArrayLength: Infinity,
+  showHidden: false,
+  depth: Infinity,
+  colors: true,
+  breakLength: 120,
+}
 export class TestServer {
   private static _instanceId = 0
   private static getNextId(): number {
@@ -117,9 +124,7 @@ export class TestServer {
           debug(
             `${this.id}: >> ${payload.type} (${payload.request_seq}) ${inspect(
               payload,
-              false,
-              999,
-              true,
+              inspectOptions,
             )}\n`,
           )
           this.responses.push(payload)
@@ -130,9 +135,7 @@ export class TestServer {
           debug(
             `${this.id}: >> ${payload.type} (${payload.seq}) ${inspect(
               payload,
-              false,
-              999,
-              true,
+              inspectOptions,
             )}\n`,
           )
           this.requests.push(payload)
@@ -140,9 +143,7 @@ export class TestServer {
           debug(
             `${this.id}: >> ${payload.type} ${inspect(
               payload,
-              false,
-              999,
-              true,
+              inspectOptions,
             )}\n`,
           )
           this.onEvent(payload)
@@ -170,9 +171,7 @@ export class TestServer {
     debug(
       `${this.id}: << ${payload.type} (${payload.seq}) ${inspect(
         payload,
-        false,
-        999,
-        true,
+        inspectOptions,
       )}\n`,
     )
     this.stdin.write(JSON.stringify(payload) + '\n')

@@ -50,7 +50,7 @@ export async function activate(
 }
 
 function syncConfig(api: any, config: any): void {
-  api.configurePlugin('@vuedx/typescript-standalone', config)
+  api.configurePlugin('@vuedx/typescript-plugin-vue', config)
 }
 
 function getConfig(): any {

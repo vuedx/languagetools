@@ -1,4 +1,5 @@
 import commonjs from '@rollup/plugin-commonjs'
+import alias from '@rollup/plugin-alias'
 import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
 import typescript from '@rollup/plugin-typescript'
@@ -21,9 +22,21 @@ const configs = [
 
       const config = {
         ...rollupOptions,
+        external: [
+          ...rollupOptions.external.filter((id) => id !== '@vue/compiler-core'),
+          '@vue/compiler-core/dist/compiler-core.cjs.js',
+        ],
         plugins: [
           json(),
           define(),
+          alias({
+            entries: [
+              {
+                find: /^@vue\/compiler-core$/,
+                replacement: '@vue/compiler-core/dist/compiler-core.cjs.js',
+              },
+            ],
+          }),
           resolve({ preferBuiltins: true }),
           typescript({
             tsconfig: tsconfig ? tsconfig.configFile : undefined,
@@ -48,9 +61,21 @@ const configs = [
     extend(_kind, { rollupOptions, tsconfig }) {
       return {
         ...rollupOptions,
+        external: [
+          ...rollupOptions.external.filter((id) => id !== '@vue/compiler-core'),
+          '@vue/compiler-core/dist/compiler-core.cjs.js',
+        ],
         plugins: [
           json(),
           define(),
+          alias({
+            entries: [
+              {
+                find: /^@vue\/compiler-core$/,
+                replacement: '@vue/compiler-core/dist/compiler-core.cjs.js',
+              },
+            ],
+          }),
           resolve({ preferBuiltins: true }),
           typescript({
             tsconfig: tsconfig ? tsconfig.configFile : undefined,

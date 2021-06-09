@@ -38,9 +38,9 @@ describe('completions', () => {
 
   describe.each([
     'Javascript.vue',
-    // 'JavascriptSetup.vue',
-    // 'Typescript.vue',
-    // 'TypescriptSetup.vue',
+    'JavascriptSetup.vue',
+    'Typescript.vue',
+    'TypescriptSetup.vue',
   ])('in %s', (source) => {
     const file = abs(`src/${source}`)
 
@@ -73,7 +73,9 @@ describe('completions', () => {
       })
 
       expect(body?.entries.length).toBeGreaterThan(1)
-      expect(body?.entries).toContainEqual(
+      expect(
+        body?.entries.filter((entry) => entry.data != null),
+      ).toContainEqual(
         expect.objectContaining({
           name: 'MyWorld',
         }),

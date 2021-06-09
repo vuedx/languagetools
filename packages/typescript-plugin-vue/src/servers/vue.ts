@@ -153,16 +153,50 @@ export function createVueLanguageServer(
 
         const document = h.getVueDocument(scope.fileName)
         if (document != null) {
-          // TODO: Organize imports in both <script> and <script setup>
-          const virtual =
-            document.getDocument('script') ??
-            document.getDocument('scriptSetup')
-          if (virtual != null) {
-            return script.organizeImports(
-              { ...scope, fileName: virtual.fsPath },
-              formatOptions,
-              preferences,
+          const scriptSetupDoc = document.getDocument('scriptSetup')
+          const scriptDoc = document.getDocument('script')
+          const results = Array.from(
+            scriptDoc != null
+              ? script.organizeImports(
+                  { ...scope, fileName: scriptDoc.fsPath },
+                  formatOptions,
+                  preferences,
+                )
+              : [],
+          )
+
+          if (scriptSetupDoc != null) {
+            results.push(
+              ...script.organizeImports(
+                { ...scope, fileName: scriptSetupDoc.fsPath },
+                formatOptions,
+                preferences,
+              ),
             )
+
+            if (scriptSetupDoc.selector.type === SCRIPT_SETUP_BLOCK_SELECTOR) {
+              const index = scriptSetupDoc
+                .getText()
+                .indexOf('@@vuedx:script-setup-export')
+              if (index >= 0) {
+                return results.map((item) => {
+                  if (item.fileName === scriptSetupDoc.fsPath) {
+                    return {
+                      ...item,
+                      textChanges: item.textChanges.filter((change) => {
+                        return (
+                          change.span.start < index &&
+                          !change.newText.includes('_VueDX_defineComponent')
+                        )
+                      }),
+                    }
+                  }
+                  return item
+                })
+              }
+            }
+
+            return results
           }
         }
 

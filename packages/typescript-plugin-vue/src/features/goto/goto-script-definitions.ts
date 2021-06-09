@@ -2,7 +2,7 @@ import {
   findTemplateNodeAt,
   isAttributeNode,
   isElementNode,
-  isSimpleExpressionNode
+  isSimpleExpressionNode,
 } from '@vuedx/template-ast-types'
 import type { RenderFunctionTextDocument } from '@vuedx/vue-virtual-textdocument'
 import type { TS } from '../../interfaces'
@@ -39,18 +39,41 @@ export const GotoScriptDefinitions: GotoProvider = {
         }
 
         if (!document.isInGeneratedRange(definition.textSpan.start)) {
+          // FIXME: Not working for new script setup.
           const newResult = service.getDefinitionAndBoundSpan(
             definition.fileName,
             definition.textSpan.start,
           )
 
+          __DEV__ &&
+            context.debug(
+              `GOTO DEF: ${definition.fileName} -> ${JSON.stringify(
+                definition,
+              )} \n New Result: ${JSON.stringify(newResult, null, 2)}`,
+            )
           if (
             newResult != null &&
             Array.isArray(newResult.definitions) &&
             newResult.definitions.length > 0
           ) {
-            // TODO: Resolved contextSpan if `newResult` is resolved as return from setup()
-            definitions.push(...newResult.definitions)
+            newResult.definitions.forEach((definition) => {
+              // Resolve setup() property
+              if (definition.kind === 'property') {
+                const newResult = service.getDefinitionAndBoundSpan(
+                  definition.fileName,
+                  definition.textSpan.start,
+                )
+                if (newResult != null && Array.isArray(newResult.definitions)) {
+                  newResult.definitions.forEach((definition) => {
+                    definitions.push(definition)
+                  })
+                } else {
+                  definitions.push(definition)
+                }
+              } else {
+                definitions.push(definition)
+              }
+            })
           } else if (definition.kind === 'var') {
             const componentInfo = h.getComponentInfo(document.container)
             const prop = componentInfo.props.find(

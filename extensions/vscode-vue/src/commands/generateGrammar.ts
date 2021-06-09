@@ -1,5 +1,5 @@
-import type { ConfigurationService } from '../services/configuration'
-import type { DocumentService } from '../services/documents'
+import { ConfigurationService } from '../services/configuration'
+import { DocumentService } from '../services/documents'
 import { Installable } from '../utils/installable'
 import { isVueFile } from '@vuedx/vue-virtual-textdocument'
 import * as FS from 'fs'
@@ -15,9 +15,14 @@ export class GenerateGrammarCommand extends Installable {
   private readonly supported: Record<string, string> = {}
 
   public constructor(
+    @inject(ConfigurationService)
     private readonly configuration: ConfigurationService,
+
+    @inject(DocumentService)
     private readonly documents: DocumentService,
-    @inject('context') private readonly context: vscode.ExtensionContext,
+
+    @inject('context')
+    private readonly context: vscode.ExtensionContext,
   ) {
     super()
 

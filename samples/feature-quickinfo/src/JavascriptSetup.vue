@@ -1,17 +1,17 @@
 <script setup>
-import { computed, ref } from 'vue'
-export { default as HelloWorld } from './components/HelloWorld.vue'
+import { computed, defineProps, ref } from 'vue'
+import HelloWorld from './components/HelloWorld.vue'
 
-export default {
-  props: {
-    name: String,
-    email: { type: String },
-    code: [String, Number],
-  },
-}
 
-export const fullname = ref('')
-export const altCode = 1 + 0 // to prevent {altCode} from being infered as '1' instead of 'number'
+const props = defineProps({
+  name: String,
+  email: { type: String },
+  code: [String, Number],
+})
+
+
+const fullname = ref('')
+const altCode = 1 + 0 // to prevent {altCode} from being infered as '1' instead of 'number'
 </script>
 
 <template>

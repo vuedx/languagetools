@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="./augment-node.d.ts" />
 
 import { parse, parseExpression } from '@babel/parser'
@@ -6,6 +7,7 @@ import {
   File,
   Identifier,
   isFunction,
+  isFunctionDeclaration,
   isIdentifier,
   isMemberExpression,
   isOptionalMemberExpression,
@@ -101,10 +103,12 @@ export function withScope(ast: RootNode): RootNode {
                     localScope.getBinding(identifier)
                   })
 
-                  getIdentifiers(`${LHS} => {}`).forEach((identifier) => {
-                    scope.setBinding(identifier, node)
-                    localScope.getBinding(identifier)
-                  })
+                  getIdentifiers(`${LHS ?? '()'} => {}`).forEach(
+                    (identifier) => {
+                      scope.setBinding(identifier, node)
+                      localScope.getBinding(identifier)
+                    },
+                  )
                 }
               }
             }
@@ -117,7 +121,10 @@ export function withScope(ast: RootNode): RootNode {
   return ast
 }
 
-function getIdentifiers(source: string): Set<string> {
+/**
+ * @internal
+ */
+export function getIdentifiers(source: string, withTS = false): Set<string> {
   source = source
     .trim()
     // Common errors when user is typing.
@@ -127,12 +134,19 @@ function getIdentifiers(source: string): Set<string> {
 
   // TODO: Handle incomplete expressions
   try {
-    const ast = parseUsingBabel(source)
+    const ast = parseUsingBabel(source, withTS)
     const identifers = new Set<string>()
 
     traverseBabel(ast, (node, ancestors) => {
       if (isIdentifier(node)) {
         if (ancestors.length > 0) {
+          if (withTS) {
+            const parent = ancestors[ancestors.length - 1]
+            if (parent?.node != null && isFunctionDeclaration(parent?.node)) {
+              identifers.add(node.name)
+            }
+          }
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           if (shouldTrack(node, ancestors[ancestors.length - 1]!.node)) {
             identifers.add(node.name)
           }
@@ -148,16 +162,20 @@ function getIdentifiers(source: string): Set<string> {
   }
 }
 
-function parseUsingBabel(source: string): File | Expression {
+function parseUsingBabel(source: string, withTS = false): File | Expression {
   try {
     return parse(source, {
-      plugins: ['bigInt', 'optionalChaining'],
+      plugins: withTS
+        ? ['bigInt', 'optionalChaining', 'typescript']
+        : ['bigInt', 'optionalChaining'],
       // @ts-expect-error
       errorRecovery: true,
     })
   } catch {
     return parseExpression(source, {
-      plugins: ['bigInt', 'optionalChaining'],
+      plugins: withTS
+        ? ['bigInt', 'optionalChaining', 'typescript']
+        : ['bigInt', 'optionalChaining'],
       // @ts-expect-error
       errorRecovery: true,
     })

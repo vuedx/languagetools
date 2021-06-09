@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+import { defineProps } from 'vue'
+
 interface Event {
   id: number
 }
-
-declare const props: {
+const props = defineProps<{
   string?: string
   stringFull: string
   stringFullDefault: string
@@ -33,5 +34,5 @@ declare const props: {
   unionFull: string | number
   unionFullDefault: string | number
   optionalUnionFull?: string | number
-}
+}>()
 </script>

@@ -45,7 +45,10 @@ export const TemplateBlockAnalyzer = createPlugin({
                 try {
                   fn(ast, ctx)
                 } catch (error) {
-                  console.error(error)
+                  ctx.component.addError(
+                    error instanceof Error ? error.message : String(error),
+                    { column: 0, line: 0, offset: 0 },
+                  )
                 }
               }
             })

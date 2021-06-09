@@ -1,20 +1,17 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, defineProps, ref } from 'vue'
 import {} from 'vue'
-export { default as HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
-export default {
-  props: {
-    name: String,
-    email: { type: String },
-    code: [String, Number],
-  },
-}
+const props = defineProps({
+  name: String,
+  email: { type: String },
+  code: [String, Number],
+})
+const fullname = ref('')
+const altCode: number = 1
 
-export const fullname = ref('')
-export const altCode: number = 1
-
-export function increment() {}
+function increment() {}
 </script>
 
 <template>

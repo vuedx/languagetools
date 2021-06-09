@@ -254,7 +254,7 @@ export function getComponentsFromPackage(
         })
       })
     } catch (error) {
-      console.error(error)
+      // FIXME: Handle
     }
   } else if (pkg.vetur?.tags != null) {
     try {
@@ -278,7 +278,7 @@ export function getComponentsFromPackage(
         })
       })
     } catch (error) {
-      console.error(error)
+      // FIXME: Handle
     }
   }
 

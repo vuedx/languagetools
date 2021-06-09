@@ -1,12 +1,11 @@
 <script lang="ts" setup>
-import { defineComponent, PropType } from 'vue'
+import { defineProps, PropType } from 'vue'
 
 interface Event {
   id: number
 }
 
-export default defineComponent({
-  props: {
+const props = defineProps({
     string: String,
     stringFull: {
       type: String,
@@ -84,6 +83,5 @@ export default defineComponent({
     optionalUnionFull: {
       type: [String, Number],
     },
-  },
-})
+  })
 </script>

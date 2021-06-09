@@ -5,6 +5,7 @@ import {
   processIf,
   SimpleExpressionNode,
 } from '@vue/compiler-core'
+import { flatten } from '@vuedx/shared'
 import {
   createSimpleExpression,
   isSimpleExpressionNode,
@@ -41,19 +42,21 @@ export function createTransformIf(
           }
 
           const expressions = [
-            ...ifNode.branches.flatMap((branch) => {
-              hasElse = hasElse || branch.condition == null
+            ...flatten(
+              ifNode.branches.map((branch) => {
+                hasElse = hasElse || branch.condition == null
 
-              return branch.condition != null
-                ? [
-                    '(',
-                    branch.condition,
-                    ') ? (',
-                    ...normalizeChildren(branch.children),
-                    ') :',
-                  ]
-                : ['(', ...normalizeChildren(branch.children), ')']
-            }),
+                return branch.condition != null
+                  ? [
+                      '(',
+                      branch.condition,
+                      ') ? (',
+                      ...normalizeChildren(branch.children),
+                      ') :',
+                    ]
+                  : ['(', ...normalizeChildren(branch.children), ')']
+              }),
+            ),
             `${hasElse ? '' : 'null'}`,
           ]
 

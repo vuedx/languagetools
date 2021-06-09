@@ -141,6 +141,16 @@ function createLanguageServiceRouter(
   const proxy = wrapObject<TS.LanguageService>('LanguageRoutingService', {
     ...config.service,
 
+    getSemanticClassifications(fileName: string, ...args: any[]) {
+      // @ts-expect-error
+      return choose(fileName).getSemanticClassifications(fileName, ...args)
+    },
+
+    getSyntacticClassifications(fileName: string, ...args: any[]) {
+      // @ts-expect-error
+      return choose(fileName).getSyntacticClassifications(fileName, ...args)
+    },
+
     getSyntacticDiagnostics(fileName) {
       config.context.disposeUnusedProjects()
 
@@ -173,11 +183,11 @@ function createLanguageServiceRouter(
     },
 
     getEncodedSemanticClassifications(fileName, span) {
-      return ts.getEncodedSemanticClassifications(fileName, span)
+      return choose(fileName).getEncodedSemanticClassifications(fileName, span)
     },
 
     getEncodedSyntacticClassifications(fileName, span) {
-      return ts.getEncodedSyntacticClassifications(fileName, span)
+      return choose(fileName).getEncodedSyntacticClassifications(fileName, span)
     },
 
     getCompletionsAtPosition(fileName, position, options) {
@@ -202,6 +212,9 @@ function createLanguageServiceRouter(
             if (entry.source != null && isVirtualFile(entry.source)) {
               if (isVirtualFileOfType(entry.source, '_module')) {
                 entry.source = getContainingFile(entry.source)
+                if (entry.data?.fileName != null) {
+                  entry.data.fileName = getContainingFile(entry.data.fileName)
+                }
                 return true
               } else {
                 return false
@@ -458,12 +471,12 @@ function createLanguageServiceRouter(
 
             item.fileName = virtual.container.fsPath
             const textSpan = getTextSpan(virtual, item.textSpan)
-            if (textSpan == null) return
+            if (textSpan == null) return undefined
 
             item.textSpan = textSpan
             if (item.contextSpan != null) {
               const contextSpan = getTextSpan(virtual, item.contextSpan)
-              if (contextSpan == null) return
+              if (contextSpan == null) return undefined
 
               item.contextSpan = contextSpan
             }
@@ -857,9 +870,9 @@ function createLanguageServiceRouter(
         .map((edit) => {
           if (isVirtualFile(edit.fileName)) {
             const result = parseVirtualFileName(edit.fileName)
-            if (result == null) return
+            if (result == null) return undefined
             if (!['script', 'scriptSetup'].includes(result.selector.type))
-              return
+              return undefined
 
             edit.fileName = getContainingFile(edit.fileName)
           }
@@ -878,7 +891,7 @@ function createLanguageServiceRouter(
             })
             .filter(isNotNull)
 
-          if (edit.textChanges.length === 0) return
+          if (edit.textChanges.length === 0) return undefined
 
           return edit
         })
@@ -999,16 +1012,18 @@ function mergeFileTextChanges(
         textChanges: [],
       }
     }
-    const currentEdit = editsByFileName[edit.fileName]!
+    const currentEdit = editsByFileName[edit.fileName]
 
-    currentEdit.textChanges = combineTextChanges(
-      currentEdit.textChanges,
-      edit.textChanges,
-    )
-    if (edit.isNewFile != null) {
-      const value = currentEdit.isNewFile
-      currentEdit.isNewFile =
-        value == null ? edit.isNewFile : value || edit.isNewFile
+    if (currentEdit != null) {
+      currentEdit.textChanges = combineTextChanges(
+        currentEdit.textChanges,
+        edit.textChanges,
+      )
+      if (edit.isNewFile != null) {
+        const value = currentEdit.isNewFile
+        currentEdit.isNewFile =
+          value == null ? edit.isNewFile : value || edit.isNewFile
+      }
     }
   })
 

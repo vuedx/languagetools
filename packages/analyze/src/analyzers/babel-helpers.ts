@@ -71,7 +71,7 @@ export function getTypeAnnotation(
       if (isIdentifier(node) && !knownImports.has(node.name)) {
         const identifier = identifiers[node.name]
         if (identifier != null) {
-          if (identifier[0] != null) {
+          if (identifier.length === 1 && identifier[0] != null) {
             node.name = `(${identifier[0]})`
           } else if (identifier.length > 1) {
             node.name = `(${identifier.map((id) => `(${id})`).join(' & ')})`
@@ -84,8 +84,6 @@ export function getTypeAnnotation(
 
     return { type, imports }
   } catch (error) {
-    console.error(error)
-
     return { type: 'any', imports: [] }
   }
 }

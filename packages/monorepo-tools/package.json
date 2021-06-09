@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@rollup/plugin-json": "^4.1.0",
+    "builtins": "^4.0.0",
     "esbuild": "^0.12.6",
     "resolve": "^1.20.0",
     "rollup-plugin-dts": "^3.0.2",

@@ -1,21 +1,19 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, defineProps, ref } from 'vue'
 import {} from 'vue'
-export { default as HelloWorld } from './components/HelloWorld.vue'
+import HelloWorld from './components/HelloWorld.vue'
 
-export default {
-  props: {
-    name: String,
-    email: { type: String },
-    code: [String, Number],
-  },
-}
+const props = defineProps({
+  name: String,
+  email: { type: String },
+  code: [String, Number],
+})
 
-export const fullname = ref('')
+const fullname = ref('')
 /** @type {number} */
-export const altCode = 1
+const altCode = 1
 
-export function increment() {}
+function increment() {}
 </script>
 
 <template>

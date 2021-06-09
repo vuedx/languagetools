@@ -1,10 +1,11 @@
 import { injectable } from 'inversify'
 
 @injectable()
-export abstract class Installable {
+export class Installable {
   private isInstalled = false
 
-  install() {
+  install(): void {
     if (this.isInstalled) throw new Error('Service already installed.')
+    this.isInstalled = true
   }
 }

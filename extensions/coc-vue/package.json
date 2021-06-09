@@ -98,7 +98,7 @@
     "menus": {
       "commandPalette": [
         {
-          "command": "vue.openVirtualFile",
+          "command": "vuedx.openVirtualFile",
           "when": "editorLangId == vue"
         },
         {

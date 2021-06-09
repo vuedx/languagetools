@@ -11,7 +11,7 @@ describe('goto-definition', () => {
     Path.resolve(__dirname, '../../samples/feature-goto-definition'),
   )
 
-  function abs(fileName: string) {
+  function abs(fileName: string): string {
     return toNormalizedPath(Path.resolve(projectPath, fileName))
   }
 
@@ -97,25 +97,27 @@ describe('goto-definition', () => {
         ),
       )
 
-      expect(body?.definitions).toHaveLength(1)
-      expect(body?.definitions[0].file).toBe(file)
+      expect(body?.definitions.length).toBeGreaterThanOrEqual(1)
+      expect(body?.definitions).toEqual(
+        expect.arrayContaining([expect.objectContaining({ file })]),
+      )
 
-      const position =
-        (await findPositionIn(
-          file,
-          `return { one, two, increase, decrease }`,
-          `return { one, two, `.length,
-        )) ??
-        (await findPositionIn(
-          file,
-          `export function increase()`,
-          `export function `.length,
-        ))
+      const position = await findPositionIn(
+        file,
+        `function increase()`,
+        `function `.length,
+      )
 
-      expect(body?.definitions[0].start).toEqual({
-        line: position?.line,
-        offset: position?.offset,
-      })
+      expect(body?.definitions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            start: {
+              line: position?.line,
+              offset: position?.offset,
+            },
+          }),
+        ]),
+      )
     })
     it('should jump to ref/variable from setup() when ⌘+click expression in template', async () => {
       const { body } = await server.sendCommand(
@@ -123,25 +125,27 @@ describe('goto-definition', () => {
         await findPositionOrThrowIn(file, `{{ one }}`, '{{ o'.length),
       )
 
-      expect(body?.definitions).toHaveLength(1)
-      expect(body?.definitions[0].file).toBe(file)
+      expect(body?.definitions.length).toBeGreaterThanOrEqual(1)
+      expect(body?.definitions).toEqual(
+        expect.arrayContaining([expect.objectContaining({ file })]),
+      )
 
-      const position =
-        (await findPositionIn(
-          file,
-          `return { one, two, increase, decrease }`,
-          `return { `.length,
-        )) ??
-        (await findPositionIn(
-          file,
-          `export const one =`,
-          `export const `.length,
-        ))
+      const position = await findPositionIn(
+        file,
+        `const one =`,
+        `const `.length,
+      )
 
-      expect(body?.definitions[0].start).toEqual({
-        line: position?.line,
-        offset: position?.offset,
-      })
+      expect(body?.definitions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            start: {
+              line: position?.line,
+              offset: position?.offset,
+            },
+          }),
+        ]),
+      )
     })
     it('should jump to prop when ⌘+click expression in template', async () => {
       const { body } = await server.sendCommand(

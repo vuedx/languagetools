@@ -17,7 +17,10 @@ export const ScriptBlockAnalyzer = createPlugin({
         try {
           processScript(createScriptContext(block.content, ctx, block))
         } catch (error) {
-          console.error(error)
+          ctx.component.addError(
+            error instanceof Error ? error.message : String(error),
+            block.loc.start,
+          )
         }
       }
     },
@@ -154,8 +157,10 @@ function processScript(context: ScriptAnalyzerContext): void {
       try {
         fn(node, context)
       } catch (error) {
-        console.error(error)
-        // TODO: Handle error.
+        context.component.addError(
+          error instanceof Error ? error.message : String(error),
+          { column: 0, line: 0, offset: 0 },
+        )
       }
     })
   }
@@ -187,8 +192,10 @@ function processScript(context: ScriptAnalyzerContext): void {
               try {
                 fn(property$, context)
               } catch (error) {
-                console.error(error)
-                // TODO: Handler error.
+                context.component.addError(
+                  error instanceof Error ? error.message : String(error),
+                  { column: 0, line: 0, offset: 0 },
+                )
               }
             }
           })
@@ -241,8 +248,10 @@ function processScript(context: ScriptAnalyzerContext): void {
               try {
                 fn(options$ as any, context)
               } catch (error) {
-                console.error(error)
-                // TODO: Handle error
+                context.component.addError(
+                  error instanceof Error ? error.message : String(error),
+                  { column: 0, line: 0, offset: 0 },
+                )
               }
             }
           })
@@ -256,8 +265,10 @@ function processScript(context: ScriptAnalyzerContext): void {
               try {
                 fn(options$ as any, context)
               } catch (error) {
-                console.error(error)
-                // TODO: Handle error
+                context.component.addError(
+                  error instanceof Error ? error.message : String(error),
+                  { column: 0, line: 0, offset: 0 },
+                )
               }
             }
           })

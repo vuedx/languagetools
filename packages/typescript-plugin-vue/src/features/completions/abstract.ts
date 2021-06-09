@@ -20,6 +20,7 @@ export interface CompletionProvider {
     formatOptions: TS.FormatCodeOptions | TS.FormatCodeSettings | undefined,
     source: string | undefined,
     preferences: TS.UserPreferences | undefined,
+    data: TS.CompletionEntryData | undefined,
   ): TS.CompletionEntryDetails | undefined
 
   getCompletionEntrySymbol(

@@ -15,7 +15,7 @@ export function wrapObject<T>(context: string, target: T): T {
       result: unknown,
     ): void => {
       if (!['getProgram'].includes(method)) {
-        console.log(
+        console.debug(
           `[TRACE] ${context} ${method}(${JSON.stringify(args)}) ${
             performance.now() - start
           } ${JSON.stringify(
@@ -77,7 +77,7 @@ export function wrapFn<T extends (...args: any[]) => any>(
 ): T {
   if (__DEV__ && DEBUGGING) {
     const write = (start: number, args: unknown, result: unknown): void => {
-      console.log(
+      console.debug(
         `[TRACE] fn ${context} (${JSON.stringify(args)}) ${
           performance.now() - start
         } ${util.inspect(result, false, 6, false)}`,

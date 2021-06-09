@@ -1,23 +1,21 @@
 <script setup>
-import { ref, computed } from 'vue'
-export { default as HelloWorld } from './components/HelloWorld.vue'
+import { ref, computed, defineProps } from 'vue'
+import HelloWorld from './components/HelloWorld.vue'
 
-export default {
-  props: {
-    name: { type: String },
-    email: { type: String, required: true },
-    code: { type: Number },
-  },
-}
+const props = defineProps({
+  name: { type: String },
+  email: { type: String, required: true },
+  code: { type: Number },
+})
 
-export const one = ref(1)
-export const two = computed(() => one.value * 2)
+const one = ref(1)
+const two = computed(() => one.value * 2)
 
-export function increase() {
+function increase() {
   one.value += 1
 }
 
-export function decrease() {
+function decrease() {
   one.value -= 1
 }
 </script>

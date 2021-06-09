@@ -56,7 +56,7 @@ export class VirtualFileSwitcher extends Installable {
         }`
         this.statusBar.command = {
           title: 'Open virtual file',
-          command: 'vue.openVirtualFile',
+          command: 'vuedx.openVirtualFile',
           arguments: [uri, selector],
         }
         this.statusBar.show()

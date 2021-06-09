@@ -1,17 +1,15 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-export { default as HelloWorld } from './components/HelloWorld.vue'
+import { computed, defineProps, ref, defineComponent } from 'vue'
+import HelloWorld from './components/HelloWorld.vue'
 
-export default {
-  props: {
-    name: String,
-    email: { type: String },
-    code: [String, Number],
-  },
-}
+const props = defineProps({
+  name: String,
+  email: { type: String },
+  code: [String, Number],
+})
 
-export const fullname = ref('')
-export const altCode: number = 1
+const fullname = ref('')
+const altCode: number = 1
 </script>
 
 <template>

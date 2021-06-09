@@ -3,7 +3,7 @@ import {
   RenderFunctionTextDocument as RenderFunctionDocument,
   VueTextDocument,
 } from '../src/documents/VueTextDocument'
-import { RENDER_SELECTOR } from '../src/types'
+import { RENDER_SELECTOR, SCRIPT_SETUP_BLOCK_SELECTOR } from '../src/types'
 
 describe('VirtualTextDocument', () => {
   const doc = VueTextDocument.create(
@@ -92,5 +92,53 @@ describe('VirtualTextDocument', () => {
       expect(code.substr(original, 3)).toBe('bar')
       expect(render.tryGetGeneratedOffset(offset + 10)).toBe(original)
     }
+  })
+})
+
+describe('ScriptSetup', () => {
+  const doc = VueTextDocument.create(
+    'file:///component.vue',
+    'vue',
+    0,
+    [
+      '<script setup>', // Line 1
+      `import { defineEmit, defineProps, computed, ref, reactive } from 'vue'`, // Line 2
+      `const props = defineProps(['foo', 'bar'])`,
+      `const emit = defineEmit(['update'])`,
+      `const state = reactive({ foo: props.foo, bar: '' })`,
+      `const num = ref('')`,
+      `const numSquare = computed(() => num.value * num.value)`,
+      `function click() {`,
+      `  const foo = ''`,
+      `  emit('update', foo)`,
+      `}`,
+      `const bar = ''`,
+      '</script>', // Line 4
+    ].join('\n'),
+  )
+
+  test(`render function document is created`, () => {
+    expect(doc.getDocument(SCRIPT_SETUP_BLOCK_SELECTOR).getText())
+      .toMatchInlineSnapshot(`
+      "              
+      import { defineEmit, defineProps, computed, ref, reactive } from 'vue'
+      const props = defineProps(['foo', 'bar'])
+      const emit = defineEmit(['update'])
+      const state = reactive({ foo: props.foo, bar: '' })
+      const num = ref('')
+      const numSquare = computed(() => num.value * num.value)
+      function click() {
+        const foo = ''
+        emit('update', foo)
+      }
+      const bar = ''
+
+      /*@@vuedx:script-setup-export*/
+      // @ts-ignore
+      import { defineComponent as _VueDX_defineComponent } from 'vue'
+      // @ts-ignore
+      export default _VueDX_defineComponent(/** @param {typeof props} _VueDX_props*/(_VueDX_props) => ({computed,ref,reactive,state,num,numSquare,click,foo,bar}))
+      "
+    `)
   })
 })

@@ -1,3 +1,6 @@
+/* eslint-disable import/first */
+console.log = console.info = console.debug = console.error
+
 import { collect, Telemetry } from '@vuedx/shared'
 import { version } from '../package.json'
 import { PluginContext } from './context'

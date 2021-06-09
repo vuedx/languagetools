@@ -11,7 +11,12 @@ import {
   SFCParseOptions,
   SFCStyleBlock,
 } from '@vuedx/compiler-sfc'
-import { CodegenResult, compile, ComponentImport } from '@vuedx/compiler-tsx'
+import {
+  CodegenResult,
+  compile,
+  ComponentImport,
+  getIdentifiers,
+} from '@vuedx/compiler-tsx'
 import { getComponentName, isNotNull, isNumber, isString } from '@vuedx/shared'
 import * as Path from 'path'
 import {
@@ -268,6 +273,7 @@ function createVueModuleTextDocument(
 ): TransformedBlockTextDocument {
   return TransformedBlockTextDocument.create({
     ...options,
+    languageId: 'ts',
     transformer: (document) => {
       const { script, scriptSetup, template } = document.container.descriptor
       const api = document.container.options.vueVersion.startsWith('2.')
@@ -302,13 +308,9 @@ function createVueModuleTextDocument(
           document.container.getDocumentFileName('scriptSetup'),
         )
         lines.unshift(`import * as scriptSetup from '${path}'`)
-        scriptSetupHasDefaultExport = scriptSetup.content.includes(
-          'export default ',
-        )
-        usesDefineComponent =
-          scriptSetup.content.includes(' defineComponent(') ||
-          scriptSetup.content.includes(' defineComponent<')
-        usePropTypes = scriptSetup.content.includes('declare const props:')
+        scriptSetupHasDefaultExport = true
+        usesDefineComponent = true
+        usePropTypes = false
       }
 
       if (!usesDefineComponent) {
@@ -373,30 +375,7 @@ function createInternalModuleTextDocument(
           document.container.getDocumentFileName('scriptSetup'),
         )
 
-        lines.push(`import * as scriptSetup from '${path}'`)
-
-        const hasDefaultExport = scriptSetup.content.includes('export default')
-
-        if (hasDefaultExport) {
-          lines.push(`import options from '${path}'`)
-        }
-
-        if (scriptSetup.content.includes('declare const props:')) {
-          lines.push(`import type { $Props } from '${path}'`)
-          lines.push(
-            `const component = defineComponent<$Props>(${
-              hasDefaultExport
-                ? '{ ...options, setup: () => scriptSetup }'
-                : '{ setup: () => scriptSetup }'
-            })`,
-          )
-        } else {
-          lines.push(
-            `const component = defineComponent({ ${
-              hasDefaultExport ? '...options,' : ''
-            } setup: () => scriptSetup })`,
-          )
-        }
+        lines.push(`import component from '${path}'`)
       } else if (script != null) {
         const path = relativeVirtualImportPath(
           document.container.getDocumentFileName('script'),
@@ -433,16 +412,41 @@ function createScriptSetupTextDocument(
 
       // TODO: Transform
       // TODO: Remove this hack and put a proper transform.
-      if (scriptSetup.content.includes('declare const props:')) {
-        return {
-          code: scriptSetup.content.replace(
-            'declare const props:',
-            'export type $Props =',
-          ),
-        }
+      const RE_DEFINE_PROPS = /(?:const|let)\s+([^\s]+)[\s\r\n]*=[\s\r\n]*defineProps/
+      const RE_DEFINE_EMIT = /(?:const|let)\s+([^\s]+)[\s\r\n]*=[\s\r\n]*defineEmit/
+      const props = RE_DEFINE_PROPS.exec(scriptSetup.content)
+      const emit = RE_DEFINE_EMIT.exec(scriptSetup.content)
+      const identifiers = getIdentifiers(scriptSetup.content, true)
+
+      if (props?.[1] != null) {
+        identifiers.delete(props[1].trim())
       }
 
-      return { code: scriptSetup.content }
+      if (emit?.[1] != null) {
+        identifiers.delete(emit[1].trim())
+      }
+
+      identifiers.delete('defineEmit')
+      identifiers.delete('defineProps')
+
+      const propType = props?.[1] != null ? `typeof ${props[1]}` : '{}'
+      return {
+        code: [
+          scriptSetup.content,
+          `/*@@vuedx:script-setup-export*/`,
+          `// @ts-ignore`,
+          `import { defineComponent as _VueDX_defineComponent } from 'vue'`,
+          `// @ts-ignore`,
+          `export default _VueDX_defineComponent(${
+            scriptSetup.lang !== 'ts'
+              ? `/** @param {${propType}} _VueDX_props*/`
+              : ''
+          }(_VueDX_props${
+            scriptSetup.lang === 'ts' ? `: ${propType}` : ''
+          }) => ({${Array.from(identifiers).join(',')}}))`,
+          ``,
+        ].join('\n'),
+      }
     },
   })
 }
@@ -649,6 +653,7 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
       const errors: any[] = []
       const components = this.getKnownComponents()
       this.result = compile(template.content, {
+        mode: 'module',
         filename: this.container.fsPath,
         components: components,
         onError: (error) => {
@@ -657,7 +662,6 @@ export class RenderFunctionTextDocument extends TransformedBlockTextDocument {
       })
 
       this.result.template = template.content
-
       this.result.errors.push(...errors)
 
       this.originalRange = [template.loc.start.offset, template.loc.end.offset]

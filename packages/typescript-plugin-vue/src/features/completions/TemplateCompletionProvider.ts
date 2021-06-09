@@ -114,6 +114,7 @@ export class HTMLService {
     formatOptions: TS.FormatCodeOptions | TS.FormatCodeSettings | undefined,
     source: string | undefined,
     preferences: TS.UserPreferences | undefined,
+    data: TS.CompletionEntryData | undefined,
   ): TS.CompletionEntryDetails | undefined {
     return this.findCompletionKind(fileName, position, (args) => {
       __DEV__ && this.$.context.debug(`"${entryName}" is "${args.kind}"`)
@@ -125,6 +126,7 @@ export class HTMLService {
           formatOptions,
           source,
           preferences,
+          data,
           args.element,
         )
       } else if (args.kind === 'attribute') {
@@ -517,6 +519,7 @@ export class HTMLService {
     formatOptions: TS.FormatCodeOptions | TS.FormatCodeSettings | undefined,
     source: string | undefined,
     preferences: TS.UserPreferences | undefined,
+    data: TS.CompletionEntryData | undefined,
     _element?: ElementNode,
   ): TS.CompletionEntryDetails | undefined {
     // TODO: Use getTagCompletionsAtPosition (with extra metadata) to simplify this logic.
@@ -553,20 +556,22 @@ export class HTMLService {
       }
     }
 
-    result = this.mergeCompletionEntryDetails(
-      result,
-      this.$.service.getCompletionEntryDetails(
-        document.fsPath,
-        document.tagCompletionsTriggerOffset,
-        entryName.includes('-') && source != null
-          ? pascalCase(entryName)
-          : entryName,
-        formatOptions,
-        source,
-        preferences,
-        undefined, // TODO: Figure out data parameter.
-      ),
-    )
+    try {
+      result = this.mergeCompletionEntryDetails(
+        result,
+        this.$.service.getCompletionEntryDetails(
+          document.fsPath,
+          document.tagCompletionsTriggerOffset,
+          entryName.includes('-') && source != null
+            ? pascalCase(entryName)
+            : entryName,
+          formatOptions,
+          source,
+          preferences,
+          data,
+        ),
+      )
+    } catch {}
 
     if (source != null && isVirtualFileOfType(source, MODULE_SELECTOR)) {
       const document = this.$.helpers.getVueDocument(source)
@@ -1006,6 +1011,7 @@ export const TemplateCompletionProvider = defineCompletionProvider({
     formatOptions,
     source,
     preferences,
+    data,
   ) {
     return new HTMLService(config).getCompletionEntryDetails(
       fileName,
@@ -1014,6 +1020,7 @@ export const TemplateCompletionProvider = defineCompletionProvider({
       formatOptions,
       source,
       preferences,
+      data,
     )
   },
 

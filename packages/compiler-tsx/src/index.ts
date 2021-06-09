@@ -37,6 +37,7 @@ import { createInterpolationTransform } from './transforms/transformInterpolatio
 import type { CodegenResult, ComponentImport, Options } from './types'
 
 export * from './types'
+export { getIdentifiers } from './scope'
 
 function clone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj))
@@ -159,18 +160,25 @@ export function compile(
     onContextCreated(context) {
       const push = context.push
       context.push = (code, node) => {
-        if (code.startsWith('export ')) {
+        if (code.trim().startsWith('export')) {
           push(
             [
+              `type I<T> = T`,
+              `interface ${getComponentName(
+                options.filename,
+              )} extends I<InstanceType<typeof _Ctx>> {}`,
               hasVFor
                 ? `import { _renderList } from '__vuedx_runtime__render__'`
                 : null,
               hasVSlot
                 ? `import { _renderSlot } from '__vuedx_runtime__render__'`
                 : null,
-              'declare const __completionsTrigger: InstanceType<typeof _Ctx>',
+              `declare const __completionsTrigger: ${getComponentName(
+                options.filename,
+              )}`,
               '__completionsTrigger./*@@vue:completions*/$props',
-              'const __completionsTag = /*@@vue:completionsTag*/<div />',
+              'const __completionsTag = /*@@vue:completionsTag*/<></>',
+
               '',
             ]
               .filter((value) => value != null)
@@ -210,7 +218,7 @@ export function compile(
           } else {
             push(code)
           }
-        } else if (code.startsWith('function render(_ctx, _cache')) {
+        } else if (code.startsWith('function render(_ctx')) {
           push(
             `function render(${
               identifiers.size > 0
@@ -218,7 +226,7 @@ export function compile(
                     ', ',
                   )}/*@@vue:identifiers-end*/,..._ctx}`
                 : '_ctx'
-            }: InstanceType<typeof _Ctx>) {`,
+            }: ${getComponentName(options.filename)}) {`,
           )
         } else {
           push(code, node)

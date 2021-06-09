@@ -60,6 +60,7 @@ export function createTemplateLanguageServer(
       formatOptions,
       source,
       preferences,
+      data,
     ) {
       for (const provider of TEMPLATE_COMPLETION_PROVIDERS) {
         const result = provider.getCompletionEntryDetails(
@@ -70,6 +71,7 @@ export function createTemplateLanguageServer(
           formatOptions,
           source,
           preferences,
+          data,
         )
         if (isNotNull(result)) {
           __DEV__ &&

@@ -44,6 +44,8 @@ describe('diagnostic', () => {
         openFiles: [{ file, projectRootPath }],
       })
 
+      await server.sendCommand('geterr', { files: [file], delay: 0 })
+
       const { body } = await server.waitForEvent(
         'semanticDiag',
         checkEventFile(file),
@@ -60,7 +62,7 @@ describe('diagnostic', () => {
       await server.sendCommand('updateOpen', {
         openFiles: [{ file, projectRootPath }],
       })
-
+      await server.sendCommand('geterr', { files: [file], delay: 0 })
       const { body } = await server.waitForEvent(
         'semanticDiag',
         checkEventFile(file),
@@ -93,7 +95,7 @@ describe('diagnostic', () => {
       await server.sendCommand('updateOpen', {
         openFiles: [{ file, projectRootPath }],
       })
-
+      await server.sendCommand('geterr', { files: [file], delay: 0 })
       const { body } = await server.waitForEvent(
         'semanticDiag',
         checkEventFile(file),
@@ -130,7 +132,7 @@ describe('diagnostic', () => {
       await server.sendCommand('updateOpen', {
         openFiles: [{ file, projectRootPath }],
       })
-
+      await server.sendCommand('geterr', { files: [file], delay: 0 })
       const { body } = await server.waitForEvent(
         'semanticDiag',
         checkEventFile(file),
@@ -154,17 +156,18 @@ describe('diagnostic', () => {
       await server.sendCommand('updateOpen', {
         openFiles: [{ file, projectRootPath }],
       })
-
+      await server.sendCommand('geterr', { files: [file], delay: 0 })
       const { body } = await server.waitForEvent(
         'semanticDiag',
         checkEventFile(file),
       )
 
       const expected = await Promise.all([
+        // FIXME: Support missing props in JSX
         // findPositionOrThrowIn(file, '<TypeScriptPropsType ', 1),
         findPositionOrThrowIn(file, '<TypeScriptPropsOption ', 1),
         // findPositionOrThrowIn(file, '<TypeScriptSetupPropsDeclare ', 1),
-        findPositionOrThrowIn(file, '<TypeScriptSetupPropsOption ', 1),
+        // findPositionOrThrowIn(file, '<TypeScriptSetupPropsOption ', 1),
         // findPositionOrThrowIn(file, '<JavaScriptPropsOption ', 1),
         // findPositionOrThrowIn(file, '<JavaScriptSetupPropsOption ', 1),
       ])
@@ -199,7 +202,7 @@ describe('diagnostic', () => {
       await server.sendCommand('updateOpen', {
         openFiles: [{ file, projectRootPath }],
       })
-
+      await server.sendCommand('geterr', { files: [file], delay: 0 })
       const { body } = await server.waitForEvent(
         'semanticDiag',
         checkEventFile(file),
@@ -231,11 +234,11 @@ describe('diagnostic', () => {
         //   '<JavaScriptPropsOption :object',
         //   '<JavaScriptPropsOption :'.length,
         // ),
-        // findPositionOrThrowIn(
-        //   file,
-        //   '<JavaScriptSetupPropsOption :object',
-        //   '<JavaScriptSetupPropsOption :'.length,
-        // ),
+        findPositionOrThrowIn(
+          file,
+          '<JavaScriptSetupPropsOption :object',
+          '<JavaScriptSetupPropsOption :'.length,
+        ),
       ])
 
       expect(body?.diagnostics).toEqual(
@@ -280,7 +283,7 @@ describe('diagnostic', () => {
       await server.sendCommand('updateOpen', {
         openFiles: [{ file, projectRootPath }],
       })
-
+      await server.sendCommand('geterr', { files: [file], delay: 0 })
       const { body } = await server.waitForEvent(
         'semanticDiag',
         checkEventFile(file),
@@ -312,11 +315,11 @@ describe('diagnostic', () => {
         //   '<JavaScriptPropsOption :object="{ id: 1, unknown',
         //   '<JavaScriptPropsOption :object="{ id: 1, '.length,
         // ),
-        // findPositionOrThrowIn(
-        //   file,
-        //   '<JavaScriptSetupPropsOption :object="{ id: 1, unknown',
-        //   '<JavaScriptSetupPropsOption :object="{ id: 1, '.length,
-        // ),
+        findPositionOrThrowIn(
+          file,
+          '<JavaScriptSetupPropsOption :object="{ id: 1, unknown',
+          '<JavaScriptSetupPropsOption :object="{ id: 1, '.length,
+        ),
       ])
 
       expect(body?.diagnostics).toEqual(
@@ -349,7 +352,7 @@ describe('diagnostic', () => {
       await server.sendCommand('updateOpen', {
         openFiles: [{ file, projectRootPath }],
       })
-
+      await server.sendCommand('geterr', { files: [file], delay: 0 })
       const { body } = await server.waitForEvent(
         'semanticDiag',
         checkEventFile(file),
@@ -376,7 +379,7 @@ describe('diagnostic', () => {
       await server.sendCommand('updateOpen', {
         openFiles: [{ file, projectRootPath }],
       })
-
+      await server.sendCommand('geterr', { files: [file], delay: 0 })
       const { body } = await server.waitForEvent(
         'semanticDiag',
         checkEventFile(file),
@@ -408,11 +411,11 @@ describe('diagnostic', () => {
         //   '<JavaScriptPropsOption :string',
         //   '<JavaScriptPropsOption :'.length,
         // ),
-        // findPositionOrThrowIn(
-        //   file,
-        //   '<JavaScriptSetupPropsOption :string',
-        //   '<JavaScriptSetupPropsOption :'.length,
-        // ),
+        findPositionOrThrowIn(
+          file,
+          '<JavaScriptSetupPropsOption :string',
+          '<JavaScriptSetupPropsOption :'.length,
+        ),
       ])
 
       expect(body?.diagnostics).toEqual(
@@ -448,7 +451,10 @@ describe('diagnostic', () => {
         await server.sendCommand('updateOpen', {
           openFiles: [{ file, projectRootPath }],
         })
-
+        await server.sendCommand('geterr', {
+          files: [file],
+          delay: 0,
+        })
         const { body } = await server.waitForEvent(
           'semanticDiag',
           checkEventFile(file),
@@ -466,6 +472,7 @@ describe('diagnostic', () => {
       await server.sendCommand('updateOpen', {
         openFiles: [{ file, projectRootPath }],
       })
+      await server.sendCommand('geterr', { files: [file], delay: 0 })
 
       const { body } = await server.waitForEvent(
         'syntaxDiag',
@@ -494,6 +501,7 @@ describe('diagnostic', () => {
           },
         ],
       })
+      await server.sendCommand('geterr', { files: [file], delay: 0 })
       const { body: newBody } = await server.waitForEvent(
         'syntaxDiag',
         checkEventFile(file),

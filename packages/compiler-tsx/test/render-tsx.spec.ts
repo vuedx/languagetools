@@ -36,10 +36,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -48,6 +50,47 @@ describe('compile/tsx', () => {
         ); /*@@vue:end*/
       }
 
+      //!js
+    `)
+  })
+  test('template with errors', () => {
+    const result = compile(
+      `
+    <!--html-->
+    <HelloWorld n />
+    <span>Name: {{ name + }}</span>
+    <p v-bind:></p>
+    <p v-if=""></p>
+    <>
+    <!--!html-->`,
+      {
+        filename: '/foo/bar/component.vue',
+        components: {},
+        onError() {},
+      },
+    )
+
+    expect(wrap(result.code)).toMatchInlineSnapshot(`
+      //js
+      import _Ctx from './component.vue?internal'
+
+
+      type I<T> = T
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component
+      __completionsTrigger./*@@vue:completions*/$props
+      const __completionsTag = /*@@vue:completionsTag*/<></>
+      export function render({/*@@vue:identifiers-start*/name/*@@vue:identifiers-end*/,..._ctx}: Component) {
+        /*@@vue:start*/
+        return <><HelloWorld  n />
+      <span  >{"Name: "}
+      {name +}
+      </span>
+      <p  ></p>
+      {(false) ? (<p  ></p>) :null}
+      {" <>"}
+      </>/*@@vue:end*/
+      }
       //!js
     `)
   })
@@ -72,10 +115,12 @@ describe('compile/tsx', () => {
       import _Ctx from './component.vue?internal';
       import Foo from './Foo.vue';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -117,10 +162,12 @@ describe('compile/tsx', () => {
       import _Ctx from './component.vue?internal';
       import { Foo } from 'foo-components';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -156,10 +203,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -189,10 +238,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -223,10 +274,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -257,10 +310,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -290,9 +345,11 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
       export function render({
         /*@@vue:identifiers-start*/ style,
         key,
@@ -302,7 +359,7 @@ describe('compile/tsx', () => {
         handleEvent,
         hello /*@@vue:identifiers-end*/,
         ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -335,13 +392,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -371,13 +427,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -407,14 +462,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ checked,
-        foo /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ checked, foo /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -444,13 +497,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ bar /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ bar /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -480,13 +532,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ isVisible /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ isVisible /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -516,10 +567,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return <>{false ? <div>{'A'}</div> : null}</>; /*@@vue:end*/
       }
@@ -546,14 +599,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ foo,
-        bar /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ foo, bar /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return <>{foo ? <div>{'A'}</div> : foo + bar < 50 ? <div>{'B'}</div> : <div>{'C'}</div>}</>; /*@@vue:end*/
       }
@@ -579,13 +630,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return <>{foo ? <div>{'A'}</div> : null}</>; /*@@vue:end*/
       }
@@ -611,15 +661,13 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
       import { _renderList } from '__vuedx_runtime__render__';
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ items,
-        other /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ items, other /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -658,13 +706,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -696,14 +743,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ exp,
-        arg /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ exp, arg /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -734,10 +779,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return <>{'<'}</>; /*@@vue:end*/
       }
@@ -763,10 +810,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -796,10 +845,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return <>{'<>'}</>; /*@@vue:end*/
       }
@@ -825,10 +876,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -858,10 +911,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -893,10 +948,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -926,10 +983,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -961,10 +1020,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -996,10 +1057,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -1033,14 +1096,13 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
       import { _renderList } from '__vuedx_runtime__render__';
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ users /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ users /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -1081,14 +1143,13 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
       import { _renderSlot } from '__vuedx_runtime__render__';
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -1122,14 +1183,13 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
       import { _renderSlot } from '__vuedx_runtime__render__';
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -1165,13 +1225,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         const _DyComp0_ = foo;
         return (
@@ -1216,14 +1275,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ foo,
-        bar /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ foo, bar /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -1264,14 +1321,13 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
       import { _renderList } from '__vuedx_runtime__render__';
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ items /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ items /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -1305,14 +1361,13 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
       import { _renderList } from '__vuedx_runtime__render__';
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ items /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ items /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -1356,16 +1411,13 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
       import { _renderList } from '__vuedx_runtime__render__';
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ foo,
-        items,
-        bar /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ foo, items, bar /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         const _DyComp3_ = foo;
         return (
@@ -1455,13 +1507,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ foo /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         const _DyComp4_ = foo;
         return (
@@ -1543,14 +1594,13 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
       import { _renderList } from '__vuedx_runtime__render__';
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render({
-        /*@@vue:identifiers-start*/ bars /*@@vue:identifiers-end*/,
-        ..._ctx
-      }: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render({ /*@@vue:identifiers-start*/ bars /*@@vue:identifiers-end*/, ..._ctx }: Component) {
         /*@@vue:start*/
         return (
           <>
@@ -1631,10 +1681,12 @@ describe('compile/tsx', () => {
       //js
       import _Ctx from './component.vue?internal';
 
-      declare const __completionsTrigger: InstanceType<typeof _Ctx>;
+      type I<T> = T;
+      interface Component extends I<InstanceType<typeof _Ctx>> {}
+      declare const __completionsTrigger: Component;
       __completionsTrigger./*@@vue:completions*/ $props;
-      const __completionsTag = /*@@vue:completionsTag*/ <div />;
-      export function render(_ctx: InstanceType<typeof _Ctx>) {
+      const __completionsTag = /*@@vue:completionsTag*/ <></>;
+      export function render(_ctx: Component) {
         /*@@vue:start*/
         return (
           <>

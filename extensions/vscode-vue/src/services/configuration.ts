@@ -15,22 +15,22 @@ export interface VueExtensionSettings {
 @injectable()
 export class ConfigurationService extends Installable {
   private _config: VueExtensionSettings
-  private emitter = new vscode.EventEmitter<VueExtensionSettings>()
+  private readonly emitter = new vscode.EventEmitter<VueExtensionSettings>()
 
   constructor() {
     super()
     this._config = this.prepare(this.read())
   }
 
-  public get config() {
+  public get config(): VueExtensionSettings {
     return this._config
   }
 
-  private read() {
+  private read(): VueExtensionSettings | undefined {
     return vscode.workspace.getConfiguration().get<VueExtensionSettings>('vue')
   }
 
-  public install() {
+  public install(): vscode.Disposable {
     super.install()
     return vscode.Disposable.from(
       this.emitter,
@@ -45,16 +45,18 @@ export class ConfigurationService extends Installable {
 
   public readonly onConfigChange = this.emitter.event
 
-  public save<K extends keyof VueExtensionSettings>(
+  public async save<K extends keyof VueExtensionSettings>(
     name: K,
     value: VueExtensionSettings[K],
-  ) {
-    return vscode.workspace
+  ): Promise<void> {
+    await vscode.workspace
       .getConfiguration('vue')
       .update(`${name}`, value, name === 'blocks')
   }
 
-  private prepare(config?: Partial<VueExtensionSettings>) {
+  private prepare(
+    config?: Partial<VueExtensionSettings>,
+  ): VueExtensionSettings {
     return {
       ...config,
       blocks: {

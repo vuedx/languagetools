@@ -178,7 +178,13 @@ export function trackIdentifiers(
 
   try {
     const ast = parse(source, {
-      plugins: ['bigInt', 'optionalChaining', 'nullishCoalescingOperator'], // TODO: Allow configuring plugins.
+      plugins: [
+        'bigInt',
+        'optionalChaining',
+        'nullishCoalescingOperator',
+        'typescript',
+      ],
+
       // @ts-expect-error
       errorRecovery: true,
     })
@@ -230,6 +236,12 @@ export function trackIdentifiers(
       },
     })
   } catch (error) {
+    const RE = /\b[a-z$_][a-z0-9$_]*\b/gi
+    let match: RegExpExecArray | null = null
+    do {
+      match = RE.exec(source)
+      if (match?.[0] != null) addIdentifer(match[0])
+    } while (match != null)
     const pos = error.pos ?? 0
     context.onError({
       name: error.code,

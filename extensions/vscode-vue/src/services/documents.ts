@@ -1,10 +1,10 @@
-// @ts-ignore
 import vscode from 'vscode'
 import { injectable } from 'inversify'
 import {
   AsyncDocumentStore,
   isVueFile,
   parseVirtualFileName,
+  VirtualTextDocument,
   VueTextDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import { Installable } from '../utils/installable'
@@ -19,7 +19,7 @@ export class DocumentService extends Installable {
     return doc
   })
 
-  public install() {
+  public install(): vscode.Disposable {
     super.install()
 
     return vscode.Disposable.from(
@@ -30,15 +30,17 @@ export class DocumentService extends Installable {
         if (this.store.has(uri)) {
           const document = await this.store.get(uri)
 
-          VueTextDocument.update(
-            document!,
-            event.contentChanges.slice(),
-            event.document.version,
-          )
+          if (document != null) {
+            VueTextDocument.update(
+              document,
+              event.contentChanges.slice(),
+              event.document.version,
+            )
 
-          document!.all().forEach((document) => {
-            this.emitter.fire({ uri: vscode.Uri.parse(document.uri) })
-          })
+            document.all().forEach((document) => {
+              this.emitter.fire({ uri: vscode.Uri.parse(document.uri) })
+            })
+          }
         }
       }),
       vscode.workspace.onDidOpenTextDocument((event) => {
@@ -49,22 +51,26 @@ export class DocumentService extends Installable {
     )
   }
 
-  public async getVueDocument(uri: string) {
+  public async getVueDocument(uri: string): Promise<VueTextDocument | null> {
     return this.store.get(uri)
   }
 
-  public async getVirtualDocument(uri: string) {
+  public async getVirtualDocument(
+    uri: string,
+  ): Promise<VirtualTextDocument | null> {
     try {
-      const { selector, uri: container } = parseVirtualFileName(uri)!
+      const parsed = parseVirtualFileName(uri)
+      if (parsed == null) return null
+      const { selector, uri: container } = parsed
       const document = await this.store.get(container)
 
-      return document?.getDocument(selector) || null
+      return document?.getDocument(selector) ?? null
     } catch {
       return null
     }
   }
 
-  public onDidChangeTextDocument(fn: (e: { uri: vscode.Uri }) => any) {
+  public onDidChangeTextDocument(fn: (e: { uri: vscode.Uri }) => any): any {
     return this.emitter.event(fn)
   }
 }

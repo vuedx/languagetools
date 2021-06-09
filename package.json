@@ -6,8 +6,8 @@
   },
   "scripts": {
     "prepare": "node scripts/build-monorepo-tools.mjs",
-    "test": "jest",
-    "coverage": "nyc --reporter=json --reporter=text-summary jest --coverage",
+    "test": "jest --verbose",
+    "coverage": "nyc --reporter=json --reporter=text-summary jest --verbose --coverage",
     "build": "rollup -c",
     "build:dev": "rollup -c --environment BUILD:development",
     "build:types": "rollup -c --environment BUILD:development,BUILD_FORMAT:dts",
@@ -24,6 +24,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.13.1",
     "@microsoft/api-extractor": "^7.12.0",
+    "@rollup/plugin-alias": "^3.1.2",
     "@rollup/plugin-commonjs": "^19.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.0.0",
