@@ -211,8 +211,7 @@ jobs:
           pnpm recursive --filter ./packages --filter ./extensions/coc-vue exec
           -- npm version prerelease --preid=insiders-$(date +%s)
 
-          pnpm recursive --filter ./packages --filter ./extensions/coc-vue
-          publish --tag insiders --access public --no-git-checks
+          pnpm recursive publish --tag insiders --access public --no-git-checks
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - uses: marvinpinto/action-automatic-releases@latest
@@ -220,9 +219,8 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           automatic_release_tag: insiders
           prerelease: true
-          title: Insiders Build
           files: |
-            extension/CHANGELOG.md
+            extensions/*/CHANGELOG.md
             extensions/*/*.vsix
             packages/*/CHANGELOG.md
   check_release:

@@ -45,12 +45,6 @@ export const GotoScriptDefinitions: GotoProvider = {
             definition.textSpan.start,
           )
 
-          __DEV__ &&
-            context.debug(
-              `GOTO DEF: ${definition.fileName} -> ${JSON.stringify(
-                definition,
-              )} \n New Result: ${JSON.stringify(newResult, null, 2)}`,
-            )
           if (
             newResult != null &&
             Array.isArray(newResult.definitions) &&

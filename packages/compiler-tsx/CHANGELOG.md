@@ -1,5 +1,21 @@
 # @vuedx/compiler-tsx
 
+## 0.7.2
+
+### Patch Changes
+
+- f5ebe8e: Support type-only props declaration using `defineProps()` in `<script lang="ts" setup>`
+
+  Example:
+
+  ```vue
+  <script lang="ts" setup>
+  import { defineProps } from 'vue'
+
+  const props = defineProps<{ name: string }>()
+  </script>
+  ```
+
 ## 0.7.1
 
 ### Patch Changes

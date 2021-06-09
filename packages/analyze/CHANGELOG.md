@@ -1,5 +1,12 @@
 # @vuedx/analyze
 
+## 0.7.2
+
+### Patch Changes
+
+- Updated dependencies [f5ebe8e]
+  - @vuedx/compiler-tsx@0.7.2
+
 ## 0.7.1
 
 ### Patch Changes

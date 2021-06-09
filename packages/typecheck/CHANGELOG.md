@@ -1,5 +1,13 @@
 # @vuedx/typecheck
 
+## 0.7.2
+
+### Patch Changes
+
+- Updated dependencies [f5ebe8e]
+  - @vuedx/typescript-plugin-vue@0.7.2
+  - @vuedx/vue-virtual-textdocument@0.7.2
+
 ## 0.7.1
 
 ### Patch Changes
