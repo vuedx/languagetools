@@ -1,5 +1,12 @@
 # @vuedx/typescript-vetur
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies [undefined]
+  - @vuedx/typescript-plugin-vue@0.7.1
+
 ## 0.7.0
 
 ### Minor Changes

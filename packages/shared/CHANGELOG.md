@@ -1,5 +1,11 @@
 # @vuedx/shared
 
+## 0.7.1
+
+### Patch Changes
+
+- Load standalone version of typescript-plugin-vue in VueDX extension
+
 ## 0.7.0
 
 ### Minor Changes

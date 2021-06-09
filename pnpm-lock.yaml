@@ -262,15 +262,10 @@ importers:
   packages/shared:
     specifiers:
       '@sentry/node': ^5.30.0
-      '@types/uuid': ^8.3.0
       node-unique-machine-id: ^1.1.0
-      uuid: ^8.3.2
     dependencies:
       '@sentry/node': 5.30.0
       node-unique-machine-id: 1.1.0
-      uuid: 8.3.2
-    devDependencies:
-      '@types/uuid': 8.3.0
 
   packages/template-ast-types:
     specifiers:
@@ -2030,13 +2025,6 @@ packages:
     resolution:
       {
         integrity: sha512-RJJrrySY7A8havqpGObOB4W92QXKJo63/jFLLgpvOtsGUqbQZ9Sbgl35KMm1DjC6j7AvmmU2bIno+3IyEaemaw==,
-      }
-    dev: true
-
-  /@types/uuid/8.3.0:
-    resolution:
-      {
-        integrity: sha512-eQ9qFW/fhfGJF8WKHGEHZEyVWfZxrT+6CLIJGBcZPfxUh/+BnEj+UCGYMlr9qZuX/2AltsvwrGqp0LhEW8D0zQ==,
       }
     dev: true
 
@@ -10265,14 +10253,6 @@ packages:
     hasBin: true
     dev: true
     optional: true
-
-  /uuid/8.3.2:
-    resolution:
-      {
-        integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==,
-      }
-    hasBin: true
-    dev: false
 
   /v8-compile-cache/2.2.0:
     resolution:

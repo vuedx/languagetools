@@ -1,5 +1,11 @@
 # vue
 
+## 0.7.1
+
+### Patch Changes
+
+- @vuedx/vue-virtual-textdocument@0.7.1
+
 ## 0.7.0
 
 ### Minor Changes

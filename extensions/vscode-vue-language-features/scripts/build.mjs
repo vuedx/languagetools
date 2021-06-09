@@ -8,8 +8,8 @@ import { prepareExtensionForPackaging } from '../../../scripts/extension-package
 // Copy packages to vsix bundle.
 const packages = {
   '@vuedx/typescript-plugin-vue': {
-    main: 'lib/standalone.js',
-    files: ['runtime/*.d.ts'],
+    main: 'index.js',
+    files: ['runtime/*.d.ts', 'lib/standalone.js'],
   },
 }
 
@@ -40,6 +40,8 @@ prepareExtensionForPackaging(dir, () => {
       const packageJson = {
         ...originalPackageJson,
         main: options.main,
+        dependencies: {},
+        devDependencies: {},
         module: undefined,
         exports: undefined,
       }

@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/shared",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "types": "src/index.ts",
@@ -16,10 +16,6 @@
   ],
   "dependencies": {
     "@sentry/node": "^5.30.0",
-    "node-unique-machine-id": "^1.1.0",
-    "uuid": "^8.3.2"
-  },
-  "devDependencies": {
-    "@types/uuid": "^8.3.0"
+    "node-unique-machine-id": "^1.1.0"
   }
 }

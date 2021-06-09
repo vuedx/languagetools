@@ -1,12 +1,12 @@
 {
   "name": "@vuedx/typescript-plugin-vue",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "TypeScript plugin for Vue",
-  "main": "lib/index.js",
+  "main": "index.js",
   "module": "lib/index.mjs",
   "types": "src/index.ts",
   "exports": {
-    "require": "./lib/index.js",
+    "require": "./index.js",
     "import": "./lib/index.mjs"
   },
   "publishConfig": {

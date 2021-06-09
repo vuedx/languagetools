@@ -1,5 +1,13 @@
 # @vuedx/analyze
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies [undefined]
+  - @vuedx/shared@0.7.1
+  - @vuedx/compiler-tsx@0.7.1
+
 ## 0.7.0
 
 ### Minor Changes
