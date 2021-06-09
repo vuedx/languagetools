@@ -199,7 +199,7 @@ const bin = path.resolve(__dirname, '../node_modules/.bin/api-extractor')
 packages.forEach((pkg) => {
   const dir = path.resolve(__dirname, '../packages/', pkg)
   const fileName = path.resolve(dir, 'readme.md')
-  cp.execSync(`${bin} run --local --verbose`, { cwd: dir })
+  cp.execSync(`${bin} run --local --verbose`, { cwd: dir, stdio: 'inherit' })
 
   const info = require(path.resolve(dir, 'temp', pkg + '.api.json'))
   generate(fileName, info)

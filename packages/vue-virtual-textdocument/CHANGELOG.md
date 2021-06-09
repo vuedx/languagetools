@@ -1,5 +1,23 @@
 # @vuedx/vue-virtual-textdocument
 
+## 0.7.0
+
+### Minor Changes
+
+- 93ca54a: Add support `<script setup>` support as per [RFC](https://github.com/vuejs/rfcs/pull/227)
+- 084c055: Use **vuedx_runtime**<name>\_\_ format for runtime typecheck helpers
+
+### Patch Changes
+
+- Updated dependencies [93ca54a]
+- Updated dependencies [084c055]
+- Updated dependencies [084c055]
+- Updated dependencies [93ca54a]
+  - @vuedx/analyze@0.7.0
+  - @vuedx/compiler-tsx@0.7.0
+  - @vuedx/compiler-sfc@0.7.0
+  - @vuedx/shared@0.7.0
+
 ## 0.6.3
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@vuedx/monorepo-tools",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "displayName": "Monorepo tools",
   "description": "Utility functions for monorepo management",
   "main": "lib/index.js",

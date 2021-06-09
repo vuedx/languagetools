@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/compiler-sfc",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "types": "src/index.ts",

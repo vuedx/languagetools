@@ -194,7 +194,7 @@ interface Plugin_2 {
     // (undocumented)
     setup?: ComponentSetupFnAnalyzer[];
     // (undocumented)
-    templateExpression?: (node: File_2, context: Context) => void;
+    templateExpression?(node: File_2, context: Context): void;
 }
 
 export { Plugin_2 as Plugin }
@@ -390,8 +390,8 @@ export interface WebTypes {
 
 // Warnings were encountered during analysis:
 //
-// dist/index.d.ts:317:9 - (ae-forgotten-export) The symbol "Tag" needs to be exported by the entry point index.d.ts
-// dist/index.d.ts:318:9 - (ae-forgotten-export) The symbol "Attribute" needs to be exported by the entry point index.d.ts
+// lib/index.d.ts:331:9 - (ae-forgotten-export) The symbol "Tag" needs to be exported by the entry point index.d.ts
+// lib/index.d.ts:332:9 - (ae-forgotten-export) The symbol "Attribute" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

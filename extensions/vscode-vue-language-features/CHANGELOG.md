@@ -1,5 +1,19 @@
 # vue-language-features
 
+## 0.7.0
+
+### Minor Changes
+
+- 93ca54a: Add support `<script setup>` support as per [RFC](https://github.com/vuejs/rfcs/pull/227)
+
+### Patch Changes
+
+- Updated dependencies [93ca54a]
+- Updated dependencies [084c055]
+  - @vuedx/analyze@0.7.0
+  - @vuedx/typescript-plugin-vue@0.7.0
+  - @vuedx/vue-virtual-textdocument@0.7.0
+
 ## 0.6.3
 
 ### Patch Changes

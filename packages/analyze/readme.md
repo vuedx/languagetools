@@ -221,7 +221,7 @@ setConfig(config: ProjectConfig): void;
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| config | <code><a href="#-vuedx-projectconfig--ProjectConfig-interface">ProjectConfig</a></code> | - |
+| config | <code><a href="#-vuedx-projectconfig-ProjectConfig-interface">ProjectConfig</a></code> | - |
 
 <br>
 
@@ -540,7 +540,7 @@ interface Plugin {
   declaration?: ComponentDeclarationAnalyzer[];
   options?: ComponentOptionsAnalyzer[] | Record<string, AbstractScriptAnalyzerFn<ObjectMember>>;
   setup?: ComponentSetupFnAnalyzer[];
-  templateExpression?: (node: File, context: Context) => void;
+  templateExpression?(node: File, context: Context): void;
 }
 ```
 

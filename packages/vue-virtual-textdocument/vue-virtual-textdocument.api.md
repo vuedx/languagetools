@@ -7,7 +7,7 @@
 import { CodegenResult } from '@vuedx/compiler-tsx';
 import { ComponentImport } from '@vuedx/compiler-tsx';
 import { ComponentRegistrationInfo } from '@vuedx/analyze';
-import { Position as Position_2 } from 'vscode-languageserver-textdocument';
+import { Position } from 'vscode-languageserver-textdocument';
 import { Range as Range_2 } from 'vscode-languageserver-textdocument';
 import { RawSourceMap } from 'source-map';
 import { SFCBlock } from '@vuedx/compiler-sfc';
@@ -248,7 +248,7 @@ export class VueTextDocument extends ProxyTextDocument {
     // (undocumented)
     all(): VirtualTextDocument[];
     // (undocumented)
-    blockAt(position: Position_2 | number): SFCBlock | null | undefined;
+    blockAt(position: Position | number): SFCBlock | null | undefined;
     // (undocumented)
     static create(uri: string, languageId: string, version: number, content: string, options?: VueTextDocumentOptions, parseOptions?: SFCParseOptions): VueTextDocument;
     // (undocumented)
@@ -264,7 +264,7 @@ export class VueTextDocument extends ProxyTextDocument {
     // (undocumented)
     get descriptor(): SFCDescriptor;
     // (undocumented)
-    documentAt(position: Position_2 | number): VirtualTextDocument | undefined;
+    documentAt(position: Position | number): VirtualTextDocument | undefined;
     // (undocumented)
     getBlock(selector: BlockSelector): SFCBlock | null | undefined;
     // (undocumented)

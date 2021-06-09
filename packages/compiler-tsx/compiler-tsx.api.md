@@ -31,6 +31,11 @@ export interface ComponentImport {
     path: string;
 }
 
+// Warning: (ae-internal-missing-underscore) The name "getIdentifiers" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export function getIdentifiers(source: string, withTS?: boolean): Set<string>;
+
 // @public (undocumented)
 export interface Options {
     // (undocumented)

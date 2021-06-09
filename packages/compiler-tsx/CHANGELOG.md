@@ -1,5 +1,20 @@
 # @vuedx/compiler-tsx
 
+## 0.7.0
+
+### Minor Changes
+
+- 93ca54a: Add support `<script setup>` support as per [RFC](https://github.com/vuejs/rfcs/pull/227)
+- 084c055: Use **vuedx_runtime**<name>\_\_ format for runtime typecheck helpers
+
+### Patch Changes
+
+- 084c055: Alias dynamic components in v-for/v-slot scope
+- Updated dependencies [42aeeef]
+- Updated dependencies [93ca54a]
+  - @vuedx/template-ast-types@0.7.0
+  - @vuedx/shared@0.7.0
+
 ## 0.6.3
 
 ### Patch Changes
