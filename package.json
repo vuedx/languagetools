@@ -7,7 +7,7 @@
   "scripts": {
     "prepare": "node scripts/build-monorepo-tools.mjs",
     "test": "jest --verbose",
-    "coverage": "nyc --reporter=json --reporter=text-summary jest --verbose --coverage",
+    "coverage": "jest --verbose --coverage",
     "build": "rollup -c",
     "build:dev": "rollup -c --environment BUILD:development",
     "build:types": "rollup -c --environment BUILD:development,BUILD_FORMAT:dts",

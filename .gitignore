@@ -24,3 +24,5 @@ node_modules
 **/runtime/
 **/temp/
 *.log
+.nyc_output/
+coverage/

@@ -1,4 +1,3 @@
-/** @type {import('jest')} */
 module.exports = {
   preset: 'ts-jest',
   setupFilesAfterEnv: ['jest-expect-message'],
@@ -6,10 +5,11 @@ module.exports = {
   globals: {
     __DEV__: true,
   },
-  coverageReporters: ['none'],
+  coverageReporters: ['json', 'lcov', 'text', 'clover'],
   coverageProvider: 'v8',
   collectCoverageFrom: [
-    'packages/**/*.ts',
+    'packages/*/src/**/*.ts',
+    '!**/*.spec.ts',
     '!**/node_modules/**',
     '!**/dist/**',
     '!**/lib/**',

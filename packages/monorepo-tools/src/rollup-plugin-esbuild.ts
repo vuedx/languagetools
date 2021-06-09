@@ -62,7 +62,7 @@ export function esbuild(
       const key = Path.basename(options.file)
       const file = bundle[key]
 
-      if (file == null || file.type === 'asset') {
+      if (fileName == null || file == null || file.type === 'asset') {
         throw new Error(`'${key}' is not found in bundle`)
       }
 
@@ -82,12 +82,12 @@ export function esbuild(
         mainFields: ['module', 'main'],
         allowOverwrite: true,
         banner: { js: `/* Bundled with ESBuild v${version} */` },
-        outfile: options.file,
+        outfile: fileName,
         treeShaking: true,
         resolveExtensions: ['.mjs', '.js', '.cjs'],
         ...defaults,
         sourcemap: 'external',
-        entryPoints: [options.file],
+        entryPoints: [fileName],
         plugins: [
           {
             name: 'rollup',
@@ -95,6 +95,10 @@ export function esbuild(
               build.onResolve({ filter: /.+/ }, async ({ path, importer }) => {
                 if (path === options.file) {
                   return { path: options.file }
+                }
+
+                if (path === `${fileName}.map`) {
+                  return { path: `${fileName}.map` }
                 }
 
                 if (externals.has(path)) {
@@ -147,9 +151,17 @@ export function esbuild(
                 }
               })
               build.onLoad({ filter: /.+/ }, async ({ path }) => {
-                if (path === options.file) {
+                if (path === fileName) {
                   return {
                     contents: file.code + getSourceMapString(file),
+                    resolveDir: Path.basename(path),
+                    loader: 'js',
+                  }
+                }
+
+                if (path === `${fileName}.map` && file.map != null) {
+                  return {
+                    contents: file.map.toString(),
                     resolveDir: Path.basename(path),
                     loader: 'js',
                   }
@@ -255,7 +267,5 @@ function resolveExternalPackage(
 function getSourceMapString(file: OutputChunk): string {
   if (file.map == null) return ''
 
-  return `\n//# sourceMappingURL=data:application/json;base64,${Buffer.from(
-    JSON.stringify(file.map),
-  ).toString('base64')}`
+  return `\n//# sourceMappingURL=${file.fileName}.map`
 }
