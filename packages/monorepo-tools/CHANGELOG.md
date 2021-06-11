@@ -1,5 +1,11 @@
 # @vuedx/monorepo-tools
 
+## 0.2.1
+
+### Patch Changes
+
+- 3e52646: Remove "exports" property from package.json
+
 ## 0.2.0
 
 ### Minor Changes

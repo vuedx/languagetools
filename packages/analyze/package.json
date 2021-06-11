@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/analyze",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Extracts public API information from Vue component.",
   "main": "lib/index.js",
   "module": "lib/index.mjs",

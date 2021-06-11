@@ -1,5 +1,15 @@
 # @vuedx/typecheck
 
+## 0.7.3
+
+### Patch Changes
+
+- 3e52646: Remove "exports" property from package.json
+- Updated dependencies [3e52646]
+  - @vuedx/shared@0.7.2
+  - @vuedx/typescript-plugin-vue@0.7.3
+  - @vuedx/vue-virtual-textdocument@0.7.3
+
 ## 0.7.2
 
 ### Patch Changes

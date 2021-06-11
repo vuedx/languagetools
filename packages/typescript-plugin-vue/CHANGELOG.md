@@ -1,5 +1,18 @@
 # @vuedx/typescript-plugin-vue
 
+## 0.7.3
+
+### Patch Changes
+
+- 3e52646: Remove "exports" property from package.json
+- Updated dependencies [3e52646]
+  - @vuedx/analyze@0.7.3
+  - @vuedx/compiler-sfc@0.7.1
+  - @vuedx/projectconfig@0.7.1
+  - @vuedx/shared@0.7.2
+  - @vuedx/template-ast-types@0.7.1
+  - @vuedx/vue-virtual-textdocument@0.7.3
+
 ## 0.7.2
 
 ### Patch Changes

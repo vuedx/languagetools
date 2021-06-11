@@ -1,5 +1,14 @@
 # vue-language-features
 
+## 0.7.3
+
+### Patch Changes
+
+- Updated dependencies [3e52646]
+  - @vuedx/analyze@0.7.3
+  - @vuedx/typescript-plugin-vue@0.7.3
+  - @vuedx/vue-virtual-textdocument@0.7.3
+
 ## 0.7.2
 
 ### Patch Changes
