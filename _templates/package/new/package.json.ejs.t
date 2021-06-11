@@ -10,10 +10,6 @@ to: packages/<%= name %>/package.json
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "types": "src/index.ts",
-  "exports": {
-    "require": "./lib/index.js",
-    "import": "./lib/index.mjs"
-  },
   "publishConfig": {
     "types": "lib/index.d.ts"
   },
