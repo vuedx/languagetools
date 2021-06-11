@@ -1,5 +1,6 @@
 **
 !languages/
+!dist/
 !scripts/
 !syntaxes/*.json
 !logo.png
