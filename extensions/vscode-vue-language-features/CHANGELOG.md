@@ -1,5 +1,11 @@
 # vue-language-features
 
+## 0.7.6
+
+### Patch Changes
+
+- ee835a3: Include dist directory in .vsix bundle
+
 ## 0.7.5
 
 ### Patch Changes
