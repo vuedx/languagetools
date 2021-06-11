@@ -1,5 +1,12 @@
 # vue
 
+## 0.7.4
+
+### Patch Changes
+
+- c5a7c28: Resolve typescript plugin using package name
+  - @vuedx/vue-virtual-textdocument@0.7.4
+
 ## 0.7.3
 
 ### Patch Changes

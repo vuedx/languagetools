@@ -1,5 +1,15 @@
 # @vuedx/typecheck
 
+## 0.7.4
+
+### Patch Changes
+
+- c5a7c28: Resolve typescript plugin using package name
+- Updated dependencies [c5a7c28]
+  - @vuedx/shared@0.7.3
+  - @vuedx/typescript-plugin-vue@0.7.4
+  - @vuedx/vue-virtual-textdocument@0.7.4
+
 ## 0.7.3
 
 ### Patch Changes

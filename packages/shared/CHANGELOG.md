@@ -1,5 +1,11 @@
 # @vuedx/shared
 
+## 0.7.3
+
+### Patch Changes
+
+- c5a7c28: Resolve typescript plugin using package name
+
 ## 0.7.2
 
 ### Patch Changes

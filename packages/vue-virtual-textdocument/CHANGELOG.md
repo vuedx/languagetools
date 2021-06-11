@@ -1,5 +1,14 @@
 # @vuedx/vue-virtual-textdocument
 
+## 0.7.4
+
+### Patch Changes
+
+- Updated dependencies [c5a7c28]
+  - @vuedx/analyze@0.7.4
+  - @vuedx/compiler-tsx@0.7.4
+  - @vuedx/shared@0.7.3
+
 ## 0.7.3
 
 ### Patch Changes
