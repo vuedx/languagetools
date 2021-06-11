@@ -141,7 +141,6 @@ jobs:
         env:
           RELEASE_CHANNEL: insiders
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
-        continue-on-error: true # It will fail when publishing same version again.
       - name: Publish Insiders Packages
         run: |
           echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
@@ -182,6 +181,7 @@ jobs:
           pnpm recursive --filter ./extensions run release
         env:
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+        continue-on-error: true # It will fail when publishing same version again.
       - name: Publish Insiders Packages
         run: |
           echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
