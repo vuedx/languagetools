@@ -204,6 +204,7 @@ jobs:
         env:
           RELEASE_CHANNEL: insiders
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+        continue-on-error: true
       - name: Publish Insiders Packages
         run: >
           echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
@@ -220,9 +221,7 @@ jobs:
           automatic_release_tag: insiders
           prerelease: true
           files: |
-            extensions/*/CHANGELOG.md
             extensions/*/*.vsix
-            packages/*/CHANGELOG.md
   check_release:
     name: Check Release
     runs-on: ubuntu-latest
@@ -290,6 +289,4 @@ jobs:
           automatic_release_tag: latest
           prerelease: false
           files: |
-            extensions/*/CHANGELOG.md
             extensions/*/*.vsix
-            packages/*/CHANGELOG.md

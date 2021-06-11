@@ -14,6 +14,7 @@ import type {
 } from 'typescript'
 import { inspect } from 'util'
 import { esbuild } from './rollup-plugin-esbuild'
+import glob from 'fast-glob'
 
 export type BuildKind = 'dts' | 'bundle'
 export type ExtendedOutputOptions = (
@@ -60,7 +61,8 @@ export interface PackageInfo {
   }
 }
 export interface GenerateOptions {
-  packagesDirectory?: string
+  rootDir?: string
+  dirPatterns?: string[]
   extend(kind: BuildKind, info: PackageInfo): RollupOptions | RollupOptions[]
 }
 
@@ -71,13 +73,16 @@ export function generateRollupOptions(
   const configs: RollupOptions[] = []
 
   const packagesDir =
-    options.packagesDirectory != null
-      ? Path.isAbsolute(options.packagesDirectory)
-        ? options.packagesDirectory
-        : Path.resolve(process.cwd(), options.packagesDirectory)
-      : Path.resolve(process.cwd(), 'packages')
+    options.rootDir != null
+      ? Path.isAbsolute(options.rootDir)
+        ? options.rootDir
+        : Path.resolve(process.cwd(), options.rootDir)
+      : process.cwd()
 
-  const { packageNames, resolvedPackages } = getPackages(packagesDir)
+  const { packageNames, resolvedPackages } = getPackages(
+    packagesDir,
+    options.dirPatterns ?? ['**'],
+  )
 
   const filterByFormat = createFilter<ExtendedOutputOptions>(
     process.env['BUILD_FORMATS'],
@@ -120,9 +125,10 @@ export function generateRollupOptions(
     }
 
     if (packageJson.buildConfig.useMain) {
-      const key = packageJson.main?.endsWith('.ts')
-        ? packageJson.main
-        : 'src/index.ts'
+      const key =
+        packageJson.main?.endsWith('.ts') === true
+          ? packageJson.main
+          : 'src/index.ts'
       const outputs = Object.entries({
         ...packageJson,
         ...packageJson.publishConfig,
@@ -189,7 +195,7 @@ export function generateRollupOptions(
             ...output,
             file: output.file != null ? project(output.file) : output.file,
             plugins:
-              bundle != null && bundle != false
+              bundle != null && bundle !== false
                 ? [
                     esbuild(bundle, () => {
                       // TODO: Get final external option.
@@ -252,20 +258,27 @@ export function generateRollupOptions(
 }
 
 export function getPackages(
-  packagesDir: string,
+  rootDir: string,
+  patterns: string[] = ['**'],
 ): {
   packageNames: string[]
   fullPackageNames: string[]
   resolvedPackages: Map<string, PackageJson>
 } {
-  const packageNames = FS.readdirSync(packagesDir).filter((name) =>
-    FS.statSync(Path.resolve(packagesDir, name)).isDirectory(),
+  const packageJsonFiles = glob.sync(
+    patterns.map((pattern) => `${pattern.replace(/\/$/, '')}/package.json`),
+    {
+      cwd: rootDir,
+      onlyFiles: true,
+      ignore: ['**/node_modules/**'],
+    },
   )
   const resolvedPackages = new Map<string, PackageJson>()
   const nodes = new Map<string, string>()
 
-  packageNames.forEach((packageName) => {
-    const packageFile = Path.resolve(packagesDir, packageName, 'package.json')
+  packageJsonFiles.forEach((packageJsonFile) => {
+    const packageRelativePath = Path.dirname(packageJsonFile)
+    const packageFile = Path.resolve(rootDir, packageJsonFile)
 
     if (FS.existsSync(packageFile)) {
       const rawPackageJson = JSON.parse(
@@ -285,9 +298,9 @@ export function getPackages(
         },
       }
 
-      resolvedPackages.set(packageName, packageJson)
+      resolvedPackages.set(packageRelativePath, packageJson)
 
-      nodes.set(packageJson.name ?? packageName, packageName)
+      nodes.set(packageJson.name ?? packageRelativePath, packageRelativePath)
     }
   })
 
@@ -339,7 +352,7 @@ function getTSConfig(configFile: string): CompilerOptions {
 
 function createFilter<T>(
   matchRE: string | undefined,
-  getter: (value: T) => (string | undefined)[],
+  getter: (value: T) => Array<string | undefined>,
 ): (value: T) => boolean {
   if (matchRE == null) return () => true
 

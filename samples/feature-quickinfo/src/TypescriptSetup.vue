@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, defineProps, ref, defineComponent } from 'vue'
+import { defineProps, ref } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
 
 const props = defineProps<{ name: string, email: string, code: string | number }>()

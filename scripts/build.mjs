@@ -7,15 +7,7 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = Path.dirname(__filename)
 
-getPackages(fromRoot('packages')).packageNames.forEach(build)
-getPackages(fromRoot('extensions')).packageNames.forEach(build)
-
-/**
- * @param {string} segment Path segment
- */
-function fromRoot(segment) {
-  return Path.resolve(__dirname, '..', segment)
-}
+getPackages(Path.resolve(__dirname, '..'), ['packages/*', 'extensions/*']).packageNames.forEach(build)
 
 /**
  * Build a package

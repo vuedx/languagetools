@@ -72,8 +72,6 @@ A set of tools for better developer experience aka Vue Developer Experience or V
 - [@vuedx/typescript-plugin-vue](./packages/typescript-plugin-vue) — enables TypeScript language server to understand `.vue` files
 - [@vuedx/typescript-vetur](./packages/typescript-vetur) — provides missing features to vetur, same as **TS Plugin** but for Vetur [#2145](https://github.com/vuejs/vetur/pull/2145)
 - [@vuedx/vue-virtual-textdoucment](./packages/vue-virtual-textdocument) — creates a virtual file system to represent blocks in SFC as files
-- [@vuedx/source-map](./packages/source-map) — 
-- [@vuedx/vue-as-tsx](./packages/vue-as-tsx) — 
 <!--EOL:Packages-->
 
 ## Contributing
