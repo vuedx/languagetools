@@ -45,5 +45,6 @@ jobs:
         uses: changesets/action@master
         with:
           title: 'release: new versions'
+          commit: 'release: new versions'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
