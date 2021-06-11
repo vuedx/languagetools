@@ -1,5 +1,11 @@
 # vue
 
+## 0.7.5
+
+### Patch Changes
+
+- Previous releases missed dist directory
+
 ## 0.7.4
 
 ### Patch Changes

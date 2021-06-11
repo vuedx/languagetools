@@ -60,6 +60,7 @@ jobs:
             ./packages/*/lib
             ./packages/*/runtime
             ./extensions/coc-vue/dist
+            ./extensions/*/dist
             ./extensions/*/*.vsix
   unit:
     needs: build
