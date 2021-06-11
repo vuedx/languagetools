@@ -52,9 +52,11 @@ describe('typecheck', () => {
   test(
     'format: raw',
     async () => {
-      expect(
-        await run('typecheck-configured', ['--pretty=false']),
-      ).toMatchInlineSnapshot(`""`)
+      expect(await run('typecheck-configured', ['--pretty=false']))
+        .toMatchInlineSnapshot(`
+        "src/App.vue(15,19): error VueDX/TS2322: Type 'number' is not assignable to type 'string'.
+        Found 1 error."
+      `)
     },
     TIMEOUT,
   )
@@ -62,9 +64,30 @@ describe('typecheck', () => {
   test(
     'format: json',
     async () => {
-      expect(
-        await run('typecheck-configured', ['--format', 'json']),
-      ).toMatchInlineSnapshot(`""`)
+      expect(await run('typecheck-configured', ['--format', 'json']))
+        .toMatchInlineSnapshot(`
+        "[
+          {
+            \\"fileName\\": \\"src/App.vue\\",
+            \\"diagnostics\\": [
+              {
+                \\"start\\": {
+                  \\"line\\": 14,
+                  \\"offset\\": 18
+                },
+                \\"end\\": {
+                  \\"line\\": 14,
+                  \\"offset\\": 22
+                },
+                \\"text\\": \\"Type 'number' is not assignable to type 'string'.\\",
+                \\"code\\": 2322,
+                \\"category\\": \\"error\\",
+                \\"source\\": \\"VueDX/TS\\"
+              }
+            ]
+          }
+        ]"
+      `)
     },
     TIMEOUT,
   )
@@ -72,9 +95,37 @@ describe('typecheck', () => {
   test(
     'format: rdjson',
     async () => {
-      expect(
-        await run('typecheck-configured', ['--format', 'rdjson']),
-      ).toMatchInlineSnapshot(`""`)
+      expect(await run('typecheck-configured', ['--format', 'rdjson']))
+        .toMatchInlineSnapshot(`
+        "{
+          \\"source\\": {
+            \\"name\\": \\"VueDX typecheck\\",
+            \\"url\\": \\"https://github.com/znck/vue-developer-experience/tree/main/packages/typecheck\\"
+          },
+          \\"diagnostics\\": [
+            {
+              \\"message\\": \\"Type 'number' is not assignable to type 'string'.\\",
+              \\"severity\\": \\"ERROR\\",
+              \\"location\\": {
+                \\"path\\": \\"src/App.vue\\",
+                \\"range\\": {
+                  \\"start\\": {
+                    \\"line\\": 14,
+                    \\"column\\": 18
+                  },
+                  \\"end\\": {
+                    \\"line\\": 14,
+                    \\"column\\": 22
+                  }
+                }
+              },
+              \\"code\\": {
+                \\"value\\": \\"2322\\"
+              }
+            }
+          ]
+        }"
+      `)
     },
     TIMEOUT,
   )

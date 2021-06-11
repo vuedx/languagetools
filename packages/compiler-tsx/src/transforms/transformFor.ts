@@ -41,14 +41,14 @@ export function createTransformFor(
     if (isSimpleExpressionNode(dir.exp)) {
       const parseResult = forAliasRE.exec(dir.exp.content)
 
-      if (parseResult != null) {
+      if (parseResult?.[2] != null) {
         exp = createSimpleExpression(
-          parseResult[2]!,
+          parseResult[2],
           false,
           createLoc(
             dir.exp.loc,
-            dir.exp.content.indexOf(parseResult[2]!),
-            parseResult[2]!.length,
+            dir.exp.content.indexOf(parseResult[2]),
+            parseResult[2].length,
           ),
         )
 

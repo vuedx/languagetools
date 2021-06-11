@@ -4,7 +4,9 @@ import { Container } from 'inversify'
 import { GenerateGrammarCommand } from './commands/generateGrammar'
 import { ConfigurationService } from './services/configuration'
 
-export async function activate(context: vscode.ExtensionContext) {
+export async function activate(
+  context: vscode.ExtensionContext,
+): Promise<void> {
   const container = new Container({
     autoBindInjectable: true,
     defaultScope: 'Singleton',

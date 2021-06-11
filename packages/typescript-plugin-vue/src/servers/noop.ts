@@ -278,7 +278,7 @@ export const noop: TS.LanguageService = {
   },
 
   // @ts-expect-error
-  applyCodeActionCommand(_action, _formatSettings) {
-    return Promise.reject('Not Implemented')
+  async applyCodeActionCommand(_action, _formatSettings) {
+    throw new Error('Not Implemented')
   },
 }

@@ -4,7 +4,7 @@ import { defineDiagnosticProvider } from './abstract'
 export const TemplateCompilerDiagnosticsProvider = defineDiagnosticProvider({
   version: '*',
 
-  semantic({}, _fileName) {
+  semantic(_, _fileName) {
     return []
   },
 

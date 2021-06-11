@@ -13,12 +13,15 @@ export function generateCodeFrame(
   const getLine = (line: number | string): string =>
     String(line).padStart(width) + ' | '
   for (let i = 0; i < lines.length; i++) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     count += lines[i]!.length + 1
     if (count >= start) {
       for (let j = i - range; j <= i + range || end > count; j++) {
         if (j < 0 || j >= lines.length) continue
         const line = j + 1
-        res.push(`${gutter(getLine(line))}${lines[j]}`)
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        res.push(`${gutter(getLine(line))}${lines[j]!}`)
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const lineLength = lines[j]!.length
         if (j === i) {
           // push underline

@@ -28,8 +28,9 @@ export class TypeScriptServerHost {
   ]
 
   public readonly serverPath = resolve('typescript/lib/tsserver', process.cwd())
-  public readonly pluginPath = Path.dirname(
-    require.resolve('@vuedx/typescript-plugin-vue/package.json'),
+  public readonly pluginPath = Path.resolve(
+    Path.dirname(require.resolve('@vuedx/typescript-plugin-vue/package.json')),
+    '../..',
   )
 
   public readonly exitStatus: Promise<number>
@@ -64,8 +65,8 @@ export class TypeScriptServerHost {
     // prettier-ignore
     this.server = fork(this.serverPath, [
       ...debugArgs,
-      '--globalPlugins', this.pluginPath,
-      '--pluginProbeLocations', this.pluginPath,
+      '--globalPlugins', '@vuedx/typescript-plugin-vue',
+      '--pluginProbeLocations', `${process.cwd()},${this.pluginPath}`,
       '--allowLocalPluginLoads',
       '--useSingleInferredProject'
     ], {

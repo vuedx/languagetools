@@ -19,6 +19,6 @@ export function createSimpleExpression(
     content,
     isStatic,
     loc,
-    isConstant ? 0 : undefined,
+    isConstant === true ? 0 : undefined,
   )
 }

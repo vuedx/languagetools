@@ -38,7 +38,10 @@ export function detectRefsAndProps(
     node.scope.identifiers.forEach((id) => {
       if (node.scope.getBinding(id) == null && id in info.identifierSource) {
         const source = info.identifierSource[id]
-        if (source?.name === 'setup' || source?.name.startsWith('scriptSetup:')) {
+        if (
+          source?.name === 'setup' ||
+          source?.name.startsWith('scriptSetup:') === true
+        ) {
           const node = findNodeAt(
             source.loc.start.offset,
             source.loc.end.offset,

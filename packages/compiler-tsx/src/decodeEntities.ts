@@ -36,7 +36,7 @@ export const decodeHtml: ParserOptions['decodeEntities'] = (
       // Named character reference.
       let name = ''
       let value: string | undefined
-      if (/[0-9a-z]/i.test(rawText[1]!)) {
+      if (rawText[1] != null && /[0-9a-z]/i.test(rawText[1])) {
         for (
           let length = maxCRNameLength;
           value != null && length > 0;
@@ -72,11 +72,13 @@ export const decodeHtml: ParserOptions['decodeEntities'] = (
       const pattern = hex ? /^&#x([0-9a-f]+);?/i : /^&#([0-9]+);?/
       const body = pattern.exec(rawText)
       if (body == null) {
-        decodedText += head[0]
-        advance(head[0]!.length)
-      } else {
+        if (head[0] != null) {
+          decodedText = `${decodedText}${head[0]}`
+          advance(head[0].length)
+        }
+      } else if (body[1] != null) {
         // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
-        let cp = Number.parseInt(body[1]!, hex ? 16 : 10)
+        let cp = Number.parseInt(body[1], hex ? 16 : 10)
         if (cp === 0) {
           cp = 0xfffd
         } else if (cp > 0x10ffff) {
@@ -94,7 +96,7 @@ export const decodeHtml: ParserOptions['decodeEntities'] = (
           cp = CCR_REPLACEMENTS[cp] ?? cp
         }
         decodedText += String.fromCodePoint(cp)
-        advance(body[0]!.length)
+        if (body[0] != null) advance(body[0].length)
       }
     }
   }

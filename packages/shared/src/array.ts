@@ -5,12 +5,14 @@ export function isArray<T>(value: any): value is T[] {
 export function first<T>(items: T[] | readonly T[]): T {
   if (items.length === 0) throw new Error('IndexOutOfBounds')
 
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return items[0]!
 }
 
 export function last<T>(items: T[] | readonly T[], nth: number = 1): T {
   const index = items.length - nth
   if (index < 0 || index >= items.length) throw new Error('IndexOutOfBounds')
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return items[index]!
 }
 
@@ -41,7 +43,7 @@ export function concat<T>(a: T[] | undefined, b: T[] | undefined): T[] {
   return c
 }
 
-export function flatten<T>(array: (T | T[])[], depth: number = 1): T[] {
+export function flatten<T>(array: Array<T | T[]>, depth: number = 1): T[] {
   const items: T[] = []
 
   array.forEach((item) => {
