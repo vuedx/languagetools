@@ -4,23 +4,6 @@
     "node": "^16.3.0",
     "pnpm": "^6.0.0"
   },
-  "scripts": {
-    "prepare": "node scripts/build-monorepo-tools.mjs",
-    "test": "jest --verbose",
-    "coverage": "jest --verbose --coverage",
-    "build": "rollup -c",
-    "build:dev": "rollup -c --environment BUILD:development",
-    "build:types": "rollup -c --environment BUILD:development,BUILD_FORMAT:dts",
-    "watch": "rollup -c --environment BUILD:development --watch",
-    "ci:build": "node scripts/build.mjs",
-    "eslint:check": "eslint --cache **/*.ts **/*.mjs **/*.js",
-    "eslint:fix": "eslint --cache --fix .",
-    "release": "run-s release:*",
-    "release:changeset": "changeset version",
-    "release:generate-docs": "node scripts/docgen",
-    "pr": "changeset",
-    "new": "node scripts/new.mjs"
-  },
   "devDependencies": {
     "@changesets/cli": "^2.13.1",
     "@microsoft/api-extractor": "^7.12.0",
@@ -32,19 +15,12 @@
     "@rollup/plugin-typescript": "^8.2.1",
     "@types/jest": "^26.0.14",
     "@types/node": "^14.11.10",
-    "@typescript-eslint/eslint-plugin": "^4.26.0",
-    "@typescript-eslint/parser": "^4.26.0",
+    "@vuedx/eslint-config": "workspace:*",
     "@vuedx/monorepo-tools": "workspace:*",
-    "@vuedx/typescript-plugin-vue": "link:packages/typescript-plugin-vue",
+    "@vuedx/typescript-plugin-vue": "workspace:*",
     "builtin-modules": "^3.1.0",
     "doctrine": "^3.0.0",
     "eslint": "^7.28.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-config-standard-with-typescript": "^20.0.0",
-    "eslint-plugin-import": "^2.23.4",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.4.0",
-    "eslint-plugin-promise": "^5.1.0",
     "fast-glob": "^3.2.4",
     "husky": "^6.0.0",
     "hygen": "^6.1.0",
@@ -73,5 +49,22 @@
       "@vue/compiler-sfc": "^3.0.11",
       "@vue/compiler-ssr": "^3.0.11"
     }
+  },
+  "scripts": {
+    "prepare": "node scripts/build-monorepo-tools.mjs",
+    "test": "jest --verbose",
+    "coverage": "jest --verbose --coverage",
+    "build": "rollup -c",
+    "build:dev": "rollup -c --environment BUILD:development",
+    "build:types": "rollup -c --environment BUILD:development,BUILD_FORMAT:dts",
+    "watch": "rollup -c --environment BUILD:development --watch",
+    "ci:build": "node scripts/build.mjs",
+    "eslint:check": "eslint --cache '**/*.ts' '**/*.mjs' '**/*.js'",
+    "eslint:fix": "eslint --cache --fix '**/*.ts' '**/*.mjs' '**/*.js'",
+    "release": "run-s release:*",
+    "release:changeset": "changeset version",
+    "release:generate-docs": "node scripts/docgen",
+    "pr": "changeset",
+    "new": "node scripts/new.mjs"
   }
 }
