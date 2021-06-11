@@ -1,5 +1,12 @@
 # vue
 
+## 0.7.3
+
+### Patch Changes
+
+- Updated dependencies [3e52646]
+  - @vuedx/vue-virtual-textdocument@0.7.3
+
 ## 0.7.2
 
 ### Patch Changes

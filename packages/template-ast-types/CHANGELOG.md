@@ -1,5 +1,11 @@
 # @vuedx/template-ast-types
 
+## 0.7.1
+
+### Patch Changes
+
+- 3e52646: Remove "exports" property from package.json
+
 ## 0.7.0
 
 ### Minor Changes
