@@ -1,6 +1,4 @@
 import { execSync } from 'child_process'
-import glob from 'fast-glob'
-import FS from 'fs'
 import Path from 'path'
 import { fileURLToPath } from 'url'
 import { prepareExtensionForPackaging } from '../../../scripts/extension-package.mjs'
