@@ -230,6 +230,7 @@ function genChildren(
   hasParentElement = false,
 ): void {
   if (
+    hasParentElement &&
     children.length === 1 &&
     (isElementNode(children[0]) ||
       (isTextNode(children[0]) && !/[<>]/.test(children[0].content)))
@@ -419,7 +420,7 @@ function genComponentSlots(
     node.slots[0]?.args == null &&
     node.slots[0]?.name == null
   ) {
-    genChildren(context, node.slots[0]?.children ?? [], true)
+    genChildren(context, node.slots[0]?.children ?? [], false)
 
     return
   }
@@ -453,7 +454,7 @@ function genComponentSlots(
     // START BODY
     context.write('return (').newLine()
     context.indent()
-    genChildren(context, node.children)
+    genChildren(context, node.children, false)
     context.deindent()
     context.write(')').newLine()
     // END BODY
@@ -780,6 +781,8 @@ function genIfNode(context: GenerateContext, node: IfNode): void {
       ++indent
     } else {
       hasElse = true
+      context.indent()
+      ++indent
     }
 
     context.indent()

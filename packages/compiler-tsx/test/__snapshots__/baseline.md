@@ -16,9 +16,11 @@ export function render(_ctx: Example, {}: Example): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <div>
-      foo
-    </div>
+    <>
+      <div>
+        foo
+      </div>
+    </>
   )
 }
 ```
@@ -52,8 +54,10 @@ export function render(_ctx: Example, {}: Example): any {
       </p>
       {
         ()
-          ? <p>
-            </p>
+          ? <>
+              <p>
+              </p>
+            </>
           : null
       }
     </>
@@ -86,7 +90,9 @@ export function render(_ctx: Example, {}: Example): any {
         {VueDX.internal.checkSlots(Foo.Bar, {
           default: () => {
             return (
-              foo
+              <>
+                foo
+              </>
             )
           },
         })}
@@ -95,7 +101,9 @@ export function render(_ctx: Example, {}: Example): any {
         {VueDX.internal.checkSlots(Foo.Bar, {
           default: () => {
             return (
-              foo
+              <>
+                foo
+              </>
             )
           },
         })}
@@ -104,13 +112,17 @@ export function render(_ctx: Example, {}: Example): any {
         {VueDX.internal.checkSlots(Foo.Bar, {
           default: () => {
             return (
-              foo
+              <>
+                foo
+              </>
             )
           },
         })}
       </Foo.Bar>
       <unknown-element>
-        foo
+        <>
+          foo
+        </>
       </unknown-element>
     </>
   )
@@ -223,9 +235,11 @@ export function render(_ctx: Example, {awesome}: Example): any {
     <>
       {
         (awesome)
-          ? <h1>
-              Vue is awesome!
-            </h1>
+          ? <>
+              <h1>
+                Vue is awesome!
+              </h1>
+            </>
           : null
       }
     </>
@@ -253,12 +267,16 @@ export function render(_ctx: Example, {awesome}: Example): any {
     <>
       {
         (awesome)
-          ? <h1>
-              Vue is awesome!
-            </h1>
-          : <h1>
-            Oh no 😢
-          </h1>
+          ? <>
+              <h1>
+                Vue is awesome!
+              </h1>
+            </>
+          : <>
+              <h1>
+                Oh no 😢
+              </h1>
+            </>
       }
     </>
   )
@@ -336,20 +354,28 @@ export function render(_ctx: Example, {type}: Example): any {
     <>
       {
         (type === 'A')
-          ? <div>
-               A 
-            </div>
+          ? <>
+              <div>
+                 A 
+              </div>
+            </>
           : (type === 'B')
-          ? <div>
-               B 
-            </div>
+          ? <>
+              <div>
+                 B 
+              </div>
+            </>
           : (type === 'C')
-          ? <div>
-               C 
-            </div>
-          : <div>
-             Not A/B/C 
-          </div>
+          ? <>
+              <div>
+                 C 
+              </div>
+            </>
+          : <>
+              <div>
+                 Not A/B/C 
+              </div>
+            </>
       }
     </>
   )
@@ -372,9 +398,11 @@ export function render(_ctx: Example, {}: Example): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <h1>
-      Vue is awesome!
-    </h1>
+    <>
+      <h1>
+        Vue is awesome!
+      </h1>
+    </>
   )
 }
 ```
@@ -397,9 +425,11 @@ export function render(_ctx: Example, {}: Example): any {
   return (
     <>
       {
-          <h1>
-            Vue is awesome!
-          </h1>
+            <>
+              <h1>
+                Vue is awesome!
+              </h1>
+            </>
       }
     </>
   )
@@ -422,9 +452,11 @@ export function render(_ctx: Example, {ok}: Example): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <h1>
-      Vue is awesome!
-    </h1>
+    <>
+      <h1>
+        Vue is awesome!
+      </h1>
+    </>
   )
 }
 ```
@@ -491,43 +523,67 @@ export function render(_ctx: Example, {foo,bar}: Example): any {
     <>
       {
         (foo)
-          ? <div>
-              {
-                (foo)
-                  ? <div>
-                    </div>
-                  : (bar)
-                  ? <div>
-                    </div>
-                  : <div>
-                  </div>
-              }
-            </div>
+          ? <>
+              <div>
+                {
+                  (foo)
+                    ? <>
+                        <div>
+                        </div>
+                      </>
+                    : (bar)
+                    ? <>
+                        <div>
+                        </div>
+                      </>
+                    : <>
+                        <div>
+                        </div>
+                      </>
+                }
+              </div>
+            </>
           : (bar)
-          ? <div>
-              {
-                (foo)
-                  ? <div>
-                    </div>
-                  : (bar)
-                  ? <div>
-                    </div>
-                  : <div>
-                  </div>
-              }
-            </div>
-          : <div>
-            {
-              (foo)
-                ? <div>
-                  </div>
-                : (bar)
-                ? <div>
-                  </div>
-                : <div>
-                </div>
-            }
-          </div>
+          ? <>
+              <div>
+                {
+                  (foo)
+                    ? <>
+                        <div>
+                        </div>
+                      </>
+                    : (bar)
+                    ? <>
+                        <div>
+                        </div>
+                      </>
+                    : <>
+                        <div>
+                        </div>
+                      </>
+                }
+              </div>
+            </>
+          : <>
+              <div>
+                {
+                  (foo)
+                    ? <>
+                        <div>
+                        </div>
+                      </>
+                    : (bar)
+                    ? <>
+                        <div>
+                        </div>
+                      </>
+                    : <>
+                        <div>
+                        </div>
+                      </>
+                }
+              </div>
+            </>
       }
     </>
   )
@@ -550,10 +606,12 @@ export function render(_ctx: Example, {msg}: Example): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <span data-vuedx-directive-text={VueDX.internal.checkDirective("text", "span", [
-        { exp: msg, },
-      ])}>
-    </span>
+    <>
+      <span data-vuedx-directive-text={VueDX.internal.checkDirective("text", "span", [
+          { exp: msg, },
+        ])}>
+      </span>
+    </>
   )
 }
 ```
@@ -574,10 +632,12 @@ export function render(_ctx: Example, {html}: Example): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <div data-vuedx-directive-html={VueDX.internal.checkDirective("html", "div", [
-        { exp: html, },
-      ])}>
-    </div>
+    <>
+      <div data-vuedx-directive-html={VueDX.internal.checkDirective("html", "div", [
+          { exp: html, },
+        ])}>
+      </div>
+    </>
   )
 }
 ```
@@ -598,11 +658,13 @@ export function render(_ctx: Example, {ok}: Example): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <h1 data-vuedx-directive-show={VueDX.internal.checkDirective("show", "h1", [
-        { exp: ok, },
-      ])}>
-      Hello!
-    </h1>
+    <>
+      <h1 data-vuedx-directive-show={VueDX.internal.checkDirective("show", "h1", [
+          { exp: ok, },
+        ])}>
+        Hello!
+      </h1>
+    </>
   )
 }
 ```
@@ -703,31 +765,39 @@ export function render(_ctx: Example, {}: Example): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <Foo>
-      {{
-        foo: () => {
-          return (
-            <>
-              A
-            </>
-          )
-        },
-        bar: ({bar}) => {
-          return (
-            <>
-              {bar}
-            </>
-          )
-        },
-        [Symbol.for('VueDX:UnknownSlot')]: () => {
-          return (
-            <>
-              Invalid
-            </>
-          )
-        },
-      }}
-    </Foo>
+    <>
+      <Foo>
+        {{
+          foo: () => {
+            return (
+              <>
+                <>
+                  A
+                </>
+              </>
+            )
+          },
+          bar: ({bar}) => {
+            return (
+              <>
+                <>
+                  {bar}
+                </>
+              </>
+            )
+          },
+          [Symbol.for('VueDX:UnknownSlot')]: () => {
+            return (
+              <>
+                <>
+                  Invalid
+                </>
+              </>
+            )
+          },
+        }}
+      </Foo>
+    </>
   )
 }
 ```
@@ -748,9 +818,11 @@ export function render(_ctx: Example, {}: Example): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <pre>
-      {"{{ interpolation }}"}
-    </pre>
+    <>
+      <pre>
+        {"{{ interpolation }}"}
+      </pre>
+    </>
   )
 }
 ```
@@ -771,11 +843,13 @@ export function render(_ctx: Example, {largeText}: Example): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <section data-vuedx-directive-once={VueDX.internal.checkDirective("once", "section", [
-        { },
-      ])}>
-      {largeText}
-    </section>
+    <>
+      <section data-vuedx-directive-once={VueDX.internal.checkDirective("once", "section", [
+          { },
+        ])}>
+        {largeText}
+      </section>
+    </>
   )
 }
 ```
@@ -800,14 +874,18 @@ export function render(_ctx: Example, {MyComponent}: Example): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <table>
-      <tbody>
-        <tr data-vuedx-directive-is={VueDX.internal.checkDirective("is", "tr", [
-            { exp: MyComponent, },
-          ])}>
-        </tr>
-      </tbody>
-    </table>
+    <>
+      <table>
+        <tbody>
+          <tr data-vuedx-directive-is={VueDX.internal.checkDirective("is", "tr", [
+              { exp: MyComponent, },
+            ])}>
+            <>
+            </>
+          </tr>
+        </tbody>
+      </table>
+    </>
   )
 }
 ```
@@ -840,40 +918,50 @@ export function render(_ctx: Example, {foo}: Example): any {
   const DynamicComponent0 = foo;
 
   return (
-    <DynamicComponent0>
-      {VueDX.internal.checkSlots(DynamicComponent0, {
-        default: ({bar}) => {
-          return (
-            <DynamicComponent1>
-              {VueDX.internal.checkSlots(DynamicComponent1, {
-                default: ({baz}) => {
-                  return (
-                    <DynamicComponent2>
-                      {VueDX.internal.checkSlots(DynamicComponent2, {
-                        other: ({ foo }) => {
-                          return (
-                            <>
-                              <DynamicComponent3/>
-                            </>
-                          )
-                        },
-                        default: ({ bar }) => {
-                          return (
-                            <>
-                              <DynamicComponent4/>
-                            </>
-                          )
-                        },
-                      })}
-                    </DynamicComponent2>
-                  )
-                },
-              })}
-            </DynamicComponent1>
-          )
-        },
-      })}
-    </DynamicComponent0>
+    <>
+      <DynamicComponent0>
+        {VueDX.internal.checkSlots(DynamicComponent0, {
+          default: ({bar}) => {
+            return (
+              <>
+                <DynamicComponent1>
+                  {VueDX.internal.checkSlots(DynamicComponent1, {
+                    default: ({baz}) => {
+                      return (
+                        <>
+                          <DynamicComponent2>
+                            {VueDX.internal.checkSlots(DynamicComponent2, {
+                              other: ({ foo }) => {
+                                return (
+                                  <>
+                                    <>
+                                      <DynamicComponent3/>
+                                    </>
+                                  </>
+                                )
+                              },
+                              default: ({ bar }) => {
+                                return (
+                                  <>
+                                    <>
+                                      <DynamicComponent4/>
+                                    </>
+                                  </>
+                                )
+                              },
+                            })}
+                          </DynamicComponent2>
+                        </>
+                      )
+                    },
+                  })}
+                </DynamicComponent1>
+              </>
+            )
+          },
+        })}
+      </DynamicComponent0>
+    </>
   )
 }
 ```
@@ -906,40 +994,48 @@ export function render(_ctx: Example, {bars}: Example): any {
         VueDX.internal.renderList(bars, (bar) => {
           const DynamicComponent1 = bar;
           return (
-            <DynamicComponent0>
-              {VueDX.internal.checkSlots(DynamicComponent0, {
-                default: () => {
-                  return (
-                    <DynamicComponent1>
-                      {VueDX.internal.checkSlots(DynamicComponent1, {
-                        default: ({baz}) => {
-                          return (
-                            <>
-                              {
-                                VueDX.internal.renderList(baz, (item) => {
-                                  const DynamicComponent3 = item;
-                                  return (
-                                    <DynamicComponent2>
-                                      {VueDX.internal.checkSlots(DynamicComponent2, {
-                                        default: () => {
-                                          return (
-                                            <DynamicComponent3/>
-                                          )
-                                        },
-                                      })}
-                                    </DynamicComponent2>
-                                  )
-                                })
-                              }
-                            </>
-                          )
-                        },
-                      })}
-                    </DynamicComponent1>
-                  )
-                },
-              })}
-            </DynamicComponent0>
+            <>
+              <DynamicComponent0>
+                {VueDX.internal.checkSlots(DynamicComponent0, {
+                  default: () => {
+                    return (
+                      <>
+                        <DynamicComponent1>
+                          {VueDX.internal.checkSlots(DynamicComponent1, {
+                            default: ({baz}) => {
+                              return (
+                                <>
+                                  {
+                                    VueDX.internal.renderList(baz, (item) => {
+                                      const DynamicComponent3 = item;
+                                      return (
+                                        <>
+                                          <DynamicComponent2>
+                                            {VueDX.internal.checkSlots(DynamicComponent2, {
+                                              default: () => {
+                                                return (
+                                                  <>
+                                                    <DynamicComponent3/>
+                                                  </>
+                                                )
+                                              },
+                                            })}
+                                          </DynamicComponent2>
+                                        </>
+                                      )
+                                    })
+                                  }
+                                </>
+                              )
+                            },
+                          })}
+                        </DynamicComponent1>
+                      </>
+                    )
+                  },
+                })}
+              </DynamicComponent0>
+            </>
           )
         })
       }
