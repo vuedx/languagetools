@@ -23,6 +23,7 @@ import {
   isImportDeclaration,
   isImportSpecifier,
   isMemberExpression,
+  isObjectMember,
   isObjectPattern,
   isOptionalMemberExpression,
   isPrivateName,
@@ -30,6 +31,7 @@ import {
   isVariableDeclaration,
   LVal,
   Node as BabelNode,
+  ObjectMember,
   PatternLike,
   traverse as traverseBabel,
 } from '@babel/types'
@@ -41,10 +43,6 @@ import {
   isSimpleExpressionNode,
   traverse,
 } from '@vuedx/template-ast-types'
-import {
-  isStaticPropertyKey,
-  isKnownIdentifier,
-} from './transforms/transformExpression'
 import { forAliasRE } from './transforms/transformFor'
 
 export class Scope {
@@ -359,4 +357,24 @@ function shouldTrack(identifier: Identifier, parent: BabelNode): boolean {
   }
 
   return false
+}
+
+const KNOWN_IDENTIFIERS = new Set(
+  (
+    'Infinity,undefined,NaN,isFinite,isNaN,parseFloat,parseInt,decodeURI,' +
+    'decodeURIComponent,encodeURI,encodeURIComponent,Math,Number,Date,Array,' +
+    'Object,Boolean,String,RegExp,Map,Set,JSON,Intl'
+  ).split(','),
+)
+
+function isKnownIdentifier(value: string): boolean {
+  return KNOWN_IDENTIFIERS.has(value) || /^(true|false|null|this)$/.test(value)
+}
+
+function isStaticProperty(node: BabelNode): node is ObjectMember {
+  return isObjectMember(node) && !node.computed
+}
+
+function isStaticPropertyKey(node: BabelNode, parent: BabelNode): boolean {
+  return isStaticProperty(parent) && parent.key === node
 }

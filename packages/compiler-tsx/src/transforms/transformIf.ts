@@ -1,76 +1,21 @@
 import {
-  createCompoundExpression,
   createStructuralDirectiveTransform,
   NodeTransform,
   processIf,
-  SimpleExpressionNode,
 } from '@vue/compiler-core'
-import { flatten } from '@vuedx/shared'
-import {
-  createSimpleExpression,
-  isSimpleExpressionNode,
-} from '@vuedx/template-ast-types'
-import { trackIdentifiers } from './transformExpression'
+import type { CustomTransformContext } from './CustomTransformContext'
 
 export function createTransformIf(
-  addIdentifer: (value: string) => void,
+  _customContext: CustomTransformContext,
 ): NodeTransform {
   return createStructuralDirectiveTransform(
     /^(if|else-if|else)$/,
     (node, dir, context) => {
-      const exp = dir.exp as SimpleExpressionNode | undefined
-      const content = exp?.content
-      if (isSimpleExpressionNode(dir.exp)) {
-        trackIdentifiers(
-          dir.exp.content,
-          context,
-          dir.exp.loc.start,
-          addIdentifer,
-        )
-      }
-
-      return processIf(node, dir, context, (ifNode, branch, _isRoot) => {
-        return () => {
-          let hasElse = false
-
-          if (dir.name !== 'else') {
-            branch.condition = createSimpleExpression(
-              content == null || content.trim() === '' ? 'false' : content,
-              false,
-              exp?.loc,
-            )
-          }
-
-          const expressions = [
-            ...flatten(
-              ifNode.branches.map((branch) => {
-                hasElse = hasElse || branch.condition == null
-
-                return branch.condition != null
-                  ? [
-                      '(',
-                      branch.condition,
-                      ') ? (',
-                      ...normalizeChildren(branch.children),
-                      ') :',
-                    ]
-                  : ['(', ...normalizeChildren(branch.children), ')']
-              }),
-            ),
-            `${hasElse ? '' : 'null'}`,
-          ]
-
-          ifNode.codegenNode = createCompoundExpression(expressions) as any
-        }
+      const condition = dir.exp
+      dir.exp = undefined // Prevent condition normalization
+      return processIf(node, dir, context, (_ifNode, brnach) => () => {
+        brnach.condition = condition
       })
     },
   )
-}
-
-function normalizeChildren(children: any[]): any[] {
-  return children.length === 0
-    ? ['null']
-    : children.length === 1
-    ? children
-    : ['<>', ...children, '</>']
 }

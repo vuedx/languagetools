@@ -6,4 +6,6 @@ export type {
   SFCScriptBlock,
   SFCStyleBlock,
   SFCTemplateBlock,
+  CompilerError,
 } from '@vue/compiler-sfc'
+export type { RawSourceMap } from 'source-map'
