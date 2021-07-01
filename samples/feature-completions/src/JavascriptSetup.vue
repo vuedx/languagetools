@@ -18,7 +18,7 @@ function increment() {}
 
 <template>
   <HelloWorld n />
-  <span>Name: {{ name + }}</span>
+  <span>Name: {{ name + fullname }}</span>
   <p v-bind:></p>
   <p v-if=""></p>
   <>

@@ -306,7 +306,13 @@ function getIdentifiers(source: string): Set<string> {
 
     return identifers
   } catch {
-    return new Set<string>([])
+    const RE = /\b[a-z$_][a-z0-9$_]+\b/gi
+    let match: RegExpMatchArray | null
+    const identifiers = new Set<string>()
+    while ((match = RE.exec(source)) != null) {
+      identifiers.add(match[0]!)
+    }
+    return identifiers
   }
 }
 
