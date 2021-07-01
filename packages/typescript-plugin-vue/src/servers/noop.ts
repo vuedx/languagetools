@@ -277,7 +277,8 @@ export const noop: TS.LanguageService = {
     throw new Error('Not Implemented')
   },
 
-  // @ts-expect-error
+  // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+  // @ts-ignore
   async applyCodeActionCommand(_action, _formatSettings) {
     throw new Error('Not Implemented')
   },

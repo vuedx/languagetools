@@ -28,7 +28,7 @@ export default defineComponent({
   <div v-for="(s, i) of str">{{ s }}:{{ i }}</div>
   <div v-for="a of arr">{{ a }}</div>
   <div v-for="{ value } of arr">{{ value }}</div>
-  <div v-for="{ foo } of arr">{{ arr }}</div>
+  <div v-for="{ foo } of arr">{{ foo }}</div>
   <div v-for="(a, i) of arr">{{ a }}:{{ i }}</div>
   <div v-for="({ value }, i) of arr">{{ value }}:{{ i }}</div>
   <div v-for="o of obj">{{ o }}</div>

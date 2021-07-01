@@ -37,7 +37,7 @@ export class VueVirtualDocumentProvider
     try {
       const document = await this.documents.getVirtualDocument(uri)
 
-      return document?.getText()
+      return document?.generated?.getText()
     } catch (error) {
       if (error instanceof Error) {
         return `/*\nError: ${error.message}\n${error.stack ?? ''}\n*/`

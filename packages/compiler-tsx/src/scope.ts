@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="./augment-node.d.ts" />
 
@@ -115,19 +116,17 @@ export function withScope(ast: RootNode): RootNode {
               const localScope = (prop.exp.scope = new Scope(directiveScope))
               const match = forAliasRE.exec(prop.exp.content)
               if (match != null) {
-                const [, LHS, RHS] = match
-                if (RHS != null) {
-                  getIdentifiers(RHS).forEach((identifier) => {
-                    localScope.getBinding(identifier)
-                  })
+                const LHS = match[1]!
+                const RHS = match[2]!
 
-                  getIdentifiers(`${LHS ?? '()'} => {}`).forEach(
-                    (identifier) => {
-                      scope.setBinding(identifier, node)
-                      localScope.getBinding(identifier)
-                    },
-                  )
-                }
+                getIdentifiers(RHS).forEach((identifier) => {
+                  localScope.getBinding(identifier)
+                })
+
+                getIdentifiers(`${LHS ?? '()'} => {}`).forEach((identifier) => {
+                  scope.setBinding(identifier, node)
+                  localScope.getBinding(identifier)
+                })
               }
             }
           }
@@ -331,6 +330,7 @@ function parseUsingBabel(source: string, withTS = false): File | Expression {
   }
 }
 
+// TODO: This misses destructured arguments
 function shouldTrack(identifier: Identifier, parent: BabelNode): boolean {
   if (
     !(

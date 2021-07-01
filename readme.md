@@ -73,6 +73,8 @@ A set of tools for better developer experience aka Vue Developer Experience or V
 - [@vuedx/typescript-vetur](./packages/typescript-vetur) — provides missing features to vetur, same as **TS Plugin** but for Vetur [#2145](https://github.com/vuejs/vetur/pull/2145)
 - [@vuedx/vue-virtual-textdoucment](./packages/vue-virtual-textdocument) — creates a virtual file system to represent blocks in SFC as files
 - [@vuedx/eslint-config](./packages/eslint-config) — 
+- [@vuedx/vue-language-service](./packages/vue-language-service) — 
+- [@vuedx/vue-languageservice](./packages/vue-languageservice) — 
 <!--EOL:Packages-->
 
 ## Contributing

@@ -1,23 +1,24 @@
 /* eslint-disable import/first */
 console.log = console.info = console.debug = console.error
 
-import { collect, Telemetry } from '@vuedx/shared'
+import { Telemetry } from '@vuedx/shared'
+import {
+  createTypescriptLanguageService,
+  ExtendedTSLanguageService,
+} from '@vuedx/vue-languageservice'
 import { version } from '../package.json'
-import { PluginContext } from './context'
-import { traceFn } from './helpers/logger'
+import { wrapFn } from './helpers/logger'
+import { tryPatchMethod } from './helpers/patcher'
 import type { Modules, PluginConfig, TS } from './interfaces'
-import { RoutingLanguageServer } from './servers/routing'
+import * as Path from 'path'
 
-let context: PluginContext
-let server: RoutingLanguageServer
+export type { PluginConfig } from './interfaces'
+export type PluginCreateInfo = Omit<TS.server.PluginCreateInfo, 'config'> & {
+  config: PluginConfig
+}
 
-export type { Modules, PluginConfig } from './interfaces'
-export type PluginModule = TS.server.PluginModule
-
+const services = new WeakMap<TS.server.Project, ExtendedTSLanguageService>()
 export default function init({ typescript }: Modules): TS.server.PluginModule {
-  context = context ?? new PluginContext(typescript)
-  server = server ?? new RoutingLanguageServer(context)
-
   Telemetry.setup(
     'https://a1461052e1d94c7a9ee7c3f7add71b24@o237831.ingest.sentry.io/5595721',
     'typescript-plugin-vue',
@@ -27,37 +28,74 @@ export default function init({ typescript }: Modules): TS.server.PluginModule {
   )
 
   return {
-    create(
-      info: Omit<TS.server.PluginCreateInfo, 'config'> & {
-        config: PluginConfig
-      },
-    ) {
-      if (info.config.telemetry === false) Telemetry.optOut()
+    create(info: PluginCreateInfo) {
+      patchExtraFileExtensions(info.project.projectService)
 
-      collect('typescript project', {
-        kind: info.project.projectKind,
-        language: info.project.projectName.endsWith('jsconfig.json')
-          ? 'js'
-          : 'ts',
-        config: info.config,
+      const service = createTypescriptLanguageService({
+        ...info,
+        typescript,
+        getRuntimeHelperFileName() {
+          return Path.resolve(__dirname, '../runtime/vue3.0.d.ts')
+        },
       })
 
-      if (__DEV__) context.debug`Plugin Config: ${info.config}`
+      services.set(info.project, service)
 
-      return traceFn('Plugin.create', () => {
-        context.load(info)
-        return server.decorate(info.languageService)
-      })()
+      return service
     },
     getExternalFiles(project) {
-      return context.getExternalFiles(project) ?? []
+      return services.get(project)?.getExternalFiles() ?? []
     },
-    onConfigurationChanged(config: PluginConfig) {
-      if (config.telemetry === false) Telemetry.optOut()
-      traceFn('Plugin.onConfigurationChanged', () => {
-        if (__DEV__) context.debug`Plugin Config (changed): ${config}`
-        context.setConfig(config)
-      })()
-    },
+    onConfigurationChanged(_config: PluginConfig) {},
   }
+}
+
+function patchExtraFileExtensions(
+  projectService: TS.server.ProjectService,
+): void {
+  const extraFileExtensions: TS.server.HostConfiguration['extraFileExtensions'] = [
+    {
+      extension: 'vue',
+      isMixedContent: false,
+      scriptKind: 5 as TS.ScriptKind.External,
+    },
+  ]
+
+  tryPatchMethod(
+    projectService,
+    'setHostConfiguration',
+    (setHostConfiguration) => {
+      return wrapFn(
+        'setHostConfiguration',
+        (args: TS.server.protocol.ConfigureRequestArguments): void => {
+          const current = ((projectService as any)
+            .hostConfiguration as TS.server.HostConfiguration)
+            .extraFileExtensions
+
+          if (args.extraFileExtensions != null) {
+            args.extraFileExtensions.push(...extraFileExtensions)
+          } else if (
+            current == null ||
+            !current.some((ext) => ext.extension === 'vue')
+          ) {
+            args.extraFileExtensions = [...extraFileExtensions]
+          }
+
+          return setHostConfiguration(args)
+        },
+      )
+    },
+  )
+
+  if (
+    ((projectService as any)
+      .hostConfiguration as TS.server.HostConfiguration).extraFileExtensions?.some(
+      (ext) => ext.extension === 'vue',
+    ) === true
+  ) {
+    return
+  }
+
+  // Enable .vue after enhancing the language server.
+  projectService.setHostConfiguration({ extraFileExtensions: [] })
 }

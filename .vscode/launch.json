@@ -33,7 +33,7 @@
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue",
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue-language-features",
-        "${workspaceRoot}/samples/feature-goto-definition"
+        "${workspaceRoot}/samples/feature-diagnostics"
       ],
 
       "outFiles": [

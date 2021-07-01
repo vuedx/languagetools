@@ -1,4 +1,4 @@
-import type { VirtualTextDocument } from '@vuedx/vue-virtual-textdocument'
+import type { VueBlockDocument } from '@vuedx/vue-virtual-textdocument'
 import { injectable } from 'inversify'
 import {
   CancellationToken,
@@ -14,16 +14,11 @@ import {
   Uri,
 } from 'vscode'
 import { Installable } from '../utils/installable'
-import { DocumentService } from './documents'
 
 @injectable()
 export class StyleLanguageProxy
   extends Installable
   implements CompletionItemProvider {
-  constructor(private readonly documents: DocumentService) {
-    super()
-  }
-
   private readonly selector = { language: 'vue' }
 
   public install(): Disposable {
@@ -65,23 +60,21 @@ export class StyleLanguageProxy
   ])
 
   private isSupportDocumentType(
-    document: VirtualTextDocument | undefined,
-  ): document is VirtualTextDocument {
+    document: VueBlockDocument | null,
+  ): document is VueBlockDocument {
     if (document == null) return false
 
-    return this.languages.has(document.languageId)
+    return this.languages.has(document.source.languageId)
   }
 
   private async getDocumentAt(
-    container: TextDocument,
-    position: Position,
-  ): Promise<VirtualTextDocument | undefined> {
-    const document = await this.documents.asVueDocument(container)
-
-    return document.documentAt(position)
+    _container: TextDocument,
+    _position: Position,
+  ): Promise<VueBlockDocument | null> {
+    return null
   }
 
-  private getUri(document: VirtualTextDocument): Uri {
-    return Uri.parse(document.uri)
+  private getUri(document: VueBlockDocument): Uri {
+    return Uri.parse(document.source.uri)
   }
 }

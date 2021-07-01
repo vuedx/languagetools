@@ -49,40 +49,32 @@ export default defineComponent({
     optionalBooleanFull: {
       type: Boolean,
     },
-    /** @type {PropType<Event>} */
-    object: Object,
+    object: /** @type {PropType<Event>} */ (Object),
     objectFull: {
-      /** @type {PropType<Event>} */
-      type: Object,
+      type: /** @type {PropType<Event>} */ (Object),
       required: true,
     },
     objectFullDefault: {
-      /** @type {PropType<Event>} */
-      type: Object,
+      type: /** @type {PropType<Event>} */ (Object),
       required: true,
       default: () => ({ id: 1 }),
     },
     optionalObjectFull: {
-      /** @type {PropType<Event>} */
-      type: Object,
+      type: /** @type {PropType<Event>} */ (Object),
     },
 
-    /** @type {PropType<Event[]>} */
-    array: Array,
+    array: /** @type {PropType<Event[]>} */ (Array),
     arrayFull: {
-      /** @type {PropType<Event[]>} */
-      type: Array,
+      type: /** @type {PropType<Event[]>} */ (Array),
       required: true,
     },
     arrayFullDefault: {
-      /** @type {PropType<Event[]>} */
-      type: Array,
+      type: /** @type {PropType<Event[]>} */(Array),
       required: true,
       default: () => [{ id: 1 }],
     },
     optionalArrayFull: {
-      /** @type {PropType<Event[]>} */
-      type: Array,
+      type: /** @type {PropType<Event[]>} */ (Array),
     },
 
     union: [String, Number],

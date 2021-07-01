@@ -11,24 +11,47 @@ import {
   TextDocument,
   TextDocumentContentChangeEvent,
 } from 'vscode-languageserver-textdocument'
-import type { RootNode } from '../../../template-ast-types/src'
-import type { BlockTransformer } from './BlockTransformer'
+import { isNotNull } from '@vuedx/shared'
+import type { RootNode } from '@vuedx/template-ast-types'
+import type { ComponentRegistration } from '@vuedx/compiler-tsx'
+import { BlockTransformer, builtins } from './BlockTransformer'
 import { ProxyDocument } from './ProxyDocument'
 import { VueBlockDocument } from './VueBlockDocument'
+import type { ComponentInfo } from '@vuedx/analyze'
+
+export interface VueSFCDocumentOptions {
+  transformers?: Record<string, BlockTransformer>
+  getComponents?(): Record<string, ComponentRegistration>
+  getComponentInfo(): ComponentInfo | null
+}
 
 export class VueSFCDocument extends ProxyDocument {
+  public readonly tsFileName: string
   private constructor(
     public readonly fileName: string,
-    private readonly transforms: Record<string, BlockTransformer>,
+    public readonly options: Readonly<Required<VueSFCDocumentOptions>>,
     source: TextDocument,
   ) {
     super(source)
+
+    this.tsFileName = `${this.fileName}.ts`
   }
 
   private _isDirty = true
   private _descriptor: SFCDescriptor | null = null
   private _errors: Array<CompilerError | SyntaxError> = []
+  private _mainText: string = ''
+
+  private readonly blockDocs = new Map<string, VueBlockDocument>()
+
   public templateAST: RootNode | null = null
+
+  // Used by tsserver for caching line map
+  public lineMap: any
+  public get text(): string {
+    return this.getText()
+  }
+
   public readonly fallbackScript: SFCScriptBlock = {
     loc: {
       source: '',
@@ -52,38 +75,74 @@ export class VueSFCDocument extends ProxyDocument {
     return this._errors
   }
 
-  private mainText: string = ''
+  public get blocks(): SFCBlock[] {
+    const descriptor = this.descriptor
+    return [
+      descriptor.scriptSetup,
+      descriptor.script,
+      descriptor.template,
+      ...descriptor.styles,
+      ...descriptor.customBlocks,
+    ].filter(isNotNull)
+  }
+
+  public readonly activeTSDocIDs = new Set<string>()
 
   public getTypeScriptText(): string {
     this.parse()
 
-    return this.mainText
+    return this._mainText
   }
 
-  private readonly tsDocs = new Map<string, VueBlockDocument>()
-  public readonly activeTSDocIDs = new Set<string>()
+  public getDocById(id: string): VueBlockDocument | null {
+    const block = this.getBlockFromId(id)
+    if (block == null) {
+      console.error(`[VueDX] No block for "${id}"`)
+      return null
+    }
+    return this.getDoc(block)
+  }
+
+  public getDoc(block: SFCBlock): VueBlockDocument | null {
+    return this.getBlockDocument(block)
+  }
+
+  public getBlockId(block: SFCBlock): string {
+    return this.getBlockFileName(block)
+  }
+
+  public getBlockAt(offset: number): SFCBlock | null {
+    const block = this.blocks.find(
+      (block) =>
+        block.loc.start.offset <= offset && offset <= block.loc.end.offset,
+    )
+
+    return block ?? null
+  }
+
+  public getDocAt(offset: number): VueBlockDocument | null {
+    const block = this.getBlockAt(offset)
+    if (block != null) return this.getDoc(block)
+    return null
+  }
 
   private getBlockDocument(block: SFCBlock, index?: number): VueBlockDocument {
     this.parse()
 
-    const id = this.getBlockId(block, index)
-    const existing = this.tsDocs.get(id)
+    const id = this.getBlockFileName(block, index)
+    const existing = this.blockDocs.get(id)
     if (existing != null) return existing
-    const transform = this.transforms[block.type]
-
-    if (transform == null) {
-      throw new Error(`No transformer defined for "${block.type}"`)
-    }
+    const transformer = this.options.transformers[block.type]
 
     const doc = new VueBlockDocument(
       id,
       this,
       this.createBlockGetter(block, index),
       () => this.descriptor,
-      transform,
+      transformer,
     )
 
-    this.tsDocs.set(id, doc)
+    this.blockDocs.set(id, doc)
 
     return doc
   }
@@ -110,7 +169,7 @@ export class VueSFCDocument extends ProxyDocument {
     if (this._descriptor == null || this._isDirty) {
       // TODO: Incremental SFC Parser using
       const result = parse(this.source.getText(), {
-        sourceMap: true,
+        sourceMap: false,
         filename: this.fileName,
         pad: false,
       })
@@ -125,23 +184,23 @@ export class VueSFCDocument extends ProxyDocument {
           hasBlockChanged(prev.template, next.template) &&
           prev.template != null
         ) {
-          this.tsDocs.delete(this.getBlockId(prev.template))
+          this.blockDocs.delete(this.getBlockFileName(prev.template))
         }
         if (
           hasBlockChanged(prev.scriptSetup, next.scriptSetup) &&
           prev.scriptSetup != null
         ) {
-          this.tsDocs.delete(this.getBlockId(prev.scriptSetup))
+          this.blockDocs.delete(this.getBlockFileName(prev.scriptSetup))
         }
         if (hasBlockChanged(prev.script, next.script) && prev.script != null) {
-          this.tsDocs.delete(this.getBlockId(prev.script))
+          this.blockDocs.delete(this.getBlockFileName(prev.script))
         }
         prev.styles.forEach((block, i) => {
           if (
             hasBlockChanged(prev.styles[i], next.styles[i]) &&
             block != null
           ) {
-            this.tsDocs.delete(this.getBlockId(block, i))
+            this.blockDocs.delete(this.getBlockFileName(block, i))
           }
         })
         prev.customBlocks.forEach((block, i) => {
@@ -149,7 +208,7 @@ export class VueSFCDocument extends ProxyDocument {
             hasBlockChanged(prev.customBlocks[i], next.customBlocks[i]) &&
             block != null
           ) {
-            this.tsDocs.delete(this.getBlockId(block, i))
+            this.blockDocs.delete(this.getBlockFileName(block, i))
           }
         })
       }
@@ -157,16 +216,10 @@ export class VueSFCDocument extends ProxyDocument {
       this._descriptor = result.descriptor
       this._errors = result.errors
       this._isDirty = false
-      this.mainText = this.generateMainModuleText()
+      this._mainText = this.generateMainModuleText()
     }
 
     return this._descriptor
-  }
-
-  public getDocById(id: string): VueBlockDocument | null {
-    const block = this.getBlockFromId(id)
-    if (block == null) return null
-    return this.getBlockDocument(block)
   }
 
   private generateMainModuleText(): string {
@@ -185,53 +238,63 @@ export class VueSFCDocument extends ProxyDocument {
       JSON.stringify(id.replace(/\.tsx?$/, ''))
 
     if (template != null) {
-      const id = this.getBlockId(template)
-      this.activeTSDocIDs.add(id)
-      code.push(`import ${createImportSource(id)}`)
+      const id = this.getBlockTSId(template)
+      if (id != null) {
+        this.activeTSDocIDs.add(id)
+        code.push(`import ${createImportSource(id)}`)
+      }
     }
 
     styles.forEach((block, index) => {
-      if (this.transforms[block.type] != null) {
-        const id = this.getBlockId(block, index)
+      const id = this.getBlockTSId(block, index)
+      if (id != null) {
         this.activeTSDocIDs.add(id)
         code.push(`import ${createImportSource(id)}`)
       }
     })
     customBlocks.forEach((block, index) => {
-      if (this.transforms[block.type] != null) {
-        const id = this.getBlockId(block, index)
+      const id = this.getBlockTSId(block, index)
+      if (id != null) {
         this.activeTSDocIDs.add(id)
         code.push(`import ${createImportSource(id)}`)
       }
     })
 
     if (scriptSetup != null) {
-      const id = this.getBlockId(scriptSetup)
-      this.activeTSDocIDs.add(id)
-      const idPath = createImportSource(id)
-
-      code.push(`export { default as default } from ${idPath}`)
-      code.push(`export * from ${idPath}`)
-
-      if (script != null) {
-        const id = this.getBlockId(script)
+      const id = this.getBlockTSId(scriptSetup)
+      if (id != null) {
         this.activeTSDocIDs.add(id)
-        code.push(`export * from ${createImportSource(id)}`)
+        const idPath = createImportSource(id)
+
+        code.push(`export { default as default } from ${idPath}`)
+        code.push(`export * from ${idPath}`)
+
+        if (script != null) {
+          const id = this.getBlockTSId(script)
+          if (id != null) {
+            this.activeTSDocIDs.add(id)
+            code.push(`export * from ${createImportSource(id)}`)
+          }
+        }
       }
     } else if (script != null) {
-      const id = this.getBlockId(script)
-      this.activeTSDocIDs.add(id)
-      const idPath = createImportSource(id)
-      code.push(`export { default as default } from ${idPath}`)
-      code.push(`export * from ${idPath}`)
+      const id = this.getBlockTSId(script)
+
+      if (id != null) {
+        this.activeTSDocIDs.add(id)
+        const idPath = createImportSource(id)
+        code.push(`export { default as default } from ${idPath}`)
+        code.push(`export * from ${idPath}`)
+      }
     }
 
     return code.join('\n')
   }
 
-  public getBlockId(
+  private getBlockFileName(
     block: SFCBlock | SFCScriptBlock | SFCStyleBlock | SFCTemplateBlock,
     index?: number,
+    lang: string = this.getBlockLanguage(block),
   ): string {
     if (index == null && block.type !== 'script' && block.type !== 'template') {
       if (block.type === 'style') {
@@ -240,50 +303,83 @@ export class VueSFCDocument extends ProxyDocument {
         index = this.descriptor.customBlocks.indexOf(block)
       }
     }
-    return getBlockFileName(
-      this.fileName,
-      block,
-      block.type === 'template' ? 'tsx' : 'ts',
+
+    const query =
       'setup' in block && block.setup != null && block.setup !== false
         ? `setup=true`
-        : undefined,
-      index,
-    )
+        : undefined
+
+    return createVirtualFileName(this.fileName, block, lang, query, index)
+  }
+
+  private getBlockTSId(
+    block: SFCBlock | SFCScriptBlock | SFCStyleBlock | SFCTemplateBlock,
+    index?: number,
+  ): string | null {
+    const transformer = this.options.transformers[block.type]
+    if (transformer == null) return null
+
+    return this.getBlockFileName(block, index, transformer.output(block))
+  }
+
+  private getBlockLanguage(block: SFCBlock): string {
+    if (block.lang != null) return block.lang
+
+    switch (block.type) {
+      case 'script':
+        return 'js'
+      case 'template':
+        return 'vue-html'
+      case 'style':
+        return 'css'
+      default:
+        return block.type // TODO: Support extending block default language
+    }
   }
 
   private getBlockFromId(
     id: string,
   ): SFCBlock | SFCStyleBlock | SFCTemplateBlock | SFCScriptBlock | null {
-    const query = id.substr(id.indexOf('.vue?vue') + 5)
-    if (id.startsWith('vue&type=')) {
-      const attrs = parseQueryString(query) as Record<string, string>
-      switch (attrs['type']) {
-        case 'template':
-          return this.descriptor.template
-        case 'script':
-          return 'setup' in attrs
-            ? this.descriptor.scriptSetup
-            : this.descriptor.script
-        case 'style':
-          return this.descriptor.styles[Number(attrs['index'])] ?? null
-        default:
-          return this.descriptor.customBlocks[Number(attrs['index'])] ?? null
-      }
+    const offset = id.indexOf('.vue?vue')
+    if (offset < 0) return null
+    const query = id.substr(offset + 5)
+    const { type, index, setup } = parseQueryString(query) as Record<
+      string,
+      string
+    >
+    if (type == null) return null
+    switch (type) {
+      case 'template':
+        return this.descriptor.template
+      case 'script':
+        return setup != null
+          ? this.descriptor.scriptSetup
+          : this.descriptor.script
+      case 'style':
+        if (index == null) return null
+        return this.descriptor.styles[Number(index)] ?? null
+      default:
+        if (index == null) return null
+        return this.descriptor.customBlocks[Number(index)] ?? null
     }
-
-    return null
   }
 
   static create(
-    uri: string,
+    fileName: string,
     content: string,
-    transforms: Record<string, BlockTransformer>,
+    options: VueSFCDocumentOptions,
     version: number = 0,
   ): VueSFCDocument {
     return new VueSFCDocument(
-      uri,
-      transforms,
-      TextDocument.create(uri, 'vue', version, content),
+      fileName,
+      {
+        getComponents() {
+          return {}
+        },
+        ...options,
+        transformers: { ...options.transformers, ...builtins },
+      },
+      TextDocument.create(`file://${fileName}`, 'vue', version, content),
     )
   }
 
@@ -293,10 +389,11 @@ export class VueSFCDocument extends ProxyDocument {
   ): void {
     this.source = TextDocument.update(this.source, changes, version)
     this._isDirty = true
+    this.lineMap = undefined
   }
 }
 
-function getBlockFileName(
+function createVirtualFileName(
   fileName: string,
   block: SFCBlock,
   lang: string,

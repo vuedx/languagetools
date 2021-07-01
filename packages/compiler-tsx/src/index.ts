@@ -85,7 +85,7 @@ export function compile(
   const result = generate(ast, {
     selfName,
     fileName: options.filename,
-    templateId: `${options.filename}?vue&type=template&lang.tsx`,
+    templateId: `${options.filename}?vue&type=template&lang.vue-html`,
     templateContent: template,
     customContext,
     on(event, context) {

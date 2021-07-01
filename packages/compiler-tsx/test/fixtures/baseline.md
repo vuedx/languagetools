@@ -42,6 +42,19 @@
 }
 ```
 
+### slots
+
+```vue-html
+<div>
+  <slot>fallback content</slot>
+  <span>
+    <slot name="other" v-bind="props" :myProp="value">fallback content</slot>
+  </span>
+  <slot name="another" v-bind="props" :myProp="value"></slot>
+  <slot :name="dynamic" v-bind="props" :myProp="value" />
+</div>
+```
+
 ## v-bind
 
 ```vue-html
@@ -52,7 +65,9 @@
 ## v-on
 
 ```vue-html
-<input @focus @update:value @kebab-case @camelCase @[customEvent] v-on="events" />
+<input @focus="onFocus" />
+<input @update:value="value = $event" />
+<input @event-name @eventName @[eventName] v-on="events" />
 <input
   @keydown="fnName"
   @keydown.left="callMyFn($event)"
@@ -206,6 +221,38 @@
 </Foo>
 ```
 
+### use slots
+
+```vue-html
+<FooBar>content</FooBar>
+<FooBar #default="{foo}">{{ foo }}</FooBar>
+<FooBar #other="{foo}">{{ foo }}</FooBar>
+<FooBar>
+  <template #default>content</template>
+  <template #other="{foo}">{{foo}}</template>
+  <template #another="foo">
+    <div v-if="foo">{{foo.bar}}</div>
+  </template>
+  <div>extranous</div>
+</FooBar>
+```
+
+```json
+{
+  "components": {
+    "FooBar": {
+      "name": "FooBar",
+      "value": "Foo.Bar",
+      "source": {
+        "path": "@ui/components",
+        "exported": "Bar",
+        "local": "Foo"
+      }
+    }
+  }
+}
+```
+
 ## v-pre
 
 ```vue-html
@@ -226,6 +273,26 @@
     <tr v-is="MyComponent"></tr>
   </tbody>
 </table>
+```
+
+## v-for
+
+```vue-html
+<div v-for="n of num">{{ n }}</div>
+<div v-for="(n, i) of num">{{ n }}:{{ i }}</div>
+<div v-for="s of str">{{ s }}</div>
+<div v-for="(s, i) of str">{{ s }}:{{ i }}</div>
+<div v-for="a of arr">{{ a }}</div>
+<div v-for="{ value } of arr">{{ value }}</div>
+<div v-for="{ foo } of arr">{{ arr }}</div>
+<div v-for="(a, i) of arr">{{ a }}:{{ i }}</div>
+<div v-for="({ value }, i) of arr">{{ value }}:{{ i }}</div>
+<div v-for="o of obj">{{ o }}</div>
+<div v-for="(o, k) of obj">{{ o }}:{{ k }}</div>
+<div v-for="(o, k, i) of obj">{{ o }}:{{ k }}:{{ i }}</div>
+<div v-for="t of itr">{{ t }}</div>
+<div v-for="b of boo">{{ b }}</div>
+<div v-for="s of sym">{{ s }}</div>
 ```
 
 ## Nested Dynamic components

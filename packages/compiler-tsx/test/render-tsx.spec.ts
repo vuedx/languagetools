@@ -127,7 +127,10 @@ function parseFixtures(content: string) {
               `${fixture.template}` +
               '```\n\n' +
               '```tsx\n' +
-              `${result.code}` +
+              `${result.code}\n` +
+              `//# sourceMappingURL=data:application/json;base64,${Buffer.from(
+                JSON.stringify(result.map),
+              ).toString('base64')}\n` +
               '```\n\n'
 
             expect(output).toMatchSpecificSnapshot(snapshotFile)

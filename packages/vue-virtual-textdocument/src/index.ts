@@ -1,4 +1,14 @@
-export * from './utils';
-export * from './types';
-export * from './store';
-export * from './documents/VueTextDocument';
+export {
+  Position,
+  Range,
+  TextDocument,
+  TextDocumentContentChangeEvent,
+} from 'vscode-languageserver-textdocument'
+export type {
+  BlockTransformer,
+  BlockTransformerOptions,
+  TransformerError,
+} from './BlockTransformer'
+export { VueBlockDocument } from './VueBlockDocument'
+export { VueSFCDocument } from './VueSFCDocument'
+export type { VueSFCDocumentOptions } from './VueSFCDocument'

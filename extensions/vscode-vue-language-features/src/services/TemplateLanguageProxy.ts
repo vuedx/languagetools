@@ -1,7 +1,4 @@
-import type {
-  RenderFunctionTextDocument,
-  VirtualTextDocument
-} from '@vuedx/vue-virtual-textdocument'
+import type { VueBlockDocument } from '@vuedx/vue-virtual-textdocument'
 import { injectable } from 'inversify'
 import {
   CancellationToken,
@@ -14,10 +11,9 @@ import {
   Disposable,
   languages,
   Position,
-  TextDocument
+  TextDocument,
 } from 'vscode'
 import { Installable } from '../utils/installable'
-import { DocumentService } from './documents'
 
 /**
  * Triggers completions when ":" or "/" is typed.
@@ -26,10 +22,6 @@ import { DocumentService } from './documents'
 export class TemplateLanguageProxy
   extends Installable
   implements CompletionItemProvider {
-  constructor(private readonly documents: DocumentService) {
-    super()
-  }
-
   private readonly selector = { language: 'vue' }
   private readonly triggerCharacters = [':', '/']
 
@@ -82,20 +74,17 @@ export class TemplateLanguageProxy
 
   private readonly languages = new Set(['vue-html'])
 
-  private isSupportDocumentType(
-    document: VirtualTextDocument | undefined,
-  ): document is RenderFunctionTextDocument {
-    const result = document != null && this.languages.has(document.languageId)
+  private isSupportDocumentType(document: VueBlockDocument | null): boolean {
+    const result =
+      document != null && this.languages.has(document.source.languageId)
 
     return result
   }
 
   private async getDocumentAt(
-    container: TextDocument,
-    position: Position,
-  ): Promise<VirtualTextDocument | undefined> {
-    const document = await this.documents.asVueDocument(container)
-
-    return document.documentAt(position)
+    _container: TextDocument,
+    _position: Position,
+  ): Promise<VueBlockDocument | null> {
+    return null
   }
 }

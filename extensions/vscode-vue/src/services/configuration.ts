@@ -1,5 +1,5 @@
-import vscode from 'vscode'
 import { injectable } from 'inversify'
+import vscode from 'vscode'
 import { Installable } from '../utils/installable'
 
 export interface VueExtensionSettings {

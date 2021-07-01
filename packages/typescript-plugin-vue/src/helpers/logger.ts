@@ -2,6 +2,9 @@ import { collectError, trace } from '@vuedx/shared'
 import { performance } from 'perf_hooks'
 import util from 'util'
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare const __DEV__: boolean
+
 const DEBUGGING = false
 function isPlainObj(o: any): boolean {
   return typeof o === 'object' && o.constructor === Object
