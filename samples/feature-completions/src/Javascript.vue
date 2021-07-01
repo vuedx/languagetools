@@ -22,8 +22,5 @@ export default {
 
 <template>
   <HelloWorld n />
-  <span>Name: {{ name + }}</span>
-  <p v-bind:></p>
-  <p v-if=""></p>
-  <>
+  <span>Name: {{ fullname }}</span>
 </template>

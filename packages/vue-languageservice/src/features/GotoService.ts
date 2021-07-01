@@ -21,7 +21,7 @@ export class GotoService {
     fileName: string,
     position: number,
   ): readonly Typescript.DefinitionInfo[] | undefined {
-    if (this.depth > 2) return undefined // Prevent deep recursion due to virtual files re-requesting definitions.
+    if (this.depth > 4) return undefined // Prevent deep recursion due to virtual files re-requesting definitions.
 
     this.depth++
     try {
@@ -35,17 +35,24 @@ export class GotoService {
             const result = service.getDefinitionAtPosition(tsFileName, offset)
             if (result == null) return
 
+            console.error(
+              `[VueDX] GoTo (${this.depth}) ${fileName} ${position} (Found ${result.length} definitions)`,
+            )
+
             return this.dedupeDefinitionInfos(
               result
                 .map((info) => {
                   if (blockFile.isOffsetInIgonredZone(info.textSpan.start)) {
                     // For render function arguments, we need to find definition again
-                    return (
-                      this.getDefinitionAtPosition(
-                        tsFileName,
-                        info.textSpan.start,
-                      ) ?? []
+                    console.error(
+                      `[VueDX] GoTo (Again) ${info.fileName} ${info.textSpan.start}:${info.textSpan.length}`,
                     )
+
+                    const result = this.getDefinitionAtPosition(
+                      tsFileName,
+                      info.textSpan.start,
+                    )
+                    if (result != null && result.length > 0) return result
                   }
 
                   return this.normalizeTSDefinitionInfo(info)
@@ -81,14 +88,15 @@ export class GotoService {
         ({ tsFileName, blockFile, offset }) => {
           const result = service.getDefinitionAndBoundSpan(tsFileName, offset)
           if (result == null) return undefined
-
           result.textSpan = this.getTextSpan(blockFile, result.textSpan)
           return this.normalizeTSDefinitionInfoAndBoundSpan(result)
         },
       )
     }
 
-    return service.getDefinitionAndBoundSpan(fileName, position)
+    const result = service.getDefinitionAndBoundSpan(fileName, position)
+    if (result == null) return undefined
+    return this.normalizeTSDefinitionInfoAndBoundSpan(result)
   }
 
   private dedupeDefinitionInfos(
@@ -112,34 +120,39 @@ export class GotoService {
   private normalizeTSDefinitionInfo(
     info: Typescript.DefinitionInfo,
   ): Typescript.DefinitionInfo[] {
-    if (this.fs.isVueVirtualFile(info.fileName)) {
-      const blockFile = this.fs
-        .getVueFile(info.fileName)
-        ?.getDocById(info.fileName)
+    const fileName = info.fileName
+
+    info.fileName = this.fs.getRealFileName(fileName)
+    if (this.fs.isVueVirtualFile(fileName)) {
+      const blockFile = this.fs.getVueFile(fileName)?.getDocById(fileName)
 
       if (blockFile != null) {
         if (blockFile.isOffsetInIgonredZone(info.textSpan.start)) {
           const result = this.getDefinitionAtPosition(
-            info.fileName,
+            fileName,
             info.textSpan.start,
           )
 
-          return Array.from(result ?? [])
+          if (result != null && result.length > 0) return Array.from(result)
+
+          return [info]
         }
 
         info.textSpan = this.getTextSpan(blockFile, info.textSpan)
         info.contextSpan = this.getTextSpan(blockFile, info.contextSpan)
-      } else {
-        info.textSpan = { start: 0, length: 1 }
-        if (info.contextSpan != null) {
-          info.contextSpan = { start: 0, length: 1 }
-        }
+
+        return [info]
       }
 
-      info.fileName = this.fs.removeVirtualFileQuery(info.fileName)
-    } else if (this.fs.isVueTsFile(info.fileName)) {
-      info.originalFileName = info.fileName
-      info.fileName = this.fs.getRealFileName(info.fileName)
+      info.textSpan = { start: 0, length: 1 }
+      if (info.contextSpan != null) {
+        info.contextSpan = { start: 0, length: 1 }
+      }
+    } else if (this.fs.isVueTsFile(fileName)) {
+      const result = this.getDefinitionAtPosition(fileName, info.textSpan.start)
+
+      if (result != null && result.length > 0) return Array.from(result)
+      info.textSpan = { start: 0, length: 1 }
     }
 
     return [info]

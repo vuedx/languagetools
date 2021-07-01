@@ -63,6 +63,7 @@ export function createTypescriptLanguageService(
     getQuickInfoAtPosition: (...args) => service.getQuickInfoAtPosition(...args),
     getDefinitionAtPosition: (...args) => service.getDefinitionAtPosition(...args),
     getDefinitionAndBoundSpan: (...args) => service.getDefinitionAndBoundSpan(...args),
+    getCompletionsAtPosition: (...args) => service.getCompletionsAtPosition(...args),
     dispose: () => {
       service.dispose()
       context.unbindAll()

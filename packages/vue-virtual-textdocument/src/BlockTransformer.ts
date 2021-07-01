@@ -81,6 +81,8 @@ export const builtins: Record<string, BlockTransformer> = {
             identifiers = identifiers.filter(
               (id) => ast.scope.globals.includes(id), // Provide globals.
             )
+          } else {
+            identifiers = []
           }
         }
 
@@ -102,7 +104,7 @@ export const builtins: Record<string, BlockTransformer> = {
 
       // TODO: Support for components not exporting defaultComponent() from <script> block
 
-      return { code: source, map: block.map }
+      return { code: source }
     },
   },
   template: {
@@ -124,8 +126,7 @@ export const builtins: Record<string, BlockTransformer> = {
                 value: component.name, // TODO: Add value field to analyzer
                 source: {
                   path: component.source.moduleName,
-                  exported:
-                    component.source.exportName ?? 'default',
+                  exported: component.source.exportName ?? 'default',
                   local: component.source.localName,
                 },
               }

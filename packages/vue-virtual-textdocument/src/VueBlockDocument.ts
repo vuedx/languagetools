@@ -172,7 +172,17 @@ export class VueBlockDocument {
     })
 
     const result = this.generated.offsetAt(this.toPosition(position))
+    const original = this.originalOffsetMappingAt(result, -1)
 
+    // If generated text is copied from original text then we can get exact position.
+    if (original.mapping?.kind === 'copy') {
+      const diff =
+        offset - original.mapping.src.start - this.block.loc.start.offset
+
+      return { offset: result + diff, length }
+    }
+
+    // Transformed text sohuld always match the whole text.
     return {
       offset: result,
       length: Math.max(1, position.lastColumn - position.column),

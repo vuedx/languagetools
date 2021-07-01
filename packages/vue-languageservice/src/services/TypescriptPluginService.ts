@@ -7,6 +7,7 @@ import type {
   TSProject,
   Typescript,
 } from '../contracts/Typescript'
+import { CompletionsService } from '../features/CompletionsService'
 import { DiagnosticsService } from '../features/DiagnosticsService'
 import { GotoService } from '../features/GotoService'
 import { HoverService } from '../features/HoverService'
@@ -29,6 +30,8 @@ export class TypescriptPluginService
     private readonly hover: HoverService,
     @inject(GotoService)
     private readonly goto: GotoService,
+    @inject(CompletionsService)
+    private readonly completions: CompletionsService,
     @inject(LoggerService)
     private readonly logger: LoggerService,
   ) {}
@@ -98,6 +101,18 @@ export class TypescriptPluginService
     position: number,
   ): Typescript.QuickInfo | undefined {
     return this.hover.getQuickInfoAtPosition(fileName, position)
+  }
+
+  getCompletionsAtPosition(
+    fileName: string,
+    position: number,
+    options: Typescript.GetCompletionsAtPositionOptions | undefined,
+  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    return this.completions.getCompletionsAtPosition(
+      fileName,
+      position,
+      options,
+    )
   }
 
   getEncodedSyntacticClassifications(
