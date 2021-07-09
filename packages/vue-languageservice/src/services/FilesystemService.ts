@@ -5,6 +5,8 @@ import {
   VueBlockDocument,
   VueSFCDocument,
   VueSFCDocumentOptions,
+  transformers,
+  annotations,
 } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import * as Path from 'path'
@@ -98,40 +100,46 @@ export class FilesystemService implements Disposable {
     if (cachedFile != null) return cachedFile
     if (!this.provider.exists(fileName)) return null
 
-    const file = VueSFCDocument.create(
-      fileName,
-      this.provider.read(fileName),
-      {
-        getComponentInfo: () => this.getComponentInfo(fileName),
-        getComponents: () => {
-          const project = this.ts.getVueProjectFor(fileName)
+    const file = VueSFCDocument.create(fileName, this.provider.read(fileName), {
+      getComponentInfo: () => this.getComponentInfo(fileName),
+      // TODO: Cache this for performance
+      getComponents: () => {
+        const project = this.ts.getVueProjectFor(fileName)
 
-          const components: ReturnType<
-            Required<VueSFCDocumentOptions>['getComponents']
-          > = {}
+        const components: ReturnType<
+          Required<VueSFCDocumentOptions>['getComponents']
+        > = {}
 
-          project.globalComponents.forEach((component) => {
-            component.aliases.forEach((alias) => {
-              components[alias] = {
-                name: component.name,
-                value: component.name,
-                source: {
-                  path: component.source.moduleName,
-                  exported: component.source.exportName ?? 'default',
-                  local: component.source.localName,
-                },
-              }
-            })
+        project.globalComponents.forEach((component) => {
+          // TODO: Use component registration info from analyze project
+          component.aliases.forEach((alias) => {
+            components[alias] = {
+              name: component.name,
+              value: component.name,
+              source: {
+                path: component.source.moduleName,
+                exported: component.source.exportName ?? 'default',
+                local: component.source.localName,
+              },
+            }
           })
+        })
 
-          return components
-        },
-      }, // TODO: Support components getter.
-    )
+        return components
+      },
+      transformers,
+    })
 
     this.watchers.add(
       this.provider.watch(fileName, (changes, version) => {
         file.update(changes, version)
+        const project = this.ts.getProjectFor(fileName)
+        if (project != null) {
+          project.markAsDirty()
+          file.activeTSDocIDs.forEach((fileName) => {
+            project.getScriptInfo(fileName)?.reloadFromFile()
+          })
+        }
       }),
     )
 
@@ -225,6 +233,18 @@ export class FilesystemService implements Disposable {
       range.start,
       range.length ?? 1,
     )
+
+    if (result == null) {
+      const text = file.generated?.getText().substr(0, range.start)
+      if (text?.trim().endsWith(annotations.missingExpression) === true) {
+        return this.getAbsoluteOffsets(file, {
+          start: range.start - 10, // anywhere in comment
+          length: range.length,
+        })
+      }
+
+      return { start: file.block.loc.start.offset, length: 1 }
+    }
 
     return { start: result.offset, length: result.length }
   }

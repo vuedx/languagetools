@@ -1,30 +1,65 @@
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import vscode from 'vscode'
-import { Installable } from '../utils/installable'
+import { DocumentService } from '../services/documents'
 
 @injectable()
-export class OpenVirtualFileCommand extends Installable {
-  public constructor() {
-    super()
-  }
+export class OpenVirtualFileCommand {
+  public constructor(
+    @inject(DocumentService)
+    private readonly documents: DocumentService,
+  ) {}
 
   public install(): vscode.Disposable {
-    super.install()
-
     return vscode.commands.registerTextEditorCommand(
       'vuedx.openVirtualFile',
-      this.onExecute.bind(this) as any,
+      (editor) => {
+        void this.onExecute(editor)
+      },
     )
   }
 
-  private async onExecute(
-    _editor: vscode.TextEditor,
-    _: vscode.TextEditorEdit,
-    _activeDocumentUri?: string,
-    _activeSelector?: any,
-  ): Promise<void> {
-    await vscode.window.showInformationMessage(
-      'There is no active Vue document.',
+  private async onExecute(editor: vscode.TextEditor): Promise<void> {
+    if (editor.document.languageId !== 'vue') {
+      await vscode.window.showInformationMessage('There is no active Vue file.')
+      return
+    }
+
+    await this.documents.ensureDocument(editor.document.uri.fsPath)
+
+    const doc = this.documents.getVueDocument(editor.document.uri.fsPath)
+    if (doc == null) {
+      await vscode.window.showInformationMessage(
+        'Failed to load current Vue file.',
+      )
+      return
+    }
+
+    const block = doc.getBlockAt(doc.offsetAt(editor.selection.start))
+    if (block != null) {
+      const blockDoc = doc.getDoc(block)
+      if (blockDoc?.tsFileName != null) {
+        const uri = vscode.Uri.file(blockDoc.tsFileName).with({
+          scheme: 'vue',
+        })
+
+        await vscode.commands.executeCommand(
+          'vscode.open',
+          uri,
+          vscode.ViewColumn.Beside,
+        )
+
+        return
+      }
+    }
+
+    const uri = vscode.Uri.file(doc.tsFileName).with({
+      scheme: 'vue',
+    })
+
+    await vscode.commands.executeCommand(
+      'vscode.open',
+      uri,
+      vscode.ViewColumn.Beside,
     )
   }
 }

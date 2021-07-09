@@ -1,6 +1,5 @@
 import { isNotNull } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
-import { INJECTABLE_TS_PROJECT, INJECTABLE_TS_SERVICE } from '../constants'
 import type {
   ExtendedTSLanguageService,
   TSLanguageService,
@@ -13,15 +12,19 @@ import { GotoService } from '../features/GotoService'
 import { HoverService } from '../features/HoverService'
 import { FilesystemService } from './FilesystemService'
 import { LoggerService } from './LoggerService'
+import { TypescriptService } from './TypescriptService'
 
 @injectable()
 export class TypescriptPluginService
   implements Partial<ExtendedTSLanguageService> {
+  private readonly logger = LoggerService.getLogger('TSPluginService')
+
+  private readonly project: TSProject
+  private readonly service: TSLanguageService
+
   constructor(
-    @inject(INJECTABLE_TS_SERVICE)
-    private readonly base: TSLanguageService,
-    @inject(INJECTABLE_TS_PROJECT)
-    private readonly project: TSProject,
+    @inject(TypescriptService)
+    private readonly ts: TypescriptService,
     @inject(FilesystemService)
     private readonly fs: FilesystemService,
     @inject(DiagnosticsService)
@@ -32,34 +35,44 @@ export class TypescriptPluginService
     private readonly goto: GotoService,
     @inject(CompletionsService)
     private readonly completions: CompletionsService,
-    @inject(LoggerService)
-    private readonly logger: LoggerService,
-  ) {}
+  ) {
+    const project = this.ts.getDefaultProject()
+    const service = this.ts.getService()
+
+    if (project == null || service == null) {
+      throw new Error(
+        'vue-languageservice requires a project to create ts-plugin',
+      )
+    }
+
+    this.project = project
+    this.service = service
+  }
 
   getExternalFiles(): string[] {
-    const vueFiles = this.project
-      .getFileNames(true, true)
-      .filter(
-        (fileName) =>
-          this.fs.isVueTsFile(fileName) || this.fs.isVueFile(fileName),
-      )
-
-    const virtualFiles = new Set(
-      vueFiles
-        .map((fileName) => this.fs.getVueFile(fileName))
-        .filter(isNotNull)
-        .map((file) => {
-          return [file.fileName, file.tsFileName, ...file.activeTSDocIDs]
-        })
-        .flat(),
+    const vueFiles = Array.from(
+      new Set(
+        this.project
+          .getFileNames(true, true)
+          .filter(
+            (fileName) =>
+              this.fs.isVueTsFile(fileName) ||
+              this.fs.isVueFile(fileName) ||
+              this.fs.isVueVirtualFile(fileName),
+          )
+          .map((fileName) => this.fs.getRealFileName(fileName)),
+      ),
     )
 
-    this.logger.info(
-      `ExtraFiles(${this.project.getProjectName()}):`,
-      virtualFiles,
-    )
+    const virtualFiles = vueFiles
+      .map((fileName) => this.fs.getVueFile(fileName))
+      .filter(isNotNull)
+      .map((file) => {
+        return [file.fileName, file.tsFileName, ...file.activeTSDocIDs]
+      })
+      .flat()
 
-    return Array.from(virtualFiles)
+    return virtualFiles
   }
 
   getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
@@ -115,6 +128,29 @@ export class TypescriptPluginService
     )
   }
 
+  getCompletionEntryDetails(
+    fileName: string,
+    position: number,
+    entryName: string,
+    formatOptions:
+      | Typescript.FormatCodeOptions
+      | Typescript.FormatCodeSettings
+      | undefined,
+    source: string | undefined,
+    preferences: Typescript.UserPreferences | undefined,
+    data: Typescript.CompletionEntryData | undefined,
+  ): Typescript.CompletionEntryDetails | undefined {
+    return this.completions.getCompletionEntryDetails(
+      fileName,
+      position,
+      entryName,
+      formatOptions,
+      source,
+      preferences,
+      data,
+    )
+  }
+
   getEncodedSyntacticClassifications(
     fileName: string,
     span: Typescript.TextSpan,
@@ -123,7 +159,7 @@ export class TypescriptPluginService
       return { spans: [], endOfLineState: 0 }
     }
 
-    return this.base.getEncodedSyntacticClassifications(fileName, span)
+    return this.service.getEncodedSyntacticClassifications(fileName, span)
   }
 
   getEncodedSemanticClassifications(
@@ -135,7 +171,11 @@ export class TypescriptPluginService
       return { spans: [], endOfLineState: 0 }
     }
 
-    return this.base.getEncodedSemanticClassifications(fileName, span, format)
+    return this.service.getEncodedSemanticClassifications(
+      fileName,
+      span,
+      format,
+    )
   }
 
   findReferences(
@@ -144,10 +184,10 @@ export class TypescriptPluginService
   ): Typescript.ReferencedSymbol[] | undefined {
     if (this.fs.isVueFile(fileName)) return
 
-    return this.base.findReferences(fileName, position)
+    return this.service.findReferences(fileName, position)
   }
 
   dispose(): void {
-    this.base.dispose()
+    this.service.dispose()
   }
 }

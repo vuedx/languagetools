@@ -13,13 +13,15 @@ import type {
   DiagnosticTag,
   Range,
 } from 'vscode-languageserver-types'
-import { INJECTABLE_TS } from '../constants'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
+import { LoggerService } from '../services/LoggerService'
 import { TypescriptService } from '../services/TypescriptService'
 
 @injectable()
 export class DiagnosticsService {
+  private readonly logger = LoggerService.getLogger('Diagnostics')
+
   constructor(
     @inject(TypescriptService)
     private readonly ts: TypescriptService,
@@ -27,8 +29,6 @@ export class DiagnosticsService {
     private readonly fs: FilesystemService,
     @inject(LanguageServiceProvider)
     private readonly lang: LanguageServiceProvider,
-    @inject(INJECTABLE_TS)
-    private readonly typescript: typeof Typescript | null,
   ) {}
 
   private readonly TS_CATEGORY_TO_SEVERITY: Record<
@@ -81,23 +81,26 @@ export class DiagnosticsService {
   }
 
   public getExtraDiagnostics(fileName: string): Typescript.Diagnostic[] {
+    this.logger.debug(`ExtraDiagnonstics in ${fileName}`)
     return this.getDiagnosticsFromEmbeddedLanguageServices(
       fileName,
     ).map((diagnostic) => this.toTSDiagnostic(fileName, diagnostic))
   }
 
   public getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
+    this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
     const service = this.ts.getServiceFor(fileName)
     if (service == null) return []
 
-    return this.getDiagnosticsFromTS(fileName, (fileName) =>
-      service.getSemanticDiagnostics(fileName),
+    return this.getDiagnosticsFromTS(fileName, (id) =>
+      service.getSemanticDiagnostics(id),
     )
   }
 
   public getSyntacticDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
+    this.logger.debug(`SyntacticcDiagnonstics in ${fileName}`)
     const service = this.ts.getServiceFor(fileName)
     if (service == null) return []
 
@@ -109,6 +112,7 @@ export class DiagnosticsService {
   public getSuggestionDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
+    this.logger.debug(`SuggestionDiagnonstics in ${fileName}`)
     const service = this.ts.getServiceFor(fileName)
     if (service == null) return []
 
@@ -127,11 +131,13 @@ export class DiagnosticsService {
 
     // Collect SFC parse errors
     file.errors.forEach((error) => {
+      if (error.message === '') return
       diagnostics.push({
         message: error.message,
         range: this.getRangeFromLoc(file, error),
         code: 'code' in error ? error.code : undefined,
-        source: 'VueDX/SFC',
+        severity: this.NAMED_SEVERITY_TO_SEVERITY['error'],
+        source: 'VueDX/SFC Parser',
       })
     })
 
@@ -140,12 +146,19 @@ export class DiagnosticsService {
       const doc = file.getDocById(id)
       if (doc == null) return
       doc.errors.forEach((error) => {
+        if (error.message === '') return
         diagnostics.push({
           message: error.message,
-          range: this.fs.toRange(file, this.fs.getAbsoluteOffsets(doc, error)),
+          range: this.fs.getAbsoluteRange(
+            file,
+            doc,
+            this.fs.toRange(doc.source, error),
+          ),
           code: error.code,
           codeDescription: error.codeDescription,
-          source: this.getSourceName(error.source),
+          source: this.getSourceName(
+            error.source ?? doc.block.type + ' parser',
+          ),
           severity: this.NAMED_SEVERITY_TO_SEVERITY[error.severity],
           tags: [
             error.severity === 'unused' ? (1 as DiagnosticTag) : null,
@@ -209,34 +222,75 @@ export class DiagnosticsService {
       if (vueFile == null) return []
       const diagnostics: Typescript.Diagnostic[] = []
       vueFile.activeTSDocIDs.forEach((id) => {
-        const result = getter(id)
-
-        result
-          .filter((item) => item.start != null)
-          .forEach((item) => {
-            diagnostics.push(this.normalizeTSDiagnostic(item))
-          })
+        diagnostics.push(
+          ...this.normalizeVirtualFileDiagnostics(id, getter(id)),
+        )
       })
       return diagnostics
-    } else if (this.fs.isVueVirtualFile(fileName)) {
-      const vueFile = this.fs.getVueFile(fileName)
-      if (vueFile == null) return []
-
-      const blockFile = vueFile.getDocById(fileName) ?? undefined
-
-      return getter(fileName)
-        .filter(
-          (item) =>
-            item.start == null ||
-            blockFile == null ||
-            !blockFile.isOffsetInIgonredZone(item.start),
-        )
-        .map((diagnostic) => this.normalizeTSDiagnostic(diagnostic))
     } else {
       return getter(fileName).map((diagnostic) =>
         this.normalizeTSDiagnostic(diagnostic),
       )
     }
+  }
+
+  private normalizeVirtualFileDiagnostics(
+    fileName: string,
+    diagnostics: Typescript.Diagnostic[],
+  ): Typescript.Diagnostic[] {
+    const vueFile = this.fs.getVueFile(fileName)
+    if (vueFile == null) return []
+
+    const blockFile = vueFile.getDocById(fileName)
+    if (blockFile == null) return []
+
+    const tsFile = blockFile.generated
+    if (tsFile == null) return []
+
+    const service = this.ts.getServiceFor(fileName)
+
+    return diagnostics
+      .flatMap((diagnostic) => {
+        if (diagnostic.start == null) {
+          this.logger.debug(`Ignoring ${diagnostic.code} without location`)
+          return null
+        }
+        this.logger.debug(
+          `${diagnostic.code} at ${diagnostic.start}: ${this.toDisplayMessage(
+            diagnostic.messageText,
+          )}`,
+        )
+
+        if (
+          service != null &&
+          blockFile.isOffsetInTemplateGlobals(diagnostic.start)
+        ) {
+          this.logger.debug(
+            `Forwarding diagostics at ${diagnostic.start} to references.`,
+          )
+          const references = service.getReferencesAtPosition(
+            fileName,
+            diagnostic.start,
+          )
+
+          return references?.map((reference) => {
+            if (reference.fileName === fileName) {
+              return { ...diagnostic, ...reference.textSpan }
+            }
+            return null
+          })
+        }
+
+        if (blockFile.isOffsetInIgonredZone(diagnostic.start)) {
+          this.logger.debug(
+            `Ignoring ${diagnostic.code} at ${diagnostic.start}`,
+          )
+          return null
+        }
+
+        return this.normalizeTSDiagnostic(diagnostic)
+      })
+      .filter(isNotNull)
   }
 
   private toDiagnostic(diagnostic: Typescript.Diagnostic): Diagnostic | null {
@@ -275,7 +329,7 @@ export class DiagnosticsService {
     const sourceFile = this.ts.getSourceFile(fileName) ?? undefined
 
     return {
-      source: diagnostic.source,
+      source: this.getSourceName(diagnostic.source),
       messageText: diagnostic.message,
       category: this.SEVERITY_TO_TS_CATEGORY[diagnostic.severity ?? 1],
       code: diagnostic.code != null ? Number(diagnostic.code) : 0,
@@ -334,7 +388,7 @@ export class DiagnosticsService {
       'loc' in node && node.loc != null
         ? {
             start: node.loc.start.offset,
-            length: node.loc.end.offset - node.loc.start.offset,
+            length: Math.max(1, node.loc.end.offset - node.loc.start.offset),
           }
         : { start: undefined, length: undefined },
     )
@@ -344,11 +398,8 @@ export class DiagnosticsService {
     message: string | Typescript.DiagnosticMessageChain,
   ): string {
     if (typeof message === 'string') return message
-    if (this.typescript != null) {
-      return this.typescript.flattenDiagnosticMessageText(message, '\n')
-    }
 
-    return message.messageText
+    return this.ts.lib.flattenDiagnosticMessageText(message, '\n')
   }
 
   private normalizeTSDiagnostic(
@@ -383,7 +434,7 @@ export class DiagnosticsService {
         messageText: diagnostic.messageText,
         reportsDeprecated: diagnostic.reportsDeprecated,
         reportsUnnecessary: diagnostic.reportsUnnecessary,
-        source: diagnostic.source,
+        source: this.getSourceName(diagnostic.source ?? 'TS'),
         relatedInformation: diagnostic.relatedInformation,
         start: range.start,
         length: range.length,
@@ -396,7 +447,7 @@ export class DiagnosticsService {
         messageText: diagnostic.messageText,
         reportsDeprecated: diagnostic.reportsDeprecated,
         reportsUnnecessary: diagnostic.reportsUnnecessary,
-        source: diagnostic.source,
+        source: this.getSourceName(diagnostic.source ?? 'TS'),
         relatedInformation: diagnostic.relatedInformation,
         start: diagnostic.start,
         length: diagnostic.length,
@@ -415,7 +466,8 @@ export class DiagnosticsService {
   }
 
   private getSourceName(source?: string): string {
-    if (source != null) return `VueDX/${source}`
-    return 'VueDX'
+    if (source == null) return 'VueDX/Unknown'
+    else if (source.startsWith('VueDX')) return source
+    else return `VueDX/${source}`
   }
 }

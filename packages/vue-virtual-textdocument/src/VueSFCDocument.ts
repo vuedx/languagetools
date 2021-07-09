@@ -1,3 +1,4 @@
+import type { ComponentInfo } from '@vuedx/analyze'
 import type {
   SFCBlock,
   SFCDescriptor,
@@ -6,18 +7,17 @@ import type {
   SFCTemplateBlock,
 } from '@vuedx/compiler-sfc'
 import { CompilerError, parse } from '@vuedx/compiler-sfc'
+import type { ComponentRegistration } from '@vuedx/compiler-tsx'
+import { isNotNull, getComponentName } from '@vuedx/shared'
+import type { RootNode } from '@vuedx/template-ast-types'
 import { parse as parseQueryString } from 'querystring'
 import {
   TextDocument,
   TextDocumentContentChangeEvent,
 } from 'vscode-languageserver-textdocument'
-import { isNotNull } from '@vuedx/shared'
-import type { RootNode } from '@vuedx/template-ast-types'
-import type { ComponentRegistration } from '@vuedx/compiler-tsx'
-import { BlockTransformer, builtins } from './BlockTransformer'
+import type { BlockTransformer } from './BlockTransformer'
 import { ProxyDocument } from './ProxyDocument'
 import { VueBlockDocument } from './VueBlockDocument'
-import type { ComponentInfo } from '@vuedx/analyze'
 
 export interface VueSFCDocumentOptions {
   transformers?: Record<string, BlockTransformer>
@@ -176,7 +176,6 @@ export class VueSFCDocument extends ProxyDocument {
 
       if (this._descriptor != null) {
         // Delete stale documents.
-
         const prev = this._descriptor
         const next = result.descriptor
 
@@ -185,15 +184,24 @@ export class VueSFCDocument extends ProxyDocument {
           prev.template != null
         ) {
           this.blockDocs.delete(this.getBlockFileName(prev.template))
+          if (prev.scriptSetup != null) {
+            this.blockDocs.delete(this.getBlockFileName(prev.scriptSetup))
+          }
         }
         if (
           hasBlockChanged(prev.scriptSetup, next.scriptSetup) &&
           prev.scriptSetup != null
         ) {
           this.blockDocs.delete(this.getBlockFileName(prev.scriptSetup))
+          if (prev.template != null) {
+            this.blockDocs.delete(this.getBlockFileName(prev.template))
+          }
         }
         if (hasBlockChanged(prev.script, next.script) && prev.script != null) {
           this.blockDocs.delete(this.getBlockFileName(prev.script))
+          if (prev.template != null) {
+            this.blockDocs.delete(this.getBlockFileName(prev.template))
+          }
         }
         prev.styles.forEach((block, i) => {
           if (
@@ -211,6 +219,13 @@ export class VueSFCDocument extends ProxyDocument {
             this.blockDocs.delete(this.getBlockFileName(block, i))
           }
         })
+      }
+
+      if (
+        result.descriptor.script == null &&
+        result.descriptor.scriptSetup == null
+      ) {
+        result.descriptor.script = this.fallbackScript
       }
 
       this._descriptor = result.descriptor
@@ -235,7 +250,7 @@ export class VueSFCDocument extends ProxyDocument {
     this.activeTSDocIDs.clear()
 
     const createImportSource = (id: string): string =>
-      JSON.stringify(id.replace(/\.tsx?$/, ''))
+      JSON.stringify(id.replace(/\.[tj]sx?$/, ''))
 
     if (template != null) {
       const id = this.getBlockTSId(template)
@@ -260,13 +275,15 @@ export class VueSFCDocument extends ProxyDocument {
       }
     })
 
+    const name = getComponentName(this.fileName)
     if (scriptSetup != null) {
       const id = this.getBlockTSId(scriptSetup)
       if (id != null) {
         this.activeTSDocIDs.add(id)
         const idPath = createImportSource(id)
 
-        code.push(`export { default as default } from ${idPath}`)
+        code.push(`import ${name} from ${idPath}`)
+        code.push(`export default ${name}`)
         code.push(`export * from ${idPath}`)
 
         if (script != null) {
@@ -283,7 +300,8 @@ export class VueSFCDocument extends ProxyDocument {
       if (id != null) {
         this.activeTSDocIDs.add(id)
         const idPath = createImportSource(id)
-        code.push(`export { default as default } from ${idPath}`)
+        code.push(`import ${name} from ${idPath}`)
+        code.push(`export default ${name}`)
         code.push(`export * from ${idPath}`)
       }
     }
@@ -376,8 +394,8 @@ export class VueSFCDocument extends ProxyDocument {
         getComponents() {
           return {}
         },
+        transformers: {},
         ...options,
-        transformers: { ...options.transformers, ...builtins },
       },
       TextDocument.create(`file://${fileName}`, 'vue', version, content),
     )

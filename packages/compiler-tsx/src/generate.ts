@@ -157,6 +157,11 @@ export const annotations = {
     start: '/*<vuedx:diagnosticsIgnore>*/',
     end: '/*</vuedx:diagnosticsIgnore>*/',
   },
+  templateGlobals: {
+    start: '/*<vuedx:templateGlobals>*/',
+    end: '/*</vuedx:templateGlobals>*/',
+  },
+  missingExpression: '/*<vuedx:missingExpression>*/',
   tsxCompletions: '/*<vuedx:tsx-competions-target/>*/',
   tsCompletions: '/*<vuedx:ts-competions-target/>*/',
 }
@@ -182,7 +187,7 @@ export function generate(
   const args = ast.scope.globals.join(',')
   context
     .write(
-      `export function render(_ctx: ${selfName}, {${args}}: ${selfName}): any {`,
+      `export function _render(_ctx: ${selfName}, {${annotations.templateGlobals.start}${args}${annotations.templateGlobals.end}}: ${selfName}): any {`,
     )
     .newLine()
     .indent()
@@ -350,7 +355,7 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
     return
   }
 
-  context.write('<')
+  context.write('<', node.loc, 'transformed')
   const startLoc = createLoc(node.loc, 1, node.tag.length)
   if (isComponentNode(node)) {
     context.write(node.resolvedName ?? node.tag, startLoc, 'transformed')
@@ -742,9 +747,13 @@ function genDirectives(
       context.write(`VueDX.internal.checkModelDirective(${componentName}, `)
     }
   } else {
+    context.write(`VueDX.internal.checkDirective(`)
     context.write(
-      `VueDX.internal.checkDirective(${directiveName}, ${componentName}, `,
+      directiveName,
+      createLoc(dir.loc, 0, dir.name.length + 2),
+      'transformed',
     )
+    context.write(`, ${componentName}, `)
   }
 
   context.write(`[`).indent().newLine()
@@ -807,7 +816,9 @@ function genExpressionNode(
   wrapInParantheses = false,
 ): void {
   if (isSimpleExpressionNode(node)) {
-    if (node.constType > 0) {
+    if (node.content.trim() === '') {
+      context.write(annotations.missingExpression, node.loc, 'transformed')
+    } else if (node.constType > 0) {
       context.write(JSON.stringify(node.content), node.loc, 'transformed')
     } else {
       const ok = wrapInParantheses && node.content.includes(',')

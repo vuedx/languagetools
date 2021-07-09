@@ -1,5 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-namespace */
-import type { DefineComponent } from 'vue'
+import type {
+  DefineComponent,
+  defineComponent,
+  VNodeProps,
+  AllowedComponentProps,
+  ComponentCustomProps,
+} from 'vue'
 
 export type _ = 1
 
@@ -12,11 +19,13 @@ interface Directive<_Arg, _Exp, _Mod extends string> {
 declare global {
   namespace VueDX {
     namespace internal {
-      export function defineSetupComponent<P, E, B>(
+      export { defineComponent }
+      export function defineSetupComponent<P, E, B, O>(
         props: P,
         emits: E,
         bindings: B,
-      ): DefineComponent<P, B> & { $emit: E }
+        options: O,
+      ): DefineComponent<P, B>
 
       // -- renderList --
       export function renderList(
@@ -47,10 +56,7 @@ declare global {
       >(source: S, name: K, props: Parameters<S[K]>[0]): any
 
       // -- checkSlots --
-      export function checkSlots(
-        tag: any,
-        slots: any,
-      ): any
+      export function checkSlots(tag: any, slots: any): any
 
       // -- checkDirective --
       export function checkDirective<N, T, A, E, M extends string>(

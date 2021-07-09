@@ -19,6 +19,7 @@ import { createResolveComponentTransform } from './transforms/transformResolveCo
 import { createSlotHoistScopeTransform } from './transforms/transformSlot'
 import type { CodegenResult, Options } from './types'
 
+export { annotations } from './generate'
 export { getTopLevelIdentifiers } from './scope'
 export * from './types'
 
@@ -59,6 +60,10 @@ export function compile(
     scope: new ScopeManager(),
     components: config.components,
     directives: config.directives,
+    used: {
+      components: new Set<string>(),
+      directives: new Set<string>(),
+    },
   }
   const errors: CompilerError[] = []
   transform(ast, {
@@ -93,11 +98,15 @@ export function compile(
         context
           .write(`import type _Self from '${selfSrc}'`)
           .newLine()
+
           .write(`type ${selfName} = InstanceType<typeof _Self>`)
           .newLine()
       }
     },
   })
+
+  astCopy.components = Array.from(customContext.used.components)
+  astCopy.directives = Array.from(customContext.used.directives)
 
   return {
     ...result,

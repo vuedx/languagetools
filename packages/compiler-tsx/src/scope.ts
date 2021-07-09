@@ -246,7 +246,10 @@ export function getTopLevelIdentifiers(
 
             if (!ignoredSources.has(node.source.value)) {
               identifiers.add(specifier.local.name)
-              if (isCamelCase(specifier.local.name)) {
+              if (
+                isCamelCase(specifier.local.name) &&
+                /^v[A-Z]/.test(specifier.local.name)
+              ) {
                 directives.add(specifier.local.name)
               } else if (isPascalCase(specifier.local.name)) {
                 components.add(specifier.local.name)
@@ -282,38 +285,46 @@ function getIdentifiers(source: string): Set<string> {
   source = source
     .trim()
     // Common errors when user is typing.
-    .replace(/(\.|\[\]?)$/, '')
+    .replace(/(\.|\[\]?)\s*$/, '')
 
-  if (isSimpleIdentifier(source.trim())) return new Set([source])
-
-  // TODO: Handle incomplete expressions
-  try {
-    const ast = parseUsingBabel(source, false)
-    const identifers = new Set<string>()
-
-    traverseBabel(ast, (node, ancestors) => {
-      if (isIdentifier(node)) {
-        if (ancestors.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          if (shouldTrack(node, ancestors[ancestors.length - 1]!.node)) {
-            identifers.add(node.name)
-          }
-        } else {
-          identifers.add(node.name)
-        }
-      }
-    })
-
-    return identifers
-  } catch {
-    const RE = /\b[a-z$_][a-z0-9$_]+\b/gi
-    let match: RegExpMatchArray | null
-    const identifiers = new Set<string>()
-    while ((match = RE.exec(source)) != null) {
-      identifiers.add(match[0]!)
-    }
-    return identifiers
+  const identifiers = new Set<string>()
+  const add = (id: string): void => {
+    if (isValidIdentifier(id)) identifiers.add(id)
   }
+  if (isSimpleIdentifier(source.trim())) {
+    add(source)
+  } else {
+    try {
+      const ast = parseUsingBabel(source, false)
+
+      traverseBabel(ast, (node, ancestors) => {
+        if (isIdentifier(node)) {
+          if (ancestors.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            if (shouldTrack(node, ancestors[ancestors.length - 1]!.node)) {
+              add(node.name)
+            }
+          } else {
+            add(node.name)
+          }
+        }
+      })
+    } catch {
+      const RE = /\b[a-z$_][a-z0-9$_]+\b/gi
+      let match: RegExpMatchArray | null
+      while ((match = RE.exec(source)) != null) {
+        add(match[0] ?? '')
+      }
+    }
+  }
+  return identifiers
+}
+
+function isValidIdentifier(id: string): boolean {
+  return (
+    id.trim().length > 0 &&
+    !/^(of|in|for|while|function|class|const|let|var)$/.test(id)
+  )
 }
 
 function parseUsingBabel(source: string, withTS = false): File | Expression {

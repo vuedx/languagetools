@@ -7,18 +7,20 @@ import { inject, injectable } from 'inversify'
 import JSON5 from 'json5'
 import * as Path from 'path'
 
-import { INJECTABLE_TS, INJECTABLE_TS_PROVIDER } from '../constants'
+import { INJECTABLE_TS_PROVIDER } from '../constants'
 import type { Disposable } from '../contracts/Disposable'
-import type { Typescript } from '../contracts/Typescript'
+import type {
+  TSLanguageService,
+  TSProject,
+  Typescript,
+} from '../contracts/Typescript'
 import type { TypescriptProvider } from '../contracts/TypescriptProvider'
 
 @injectable()
 export class TypescriptService implements Disposable {
   constructor(
     @inject(INJECTABLE_TS_PROVIDER)
-    private readonly tsp: TypescriptProvider,
-    @inject(INJECTABLE_TS)
-    private readonly ts: typeof Typescript,
+    private readonly ts: TypescriptProvider,
   ) {}
 
   private readonly projects: Array<{
@@ -27,15 +29,28 @@ export class TypescriptService implements Disposable {
     dispose(): void
   }> = []
 
-  /**
-   * Find typescript project for the file.
-   */
-  public getProjectFor(fileName: string): Typescript.server.Project | null {
-    return this.tsp.getProjectFor(fileName) ?? null
+  public get lib(): typeof Typescript {
+    return this.ts.typescript
+  }
+
+  public getDefaultProject(): TSProject | null {
+    return this.ts.context?.project ?? null
+  }
+
+  public getService(): TSLanguageService | null {
+    return this.ts.context?.service ?? null
   }
 
   /**
    * Find typescript project for the file.
+   */
+  public getProjectFor(fileName: string): Typescript.server.Project | null {
+    return this.ts.getProjectFor(fileName) ?? null
+  }
+
+  /**
+   * Find typescript project for the file.
+   * TODO: Extract this logic to a static method on VueProject
    */
   public getVueProjectFor(fileName: string): VueProject {
     const ref = this.projects.find(({ project }) =>
@@ -47,16 +62,16 @@ export class TypescriptService implements Disposable {
 
     if (project === null) {
       project = (() => {
-        const host = this.tsp.getServerHost()
-        const packageFile = this.ts.findConfigFile(
+        const host = this.ts.getServerHost()
+        const packageFile = this.lib.findConfigFile(
           fileName,
-          this.ts.sys.fileExists,
+          this.lib.sys.fileExists,
           'package.json',
         )
 
-        const configFile = this.ts.findConfigFile(
+        const configFile = this.lib.findConfigFile(
           fileName,
-          this.ts.sys.fileExists,
+          this.lib.sys.fileExists,
           'vueconfig.json',
         )
 
@@ -131,11 +146,11 @@ export class TypescriptService implements Disposable {
 
             if (!/\.(vue)$/.test(fileName)) return
             if (host.fileExists(fileName)) {
-              if (newProject.fileNames.includes(fileName) === false) {
+              if (!newProject.fileNames.includes(fileName)) {
                 newProject.setFileNames([...newProject.fileNames, fileName])
               }
             } else {
-              if (newProject.fileNames.includes(fileName) === true) {
+              if (newProject.fileNames.includes(fileName)) {
                 newProject.setFileNames(
                   newProject.fileNames.filter((f) => f !== fileName),
                 )
@@ -147,7 +162,7 @@ export class TypescriptService implements Disposable {
         disposables.push(() => projectDirWatcher.close())
 
         const reload = (): void => {
-          const project = this.tsp.getProjectFor('')
+          const project = this.ts.getProjectFor('')
 
           if (project != null) {
             project.markAsDirty()
@@ -157,7 +172,7 @@ export class TypescriptService implements Disposable {
 
         if (configFile != null) {
           const configFileWatcher = host.watchFile(configFile, (_, event) => {
-            if (event === this.ts.FileWatcherEventKind.Deleted) {
+            if (event === this.lib.FileWatcherEventKind.Deleted) {
               dispose()
             } else {
               ;(newProject as ConfiguredVueProject).setConfig(
@@ -174,7 +189,7 @@ export class TypescriptService implements Disposable {
 
         if (packageFile != null) {
           const packageFileWatcher = host.watchFile(packageFile, (_, event) => {
-            if (event === this.ts.FileWatcherEventKind.Deleted) {
+            if (event === this.lib.FileWatcherEventKind.Deleted) {
               dispose()
             } else {
               newProject.packageJSON = {
@@ -205,7 +220,7 @@ export class TypescriptService implements Disposable {
    * Find typescript laguage service for the file.
    */
   public getServiceFor(fileName: string): Typescript.LanguageService | null {
-    return this.tsp.getLanguageServiceFor(fileName) ?? null
+    return this.ts.getLanguageServiceFor(fileName) ?? null
   }
 
   /**

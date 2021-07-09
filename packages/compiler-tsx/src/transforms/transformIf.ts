@@ -3,6 +3,7 @@ import {
   NodeTransform,
   processIf,
 } from '@vue/compiler-core'
+
 import type { CustomTransformContext } from './CustomTransformContext'
 
 export function createTransformIf(
@@ -12,7 +13,7 @@ export function createTransformIf(
     /^(if|else-if|else)$/,
     (node, dir, context) => {
       const condition = dir.exp
-      dir.exp = undefined // Prevent condition normalization
+      dir.exp = { ...condition } as any // Prevent condition normalization
       return processIf(node, dir, context, (_ifNode, brnach) => () => {
         brnach.condition = condition
       })

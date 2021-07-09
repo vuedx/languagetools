@@ -9,6 +9,11 @@ export type {
   BlockTransformerOptions,
   TransformerError,
 } from './BlockTransformer'
+export {
+  builtins as transformers,
+  annotations,
+  Annotations,
+} from './BlockTransformer'
 export { VueBlockDocument } from './VueBlockDocument'
 export { VueSFCDocument } from './VueSFCDocument'
 export type { VueSFCDocumentOptions } from './VueSFCDocument'

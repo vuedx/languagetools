@@ -1,26 +1,56 @@
-import { inject, injectable } from 'inversify'
-import { INJECTABLE_TS_PROJECT } from '../constants'
-import type { TSProject } from '../contracts/Typescript'
 import * as util from 'util'
 
-@injectable()
-export class LoggerService {
-  constructor(
-    @inject(INJECTABLE_TS_PROJECT)
-    private readonly project: TSProject, // TODO
-  ) {}
+interface Writer {
+  info(line: string): void
+  error(line: string): void
+  debug(line: string): void
+}
 
-  private write(message: string): void {
-    this.project.projectService.logger.info(`[VueDX] ${message}`)
-  }
+export class LoggerService {
+  constructor(private readonly context: string) {}
 
   public info(message: string, ...args: any[]): void {
-    this.write(
-      util.formatWithOptions(
+    LoggerService.writer.info(
+      `[VueDX] (${this.context}) ${util.formatWithOptions(
         { breakLength: Infinity, colors: false },
         message,
         ...args,
-      ),
+      )}`,
     )
+  }
+
+  public debug(message: string, ...args: any[]): void {
+    LoggerService.writer.debug(
+      `[VueDX] (${this.context}) ${util.formatWithOptions(
+        { breakLength: Infinity, colors: false },
+        message,
+        ...args,
+      )}`,
+    )
+  }
+
+  public error(message: string | Error, ...args: any[]): void {
+    LoggerService.writer.debug(
+      `[VueDX] (${this.context}) ${util.formatWithOptions(
+        { breakLength: Infinity, colors: false },
+        '',
+        message,
+        ...args,
+      )}`,
+    )
+  }
+
+  private static writer: Writer = {
+    info: (line) => process.stderr.write(line + '\n'),
+    error: (line) => process.stderr.write(line + '\n'),
+    debug: (line) => process.stderr.write(line + '\n'),
+  }
+
+  public static setWriter(writer: Writer): void {
+    this.writer = writer
+  }
+
+  public static getLogger(name: string): LoggerService {
+    return new LoggerService(name)
   }
 }

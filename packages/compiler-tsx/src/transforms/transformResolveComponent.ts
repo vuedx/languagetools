@@ -25,7 +25,7 @@ export function createResolveComponentTransform(
   let dynamicComponentCounter = 0
 
   const hoist = (exp: SimpleExpressionNode): string => {
-    const name = `DynamicComponent${dynamicComponentCounter++}`
+    const name = `_DynamicComponent${dynamicComponentCounter++}`
     customContext.scope.hoist(
       createCompoundExpression([`const `, name, ' = ', exp, ';']),
     )
@@ -38,6 +38,7 @@ export function createResolveComponentTransform(
     if (isElementNode(node)) {
       node.props.forEach((node) => {
         if (isDirectiveNode(node) && !builtins.has(node.name)) {
+          customContext.used.directives.add(camelCase(node.name))
           const directive =
             customContext.directives[node.name] ??
             customContext.directives[camelCase(node.name)]
@@ -54,6 +55,8 @@ export function createResolveComponentTransform(
     }
     if (!isComponentNode(node)) return
     if (node.tag !== 'component') {
+      customContext.used.components.add(pascalCase(node.tag))
+
       const resolvedComponent =
         customContext.components[node.tag] ??
         customContext.components[pascalCase(node.tag)]

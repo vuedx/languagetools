@@ -1,4 +1,4 @@
-import type { SFCBlock, SFCDescriptor } from '@vuedx/compiler-sfc'
+import type { RawSourceMap, SFCBlock, SFCDescriptor } from '@vuedx/compiler-sfc'
 import {
   FindPosition,
   Position as SourceMapPosition,
@@ -27,7 +27,8 @@ const METADATA_PREFIX = ';;;VueDX:'
 export class VueBlockDocument {
   public readonly source: TextDocument
   public readonly generated: TextDocument | null = null
-  public readonly sourceMap: SourceMapConsumer | null
+  public readonly sourceMap: SourceMapConsumer | null = null
+  public readonly rawSourceMap: RawSourceMap | null = null
 
   public readonly errors: TransformerError[] = []
 
@@ -40,6 +41,7 @@ export class VueBlockDocument {
 
   public readonly tsxCompletionsOffset: number | null = null
   public readonly tsCompletionsOffset: number | null = null
+  private readonly templateGlobals: { start: number; end: number } | null = null
 
   public get block(): SFCBlock {
     return this.blockGetter()
@@ -101,6 +103,7 @@ export class VueBlockDocument {
       this.errors = errors ?? []
       if (map != null) {
         this.sourceMap = new SourceMapConsumer(map)
+        this.rawSourceMap = map
       }
 
       this.generated = TextDocument.create(
@@ -150,6 +153,14 @@ export class VueBlockDocument {
       } else {
         this.tsCompletionsOffset = null
       }
+
+      const globalsOffset = code.indexOf(annotations.templateGlobals.start)
+
+      if (globalsOffset >= 0) {
+        const start = globalsOffset + annotations.templateGlobals.end.length
+        const end = code.indexOf(annotations.templateGlobals.end, globalsOffset)
+        this.templateGlobals = { start, end }
+      }
     }
   }
 
@@ -164,6 +175,7 @@ export class VueBlockDocument {
     if (this.sourceMap == null || this.generated == null) {
       return { offset: offset - this.block.loc.start.offset, length }
     }
+
     const position = this.sourceMap.generatedPositionFor({
       ...this.toSourceMapPosition(
         this.source.positionAt(offset - this.block.loc.start.offset),
@@ -175,7 +187,7 @@ export class VueBlockDocument {
     const original = this.originalOffsetMappingAt(result, -1)
 
     // If generated text is copied from original text then we can get exact position.
-    if (original.mapping?.kind === 'copy') {
+    if (original?.mapping?.kind === 'copy') {
       const diff =
         offset - original.mapping.src.start - this.block.loc.start.offset
 
@@ -195,7 +207,10 @@ export class VueBlockDocument {
    * @returns position in .vue file
    */
   public originalOffsetAt(offset: number): number {
-    return this.originalOffsetAndLengthAt(offset, 1).offset
+    return (
+      this.originalOffsetAndLengthAt(offset, 1)?.offset ??
+      this.block.loc.start.offset
+    )
   }
 
   /**
@@ -207,8 +222,9 @@ export class VueBlockDocument {
   public originalOffsetAndLengthAt(
     offset: number,
     length: number,
-  ): { offset: number; length: number } {
+  ): { offset: number; length: number } | null {
     const result = this.originalOffsetMappingAt(offset, 0)
+    if (result == null) return null
 
     if (result.mapping != null && this.generated != null) {
       switch (result.mapping.kind) {
@@ -241,7 +257,7 @@ export class VueBlockDocument {
   private originalOffsetMappingAt(
     offset: number,
     bias: -1 | 0 | 1 = 0,
-  ): { offset: number; mapping?: MappingMetadata } {
+  ): { offset: number; mapping?: MappingMetadata } | null {
     if (this.sourceMap == null || this.generated == null) {
       return { offset: this.block.loc.start.offset + offset } // no source map == no transformation
     }
@@ -258,7 +274,7 @@ export class VueBlockDocument {
 
     const original = this.sourceMap.originalPositionFor(position)
 
-    if (original.line == null) return { offset: this.block.loc.start.offset }
+    if (original.line == null) return null
     return {
       offset:
         this.block.loc.start.offset +
@@ -289,6 +305,13 @@ export class VueBlockDocument {
     return this.ignoredZones.some(
       (zone) => zone.start <= offset && offset <= zone.end,
     )
+  }
+
+  public isOffsetInTemplateGlobals(offset: number): boolean {
+    return this.templateGlobals == null
+      ? false
+      : this.templateGlobals.start <= offset &&
+          offset <= this.templateGlobals.end
   }
 
   public toSourceMapPosition(position: Position): SourceMapPosition {

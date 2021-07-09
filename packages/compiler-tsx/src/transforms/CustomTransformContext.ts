@@ -5,4 +5,8 @@ export interface CustomTransformContext {
   scope: ScopeManager
   components: Record<string, ComponentRegistration>
   directives: Record<string, DirectiveRegistration>
+  used: {
+    components: Set<string>
+    directives: Set<string>
+  }
 }
