@@ -10,6 +10,9 @@ export interface TypescriptProvider {
   context: null | { project: TSProject; service: TSLanguageService }
   typescript: typeof Typescript
   getProjectFor(fileName: string): TSProject
+  /**
+   * @remark This must not include TS-Plugin-Vue.
+   */
   getLanguageServiceFor(fileName: string): TSLanguageService
   getServerHost(): TSServerHost
 }

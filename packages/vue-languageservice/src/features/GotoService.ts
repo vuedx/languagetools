@@ -5,10 +5,13 @@ import type {
 import { inject, injectable } from 'inversify'
 import type Typescript from 'typescript/lib/tsserverlibrary'
 import { FilesystemService } from '../services/FilesystemService'
+import { LoggerService } from '../services/LoggerService'
 import { TypescriptService } from '../services/TypescriptService'
 
 @injectable()
 export class GotoService {
+  private readonly logger = LoggerService.getLogger(`Goto`)
+
   constructor(
     @inject(TypescriptService)
     private readonly ts: TypescriptService,
@@ -35,8 +38,8 @@ export class GotoService {
             const result = service.getDefinitionAtPosition(tsFileName, offset)
             if (result == null) return
 
-            console.error(
-              `[VueDX] GoTo (${this.depth}) ${fileName} ${position} (Found ${result.length} definitions)`,
+            this.logger.debug(
+              `DefinnitionAtPostion(${this.depth}) ${fileName} ${position} (Found ${result.length} definitions)`,
             )
 
             return this.dedupeDefinitionInfos(
@@ -44,8 +47,8 @@ export class GotoService {
                 .map((info) => {
                   if (blockFile.isOffsetInIgonredZone(info.textSpan.start)) {
                     // For render function arguments, we need to find definition again
-                    console.error(
-                      `[VueDX] GoTo (Again) ${info.fileName} ${info.textSpan.start}:${info.textSpan.length}`,
+                    this.logger.debug(
+                      `GoTo (Again) ${info.fileName} ${info.textSpan.start}:${info.textSpan.length}`,
                     )
 
                     const result = this.getDefinitionAtPosition(

@@ -39,7 +39,7 @@ export class FilesystemService implements Disposable {
   public getFile(fileName: string): TextDocument | null {
     if (this.isVueFile(fileName)) return this.getVueFile(fileName)
 
-    const cachedFile = this.vueFiles.get(fileName)
+    const cachedFile = this.otherFiles.get(fileName)
     if (cachedFile != null) return cachedFile
     if (!this.provider.exists(fileName)) return null
 

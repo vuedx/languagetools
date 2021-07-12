@@ -274,8 +274,14 @@ export class DiagnosticsService {
           )
 
           return references?.map((reference) => {
-            if (reference.fileName === fileName) {
-              return { ...diagnostic, ...reference.textSpan }
+            if (
+              reference.fileName === fileName &&
+              !blockFile.isOffsetInIgonredZone(reference.textSpan.start)
+            ) {
+              return this.normalizeTSDiagnostic({
+                ...diagnostic,
+                ...reference.textSpan,
+              })
             }
             return null
           })

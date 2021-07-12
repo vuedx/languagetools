@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, defineProps, ref } from 'vue'
 import {} from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
@@ -22,5 +22,5 @@ function increment() {}
   <p v-bind>
   <p v-if="al" />
   <p v-for="item of 10">{{ item }}</p>
-  <a>{{ i }}<>
+  <a>{{ i }}<> {{ altCode }}
 </template>

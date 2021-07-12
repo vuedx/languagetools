@@ -96,10 +96,11 @@ export function compile(
     on(event, context) {
       if (event === 'afterImports') {
         context
+
           .write(`import type _Self from '${selfSrc}'`)
           .newLine()
 
-          .write(`type ${selfName} = InstanceType<typeof _Self>`)
+          .write(`interface ${selfName} extends InstanceType<typeof _Self> {}`)
           .newLine()
       }
     },

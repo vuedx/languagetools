@@ -45,22 +45,31 @@ export function createTypescriptLanguageService(
   // prettier-ignore
   return {
     ...options.languageService,
+    // Required for correctness.
     getExternalFiles: () => service.getExternalFiles(),
-    getSemanticDiagnostics: (...args) => service.getSemanticDiagnostics(...args),
-    getSyntacticDiagnostics: (...args) => service.getSyntacticDiagnostics(...args),
-    getSuggestionDiagnostics: (...args) => service.getSuggestionDiagnostics(...args),
     getEncodedSemanticClassifications: (...args) => service.getEncodedSemanticClassifications(...args),
     getEncodedSyntacticClassifications: (...args) => service.getEncodedSyntacticClassifications(...args),
     findReferences: (...args) => service.findReferences(...args),
-    getQuickInfoAtPosition: (...args) => service.getQuickInfoAtPosition(...args),
-    getDefinitionAtPosition: (...args) => service.getDefinitionAtPosition(...args),
-    getDefinitionAndBoundSpan: (...args) => service.getDefinitionAndBoundSpan(...args),
-    getCompletionsAtPosition: (...args) => service.getCompletionsAtPosition(...args),
-    getCompletionEntryDetails: (...args) => service.getCompletionEntryDetails(...args),
     dispose: () => {
       service.dispose()
       context.unbindAll()
     },
+    
+    // Feature: Diagnostics 
+    getSemanticDiagnostics: (...args) => service.getSemanticDiagnostics(...args),
+    getSyntacticDiagnostics: (...args) => service.getSyntacticDiagnostics(...args),
+    getSuggestionDiagnostics: (...args) => service.getSuggestionDiagnostics(...args),
+    
+    // Feature: Hover
+    getQuickInfoAtPosition: (...args) => service.getQuickInfoAtPosition(...args),
+    
+    // Feature: GoTo
+    getDefinitionAtPosition: (...args) => service.getDefinitionAtPosition(...args),
+    getDefinitionAndBoundSpan: (...args) => service.getDefinitionAndBoundSpan(...args),
+    
+    // Feature: Completions
+    getCompletionsAtPosition: (...args) => service.getCompletionsAtPosition(...args),
+    getCompletionEntryDetails: (...args) => service.getCompletionEntryDetails(...args),
   }
 }
 
@@ -75,20 +84,36 @@ function patchTSHosts(
     if (fs.isVueVirtualFile(fileName)) {
       const file = fs.getVueFile(fileName)
       if (file == null) return false
-      return file.activeTSDocIDs.has(fileName)
+      const exists = file.activeTSDocIDs.has(fileName)
+      if (exists) logger.debug(`Found ${fileName}`)
+      return exists
     } else if (fs.isVueTsFile(fileName)) {
-      return fileExists(fs.getRealFileName(fileName))
+      const exists = fileExists(fileName.substr(0, fileName.length - 3))
+      if (exists) logger.debug(`Found ${fileName}`)
+      return exists
     }
 
     return fileExists(fileName)
+  }
+
+  // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
+  const watchFile = options.serverHost.watchFile.bind(options.serverHost)
+  options.serverHost.watchFile = (fileName, callback) => {
+    if (fs.isVueTsFile(fileName) || fs.isVueVirtualFile(fileName)) {
+      return { close: () => {} }
+    }
+
+    return watchFile(fileName, callback)
   }
 
   // Patch: get contents for virtual files from VueSFCDocument
   const readFile = options.serverHost.readFile.bind(options.serverHost)
   options.serverHost.readFile = (fileName, encoding) => {
     if (fs.isVueVirtualFile(fileName)) {
+      logger.debug(`Load ${fileName}`)
       return fs.getVueFile(fileName)?.getDocById(fileName)?.generated?.getText()
     } else if (fs.isVueTsFile(fileName)) {
+      logger.debug(`Load ${fileName}`)
       return fs.getVueFile(fileName)?.getTypeScriptText()
     }
 
@@ -99,8 +124,19 @@ function patchTSHosts(
   const getScriptVersion = options.languageServiceHost.getScriptVersion.bind(
     options.languageServiceHost,
   )
-  options.languageServiceHost.getScriptVersion = (fileName: string): string =>
-    getScriptVersion(fs.getRealFileName(fileName))
+  options.languageServiceHost.getScriptVersion = (fileName: string): string => {
+    const version = getScriptVersion(fs.getRealFileName(fileName))
+
+    if (
+      fs.isVueFile(fileName) ||
+      fs.isVueVirtualFile(fileName) ||
+      fs.isVueTsFile(fileName)
+    ) {
+      logger.debug(`Version ${version} of ${fileName}`)
+    }
+
+    return version
+  }
 
   // Patch: create snapshots for virtual files from VueSFCDocument
   const getScriptSnapshot = options.languageServiceHost.getScriptSnapshot.bind(
@@ -117,6 +153,10 @@ function patchTSHosts(
           file.getTypeScriptText(),
         )
       }
+
+      logger.error(`Missing snapshot: ${fileName}`)
+
+      return undefined
     } else if (fs.isVueVirtualFile(fileName)) {
       const vueFile = fs.getVueFile(fileName)
       const blockFile = vueFile?.getDocById(fileName)
@@ -126,10 +166,13 @@ function patchTSHosts(
           blockFile.generated.getText(),
         )
       }
+
+      logger.error(`Missing snapshot: ${fileName}`)
+
+      return undefined
     } else {
       return getScriptSnapshot(fileName)
     }
-    return undefined
   }
 
   // Patch: Add .vue.ts file for every .vue file
@@ -141,14 +184,21 @@ function patchTSHosts(
     const original = getScriptFileNames()
     const fileNames = new Set(original)
 
+    let isVueProject = false
     original.forEach((fileName) => {
-      if (fs.isVueFile(fileName)) fileNames.add(`${fileName}.ts`)
+      if (fs.isVueFile(fileName)) {
+        isVueProject = true
+        fileNames.add(`${fileName}.ts`)
+      } else if (fs.isVueTsFile(fileName) || fs.isVueVirtualFile(fileName)) {
+        isVueProject = true
+      }
     })
 
-    // TODO: Add only when needed.
-    fileNames.add(options.getRuntimeHelperFileName('3.0'))
-
-    logger.debug('[VueDX] Files: ', fileNames)
+    if (isVueProject) {
+      // TODO: Detect Vue version
+      fileNames.add(options.getRuntimeHelperFileName('3.0'))
+      logger.debug('Files', fileNames)
+    }
 
     return Array.from(fileNames)
   }
@@ -184,6 +234,7 @@ function createFilesystemProvider({
 
   return fs
 }
+
 function createTypescriptProvider(
   options: CreateLanguageServiceOptions,
 ): TypescriptProvider {

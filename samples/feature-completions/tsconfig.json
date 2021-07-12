@@ -1,3 +1,4 @@
 {
-  "include": ["src"]
+  "include": ["src"],
+  "compilerOptions": {"rootDir": ".", "jsx": "preserve", "lib": ["DOM"]}
 }

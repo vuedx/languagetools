@@ -29,10 +29,10 @@ interface TSCompletionsInVueFile {
     setup: number | undefined
   }
   completions: {
-    ts: Typescript.WithMetadata<Typescript.CompletionInfo> | undefined
-    tsx: Typescript.WithMetadata<Typescript.CompletionInfo> | undefined
-    offset: Typescript.WithMetadata<Typescript.CompletionInfo> | undefined
-    setup: Typescript.WithMetadata<Typescript.CompletionInfo> | undefined
+    getTs(): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined
+    getTsx(): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined
+    getOffset(): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined
+    getSetup(): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined
   }
 }
 
@@ -73,6 +73,35 @@ export class CompletionsService {
           )
         : undefined
 
+    const completions = {
+      getTs: () => {
+        if (blockFile.tsCompletionsOffset == null) return
+        this.logger.debug('Loading TS completions')
+        return service.getCompletionsAtPosition(
+          tsFileName,
+          blockFile.tsCompletionsOffset,
+          this.getContextCompletionOptions(options),
+        )
+      },
+      getTsx: () => {
+        if (blockFile.tsxCompletionsOffset == null) return
+        this.logger.debug('Loading TSX completions: ' + tsFile.getText().substring(blockFile.tsxCompletionsOffset - 1, blockFile.tsxCompletionsOffset + 4))
+        return service.getCompletionsAtPosition(
+          tsFileName,
+          blockFile.tsxCompletionsOffset,
+          this.getTsxCompletionOptions(options),
+        )
+      },
+      getOffset: () => {
+        this.logger.debug('Loading offset completions')
+        return service.getCompletionsAtPosition(tsFileName, offset, options)
+      },
+      getSetup: () => {
+        this.logger.debug('Loading setup completions')
+        return this.getScriptSetupCompletions(fileName)
+      },
+    } as const
+
     return {
       vueFile,
       blockFile,
@@ -89,26 +118,7 @@ export class CompletionsService {
                 ?.generated?.getText().length ?? 1) - 1
             : undefined,
       },
-      completions: {
-        ts:
-          blockFile.tsCompletionsOffset != null
-            ? service.getCompletionsAtPosition(
-                tsFileName,
-                blockFile.tsCompletionsOffset,
-                this.getContextCompletionOptions(options),
-              )
-            : undefined,
-        tsx:
-          blockFile.tsxCompletionsOffset != null
-            ? service.getCompletionsAtPosition(
-                tsFileName,
-                blockFile.tsxCompletionsOffset,
-                this.getTsxCompletionOptions(options),
-              )
-            : undefined,
-        offset: service.getCompletionsAtPosition(tsFileName, offset, options),
-        setup: this.getScriptSetupCompletions(fileName),
-      },
+      completions,
     }
   }
 
@@ -144,6 +154,11 @@ export class CompletionsService {
       includeCompletionsForImportStatements: true,
       includeCompletionsForModuleExports: true,
       includePackageJsonAutoImports: 'off',
+      includeCompletionsWithInsertText: true,
+      includeCompletionsWithSnippetText: true,
+      providePrefixAndSuffixTextForRename: true,
+      provideRefactorNotApplicableReason: true,
+      quotePreference: 'double',
       triggerCharacter: '<',
     }
   }
@@ -185,25 +200,47 @@ export class CompletionsService {
         if (isSimpleExpressionNode(node) || isInterpolationNode(node)) {
           return this.combine(
             [
-              completions.ts,
-              completions.offset,
-              completions.setup,
+              completions.getTs(),
+              completions.getOffset(),
+              completions.getSetup(),
             ].map((info) => this.filterCompletionsInExpression(info)),
           )
         } else if (isElementNode(node)) {
           if (cursor.original <= node.loc.start.offset + node.tag.length + 1) {
             return this.combine(
-              [
-                completions.tsx,
-                completions.offset,
-                completions.setup,
-              ].map((info) => this.filterCompletionsInElementTag(info)),
+              [completions.getTsx()].map((info) =>
+                this.filterCompletionsInElementTag(info),
+              ),
+            )
+          } else {
+            // Possibly attribute completion
+            return this.combine(
+              [completions.getOffset()].map((info) =>
+                this.filterCompletionsInElementTag(info),
+              ),
             )
           }
         }
-      }
 
-      return this.combine([completions.offset])
+        const content = result.vueFile.getText()
+        const charAtCursor = content.substr(position - 1, 1)
+        const lastTag = content.substring(
+          content.substr(0, position).lastIndexOf('<'),
+          position,
+        )
+
+        if (charAtCursor === '<' || /^<[a-z0-9-]+$/i.test(lastTag)) {
+          return this.combine(
+            [completions.getTsx()].map((info) =>
+              this.filterCompletionsInElementTag(info),
+            ),
+          )
+        }
+
+        return undefined
+      } else {
+        return this.combine([completions.getOffset()])
+      }
     } else {
       return this.combine([
         service.getCompletionsAtPosition(fileName, position, options),
@@ -227,6 +264,7 @@ export class CompletionsService {
     if (service == null) return
 
     if (this.fs.isVueFile(fileName)) {
+      this.logger.debug(`Find details: "${entryName}" of "${source ?? ''}"`)
       const result = this.getTSCompletionsAtPositionInVueFile(
         fileName,
         position,
@@ -237,9 +275,11 @@ export class CompletionsService {
 
       const { blockFile, completions } = result
 
-      const fromTS = completions.ts?.entries.find((entry) =>
-        this.testCompletionEntry(entry, entryName, source),
-      )
+      const fromTS = completions
+        .getTs()
+        ?.entries.find((entry) =>
+          this.testCompletionEntry(entry, entryName, source),
+        )
       if (fromTS != null && blockFile.tsCompletionsOffset != null) {
         return service.getCompletionEntryDetails(
           result.fileName,
@@ -251,9 +291,11 @@ export class CompletionsService {
           data,
         )
       }
-      const fromTSX = completions.tsx?.entries.find((entry) =>
-        this.testCompletionEntry(entry, entryName, source),
-      )
+      const fromTSX = completions
+        .getTsx()
+        ?.entries.find((entry) =>
+          this.testCompletionEntry(entry, entryName, source),
+        )
       if (fromTSX != null && blockFile.tsxCompletionsOffset != null) {
         return service.getCompletionEntryDetails(
           result.fileName,
@@ -265,9 +307,11 @@ export class CompletionsService {
           data,
         )
       }
-      const fromOffset = completions.offset?.entries.find((entry) =>
-        this.testCompletionEntry(entry, entryName, source),
-      )
+      const fromOffset = completions
+        .getOffset()
+        ?.entries.find((entry) =>
+          this.testCompletionEntry(entry, entryName, source),
+        )
       if (fromOffset != null) {
         return service.getCompletionEntryDetails(
           result.fileName,
@@ -280,12 +324,21 @@ export class CompletionsService {
         )
       }
 
-      const fromSetup = completions.setup?.entries.find((entry) =>
-        this.testCompletionEntry(entry, entryName, source),
-      )
-      if (fromSetup != null && result.cursor.setup != null) {
+      const fromSetup = completions
+        .getSetup()
+        ?.entries.find((entry) =>
+          this.testCompletionEntry(entry, entryName, source),
+        )
+      if (
+        fromSetup != null &&
+        result.cursor.setup != null &&
+        result.vueFile.descriptor.scriptSetup != null
+      ) {
+        const id = result.vueFile.getBlockId(
+          result.vueFile.descriptor.scriptSetup,
+        )
         return service.getCompletionEntryDetails(
-          result.fileName,
+          id,
           result.cursor.setup,
           entryName,
           formatOptions,
@@ -348,7 +401,18 @@ export class CompletionsService {
     if (info == null) return
 
     info.entries = info.entries.filter((entry) => {
-      return isPascalCase(entry.name)
+      if (!isPascalCase(entry.name)) return false
+
+      if (entry.source != null) {
+        if (this.fs.isVueTsFile(entry.source)) {
+          entry.source = this.fs.getRealFileName(entry.source)
+        }
+        if (this.fs.isVueFile(entry.source)) {
+          entry.sortText = '0:' + entry.sortText
+        }
+      }
+
+      return true
     })
 
     return info

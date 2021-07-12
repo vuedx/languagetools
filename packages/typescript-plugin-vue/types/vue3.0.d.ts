@@ -25,7 +25,20 @@ declare global {
         emits: E,
         bindings: B,
         options: O,
-      ): DefineComponent<P, B>
+      ): DefineComponent<
+        {}, // PropsOrPropOptions
+        B, // RawBindings
+        {}, // D
+        {}, // C
+        {}, // M
+        {}, // Mixin
+        {}, // Extends
+        {}, // E
+        string, // EE
+        VNodeProps & AllowedComponentProps & ComponentCustomProps, // PP
+        P, // Props
+        {} // Defaults
+      >
 
       // -- renderList --
       export function renderList(

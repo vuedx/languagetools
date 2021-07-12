@@ -107,7 +107,7 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
 
         const code = [
           source,
-          // annotations.diagnosticsIgnore.start,
+          annotations.diagnosticsIgnore.start,
           `export default VueDX.internal.defineSetupComponent(${
             propsIdentifier ?? '{}'
           }, ${emitIdentifier ?? '{}'}, {${
@@ -119,7 +119,7 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
           }}, components: {${
             Array.from(usedComponents).join(',') //
           }}})`,
-          // annotations.diagnosticsIgnore.end,
+          annotations.diagnosticsIgnore.end,
           '',
         ].join('\n')
 
@@ -160,15 +160,16 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
           })
         }
 
-        const extName = Path.extname(selfSrcFileName)
         const { code, ast, map, errors } = compile(source, {
           sourceMap: true,
           filename: document.fileName,
 
-          selfSrc: selfSrcFileName.substr(
-            0,
-            selfSrcFileName.length - extName.length,
-          ),
+          selfSrc: `./${Path.basename(
+            selfSrcFileName.substr(
+              0,
+              selfSrcFileName.length - Path.extname(selfSrcFileName).length,
+            ),
+          )}`,
 
           components,
 

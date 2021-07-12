@@ -1,4 +1,3 @@
-import { isNotNull } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import type {
   ExtendedTSLanguageService,
@@ -50,29 +49,24 @@ export class TypescriptPluginService
   }
 
   getExternalFiles(): string[] {
-    const vueFiles = Array.from(
-      new Set(
-        this.project
-          .getFileNames(true, true)
-          .filter(
-            (fileName) =>
-              this.fs.isVueTsFile(fileName) ||
-              this.fs.isVueFile(fileName) ||
-              this.fs.isVueVirtualFile(fileName),
-          )
-          .map((fileName) => this.fs.getRealFileName(fileName)),
-      ),
-    )
+    const virtualFiles = new Set<string>()
+    this.project.getFileNames(true, true).forEach((fileName) => {
+      if (
+        this.fs.isVueFile(fileName) ||
+        this.fs.isVueTsFile(fileName) ||
+        this.fs.isVueVirtualFile(fileName)
+      ) {
+        virtualFiles.add(fileName)
+        
+        const file = this.fs.getVueFile(fileName)
+        if (file != null) {
+          virtualFiles.add(file.tsFileName)
+          file.activeTSDocIDs.forEach((id) => virtualFiles.add(id))
+        }
+      }
+    })
 
-    const virtualFiles = vueFiles
-      .map((fileName) => this.fs.getVueFile(fileName))
-      .filter(isNotNull)
-      .map((file) => {
-        return [file.fileName, file.tsFileName, ...file.activeTSDocIDs]
-      })
-      .flat()
-
-    return virtualFiles
+    return Array.from(virtualFiles)
   }
 
   getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {

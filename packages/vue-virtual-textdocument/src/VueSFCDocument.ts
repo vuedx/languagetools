@@ -1,3 +1,4 @@
+import * as Path from 'path'
 import type { ComponentInfo } from '@vuedx/analyze'
 import type {
   SFCBlock,
@@ -250,7 +251,7 @@ export class VueSFCDocument extends ProxyDocument {
     this.activeTSDocIDs.clear()
 
     const createImportSource = (id: string): string =>
-      JSON.stringify(id.replace(/\.[tj]sx?$/, ''))
+      JSON.stringify(`./${Path.basename(id.replace(/\.[tj]sx?$/, ''))}`)
 
     if (template != null) {
       const id = this.getBlockTSId(template)
@@ -282,8 +283,8 @@ export class VueSFCDocument extends ProxyDocument {
         this.activeTSDocIDs.add(id)
         const idPath = createImportSource(id)
 
-        code.push(`import ${name} from ${idPath}`)
-        code.push(`export default ${name}`)
+        code.push(`import _Self from ${idPath}`)
+        code.push(`export default class ${name} extends _Self {}`)
         code.push(`export * from ${idPath}`)
 
         if (script != null) {
@@ -300,8 +301,8 @@ export class VueSFCDocument extends ProxyDocument {
       if (id != null) {
         this.activeTSDocIDs.add(id)
         const idPath = createImportSource(id)
-        code.push(`import ${name} from ${idPath}`)
-        code.push(`export default ${name}`)
+        code.push(`import _Self from ${idPath}`)
+        code.push(`export default class ${name} extends _Self {}`)
         code.push(`export * from ${idPath}`)
       }
     }
