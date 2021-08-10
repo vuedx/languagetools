@@ -14,5 +14,5 @@ module.exports = {
     '!**/dist/**',
     '!**/lib/**',
   ],
-  testTimeout: 60000,
+  testTimeout: 20 * 1000,
 }

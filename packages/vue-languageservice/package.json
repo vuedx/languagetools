@@ -46,6 +46,7 @@
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
+    "quick-lru": "^6.0.1",
     "vscode-languageserver-types": "^3.16.0"
   }
 }

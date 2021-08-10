@@ -423,9 +423,9 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
 
 function genAttributeNode(context: GenerateContext, node: AttributeNode): void {
   if (node.name === 'class') {
-    context.write('staticClass', node.loc, 'transformed')
+    context.write('data-class', node.loc, 'transformed')
   } else if (node.name === 'style') {
-    context.write('staticStyle', node.loc, 'transformed')
+    context.write('data-style', node.loc, 'transformed')
   } else {
     context.write(node.name, node.loc, 'transformed')
   }

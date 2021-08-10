@@ -1,4 +1,3 @@
-import * as Path from 'path'
 import type { ComponentInfo } from '@vuedx/analyze'
 import type {
   SFCBlock,
@@ -9,8 +8,9 @@ import type {
 } from '@vuedx/compiler-sfc'
 import { CompilerError, parse } from '@vuedx/compiler-sfc'
 import type { ComponentRegistration } from '@vuedx/compiler-tsx'
-import { isNotNull, getComponentName } from '@vuedx/shared'
-import type { RootNode } from '@vuedx/template-ast-types'
+import { getComponentName, isNotNull } from '@vuedx/shared'
+import { isPlainElementNode, RootNode } from '@vuedx/template-ast-types'
+import * as Path from 'path'
 import { parse as parseQueryString } from 'querystring'
 import {
   TextDocument,
@@ -87,7 +87,13 @@ export class VueSFCDocument extends ProxyDocument {
     ].filter(isNotNull)
   }
 
-  public readonly activeTSDocIDs = new Set<string>()
+  private readonly activeTSDocIDs = new Set<string>()
+
+  public getActiveTSDocIDs(): Set<string> {
+    this.parse()
+
+    return this.activeTSDocIDs
+  }
 
   public getTypeScriptText(): string {
     this.parse()
@@ -246,8 +252,10 @@ export class VueSFCDocument extends ProxyDocument {
       styles,
       customBlocks,
     } = this.descriptor
+    // const info = this.options.getComponentInfo() // Can be used
 
     const code: string[] = []
+    const props: string[] = []
     this.activeTSDocIDs.clear()
 
     const createImportSource = (id: string): string =>
@@ -257,6 +265,10 @@ export class VueSFCDocument extends ProxyDocument {
       const id = this.getBlockTSId(template)
       if (id != null) {
         this.activeTSDocIDs.add(id)
+        const node = this.templateAST?.children[0]
+        if (isPlainElementNode(node)) {
+          props.push(`JSX.IntrinsicElements['${node.tag}']`)
+        }
         code.push(`import ${createImportSource(id)}`)
       }
     }
@@ -283,9 +295,9 @@ export class VueSFCDocument extends ProxyDocument {
         this.activeTSDocIDs.add(id)
         const idPath = createImportSource(id)
 
+        props.push(`InstanceType<typeof _Self>['$props']`)
         code.push(`import _Self from ${idPath}`)
-        code.push(`export default class ${name} extends _Self {}`)
-        code.push(`export * from ${idPath}`)
+        code.push(`export * from ${idPath}`) // TODO: Only type exports are supported.
 
         if (script != null) {
           const id = this.getBlockTSId(script)
@@ -301,11 +313,17 @@ export class VueSFCDocument extends ProxyDocument {
       if (id != null) {
         this.activeTSDocIDs.add(id)
         const idPath = createImportSource(id)
+
+        props.push(`InstanceType<typeof _Self>['$props']`)
         code.push(`import _Self from ${idPath}`)
-        code.push(`export default class ${name} extends _Self {}`)
         code.push(`export * from ${idPath}`)
       }
     }
+
+    if (props.length === 0) props.push('{}')
+
+    code.push(`const ${name} = _Self`)
+    code.push(`export default ${name}`)
 
     return code.join('\n')
   }

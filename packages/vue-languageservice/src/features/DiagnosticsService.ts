@@ -13,14 +13,33 @@ import type {
   DiagnosticTag,
   Range,
 } from 'vscode-languageserver-types'
+import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
 import { LoggerService } from '../services/LoggerService'
 import { TypescriptService } from '../services/TypescriptService'
+import { ScriptSetupDiagnosticsProvider } from './diagnostics/ScriptSetupDiagnosticsProvider'
 
 @injectable()
 export class DiagnosticsService {
   private readonly logger = LoggerService.getLogger('Diagnostics')
+  private readonly caches = {
+    semantic: new CacheService<Typescript.Diagnostic[]>((fileName) =>
+      this.getVersion(fileName),
+    ),
+    syntax: new CacheService<Typescript.DiagnosticWithLocation[]>((fileName) =>
+      this.getVersion(fileName),
+    ),
+    suggestion: new CacheService<Typescript.DiagnosticWithLocation[]>(
+      (fileName) => this.getVersion(fileName),
+    ),
+    extra: new CacheService<Typescript.Diagnostic[]>((fileName) =>
+      this.getVersion(fileName),
+    ),
+    all: new CacheService<Diagnostic[]>((fileName) =>
+      this.getVersion(fileName),
+    ),
+  }
 
   constructor(
     @inject(TypescriptService)
@@ -29,6 +48,8 @@ export class DiagnosticsService {
     private readonly fs: FilesystemService,
     @inject(LanguageServiceProvider)
     private readonly lang: LanguageServiceProvider,
+    @inject(ScriptSetupDiagnosticsProvider)
+    private readonly scriptSetup: ScriptSetupDiagnosticsProvider,
   ) {}
 
   private readonly TS_CATEGORY_TO_SEVERITY: Record<
@@ -63,62 +84,115 @@ export class DiagnosticsService {
     deprecated: 4,
   }
 
+  private getVersion(fileName: string): string {
+    return (
+      this.ts
+        .getProjectFor(fileName)
+        ?.getScriptInfo(fileName)
+        ?.getLatestVersion() ?? '0'
+    )
+  }
+
   public getDiagnostics(fileName: string): Diagnostic[] {
-    return [
-      this.getSemanticDiagnostics(fileName).map((diagnostic) =>
-        this.toDiagnostic(diagnostic),
-      ),
-      this.getSyntacticDiagnostics(fileName).map((diagnostic) =>
-        this.toDiagnostic(diagnostic),
-      ),
-      this.getSuggestionDiagnostics(fileName).map((diagnostic) =>
-        this.toDiagnostic(diagnostic),
-      ),
-      this.getDiagnosticsFromEmbeddedLanguageServices(fileName),
-    ]
-      .flat()
-      .filter(isNotNull)
+    return this.caches.all.withCache(fileName, (prevResult) => {
+      if (prevResult != null) return prevResult
+
+      return [
+        this.getSemanticDiagnostics(fileName).map((diagnostic) =>
+          this.toDiagnostic(diagnostic),
+        ),
+        this.getSyntacticDiagnostics(fileName).map((diagnostic) =>
+          this.toDiagnostic(diagnostic),
+        ),
+        this.getSuggestionDiagnostics(fileName).map((diagnostic) =>
+          this.toDiagnostic(diagnostic),
+        ),
+        this.getDiagnosticsFromEmbeddedLanguageServices(fileName),
+      ]
+        .flat()
+        .filter(isNotNull)
+    })
   }
 
   public getExtraDiagnostics(fileName: string): Typescript.Diagnostic[] {
-    this.logger.debug(`ExtraDiagnonstics in ${fileName}`)
-    return this.getDiagnosticsFromEmbeddedLanguageServices(
-      fileName,
-    ).map((diagnostic) => this.toTSDiagnostic(fileName, diagnostic))
+    return this.caches.extra.withCache(fileName, (result) => {
+      if (result != null) return result
+
+      this.logger.debug(`ExtraDiagnonstics in ${fileName}`)
+      const diagnostics: Typescript.Diagnostic[] = []
+
+      const vueFile = this.fs.getVueFile(fileName)
+      if (vueFile?.descriptor.scriptSetup != null) {
+        const virtualFileName = vueFile.getBlockId(
+          vueFile.descriptor.scriptSetup,
+        )
+        diagnostics.push(
+          ...this.normalizeVirtualFileDiagnostics(
+            virtualFileName,
+            this.scriptSetup
+              .getDiagnostics(virtualFileName)
+              .map((diagnostic) =>
+                this.toTSDiagnostic(virtualFileName, diagnostic),
+              ),
+          ),
+        )
+      }
+
+      diagnostics.push(
+        ...this.getDiagnosticsFromEmbeddedLanguageServices(
+          fileName,
+        ).map((diagnostic) => this.toTSDiagnostic(fileName, diagnostic)),
+      )
+
+      return diagnostics
+    })
   }
 
   public getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
-    this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
     const service = this.ts.getServiceFor(fileName)
     if (service == null) return []
 
-    return this.getDiagnosticsFromTS(fileName, (id) =>
-      service.getSemanticDiagnostics(id),
-    )
+    return this.caches.semantic.withCache(fileName, (result) => {
+      if (result != null) return result
+
+      this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
+      return this.getDiagnosticsFromTS(fileName, (fileName) => {
+        this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
+        return service.getSemanticDiagnostics(fileName)
+      })
+    })
   }
 
   public getSyntacticDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
-    this.logger.debug(`SyntacticcDiagnonstics in ${fileName}`)
     const service = this.ts.getServiceFor(fileName)
     if (service == null) return []
 
-    return this.getDiagnosticsFromTS(fileName, (fileName) =>
-      service.getSyntacticDiagnostics(fileName),
-    ) as Typescript.DiagnosticWithLocation[]
+    return this.caches.syntax.withCache(fileName, (result) => {
+      if (result != null) return result
+      this.logger.debug(`SyntacticcDiagnonstics in ${fileName}`)
+      return this.getDiagnosticsFromTS(fileName, (fileName) => {
+        this.logger.debug(`SyntacticcDiagnonstics in ${fileName}`)
+        return service.getSyntacticDiagnostics(fileName)
+      }) as Typescript.DiagnosticWithLocation[]
+    })
   }
 
   public getSuggestionDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
-    this.logger.debug(`SuggestionDiagnonstics in ${fileName}`)
     const service = this.ts.getServiceFor(fileName)
     if (service == null) return []
 
-    return this.getDiagnosticsFromTS(fileName, (fileName) =>
-      service.getSuggestionDiagnostics(fileName),
-    ) as Typescript.DiagnosticWithLocation[]
+    return this.caches.suggestion.withCache(fileName, (result) => {
+      if (result != null) return result
+      this.logger.debug(`SuggestionDiagnonstics in ${fileName}`)
+      return this.getDiagnosticsFromTS(fileName, (fileName) => {
+        this.logger.debug(`SuggestionDiagnonstics in ${fileName}`)
+        return service.getSuggestionDiagnostics(fileName)
+      }) as Typescript.DiagnosticWithLocation[]
+    })
   }
 
   private getDiagnosticsFromEmbeddedLanguageServices(
@@ -137,12 +211,12 @@ export class DiagnosticsService {
         range: this.getRangeFromLoc(file, error),
         code: 'code' in error ? error.code : undefined,
         severity: this.NAMED_SEVERITY_TO_SEVERITY['error'],
-        source: 'VueDX/SFC Parser',
+        source: 'VueDX/SFC parser',
       })
     })
 
     // Collect errors from transformed TS virtual files
-    file.activeTSDocIDs.forEach((id) => {
+    file.getActiveTSDocIDs().forEach((id) => {
       const doc = file.getDocById(id)
       if (doc == null) return
       doc.errors.forEach((error) => {
@@ -219,13 +293,18 @@ export class DiagnosticsService {
   ): Typescript.Diagnostic[] {
     if (this.fs.isVueFile(fileName)) {
       const vueFile = this.fs.getVueFile(fileName)
-      if (vueFile == null) return []
+      if (vueFile == null) {
+        this.logger.debug(`File not found: ${fileName}`)
+        return []
+      }
       const diagnostics: Typescript.Diagnostic[] = []
-      vueFile.activeTSDocIDs.forEach((id) => {
+
+      vueFile.getActiveTSDocIDs().forEach((id) => {
         diagnostics.push(
           ...this.normalizeVirtualFileDiagnostics(id, getter(id)),
         )
       })
+
       return diagnostics
     } else {
       return getter(fileName).map((diagnostic) =>
@@ -248,13 +327,24 @@ export class DiagnosticsService {
     if (tsFile == null) return []
 
     const service = this.ts.getServiceFor(fileName)
+    const isScriptSetup =
+      blockFile.block.type === 'script' &&
+      blockFile.block.attrs['setup'] != null
 
     return diagnostics
       .flatMap((diagnostic) => {
+        if (isScriptSetup && diagnostic.code === 2528) {
+          this.logger.debug(
+            `Ignoring ${diagnostic.code} because export default in script setup is handled.`,
+          )
+          return null
+        }
+
         if (diagnostic.start == null) {
           this.logger.debug(`Ignoring ${diagnostic.code} without location`)
           return null
         }
+
         this.logger.debug(
           `${diagnostic.code} at ${diagnostic.start}: ${this.toDisplayMessage(
             diagnostic.messageText,

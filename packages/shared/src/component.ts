@@ -2,9 +2,15 @@ import * as Path from 'path'
 import { isKebabCase, kebabCase, pascalCase } from './string'
 
 export function getComponentName(fileName: string): string {
-  return pascalCase(
+  const name = pascalCase(
     Path.posix.basename(fileName).replace(/\.(vue|ts|tsx|js|jsx)$/, ''),
   )
+
+  if (/^0-9/.test(name)) {
+    return `_${name}`
+  }
+
+  return name
 }
 
 export function getComponentNameAliases(

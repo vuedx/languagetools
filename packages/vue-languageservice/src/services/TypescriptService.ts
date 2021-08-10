@@ -37,6 +37,10 @@ export class TypescriptService implements Disposable {
     return this.ts.context?.project ?? null
   }
 
+  public getRuntimeHelperFileName(version: string): string {
+    return this.ts.getRuntimeHelperFileName(version)
+  }
+
   public getService(): TSLanguageService | null {
     return this.ts.context?.service ?? null
   }

@@ -8,7 +8,7 @@ import type {
   ComponentCustomProps,
 } from 'vue'
 
-export type _ = 1
+export type version = '3.0'
 
 interface Directive<_Arg, _Exp, _Mod extends string> {
   arg?: _Arg

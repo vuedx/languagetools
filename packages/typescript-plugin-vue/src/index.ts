@@ -1,7 +1,7 @@
 /* eslint-disable import/first */
 console.log = console.info = console.debug = console.error
 
-import { Telemetry } from '@vuedx/shared'
+import { Telemetry, collect } from '@vuedx/shared'
 import {
   createTypescriptLanguageService,
   ExtendedTSLanguageService,
@@ -11,6 +11,7 @@ import { wrapFn } from './helpers/logger'
 import { tryPatchMethod } from './helpers/patcher'
 import type { Modules, PluginConfig, TS } from './interfaces'
 import * as Path from 'path'
+import { performance } from 'perf_hooks'
 
 export type { PluginConfig } from './interfaces'
 export type PluginCreateInfo = Omit<TS.server.PluginCreateInfo, 'config'> & {
@@ -27,9 +28,28 @@ export default function init({ typescript }: Modules): TS.server.PluginModule {
     { typescriptVersion: typescript.versionMajorMinor },
   )
 
+  tryPatchMethod(
+    typescript as any,
+    'getSupportedExtensions',
+    (fn) => (options: any, extraFileExtensions: any) => {
+      const extensions = fn(options, extraFileExtensions) as string[]
+      const index = extensions.indexOf('.vue')
+
+      if (index >= 0) {
+        // File extensions are sorted in order of their priorities.
+        // We need to put .vue before .ts
+        extensions.splice(index, 1)
+        extensions.unshift('.vue')
+      }
+
+      return extensions
+    },
+  )
+
   return {
     create(info: PluginCreateInfo) {
-      patchExtraFileExtensions(info.project.projectService)
+      const start = performance.now()
+      patchExtraFileExtensions(info.project)
 
       const service = createTypescriptLanguageService({
         ...info,
@@ -41,6 +61,16 @@ export default function init({ typescript }: Modules): TS.server.PluginModule {
 
       services.set(info.project, service)
 
+      const end = performance.now()
+
+      collect('plugin_create', {
+        startupTime: end - start,
+      })
+
+      info.project.projectService.logger.info(
+        `Plugin started in ${end - start}ms`,
+      )
+
       return service
     },
     getExternalFiles(project) {
@@ -50,14 +80,13 @@ export default function init({ typescript }: Modules): TS.server.PluginModule {
   }
 }
 
-function patchExtraFileExtensions(
-  projectService: TS.server.ProjectService,
-): void {
+function patchExtraFileExtensions(project: TS.server.Project): void {
+  const projectService = project.projectService
   const extraFileExtensions: TS.server.HostConfiguration['extraFileExtensions'] = [
     {
-      extension: 'vue',
+      extension: '.vue',
       isMixedContent: false,
-      scriptKind: 5 as TS.ScriptKind.External,
+      scriptKind: 7 as TS.ScriptKind.Deferred, // deferred extra extensions are included in root files search.
     },
   ]
 
@@ -72,14 +101,20 @@ function patchExtraFileExtensions(
             .hostConfiguration as TS.server.HostConfiguration)
             .extraFileExtensions
 
+          projectService.logger.info(
+            'Current Extra Extensions: ' + JSON.stringify(current),
+          )
           if (args.extraFileExtensions != null) {
             args.extraFileExtensions.push(...extraFileExtensions)
-          } else if (
-            current == null ||
-            !current.some((ext) => ext.extension === 'vue')
-          ) {
+          } else if (current == null) {
             args.extraFileExtensions = [...extraFileExtensions]
+          } else if (current.every((ext) => ext.extension !== '.vue')) {
+            args.extraFileExtensions = [...current, ...extraFileExtensions]
           }
+
+          projectService.logger.info(
+            'New Extra Extensions: ' + JSON.stringify(args.extraFileExtensions),
+          )
 
           return setHostConfiguration(args)
         },
@@ -87,15 +122,15 @@ function patchExtraFileExtensions(
     },
   )
 
+  const current = ((projectService as any)
+    .hostConfiguration as TS.server.HostConfiguration).extraFileExtensions
   if (
-    ((projectService as any)
-      .hostConfiguration as TS.server.HostConfiguration).extraFileExtensions?.some(
-      (ext) => ext.extension === 'vue',
-    ) === true
+    Array.isArray(current) &&
+    current.some((ext) => ext.extension === '.vue')
   ) {
-    return
+    // .vue exists
+  } else {
+    // Enable .vue after enhancing the language server.
+    projectService.setHostConfiguration({})
   }
-
-  // Enable .vue after enhancing the language server.
-  projectService.setHostConfiguration({ extraFileExtensions: [] })
 }

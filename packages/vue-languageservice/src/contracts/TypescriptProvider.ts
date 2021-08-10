@@ -15,4 +15,5 @@ export interface TypescriptProvider {
    */
   getLanguageServiceFor(fileName: string): TSLanguageService
   getServerHost(): TSServerHost
+  getRuntimeHelperFileName(version: string): string
 }

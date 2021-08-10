@@ -17,6 +17,10 @@ function increment() {
   return <></>
 }
 
-const T=  VueDX.internal.defineSetupComponent(props, {}, {fullname}, { directives: {}, components: {HelloWorld}})
+const T =  VueDX.internal.defineSetupComponent(props, {}, {fullname}, { directives: {}, components: {HelloWorld}})
 
-function render({ other }: InstanceType<typeof T>) {}
+class Item {
+  $props: InstanceType<typeof T>['$props'] & JSX.IntrinsicElements['a']
+}
+
+const x = <Item name="foo" email="foo" />

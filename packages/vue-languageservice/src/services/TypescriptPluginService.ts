@@ -49,24 +49,32 @@ export class TypescriptPluginService
   }
 
   getExternalFiles(): string[] {
-    const virtualFiles = new Set<string>()
+    const externalFiles = new Set<string>()
     this.project.getFileNames(true, true).forEach((fileName) => {
       if (
         this.fs.isVueFile(fileName) ||
         this.fs.isVueTsFile(fileName) ||
         this.fs.isVueVirtualFile(fileName)
       ) {
-        virtualFiles.add(fileName)
-        
+        externalFiles.add(fileName)
+        const vueFileName = this.fs.getRealFileName(fileName)
+        externalFiles.add(vueFileName)
+
         const file = this.fs.getVueFile(fileName)
         if (file != null) {
-          virtualFiles.add(file.tsFileName)
-          file.activeTSDocIDs.forEach((id) => virtualFiles.add(id))
+          externalFiles.add(file.tsFileName)
+          file.getActiveTSDocIDs().forEach((id) => externalFiles.add(id))
         }
       }
     })
 
-    return Array.from(virtualFiles)
+    if (externalFiles.size > 0) {
+      externalFiles.add(this.ts.getRuntimeHelperFileName('3.0'))
+    }
+
+    this.logger.debug('External Files:', externalFiles)
+
+    return Array.from(externalFiles)
   }
 
   getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
@@ -80,12 +88,14 @@ export class TypescriptPluginService
   getSyntacticDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
+    this.logger.info(`getSyntacticDiagnostics: ${fileName}`)
     return this.diagnostics.getSyntacticDiagnostics(fileName)
   }
 
   getSuggestionDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
+    this.logger.info(`getSuggestionDiagnostics: ${fileName}`)
     return this.diagnostics.getSuggestionDiagnostics(fileName)
   }
 

@@ -1,8 +1,4 @@
 import * as _FS from 'fs'
-import {
-  asFsPath,
-  asFsUri,
-} from '../../packages/vue-virtual-textdocument/src/utils'
 import * as Path from 'path'
 import type { CodeEdit, Location, TextSpan } from 'typescript/lib/protocol'
 import {
@@ -10,6 +6,7 @@ import {
   TextDocument,
   TextEdit,
 } from 'vscode-languageserver-textdocument'
+import type { TestServer } from './TestServer'
 
 const FS = _FS.promises
 
@@ -105,7 +102,7 @@ export async function getTextDocument(file: string): Promise<TextDocument> {
 async function createTextDocument(file: string): Promise<TextDocument> {
   const content = await FS.readFile(file, { encoding: 'utf-8' })
   const document = TextDocument.create(
-    asFsUri(file).toString(),
+    file.toString(),
     Path.posix.extname(file),
     0,
     content,
@@ -117,5 +114,127 @@ async function createTextDocument(file: string): Promise<TextDocument> {
 }
 
 export function toNormalizedPath(fileName: string): string {
-  return asFsPath(fileName)
+  return fileName
+}
+
+export function getProjectPath(
+  name:
+    | 'typescript-diagnostics'
+    | 'typescript-unconfigured'
+    | 'typescript-configured-include-directory'
+    | 'typescript-configured-include-file'
+    | 'javascript-unconfigured'
+    | 'javascript-configured-include-directory'
+    | 'javascript-configured-include-file',
+): string {
+  return Path.resolve(__dirname, '../../samples', name)
+}
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export function createEditorContext(server: TestServer, rootDir: string) {
+  const openFiles = new Set<string>()
+  const projectRootPath = toNormalizedPath(rootDir)
+  function abs(fileName: string): string {
+    return toNormalizedPath(Path.resolve(rootDir, fileName))
+  }
+  const api = {
+    abs,
+    async open(fileName: string) {
+      const absFilePath = abs(fileName)
+
+      openFiles.add(absFilePath)
+
+      await server.sendCommand('updateOpen', {
+        openFiles: Array.from(openFiles).map((file) => ({
+          file,
+          projectRootPath,
+        })),
+      })
+
+      return absFilePath
+    },
+    async close(fileName: string) {
+      const absFilePath = abs(fileName)
+
+      openFiles.delete(absFilePath)
+
+      const result = await server.sendCommand('updateOpen', {
+        openFiles: Array.from(openFiles).map((file) => ({
+          file,
+          projectRootPath,
+        })),
+        closedFiles: [absFilePath],
+      })
+
+      if (!result.success) throw new Error(result.message)
+    },
+    async closeAll() {
+      const result = await server.sendCommand('updateOpen', {
+        closedFiles: Array.from(openFiles),
+      })
+      if (!result.success) throw new Error(result.message)
+      await server.flush(['events', 'requests', 'responses'])
+      openFiles.clear()
+    },
+    async getDiagnostics(fileName: string) {
+      const absFilePath = abs(fileName)
+      const response = server.sendCommand('geterr', {
+        files: [absFilePath],
+        delay: 0,
+      })
+
+      const fn = (event: any): boolean => {
+        return event.body?.file === absFilePath
+      }
+      try {
+        const [semantic, syntax, suggestion] = await withTimeout(
+          15,
+          async () =>
+            await Promise.all([
+              server.waitForEvent('semanticDiag', fn),
+              server.waitForEvent('syntaxDiag', fn),
+              server.waitForEvent('suggestionDiag', fn),
+            ]),
+        )
+
+        return {
+          syntax: syntax.body?.diagnostics ?? [],
+          semantic: semantic.body?.diagnostics ?? [],
+          suggestion: suggestion.body?.diagnostics ?? [],
+        }
+      } catch (error) {
+        if (error.message === 'Timeout') {
+          await response
+          return { syntax: [], semantic: [], suggestion: [] }
+        }
+        throw error
+      }
+    },
+    async getProjectInfo(fileName: string) {
+      const response = await server.sendCommand('projectInfo', {
+        file: abs(fileName),
+        needFileNameList: true,
+      })
+
+      if (response.body == null) throw new Error('No project found')
+
+      response.body.fileNames = response.body.fileNames
+        ?.filter((fileName) => !fileName.includes('node_modules'))
+        .sort()
+
+      return response.body
+    },
+  }
+
+  return api
+}
+
+async function withTimeout<T>(secs: number, fn: () => Promise<T>): Promise<T> {
+  return await Promise.race<T>([
+    // eslint-disable-next-line promise/param-names
+    new Promise<T>((_resolve, reject) =>
+      setTimeout(reject, secs * 1000, new Error('Timeout')),
+    ),
+    fn(),
+  ])
 }

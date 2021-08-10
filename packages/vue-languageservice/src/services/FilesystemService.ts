@@ -136,7 +136,7 @@ export class FilesystemService implements Disposable {
         const project = this.ts.getProjectFor(fileName)
         if (project != null) {
           project.markAsDirty()
-          file.activeTSDocIDs.forEach((fileName) => {
+          file.getActiveTSDocIDs().forEach((fileName) => {
             project.getScriptInfo(fileName)?.reloadFromFile()
           })
         }

@@ -2,5 +2,6 @@
 **/node_modules/
 **/lib/**
 **/runtime/**
+**/test-dts/**
 _templates/
 samples/**
