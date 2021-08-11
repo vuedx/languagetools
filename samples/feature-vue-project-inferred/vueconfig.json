@@ -1,8 +1,0 @@
-{
-  "globalComponents": [
-    "src/components/GlobalComponent.vue",
-    "**/components/*.vue",
-    "library-vetur-component-data",
-    "library-web-types"
-  ]
-}

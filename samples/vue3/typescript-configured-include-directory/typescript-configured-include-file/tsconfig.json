@@ -1,0 +1,4 @@
+{
+  "include": ["src/main.ts"],
+  "exclude": ["node_modules"]
+}

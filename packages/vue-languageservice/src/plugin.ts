@@ -15,6 +15,7 @@ export interface CreateLanguageServiceOptions
   extends Typescript.server.PluginCreateInfo {
   typescript: typeof Typescript
   getRuntimeHelperFileName(version: string): string
+  isRuntimeHelperFileName(fileName: string): boolean
 }
 
 export function createTypescriptLanguageService(
@@ -57,6 +58,7 @@ export function createTypescriptLanguageService(
     },
     
     // Feature: Diagnostics 
+    getCompilerOptionsDiagnostics: () => service.getCompilerOptionsDiagnostics(),
     getSemanticDiagnostics: (...args) => service.getSemanticDiagnostics(...args),
     getSyntacticDiagnostics: (...args) => service.getSyntacticDiagnostics(...args),
     getSuggestionDiagnostics: (...args) => service.getSuggestionDiagnostics(...args),
@@ -81,11 +83,12 @@ function patchTSHosts(
   fs: FilesystemService,
 ): void {
   const logger = LoggerService.getLogger('patch')
-  if (!patched.has(options.serverHost)) {
-    patched.add(options.serverHost)
-    // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
-    const fileExists = options.serverHost.fileExists.bind(options.serverHost)
-    options.serverHost.fileExists = (fileName) => {
+
+  // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
+  tryPatchMethod(
+    options.serverHost,
+    'fileExists',
+    (fileExists) => (fileName) => {
       if (fs.isVueVirtualFile(fileName)) {
         const file = fs.getVueFile(fileName)
         if (file == null) return false
@@ -99,21 +102,27 @@ function patchTSHosts(
       }
 
       return fileExists(fileName)
-    }
+    },
+  )
 
-    // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
-    const watchFile = options.serverHost.watchFile.bind(options.serverHost)
-    options.serverHost.watchFile = (fileName, callback) => {
+  // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
+  tryPatchMethod(
+    options.serverHost,
+    'watchFile',
+    (watchFile) => (fileName, callback) => {
       if (fs.isVueTsFile(fileName) || fs.isVueVirtualFile(fileName)) {
         return { close: () => {} }
       }
 
       return watchFile(fileName, callback)
-    }
+    },
+  )
 
-    // Patch: get contents for virtual files from VueSFCDocument
-    const readFile = options.serverHost.readFile.bind(options.serverHost)
-    options.serverHost.readFile = (fileName, encoding) => {
+  // Patch: get contents for virtual files from VueSFCDocument
+  tryPatchMethod(
+    options.serverHost,
+    'readFile',
+    (readFile) => (fileName, encoding) => {
       if (fs.isVueVirtualFile(fileName)) {
         const content = fs
           .getVueFile(fileName)
@@ -128,45 +137,40 @@ function patchTSHosts(
       }
 
       return readFile(fileName, encoding)
-    }
-  }
+    },
+  )
 
   if (!patched.has(options.project)) {
     patched.add(options.project)
-    const getCompilerOptions = options.project.getCompilerOptions.bind(
+
+    tryPatchMethod(
       options.project,
+      'getCompilerOptions',
+      (getCompilerOptions) => () => {
+        const settings = getCompilerOptions()
+
+        settings.jsx = options.typescript.JsxEmit.Preserve
+
+        return settings
+      },
     )
-    options.project.getCompilerOptions = () => {
-      const settings = getCompilerOptions()
 
-      settings.jsx = options.typescript.JsxEmit.Preserve
-
-      return settings
-    }
-
-    const getCompilationSettings = options.project.getCompilationSettings.bind(
+    tryPatchMethod(
       options.project,
+      'getCompilationSettings',
+      (getCompilationSettings) => () => {
+        const settings = getCompilationSettings()
+
+        settings.jsx = options.typescript.JsxEmit.Preserve
+
+        return settings
+      },
     )
-    options.project.getCompilationSettings = () => {
-      const settings = getCompilationSettings()
-
-      settings.jsx = options.typescript.JsxEmit.Preserve
-
-      return settings
-    }
   }
-
-  if (!patched.has(options.languageServiceHost)) {
-    patched.add(options.languageServiceHost)
-
-    // Patch: return version of .vue file for virtual files
-    const getScriptVersion = options.languageServiceHost.getScriptVersion.bind(
-      options.languageServiceHost,
-    )
-
-    options.languageServiceHost.getScriptVersion = (
-      fileName: string,
-    ): string => {
+  tryPatchMethod(
+    options.languageServiceHost,
+    'getScriptVersion',
+    (getScriptVersion) => (fileName: string): string => {
       const version = getScriptVersion(fs.getRealFileName(fileName))
 
       if (
@@ -178,13 +182,13 @@ function patchTSHosts(
       }
 
       return version
-    }
-
-    // Patch: create snapshots for virtual files from VueSFCDocument
-    const getScriptSnapshot = options.languageServiceHost.getScriptSnapshot.bind(
-      options.languageServiceHost,
-    )
-    options.languageServiceHost.getScriptSnapshot = (
+    },
+  )
+  // Patch: create snapshots for virtual files from VueSFCDocument
+  tryPatchMethod(
+    options.languageServiceHost,
+    'getScriptSnapshot',
+    (getScriptSnapshot) => (
       fileName: string,
     ): Typescript.IScriptSnapshot | undefined => {
       if (fs.isVueTsFile(fileName)) {
@@ -215,14 +219,14 @@ function patchTSHosts(
       } else {
         return getScriptSnapshot(fileName)
       }
-    }
+    },
+  )
+  // Patch: Add .vue.ts file for every .vue file
 
-    // Patch: Add .vue.ts file for every .vue file
-    // Patch: Add global helpers (VueDX.internal namespace)
-    const getScriptFileNames = options.languageServiceHost.getScriptFileNames.bind(
-      options.languageServiceHost,
-    )
-    options.languageServiceHost.getScriptFileNames = () => {
+  tryPatchMethod(
+    options.languageServiceHost,
+    'getScriptFileNames',
+    (getScriptFileNames) => () => {
       const original = getScriptFileNames()
       const fileNames = new Set(original)
 
@@ -235,14 +239,14 @@ function patchTSHosts(
       logger.debug('getScriptFileNames', fileNames)
 
       return Array.from(fileNames)
-    }
-
-    // Patch: 'vue' import it VueDX runtime types
-    const resolveModuleNames = options.languageServiceHost.resolveModuleNames?.bind(
-      options.languageServiceHost,
-    )
-    const project = options.project
-    options.languageServiceHost.resolveModuleNames = (
+    },
+  )
+  // Patch: 'vue' import it VueDX runtime types
+  const project = options.project
+  tryPatchMethod(
+    options.languageServiceHost,
+    'resolveModuleNames',
+    (resolveModuleNames) => (
       moduleNames,
       containingFile,
       reusedNames,
@@ -269,6 +273,15 @@ function patchTSHosts(
         return [result.resolvedModule]
       }
 
+      const isVueEntry = fs.isVueTsFile(containingFile)
+      if (isVueEntry) {
+        logger.debug('RESOLVE IN: ' + containingFile, moduleNames)
+        if (moduleNames[0] !== 'vuedx~runtime') {
+          throw new Error('Expected vuedx~runtime import in .vue.ts file')
+        }
+        moduleNames = moduleNames.slice(1)
+      }
+
       const result =
         resolveModuleNames != null // Very unlikely to be undefined
           ? resolveModuleNames(
@@ -284,10 +297,15 @@ function patchTSHosts(
               reusedNames,
               redirectedReference,
             )
-
+      if (isVueEntry) {
+        result.unshift({
+          resolvedFileName: options.getRuntimeHelperFileName('3.0'),
+          isExternalLibraryImport: true,
+        })
+      }
       return result
-    }
-  }
+    },
+  )
 }
 
 function createFilesystemProvider({
@@ -338,4 +356,25 @@ function createTypescriptProvider(
     getRuntimeHelperFileName: (version: string) =>
       options.getRuntimeHelperFileName(version),
   }
+}
+
+const PATCHED_METHODS = Symbol('Vue Patched Methods')
+function tryPatchMethod<T extends object, K extends keyof T>(
+  target: T,
+  methodName: K,
+  createOverride: (fn: T[K]) => T[K] extends undefined ? never : T[K],
+): void {
+  const patched: K[] = (target as any)[PATCHED_METHODS] ?? []
+  if (patched.includes(methodName)) return
+  let fn = target[methodName]
+  if (typeof fn === 'function') {
+    try {
+      fn = fn.bind(target)
+    } catch {
+      // - ignore
+    }
+  }
+  target[methodName] = createOverride(fn)
+  patched.push(methodName)
+  ;(target as any)[PATCHED_METHODS] = patched
 }

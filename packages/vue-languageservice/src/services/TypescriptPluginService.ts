@@ -68,17 +68,29 @@ export class TypescriptPluginService
       }
     })
 
-    if (externalFiles.size > 0) {
-      externalFiles.add(this.ts.getRuntimeHelperFileName('3.0'))
-    }
-
-    this.logger.debug('External Files:', externalFiles)
-
     return Array.from(externalFiles)
+  }
+
+  getCompilerOptionsDiagnostics(): Typescript.Diagnostic[] {
+    const diagnostics = this.service.getCompilerOptionsDiagnostics()
+
+    return diagnostics.filter((diagnostic) => {
+      if (
+        diagnostic.code === 5056 &&
+        this.diagnostics
+          .toDisplayMessage(diagnostic.messageText)
+          .includes('.vue.js')
+      ) {
+        return false
+      }
+
+      return true
+    })
   }
 
   getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
     this.logger.info(`getSemanticDiagnostics: ${fileName}`)
+
     return [
       this.diagnostics.getSemanticDiagnostics(fileName),
       this.diagnostics.getExtraDiagnostics(fileName),

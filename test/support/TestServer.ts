@@ -9,7 +9,7 @@ import { inspect } from 'util'
 function abs(fileName: string): string {
   return Path.resolve(__dirname, fileName)
 }
-
+export type { Proto }
 const isDebugMode = process.env['DEBUG_TESTS'] != null
 function debug(...args: any[]): void {
   if (isDebugMode) {
@@ -179,6 +179,10 @@ export class TestServer {
     this.onceEventHandlers = this.onceEventHandlers.filter((fn) => !fn(payload))
   }
 
+  public getEvents(): Proto.Event[] {
+    return this.events.slice()
+  }
+
   private send(message: Omit<Proto.Message, 'seq'>): number {
     if (this.isClosed)
       throw new Error('Cannot send messages to a closed server connection.')
@@ -255,6 +259,11 @@ export class TestServer {
   }
 
   public async waitForEvent(
+    event: 'configFileDiag',
+    check?: (event: Proto.ConfigFileDiagnosticEvent) => boolean,
+  ): Promise<Proto.ConfigFileDiagnosticEvent>
+
+  public async waitForEvent(
     event: Proto.ProjectLoadingFinishEventName,
   ): Promise<Proto.ProjectLoadingFinishEvent>
 
@@ -281,6 +290,7 @@ export class TestServer {
 
       this.events
         .filter((e) => event === e.type)
+        .reverse()
         .map((event) => this.onEvent(event))
     })
   }

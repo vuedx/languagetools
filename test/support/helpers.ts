@@ -4,9 +4,9 @@ import type { CodeEdit, Location, TextSpan } from 'typescript/lib/protocol'
 import {
   Position,
   TextDocument,
-  TextEdit,
+  TextEdit
 } from 'vscode-languageserver-textdocument'
-import type { TestServer } from './TestServer'
+import type { Proto, TestServer } from './TestServer'
 
 const FS = _FS.promises
 
@@ -126,8 +126,9 @@ export function getProjectPath(
     | 'javascript-unconfigured'
     | 'javascript-configured-include-directory'
     | 'javascript-configured-include-file',
+  version = 'vue3',
 ): string {
-  return Path.resolve(__dirname, '../../samples', name)
+  return Path.resolve(__dirname, '../../samples', version, name)
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -175,6 +176,24 @@ export function createEditorContext(server: TestServer, rootDir: string) {
       if (!result.success) throw new Error(result.message)
       await server.flush(['events', 'requests', 'responses'])
       openFiles.clear()
+    },
+    async getCompilerDiagnostics(fileName: string) {
+      const info = await api.getProjectInfo(api.abs(fileName))
+
+      if (info.configFileName != null) {
+        const event = await server
+          .getEvents()
+          .reverse()
+          .find(
+            (event): event is Proto.ConfigFileDiagnosticEvent =>
+              event.event === 'configFileDiag' &&
+              event.body?.configFile === info.configFileName,
+          )
+
+        return event?.body?.diagnostics ?? []
+      }
+
+      return []
     },
     async getDiagnostics(fileName: string) {
       const absFilePath = abs(fileName)

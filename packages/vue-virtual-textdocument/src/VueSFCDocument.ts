@@ -254,7 +254,7 @@ export class VueSFCDocument extends ProxyDocument {
     } = this.descriptor
     // const info = this.options.getComponentInfo() // Can be used
 
-    const code: string[] = []
+    const code: string[] = [`import 'vuedx~runtime'`]
     const props: string[] = []
     this.activeTSDocIDs.clear()
 

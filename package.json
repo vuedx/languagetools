@@ -43,11 +43,11 @@
   "pnpm": {
     "overrides": {
       "typescript": "^4.3.5",
-      "@vue/runtime-core": "^3.1.4",
-      "@vue/compiler-core": "^3.1.4",
-      "@vue/compiler-dom": "^3.1.4",
-      "@vue/compiler-sfc": "^3.1.4",
-      "@vue/compiler-ssr": "^3.1.4"
+      "@vue/runtime-core": "^3.2.1",
+      "@vue/compiler-core": "^3.2.1",
+      "@vue/compiler-dom": "^3.2.1",
+      "@vue/compiler-sfc": "^3.2.1",
+      "@vue/compiler-ssr": "^3.2.1"
     }
   },
   "scripts": {

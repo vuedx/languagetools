@@ -490,7 +490,7 @@ export class DiagnosticsService {
     )
   }
 
-  private toDisplayMessage(
+  public toDisplayMessage(
     message: string | Typescript.DiagnosticMessageChain,
   ): string {
     if (typeof message === 'string') return message

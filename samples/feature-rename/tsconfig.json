@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "allowJs": true,
-    "jsx": "preserve",
-    "outDir": "dist"
-  },
-  "include": ["src"]
-}

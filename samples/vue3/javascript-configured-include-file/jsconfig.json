@@ -1,0 +1,4 @@
+{
+  "include": ["src/main.js"],
+  "exclude": ["node_modules"]
+}

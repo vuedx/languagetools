@@ -55,7 +55,16 @@ export default function init({ typescript }: Modules): TS.server.PluginModule {
         ...info,
         typescript,
         getRuntimeHelperFileName() {
-          return Path.resolve(__dirname, '../runtime/vue3.0.d.ts')
+          return Path.posix.resolve(__dirname, '../runtime/vue3.0.d.ts')
+        },
+        isRuntimeHelperFileName(fileName) {
+          return typescript.server
+            .toNormalizedPath(fileName)
+            .startsWith(
+              typescript.server.toNormalizedPath(
+                Path.posix.resolve(__dirname, '../runtime'),
+              ),
+            )
         },
       })
 
