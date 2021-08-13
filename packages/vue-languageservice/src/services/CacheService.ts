@@ -12,7 +12,7 @@ export class CacheService<T> {
 
   constructor(
     private readonly getVersion: (fileName: string) => string,
-    private readonly maxSize: number = 100,
+    private readonly maxSize: number = 1000,
   ) {}
 
   public getItem(fileName: string): T | null {

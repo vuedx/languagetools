@@ -15,6 +15,7 @@ import type { FilesystemProvider } from '../contracts/FilesystemProvider'
 import type { OffsetRangeLike } from '../contracts/OffsetRangeLike'
 import type { Typescript } from '../contracts/Typescript'
 import { createFilesystemProvider } from '../virtualFs'
+import { CacheService } from './CacheService'
 import { LoggerService } from './LoggerService'
 import type { TypescriptService } from './TypescriptService'
 
@@ -47,18 +48,33 @@ export class FilesystemService implements Disposable {
     private readonly ts: TypescriptService,
   ) {}
 
+  public getVersion(fileName: string): string {
+    return (
+      this.ts
+        .getProjectFor(fileName)
+        ?.getScriptInfo(fileName)
+        ?.getLatestVersion() ?? '0'
+    )
+  }
+
+  private readonly textDocumentCache = new CacheService<TextDocument>(
+    (fileName) => this.getVersion(fileName),
+  )
+
   public getFile(fileName: string): TextDocument | null {
     if (this.isVueFile(fileName)) return this.getVueFile(fileName)
     if (!this.provider.exists(fileName)) return null
 
-    const language = this.getLaguageId(fileName)
-    const create = (): TextDocument =>
-      TextDocument.create(fileName, language, 0, this.provider.read(fileName))
-    const file = create()
+    return this.textDocumentCache.withCache(fileName, (prevFile) => {
+      if (prevFile != null) return prevFile
 
-    // this.otherFiles.set(fileName, file)
-
-    return file
+      return TextDocument.create(
+        fileName,
+        this.getLaguageId(fileName),
+        0, // Version should be ignored.
+        this.provider.read(fileName),
+      )
+    })
   }
 
   public getLaguageId(fileName: string): string {
@@ -136,6 +152,7 @@ export class FilesystemService implements Disposable {
         file.update(changes, version)
         const project = this.ts.getProjectFor(file.tsFileName)
         if (project != null) {
+          // TODO: Optimize. This triggers parse on every keystroke.
           const after = file.getActiveTSDocIDs()
           const deleted = Array.from(before).filter(
             (fileName) => !after.has(fileName),
