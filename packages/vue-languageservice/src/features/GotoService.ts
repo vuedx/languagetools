@@ -4,19 +4,20 @@ import type {
 } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type Typescript from 'typescript/lib/tsserverlibrary'
+import { INJECTABLE_TS_SERVICE } from '../constants'
+import type { TSLanguageService } from '../contracts/Typescript'
 import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService } from '../services/LoggerService'
-import { TypescriptService } from '../services/TypescriptService'
 
 @injectable()
 export class GotoService {
   private readonly logger = LoggerService.getLogger(`Goto`)
 
   constructor(
-    @inject(TypescriptService)
-    private readonly ts: TypescriptService,
     @inject(FilesystemService)
     private readonly fs: FilesystemService,
+    @inject(INJECTABLE_TS_SERVICE)
+    private readonly service: TSLanguageService,
   ) {}
 
   private depth = 0
@@ -28,14 +29,15 @@ export class GotoService {
 
     this.depth++
     try {
-      const service = this.ts.getServiceFor(fileName)
-      if (service == null) return undefined
       if (this.fs.isVueFile(fileName)) {
         return this.doActionAtPosition(
           fileName,
           position,
           ({ tsFileName, offset, blockFile }) => {
-            const result = service.getDefinitionAtPosition(tsFileName, offset)
+            const result = this.service.getDefinitionAtPosition(
+              tsFileName,
+              offset,
+            )
             if (result == null) return
 
             this.logger.debug(
@@ -66,7 +68,7 @@ export class GotoService {
         )
       }
 
-      const result = service.getDefinitionAtPosition(fileName, position)
+      const result = this.service.getDefinitionAtPosition(fileName, position)
 
       if (result == null) return
 
@@ -82,14 +84,15 @@ export class GotoService {
     fileName: string,
     position: number,
   ): Typescript.DefinitionInfoAndBoundSpan | undefined {
-    const service = this.ts.getServiceFor(fileName)
-    if (service == null) return undefined
     if (this.fs.isVueFile(fileName)) {
       return this.doActionAtPosition(
         fileName,
         position,
         ({ tsFileName, blockFile, offset }) => {
-          const result = service.getDefinitionAndBoundSpan(tsFileName, offset)
+          const result = this.service.getDefinitionAndBoundSpan(
+            tsFileName,
+            offset,
+          )
           if (result == null) return undefined
           result.textSpan = this.getTextSpan(blockFile, result.textSpan)
           return this.normalizeTSDefinitionInfoAndBoundSpan(result)
@@ -97,7 +100,7 @@ export class GotoService {
       )
     }
 
-    const result = service.getDefinitionAndBoundSpan(fileName, position)
+    const result = this.service.getDefinitionAndBoundSpan(fileName, position)
     if (result == null) return undefined
     return this.normalizeTSDefinitionInfoAndBoundSpan(result)
   }

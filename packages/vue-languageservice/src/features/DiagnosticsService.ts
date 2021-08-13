@@ -13,6 +13,8 @@ import type {
   DiagnosticTag,
   Range,
 } from 'vscode-languageserver-types'
+import { INJECTABLE_TS_SERVICE } from '../constants'
+import type { TSLanguageService } from '../contracts/Typescript'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
@@ -48,6 +50,8 @@ export class DiagnosticsService {
     private readonly fs: FilesystemService,
     @inject(LanguageServiceProvider)
     private readonly lang: LanguageServiceProvider,
+    @inject(INJECTABLE_TS_SERVICE)
+    private readonly service: TSLanguageService,
     @inject(ScriptSetupDiagnosticsProvider)
     private readonly scriptSetup: ScriptSetupDiagnosticsProvider,
   ) {}
@@ -149,16 +153,13 @@ export class DiagnosticsService {
   }
 
   public getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
-    const service = this.ts.getServiceFor(fileName)
-    if (service == null) return []
-
     return this.caches.semantic.withCache(fileName, (result) => {
       if (result != null) return result
 
       this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
       return this.getDiagnosticsFromTS(fileName, (fileName) => {
         this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
-        return service.getSemanticDiagnostics(fileName)
+        return this.service.getSemanticDiagnostics(fileName)
       })
     })
   }
@@ -166,15 +167,12 @@ export class DiagnosticsService {
   public getSyntacticDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
-    const service = this.ts.getServiceFor(fileName)
-    if (service == null) return []
-
     return this.caches.syntax.withCache(fileName, (result) => {
       if (result != null) return result
       this.logger.debug(`SyntacticcDiagnonstics in ${fileName}`)
       return this.getDiagnosticsFromTS(fileName, (fileName) => {
         this.logger.debug(`SyntacticcDiagnonstics in ${fileName}`)
-        return service.getSyntacticDiagnostics(fileName)
+        return this.service.getSyntacticDiagnostics(fileName)
       }) as Typescript.DiagnosticWithLocation[]
     })
   }
@@ -182,15 +180,12 @@ export class DiagnosticsService {
   public getSuggestionDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
-    const service = this.ts.getServiceFor(fileName)
-    if (service == null) return []
-
     return this.caches.suggestion.withCache(fileName, (result) => {
       if (result != null) return result
       this.logger.debug(`SuggestionDiagnonstics in ${fileName}`)
       return this.getDiagnosticsFromTS(fileName, (fileName) => {
         this.logger.debug(`SuggestionDiagnonstics in ${fileName}`)
-        return service.getSuggestionDiagnostics(fileName)
+        return this.service.getSuggestionDiagnostics(fileName)
       }) as Typescript.DiagnosticWithLocation[]
     })
   }
@@ -298,11 +293,19 @@ export class DiagnosticsService {
         return []
       }
       const diagnostics: Typescript.Diagnostic[] = []
-
+      this.logger.debug(
+        `${vueFile.version} = ${vueFile.fileName}`,
+        vueFile.getActiveTSDocIDs(),
+      )
       vueFile.getActiveTSDocIDs().forEach((id) => {
-        diagnostics.push(
-          ...this.normalizeVirtualFileDiagnostics(id, getter(id)),
-        )
+        try {
+          diagnostics.push(
+            ...this.normalizeVirtualFileDiagnostics(id, getter(id)),
+          )
+        } catch (error) {
+          // Ignore for now.
+          this.logger.error(error)
+        }
       })
 
       return diagnostics
@@ -326,7 +329,6 @@ export class DiagnosticsService {
     const tsFile = blockFile.generated
     if (tsFile == null) return []
 
-    const service = this.ts.getServiceFor(fileName)
     const isScriptSetup =
       blockFile.block.type === 'script' &&
       blockFile.block.attrs['setup'] != null
@@ -351,14 +353,11 @@ export class DiagnosticsService {
           )}`,
         )
 
-        if (
-          service != null &&
-          blockFile.isOffsetInTemplateGlobals(diagnostic.start)
-        ) {
+        if (blockFile.isOffsetInTemplateGlobals(diagnostic.start)) {
           this.logger.debug(
             `Forwarding diagostics at ${diagnostic.start} to references.`,
           )
-          const references = service.getReferencesAtPosition(
+          const references = this.service.getReferencesAtPosition(
             fileName,
             diagnostic.start,
           )

@@ -4,7 +4,7 @@ import type { CodeEdit, Location, TextSpan } from 'typescript/lib/protocol'
 import {
   Position,
   TextDocument,
-  TextEdit
+  TextEdit,
 } from 'vscode-languageserver-textdocument'
 import type { Proto, TestServer } from './TestServer'
 
@@ -14,12 +14,24 @@ export function locationToPosition(loc: Location): Position {
   return { line: loc.line - 1, character: loc.offset - 1 }
 }
 
+export function positionToLocation(pos: Position): Location {
+  return { line: pos.line + 1, offset: pos.character + 1 }
+}
+
 export function codeEditToTextEdit(edit: CodeEdit): TextEdit {
   return {
     range: {
       start: locationToPosition(edit.start),
       end: locationToPosition(edit.end),
     },
+    newText: edit.newText,
+  }
+}
+
+export function textEditToCodeEdit(edit: TextEdit): CodeEdit {
+  return {
+    start: positionToLocation(edit.range.start),
+    end: positionToLocation(edit.range.end),
     newText: edit.newText,
   }
 }
@@ -154,9 +166,90 @@ export function createEditorContext(server: TestServer, rootDir: string) {
 
       return absFilePath
     },
+
+    async edit(fileName: string, textOrEdits: string | TextEdit[]) {
+      const absFilePath = abs(fileName)
+      const document = await getTextDocument(absFilePath)
+      const edits: TextEdit[] =
+        typeof textOrEdits === 'string'
+          ? [
+              {
+                newText: textOrEdits,
+                range: {
+                  start: document.positionAt(0),
+                  end: document.positionAt(document.getText().length),
+                },
+              },
+            ]
+          : textOrEdits
+      const content = TextDocument.applyEdits(document, edits)
+
+      cache.set(
+        fileName,
+        TextDocument.update(
+          document,
+          [{ text: content }],
+          document.version + 1,
+        ),
+      )
+
+      await server.sendCommand('updateOpen', {
+        changedFiles: [
+          {
+            fileName: absFilePath,
+            textChanges: edits.map((edit) => textEditToCodeEdit(edit)),
+          },
+        ],
+      })
+    },
+
+    async replaceIn(
+      fileName: string,
+      search: string | RegExp,
+      replace: (...args: string[]) => string,
+    ) {
+      const absFilePath = abs(fileName)
+      const document = await getTextDocument(absFilePath)
+      const content = document.getText()
+
+      if (typeof search === 'string') {
+        const index = content.indexOf(search)
+        if (index < 0) return false
+        await this.edit(fileName, [
+          {
+            range: {
+              start: document.positionAt(index),
+              end: document.positionAt(index + search.length),
+            },
+            newText: replace(),
+          },
+        ])
+        return true
+      } else {
+        const edits: TextEdit[] = []
+        let matches: RegExpExecArray | null
+        while ((matches = search.exec(content)) != null) {
+          const text = matches[0] as string
+          const index = matches.index
+          edits.push({
+            range: {
+              start: document.positionAt(index),
+              end: document.positionAt(index + text.length),
+            },
+            newText: replace(...matches),
+          })
+        }
+        if (edits.length > 0) {
+          await this.edit(fileName, edits)
+        }
+        return false
+      }
+    },
+
     async close(fileName: string) {
       const absFilePath = abs(fileName)
 
+      cache.delete(absFilePath)
       openFiles.delete(absFilePath)
 
       const result = await server.sendCommand('updateOpen', {
@@ -172,6 +265,9 @@ export function createEditorContext(server: TestServer, rootDir: string) {
     async closeAll() {
       const result = await server.sendCommand('updateOpen', {
         closedFiles: Array.from(openFiles),
+      })
+      openFiles.forEach((fileName) => {
+        cache.delete(fileName)
       })
       if (!result.success) throw new Error(result.message)
       await server.flush(['events', 'requests', 'responses'])

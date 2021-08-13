@@ -1,46 +1,54 @@
+import { ComponentInfo, createFullAnalyzer } from '@vuedx/analyze'
 import {
+  annotations,
   Position,
   Range,
   TextDocument,
+  transformers,
   VueBlockDocument,
   VueSFCDocument,
   VueSFCDocumentOptions,
-  transformers,
-  annotations,
 } from '@vuedx/vue-virtual-textdocument'
-import { inject, injectable } from 'inversify'
 import * as Path from 'path'
-import { INJECTABLE_FS_PROVIDER } from '../constants'
 import type { Disposable } from '../contracts/Disposable'
 import type { FilesystemProvider } from '../contracts/FilesystemProvider'
 import type { OffsetRangeLike } from '../contracts/OffsetRangeLike'
-import { TypescriptService } from './TypescriptService'
-import { ComponentInfo, createFullAnalyzer } from '@vuedx/analyze'
 import type { Typescript } from '../contracts/Typescript'
+import { createFilesystemProvider } from '../virtualFs'
+import { LoggerService } from './LoggerService'
+import type { TypescriptService } from './TypescriptService'
 
-@injectable()
 export class FilesystemService implements Disposable {
+  private static instance: FilesystemService | null = null
+
+  public static createSingletonInstance(
+    ts: TypescriptService,
+  ): FilesystemService {
+    return (
+      this.instance ??
+      (this.instance = new FilesystemService(
+        createFilesystemProvider(ts.projectService, ts.serverHost),
+        ts,
+      ))
+    )
+  }
+
   private readonly vueFiles = new Map<string, VueSFCDocument>()
-  private readonly otherFiles = new Map<string, TextDocument>()
   private readonly watchers = new Set<() => void>()
   private readonly analyzer = createFullAnalyzer()
+  private readonly logger = new LoggerService('fs')
   private readonly cache = new Map<
     string,
     { key: string; info: ComponentInfo }
   >()
 
   constructor(
-    @inject(INJECTABLE_FS_PROVIDER)
     private readonly provider: FilesystemProvider,
-    @inject(TypescriptService)
     private readonly ts: TypescriptService,
   ) {}
 
   public getFile(fileName: string): TextDocument | null {
     if (this.isVueFile(fileName)) return this.getVueFile(fileName)
-
-    const cachedFile = this.otherFiles.get(fileName)
-    if (cachedFile != null) return cachedFile
     if (!this.provider.exists(fileName)) return null
 
     const language = this.getLaguageId(fileName)
@@ -48,18 +56,7 @@ export class FilesystemService implements Disposable {
       TextDocument.create(fileName, language, 0, this.provider.read(fileName))
     const file = create()
 
-    this.watchers.add(
-      this.provider.watch(fileName, (changes, version) => {
-        this.otherFiles.set(
-          fileName,
-          version === 0
-            ? create()
-            : TextDocument.update(file, changes, version),
-        )
-      }),
-    )
-
-    this.otherFiles.set(fileName, file)
+    // this.otherFiles.set(fileName, file)
 
     return file
   }
@@ -96,6 +93,8 @@ export class FilesystemService implements Disposable {
       fileName = fileName.substr(0, fileName.length - 3)
     }
     if (!this.isVueFile(fileName)) return null
+
+    // this.logger.debug('Get', fileName)
     const cachedFile = this.vueFiles.get(fileName)
     if (cachedFile != null) return cachedFile
     if (!this.provider.exists(fileName)) return null
@@ -132,13 +131,27 @@ export class FilesystemService implements Disposable {
 
     this.watchers.add(
       this.provider.watch(fileName, (changes, version) => {
+        this.logger.debug(`File updated: ${version} - ${fileName}`, changes)
+        const before = file.getActiveTSDocIDs()
         file.update(changes, version)
-        const project = this.ts.getProjectFor(fileName)
+        const project = this.ts.getProjectFor(file.tsFileName)
         if (project != null) {
-          project.markAsDirty()
-          file.getActiveTSDocIDs().forEach((fileName) => {
-            project.getScriptInfo(fileName)?.reloadFromFile()
+          const after = file.getActiveTSDocIDs()
+          const deleted = Array.from(before).filter(
+            (fileName) => !after.has(fileName),
+          )
+
+          deleted.forEach((fileName) => {
+            this.logger.debug(`Virtual file deleted: ${fileName}`)
+            const info = project.getScriptInfo(fileName)
+            if (info != null) {
+              project.removeFile(info, false, true)
+              this.logger.debug(`Virtual removed deleted: ${fileName}`)
+            }
           })
+
+          project.registerFileUpdate(file.tsFileName)
+          project.markAsDirty()
         }
       }),
     )
@@ -148,13 +161,12 @@ export class FilesystemService implements Disposable {
     return file
   }
 
+  /** @deprecated */
   public getVueSourceFile(fileName: string): Typescript.SourceFile | undefined {
     fileName = this.getRealFileName(fileName)
     if (!this.isVueFile(fileName)) return undefined
     const scriptFile = this.ts.getSourceFile(fileName)
     if (scriptFile != null) return scriptFile
-    const vueFile = this.getVueFile(fileName)
-    if (vueFile != null) return vueFile as any
     return undefined
   }
 

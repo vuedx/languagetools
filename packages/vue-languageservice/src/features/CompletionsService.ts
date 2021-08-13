@@ -13,9 +13,10 @@ import type {
 } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type Typescript from 'typescript/lib/tsserverlibrary'
+import { INJECTABLE_TS_SERVICE } from '../constants'
+import type { TSLanguageService } from '../contracts/Typescript'
 import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService } from '../services/LoggerService'
-import { TypescriptService } from '../services/TypescriptService'
 
 interface TSCompletionsInVueFile {
   blockFile: VueBlockDocument
@@ -41,10 +42,10 @@ export class CompletionsService {
   private readonly logger = LoggerService.getLogger('Completions')
 
   constructor(
-    @inject(TypescriptService)
-    private readonly ts: TypescriptService,
     @inject(FilesystemService)
     private readonly fs: FilesystemService,
+    @inject(INJECTABLE_TS_SERVICE)
+    private readonly service: TSLanguageService,
   ) {}
 
   private readonly ignoreList = new Set('arguments'.split(','))
@@ -54,8 +55,6 @@ export class CompletionsService {
     position: number,
     options: Typescript.GetCompletionsAtPositionOptions | undefined,
   ): undefined | TSCompletionsInVueFile {
-    const service = this.ts.getServiceFor(fileName)
-    if (service == null) return
     const vueFile = this.fs.getVueFile(fileName)
     if (vueFile == null) return
     const blockFile = vueFile.getDocAt(position)
@@ -77,7 +76,7 @@ export class CompletionsService {
       getTs: () => {
         if (blockFile.tsCompletionsOffset == null) return
         this.logger.debug('Loading TS completions')
-        return service.getCompletionsAtPosition(
+        return this.service.getCompletionsAtPosition(
           tsFileName,
           blockFile.tsCompletionsOffset,
           this.getContextCompletionOptions(options),
@@ -85,8 +84,16 @@ export class CompletionsService {
       },
       getTsx: () => {
         if (blockFile.tsxCompletionsOffset == null) return
-        this.logger.debug('Loading TSX completions: ' + tsFile.getText().substring(blockFile.tsxCompletionsOffset - 1, blockFile.tsxCompletionsOffset + 4))
-        return service.getCompletionsAtPosition(
+        this.logger.debug(
+          'Loading TSX completions: ' +
+            tsFile
+              .getText()
+              .substring(
+                blockFile.tsxCompletionsOffset - 1,
+                blockFile.tsxCompletionsOffset + 4,
+              ),
+        )
+        return this.service.getCompletionsAtPosition(
           tsFileName,
           blockFile.tsxCompletionsOffset,
           this.getTsxCompletionOptions(options),
@@ -94,7 +101,11 @@ export class CompletionsService {
       },
       getOffset: () => {
         this.logger.debug('Loading offset completions')
-        return service.getCompletionsAtPosition(tsFileName, offset, options)
+        return this.service.getCompletionsAtPosition(
+          tsFileName,
+          offset,
+          options,
+        )
       },
       getSetup: () => {
         this.logger.debug('Loading setup completions')
@@ -125,8 +136,6 @@ export class CompletionsService {
   private getScriptSetupCompletions(
     fileName: string,
   ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
-    const service = this.ts.getServiceFor(fileName)
-    if (service == null) return
     const vueFile = this.fs.getVueFile(fileName)
     if (vueFile == null) return
     const scriptSetup = vueFile.descriptor.scriptSetup
@@ -134,9 +143,13 @@ export class CompletionsService {
       const file = vueFile.getDoc(scriptSetup)
       if (file?.tsFileName != null && file.generated != null) {
         const position = file.generated.getText().length - 1
-        return service.getCompletionsAtPosition(file.tsFileName, position, {
-          /* TODO: Put some options */
-        })
+        return this.service.getCompletionsAtPosition(
+          file.tsFileName,
+          position,
+          {
+            /* TODO: Put some options */
+          },
+        )
       }
     }
 
@@ -184,8 +197,6 @@ export class CompletionsService {
     options: Typescript.GetCompletionsAtPositionOptions | undefined,
   ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
     this.logger.debug(`Find completions at ${position} in ${fileName}`)
-    const service = this.ts.getServiceFor(fileName)
-    if (service == null) return
     if (this.fs.isVueFile(fileName)) {
       const result = this.getTSCompletionsAtPositionInVueFile(
         fileName,
@@ -243,7 +254,7 @@ export class CompletionsService {
       }
     } else {
       return this.combine([
-        service.getCompletionsAtPosition(fileName, position, options),
+        this.service.getCompletionsAtPosition(fileName, position, options),
       ])
     }
   }
@@ -260,9 +271,6 @@ export class CompletionsService {
     preferences: Typescript.UserPreferences | undefined,
     data: Typescript.CompletionEntryData | undefined,
   ): Typescript.CompletionEntryDetails | undefined {
-    const service = this.ts.getServiceFor(fileName)
-    if (service == null) return
-
     if (this.fs.isVueFile(fileName)) {
       this.logger.debug(`Find details: "${entryName}" of "${source ?? ''}"`)
       const result = this.getTSCompletionsAtPositionInVueFile(
@@ -281,7 +289,7 @@ export class CompletionsService {
           this.testCompletionEntry(entry, entryName, source),
         )
       if (fromTS != null && blockFile.tsCompletionsOffset != null) {
-        return service.getCompletionEntryDetails(
+        return this.service.getCompletionEntryDetails(
           result.fileName,
           blockFile.tsCompletionsOffset,
           entryName,
@@ -297,7 +305,7 @@ export class CompletionsService {
           this.testCompletionEntry(entry, entryName, source),
         )
       if (fromTSX != null && blockFile.tsxCompletionsOffset != null) {
-        return service.getCompletionEntryDetails(
+        return this.service.getCompletionEntryDetails(
           result.fileName,
           blockFile.tsxCompletionsOffset,
           entryName,
@@ -313,7 +321,7 @@ export class CompletionsService {
           this.testCompletionEntry(entry, entryName, source),
         )
       if (fromOffset != null) {
-        return service.getCompletionEntryDetails(
+        return this.service.getCompletionEntryDetails(
           result.fileName,
           result.cursor.generated,
           entryName,
@@ -337,7 +345,7 @@ export class CompletionsService {
         const id = result.vueFile.getBlockId(
           result.vueFile.descriptor.scriptSetup,
         )
-        return service.getCompletionEntryDetails(
+        return this.service.getCompletionEntryDetails(
           id,
           result.cursor.setup,
           entryName,
@@ -350,7 +358,7 @@ export class CompletionsService {
 
       return undefined
     } else {
-      return service.getCompletionEntryDetails(
+      return this.service.getCompletionEntryDetails(
         fileName,
         position,
         entryName,

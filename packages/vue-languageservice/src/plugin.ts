@@ -1,54 +1,65 @@
 import { first } from '@vuedx/shared'
-import { INJECTABLE_FS_PROVIDER, INJECTABLE_TS_PROVIDER } from './constants'
-import { container } from './container'
-import type { FilesystemProvider } from './contracts/FilesystemProvider'
+import { Container } from 'inversify'
+import { INJECTABLE_TS_SERVICE } from './constants'
 import type {
   ExtendedTSLanguageService,
   Typescript,
 } from './contracts/Typescript'
-import type { TypescriptProvider } from './contracts/TypescriptProvider'
+import { overrideMethod } from './overrideMethod'
 import { FilesystemService } from './services/FilesystemService'
 import { LoggerService } from './services/LoggerService'
 import { TypescriptPluginService } from './services/TypescriptPluginService'
+import { TypescriptService } from './services/TypescriptService'
 
 export interface CreateLanguageServiceOptions
   extends Typescript.server.PluginCreateInfo {
   typescript: typeof Typescript
-  getRuntimeHelperFileName(version: string): string
-  isRuntimeHelperFileName(fileName: string): boolean
+  typesDir: string
 }
 
+let id = 0
 export function createTypescriptLanguageService(
   options: CreateLanguageServiceOptions,
 ): ExtendedTSLanguageService {
-  const context = container.createChild()
+  const context = new Container({
+    autoBindInjectable: true,
+    defaultScope: 'Singleton',
+    skipBaseClassChecks: true,
+  })
 
   const logger = options.project.projectService.logger
+  logger.info(
+    `Create Vue Plugin: ${id++} at ${Date.now()} for ${options.project.getProjectName()}`,
+  )
   LoggerService.setWriter({
     info: (line) => logger.info(line),
     debug: (line) => logger.info(line),
     error: (line) => logger.msg(line, options.typescript.server.Msg.Err),
   })
 
-  context
-    .bind<FilesystemProvider>(INJECTABLE_FS_PROVIDER)
-    .toConstantValue(createFilesystemProvider(options))
+  const ts = TypescriptService.createSingletonInstance(
+    options.typescript,
+    options.serverHost,
+    options.project.projectService,
+    options.typesDir,
+  )
+  const fs = FilesystemService.createSingletonInstance(ts)
+  context.bind(TypescriptService).toConstantValue(ts)
+  context.bind(FilesystemService).toConstantValue(fs)
+  context.bind(INJECTABLE_TS_SERVICE).toConstantValue(options.languageService)
 
-  context
-    .bind<TypescriptProvider>(INJECTABLE_TS_PROVIDER)
-    .toConstantValue(createTypescriptProvider(options))
-
-  const fs = context.get(FilesystemService)
-
-  patchTSHosts(options, fs)
+  patchTSHosts(options, fs, ts)
 
   const service = context.get(TypescriptPluginService)
 
   // prettier-ignore
   return {
     ...options.languageService,
+    
+    _isVueTS: true,
+    _vueTS_inner: options.languageService,
     // Required for correctness.
-    getExternalFiles: () => service.getExternalFiles(),
+    getExternalFiles: () => service.getExternalFiles(options.project),
     getEncodedSemanticClassifications: (...args) => service.getEncodedSemanticClassifications(...args),
     getEncodedSyntacticClassifications: (...args) => service.getEncodedSyntacticClassifications(...args),
     findReferences: (...args) => service.findReferences(...args),
@@ -81,11 +92,12 @@ const isDebug = process.env['DEBUG_VUE_TRANSFORMS'] != null
 function patchTSHosts(
   options: CreateLanguageServiceOptions,
   fs: FilesystemService,
+  ts: TypescriptService,
 ): void {
   const logger = LoggerService.getLogger('patch')
 
   // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
-  tryPatchMethod(
+  overrideMethod(
     options.serverHost,
     'fileExists',
     (fileExists) => (fileName) => {
@@ -106,7 +118,7 @@ function patchTSHosts(
   )
 
   // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
-  tryPatchMethod(
+  overrideMethod(
     options.serverHost,
     'watchFile',
     (watchFile) => (fileName, callback) => {
@@ -119,7 +131,7 @@ function patchTSHosts(
   )
 
   // Patch: get contents for virtual files from VueSFCDocument
-  tryPatchMethod(
+  overrideMethod(
     options.serverHost,
     'readFile',
     (readFile) => (fileName, encoding) => {
@@ -143,7 +155,7 @@ function patchTSHosts(
   if (!patched.has(options.project)) {
     patched.add(options.project)
 
-    tryPatchMethod(
+    overrideMethod(
       options.project,
       'getCompilerOptions',
       (getCompilerOptions) => () => {
@@ -155,7 +167,7 @@ function patchTSHosts(
       },
     )
 
-    tryPatchMethod(
+    overrideMethod(
       options.project,
       'getCompilationSettings',
       (getCompilationSettings) => () => {
@@ -167,7 +179,7 @@ function patchTSHosts(
       },
     )
   }
-  tryPatchMethod(
+  overrideMethod(
     options.languageServiceHost,
     'getScriptVersion',
     (getScriptVersion) => (fileName: string): string => {
@@ -185,7 +197,7 @@ function patchTSHosts(
     },
   )
   // Patch: create snapshots for virtual files from VueSFCDocument
-  tryPatchMethod(
+  overrideMethod(
     options.languageServiceHost,
     'getScriptSnapshot',
     (getScriptSnapshot) => (
@@ -223,17 +235,28 @@ function patchTSHosts(
   )
   // Patch: Add .vue.ts file for every .vue file
 
-  tryPatchMethod(
+  overrideMethod(
     options.languageServiceHost,
     'getScriptFileNames',
     (getScriptFileNames) => () => {
-      const original = getScriptFileNames()
-      const fileNames = new Set(original)
+      const virtuals = new Set<string>()
+      const fileNames = new Set<string>()
 
-      original.forEach((fileName) => {
-        if (fs.isVueFile(fileName)) {
-          fileNames.add(`${fileName}.ts`)
+      getScriptFileNames().forEach((fileName) => {
+        if (
+          fs.isVueFile(fileName) ||
+          fs.isVueTsFile(fileName) ||
+          fs.isVueVirtualFile(fileName)
+        ) {
+          virtuals.add(fs.getRealFileName(fileName))
+        } else {
+          fileNames.add(fileName)
         }
+      })
+
+      virtuals.forEach((fileName) => {
+        fileNames.add(fileName)
+        fileNames.add(`${fileName}.ts`)
       })
 
       logger.debug('getScriptFileNames', fileNames)
@@ -243,7 +266,7 @@ function patchTSHosts(
   )
   // Patch: 'vue' import it VueDX runtime types
   const project = options.project
-  tryPatchMethod(
+  overrideMethod(
     options.languageServiceHost,
     'resolveModuleNames',
     (resolveModuleNames) => (
@@ -253,7 +276,7 @@ function patchTSHosts(
       redirectedReference,
       _options,
     ) => {
-      if (containingFile === options.getRuntimeHelperFileName('3.0')) {
+      if (containingFile === ts.getRuntimeHelperFileName('3.0')) {
         // Runtime dependencies have only 'vue' dependency for now.
         const result = options.typescript.resolveModuleName(
           'vue',
@@ -275,7 +298,6 @@ function patchTSHosts(
 
       const isVueEntry = fs.isVueTsFile(containingFile)
       if (isVueEntry) {
-        logger.debug('RESOLVE IN: ' + containingFile, moduleNames)
         if (moduleNames[0] !== 'vuedx~runtime') {
           throw new Error('Expected vuedx~runtime import in .vue.ts file')
         }
@@ -298,83 +320,34 @@ function patchTSHosts(
               redirectedReference,
             )
       if (isVueEntry) {
+        const file = fs.getVueFile(containingFile)
+        if (file != null) {
+          const files = file.getActiveTSDocIDs()
+          const filesArray = Array.from(files)
+          result.forEach((resolved) => {
+            if (resolved != null) {
+              if (!files.has(resolved.resolvedFileName)) {
+                const name = getFilenameWithoutExtension(
+                  resolved.resolvedFileName,
+                )
+                resolved.resolvedFileName =
+                  filesArray.find((item) => item.startsWith(name)) ??
+                  resolved.resolvedFileName
+              }
+            }
+          })
+        }
         result.unshift({
-          resolvedFileName: options.getRuntimeHelperFileName('3.0'),
+          resolvedFileName: ts.getRuntimeHelperFileName('3.0'),
           isExternalLibraryImport: true,
         })
+        logger.debug('RESOLVE IN: ' + containingFile, moduleNames, result)
       }
       return result
     },
   )
-}
 
-function createFilesystemProvider({
-  project,
-  serverHost,
-}: CreateLanguageServiceOptions): FilesystemProvider {
-  const fs: FilesystemProvider = {
-    exists(fileName) {
-      try {
-        return project.fileExists(fileName)
-      } catch {
-        return serverHost.fileExists(fileName)
-      }
-    },
-    read(fileName) {
-      const snapshot = project.getScriptInfo(fileName)?.getSnapshot()
-      if (snapshot == null) return serverHost.readFile(fileName) ?? ''
-      return snapshot.getText(0, snapshot.getLength())
-    },
-    watch(fileName, onChange) {
-      const scriptInfo = project.getScriptInfo(fileName)
-      if (scriptInfo == null) return () => {}
-      // TODO: Find a better method to implement watch.
-      const editContent = scriptInfo.editContent
-      scriptInfo.editContent = (start, end, newText) => {
-        editContent.call(scriptInfo, start, end, newText)
-        onChange([{ text: fs.read(fileName) }], 0)
-      }
-      return () => {
-        scriptInfo.editContent = editContent
-      }
-    },
+  function getFilenameWithoutExtension(fileName: string): string {
+    return fileName.replace(/\.(ts|tsx|js|jsx|json|d\.ts)$/, '')
   }
-
-  return fs
-}
-
-function createTypescriptProvider(
-  options: CreateLanguageServiceOptions,
-): TypescriptProvider {
-  return {
-    mode: 'plugin',
-    context: { project: options.project, service: options.languageService },
-    typescript: options.typescript,
-    getProjectFor: () => options.project,
-    getLanguageServiceFor: () => options.languageService,
-    getServerHost: () => options.serverHost,
-    getRuntimeHelperFileName: (version: string) =>
-      options.getRuntimeHelperFileName(version),
-  }
-}
-
-const PATCHED_METHODS = Symbol('Vue Patched Methods')
-function tryPatchMethod<T extends object, K extends keyof T>(
-  target: T,
-  methodName: K,
-  createOverride: (fn: T[K]) => T[K] extends undefined ? never : T[K],
-): void {
-  const patched: K[] = (target as any)[PATCHED_METHODS] ?? []
-  if (patched.includes(methodName)) return
-  let fn = target[methodName]
-  if (typeof fn === 'function') {
-    try {
-      fn = fn.bind(target)
-    } catch {
-      // - ignore
-    }
-  }
-  target[methodName] = createOverride(fn)
-  patched.push(methodName)
-  ;(target as any)[PATCHED_METHODS] = patched
 }

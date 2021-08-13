@@ -1,4 +1,5 @@
 import { inject, injectable } from 'inversify'
+import { INJECTABLE_TS_SERVICE } from '../constants'
 import type {
   ExtendedTSLanguageService,
   TSLanguageService,
@@ -11,19 +12,13 @@ import { GotoService } from '../features/GotoService'
 import { HoverService } from '../features/HoverService'
 import { FilesystemService } from './FilesystemService'
 import { LoggerService } from './LoggerService'
-import { TypescriptService } from './TypescriptService'
 
 @injectable()
 export class TypescriptPluginService
   implements Partial<ExtendedTSLanguageService> {
   private readonly logger = LoggerService.getLogger('TSPluginService')
 
-  private readonly project: TSProject
-  private readonly service: TSLanguageService
-
   constructor(
-    @inject(TypescriptService)
-    private readonly ts: TypescriptService,
     @inject(FilesystemService)
     private readonly fs: FilesystemService,
     @inject(DiagnosticsService)
@@ -34,53 +29,32 @@ export class TypescriptPluginService
     private readonly goto: GotoService,
     @inject(CompletionsService)
     private readonly completions: CompletionsService,
-  ) {
-    const project = this.ts.getDefaultProject()
-    const service = this.ts.getService()
+    @inject(INJECTABLE_TS_SERVICE)
+    private readonly service: TSLanguageService,
+  ) {}
 
-    if (project == null || service == null) {
-      throw new Error(
-        'vue-languageservice requires a project to create ts-plugin',
-      )
-    }
-
-    this.project = project
-    this.service = service
-  }
-
-  getExternalFiles(): string[] {
-    const externalFiles = new Set<string>()
-    this.project.getFileNames(true, true).forEach((fileName) => {
+  getExternalFiles(project: TSProject): string[] {
+    const vueFiles = new Set<string>()
+    project.getFileNames(true, true).forEach((fileName) => {
       if (
         this.fs.isVueFile(fileName) ||
         this.fs.isVueTsFile(fileName) ||
         this.fs.isVueVirtualFile(fileName)
       ) {
-        externalFiles.add(fileName)
-        const vueFileName = this.fs.getRealFileName(fileName)
-        externalFiles.add(vueFileName)
-
-        const file = this.fs.getVueFile(fileName)
-        if (file != null) {
-          externalFiles.add(file.tsFileName)
-          file.getActiveTSDocIDs().forEach((id) => externalFiles.add(id))
-        }
+        vueFiles.add(this.fs.getRealFileName(fileName))
       }
     })
 
-    return Array.from(externalFiles)
+    this.logger.debug('External Files', vueFiles)
+
+    return Array.from(vueFiles)
   }
 
   getCompilerOptionsDiagnostics(): Typescript.Diagnostic[] {
     const diagnostics = this.service.getCompilerOptionsDiagnostics()
-
+    const re = /\.vue(\?vue|\.ts|\.js)/
     return diagnostics.filter((diagnostic) => {
-      if (
-        diagnostic.code === 5056 &&
-        this.diagnostics
-          .toDisplayMessage(diagnostic.messageText)
-          .includes('.vue.js')
-      ) {
+      if (re.test(this.diagnostics.toDisplayMessage(diagnostic.messageText))) {
         return false
       }
 

@@ -10,6 +10,8 @@ import {
   findTemplateNodeAt,
   isElementNode,
 } from '@vuedx/template-ast-types'
+import { INJECTABLE_TS_SERVICE } from '../constants'
+import type { TSLanguageService } from '../contracts/Typescript'
 
 @injectable()
 export class TemplateCompletionsService {
@@ -21,6 +23,8 @@ export class TemplateCompletionsService {
     private readonly ts: TypescriptService,
     @inject(FilesystemService)
     private readonly fs: FilesystemService,
+    @inject(INJECTABLE_TS_SERVICE)
+    private readonly service: TSLanguageService,
   ) {
     this.logger.debug('TepmlateCompletion')
   }
@@ -30,7 +34,7 @@ export class TemplateCompletionsService {
     position: number,
   ): CompletionItem[] | undefined {
     const vueFile = this.fs.getVueFile(fileName)
-    const program = this.ts.getProgramFor(fileName)
+    const program = this.service.getProgram()
     const tsProject = this.ts.getProjectFor(fileName)
     if (program == null || tsProject == null || vueFile == null) {
       return undefined

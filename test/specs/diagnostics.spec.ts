@@ -65,5 +65,35 @@ describe('project', () => {
         )
       },
     )
+
+    test('diagnostics work aftere lang change', async () => {
+      await editor.open('src/script-lang-change.vue')
+
+      const before = await editor.getDiagnostics('src/script-lang-change.vue')
+      expect(before.semantic).toHaveLength(0)
+      expect(before.syntax).toMatchObject(
+        [
+          {
+            text: `Type assertion expressions can only be used in TypeScript files.`,
+          },
+        ].map((item) => expect.objectContaining(item)),
+      )
+
+      await editor.replaceIn(
+        'src/script-lang-change.vue',
+        '<script setup>',
+        () => '<script setup lang="ts">',
+      )
+
+      const after = await editor.getDiagnostics('src/script-lang-change.vue')
+      expect(after.syntax).toHaveLength(0)
+      expect(after.semantic).toMatchObject(
+        [
+          {
+            text: `Conversion of type 'string' to type 'number' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.`,
+          },
+        ].map((item) => expect.objectContaining(item)),
+      )
+    })
   })
 })

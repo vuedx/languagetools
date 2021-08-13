@@ -3,24 +3,36 @@ import {
   InferredVueProject,
   VueProject,
 } from '@vuedx/analyze'
-import { inject, injectable } from 'inversify'
 import JSON5 from 'json5'
 import * as Path from 'path'
-
-import { INJECTABLE_TS_PROVIDER } from '../constants'
 import type { Disposable } from '../contracts/Disposable'
-import type {
-  TSLanguageService,
-  TSProject,
-  Typescript,
-} from '../contracts/Typescript'
-import type { TypescriptProvider } from '../contracts/TypescriptProvider'
+import type { Typescript } from '../contracts/Typescript'
 
-@injectable()
 export class TypescriptService implements Disposable {
+  private static instance: TypescriptService | null = null
+
+  public static createSingletonInstance(
+    lib: typeof Typescript,
+    serverHost: Typescript.server.ServerHost,
+    projectService: Typescript.server.ProjectService,
+    typesDir: string,
+  ): TypescriptService {
+    return (
+      this.instance ??
+      (this.instance = new TypescriptService(
+        lib,
+        serverHost,
+        projectService,
+        typesDir,
+      ))
+    )
+  }
+
   constructor(
-    @inject(INJECTABLE_TS_PROVIDER)
-    private readonly ts: TypescriptProvider,
+    public readonly lib: typeof Typescript,
+    public readonly serverHost: Typescript.server.ServerHost,
+    public readonly projectService: Typescript.server.ProjectService,
+    private readonly typesDir: string,
   ) {}
 
   private readonly projects: Array<{
@@ -29,27 +41,20 @@ export class TypescriptService implements Disposable {
     dispose(): void
   }> = []
 
-  public get lib(): typeof Typescript {
-    return this.ts.typescript
-  }
-
-  public getDefaultProject(): TSProject | null {
-    return this.ts.context?.project ?? null
-  }
-
-  public getRuntimeHelperFileName(version: string): string {
-    return this.ts.getRuntimeHelperFileName(version)
-  }
-
-  public getService(): TSLanguageService | null {
-    return this.ts.context?.service ?? null
+  public getRuntimeHelperFileName(_version: '3.0'): string {
+    return Path.posix.resolve(this.typesDir, 'vue3.0.d.ts')
   }
 
   /**
    * Find typescript project for the file.
    */
   public getProjectFor(fileName: string): Typescript.server.Project | null {
-    return this.ts.getProjectFor(fileName) ?? null
+    return (
+      this.projectService.getDefaultProjectForFile(
+        this.lib.server.toNormalizedPath(fileName),
+        false,
+      ) ?? null
+    )
   }
 
   /**
@@ -66,7 +71,7 @@ export class TypescriptService implements Disposable {
 
     if (project === null) {
       project = (() => {
-        const host = this.ts.getServerHost()
+        const host = this.serverHost
         const packageFile = this.lib.findConfigFile(
           fileName,
           this.lib.sys.fileExists,
@@ -166,12 +171,7 @@ export class TypescriptService implements Disposable {
         disposables.push(() => projectDirWatcher.close())
 
         const reload = (): void => {
-          const project = this.ts.getProjectFor('')
-
-          if (project != null) {
-            project.markAsDirty()
-            project.refreshDiagnostics()
-          }
+          // TODO:  Implement
         }
 
         if (configFile != null) {
@@ -224,7 +224,7 @@ export class TypescriptService implements Disposable {
    * Find typescript laguage service for the file.
    */
   public getServiceFor(fileName: string): Typescript.LanguageService | null {
-    return this.ts.getLanguageServiceFor(fileName) ?? null
+    return this.getProjectFor(fileName)?.getLanguageService() ?? null
   }
 
   /**
