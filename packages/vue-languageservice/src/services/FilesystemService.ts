@@ -76,7 +76,7 @@ export class FilesystemService implements Disposable {
   }
 
   public getLaguageId(fileName: string): string {
-    const ext = Path.extname(fileName).substr(1)
+    const ext = Path.posix.extname(fileName).substr(1)
 
     switch (ext) {
       case 'js':

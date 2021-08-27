@@ -293,7 +293,7 @@ export class VueSFCDocument extends ProxyDocument {
     const files = new Set<string>()
 
     const createImportSource = (id: string): string =>
-      JSON.stringify(`./${Path.basename(id.replace(/\.[tj]sx?$/, ''))}`)
+      JSON.stringify(`./${Path.posix.basename(id.replace(/\.[tj]sx?$/, ''))}`)
 
     if (template != null) {
       const id = this._getBlockTSId(template)

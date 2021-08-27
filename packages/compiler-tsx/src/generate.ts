@@ -143,7 +143,7 @@ function createGenerateContext(
       node.setSourceContent(templateId, templateContent)
       const result = node.toStringWithSourceMap({
         file: fileName,
-        sourceRoot: Path.dirname(fileName),
+        sourceRoot: Path.posix.dirname(fileName),
       })
 
       return { code: result.code, map: JSON.parse(result.map.toString()) }

@@ -70,7 +70,7 @@ export class VueBlockDocument {
 
     this.source = TextDocument.create(
       id,
-      Path.extname(id).substr(1),
+      Path.posix.extname(id).substr(1),
       0,
       block.content,
     )

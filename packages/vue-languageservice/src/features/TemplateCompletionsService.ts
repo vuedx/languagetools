@@ -44,7 +44,7 @@ export class TemplateCompletionsService {
     )}:${position}`
     if (this.cache.has(key)) return this.cache.get(key)
 
-    const dir = Path.dirname(fileName)
+    const dir = Path.posix.dirname(fileName)
 
     const content = vueFile.getText()
     const openTagIndex = content.substr(0, position).lastIndexOf('<')

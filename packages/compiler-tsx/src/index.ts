@@ -34,7 +34,8 @@ export function compile(
   const ast = parse(template, options)
   const astCopy = withScope(clone(ast))
   const selfName = getComponentName(options.filename)
-  const selfSrc = options.selfSrc ?? `./${Path.basename(options.filename)}`
+  const selfSrc =
+    options.selfSrc ?? `./${Path.posix.basename(options.filename)}`
   const config: Required<Options> = {
     ...parserOptions,
     ...options,
