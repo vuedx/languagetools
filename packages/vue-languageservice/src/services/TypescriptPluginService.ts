@@ -54,6 +54,7 @@ export class TypescriptPluginService
     const diagnostics = this.service.getCompilerOptionsDiagnostics()
     const re = /\.vue(\?vue|\.ts|\.js)/
     return diagnostics.filter((diagnostic) => {
+      // Ignore diagnostics referring virtual files
       if (re.test(this.diagnostics.toDisplayMessage(diagnostic.messageText))) {
         return false
       }

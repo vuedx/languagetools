@@ -97,6 +97,9 @@ module.exports = function generate(grammar) {
     encoding: 'utf8',
   })
 
+  /** @type {string[]} */
+  const patterns = []
+
   for (const [blockName, options] of Object.entries(config)) {
     /** @type {keyof typeof languages} */
     const defaultLanguage = options.default
@@ -122,7 +125,7 @@ module.exports = function generate(grammar) {
 
       const id = `${blockName}-block`
       grammar.repository[id] = blockGrammar
-      grammar.repository.block.patterns.push({ include: `#${id}` })
+      patterns.push(`#${id}`)
     }
 
     console.log(firstLine + '\n    Languages:')
@@ -152,10 +155,13 @@ module.exports = function generate(grammar) {
 
         const id = `${blockName}-${language}-block`
         grammar.repository[id] = ref
-        grammar.repository['language-block'].patterns.push({
-          include: `#${id}`,
-        })
+        patterns.unshift(`#${id}`)
       }
     }
   }
+
+  grammar.patterns = [
+    ...patterns.map((include) => ({ include })),
+    ...grammar.patterns,
+  ]
 }

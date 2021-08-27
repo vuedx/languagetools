@@ -21,25 +21,11 @@
 
 ```vue-html
 <FooBar>foo</FooBar>
+<Foo.Bar>foo</Foo.Bar>
+<Foo.Bar.Baz>foo</Foo.Bar.Baz>
 <fooBar>foo</fooBar>
 <foo-bar>foo</foo-bar>
 <unknown-element>foo</unknown-element>
-```
-
-```json
-{
-  "components": {
-    "FooBar": {
-      "name": "FooBar",
-      "value": "Foo.Bar",
-      "source": {
-        "path": "@ui/components",
-        "exported": "Bar",
-        "local": "Foo"
-      }
-    }
-  }
-}
 ```
 
 ### slots

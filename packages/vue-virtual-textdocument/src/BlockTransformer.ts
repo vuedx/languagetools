@@ -6,12 +6,17 @@ import type {
   SFCStyleBlock,
   SFCTemplateBlock,
 } from '@vuedx/compiler-sfc'
+import { annotations, compile } from '@vuedx/compiler-tsx'
+import { pascalCase } from '@vuedx/shared'
+import { isRootNode } from '@vuedx/template-ast-types'
 import {
-  annotations,
-  compile,
-  getTopLevelIdentifiers,
-} from '@vuedx/compiler-tsx'
-import { camelCase, pascalCase } from '@vuedx/shared'
+  createExportDeclarationForComponents,
+  createExportDeclarationForDirectives,
+  createExportDeclarationForScriptSetup,
+  findScopeBindings,
+  toAST,
+  toCode,
+} from '@vuedx/transforms'
 import * as Path from 'path'
 import type { VueSFCDocument } from './VueSFCDocument'
 
@@ -45,6 +50,7 @@ export type BlockTransformerFn = (
   code: string
   map?: RawSourceMap
   errors?: TransformerError[]
+  ast?: any
 }
 
 export interface BlockTransformer {
@@ -60,77 +66,86 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
   script: {
     output: (block) => (isSupportedLang(block.lang) ? block.lang : 'js'),
     transform: (source, _id, { block, document }) => {
-      if ('setup' in block && block.setup != null && block.setup !== false) {
-        const {
-          propsIdentifier,
-          emitIdentifier,
-          components,
-          directives,
-          identifiers,
-        } = getTopLevelIdentifiers(source, [])
+      const isScriptSetup =
+        'setup' in block && block.setup != null && block.setup !== false
+      const ast = toAST(source, {
+        sourceFilename: document.fileName,
+        startLine: block.loc.start.line,
+        isScriptSetup: isScriptSetup,
+        lang: block.lang,
+      })
 
-        const declaredIdentifiers = new Set(identifiers)
-        const declaredDirectives = new Set(directives)
-        const declaredComponents = new Set(components)
-        const usedIdentifiers = new Set<string>()
-        const usedDirectives = new Set<string>()
-        const usedComponents = new Set<string>()
+      const usedIdentifiers = new Set<string>()
+      const usedDirectives = new Set<string>()
+      const usedComponents = new Set<string>()
 
-        document.declarations.identifiers = declaredIdentifiers
-        if (document.descriptor.template != null) {
-          document.getDoc(document.descriptor.template)
-          // This should trigger creation on template block doc.
+      if (document.descriptor.template != null && isScriptSetup) {
+        const ast = document.getDoc(document.descriptor.template)?.ast
 
-          const ast = document.templateAST
-          if (ast != null) {
-            ast.scope.globals.forEach((id) => {
-              if (declaredIdentifiers.has(id)) {
-                usedIdentifiers.add(id)
-              }
-            })
+        if (isRootNode(ast)) {
+          ast.scope.globals.forEach((id) => {
+            usedIdentifiers.add(id)
+          })
 
-            ast.components.forEach((name) => {
-              const id = pascalCase(name)
-              if (declaredComponents.has(id)) {
-                usedComponents.add(id)
-              }
-            })
+          ast.components.forEach((name) => {
+            const id = pascalCase(name.split('.').shift() ?? name)
+            usedComponents.add(id)
+          })
 
-            ast.directives.forEach((name) => {
-              const id = 'v' + pascalCase(name)
-              if (declaredDirectives.has(id)) {
-                usedDirectives.add(id)
-              }
-            })
-          }
+          ast.directives.forEach((name) => {
+            const id = 'v' + pascalCase(name)
+            usedDirectives.add(id)
+          })
         }
+      }
+
+      const nodes: any[] = [
+        createExportDeclarationForComponents(ast, {
+          isScriptSetup,
+          shouldIncludeScriptSetup: (id) => usedComponents.has(id),
+        }),
+        createExportDeclarationForDirectives(ast, {
+          isScriptSetup,
+          shouldIncludeScriptSetup: (id) => usedDirectives.has(id),
+        }),
+      ]
+
+      if (isScriptSetup) {
+        document.declarations.identifiers = new Set(findScopeBindings(ast))
+
+        nodes.push(
+          createExportDeclarationForScriptSetup(ast, {
+            shouldIncludeBinding: (id) => usedIdentifiers.has(id),
+          }),
+        )
 
         const code = [
           source,
           annotations.diagnosticsIgnore.start,
-          `export default VueDX.internal.defineSetupComponent(${
-            propsIdentifier ?? '{}'
-          }, ${emitIdentifier ?? '{}'}, {${
-            Array.from(usedIdentifiers).join(',') // Variables accessed from this context.
-          }}, { directives: {${
-            Array.from(usedDirectives)
-              .map((name) => `${camelCase(name.substr(1))}: ${name}`)
-              .join(',') //
-          }}, components: {${
-            Array.from(usedComponents).join(',') //
-          }}})`,
+          toCode(nodes).code,
           annotations.diagnosticsIgnore.end,
           '',
         ].join('\n')
 
         return {
+          ast,
+          code,
+        }
+      } else {
+        // TODO: Handle plain object exports.
+        const code = [
+          source,
+          annotations.diagnosticsIgnore.start,
+          toCode(nodes).code,
+          annotations.diagnosticsIgnore.end,
+          '',
+        ].join('\n')
+
+        return {
+          ast,
           code,
         }
       }
-
-      // TODO: Support for components not exporting defaultComponent() from <script> block
-
-      return { code: source + '\n' }
     },
   },
   template: {
@@ -142,36 +157,18 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
             descriptor.script ??
             document.fallbackScript,
         )
-        const components = document.options.getComponents()
-        const info = document.options.getComponentInfo()
-        if (info != null) {
-          info.components.forEach((component) => {
-            component.aliases.forEach((alias) => {
-              components[alias] = {
-                name: component.name,
-                value: component.name, // TODO: Add value field to analyzer
-                source: {
-                  path: component.source.moduleName,
-                  exported: component.source.exportName ?? 'default',
-                  local: component.source.localName,
-                },
-              }
-            })
-          })
-        }
 
         const { code, ast, map, errors } = compile(source, {
           sourceMap: true,
           filename: document.fileName,
 
-          selfSrc: `./${Path.basename(
+          selfSrc: `./${Path.posix.basename(
             selfSrcFileName.substr(
               0,
-              selfSrcFileName.length - Path.extname(selfSrcFileName).length,
+              selfSrcFileName.length -
+                Path.posix.extname(selfSrcFileName).length,
             ),
           )}`,
-
-          components,
 
           onError(_error) {
             // TODO: Support error reporting
@@ -183,6 +180,7 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
         return {
           code,
           map,
+          ast,
           errors: errors.map((error) => {
             const diag: TransformerError = {
               message: error.message,
@@ -204,6 +202,7 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
       } catch (error) {
         return {
           code: '',
+
           errors: [
             {
               message: `Error processing template: ${String(

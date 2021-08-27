@@ -1,4 +1,3 @@
-import type { ComponentInfo } from '@vuedx/analyze'
 import type {
   SFCBlock,
   SFCDescriptor,
@@ -7,7 +6,6 @@ import type {
   SFCTemplateBlock,
 } from '@vuedx/compiler-sfc'
 import { CompilerError, parse } from '@vuedx/compiler-sfc'
-import type { ComponentRegistration } from '@vuedx/compiler-tsx'
 import { getComponentName, isNotNull } from '@vuedx/shared'
 import { isPlainElementNode, RootNode } from '@vuedx/template-ast-types'
 import * as Path from 'path'
@@ -16,14 +14,12 @@ import {
   TextDocument,
   TextDocumentContentChangeEvent,
 } from 'vscode-languageserver-textdocument'
-import type { BlockTransformer } from './BlockTransformer'
+import { BlockTransformer, builtins } from './BlockTransformer'
 import { ProxyDocument } from './ProxyDocument'
 import { VueBlockDocument } from './VueBlockDocument'
 
 export interface VueSFCDocumentOptions {
   transformers?: Record<string, BlockTransformer>
-  getComponents?(): Record<string, ComponentRegistration>
-  getComponentInfo(): ComponentInfo | null
 }
 
 export class VueSFCDocument extends ProxyDocument {
@@ -118,7 +114,7 @@ export class VueSFCDocument extends ProxyDocument {
 
     const block = this._getBlockFromId(id)
     if (block == null) {
-      console.error(`[VueDX] No block for "${id}"`)
+      console.debug(`[VueDX] No block for "${id}"`)
       return null
     }
     return this.getDoc(block)
@@ -195,9 +191,9 @@ export class VueSFCDocument extends ProxyDocument {
   private _parse(): SFCDescriptor {
     if (this._descriptor == null || this._isDirty) {
       if (this._descriptor == null) {
-        console.error(`[VueDX] (SFC) Parse: ${this.fileName}`)
+        console.debug(`[VueDX] (SFC) Parse: ${this.fileName}`)
       } else {
-        console.error(`[VueDX] (SFC) Re-parse: ${this.fileName}`)
+        console.debug(`[VueDX] (SFC) Re-parse: ${this.fileName}`)
       }
       // TODO: Incremental SFC Parser using
       const result = parse(this.source.getText(), {
@@ -222,7 +218,7 @@ export class VueSFCDocument extends ProxyDocument {
           if (prev.template != null) {
             const fileName = this._getBlockFileName(prev.template)
             this.blockDocs.delete(fileName)
-            console.error(`[VueDX] (SFC) Stale: ${fileName}`)
+            console.debug(`[VueDX] (SFC) Stale: ${fileName}`)
           }
         }
 
@@ -230,7 +226,7 @@ export class VueSFCDocument extends ProxyDocument {
           if (prev.scriptSetup != null) {
             const fileName = this._getBlockFileName(prev.scriptSetup)
             this.blockDocs.delete(fileName)
-            console.error(`[VueDX] (SFC) Stale: ${fileName}`)
+            console.debug(`[VueDX] (SFC) Stale: ${fileName}`)
           }
         }
 
@@ -238,7 +234,7 @@ export class VueSFCDocument extends ProxyDocument {
           if (prev.script != null) {
             const fileName = this._getBlockFileName(prev.script)
             this.blockDocs.delete(fileName)
-            console.error(`[VueDX] (SFC) Stale: ${fileName}`)
+            console.debug(`[VueDX] (SFC) Stale: ${fileName}`)
           }
         }
 
@@ -275,7 +271,7 @@ export class VueSFCDocument extends ProxyDocument {
       this._mainText = code.content
       this._activeTSDocIDs = code.files
       this._isDirty = false
-      console.error(
+      console.debug(
         `[VueDX] (SFC) New Files: ${JSON.stringify(
           Array.from(code.files),
           null,
@@ -291,7 +287,6 @@ export class VueSFCDocument extends ProxyDocument {
     descriptor: SFCDescriptor,
   ): { content: string; files: Set<string> } {
     const { template, script, scriptSetup, styles, customBlocks } = descriptor
-    // const info = this.options.getComponentInfo() // Can be used
 
     const code: string[] = [`import 'vuedx~runtime'`]
     const props: string[] = []
@@ -447,17 +442,17 @@ export class VueSFCDocument extends ProxyDocument {
   static create(
     fileName: string,
     content: string,
-    options: VueSFCDocumentOptions,
+    options: VueSFCDocumentOptions = {},
     version: number = 0,
   ): VueSFCDocument {
     return new VueSFCDocument(
       fileName,
       {
-        getComponents() {
-          return {}
-        },
-        transformers: {},
         ...options,
+        transformers: {
+          ...options.transformers,
+          ...builtins,
+        },
       },
       TextDocument.create(`file://${fileName}`, 'vue', version, content),
     )
@@ -470,7 +465,7 @@ export class VueSFCDocument extends ProxyDocument {
     this.source = TextDocument.update(this.source, changes, version)
     this._isDirty = true
     this.lineMap = undefined
-    console.error(
+    console.debug(
       `[VueDX] (SFC) ${this.version} ${this.fileName}  is marked dirty`,
     )
   }

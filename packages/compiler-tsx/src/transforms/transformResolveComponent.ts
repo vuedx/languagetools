@@ -19,6 +19,7 @@ const builtins = new Set(
     ',',
   ),
 )
+const s = (text: string): string => JSON.stringify(text) + ' as const'
 export function createResolveComponentTransform(
   customContext: CustomTransformContext,
 ): NodeTransform {
@@ -26,8 +27,14 @@ export function createResolveComponentTransform(
 
   const hoist = (exp: SimpleExpressionNode): string => {
     const name = `_DynamicComponent${dynamicComponentCounter++}`
-    customContext.scope.hoist(
-      createCompoundExpression([`const `, name, ' = ', exp, ';']),
+    customContext.scope.scopeHoist(
+      createCompoundExpression([
+        `const `,
+        name,
+        ' = VueDX.internal.resolveComponent(__VueDX_components, ',
+        exp,
+        ');',
+      ]),
     )
     customContext.scope.addIdentifier(name)
 
@@ -38,16 +45,22 @@ export function createResolveComponentTransform(
     if (isElementNode(node)) {
       node.props.forEach((node) => {
         if (isDirectiveNode(node) && !builtins.has(node.name)) {
-          customContext.used.directives.add(camelCase(node.name))
-          const directive =
-            customContext.directives[node.name] ??
-            customContext.directives[camelCase(node.name)]
-          if (directive != null) {
-            node.resolvedName = directive.value
-            customContext.scope.addImport(
-              directive.source.path,
-              directive.source.exported,
-              directive.source.local,
+          customContext.used.directives.add(node.name)
+
+          const id = `__directive_${camelCase(node.name)}`
+          node.resolvedName = id
+          if (!customContext.scope.hasIdentifier(id)) {
+            customContext.scope.addIdentifier(id)
+            customContext.scope.hoist(
+              createCompoundExpression([
+                'const ',
+                id,
+                ' = VueDX.internal.resolveDirective(__VueDX_directives, ',
+                s(node.name),
+                ', ',
+                s(camelCase(node.name)),
+                ');',
+              ]),
             )
           }
         }
@@ -55,18 +68,25 @@ export function createResolveComponentTransform(
     }
     if (!isComponentNode(node)) return
     if (node.tag !== 'component') {
-      customContext.used.components.add(pascalCase(node.tag))
+      customContext.used.components.add(node.tag)
 
-      const resolvedComponent =
-        customContext.components[node.tag] ??
-        customContext.components[pascalCase(node.tag)]
-
-      if (resolvedComponent != null) {
-        node.resolvedName = resolvedComponent.value
-        customContext.scope.addImport(
-          resolvedComponent.source.path,
-          resolvedComponent.source.exported,
-          resolvedComponent.source.local,
+      const prefix = node.tag.split('.')[0] ?? node.tag
+      const id = `__component_${pascalCase(prefix)}`
+      node.resolvedName = node.tag.includes('.')
+        ? id + node.tag.substr(prefix.length)
+        : id
+      if (!customContext.scope.hasIdentifier(id)) {
+        customContext.scope.addIdentifier(id)
+        customContext.scope.hoist(
+          createCompoundExpression([
+            'const ',
+            id,
+            ' = VueDX.internal.resolveComponent(__VueDX_components, ',
+            s(prefix),
+            ', ',
+            s(pascalCase(prefix)),
+            ');',
+          ]),
         )
       }
 

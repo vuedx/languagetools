@@ -19,6 +19,26 @@ interface Directive<_Arg, _Exp, _Mod extends string> {
 declare global {
   namespace VueDX {
     namespace internal {
+      export function resolveComponent<T extends {}, A, B>(
+        components: T,
+        name: A,
+        pascalName?: B,
+      ): A extends keyof T
+        ? T[A]
+        : B extends keyof T
+        ? T[B]
+        : A extends keyof JSX.IntrinsicElements
+        ? JSX.IntrinsicElements[A]
+        : B extends keyof JSX.IntrinsicElements
+        ? JSX.IntrinsicElements[B]
+        : never
+
+      export function resolveDirective<T extends {}, A, B>(
+        directives: T,
+        name: A,
+        cameelName?: B,
+      ): A extends keyof T ? T[A] : B extends keyof T ? T[B] : A
+
       export { defineComponent }
       export function defineSetupComponent<P, E, B, O>(
         props: P,

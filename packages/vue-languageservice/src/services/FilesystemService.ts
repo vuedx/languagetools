@@ -7,13 +7,11 @@ import {
   transformers,
   VueBlockDocument,
   VueSFCDocument,
-  VueSFCDocumentOptions,
 } from '@vuedx/vue-virtual-textdocument'
 import * as Path from 'path'
 import type { Disposable } from '../contracts/Disposable'
 import type { FilesystemProvider } from '../contracts/FilesystemProvider'
 import type { OffsetRangeLike } from '../contracts/OffsetRangeLike'
-import type { Typescript } from '../contracts/Typescript'
 import { createFilesystemProvider } from '../virtualFs'
 import { CacheService } from './CacheService'
 import { LoggerService } from './LoggerService'
@@ -116,32 +114,6 @@ export class FilesystemService implements Disposable {
     if (!this.provider.exists(fileName)) return null
 
     const file = VueSFCDocument.create(fileName, this.provider.read(fileName), {
-      getComponentInfo: () => this.getComponentInfo(fileName),
-      // TODO: Cache this for performance
-      getComponents: () => {
-        const project = this.ts.getVueProjectFor(fileName)
-
-        const components: ReturnType<
-          Required<VueSFCDocumentOptions>['getComponents']
-        > = {}
-
-        project.globalComponents.forEach((component) => {
-          // TODO: Use component registration info from analyze project
-          component.aliases.forEach((alias) => {
-            components[alias] = {
-              name: component.name,
-              value: component.name,
-              source: {
-                path: component.source.moduleName,
-                exported: component.source.exportName ?? 'default',
-                local: component.source.localName,
-              },
-            }
-          })
-        })
-
-        return components
-      },
       transformers,
     })
 
@@ -178,19 +150,18 @@ export class FilesystemService implements Disposable {
     return file
   }
 
-  /** @deprecated */
-  public getVueSourceFile(fileName: string): Typescript.SourceFile | undefined {
-    fileName = this.getRealFileName(fileName)
-    if (!this.isVueFile(fileName)) return undefined
-    const scriptFile = this.ts.getSourceFile(fileName)
-    if (scriptFile != null) return scriptFile
-    return undefined
-  }
-
   public removeVirtualFileQuery(fileName: string): string {
     const index = fileName.indexOf('?vue')
     if (index < 0) return fileName
     return fileName.substr(0, index)
+  }
+
+  public removeVirtualFileScheme(fileName: string): string {
+    if (fileName.startsWith('^vue:')) {
+      return fileName.substr(5)
+    }
+
+    return fileName
   }
 
   public getRealFileName(fileName: string): string {
@@ -227,6 +198,10 @@ export class FilesystemService implements Disposable {
 
   public isVueVirtualFile(fileName: string): boolean {
     return fileName.includes('.vue?vue')
+  }
+
+  public isVueVirtualSchemeFile(fileName: string): boolean {
+    return fileName.startsWith('^vue:')
   }
 
   public getAbsolutePosition(

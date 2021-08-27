@@ -8,9 +8,9 @@ import {
 } from '@vuedx/vue-languageservice'
 import * as Path from 'path'
 import { performance } from 'perf_hooks'
+import { overrideMethod } from './overrideMethod'
 import { version } from '../package.json'
-import { wrapFn } from './helpers/logger'
-import { tryPatchMethod } from './helpers/patcher'
+
 import type { Modules, PluginConfig, TS } from './interfaces'
 
 export type { PluginConfig } from './interfaces'
@@ -28,7 +28,7 @@ export default function init({ typescript }: Modules): TS.server.PluginModule {
     { typescriptVersion: typescript.versionMajorMinor },
   )
 
-  tryPatchMethod(
+  overrideMethod(
     typescript as any,
     'getSupportedExtensions',
     (fn) => (options: any, extraFileExtensions: any) => {
@@ -96,38 +96,34 @@ function patchExtraFileExtensions(project: TS.server.Project): boolean {
     },
   ]
 
-  tryPatchMethod(
+  overrideMethod(
     projectService,
     'setHostConfiguration',
     (setHostConfiguration) => {
-      return wrapFn(
-        'setHostConfiguration',
-        (args: TS.server.protocol.ConfigureRequestArguments): void => {
-          projectService.logger.info(
-            '[VueDX] setHostConfiguration: ' + JSON.stringify(args),
-          )
-          const current = ((projectService as any)
-            .hostConfiguration as TS.server.HostConfiguration)
-            .extraFileExtensions
+      return (args: TS.server.protocol.ConfigureRequestArguments): void => {
+        projectService.logger.info(
+          '[VueDX] setHostConfiguration: ' + JSON.stringify(args),
+        )
+        const current = ((projectService as any)
+          .hostConfiguration as TS.server.HostConfiguration).extraFileExtensions
 
-          projectService.logger.info(
-            'Current Extra Extensions: ' + JSON.stringify(current),
-          )
-          if (args.extraFileExtensions != null) {
-            args.extraFileExtensions.push(...extraFileExtensions)
-          } else if (current == null) {
-            // noop
-          } else if (current.every((ext) => ext.extension !== '.vue')) {
-            args.extraFileExtensions = [...current, ...extraFileExtensions]
-          }
+        projectService.logger.info(
+          'Current Extra Extensions: ' + JSON.stringify(current),
+        )
+        if (args.extraFileExtensions != null) {
+          args.extraFileExtensions.push(...extraFileExtensions)
+        } else if (current == null) {
+          // noop
+        } else if (current.every((ext) => ext.extension !== '.vue')) {
+          args.extraFileExtensions = [...current, ...extraFileExtensions]
+        }
 
-          projectService.logger.info(
-            'New Extra Extensions: ' + JSON.stringify(args.extraFileExtensions),
-          )
+        projectService.logger.info(
+          'New Extra Extensions: ' + JSON.stringify(args.extraFileExtensions),
+        )
 
-          return setHostConfiguration(args)
-        },
-      )
+        return setHostConfiguration(args)
+      }
     },
   )
 

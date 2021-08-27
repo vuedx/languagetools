@@ -50,6 +50,7 @@ export interface GenerateOptions {
     event:
       | 'begin'
       | 'end'
+      | 'beforeImports'
       | 'afterImports'
       | 'renderBodyIgnored'
       | 'renderBody'
@@ -175,22 +176,24 @@ export function generate(
     options.templateContent,
   )
 
-  const { selfName } = options
-
   options.on('begin', context)
   context.write(annotations.diagnosticsIgnore.start).newLine()
-  options.customContext.scope.getImports().forEach((node) => {
+  options.on('beforeImports', context)
+  options.customContext.scope.getTopLevelNodes().forEach((node) => {
     genExpressionNode(context, node)
     context.newLine()
   })
   options.on('afterImports', context)
-  const args = ast.scope.globals.join(',')
+
   context
-    .write(
-      `export function _render(_ctx: ${selfName}, {${annotations.templateGlobals.start}${args}${annotations.templateGlobals.end}}: ${selfName}): any {`,
-    )
+    .write(`export function _render(_ctx: _Self): any {`)
     .newLine()
     .indent()
+  context.write(annotations.templateGlobals.start).newLine()
+  ast.scope.globals.forEach((id) => {
+    context.write(`let ${id} = _ctx.${id};`).newLine()
+  })
+  context.write(annotations.templateGlobals.end).newLine()
 
   context
     .write(`${annotations.tsxCompletions}<></>;`)

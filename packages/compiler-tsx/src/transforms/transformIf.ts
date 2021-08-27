@@ -3,7 +3,7 @@ import {
   NodeTransform,
   processIf,
 } from '@vue/compiler-core'
-import { createSimpleExpression } from '../../../template-ast-types/src'
+import { createSimpleExpression } from '@vuedx/template-ast-types'
 
 import type { CustomTransformContext } from './CustomTransformContext'
 

@@ -31,6 +31,7 @@ export class VueBlockDocument {
   public readonly rawSourceMap: RawSourceMap | null = null
 
   public readonly errors: TransformerError[] = []
+  public ast?: any
 
   public readonly sourceRange: Range
   public readonly ignoredZones: Array<{
@@ -88,78 +89,94 @@ export class VueBlockDocument {
       const tsLang = this.transformer.output(block)
       this.tsFileName = id.replace(/lang\..*$/, `lang.${tsLang}`)
 
-      // TODO: Handle errors in transform fn.
-      const { code, map, errors } = this.transformer.transform(
-        block.content,
-        id,
-        {
-          block,
-          document: parent,
-          descriptor,
-          annotations,
-        },
-      )
-
-      this.errors = errors ?? []
-      if (map != null) {
-        this.sourceMap = new SourceMapConsumer(map)
-        this.rawSourceMap = map
-      }
-
-      this.generated = TextDocument.create(
-        this.tsFileName,
-        tsLang, // TODO: Convert to vscode lang
-        0,
-        code,
-      )
-
-      let lastIndex = 0
-      this.ignoredZones = []
-      while (lastIndex < code.length) {
-        const start = code.indexOf(
-          annotations.diagnosticsIgnore.start,
-          lastIndex,
-        )
-        if (start < 0) break
-        let end = code.indexOf(annotations.diagnosticsIgnore.end, start)
-        if (end < 0) {
-          end = code.length
-        }
-
-        this.ignoredZones.push({
-          start,
-          end,
-          range: {
-            start: this.generated.positionAt(start),
-            end: this.generated.positionAt(end),
+      try {
+        const { ast, code, map, errors } = this.transformer.transform(
+          block.content,
+          id,
+          {
+            block,
+            document: parent,
+            descriptor,
+            annotations,
           },
-        })
+        )
 
-        lastIndex = end
-      }
-
-      this.tsxCompletionsOffset = null
-      if (tsLang === 'tsx') {
-        const tsxOffset = code.indexOf(annotations.tsxCompletions)
-        if (tsxOffset >= 0) {
-          const prefixLength = tsxOffset + annotations.tsxCompletions.length
-          this.tsxCompletionsOffset = prefixLength + 1 // TODO: Maybe use next index of "<""
+        this.ast = ast
+        this.errors = errors ?? []
+        if (map != null) {
+          this.sourceMap = new SourceMapConsumer(map)
+          this.rawSourceMap = map
         }
-      }
 
-      const tsOffset = code.indexOf(annotations.tsCompletions)
-      if (tsOffset >= 0) {
-        this.tsCompletionsOffset = tsOffset
-      } else {
-        this.tsCompletionsOffset = null
-      }
+        this.generated = TextDocument.create(
+          this.tsFileName,
+          tsLang, // TODO: Convert to vscode lang
+          0,
+          code,
+        )
 
-      const globalsOffset = code.indexOf(annotations.templateGlobals.start)
+        let lastIndex = 0
+        this.ignoredZones = []
+        while (lastIndex < code.length) {
+          const start = code.indexOf(
+            annotations.diagnosticsIgnore.start,
+            lastIndex,
+          )
+          if (start < 0) break
+          let end = code.indexOf(annotations.diagnosticsIgnore.end, start)
+          if (end < 0) {
+            end = code.length
+          }
 
-      if (globalsOffset >= 0) {
-        const start = globalsOffset + annotations.templateGlobals.end.length
-        const end = code.indexOf(annotations.templateGlobals.end, globalsOffset)
-        this.templateGlobals = { start, end }
+          this.ignoredZones.push({
+            start,
+            end,
+            range: {
+              start: this.generated.positionAt(start),
+              end: this.generated.positionAt(end),
+            },
+          })
+
+          lastIndex = end
+        }
+
+        this.tsxCompletionsOffset = null
+        if (tsLang === 'tsx') {
+          const tsxOffset = code.indexOf(annotations.tsxCompletions)
+          if (tsxOffset >= 0) {
+            const prefixLength = tsxOffset + annotations.tsxCompletions.length
+            this.tsxCompletionsOffset = prefixLength + 1 // TODO: Maybe use next index of "<""
+          }
+        }
+
+        const tsOffset = code.indexOf(annotations.tsCompletions)
+        if (tsOffset >= 0) {
+          this.tsCompletionsOffset = tsOffset
+        } else {
+          this.tsCompletionsOffset = null
+        }
+
+        const globalsOffset = code.indexOf(annotations.templateGlobals.start)
+
+        if (globalsOffset >= 0) {
+          const start = globalsOffset + annotations.templateGlobals.end.length
+          const end = code.indexOf(
+            annotations.templateGlobals.end,
+            globalsOffset,
+          )
+          this.templateGlobals = { start, end }
+        }
+      } catch (error) {
+        this.errors = [
+          {
+            code: 1,
+            message: error.message,
+            severity: 'error',
+            start: block.loc.start.offset,
+            length: 1,
+            source: 'SFC/VirtualDocument',
+          },
+        ]
       }
     }
   }

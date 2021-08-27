@@ -15,8 +15,7 @@ fileTypes:
 
 patterns:
   - { include: '#comment' }
-  - { include: '#language-block' }
-  - { include: '#block' }
+  - match: ([^<]|\s+|\r\n|\n+)
 
 repository:
   comment:
@@ -135,21 +134,3 @@ repository:
               - { include: 'source.js#expression' }
       - match: (=)
         name: invalid.illegal.tag.open.character-not-allowed-here.vue
-
-  block:
-    begin: (^[ \t]+)?
-    beginCaptures:
-      0: { name: punctuation.whitespace.embedded.leading.vue }
-    end: (?!\G)([ \t]*$\n?)?
-    endCaptures:
-      0: { name: punctuation.whitespace.embedded.trailing.vue }
-    patterns: []
-
-  language-block:
-    begin: (^[ \t]+)?(?=<([a-zA-Z][^\0\s\f\/>]+)(?![\/>]\s)(?:[\s\f="']*(?:(?!lang=)[^\s\f\0\/"'<>=]+)(?:=(?:"[^\0"]*"|'[^\0']*'|[^\s\f\0"'`<>]+))?)*(?:[\s\f="']*lang=(?:"[^\0"]*"|'[^\0']*'|[^\s\f\0"'`<>]+))(?:[\s\f="']*(?:(?!lang)[^\s\f\0\/"'<>=]*)(?:=(?:"[^\0"]*"|'[^\0']*'|[^\s\f\0"'`<>]+))?)*\s*>)
-    beginCaptures:
-      0: { name: punctuation.whitespace.embedded.leading.vue }
-    end: (?!\G)([ \t]*$\n?)?
-    endCaptures:
-      0: { name: punctuation.whitespace.embedded.trailing.vue }
-    patterns: []

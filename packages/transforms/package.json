@@ -1,7 +1,7 @@
 {
-  "name": "@vuedx/vue-virtual-textdocument",
+  "name": "@vuedx/transforms",
   "version": "0.7.4",
-  "description": "A virtual filesystem to access blocks in SFC as files",
+  "description": "AST Transforms",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "types": "src/index.ts",
@@ -11,14 +11,7 @@
   "files": [
     "lib"
   ],
-  "private": false,
-  "scripts": {},
-  "keywords": [
-    "vue",
-    "vue sfc",
-    "sfc",
-    "vue virtual files"
-  ],
+  "keywords": [],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/znck/vue-developer-experience.git"
@@ -34,14 +27,10 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
-    "@vuedx/compiler-sfc": "workspace:*",
-    "@vuedx/compiler-tsx": "workspace:*",
-    "@vuedx/shared": "workspace:*",
-    "@vuedx/template-ast-types": "workspace:*",
-    "@vuedx/transforms": "workspace:*",
-    "source-map": "^0.6.1",
-    "vscode-languageserver-textdocument": "^1.0.1",
-    "vscode-uri": "^2.1.2"
+    "@babel/generator": "^7.15.0",
+    "@babel/parser": "^7.15.0",
+    "@babel/template": "^7.14.5",
+    "@babel/types": "^7.15.0"
   },
   "devDependencies": {
     "typescript": "^4.0.3"

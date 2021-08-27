@@ -5,10 +5,11 @@ export class ScopeManager {
   private readonly hoists: CompoundExpressionNode[][] = []
   private readonly identifiers: Record<string, number> = {}
   private readonly imports: Record<string, Record<string, string>> = {}
+  private readonly rootScope: CompoundExpressionNode[] = []
 
   private currentScope: CompoundExpressionNode[] = []
 
-  getImports(): CompoundExpressionNode[] {
+  getTopLevelNodes(): CompoundExpressionNode[] {
     const getSpecifiers = (specifiers: Record<string, string>): string => {
       return Object.entries(specifiers)
         .map(([local, exported]) => {
@@ -17,11 +18,13 @@ export class ScopeManager {
         .join(', ')
     }
 
-    return Object.entries(this.imports).map(([source, specifiers]) =>
+    const nodes = Object.entries(this.imports).map(([source, specifiers]) =>
       createCompoundExpression([
         `import { ${getSpecifiers(specifiers)} } from '${source}';`,
       ]),
     )
+
+    return nodes.concat(this.rootScope)
   }
 
   addImport(source: string, exported: string, local: string): void {
@@ -44,11 +47,19 @@ export class ScopeManager {
     this.identifiers[value] = Math.max(0, this.identifiers[value] ?? 0 - 1)
   }
 
-  hoist(expression: string | CompoundExpressionNode): void {
+  scopeHoist(expression: string | CompoundExpressionNode): void {
     if (typeof expression === 'string') {
       this.currentScope.push(createCompoundExpression([expression]))
     } else {
       this.currentScope.push(expression)
+    }
+  }
+
+  hoist(expression: string | CompoundExpressionNode): void {
+    if (typeof expression === 'string') {
+      this.rootScope.push(createCompoundExpression([expression]))
+    } else {
+      this.rootScope.push(expression)
     }
   }
 

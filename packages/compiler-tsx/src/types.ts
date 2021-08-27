@@ -22,8 +22,10 @@ export interface Options {
   /** Relative file import to get this context of render function. */
   selfSrc?: string
 
+  /** @deprecated */
   components?: Record<string, ComponentRegistration>
 
+  /** @deprecated */
   directives?: Record<string, DirectiveRegistration>
 }
 

@@ -66,15 +66,15 @@ export class GotoService {
             )
           },
         )
+      } else {
+        const result = this.service.getDefinitionAtPosition(fileName, position)
+
+        if (result == null) return
+
+        return this.dedupeDefinitionInfos(
+          result.map((info) => this.normalizeTSDefinitionInfo(info)).flat(),
+        )
       }
-
-      const result = this.service.getDefinitionAtPosition(fileName, position)
-
-      if (result == null) return
-
-      return this.dedupeDefinitionInfos(
-        result.map((info) => this.normalizeTSDefinitionInfo(info)).flat(),
-      )
     } finally {
       --this.depth
     }
@@ -98,11 +98,11 @@ export class GotoService {
           return this.normalizeTSDefinitionInfoAndBoundSpan(result)
         },
       )
+    } else {
+      const result = this.service.getDefinitionAndBoundSpan(fileName, position)
+      if (result == null) return undefined
+      return this.normalizeTSDefinitionInfoAndBoundSpan(result)
     }
-
-    const result = this.service.getDefinitionAndBoundSpan(fileName, position)
-    if (result == null) return undefined
-    return this.normalizeTSDefinitionInfoAndBoundSpan(result)
   }
 
   private dedupeDefinitionInfos(

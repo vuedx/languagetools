@@ -309,9 +309,15 @@ export class DiagnosticsService {
       })
 
       return diagnostics
+    } else if (this.fs.isVueVirtualSchemeFile(fileName)) {
+      const filePath = this.fs.removeVirtualFileScheme(fileName)
+
+      return getter(filePath).map((diagnostic) =>
+        this.normalizeTSDiagnostic(diagnostic),
+      )
     } else {
       return getter(fileName).map((diagnostic) =>
-        this.normalizeTSDiagnostic(diagnostic),
+        this.normalizeTSDiagnostic(diagnostic, fileName),
       )
     }
   }
@@ -497,10 +503,47 @@ export class DiagnosticsService {
     return this.ts.lib.flattenDiagnosticMessageText(message, '\n')
   }
 
+  private lastSourceFile: [string, Typescript.SourceFile] | null = null
+
+  private getSourceFile(fileName: string): Typescript.SourceFile {
+    if (this.lastSourceFile?.[0] === fileName) return this.lastSourceFile[1]
+
+    let sourceFile: Typescript.SourceFile | null = null
+    if (
+      this.fs.isVueFile(fileName) ||
+      this.fs.isVueVirtualFile(fileName) ||
+      this.fs.isVueTsFile(fileName)
+    ) {
+      sourceFile = this.fs.getVueFile(fileName) as any // VueSFCFile implements minimal required syntax.
+    } else if (this.fs.isVueVirtualSchemeFile(fileName)) {
+      const file = this.ts.getSourceFile(
+        this.fs.removeVirtualFileScheme(fileName),
+      )
+      if (file != null) {
+        sourceFile = {
+          fileName,
+          text: file.getFullText(),
+        } as any
+      }
+    }
+
+    this.lastSourceFile = [
+      fileName,
+      sourceFile ?? ({ fileName, text: '' } as any),
+    ]
+
+    return this.lastSourceFile[1]
+  }
+
   private normalizeTSDiagnostic(
     diagnostic: Typescript.Diagnostic,
+    /**
+     * Only pass to force file on normalized diagnostics.
+     */
+    expectedFileName?: string,
   ): Typescript.Diagnostic {
     const file = diagnostic.file
+    diagnostic = { ...diagnostic }
     if (diagnostic.relatedInformation != null) {
       diagnostic.relatedInformation = diagnostic.relatedInformation.map(
         (diagnostic) => {
@@ -513,43 +556,42 @@ export class DiagnosticsService {
       )
     }
 
+    // Serve virtual files.
+    if (
+      expectedFileName != null &&
+      this.fs.isVueVirtualSchemeFile(expectedFileName)
+    ) {
+      diagnostic.source = this.getSourceName(diagnostic.source ?? 'TS')
+      diagnostic.file = this.getSourceFile(expectedFileName)
+      return diagnostic
+    }
+
     const fileName = diagnostic.file?.fileName
+
+    if (expectedFileName != null) {
+      diagnostic.file = this.getSourceFile(expectedFileName)
+    }
+
     if (fileName == null) {
       return diagnostic
-    } else if (this.fs.isVueVirtualFile(fileName)) {
+    }
+
+    if (this.fs.isVueVirtualFile(fileName)) {
       const range = this.fs.getAbsoluteOffsets(
         this.fs.getVueFile(fileName)?.getDocById(fileName) ?? undefined,
         diagnostic,
       )
 
-      return {
-        file: this.fs.getVueSourceFile(fileName),
-        code: diagnostic.code,
-        category: diagnostic.category,
-        messageText: diagnostic.messageText,
-        reportsDeprecated: diagnostic.reportsDeprecated,
-        reportsUnnecessary: diagnostic.reportsUnnecessary,
-        source: this.getSourceName(diagnostic.source ?? 'TS'),
-        relatedInformation: diagnostic.relatedInformation,
-        start: range.start,
-        length: range.length,
-      }
+      diagnostic.source = this.getSourceName(diagnostic.source ?? 'TS')
+      diagnostic.file = this.getSourceFile(expectedFileName ?? fileName)
+      diagnostic.start = range.start
+      diagnostic.length = range.length
     } else if (this.fs.isVueFile(fileName) || this.fs.isVueTsFile(fileName)) {
-      return {
-        file: this.fs.getVueSourceFile(fileName),
-        code: diagnostic.code,
-        category: diagnostic.category,
-        messageText: diagnostic.messageText,
-        reportsDeprecated: diagnostic.reportsDeprecated,
-        reportsUnnecessary: diagnostic.reportsUnnecessary,
-        source: this.getSourceName(diagnostic.source ?? 'TS'),
-        relatedInformation: diagnostic.relatedInformation,
-        start: diagnostic.start,
-        length: diagnostic.length,
-      }
-    } else {
-      return diagnostic
+      diagnostic.source = this.getSourceName(diagnostic.source ?? 'TS')
+      diagnostic.file = this.getSourceFile(expectedFileName ?? fileName)
     }
+
+    return diagnostic
   }
 
   private normalizeTSDiagnosticRelatedInformation(

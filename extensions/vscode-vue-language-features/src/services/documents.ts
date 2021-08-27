@@ -2,14 +2,11 @@ import {
   ConfiguredVueProject,
   InferredVueProject,
   VueProject,
-  ComponentInfo,
-  createFullAnalyzer,
 } from '@vuedx/analyze'
 import {
   transformers,
   VueBlockDocument,
   VueSFCDocument,
-  VueSFCDocumentOptions,
 } from '@vuedx/vue-virtual-textdocument'
 import glob from 'fast-glob'
 import * as FS from 'fs'
@@ -30,11 +27,6 @@ const requireModule = (typeof __non_webpack_require__ !== 'undefined'
 export class DocumentService extends Installable {
   private readonly emitter = new vscode.EventEmitter<{ uri: vscode.Uri }>()
   private readonly documents = new Map<string, VueSFCDocument>()
-  private readonly analyzer = createFullAnalyzer()
-  private readonly componentInfos = new Map<
-    string,
-    { key: string; info: ComponentInfo }
-  >()
 
   public install(): vscode.Disposable {
     super.install()
@@ -63,8 +55,6 @@ export class DocumentService extends Installable {
           const uri = text.uri
           const fileName = uri.fsPath
           const document = VueSFCDocument.create(fileName, text.getText(), {
-            getComponentInfo: () => this.getComponentInfo(fileName),
-            getComponents: () => this.getGlobalComponents(fileName),
             transformers,
           })
 
@@ -78,46 +68,6 @@ export class DocumentService extends Installable {
     return vscode.Uri.file(fileName).with({ scheme: 'vue' })
   }
 
-  private getComponentInfo(fileName: string): ComponentInfo | null {
-    const file = this.getVueDocument(fileName)
-    if (file == null) return null
-    const result = this.componentInfos.get(fileName)
-    const key = file.getText()
-    if (result?.key === key) return result.info
-    try {
-      const info = this.analyzer.analyze(key)
-      this.componentInfos.set(fileName, { key, info })
-
-      return info
-    } catch {
-      return null
-    }
-  }
-
-  private getGlobalComponents(
-    fileName: string,
-  ): ReturnType<Required<VueSFCDocumentOptions>['getComponents']> {
-    const project = this.getProjectForFile(fileName)
-    const components: ReturnType<
-      Required<VueSFCDocumentOptions>['getComponents']
-    > = {}
-
-    project.globalComponents.forEach((component) => {
-      component.aliases.forEach((alias) => {
-        components[alias] = {
-          name: component.name,
-          value: component.name,
-          source: {
-            path: component.source.moduleName,
-            exported: component.source.exportName ?? 'default',
-            local: component.source.localName,
-          },
-        }
-      })
-    })
-    return components
-  }
-
   public getVueDocument(fileName: string): VueSFCDocument | null {
     return this.documents.get(fileName) ?? null
   }
@@ -128,8 +78,6 @@ export class DocumentService extends Installable {
     try {
       const text = await FS.promises.readFile(fileName, 'utf-8')
       const document = VueSFCDocument.create(fileName, text, {
-        getComponentInfo: () => this.getComponentInfo(fileName),
-        getComponents: () => this.getGlobalComponents(fileName),
         transformers,
       })
 

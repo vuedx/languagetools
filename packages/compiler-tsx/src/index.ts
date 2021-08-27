@@ -39,11 +39,8 @@ export function compile(
     ...parserOptions,
     ...options,
     selfSrc,
-    directives: {
-      ...options.directives,
-    },
+    directives: {},
     components: {
-      ...options.components,
       [selfName]: {
         name: selfName,
         value: selfName,
@@ -65,6 +62,7 @@ export function compile(
       directives: new Set<string>(),
     },
   }
+  customContext.scope.addIdentifier(selfName)
   const errors: CompilerError[] = []
   transform(ast, {
     ...options,
@@ -94,13 +92,13 @@ export function compile(
     templateContent: template,
     customContext,
     on(event, context) {
-      if (event === 'afterImports') {
+      if (event === 'beforeImports') {
         context
-
-          .write(`import type _Self from '${selfSrc}'`)
+          .write(
+            `import ${selfName}, { __VueDX_components, __VueDX_directives } from '${selfSrc}'`,
+          )
           .newLine()
-
-          .write(`interface ${selfName} extends InstanceType<typeof _Self> {}`)
+          .write(`interface _Self extends InstanceType<typeof ${selfName}> {}`)
           .newLine()
       }
     },
