@@ -21,6 +21,7 @@ import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
 import { LoggerService } from '../services/LoggerService'
 import { TypescriptService } from '../services/TypescriptService'
 import { ScriptSetupDiagnosticsProvider } from './diagnostics/ScriptSetupDiagnosticsProvider'
+import { TemplateGlobals } from './helpers'
 
 @injectable()
 export class DiagnosticsService {
@@ -360,12 +361,12 @@ export class DiagnosticsService {
         )
 
         if (blockFile.isOffsetInTemplateGlobals(diagnostic.start)) {
-          this.logger.debug(
-            `Forwarding diagostics at ${diagnostic.start} to references.`,
-          )
+          const range = TemplateGlobals.findLHS(blockFile, diagnostic.start)
+          if (range == null) return null
+
           const references = this.service.getReferencesAtPosition(
             fileName,
-            diagnostic.start,
+            range.start,
           )
 
           return references?.map((reference) => {

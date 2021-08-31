@@ -195,6 +195,31 @@
 <textarea v-model="foo" />
 ```
 
+### checkbox
+
+```vue-html
+<input type="checkbox" v-model="foo" />
+<input type="checkbox" v-model="foo" true-value="yes" />
+<input type="checkbox" v-model="foo" false-value="no" />
+<input type="checkbox" v-model="foo" :true-value="yes" :false-value="no" />
+```
+
+### select
+
+```vue-html
+<select v-model="foo">
+  <option value="foo">foo</option>
+  <option value="bar">bar</option>
+  <option :value="baz">baz</option>
+</select>
+
+<select v-model="foo">
+  <option value="foo">foo</option>
+  <option v-for="val of vals" :value="val">{{ val }}</option>
+  <option value="bar">bar</option>
+</select>
+```
+
 ## v-slot
 
 ### Invalid

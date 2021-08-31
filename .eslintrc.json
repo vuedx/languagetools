@@ -1,4 +1,4 @@
 {
   "root": true,
-  "extends": "./packages/eslint-config"
+  "extends": "@vuedx/eslint-config"
 }

@@ -174,11 +174,24 @@ repository:
   directive-builtin-rendering:
     name: meta.directive.$2.vue-html
     begin: (v-)(pre|cloak|once)
-    end: (?=[\s\/>])
+    end: (?=[\s\/>])|(?<=["'])
     beginCaptures:
       0: { name: support.other.directive.builtin.vue-html }
       1: { name: punctuation.definition.directive.prefix.vue-html }
       2: { name: entity.name.directive.vue-html }
+    patterns:
+      - include: '#directive-modifier'
+      - begin: (=)
+        end: (?=[\s\/>])
+        patterns:
+          - include: '#directive-expression'
+      - begin: (:)
+        end: (?=[.\s\/>])
+        beginCaptures:
+          1:
+            name: punctuation.definition.tag.directive.argument.begin.vue-html
+        patterns:
+          - include: '#directive-argument'
 
   directive-builtin-conditionals:
     patterns:
@@ -362,13 +375,26 @@ repository:
 
   directive-builtin-others:
     name: meta.directive.$2.vue-html
-    begin: (v-)(show|text|html)(=)
-    end: (?=[\s\/>])
+    begin: (v-)(show|text|html)
+    end: (?=[\s\/>])|(?<=["'])
     beginCaptures:
       0: { name: support.other.directive.builtin.vue-html }
       1: { name: punctuation.definition.directive.prefix.vue-html }
       2: { name: entity.name.directive.vue-html }
       3: { name: punctuation.separater.key-value.vue-html }
+    patterns:
+      - include: '#directive-modifier'
+      - begin: (=)
+        end: (?=[\s\/>])
+        patterns:
+          - include: '#directive-expression'
+      - begin: (:)
+        end: (?=[.\s\/>])
+        beginCaptures:
+          1:
+            name: punctuation.definition.tag.directive.argument.begin.vue-html
+        patterns:
+          - include: '#directive-argument'
 
   directive-custom:
     name: meta.directive.$2.vue-html

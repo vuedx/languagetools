@@ -8,6 +8,7 @@ import { INJECTABLE_TS_SERVICE } from '../constants'
 import type { TSLanguageService } from '../contracts/Typescript'
 import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService } from '../services/LoggerService'
+import { TemplateGlobals } from './helpers'
 
 @injectable()
 export class GotoService {
@@ -20,49 +21,52 @@ export class GotoService {
     private readonly service: TSLanguageService,
   ) {}
 
-  private depth = 0
+  private readonly depth: Array<[string, number]> = []
+
   public getDefinitionAtPosition(
     fileName: string,
     position: number,
   ): readonly Typescript.DefinitionInfo[] | undefined {
-    if (this.depth > 4) return undefined // Prevent deep recursion due to virtual files re-requesting definitions.
+    if (
+      this.depth.some((args) => fileName === args[0] && position === args[1])
+    ) {
+      return undefined
+    }
 
-    this.depth++
+    this.logger.debug(
+      `getDefinitionAtPostion(${this.depth.length}) ${fileName} ${position}`,
+    )
+    this.depth.push([fileName, position])
     try {
       if (this.fs.isVueFile(fileName)) {
         return this.doActionAtPosition(
           fileName,
           position,
-          ({ tsFileName, offset, blockFile }) => {
+          ({ tsFileName, offset, vueFile, blockFile }) => {
             const result = this.service.getDefinitionAtPosition(
               tsFileName,
               offset,
             )
-            if (result == null) return
 
+            if (result == null) {
+              this.logger.debug(
+                `NoDefintion(${
+                  this.depth.length
+                }) ${fileName} ${position}:${JSON.stringify(
+                  vueFile.getText().substr(position, 15),
+                )} -> ${offset}:${JSON.stringify(
+                  blockFile.generated?.getText().substr(offset, 15),
+                )}`,
+              )
+
+              return
+            }
             this.logger.debug(
-              `DefinnitionAtPostion(${this.depth}) ${fileName} ${position} (Found ${result.length} definitions)`,
+              `DefinitionAtPostion(${this.depth.length}) ${fileName} ${position} (Found ${result.length} definitions)`,
             )
 
             return this.dedupeDefinitionInfos(
-              result
-                .map((info) => {
-                  if (blockFile.isOffsetInIgonredZone(info.textSpan.start)) {
-                    // For render function arguments, we need to find definition again
-                    this.logger.debug(
-                      `GoTo (Again) ${info.fileName} ${info.textSpan.start}:${info.textSpan.length}`,
-                    )
-
-                    const result = this.getDefinitionAtPosition(
-                      tsFileName,
-                      info.textSpan.start,
-                    )
-                    if (result != null && result.length > 0) return result
-                  }
-
-                  return this.normalizeTSDefinitionInfo(info)
-                })
-                .flat(),
+              result.map((info) => this.normalizeTSDefinitionInfo(info)).flat(),
             )
           },
         )
@@ -76,7 +80,7 @@ export class GotoService {
         )
       }
     } finally {
-      --this.depth
+      this.depth.pop()
     }
   }
 
@@ -84,16 +88,30 @@ export class GotoService {
     fileName: string,
     position: number,
   ): Typescript.DefinitionInfoAndBoundSpan | undefined {
+    this.logger.debug(
+      `getDefinitionAndBoundSpan(${this.depth.length}) ${fileName} ${position}`,
+    )
     if (this.fs.isVueFile(fileName)) {
       return this.doActionAtPosition(
         fileName,
         position,
-        ({ tsFileName, blockFile, offset }) => {
+        ({ tsFileName, blockFile, offset, vueFile }) => {
           const result = this.service.getDefinitionAndBoundSpan(
             tsFileName,
             offset,
           )
-          if (result == null) return undefined
+          if (result == null) {
+            this.logger.debug(
+              `NoDefinition(${
+                this.depth.length
+              }) at ${position}:${JSON.stringify(
+                vueFile.getText().substr(position, 10),
+              )} -> ${offset}:${JSON.stringify(
+                blockFile.generated?.getText().substr(offset, 10),
+              )}`,
+            )
+            return undefined
+          }
           result.textSpan = this.getTextSpan(blockFile, result.textSpan)
           return this.normalizeTSDefinitionInfoAndBoundSpan(result)
         },
@@ -127,21 +145,47 @@ export class GotoService {
     info: Typescript.DefinitionInfo,
   ): Typescript.DefinitionInfo[] {
     const fileName = info.fileName
+    this.logger.debug(
+      `Normalize: ${info.textSpan.start}:${info.name} in ${info.fileName}`,
+    )
 
     info.fileName = this.fs.getRealFileName(fileName)
     if (this.fs.isVueVirtualFile(fileName)) {
-      const blockFile = this.fs.getVueFile(fileName)?.getDocById(fileName)
+      const vueFile = this.fs.getVueFile(fileName)
+      const blockFile = vueFile?.getDocById(fileName)
 
       if (blockFile != null) {
-        if (blockFile.isOffsetInIgonredZone(info.textSpan.start)) {
-          const result = this.getDefinitionAtPosition(
-            fileName,
-            info.textSpan.start,
+        if (blockFile.isOffsetInTemplateGlobals(info.textSpan.start)) {
+          const range = TemplateGlobals.findRHS(blockFile, info.textSpan.start)
+          if (range == null) return []
+          this.logger.debug(
+            `TemplateGlobal(${this.depth.length}): ${
+              info.textSpan.start
+            }:${JSON.stringify(
+              blockFile.generated?.getText().substr(info.textSpan.start, 10),
+            )} -> ${range.start}:${JSON.stringify(
+              blockFile.generated?.getText().substr(range.start, 10),
+            )}`,
           )
 
-          if (result != null && result.length > 0) return Array.from(result)
+          return (
+            this.getDefinitionAtPosition(fileName, range.start)?.slice() ?? []
+          )
+        } else if (blockFile.isOffsetInIgonredZone(info.textSpan.start)) {
+          this.logger.debug(
+            `IgnoredZone(${this.depth.length}): ${
+              info.textSpan.start
+            }:${JSON.stringify(
+              blockFile.generated?.getText().substr(info.textSpan.start, 10),
+            )}`,
+          )
 
-          return [info]
+          return (
+            this.getDefinitionAtPosition(
+              fileName,
+              info.textSpan.start,
+            )?.slice() ?? []
+          )
         }
 
         info.textSpan = this.getTextSpan(blockFile, info.textSpan)
@@ -155,7 +199,10 @@ export class GotoService {
         info.contextSpan = { start: 0, length: 1 }
       }
     } else if (this.fs.isVueTsFile(fileName)) {
-      const result = this.getDefinitionAtPosition(fileName, info.textSpan.start)
+      const result = this.service.getDefinitionAtPosition(
+        fileName,
+        info.textSpan.start,
+      )
 
       if (result != null && result.length > 0) return Array.from(result)
       info.textSpan = { start: 0, length: 1 }
@@ -193,7 +240,7 @@ export class GotoService {
     const vueFile = this.fs.getVueFile(fileName)
     if (vueFile == null) return undefined
     const blockFile = vueFile.getDocAt(position)
-    if (blockFile?.tsFileName == null) return undefined
+    if (blockFile?.tsFileName == null) return undefined // TODO: Support non-ts-blocks?
     const offset = blockFile.generatedOffetAt(position)
 
     return fn({ tsFileName: blockFile.tsFileName, vueFile, blockFile, offset })

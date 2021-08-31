@@ -40,13 +40,15 @@ export class DocumentService extends Installable {
 
           const doc = this.getVueDocument(fileName)
           if (doc != null) {
-            doc.update(event.contentChanges.slice(), 0)
-            if (doc.descriptor.template != null) {
-              const id = doc.getBlockId(doc.descriptor.template)
+            doc.update(
+              [{ text: event.document.getText() }],
+              event.document.version,
+            )
+            doc.getActiveTSDocIDs().forEach((id) =>
               this.emitter.fire({
                 uri: this.getVirtualFileUri(id),
-              })
-            }
+              }),
+            )
           }
         }
       }),

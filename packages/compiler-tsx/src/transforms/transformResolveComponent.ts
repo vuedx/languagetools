@@ -12,13 +12,9 @@ import {
   isElementNode,
   isSimpleExpressionNode,
 } from '@vuedx/template-ast-types'
+import { directives } from '../builtins'
 import type { CustomTransformContext } from './CustomTransformContext'
 
-const builtins = new Set(
-  'text,html,show,if,else,else-if,for,on,bind,model,slot,pre,cloak,once,is'.split(
-    ',',
-  ),
-)
 const s = (text: string): string => JSON.stringify(text) + ' as const'
 export function createResolveComponentTransform(
   customContext: CustomTransformContext,
@@ -44,7 +40,7 @@ export function createResolveComponentTransform(
   return (node) => {
     if (isElementNode(node)) {
       node.props.forEach((node) => {
-        if (isDirectiveNode(node) && !builtins.has(node.name)) {
+        if (isDirectiveNode(node) && !directives.has(node.name)) {
           customContext.used.directives.add(node.name)
 
           const id = `__directive_${camelCase(node.name)}`

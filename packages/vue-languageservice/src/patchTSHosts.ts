@@ -199,19 +199,30 @@ export function patchTSHosts(
       redirectedReference,
       _options,
     ) => {
+      // TODO: Use runtimeTypeDir instead.
       if (containingFile === ts.getRuntimeHelperFileName('3.0')) {
+        const anyProjectFile = first(project.getRootFiles())
         // Runtime dependencies have only 'vue' dependency for now.
-        const result = options.typescript.resolveModuleName(
-          'vue',
-          first(project.getRootFiles()),
+        // TODO: Switch to resolveModuleNameFromCache
+        const core = options.typescript.resolveModuleName(
+          '@vue/runtime-core',
+          anyProjectFile,
           _options,
           options.serverHost,
           undefined,
           redirectedReference,
         )
-
+        const vue = options.typescript.resolveModuleName(
+          'vue',
+          anyProjectFile,
+          _options,
+          options.serverHost,
+          undefined,
+          redirectedReference,
+        )
+        const result = core.resolvedModule != null ? core : vue
         logger.debug(
-          `Resolve 'vue' to "${
+          `Resolve '@vue/runtime-core' to "${
             result.resolvedModule?.resolvedFileName ?? '?'
           }" in "${containingFile}"`,
         )

@@ -41,8 +41,8 @@ export class TypescriptService implements Disposable {
     dispose(): void
   }> = []
 
-  public getRuntimeHelperFileName(_version: '3.0'): string {
-    return Path.posix.resolve(this.typesDir, 'vue3.0.d.ts')
+  public getRuntimeHelperFileName(_version: '3.0' | '3.1' | '3.2'): string {
+    return Path.posix.resolve(this.typesDir, '3.x.d.ts')
   }
 
   /**

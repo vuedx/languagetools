@@ -130,6 +130,8 @@ export function withScope(ast: RootNode): RootNode {
               }
             }
           }
+          // TODO: Handle scope in v-on
+          // If block statement and uses `$event`, add to scope.
         }
       })
     }
@@ -363,7 +365,7 @@ function shouldTrack(identifier: Identifier, parent: BabelNode): boolean {
       parent.property === identifier &&
       !parent.computed
     ) &&
-    // skip whitelisted globals
+    // skip allowed globals
     !isKnownIdentifier(identifier.name) &&
     // special case for webpack compilation
     identifier.name !== `require` &&
@@ -380,7 +382,7 @@ const KNOWN_IDENTIFIERS = new Set(
   (
     'Infinity,undefined,NaN,isFinite,isNaN,parseFloat,parseInt,decodeURI,' +
     'decodeURIComponent,encodeURI,encodeURIComponent,Math,Number,Date,Array,' +
-    'Object,Boolean,String,RegExp,Map,Set,JSON,Intl'
+    'Object,Boolean,String,RegExp,Map,Set,JSON,Intl,BigInt'
   ).split(','),
 )
 

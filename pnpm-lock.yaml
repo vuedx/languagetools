@@ -360,7 +360,7 @@ importers:
       vscode-uri: 2.1.2
       vscode-web-custom-data: 0.3.2
     devDependencies:
-      '@vue/runtime-core': 3.2.1
+      '@vue/runtime-core': 3.2.6
       csstype: 3.0.5
       quick-lru: 5.1.1
       tsd: 0.17.0
@@ -379,6 +379,7 @@ importers:
 
   packages/vue-languageservice:
     specifiers:
+      '@vue/runtime-core': ^3.2.1
       '@vuedx/analyze': workspace:^0.7.4
       '@vuedx/shared': workspace:*
       '@vuedx/template-ast-types': workspace:*
@@ -397,6 +398,7 @@ importers:
       json5: 2.2.0
       reflect-metadata: 0.1.13
     devDependencies:
+      '@vue/runtime-core': 3.2.6
       quick-lru: 6.0.1
       vscode-languageserver-types: 3.16.0
 
@@ -2965,6 +2967,15 @@ packages:
       '@vue/shared': 3.2.1
     dev: true
 
+  /@vue/reactivity/3.2.6:
+    resolution:
+      {
+        integrity: sha512-8vIDD2wpCnYisNNZjmcIj+Rixn0uhZNY3G1vzlgdVdLygeRSuFjkmnZk6WwvGzUWpKfnG0e/NUySM3mVi59hAA==,
+      }
+    dependencies:
+      '@vue/shared': 3.2.6
+    dev: true
+
   /@vue/runtime-core/3.2.1:
     resolution:
       {
@@ -2973,6 +2984,16 @@ packages:
     dependencies:
       '@vue/reactivity': 3.2.1
       '@vue/shared': 3.2.1
+    dev: true
+
+  /@vue/runtime-core/3.2.6:
+    resolution:
+      {
+        integrity: sha512-3mqtgpj/YSGFxtvTufSERRApo92B16JNNxz9p+5eG6PPuqTmuRJz214MqhKBEgLEAIQ6R6YCbd83ZDtjQnyw2g==,
+      }
+    dependencies:
+      '@vue/reactivity': 3.2.6
+      '@vue/shared': 3.2.6
     dev: true
 
   /@vue/runtime-dom/3.2.1:
@@ -2991,6 +3012,13 @@ packages:
       {
         integrity: sha512-INN92dVBNgd0TW9BqfQQKx/HWGCHhUUbAV5EZ5FgSCiEdwuZsJbGt1mdnaD9IxGhpiyOjP2ClxGG8SFp7ELcWg==,
       }
+
+  /@vue/shared/3.2.6:
+    resolution:
+      {
+        integrity: sha512-uwX0Qs2e6kdF+WmxwuxJxOnKs/wEkMArtYpHSm7W+VY/23Tl8syMRyjnzEeXrNCAP0/8HZxEGkHJsjPEDNRuHw==,
+      }
+    dev: true
 
   /abab/2.0.5:
     resolution:

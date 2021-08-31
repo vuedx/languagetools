@@ -193,15 +193,39 @@ export class VueBlockDocument {
       return { offset: offset - this.block.loc.start.offset, length }
     }
 
-    const position = this.sourceMap.generatedPositionFor({
+    const args = {
       ...this.toSourceMapPosition(
         this.source.positionAt(offset - this.block.loc.start.offset),
       ),
       source: this.fileName,
-    })
+    }
+    const positions = this.sourceMap.allGeneratedPositionsFor(args)
 
-    const result = this.generated.offsetAt(this.toPosition(position))
-    const original = this.originalOffsetMappingAt(result, -1)
+    // Assumption, last generated position is most relevant for most functionality.
+    let position = positions.pop() ?? this.sourceMap.generatedPositionFor(args)
+
+    let result = this.generated.offsetAt(this.toPosition(position))
+    let original = this.originalOffsetMappingAt(result, -1)
+
+    if (original?.mapping != null && positions.length === 0) {
+      // If offset is in original range, then first generated position is returned.
+      // We look for generated positions from original src to find last generated position.
+      positions.push(
+        ...this.sourceMap.allGeneratedPositionsFor({
+          ...this.toSourceMapPosition(
+            this.source.positionAt(original.mapping.src.start),
+          ),
+          source: this.fileName,
+        }),
+      )
+
+      const newPosition = positions.pop()
+      if (newPosition != null) {
+        position = newPosition
+        result = this.generated.offsetAt(this.toPosition(position))
+        original = this.originalOffsetMappingAt(result, -1)
+      }
+    }
 
     // If generated text is copied from original text then we can get exact position.
     if (original?.mapping?.kind === 'copy') {
@@ -214,7 +238,10 @@ export class VueBlockDocument {
     // Transformed text sohuld always match the whole text.
     return {
       offset: result,
-      length: Math.max(1, position.lastColumn - position.column),
+      length:
+        original?.mapping != null
+          ? original.mapping.src.end - original.mapping.src.start
+          : length,
     }
   }
 
