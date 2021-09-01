@@ -1,9 +1,5 @@
-import {
-  ConfiguredVueProject,
-  InferredVueProject,
-  VueProject,
-} from '@vuedx/analyze'
-import JSON5 from 'json5'
+import { VueProject } from '@vuedx/projectconfig'
+import { cache } from '@vuedx/shared'
 import * as Path from 'path'
 import type { Disposable } from '../contracts/Disposable'
 import type { Typescript } from '../contracts/Typescript'
@@ -35,12 +31,6 @@ export class TypescriptService implements Disposable {
     private readonly typesDir: string,
   ) {}
 
-  private readonly projects: Array<{
-    project: VueProject
-    lastUsedAt: number
-    dispose(): void
-  }> = []
-
   public getRuntimeHelperFileName(_version: '3.0' | '3.1' | '3.2'): string {
     return Path.posix.resolve(this.typesDir, '3.x.d.ts')
   }
@@ -57,165 +47,28 @@ export class TypescriptService implements Disposable {
     )
   }
 
-  /**
-   * Find typescript project for the file.
-   * TODO: Extract this logic to a static method on VueProject
-   */
+  private readonly projects = new Map<string, VueProject>()
+
+  @cache()
   public getVueProjectFor(fileName: string): VueProject {
-    const ref = this.projects.find(({ project }) =>
-      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-      fileName.startsWith(project.rootDir + '/'),
+    const find = (name: string): string | undefined =>
+      this.lib.findConfigFile(fileName, this.lib.sys.fileExists, name)
+
+    const rootDir = Path.posix.dirname(
+      find('vueconfig.json') ?? find('package.json') ?? fileName,
     )
-    if (ref != null) ref.lastUsedAt = Date.now()
-    let project = ref?.project ?? null
 
-    if (project === null) {
-      project = (() => {
-        const host = this.serverHost
-        const packageFile = this.lib.findConfigFile(
-          fileName,
-          this.lib.sys.fileExists,
-          'package.json',
-        )
+    const key = Array.from(this.projects.keys()).find((key) =>
+      rootDir.startsWith(key),
+    )
 
-        const configFile = this.lib.findConfigFile(
-          fileName,
-          this.lib.sys.fileExists,
-          'vueconfig.json',
-        )
+    // If key is not null, then the project must exist.
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    if (key != null) return this.projects.get(key)!
 
-        const rootDir = Path.posix.dirname(
-          packageFile ?? configFile ?? fileName,
-        )
-        const fileNames = host.readDirectory(
-          rootDir,
-          ['.vue'],
-          ['node_modules'],
-        )
+    const project = VueProject.create(this.serverHost, rootDir)
 
-        const requireJSON5 = (fileName: string): any => {
-          try {
-            if (Path.posix.basename(fileName) === 'vueconfig.json') {
-              const contents = host.readFile(fileName) ?? '{}'
-              try {
-                return JSON5.parse(contents)
-              } catch (error) {
-                return {}
-              }
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-            delete require.cache[fileName]
-
-            return require(fileName)
-          } catch (error) {
-            return {}
-          }
-        }
-
-        const newProject =
-          configFile != null
-            ? new ConfiguredVueProject(
-                rootDir,
-                packageFile,
-                packageFile != null ? requireJSON5(packageFile) : {},
-                configFile,
-                requireJSON5(configFile),
-                require,
-              )
-            : new InferredVueProject(
-                rootDir,
-                packageFile,
-                packageFile != null ? requireJSON5(packageFile) : {},
-                require,
-              )
-
-        newProject.setFileNames(fileNames)
-
-        const disposables: Array<() => void> = [
-          () => {
-            this.projects.splice(
-              this.projects.findIndex((item) => item.project === newProject),
-              1,
-            )
-          },
-        ]
-
-        const dispose = (): void => disposables.forEach((fn) => fn())
-        const projectDirWatcher = host.watchDirectory(
-          rootDir,
-          (fileName: string) => {
-            if (fileName.endsWith('/vueconfig.json')) {
-              if (newProject.kind === 'inferred') {
-                dispose()
-                reload()
-                return
-              }
-            }
-
-            if (!/\.(vue)$/.test(fileName)) return
-            if (host.fileExists(fileName)) {
-              if (!newProject.fileNames.includes(fileName)) {
-                newProject.setFileNames([...newProject.fileNames, fileName])
-              }
-            } else {
-              if (newProject.fileNames.includes(fileName)) {
-                newProject.setFileNames(
-                  newProject.fileNames.filter((f) => f !== fileName),
-                )
-              }
-            }
-          },
-        )
-
-        disposables.push(() => projectDirWatcher.close())
-
-        const reload = (): void => {
-          // TODO:  Implement
-        }
-
-        if (configFile != null) {
-          const configFileWatcher = host.watchFile(configFile, (_, event) => {
-            if (event === this.lib.FileWatcherEventKind.Deleted) {
-              dispose()
-            } else {
-              ;(newProject as ConfiguredVueProject).setConfig(
-                requireJSON5(configFile),
-              )
-              newProject.markDirty()
-            }
-            reload()
-          })
-          disposables.push(() => {
-            configFileWatcher.close()
-          })
-        }
-
-        if (packageFile != null) {
-          const packageFileWatcher = host.watchFile(packageFile, (_, event) => {
-            if (event === this.lib.FileWatcherEventKind.Deleted) {
-              dispose()
-            } else {
-              newProject.packageJSON = {
-                dependencies: {},
-                devDependencies: {},
-                ...requireJSON5(packageFile),
-              }
-              newProject.markDirty()
-            }
-          })
-          disposables.push(() => packageFileWatcher.close())
-        }
-
-        this.projects.push({
-          project: newProject,
-          dispose,
-          lastUsedAt: Date.now(),
-        })
-
-        return newProject
-      })()
-    }
+    this.projects.set(rootDir, project)
 
     return project
   }
@@ -247,6 +100,6 @@ export class TypescriptService implements Disposable {
 
   public dispose(): void {
     this.projects.forEach((project) => project.dispose())
-    this.projects.length = 0
+    this.projects.clear()
   }
 }

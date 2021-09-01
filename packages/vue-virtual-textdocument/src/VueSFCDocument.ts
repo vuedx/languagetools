@@ -68,7 +68,7 @@ export class VueSFCDocument extends ProxyDocument {
       end: { offset: 0, line: 0, column: 0 },
     },
     type: 'script',
-    attrs: {},
+    attrs: { fallback: true },
     content: `import { defineComponent } from 'vue'\nexport default defineComponent({})\n`,
   }
 
@@ -289,7 +289,7 @@ export class VueSFCDocument extends ProxyDocument {
     const { template, script, scriptSetup, styles, customBlocks } = descriptor
 
     const code: string[] = [`import 'vuedx~runtime'`]
-    const props: string[] = []
+    const props: string[] = [] // TODO: Detect inner element to forward attrs.
     const files = new Set<string>()
 
     const createImportSource = (id: string): string =>

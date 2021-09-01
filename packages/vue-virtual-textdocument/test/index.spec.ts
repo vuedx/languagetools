@@ -72,7 +72,7 @@ describe('VueSFCDocument', () => {
               default: () => {
                 return (
                   <>
-                    {val}
+                    {VueDX.internal.checkInterpolation(val)}
                   </>
                 )
               },

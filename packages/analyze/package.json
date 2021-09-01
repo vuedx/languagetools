@@ -16,6 +16,7 @@
     "vuedx-analyze": "bin/analyze.js"
   },
   "buildConfig": {
+    "useMain": false,
     "external": [
       "typescript"
     ]

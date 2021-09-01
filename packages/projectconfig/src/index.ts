@@ -1,32 +1,8 @@
-export interface ImportSource {
-  moduleName: string
-  exportName?: string
-}
-
-export interface ProjectPreferences {
-  componentsDirectories: string[]
-  script: {
-    mode: 'setup' | 'setup-ref' | 'normal'
-    language: 'js' | 'ts'
-  }
-  style: {
-    language: 'css' | 'scss' | 'sass' | 'styl' | 'stylus' | 'less'
-  }
-  template: {
-    directiveSyntax: 'shorthand' | 'longhand'
-    propCase: 'kebab' | 'camel'
-    tagCase: 'kebab' | 'pascal' | 'auto'
-  }
-}
-
-export interface ProjectConfigNormalized {
-  globalComponents: Array<string | Record<string, string | ImportSource>>
-  preferences: ProjectPreferences
-}
-
-export interface ProjectConfig {
-  globalComponents?: Array<string | Record<string, string | ImportSource>>
-  preferences?: Partial<ProjectPreferences>
-}
-
 export { version } from '../package.json'
+export type {
+  ProjectConfig,
+  ResolvedProjectConfig,
+} from './config/ProjectConfig'
+export type { ProjectPreferences } from './config/ProjectPreferences'
+export type { FilesystemHost } from './project/FilesystemHost'
+export { VueProject } from './project/VueProject'

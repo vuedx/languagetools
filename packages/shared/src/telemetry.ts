@@ -58,6 +58,8 @@ export class Telemetry {
     }
   }
 
+  measure(_name: string, _duration: number): void {}
+
   trace(name: string, description?: string): () => void {
     if (!this.isTelemetryEnabled) return () => {}
     const activeTransaction = Sentry.getCurrentHub()

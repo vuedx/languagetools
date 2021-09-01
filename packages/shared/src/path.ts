@@ -1,9 +1,28 @@
 import * as Path from 'path'
+import * as OS from 'os'
+
+export function toPosixPath(path: string): string {
+  return path.includes('\\')
+    ? Path.win32.toNamespacedPath(path).replace(/\\/g, '/').replace(':', '')
+    : path
+}
+
+export function toWindowsPath(path: string): string {
+  return path.includes('/')
+    ? Path.win32.toNamespacedPath(path).replace(/\//g, '\\')
+    : path
+}
+
+export const toPlatformPath =
+  OS.platform() === 'win32' ? toWindowsPath : toPosixPath
 
 export function getRelativeFileName(
   importingFileName: string,
   importedFileName: string,
 ): string {
+  importingFileName = toPosixPath(importingFileName)
+  importedFileName = toPosixPath(importedFileName)
+
   if (
     Path.posix.isAbsolute(importingFileName) &&
     Path.posix.isAbsolute(importedFileName)

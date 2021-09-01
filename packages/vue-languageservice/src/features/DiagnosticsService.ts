@@ -89,7 +89,7 @@ export class DiagnosticsService {
     deprecated: 4,
   }
 
-  private getVersion(fileName: string): string {
+  private readonly getVersion = (fileName: string): string => {
     return (
       this.ts
         .getProjectFor(fileName)

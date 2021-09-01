@@ -1,4 +1,3 @@
-import { ComponentInfo, createFullAnalyzer } from '@vuedx/analyze'
 import {
   annotations,
   Position,
@@ -34,12 +33,7 @@ export class FilesystemService implements Disposable {
 
   private readonly vueFiles = new Map<string, VueSFCDocument>()
   private readonly watchers = new Set<() => void>()
-  private readonly analyzer = createFullAnalyzer()
   private readonly logger = new LoggerService('fs')
-  private readonly cache = new Map<
-    string,
-    { key: string; info: ComponentInfo }
-  >()
 
   constructor(
     private readonly provider: FilesystemProvider,
@@ -178,22 +172,6 @@ export class FilesystemService implements Disposable {
 
   public isVueTsFile(fileName: string): boolean {
     return fileName.endsWith('.vue.ts')
-  }
-
-  public getComponentInfo(fileName: string): ComponentInfo | null {
-    const file = this.getVueFile(fileName)
-    if (file == null) return null
-    const result = this.cache.get(fileName)
-    const key = file.getText()
-    if (result?.key === key) return result.info
-    try {
-      const info = this.analyzer.analyze(key)
-      this.cache.set(fileName, { key, info })
-
-      return info
-    } catch {
-      return null
-    }
   }
 
   public isVueVirtualFile(fileName: string): boolean {

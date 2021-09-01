@@ -168,7 +168,6 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience/blob/main/extensions/vscode#readme",
   "dependencies": {
-    "@vuedx/analyze": "workspace:*",
     "@vuedx/typescript-plugin-vue": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "inversify": "^5.0.1",
