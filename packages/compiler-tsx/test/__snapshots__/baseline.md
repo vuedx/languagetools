@@ -9,7 +9,7 @@
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   /*</vuedx:templateGlobals>*/
@@ -39,7 +39,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 const __component_HelloWorld = VueDX.internal.resolveComponent(__VueDX_components, "HelloWorld" as const, "HelloWorld" as const);
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
@@ -85,7 +85,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 const __component_FooBar = VueDX.internal.resolveComponent(__VueDX_components, "FooBar" as const, "FooBar" as const);
 const __component_Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
 const __component_UnknownElement = VueDX.internal.resolveComponent(__VueDX_components, "unknown-element" as const, "UnknownElement" as const);
@@ -187,7 +187,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let props = _ctx.props;
@@ -229,7 +229,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 const __component_Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
@@ -286,7 +286,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let onFocus = _ctx.onFocus;
@@ -394,7 +394,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let awesome = _ctx.awesome;
@@ -429,7 +429,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let awesome = _ctx.awesome;
@@ -469,7 +469,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let ok = _ctx.ok;
@@ -522,7 +522,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let type = _ctx.type;
@@ -566,7 +566,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   /*</vuedx:templateGlobals>*/
@@ -593,7 +593,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   /*</vuedx:templateGlobals>*/
@@ -624,7 +624,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let ok = _ctx.ok;
@@ -653,7 +653,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let awesome = _ctx.awesome;
@@ -700,7 +700,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let foo = _ctx.foo;
@@ -768,7 +768,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let msg = _ctx.msg;
@@ -799,7 +799,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let html = _ctx.html;
@@ -830,7 +830,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let ok = _ctx.ok;
@@ -866,7 +866,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let foo = _ctx.foo;
@@ -921,7 +921,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let foo = _ctx.foo;
@@ -966,7 +966,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let foo = _ctx.foo;
@@ -1035,7 +1035,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let foo = _ctx.foo;
@@ -1104,7 +1104,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 const __component_Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1168,7 +1168,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 const __component_FooBar = VueDX.internal.resolveComponent(__VueDX_components, "FooBar" as const, "FooBar" as const);
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1272,7 +1272,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   /*</vuedx:templateGlobals>*/
@@ -1299,7 +1299,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let largeText = _ctx.largeText;
@@ -1334,7 +1334,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 const __component_Tr = VueDX.internal.resolveComponent(__VueDX_components, "tr" as const, "Tr" as const);
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1392,7 +1392,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let num = _ctx.num;
@@ -1585,7 +1585,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let foo = _ctx.foo;
@@ -1655,7 +1655,7 @@ export function _render(_ctx: _Self): any {
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
 import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-interface _Self extends InstanceType<typeof Example> {}
+type _Self = InstanceType<typeof Example>
 export function _render(_ctx: _Self): any {
   /*<vuedx:templateGlobals>*/
   let bars = _ctx.bars;

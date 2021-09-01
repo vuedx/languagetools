@@ -58,7 +58,6 @@ A set of tools for better developer experience aka Vue Developer Experience or V
 
 ### Packages
 
-- [@vuedx/analyze](./packages/analyze) — statically analyzes Vue components and provides API info
 - [@vuedx/compiler-sfc](./packages/compiler-sfc) — a light weight build of `@vue/compiler-sfc` (only `parse()` functionality is provided)
 - [@vuedx/compiler-tsx](./packages/compiler-tsx) — a `<template>` to representational `TSX` compiler (generated TSX may not be functional but ensures type consistency)
 - [@vuedx/monorepo-tools](./packages/monorepo-tools) — Utility functions for monorepo management
@@ -72,9 +71,6 @@ A set of tools for better developer experience aka Vue Developer Experience or V
 - [@vuedx/typescript-plugin-vue](./packages/typescript-plugin-vue) — enables TypeScript language server to understand `.vue` files
 - [@vuedx/typescript-vetur](./packages/typescript-vetur) — provides missing features to vetur, same as **TS Plugin** but for Vetur [#2145](https://github.com/vuejs/vetur/pull/2145)
 - [@vuedx/vue-virtual-textdoucment](./packages/vue-virtual-textdocument) — creates a virtual file system to represent blocks in SFC as files
-- [@vuedx/eslint-config](./packages/eslint-config) — 
-- [@vuedx/vue-language-service](./packages/vue-language-service) — 
-- [@vuedx/vue-languageservice](./packages/vue-languageservice) — 
 <!--EOL:Packages-->
 
 ## Contributing

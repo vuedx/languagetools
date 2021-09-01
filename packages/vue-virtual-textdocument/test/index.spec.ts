@@ -56,7 +56,7 @@ describe('VueSFCDocument', () => {
       .toMatchInlineSnapshot(`
       "/*<vuedx:diagnosticsIgnore>*/
       import Example, { __VueDX_components, __VueDX_directives } from './Example.vue?vue&type=script&setup=true&lang'
-      interface _Self extends InstanceType<typeof Example> {}
+      type _Self = InstanceType<typeof Example>
       const __component_Foo = VueDX.internal.resolveComponent(__VueDX_components, \\"Foo\\" as const, \\"Foo\\" as const);
       export function _render(_ctx: _Self): any {
         /*<vuedx:templateGlobals>*/
