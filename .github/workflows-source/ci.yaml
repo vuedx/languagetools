@@ -121,6 +121,7 @@ jobs:
     needs: build
     steps:
       - *setup
+      - *download
       - run: pnpm eslint:check
 
   insiders:
