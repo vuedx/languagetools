@@ -111,7 +111,7 @@ jobs:
       - name: Test
         run: pnpm ${{ matrix.command || 'test' }}
       - name: Collect coverage
-        if: matrix.command == 'coverage'
+        if: always() && matrix.command == 'coverage'
         uses: codecov/codecov-action@v1
         with:
           file: ./coverage/coverage-final.json
