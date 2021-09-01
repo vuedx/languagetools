@@ -159,6 +159,8 @@ jobs:
           name: build-artefact
           path: .
       - run: pnpm eslint:check
+        env:
+          DEBUG: eslint:file-enumerator
   insiders:
     name: Insiders Release
     runs-on: ubuntu-latest

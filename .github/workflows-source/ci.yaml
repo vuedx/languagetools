@@ -123,6 +123,8 @@ jobs:
       - *setup
       - *download
       - run: pnpm eslint:check
+        env:
+          DEBUG: eslint:file-enumerator
 
   insiders:
     name: Insiders Release

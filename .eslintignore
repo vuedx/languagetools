@@ -5,3 +5,4 @@
 **/test-dts/**
 _templates/
 samples/**
+coverage/

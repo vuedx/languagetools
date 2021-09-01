@@ -20,7 +20,7 @@
     "@vuedx/typescript-plugin-vue": "workspace:*",
     "builtin-modules": "^3.1.0",
     "doctrine": "^3.0.0",
-    "eslint": "^7.28.0",
+    "eslint": "^7.32.0",
     "fast-glob": "^3.2.4",
     "husky": "^6.0.0",
     "hygen": "^6.1.0",
