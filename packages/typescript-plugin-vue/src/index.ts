@@ -62,7 +62,7 @@ export default function init({ typescript }: Modules): TS.server.PluginModule {
       const service = createTypescriptLanguageService({
         ...info,
         typescript,
-        typesDir: Path.posix.resolve(__dirname, '../runtime'),
+        typesDir: Path.resolve(__dirname, '..', 'runtime'),
       })
 
       services.set(info.project, service)

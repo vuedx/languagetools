@@ -1,5 +1,5 @@
 import { VueProject } from '@vuedx/projectconfig'
-import { cache } from '@vuedx/shared'
+import { cache, toPosixPath } from '@vuedx/shared'
 import * as Path from 'path'
 import type { Disposable } from '../contracts/Disposable'
 import type { Typescript } from '../contracts/Typescript'
@@ -32,7 +32,7 @@ export class TypescriptService implements Disposable {
   ) {}
 
   public getRuntimeHelperFileName(_version: '3.0' | '3.1' | '3.2'): string {
-    return Path.posix.resolve(this.typesDir, '3.x.d.ts')
+    return toPosixPath(Path.resolve(this.typesDir, '3.x.d.ts'))
   }
 
   /**
