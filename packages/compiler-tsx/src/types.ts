@@ -1,30 +1,37 @@
-import type { CodegenResult as Result, CompilerError } from '@vue/compiler-core'
+import type { CompilerError } from '@vue/compiler-core'
+import type { RootNode } from '@vuedx/template-ast-types'
+import type { RawSourceMap } from 'source-map'
 
-export interface ComponentImport {
+export interface ImportStatement {
   path: string
-  named?: boolean
-  name?: string
+  local: string
+  exported: string
 }
+
+interface AssetRegistration {
+  name: string
+  value: string
+  source: ImportStatement
+}
+export interface ComponentRegistration extends AssetRegistration {}
+export interface DirectiveRegistration extends AssetRegistration {}
 
 export interface Options {
+  /** .vue file absolute path */
   filename: string
-  components?: Record<string, ComponentImport>
+  /** Relative file import to get this context of render function. */
+  selfSrc?: string
+
+  /** @deprecated */
+  components?: Record<string, ComponentRegistration>
+
+  /** @deprecated */
+  directives?: Record<string, DirectiveRegistration>
 }
 
-export interface CodegenResult extends Result {
+export interface CodegenResult {
+  code: string
+  ast: RootNode
+  map: RawSourceMap
   errors: CompilerError[]
-
-  /**
-   * Positions of expressions.
-   *
-   * [offset, length]
-   */
-  expressions: Array<[number, number]>
-
-  /**
-   * Each tuple represents an simple expression (mostly identifier).
-   *
-   * [generatedOffset, generatedLength, sourceOffset, sourceLength, prefixLength]
-   */
-  mappings: Array<[number, number, number, number, number]>
 }

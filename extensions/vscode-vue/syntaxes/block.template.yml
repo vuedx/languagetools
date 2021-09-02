@@ -1,6 +1,6 @@
 patterns:
   - name: meta.block.__var_BLOCK__.vue
-    begin: ^(<)(__var_BLOCK__)(?=([^\/>]|"[^"]*"|'[^']*')*\/>)
+    begin: ^(?:[\s\t]+)?(<)(__var_BLOCK__)(?=([^"'\/>]|"([^\\"]|\\"|\\)*"|'([^\\']|\\'|\\)*')*\/>)
     beginCaptures:
       0: { name: meta.block.self-closing.vue }
       1: { name: punctuation.definition.block.open.begin.vue }
@@ -16,7 +16,7 @@ patterns:
       - match: ([="'])
         name: invalid.illegal.tag.open.character-not-allowed-here.vue
   - name: meta.block.__var_BLOCK__.vue
-    begin: ^(<)(__var_BLOCK__)
+    begin: ^(?:[\s\t]+)?(<)(__var_BLOCK__)
     beginCaptures:
       0: { name: meta.block.open.vue }
       1: { name: punctuation.definition.block.open.begin.vue }

@@ -34,16 +34,16 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
-    "@vuedx/analyze": "workspace:*",
     "@vuedx/compiler-sfc": "workspace:*",
     "@vuedx/compiler-tsx": "workspace:*",
     "@vuedx/shared": "workspace:*",
+    "@vuedx/template-ast-types": "workspace:*",
+    "@vuedx/transforms": "workspace:*",
     "source-map": "^0.6.1",
     "vscode-languageserver-textdocument": "^1.0.1",
     "vscode-uri": "^2.1.2"
   },
   "devDependencies": {
-    "fast-glob": "^3.2.4",
     "typescript": "^4.0.3"
   }
 }

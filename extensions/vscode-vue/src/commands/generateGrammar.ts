@@ -1,11 +1,9 @@
-import { ConfigurationService } from '../services/configuration'
-import { DocumentService } from '../services/documents'
-import { Installable } from '../utils/installable'
-import { isVueFile } from '@vuedx/vue-virtual-textdocument'
 import * as FS from 'fs'
 import { inject, injectable } from 'inversify'
 import * as Path from 'path'
 import vscode from 'vscode'
+import { ConfigurationService } from '../services/configuration'
+import { Installable } from '../utils/installable'
 
 @injectable()
 export class GenerateGrammarCommand extends Installable {
@@ -17,9 +15,6 @@ export class GenerateGrammarCommand extends Installable {
   public constructor(
     @inject(ConfigurationService)
     private readonly configuration: ConfigurationService,
-
-    @inject(DocumentService)
-    private readonly documents: DocumentService,
 
     @inject('context')
     private readonly context: vscode.ExtensionContext,
@@ -43,30 +38,32 @@ export class GenerateGrammarCommand extends Installable {
         void this.onExecute()
       }),
       vscode.workspace.onDidOpenTextDocument(async (event) => {
-        const uri = event.uri.toString()
-        if (isVueFile(uri)) {
-          await this.checkIfNewLanguage(uri)
+        if (this.isVueFile(event.uri)) {
+          await this.checkIfNewLanguage(event.uri)
         }
       }),
       vscode.workspace.onDidSaveTextDocument(async (document) => {
-        const uri = document.uri.toString()
-        if (isVueFile(uri)) {
-          await this.checkIfNewLanguage(uri)
+        if (this.isVueFile(document.uri)) {
+          await this.checkIfNewLanguage(document.uri)
         }
       }),
     )
   }
 
-  private async checkIfNewLanguage(uri: string): Promise<void> {
+  private isVueFile(uri: vscode.Uri): boolean {
+    return uri.fsPath.endsWith('.vue')
+  }
+
+  private async checkIfNewLanguage(_uri: vscode.Uri): Promise<void> {
     if (this.isActive) return
 
-    const doc = await this.documents.getVueDocument(uri)
+    const doc = null as any
     if (doc == null) return
 
     let shouldGenerate = false
     const blocks: Array<{ block: string; language: string }> = []
 
-    doc.descriptor.customBlocks.forEach((block) => {
+    doc.descriptor.customBlocks.forEach((block: any) => {
       if (
         !/^(script|template|style)$/.test(block.type) &&
         block.lang != null &&

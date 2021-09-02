@@ -1,0 +1,65 @@
+{
+  "private": false,
+  "name": "@vuedx/vue-languageservice",
+  "version": "0.0.0",
+  "displayName": "Vue languageservice",
+  "description": "Service powering LSP implementation for Vue",
+  "main": "lib/index.js",
+  "module": "lib/index.mjs",
+  "types": "src/index.ts",
+  "publishConfig": {
+    "types": "lib/index.d.ts"
+  },
+  "buildConfig": {
+    "sources": {
+      "types/3.x.d.ts": [
+        {
+          "format": "dts",
+          "file": "lib/runtime/3.x.d.ts"
+        },
+        {
+          "format": "dts",
+          "file": "../typescript-plugin-vue/runtime/3.x.d.ts"
+        }
+      ]
+    },
+    "external": [
+      "typescript",
+      "typescript/lib/tsserverlibrary",
+      "@vue/runtime-core"
+    ]
+  },
+  "files": [
+    "lib/"
+  ],
+  "keywords": [],
+  "author": "Rahul Kadyan <hi@znck.me>",
+  "license": "MIT",
+  "homepage": "https://github.com/znck/vue-developer-experience/tree/main/packages/vue-languageservice",
+  "bugs": {
+    "url": "https://github.com/znck/vue-developer-experience/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/znck/vue-developer-experience.git",
+    "directory": "packages/vue-languageservice"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/znck"
+  },
+  "dependencies": {
+    "@vuedx/shared": "workspace:*",
+    "@vuedx/template-ast-types": "workspace:*",
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
+    "@vuedx/projectconfig": "workspace:*",
+    "inversify": "^5.1.1",
+    "json5": "^2.2.0",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@vue/runtime-core": "^3.2.6",
+    "quick-lru": "^6.0.1",
+    "vscode-languageserver-types": "^3.16.0"
+  }
+}

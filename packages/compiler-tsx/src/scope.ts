@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="./augment-node.d.ts" />
 
@@ -23,6 +24,7 @@ import {
   isImportDeclaration,
   isImportSpecifier,
   isMemberExpression,
+  isObjectMember,
   isObjectPattern,
   isOptionalMemberExpression,
   isPrivateName,
@@ -30,6 +32,7 @@ import {
   isVariableDeclaration,
   LVal,
   Node as BabelNode,
+  ObjectMember,
   PatternLike,
   traverse as traverseBabel,
 } from '@babel/types'
@@ -41,10 +44,6 @@ import {
   isSimpleExpressionNode,
   traverse,
 } from '@vuedx/template-ast-types'
-import {
-  isStaticPropertyKey,
-  isKnownIdentifier,
-} from './transforms/transformExpression'
 import { forAliasRE } from './transforms/transformFor'
 
 export class Scope {
@@ -117,22 +116,22 @@ export function withScope(ast: RootNode): RootNode {
               const localScope = (prop.exp.scope = new Scope(directiveScope))
               const match = forAliasRE.exec(prop.exp.content)
               if (match != null) {
-                const [, LHS, RHS] = match
-                if (RHS != null) {
-                  getIdentifiers(RHS).forEach((identifier) => {
-                    localScope.getBinding(identifier)
-                  })
+                const LHS = match[1]!
+                const RHS = match[2]!
 
-                  getIdentifiers(`${LHS ?? '()'} => {}`).forEach(
-                    (identifier) => {
-                      scope.setBinding(identifier, node)
-                      localScope.getBinding(identifier)
-                    },
-                  )
-                }
+                getIdentifiers(RHS).forEach((identifier) => {
+                  localScope.getBinding(identifier)
+                })
+
+                getIdentifiers(`${LHS ?? '()'} => {}`).forEach((identifier) => {
+                  scope.setBinding(identifier, node)
+                  localScope.getBinding(identifier)
+                })
               }
             }
           }
+          // TODO: Handle scope in v-on
+          // If block statement and uses `$event`, add to scope.
         }
       })
     }
@@ -249,7 +248,10 @@ export function getTopLevelIdentifiers(
 
             if (!ignoredSources.has(node.source.value)) {
               identifiers.add(specifier.local.name)
-              if (isCamelCase(specifier.local.name)) {
+              if (
+                isCamelCase(specifier.local.name) &&
+                /^v[A-Z]/.test(specifier.local.name)
+              ) {
                 directives.add(specifier.local.name)
               } else if (isPascalCase(specifier.local.name)) {
                 components.add(specifier.local.name)
@@ -285,32 +287,46 @@ function getIdentifiers(source: string): Set<string> {
   source = source
     .trim()
     // Common errors when user is typing.
-    .replace(/(\.|\[\]?)$/, '')
+    .replace(/(\.|\[\]?)\s*$/, '')
 
-  if (isSimpleIdentifier(source.trim())) return new Set([source])
-
-  // TODO: Handle incomplete expressions
-  try {
-    const ast = parseUsingBabel(source, false)
-    const identifers = new Set<string>()
-
-    traverseBabel(ast, (node, ancestors) => {
-      if (isIdentifier(node)) {
-        if (ancestors.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          if (shouldTrack(node, ancestors[ancestors.length - 1]!.node)) {
-            identifers.add(node.name)
-          }
-        } else {
-          identifers.add(node.name)
-        }
-      }
-    })
-
-    return identifers
-  } catch {
-    return new Set<string>([])
+  const identifiers = new Set<string>()
+  const add = (id: string): void => {
+    if (isValidIdentifier(id)) identifiers.add(id)
   }
+  if (isSimpleIdentifier(source.trim())) {
+    add(source)
+  } else {
+    try {
+      const ast = parseUsingBabel(source, false)
+
+      traverseBabel(ast, (node, ancestors) => {
+        if (isIdentifier(node)) {
+          if (ancestors.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            if (shouldTrack(node, ancestors[ancestors.length - 1]!.node)) {
+              add(node.name)
+            }
+          } else {
+            add(node.name)
+          }
+        }
+      })
+    } catch {
+      const RE = /\b[a-z$_][a-z0-9$_]+\b/gi
+      let match: RegExpMatchArray | null
+      while ((match = RE.exec(source)) != null) {
+        add(match[0] ?? '')
+      }
+    }
+  }
+  return identifiers
+}
+
+function isValidIdentifier(id: string): boolean {
+  return (
+    id.trim().length > 0 &&
+    !/^(of|in|for|while|function|class|const|let|var)$/.test(id)
+  )
 }
 
 function parseUsingBabel(source: string, withTS = false): File | Expression {
@@ -333,6 +349,7 @@ function parseUsingBabel(source: string, withTS = false): File | Expression {
   }
 }
 
+// TODO: This misses destructured arguments
 function shouldTrack(identifier: Identifier, parent: BabelNode): boolean {
   if (
     !(
@@ -348,7 +365,7 @@ function shouldTrack(identifier: Identifier, parent: BabelNode): boolean {
       parent.property === identifier &&
       !parent.computed
     ) &&
-    // skip whitelisted globals
+    // skip allowed globals
     !isKnownIdentifier(identifier.name) &&
     // special case for webpack compilation
     identifier.name !== `require` &&
@@ -359,4 +376,24 @@ function shouldTrack(identifier: Identifier, parent: BabelNode): boolean {
   }
 
   return false
+}
+
+const KNOWN_IDENTIFIERS = new Set(
+  (
+    'Infinity,undefined,NaN,isFinite,isNaN,parseFloat,parseInt,decodeURI,' +
+    'decodeURIComponent,encodeURI,encodeURIComponent,Math,Number,Date,Array,' +
+    'Object,Boolean,String,RegExp,Map,Set,JSON,Intl,BigInt'
+  ).split(','),
+)
+
+function isKnownIdentifier(value: string): boolean {
+  return KNOWN_IDENTIFIERS.has(value) || /^(true|false|null|this)$/.test(value)
+}
+
+function isStaticProperty(node: BabelNode): node is ObjectMember {
+  return isObjectMember(node) && !node.computed
+}
+
+function isStaticPropertyKey(node: BabelNode, parent: BabelNode): boolean {
+  return isStaticProperty(parent) && parent.key === node
 }

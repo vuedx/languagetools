@@ -1,0 +1,38 @@
+{
+  "name": "@vuedx/transforms",
+  "version": "0.7.4",
+  "description": "AST Transforms",
+  "main": "lib/index.js",
+  "module": "lib/index.mjs",
+  "types": "src/index.ts",
+  "publishConfig": {
+    "types": "lib/index.d.ts"
+  },
+  "files": [
+    "lib"
+  ],
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/znck/vue-developer-experience.git"
+  },
+  "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/znck"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/znck/vue-developer-experience/issues"
+  },
+  "homepage": "https://github.com/znck/vue-developer-experience#readme",
+  "dependencies": {
+    "@babel/generator": "^7.15.0",
+    "@babel/parser": "^7.15.0",
+    "@babel/template": "^7.14.5",
+    "@babel/types": "^7.15.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.3"
+  }
+}

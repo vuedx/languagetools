@@ -9,7 +9,7 @@ import { inspect } from 'util'
 function abs(fileName: string): string {
   return Path.resolve(__dirname, fileName)
 }
-
+export type { Proto }
 const isDebugMode = process.env['DEBUG_TESTS'] != null
 function debug(...args: any[]): void {
   if (isDebugMode) {
@@ -32,7 +32,7 @@ export class TestServer {
 
   private readonly voidCommands: Proto.CommandTypes[] = [
     'open' as Proto.CommandTypes.Open,
-    'geterr' as Proto.CommandTypes.Geterr,
+    // 'geterr' as Proto.CommandTypes.Geterr, // Void Command
   ]
 
   public readonly id = TestServer.getNextId()
@@ -121,14 +121,14 @@ export class TestServer {
           | Proto.Event = JSON.parse(line)
 
         if (payload.type === 'response') {
+          this.pendingResponses -= 1
           debug(
             `${this.id}: >> ${payload.type} (${payload.request_seq}) ${inspect(
               payload,
               inspectOptions,
-            )}\n`,
+            )}\n# pending ${this.pendingResponses}`,
           )
           this.responses.push(payload)
-          this.pendingResponses -= 1
           this.responseHandlers.get(payload.request_seq)?.(payload)
         } else if (payload.type === 'request') {
           // TODO: Do we need this?
@@ -136,17 +136,33 @@ export class TestServer {
             `${this.id}: >> ${payload.type} (${payload.seq}) ${inspect(
               payload,
               inspectOptions,
-            )}\n`,
+            )}\n# pending ${this.pendingResponses}`,
           )
           this.requests.push(payload)
         } else if (payload.type === 'event') {
+          if (payload.event === 'requestCompleted') {
+            this.pendingResponses -= 1
+            const seq = payload.body.request_seq as number
+            const response = {
+              type: 'response' as const,
+              command: 'geterr', // TODO: Does only geterr return event?
+              request_seq: seq,
+              success: true,
+              seq: payload.seq,
+            }
+            this.responseHandlers.get(seq)?.(response)
+          }
+
+          this.onEvent(payload)
+
           debug(
             `${this.id}: >> ${payload.type} ${inspect(
               payload,
               inspectOptions,
-            )}\n`,
+            )}\n# pending ${this.pendingResponses}\n# eventHandlers ${
+              this.onceEventHandlers.length
+            }`,
           )
-          this.onEvent(payload)
           this.events.push(payload)
         }
 
@@ -157,10 +173,14 @@ export class TestServer {
     })
   }
 
-  private eventHandlers: Array<(event: Proto.Event) => boolean> = []
+  private onceEventHandlers: Array<(event: Proto.Event) => boolean> = []
 
   private onEvent(payload: Proto.Event): void {
-    this.eventHandlers = this.eventHandlers.filter((fn) => !fn(payload))
+    this.onceEventHandlers = this.onceEventHandlers.filter((fn) => !fn(payload))
+  }
+
+  public getEvents(): Proto.Event[] {
+    return this.events.slice()
   }
 
   private send(message: Omit<Proto.Message, 'seq'>): number {
@@ -172,7 +192,7 @@ export class TestServer {
       `${this.id}: << ${payload.type} (${payload.seq}) ${inspect(
         payload,
         inspectOptions,
-      )}\n`,
+      )}\n# pending ${this.pendingResponses}`,
     )
     this.stdin.write(JSON.stringify(payload) + '\n')
 
@@ -182,16 +202,17 @@ export class TestServer {
   public async sendRequest(
     request: Omit<Proto.Request, 'seq' | 'type'>,
   ): Promise<Proto.Response | undefined> {
-    const id = this.send({ type: 'request', ...request })
+    if (this.voidCommands.includes(request.command as Proto.CommandTypes)) {
+      this.send({ type: 'request', ...request })
 
-    if (!this.voidCommands.includes(request.command as Proto.CommandTypes)) {
+      return undefined
+    } else {
       this.pendingResponses += 1
+      const id = this.send({ type: 'request', ...request })
       return await new Promise((resolve) => {
         this.responseHandlers.set(id, (response) => resolve(response))
       })
     }
-
-    return undefined
   }
 
   public sendEvent(event: Omit<Proto.Request, 'seq' | 'type'>): void {
@@ -238,6 +259,11 @@ export class TestServer {
   }
 
   public async waitForEvent(
+    event: 'configFileDiag',
+    check?: (event: Proto.ConfigFileDiagnosticEvent) => boolean,
+  ): Promise<Proto.ConfigFileDiagnosticEvent>
+
+  public async waitForEvent(
     event: Proto.ProjectLoadingFinishEventName,
   ): Promise<Proto.ProjectLoadingFinishEvent>
 
@@ -253,7 +279,7 @@ export class TestServer {
     check: (event: any) => boolean = () => true,
   ): Promise<Proto.Event> {
     return new Promise((resolve) => {
-      this.eventHandlers.push((payload) => {
+      this.onceEventHandlers.push((payload) => {
         if (payload.event === event && check(payload)) {
           resolve(payload)
           return true
@@ -261,6 +287,11 @@ export class TestServer {
           return false
         }
       })
+
+      this.events
+        .filter((e) => event === e.type)
+        .reverse()
+        .map((event) => this.onEvent(event))
     })
   }
 

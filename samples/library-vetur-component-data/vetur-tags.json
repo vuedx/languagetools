@@ -1,6 +1,0 @@
-{
-  "VeturComponent": {
-    "description": "An example component",
-    "attributes": ["name"]
-  }
-}

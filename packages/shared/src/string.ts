@@ -10,7 +10,7 @@ const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
   }) as any
 }
 
-const camelizeRE = /[^A-Za-z0-9]+([A-Za-z0-9])/g
+const camelizeRE = /[^A-Za-z0-9]+([A-Za-z0-9])?/g
 export const camelize = cacheStringFunction((str: string): string => {
   return uncapitalize(
     str.replace(camelizeRE, (_, c) =>
@@ -40,7 +40,7 @@ export const pascalCase = cacheStringFunction((str: string) =>
 export const kebabCase = hyphenate
 
 export function isKebabCase(str: string): boolean {
-  return str.includes('-')
+  return str.includes('-') || /^[a-z0-9]+$/.test(str)
 }
 
 export function isPascalCase(str: string): boolean {

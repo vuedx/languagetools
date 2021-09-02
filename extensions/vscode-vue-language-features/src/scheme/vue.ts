@@ -28,16 +28,24 @@ export class VueVirtualDocumentProvider
   async provideTextDocumentContent(
     request: vscode.Uri,
   ): Promise<string | undefined> {
-    let uri = request.toString()
-
-    if (uri.startsWith('vue:/') && !uri.startsWith('vue://')) {
-      uri = uri.replace(/^vue:/, 'vue://')
-    }
-
     try {
-      const document = await this.documents.getVirtualDocument(uri)
+      const fileName = request.with({ scheme: 'file' }).fsPath
+      if (fileName.endsWith('.vue.ts')) {
+        return this.documents
+          .getVueDocument(fileName.substr(0, fileName.length - 3))
+          ?.getTypeScriptText()
+      }
+      const document = await this.documents.getVirtualDocument(fileName)
 
-      return document?.getText()
+      if (document?.generated == null) return
+      if (document.rawSourceMap != null) {
+        return (
+          document.generated.getText() +
+          '\n//# sourceMappingURL=data:application/json;base64,' +
+          Buffer.from(JSON.stringify(document.rawSourceMap)).toString('base64')
+        )
+      }
+      return document.generated.getText()
     } catch (error) {
       if (error instanceof Error) {
         return `/*\nError: ${error.message}\n${error.stack ?? ''}\n*/`

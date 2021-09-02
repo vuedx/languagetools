@@ -1,8 +1,0 @@
-{
-  "include": ["src"],
-  "exclude": ["node_modules"],
-  "compilerOptions": {
-    "strict": true,
-    "jsx": "preserve"
-  }
-}

@@ -1,0 +1,7 @@
+{
+  "include": ["src"],
+  "compilerOptions": {
+    "strict": true,
+    "allowJs": true
+  }
+}

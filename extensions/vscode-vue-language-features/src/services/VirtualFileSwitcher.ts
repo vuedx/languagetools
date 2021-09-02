@@ -1,7 +1,4 @@
-import {
-  isVirtualFile,
-  parseVirtualFileName,
-} from '@vuedx/vue-virtual-textdocument'
+import {} from '@vuedx/vue-virtual-textdocument'
 import { injectable } from 'inversify'
 import {
   Disposable,
@@ -34,9 +31,7 @@ export class VirtualFileSwitcher extends Installable {
     return Disposable.from(
       this.statusBar,
       window.onDidChangeVisibleTextEditors((editors: TextEditor[]): void => {
-        const editor = editors.find((editor) =>
-          isVirtualFile(editor.document.uri.toString()),
-        )
+        const editor = editors.find((_editor) => false)
 
         void this.showStatusBar(editor)
       }),
@@ -45,9 +40,9 @@ export class VirtualFileSwitcher extends Installable {
 
   async showStatusBar(editor: TextEditor | undefined): Promise<void> {
     if (editor != null) {
-      const result = parseVirtualFileName(editor.document.uri.toString())
+      const result = null as any
       if (result != null) {
-        const { uri, selector } = result
+        const { uri, selector } = result // TODO: Use language service
 
         this.statusBar.tooltip = `Showing virtual file from "${editor.document.uri.fsPath}"`
         this.statusBar.text = `Virtual: ${

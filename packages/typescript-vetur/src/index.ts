@@ -1,7 +1,4 @@
-import createPlugin, {
-  Modules,
-  PluginConfig,
-} from '@vuedx/typescript-plugin-vue'
+import createPlugin, { PluginConfig } from '@vuedx/typescript-plugin-vue'
 
 const config: Partial<PluginConfig> = {
   features: {
@@ -15,7 +12,7 @@ const config: Partial<PluginConfig> = {
   },
 }
 
-export default function init(options: Modules): any {
+export default function init(options: any): any {
   const plugin = createPlugin(options)
 
   return {

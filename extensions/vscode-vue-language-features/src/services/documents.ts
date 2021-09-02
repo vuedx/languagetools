@@ -1,145 +1,91 @@
-import JSON5 from 'json5'
 import {
-  ConfiguredVueProject,
-  InferredVueProject,
-  VueProject,
-} from '@vuedx/analyze'
-import {
-  AsyncDocumentStore,
-  isVueFile,
-  parseVirtualFileName,
-  VirtualTextDocument,
-  VueTextDocument,
+  transformers,
+  VueBlockDocument,
+  VueSFCDocument,
 } from '@vuedx/vue-virtual-textdocument'
-import glob from 'fast-glob'
 import * as FS from 'fs'
 import { injectable } from 'inversify'
-import * as Path from 'path'
-import vscode, { TextDocument } from 'vscode'
+import vscode from 'vscode'
 import { Installable } from '../utils/installable'
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-declare let __non_webpack_require__: any
-
-const requireModule = (typeof __non_webpack_require__ !== 'undefined'
-  ? __non_webpack_require__
-  : require) as NodeJS.Require
 
 @injectable()
 export class DocumentService extends Installable {
   private readonly emitter = new vscode.EventEmitter<{ uri: vscode.Uri }>()
-  private readonly store = new AsyncDocumentStore(async (uri) => {
-    const _uri = vscode.Uri.parse(uri)
-    const text = await vscode.workspace.openTextDocument(_uri)
-
-    const doc = VueTextDocument.create(
-      uri,
-      'vue',
-      text.version,
-      text.getText(),
-      {
-        vueVersion: this.getProjectForFile(_uri.fsPath).version,
-        getGlobalComponents: () => {
-          const project = this.getProjectForFile(_uri.fsPath)
-          return project.kind === 'inferred'
-            ? project.components
-            : project.globalComponents
-        },
-      },
-    )
-
-    return doc
-  })
+  private readonly documents = new Map<string, VueSFCDocument>()
 
   public install(): vscode.Disposable {
     super.install()
 
     return vscode.Disposable.from(
-      this.store,
       this.emitter,
       vscode.workspace.onDidChangeTextDocument(async (event) => {
-        const uri = event.document.uri.toString()
-        if (this.store.has(uri)) {
-          const document = await this.store.get(uri)
+        if (event.document.languageId === 'vue') {
+          const uri = event.document.uri
+          const fileName = uri.toString()
 
-          if (document != null) {
-            VueTextDocument.update(
-              document,
-              event.contentChanges.slice(),
+          const doc = this.getVueDocument(fileName)
+          if (doc != null) {
+            doc.update(
+              [{ text: event.document.getText() }],
               event.document.version,
             )
-
-            document.all().forEach((document) => {
-              this.emitter.fire({ uri: vscode.Uri.parse(document.uri) })
-            })
+            doc.getActiveTSDocIDs().forEach((id) =>
+              this.emitter.fire({
+                uri: this.getVirtualFileUri(id),
+              }),
+            )
           }
         }
       }),
-      vscode.workspace.onDidOpenTextDocument((event) => {
-        const uri = event.uri.toString()
+      vscode.workspace.onDidOpenTextDocument(async (text) => {
+        if (text.languageId === 'vue') {
+          const uri = text.uri
+          const fileName = uri.fsPath
+          const document = VueSFCDocument.create(fileName, text.getText(), {
+            transformers,
+          })
 
-        if (isVueFile(uri)) this.store.get(uri)
+          this.documents.set(fileName, document)
+        }
       }),
     )
   }
 
-  public async getVueDocument(uri: string): Promise<VueTextDocument | null> {
-    return this.store.get(uri)
+  private getVirtualFileUri(fileName: string): vscode.Uri {
+    return vscode.Uri.file(fileName).with({ scheme: 'vue' })
   }
 
-  public async asVueDocument(document: TextDocument): Promise<VueTextDocument> {
-    const vue = await this.getVueDocument(document.uri.toString())
-    if (vue == null) throw new Error('???')
-    return vue
+  public getVueDocument(fileName: string): VueSFCDocument | null {
+    return this.documents.get(fileName) ?? null
   }
 
-  public getProjectForFile(fileName: string): VueProject {
-    const packageFile = findConfigFile(fileName, FS.existsSync, 'package.json')
-    const configFile = findConfigFile(fileName, FS.existsSync, 'vueconfig.json')
+  public async ensureDocument(fileName: string): Promise<void> {
+    if (this.documents.has(fileName)) return
 
-    const rootDir = Path.posix.dirname(packageFile ?? fileName)
-    const fileNames = readDirectory(rootDir)
-    const readJSON = (fileName: string): any => {
-      const contents = FS.readFileSync(fileName, { encoding: 'utf-8' })
+    try {
+      const text = await FS.promises.readFile(fileName, 'utf-8')
+      const document = VueSFCDocument.create(fileName, text, {
+        transformers,
+      })
 
-      return JSON5.parse(contents)
-    }
+      this.documents.set(fileName, document)
+    } catch {}
+  }
 
-    const project: VueProject =
-      configFile != null
-        ? new ConfiguredVueProject(
-            rootDir,
-            packageFile,
-            packageFile != null ? readJSON(packageFile) : {},
-            configFile,
-            readJSON(configFile),
-            requireModule,
-          )
-        : new InferredVueProject(
-            rootDir,
-            packageFile,
-            packageFile != null ? readJSON(packageFile) : {},
-            requireModule,
-          )
-
-    project.setFileNames(fileNames)
-
-    return project
+  private removeVirtualFileQuery(fileName: string): string {
+    const index = fileName.indexOf('?vue')
+    if (index < 0) return fileName
+    return fileName.substr(0, index)
   }
 
   public async getVirtualDocument(
-    uri: string,
-  ): Promise<VirtualTextDocument | null> {
-    try {
-      const { selector, uri: container } = parseVirtualFileName(uri) ?? {}
-      if (container != null && selector != null) {
-        const document = await this.store.get(container)
-
-        return document?.getDocument(selector) ?? null
-      }
-    } catch {}
-
-    return null
+    fileName: string,
+  ): Promise<VueBlockDocument | null> {
+    return (
+      this.getVueDocument(this.removeVirtualFileQuery(fileName))?.getDocById(
+        fileName,
+      ) ?? null
+    )
   }
 
   public onDidChangeTextDocument(
@@ -147,26 +93,4 @@ export class DocumentService extends Installable {
   ): vscode.Disposable {
     return this.emitter.event(fn)
   }
-}
-
-function readDirectory(dir: string): string[] {
-  return glob.sync('**/*.{ts,tsx,js,tsx,vue}', {
-    absolute: true,
-    cwd: dir,
-    ignore: ['**/node_modules/**'],
-  })
-}
-
-function findConfigFile(
-  dir: string,
-  exists: (fileName: string) => boolean,
-  configName: string,
-): string | undefined {
-  while (dir !== Path.dirname(dir)) {
-    const configFile = Path.join(dir, configName)
-    if (exists(configFile)) return configFile
-    dir = Path.dirname(dir)
-  }
-
-  return undefined
 }

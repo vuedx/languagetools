@@ -117,7 +117,7 @@ jobs:
       - name: Test
         run: pnpm ${{ matrix.command || 'test' }}
       - name: Collect coverage
-        if: matrix.command == 'coverage'
+        if: always() && matrix.command == 'coverage'
         uses: codecov/codecov-action@v1
         with:
           file: ./coverage/coverage-final.json
@@ -153,7 +153,14 @@ jobs:
           run_install: |
             - recursive: true
               args: [--frozen-lockfile]
+      - name: Download build artefact
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artefact
+          path: .
       - run: pnpm eslint:check
+        env:
+          DEBUG: eslint:file-enumerator
   insiders:
     name: Insiders Release
     runs-on: ubuntu-latest
