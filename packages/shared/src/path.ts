@@ -2,15 +2,11 @@ import * as Path from 'path'
 import * as OS from 'os'
 
 export function toPosixPath(path: string): string {
-  return path.includes('\\')
-    ? Path.win32.toNamespacedPath(path).replace(/\\/g, '/').replace(':', '')
-    : path
+  return path.includes('\\') ? path.replace(/\\/g, '/') : path
 }
 
 export function toWindowsPath(path: string): string {
-  return path.includes('/')
-    ? Path.win32.toNamespacedPath(path).replace(/\//g, '\\')
-    : path
+  return path.includes('/') ? path.replace(/\//g, '\\') : path
 }
 
 export const toPlatformPath =

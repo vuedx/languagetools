@@ -126,7 +126,7 @@ async function createTextDocument(file: string): Promise<TextDocument> {
 }
 
 export function toNormalizedPath(fileName: string): string {
-  return fileName
+  return fileName.replace('\\', '/')
 }
 
 export function getProjectPath(
