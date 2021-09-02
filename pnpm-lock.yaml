@@ -31,7 +31,6 @@ importers:
       husky: ^6.0.0
       hygen: ^6.1.0
       jest: ^27.1.0
-      jest-expect-message: ^1.0.2
       js-yaml: ^4.1.0
       lint-staged: ^10.4.2
       magic-string: ^0.25.7
@@ -66,7 +65,6 @@ importers:
       husky: 6.0.0
       hygen: 6.1.0
       jest: 27.1.0
-      jest-expect-message: 1.0.2
       js-yaml: 4.1.0
       lint-staged: 10.4.2
       magic-string: 0.25.7
@@ -6246,13 +6244,6 @@ packages:
       '@types/node': 15.12.2
       jest-mock: 27.1.0
       jest-util: 27.1.0
-    dev: true
-
-  /jest-expect-message/1.0.2:
-    resolution:
-      {
-        integrity: sha512-WFiXMgwS2lOqQZt1iJMI/hOXpUm32X+ApsuzYcQpW5m16Pv6/Gd9kgC+Q+Q1YVNU04kYcAOv9NXMnjg6kKUy6Q==,
-      }
     dev: true
 
   /jest-get-type/26.3.0:
