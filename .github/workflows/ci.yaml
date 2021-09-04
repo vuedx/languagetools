@@ -172,6 +172,7 @@ jobs:
     concurrency:
       group: insiders
       cancel-in-progress: true
+    if: github.ref != 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -212,28 +213,13 @@ jobs:
         env:
           RELEASE_CHANNEL: insiders
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
-      - name: Publish Insiders Packages
-        run: >
-          echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
-
-          pnpm recursive --filter ./packages --filter ./extensions/coc-vue exec
-          -- npm version prerelease --preid=insiders-$(date +%s)
-
-          pnpm recursive publish --tag insiders --access public --no-git-checks
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - uses: marvinpinto/action-automatic-releases@latest
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: insiders
-          prerelease: true
-          files: |
-            extensions/*/*.vsix
   check_release:
     name: Check Release
     runs-on: ubuntu-latest
     needs: unit
-    if: startsWith(github.event.head_commit.message, 'release:')
+    if: >-
+      github.ref != 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'release:')
     steps:
       - run: echo 'ok'
   release:
@@ -279,13 +265,13 @@ jobs:
         with:
           name: build-artefact
           path: .
-      - name: Publish Insiders Extension
+      - name: Publish Extension
         run: |
           pnpm recursive --filter ./extensions run release
         env:
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
         continue-on-error: true
-      - name: Publish Insiders Packages
+      - name: Publish Packages
         run: |
           echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
           pnpm recursive publish --tag latest --access public --no-git-checks
