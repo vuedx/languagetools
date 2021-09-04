@@ -1,5 +1,3 @@
-> Project Status: 🚨 Alpha
-
 <div align="center" style="margin-bottom: 72px">
 
 <table border="0">  
@@ -38,13 +36,11 @@
 <br>
 <br>
 
-:warning: This package contains telemetry and submits various actions to Sentry.io. Set the environment variable `VUEDX_TELEMETRY=off` to opt out.
-
 # VueDX
 
 A set of tools for better developer experience aka Vue Developer Experience or VueDX.
 
-![CI](https://github.com/znck/vue-developer-experience/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/znck/vue-developer-experience/branch/main/graph/badge.svg?token=EF8TMXJK2D)](https://codecov.io/gh/znck/vue-developer-experience/)
+![CI](https://github.com/vuedx/languagetools/workflows/CI/badge.svg) [![codecov](https://codecov.io/gh/vuedx/languagetools/branch/main/graph/badge.svg?token=EF8TMXJK2D)](https://codecov.io/gh/vuedx/languagetools/)
 
 </div>
 

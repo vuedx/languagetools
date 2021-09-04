@@ -19,7 +19,7 @@ import { createResolveComponentTransform } from './transforms/transformResolveCo
 import { createSlotHoistScopeTransform } from './transforms/transformSlot'
 import type { CodegenResult, Options } from './types'
 
-export { annotations } from './generate'
+export { annotations, MappingKind, MappingMetadata } from './generate'
 export { getTopLevelIdentifiers } from './scope'
 export * from './types'
 

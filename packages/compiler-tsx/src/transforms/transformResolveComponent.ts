@@ -43,7 +43,7 @@ export function createResolveComponentTransform(
         if (isDirectiveNode(node) && !directives.has(node.name)) {
           customContext.used.directives.add(node.name)
 
-          const id = `__directive_${camelCase(node.name)}`
+          const id = `v${pascalCase(node.name)}`
           node.resolvedName = id
           if (!customContext.scope.hasIdentifier(id)) {
             customContext.scope.addIdentifier(id)
@@ -67,7 +67,7 @@ export function createResolveComponentTransform(
       customContext.used.components.add(node.tag)
 
       const prefix = node.tag.split('.')[0] ?? node.tag
-      const id = `__component_${pascalCase(prefix)}`
+      const id = `${pascalCase(prefix)}`
       node.resolvedName = node.tag.includes('.')
         ? id + node.tag.substr(prefix.length)
         : id

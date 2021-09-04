@@ -16,12 +16,8 @@ import {
 } from './BlockTransformer'
 import type { VueSFCDocument } from './VueSFCDocument'
 import * as Path from 'path'
-
-export interface MappingMetadata {
-  kind: 'copy' | 'transformed'
-  gen: { length: number }
-  src: { start: number; end: number }
-}
+import { MappingKind, MappingMetadata } from '@vuedx/compiler-tsx'
+import { cache } from '@vuedx/shared'
 
 const METADATA_PREFIX = ';;;VueDX:'
 export class VueBlockDocument {
@@ -181,10 +177,12 @@ export class VueBlockDocument {
     }
   }
 
+  @cache()
   public generatedOffetAt(offset: number): number {
     return this.generatedOffetAndLengthAt(offset, 1).offset
   }
 
+  @cache((args: [number, number]) => `${args[0]}:${args[1]}`)
   public generatedOffetAndLengthAt(
     offset: number,
     length: number,
@@ -199,25 +197,32 @@ export class VueBlockDocument {
       ),
       source: this.fileName,
     }
-    const positions = this.sourceMap.allGeneratedPositionsFor(args)
+    const gen = this.generated
 
-    // Assumption, last generated position is most relevant for most functionality.
-    let position = positions.pop() ?? this.sourceMap.generatedPositionFor(args)
+    const opPos: SourceMapPosition = this.sourceMap.generatedPositionFor(args)
+    const opOffset = this.generated.offsetAt(this.toPosition(opPos))
+    const opOrginal = this.originalOffsetMappingAt(opOffset, 1)
 
-    let result = this.generated.offsetAt(this.toPosition(position))
-    let original = this.originalOffsetMappingAt(result, -1)
+    let position = opPos
+    let result = opOffset
+    let original = opOrginal
 
-    if (original?.mapping != null && positions.length === 0) {
-      // If offset is in original range, then first generated position is returned.
-      // We look for generated positions from original src to find last generated position.
-      positions.push(
-        ...this.sourceMap.allGeneratedPositionsFor({
+    if (opOrginal?.mapping != null) {
+      const positions = this.sourceMap
+        .allGeneratedPositionsFor({
           ...this.toSourceMapPosition(
-            this.source.positionAt(original.mapping.src.start),
+            this.source.positionAt(opOrginal.mapping.s.s),
           ),
           source: this.fileName,
-        }),
-      )
+        })
+        .filter((position) => {
+          const og = this.originalOffsetMappingAt(
+            gen.offsetAt(this.toPosition(position)),
+            -1,
+          )
+
+          return og?.mapping != null && og.mapping.k !== MappingKind.reverseOnly
+        })
 
       const newPosition = positions.pop()
       if (newPosition != null) {
@@ -228,9 +233,8 @@ export class VueBlockDocument {
     }
 
     // If generated text is copied from original text then we can get exact position.
-    if (original?.mapping?.kind === 'copy') {
-      const diff =
-        offset - original.mapping.src.start - this.block.loc.start.offset
+    if (original?.mapping?.k === MappingKind.copy) {
+      const diff = offset - original.mapping.s.s - this.block.loc.start.offset
 
       return { offset: result + diff, length }
     }
@@ -238,10 +242,7 @@ export class VueBlockDocument {
     // Transformed text sohuld always match the whole text.
     return {
       offset: result,
-      length:
-        original?.mapping != null
-          ? original.mapping.src.end - original.mapping.src.start
-          : length,
+      length: original?.mapping != null ? original.mapping.g.l : length,
     }
   }
 
@@ -250,6 +251,7 @@ export class VueBlockDocument {
    * @param offset position in generated text
    * @returns position in .vue file
    */
+  @cache()
   public originalOffsetAt(offset: number): number {
     return (
       this.originalOffsetAndLengthAt(offset, 1)?.offset ??
@@ -263,6 +265,7 @@ export class VueBlockDocument {
    * @param length range at offset
    * @returns range in .vue file
    */
+  @cache((args: [number, number]) => `${args[0]}:${args[1]}`)
   public originalOffsetAndLengthAt(
     offset: number,
     length: number,
@@ -271,21 +274,22 @@ export class VueBlockDocument {
     if (result == null) return null
 
     if (result.mapping != null && this.generated != null) {
-      switch (result.mapping.kind) {
-        case 'transformed':
+      switch (result.mapping.k) {
+        case MappingKind.transformed:
+        case MappingKind.reverseOnly:
           return {
             offset: result.offset,
-            length: result.mapping.src.end - result.mapping.src.start,
+            length: result.mapping.s.e - result.mapping.s.e,
           }
 
-        case 'copy': {
+        case MappingKind.copy: {
           const len = this.generated.getText().length
-          const min = Math.max(0, offset - result.mapping.gen.length)
-          const max = Math.min(len, offset + result.mapping.gen.length)
+          const min = Math.max(0, offset - result.mapping.g.l)
+          const max = Math.min(len, offset + result.mapping.g.l)
           const content = this.generated.getText().substring(min, max)
           const query = this.source
             .getText()
-            .substring(result.mapping.src.start, result.mapping.src.end)
+            .substring(result.mapping.s.s, result.mapping.s.e)
 
           const pos = content.indexOf(query)
           const diff = offset - (min + pos)
@@ -327,19 +331,10 @@ export class VueBlockDocument {
     }
   }
 
-  private readonly mappingCache = new Map<string, MappingMetadata>()
-
+  @cache()
   public getMappingMetadata(context?: string): MappingMetadata | undefined {
     if (context?.startsWith(METADATA_PREFIX) === true) {
-      if (this.mappingCache.has(context)) return this.mappingCache.get(context)
-
-      const result: MappingMetadata = JSON.parse(
-        context.substr(METADATA_PREFIX.length),
-      )
-
-      this.mappingCache.set(context, result)
-
-      return result
+      return JSON.parse(context.substr(METADATA_PREFIX.length))
     }
 
     return undefined
