@@ -69,6 +69,13 @@
 />
 ```
 
+## v-on multiple events
+
+```vue-html
+<div @click="onClick" @hover="onHover" @press="onPress" />
+<div @click="onClick" @hover="onHover" @press="onPress" />
+```
+
 ## v-if/v-else/v-else-if
 
 ### single if statement

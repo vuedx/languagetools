@@ -1,3 +1,4 @@
+/* eslint-disable spaced-comment */
 import {
   CompoundExpressionNode,
   findProp,
@@ -60,12 +61,20 @@ export interface GenerateOptions {
   ): void
 }
 
+export interface MappingMetadata {
+  k: MappingKind
+  g: { l: number }
+  s: { s: number; e: number }
+}
+
+export enum MappingKind {
+  copy = 'c',
+  transformed = 't',
+  reverseOnly = 'r',
+}
+
 interface GenerateContext {
-  write(
-    code: string,
-    loc?: SourceLocation,
-    kind?: 'copy' | 'transformed',
-  ): GenerateContext
+  write(code: string, loc?: SourceLocation, kind?: MappingKind): GenerateContext
   newLine(): GenerateContext
   indent(): GenerateContext
   deindent(): GenerateContext
@@ -101,17 +110,21 @@ function createGenerateContext(
       }
 
       if (loc != null) {
+        const mapping: MappingMetadata = {
+          k:
+            kind ??
+            (code === loc.source ? MappingKind.copy : MappingKind.transformed),
+          g: { l: code.length },
+          s: { s: loc.start.offset, e: loc.end.offset },
+        }
+
         output.push(
           new SourceNode(
             loc.start.line,
             loc.start.column - 1,
             templateId,
             code,
-            `;;;VueDX:${JSON.stringify({
-              kind: kind ?? (code === loc.source ? 'copy' : 'transformed'),
-              gen: { length: code.length },
-              src: { start: loc.start.offset, end: loc.end.offset },
-            })}`,
+            `;;;VueDX:${JSON.stringify(mapping)}`,
           ),
         )
       } else {
@@ -126,7 +139,7 @@ function createGenerateContext(
       return context
     },
     indent() {
-      indent += 2
+      indent = Math.max(0, indent) + 2
       return context
     },
     deindent() {
@@ -190,6 +203,7 @@ export function generate(
     .write(`export function _render(_ctx: _Self): any {`)
     .newLine()
     .indent()
+  //#region 1 <
   context.write(annotations.templateGlobals.start).newLine()
   ast.scope.globals.forEach((id) => {
     context.write(`let ${id} = _ctx.${id};`).newLine()
@@ -215,7 +229,13 @@ export function generate(
   context.newLine()
   genTemplateChildNode(context, ast)
 
-  context.newLine().deindent().write(`}`).newLine()
+  context
+    .newLine()
+    //#endregion
+    // > 1
+    .deindent()
+    .write(`}`)
+    .newLine()
   options.on('end', context)
 
   return context.getOutput()
@@ -238,7 +258,10 @@ function genTemplateChildNode(context: GenerateContext, node: Node): void {
 function genRootNode(context: GenerateContext, node: RootNode): void {
   context.write('return (').newLine()
   context.indent()
+  //#region 2 <
   genChildren(context, node.children, { hasParentElement: false })
+  //#endregion
+  // > 2
   context.deindent()
   context.write(')')
 }
@@ -263,13 +286,15 @@ function genChildren(
   if (!hasParentElement) {
     context.write('<>').newLine()
     context.indent()
+    //#region 3 <
   }
-
   children.forEach((child) => {
     genTemplateChildNode(context, child)
     context.newLine()
   })
   if (!hasParentElement) {
+    //#endregion
+    // > 3
     context.deindent()
     context.write('</>').newLine()
   }
@@ -281,11 +306,7 @@ function genSlotNode(context: GenerateContext, node: ElementNode): void {
   const name = findProp(node, 'name', false, true)
   if (isAttributeNode(name)) {
     if (name.value != null) {
-      context.write(
-        JSON.stringify(name.value.content),
-        name.value.loc,
-        'transformed',
-      )
+      context.write(JSON.stringify(name.value.content), name.value.loc)
     } else {
       context.write('undefined')
     }
@@ -306,11 +327,7 @@ function genSlotNode(context: GenerateContext, node: ElementNode): void {
         .write(prop.name, createLoc(prop.loc, 0, prop.name.length))
         .write(': ')
       if (prop.value != null) {
-        context.write(
-          JSON.stringify(prop.value.content),
-          prop.value.loc,
-          'transformed',
-        )
+        context.write(JSON.stringify(prop.value.content), prop.value.loc)
       } else {
         context.write('true')
       }
@@ -318,11 +335,7 @@ function genSlotNode(context: GenerateContext, node: ElementNode): void {
     } else if (prop.name === 'bind') {
       if (prop.arg != null) {
         if (isStaticExpression(prop.arg)) {
-          context.write(
-            JSON.stringify(prop.arg.content),
-            prop.arg.loc,
-            'transformed',
-          )
+          context.write(JSON.stringify(prop.arg.content), prop.arg.loc)
         } else {
           context.write('[')
           genExpressionNode(context, prop.arg)
@@ -362,12 +375,13 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
   context.write('<', node.loc)
   const startLoc = createLoc(node.loc, 1, node.tag.length)
   if (isComponentNode(node)) {
-    context.write(node.resolvedName ?? node.tag, startLoc, 'transformed')
+    context.write(node.resolvedName ?? node.tag, startLoc)
   } else if (node.tag !== 'template') {
-    context.write(node.tag, startLoc, 'transformed')
+    context.write(node.tag, startLoc)
   }
 
   context.indent()
+  //#region 4 <
 
   const groups: Record<string, DirectiveNode[]> = {}
   const useNewLines = node.props.length > 2
@@ -397,12 +411,17 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
     genDirectives(context, node, entry, { useNewlines: useNewLines })
   })
 
+  //#endregion
+  // > 4
   context.deindent()
 
   if (node.isSelfClosing) {
     context.write(' />')
   } else {
-    context.write('>').newLine().indent()
+    context.write('>').newLine()
+    context.indent()
+    //#region 5 <
+
     if (isComponentNode(node)) {
       genComponentSlots(context, node)
     } else {
@@ -410,6 +429,8 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
         hasParentElement: true,
       })
     }
+    //#endregion
+    // > 5
     context.deindent().write('</')
     const endLoc = createLoc(
       node.loc,
@@ -417,9 +438,9 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
       node.tag.length,
     )
     if (isComponentNode(node)) {
-      context.write(node.resolvedName ?? node.tag, endLoc, 'transformed')
+      context.write(node.resolvedName ?? node.tag, endLoc)
     } else if (node.tag !== 'template') {
-      context.write(node.tag, endLoc, 'transformed')
+      context.write(node.tag, endLoc)
     }
     context.write('>')
   }
@@ -428,11 +449,11 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
 function genAttributeNode(context: GenerateContext, node: AttributeNode): void {
   const loc = createLoc(node.loc, 0, node.name.length)
   if (node.name === 'class') {
-    context.write('data-class', loc, 'transformed')
+    context.write('data-class', loc)
   } else if (node.name === 'style') {
-    context.write('data-style', loc, 'transformed')
+    context.write('data-style', loc)
   } else {
-    context.write(node.name, loc, 'transformed')
+    context.write(node.name, loc)
   }
 
   genAttributeValue(context, node.value)
@@ -471,18 +492,19 @@ function genComponentSlots(
   context.write('{')
   if (node.slots.length > 0 || node.children.length > 0) context.newLine()
   context.indent()
+  //#region 6 <
   node.slots.forEach((node) => {
     if (isSimpleExpressionNode(node.name)) {
       const isConstant = isStaticExpression(node.name)
       if (isConstant) {
-        context.write(node.name.content, node.name.loc, 'copy')
+        context.write(node.name.content, node.name.loc)
         context.write(': ')
       } else {
         context.write('[')
         genExpressionNode(context, node.name)
         context.write(']: ')
       }
-    } else context.write('default: ', loc, 'transformed')
+    } else context.write('default: ', loc, MappingKind.reverseOnly)
 
     context.write('(')
     if (isSimpleExpressionNode(node.args)) {
@@ -491,38 +513,54 @@ function genComponentSlots(
     context.write(') => {').newLine()
 
     context.indent()
-    // START BODY
+    //#region 7 <
     context.write('return (').newLine()
     context.indent()
+    //#region 8 <
     genChildren(context, node.children, { hasParentElement: false })
+    //#endregion
+    // > 8
     context.deindent()
     context.write(')').newLine()
-    // END BODY
+    //#endregion
+    // > 7
     context.deindent()
 
     context.write('},').newLine()
   })
   if (node.children.length > 0) {
     context
-      .write(`[Symbol.for('VueDX:UnknownSlot')]: () => {`, loc, 'transformed')
+      .write(
+        `[Symbol.for('VueDX:UnknownSlot')]: () => {`,
+        loc,
+        MappingKind.reverseOnly,
+      )
       .newLine()
     context.indent()
+    //#region 9 <
+    // START BODY
     if (node.hoists != null) {
       node.hoists.forEach((node) => {
         genExpressionNode(context, node)
         context.newLine()
       })
     }
-    // START BODY
     context.write('return (').newLine()
     context.indent()
+    //#region 10 <
     genChildren(context, node.children, { hasParentElement: false })
+    //#endregion
+    // > 10
     context.deindent()
     context.write(')').newLine()
     // END BODY
+    //#endregion
+    // > 9
     context.deindent()
     context.write('},').newLine()
   }
+  //#endregion
+  // > 6
   context.deindent()
   context.write('}')
   if (node.resolvedName != null) context.write(')')
@@ -543,6 +581,7 @@ function genBindGroupDirectiveNode(
   context.write('{...({')
   if (shouldUseNewLine) {
     context.indent()
+    //#region 11 <
   }
 
   nodes.forEach((node) => {
@@ -566,7 +605,10 @@ function genBindGroupDirectiveNode(
   })
 
   if (shouldUseNewLine) {
-    context.newLine().deindent()
+    context.newLine()
+    //#endregion
+    // > 11
+    context.deindent()
   } else {
     context.write(' ')
   }
@@ -601,10 +643,16 @@ function genOnGroupDirectiveNode(
     context.write(
       'VueDX.internal.checkOnDirective(',
       createLoc(dir.loc, 0, dir.loc.source.startsWith('@') ? 1 : 4),
+      MappingKind.reverseOnly,
     )
     context.write(componentName, node.loc).write(')(')
+    context.indent()
+    //#region 12 <
     genDirectiveUsage(context, directives)
-    context.write(')}').deindent()
+    context.write(')}')
+    //#endregion
+    // > 12
+    context.deindent()
 
     if (options.useNewlines) context.newLine()
     else context.write(' ')
@@ -640,7 +688,7 @@ function genPropDirectiveNode(
           node.arg.content === 'false-value')
           ? node.arg.content
           : camelCase(node.arg.content)
-      context.write(value, node.arg.loc, 'transformed')
+      context.write(value, node.arg.loc)
       genAttributeValue(context, node.exp)
     }
   } else if (node.name === 'on') {
@@ -652,7 +700,6 @@ function genPropDirectiveNode(
       context.write(
         'on' + name.substr(0, 1).toUpperCase() + name.substr(1),
         node.arg.loc,
-        'transformed',
       )
       genAttributeValue(context, node.exp, true)
     }
@@ -668,7 +715,7 @@ function genAttributeValue(
 
   context.write('=')
   if (isStaticExpression(node) || isTextNode(node)) {
-    context.write(JSON.stringify(node.content), node.loc, 'transformed')
+    context.write(JSON.stringify(node.content), node.loc)
   } else {
     context.write('{')
     if (isEvent) {
@@ -695,9 +742,18 @@ function genEventHandler(
     }
   }
 
-  if (shouldWrap) context.write('($event) => {').newLine().indent()
+  if (shouldWrap) {
+    context.write('($event) => {').newLine()
+    context.indent()
+    //#region 13 <
+  }
   genExpressionNode(context, node)
-  if (shouldWrap) context.newLine().deindent().write('}')
+  if (shouldWrap) {
+    context.newLine()
+    //#endregion
+    // > 13
+    context.deindent().write('}')
+  }
 }
 
 function genDirectives(
@@ -829,33 +885,50 @@ function genDirectiveUsage(
   directives: DirectiveNode[],
   isInputModelDirective: boolean = false,
 ): void {
-  context.write(`[`).indent().newLine()
+  context.write(`[`)
+  context.indent()
+  //#region 14 <
+  context.newLine()
   directives.forEach((directive) => {
     const fallback = createLoc(
       directive.loc,
       0,
       directive.loc.source.startsWith('v-') ? directive.name.length + 2 : 1,
     )
-    context.write('{', fallback).newLine().indent()
+    context.write('{', fallback, MappingKind.reverseOnly).newLine()
+    context.indent()
+    //#region 15 <
     if (directive.arg != null) {
-      context.write(' ').write('arg', directive.arg.loc).write(': ', fallback)
+      context
+        .write(' ')
+        .write('arg', directive.arg.loc, MappingKind.reverseOnly)
+        .write(': ', fallback, MappingKind.reverseOnly)
       genExpressionNode(context, directive.arg)
       if (isStaticExpression(directive.arg)) context.write(' as const')
-      context.write(', ', fallback).newLine()
+      context.write(', ', fallback, MappingKind.reverseOnly).newLine()
     } else if (directive.name === 'model' && !isInputModelDirective) {
-      context.write(' arg: "modelValue" as const,', fallback).newLine()
+      context
+        .write(
+          ' arg: "modelValue" as const,',
+          fallback,
+          MappingKind.reverseOnly,
+        )
+        .newLine()
     }
     if (directive.exp != null) {
-      context.write(' ').write('exp', directive.exp.loc).write(': ', fallback)
+      context
+        .write(' ')
+        .write('exp', directive.exp.loc, MappingKind.reverseOnly)
+        .write(': ', fallback, MappingKind.reverseOnly)
       if (directive.name === 'on') {
         genEventHandler(context, directive.exp)
       } else {
         genExpressionNode(context, directive.exp)
       }
-      context.write(',', fallback).newLine()
+      context.write(',', fallback, MappingKind.reverseOnly).newLine()
     }
     if (directive.modifiers.length > 0) {
-      context.write(' modifiers: [ ', fallback)
+      context.write(' modifiers: [ ', fallback, MappingKind.reverseOnly)
       directive.modifiers.forEach((name) => {
         context
           .write(
@@ -868,10 +941,14 @@ function genDirectiveUsage(
           )
           .write(', ')
       })
-      context.write('],', fallback).newLine()
+      context.write('],', fallback, MappingKind.reverseOnly).newLine()
     }
+    //#endregion
+    // > 15
     context.deindent().write('},').newLine()
   })
+  //#endregion
+  // > 14
   context.deindent()
   context.write(']')
 }
@@ -883,9 +960,9 @@ function genTextNode(context: GenerateContext, node: TextNode): void {
     node.content.includes('{') ||
     node.content.includes('}')
   ) {
-    context.write(`{${JSON.stringify(node.content)}}`, node.loc, 'transformed')
+    context.write(`{${JSON.stringify(node.content)}}`, node.loc)
   } else {
-    context.write(node.content, node.loc, 'transformed')
+    context.write(node.content, node.loc)
   }
 }
 
@@ -910,11 +987,7 @@ function genPropValue(
   wrapInParantheses: boolean = false,
 ): boolean {
   if (isAttributeNode(node) && node.value != null) {
-    context.write(
-      JSON.stringify(node.value.content),
-      node.value.loc,
-      'transformed',
-    )
+    context.write(JSON.stringify(node.value.content), node.value.loc)
 
     return true
   } else if (isDirectiveNode(node) && node.exp != null) {
@@ -933,13 +1006,13 @@ function genExpressionNode(
 ): void {
   if (isSimpleExpressionNode(node)) {
     if (node.content.trim() === '') {
-      context.write(annotations.missingExpression, node.loc, 'transformed')
+      context.write(annotations.missingExpression, node.loc)
     } else if (node.constType > 0) {
-      context.write(JSON.stringify(node.content), node.loc, 'transformed')
+      context.write(JSON.stringify(node.content), node.loc)
     } else {
       const ok = wrapInParantheses && node.content.includes(',')
       if (ok) context.write('(')
-      context.write(node.content, node.loc, 'copy')
+      context.write(node.content, node.loc)
       if (ok) context.write(')')
     }
   } else {
@@ -970,20 +1043,34 @@ function isForNode(node: Node): node is ForNode {
 }
 
 function genForNode(context: GenerateContext, node: ForNode): void {
-  context.write('{').indent().newLine()
+  context.write('{')
+  context.indent()
+  //#region 16 <
+  context.newLine()
   context.write('VueDX.internal.renderList(')
   genForNodeArgs(context, node)
   // - Body
-  context.write(' => {').newLine().indent()
+  context.write(' => {').newLine()
+  context.indent()
+  //#region 17 <
   node.hoists.forEach((node) => {
     genExpressionNode(context, node)
     context.newLine()
   })
 
-  context.write('return (').indent().newLine()
+  context.write('return (')
+  context.indent()
+  //#region 18 <
+  context.newLine()
   genChildren(context, node.children, { hasParentElement: false })
+  //#endregion
+  // > 18
   context.deindent().write(')').newLine()
+  //#endregion
+  // > 17
   context.deindent().write('})')
+  //#endregion
+  // > 16
   context.deindent().newLine().write('}')
 }
 
@@ -993,7 +1080,7 @@ function genForNodeArgs(context: GenerateContext, node: ForNode): void {
   if (isSimpleExpressionNode(forExps.source)) {
     const quote = !isSimpleIdentifier(forExps.source.content)
     if (quote) context.write('(')
-    context.write(forExps.source.content, forExps.source.loc, 'copy')
+    context.write(forExps.source.content, forExps.source.loc)
     if (quote) context.write(')')
   } else {
     context.write('undefined')
@@ -1004,14 +1091,14 @@ function genForNodeArgs(context: GenerateContext, node: ForNode): void {
   context.write('(')
   const args = ['_', '__']
   if (isSimpleExpressionNode(forExps.value)) {
-    context.write(forExps.value.content, forExps.value.loc, 'copy')
+    context.write(forExps.value.content, forExps.value.loc)
   } else if (forExps.key != null || forExps.index != null) {
     context.write(args.pop() ?? '_')
   }
 
   if (isSimpleExpressionNode(forExps.key)) {
     context.write(', ')
-    context.write(forExps.key.content, forExps.key.loc, 'copy')
+    context.write(forExps.key.content, forExps.key.loc)
   } else if (forExps.index != null) {
     context.write(', ')
     context.write(args.pop() ?? '_')
@@ -1019,7 +1106,7 @@ function genForNodeArgs(context: GenerateContext, node: ForNode): void {
 
   if (isSimpleExpressionNode(forExps.index)) {
     context.write(', ')
-    context.write(forExps.index.content, forExps.index.loc, 'copy')
+    context.write(forExps.index.content, forExps.index.loc)
   }
   context.write(')')
 }
@@ -1027,6 +1114,7 @@ function genForNodeArgs(context: GenerateContext, node: ForNode): void {
 function genIfNode(context: GenerateContext, node: IfNode): void {
   context.write('{').newLine()
   context.indent()
+  //#region 19 <
   let hasElse = false
   const n = node.branches.length - 1
   node.branches.forEach((node, i) => {
@@ -1036,25 +1124,46 @@ function genIfNode(context: GenerateContext, node: IfNode): void {
       context.write('(')
       genExpressionNode(context, node.condition)
       context.write(')').newLine()
-      context.indent().write('? ')
+      context.indent()
+      //#region 20 <
       ++indent
+      context.write('? ')
     } else if (i < n) {
       context.write('( )', node.loc).newLine()
-      context.indent().write('? ')
+      context.indent()
+      //#region 21 <
       ++indent
+      context.write('? ')
     } else {
       hasElse = true
       context.indent()
+      //#region 22 <
       ++indent
     }
 
     context.indent()
+    //#region 23 <
     ++indent
     genChildren(context, node.children, { hasParentElement: false })
-    while (indent-- > 0) context.deindent()
+    while (indent-- > 0) {
+      //#endregion
+      // > 23
+
+      //#endregion
+      // >  22
+
+      //#endregion
+      // > 21
+
+      //#endregion
+      // > 20
+      context.deindent()
+    }
   })
 
   if (!hasElse) context.write('  : null').newLine()
+  //#endregion
+  // > 19
   context.deindent()
   context.write('}')
 }

@@ -57,7 +57,7 @@ describe('VueSFCDocument', () => {
       "/*<vuedx:diagnosticsIgnore>*/
       import Example, { __VueDX_components, __VueDX_directives } from './Example.vue?vue&type=script&setup=true&lang'
       type _Self = InstanceType<typeof Example>
-      const __component_Foo = VueDX.internal.resolveComponent(__VueDX_components, \\"Foo\\" as const, \\"Foo\\" as const);
+      const Foo = VueDX.internal.resolveComponent(__VueDX_components, \\"Foo\\" as const, \\"Foo\\" as const);
       export function _render(_ctx: _Self): any {
         /*<vuedx:templateGlobals>*/
         let val = _ctx.val;
@@ -67,8 +67,8 @@ describe('VueSFCDocument', () => {
         /*</vuedx:diagnosticsIgnore>*/
 
         return (
-          <__component_Foo.Bar>
-            {VueDX.internal.checkSlots(__component_Foo.Bar, {
+          <Foo.Bar>
+            {VueDX.internal.checkSlots(Foo.Bar, {
               default: () => {
                 return (
                   <>
@@ -77,7 +77,7 @@ describe('VueSFCDocument', () => {
                 )
               },
             })}
-          </__component_Foo.Bar>
+          </Foo.Bar>
         )
       }
       "
