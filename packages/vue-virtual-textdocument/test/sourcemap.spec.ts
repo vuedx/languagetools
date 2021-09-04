@@ -29,77 +29,70 @@ describe('VueBlockDocument', () => {
 
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(first, 5)))
       .toMatchInlineSnapshot(`
-
-                {
-                   arg: "a" as const, 
-                   exp: onNum,
-                        ^^^^^ > 5 at 707
-                },
-              ])}
-    `)
+          {
+             arg: "a" as const, 
+             exp: onNum,
+                  ^^^^^ > 5 at 707
+          },
+        ])}
+`)
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(first + 3, 2)))
       .toMatchInlineSnapshot(`
-
-                {
-                   arg: "a" as const, 
-                   exp: onNum,
-                           ^^ > 2 at 710
-                },
-              ])}
-    `)
+          {
+             arg: "a" as const, 
+             exp: onNum,
+                     ^^ > 2 at 710
+          },
+        ])}
+`)
 
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(second, 5)))
       .toMatchInlineSnapshot(`
-
-                {
-                   arg: "a" as const, 
-                   exp: onNum,
-                        ^^^^^ > 5 at 707
-                },
-              ])}
-    `)
+          {
+             arg: "a" as const, 
+             exp: onNum,
+                  ^^^^^ > 5 at 707
+          },
+        ])}
+`)
 
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(second + 3, 2)))
       .toMatchInlineSnapshot(`
-
-                {
-                   arg: "a" as const, 
-                   exp: onNum,
-                           ^^ > 2 at 710
-                },
-              ])}
-    `)
+          {
+             arg: "a" as const, 
+             exp: onNum,
+                     ^^ > 2 at 710
+          },
+        ])}
+`)
 
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(once, 4)))
       .toMatchInlineSnapshot(`
-
-                   arg: "b" as const, 
-                   exp: onNum,
-                   modifiers: [ "once", ],
-                                ^^^^^^ > 6 at 883
-                },
-              ])}
-    `)
+             arg: "b" as const, 
+             exp: onNum,
+             modifiers: [ "once", ],
+                          ^^^^^^ > 6 at 883
+          },
+        ])}
+`)
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(call + 6, 8)))
       .toMatchInlineSnapshot(`
-
-                   arg: "c" as const, 
-                   exp: ($event) => {
-                    call.a['func']($event)
-                          ^^^^^^^^ > 8 at 1064
-                  },
-                },
-    `)
+             arg: "c" as const, 
+             exp: ($event) => {
+              call.a['func']($event)
+                    ^^^^^^^^ > 8 at 1064
+            },
+          },
+`)
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(event, 6)))
       .toMatchInlineSnapshot(`
-
-                   arg: "c" as const, 
-                   exp: ($event) => {
-                    call.a['func']($event)
-                                   ^^^^^^ > 6 at 1073
-                  },
-                },
-    `)
+             arg: "c" as const, 
+             exp: ($event) => {
+              call.a['func']($event)
+                             ^^^^^^ > 6 at 1073
+            },
+          },
+`)
   })
 })
 
@@ -148,8 +141,6 @@ function getTemplateFile(code: string) {
       const start = file.generated!.offsetAt({ line: L + i, character: 0 })
       lines.push(line(start))
     }
-
-    lines.unshift('')
 
     return lines.join('\n')
   }
