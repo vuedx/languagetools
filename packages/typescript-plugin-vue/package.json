@@ -9,7 +9,7 @@
     "types": "lib/index.d.ts"
   },
   "files": [
-    "dist",
+    "lib",
     "runtime"
   ],
   "buildConfig": {
