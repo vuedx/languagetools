@@ -66,7 +66,7 @@ A set of tools for better developer experience aka Vue Developer Experience or V
 - [@vuedx/typecheck](./packages/typecheck) — a command line tool to check types, functionally equivalent to `tsc --noEmit` but includes .vue support
 - [@vuedx/typescript-plugin-vue](./packages/typescript-plugin-vue) — enables TypeScript language server to understand `.vue` files
 - [@vuedx/typescript-vetur](./packages/typescript-vetur) — provides missing features to vetur, same as **TS Plugin** but for Vetur [#2145](https://github.com/vuejs/vetur/pull/2145)
-- [@vuedx/vue-virtual-textdoucment](./packages/vue-virtual-textdocument) — creates a virtual file system to represent blocks in SFC as files
+- [@vuedx/vue-virtual-textdocument](./packages/vue-virtual-textdocument) — creates a virtual file system to represent blocks in SFC as files
 <!--EOL:Packages-->
 
 ## Contributing
