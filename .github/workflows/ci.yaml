@@ -161,16 +161,12 @@ jobs:
       - run: pnpm eslint:check
         env:
           DEBUG: eslint:file-enumerator
-  insiders:
-    name: Insiders Release
+  pre-release:
+    name: Pre-release
     runs-on: ubuntu-latest
-    environment:
-      name: Insiders
-      url: >-
-        https://marketplace.visualstudio.com/items?itemName=znck.preview-insiders
     needs: unit
     concurrency:
-      group: insiders
+      group: pre-release
       cancel-in-progress: true
     if: github.ref == 'refs/heads/main'
     steps:
@@ -207,11 +203,12 @@ jobs:
         with:
           name: build-artefact
           path: .
-      - name: Publish Insiders Extension
+      - name: Publish Pre-release Extension
         run: |
-          pnpm recursive --filter ./extensions run release
+          pnpm recursive --filter ./extensions run build
+          pnpm recursive --filter ./extensions run pre-release
         env:
-          RELEASE_CHANNEL: insiders
+          RELEASE_CHANNEL: pre-release
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
   check_release:
     name: Check Release
@@ -267,6 +264,7 @@ jobs:
           path: .
       - name: Publish Extension
         run: |
+          pnpm recursive --filter ./extensions run build
           pnpm recursive --filter ./extensions run release
         env:
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}

@@ -162,7 +162,7 @@ export class Telemetry {
       key,
       {
         release: packageVersion,
-        environment: packageVersion.includes('-') ? 'insiders' : 'production',
+        environment: 'production',
         tracesSampleRate,
       },
       {

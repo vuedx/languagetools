@@ -2,8 +2,6 @@
 
 This extension provides features like type checking, completion, renaming and refactoring for `.vue` files by extending TypeScript extension.
 
-<!-- INSIDERS -->
-
 ## Support
 
 This extension is part of [VueDX project](https://github.com/znck/vue-developer-experience), maintained by [Rahul Kadyan](https://github.com/znck). You can [💖 sponsor him](https://github.com/sponsors/znck) for continued development of this extension and other VueDX tools.
