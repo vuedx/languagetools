@@ -30,7 +30,7 @@ export class VirtualFileSwitcher extends Installable {
 
     return Disposable.from(
       this.statusBar,
-      window.onDidChangeVisibleTextEditors((editors: TextEditor[]): void => {
+      window.onDidChangeVisibleTextEditors((editors): void => {
         const editor = editors.find((_editor) => false)
 
         void this.showStatusBar(editor)

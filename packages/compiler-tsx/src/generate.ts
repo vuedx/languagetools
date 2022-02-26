@@ -487,7 +487,9 @@ function genComponentSlots(
   context.write('{')
   const loc = createLoc(node.loc, 1, node.tag.length)
   if (node.resolvedName != null) {
-    context.write(`VueDX.internal.checkSlots(${node.resolvedName}, `, loc)
+    context.write(`VueDX.internal.checkSlots(`, node.loc)
+    context.write(`${node.resolvedName}`, loc)
+    context.write(', ')
   }
   context.write('{')
   if (node.slots.length > 0 || node.children.length > 0) context.newLine()
@@ -732,6 +734,7 @@ function genEventHandler(
   node: SimpleExpressionNode | CompoundExpressionNode,
 ): void {
   let shouldWrap = false
+  let shouldGenerateEventArg = false
   if (isSimpleExpressionNode(node)) {
     if (
       !isSimpleIdentifier(node.content) &&
@@ -740,10 +743,16 @@ function genEventHandler(
     ) {
       shouldWrap = true
     }
+
+    shouldGenerateEventArg = node.content.includes('$event')
   }
 
   if (shouldWrap) {
-    context.write('($event) => {').newLine()
+    if (shouldGenerateEventArg) {
+      context.write('($event) => {').newLine()
+    } else {
+      context.write('() => {').newLine()
+    }
     context.indent()
     //#region 13 <
   }
