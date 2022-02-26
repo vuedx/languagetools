@@ -105,9 +105,9 @@ export class GotoService {
               `NoDefinition(${
                 this.depth.length
               }) at ${position}:${JSON.stringify(
-                vueFile.getText().substr(position, 10),
+                vueFile.getText().substring(position, position + 10),
               )} -> ${offset}:${JSON.stringify(
-                blockFile.generated?.getText().substr(offset, 10),
+                blockFile.generated?.getText().substring(offset, offset + 10),
               )}`,
             )
             return undefined
@@ -143,13 +143,14 @@ export class GotoService {
 
   private normalizeTSDefinitionInfo(
     info: Typescript.DefinitionInfo,
+    depth: number = 0,
   ): Typescript.DefinitionInfo[] {
     const fileName = info.fileName
-    this.logger.debug(
-      `Normalize: ${info.textSpan.start}:${info.name} in ${info.fileName}`,
-    )
 
     info.fileName = this.fs.getRealFileName(fileName)
+    this.logger.debug(
+      `Normalize: ${info.textSpan.start}:${info.name} in ${fileName}`,
+    )
     if (this.fs.isVueVirtualFile(fileName)) {
       const vueFile = this.fs.getVueFile(fileName)
       const blockFile = vueFile?.getDocById(fileName)
@@ -199,12 +200,20 @@ export class GotoService {
         info.contextSpan = { start: 0, length: 1 }
       }
     } else if (this.fs.isVueTsFile(fileName)) {
-      const result = this.service.getDefinitionAtPosition(
-        fileName,
-        info.textSpan.start,
-      )
+      if (depth < 2) {
+        const result = this.service.getDefinitionAtPosition(
+          fileName,
+          info.textSpan.start,
+        )
 
-      if (result != null && result.length > 0) return Array.from(result)
+        if (result != null && result.length > 0) {
+          return Array.from(
+            result.flatMap((info) =>
+              this.normalizeTSDefinitionInfo(info, depth + 1),
+            ),
+          )
+        }
+      }
       info.textSpan = { start: 0, length: 1 }
     }
 
