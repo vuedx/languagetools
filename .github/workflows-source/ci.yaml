@@ -168,9 +168,12 @@ jobs:
       - name: Publish Extension
         run: |
           pnpm recursive --filter ./extensions run build
-          pnpm recursive --filter ./extensions run release
+          pnpm recursive --filter ./extensions run release'
+          pnpm -y osvx publish -p ${OVSX_REGISTRY_TOKEN} ./extensions/vscode-vue/vue.vsix
+          pnpm -y osvx publish -p ${OVSX_REGISTRY_TOKEN} ./extensions/vscode-vue-language-features/vue-language-features.vsix
         env:
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+          OVSX_REGISTRY_TOKEN: ${{ secrets.OVSX_REGISTRY_TOKEN }}
         continue-on-error: true # It will fail when publishing same version again.
       - name: Publish Packages
         run: |
