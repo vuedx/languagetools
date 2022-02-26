@@ -4,7 +4,7 @@
   "name": "vue",
   "publisher": "znck",
   "displayName": "Vue",
-  "version": "0.7.6",
+  "version": "0.8.0",
   "description": "Syntax Highlight",
   "icon": "logo.png",
   "main": "dist/index.js",
@@ -42,7 +42,7 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.50.0"
+    "vscode": "^1.63.0"
   },
   "categories": [
     "Programming Languages"
@@ -180,10 +180,10 @@
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
-    "@types/vscode": "^1.50.0",
+    "@types/vscode": "^1.63.0",
     "fast-glob": "^3.2.4",
     "typescript": "^4.0.3",
-    "vsce": "1.81.0",
+    "vsce": "2.6.7",
     "yaml": "^1.10.0"
   },
   "scripts": {

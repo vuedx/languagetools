@@ -1,7 +1,7 @@
 import Path from 'node:path'
 import FS from 'node:fs'
 import fetch, { Headers } from 'node-fetch'
-import * as semver from 'semver'
+import semver from 'semver'
 
 /**
  * @param {string} itemName
@@ -33,9 +33,10 @@ async function findLatestVersion(itemName) {
     },
   )
 
-  const body = /** @type {Array<{results: Array<{extensions: Array<{versions: Array<{version: string}>}>}>}>} */ (await response.json())
-  const extension = body
-    .flatMap((item) => item.results.flatMap((result) => result.extensions))
+  const body = /** @type {{results: Array<{extensions: Array<{versions: Array<{version: string}>}>}>}} */ (await response.json())
+
+  const extension = body.results
+    .flatMap((result) => result.extensions)
     .find((extension) => extension != null)
 
   if (extension != null) return extension.versions[0]?.version
@@ -110,12 +111,12 @@ async function transform(dir) {
   delete pkg.devDependencies
 
   if (RELEASE_CHANNEL === 'pre-release') {
-    pkg.preview = true
     pkg['pre-release'] = true
     pkg.version = getNextPreReleaseVersion(
       pkg.version,
       await findLatestVersion(`${pkg.publisher}.${pkg.name}`),
     )
+    console.debug('Setting version to', pkg.version)
   } else {
     if (Array.isArray(pkg.contributions?.jsonValidation)) {
       pkg.contributions.jsonValidation[0].url = `https://unpkg.com/@vuedx/projectconfig@${pkg.version}/schema.json`

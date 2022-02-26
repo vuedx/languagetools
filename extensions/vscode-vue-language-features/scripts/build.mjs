@@ -18,9 +18,13 @@ const dir = Path.resolve(__dirname, '..')
 
 prepareExtensionForPackaging(dir, () => {
   const execArgs = { stdio: [0, 1, 2], cwd: dir }
+  const RELEASE_CHANNEL = /** @type {'release'|'pre-release'} */ (process.env[
+    'RELEASE_CHANNEL'
+  ] ?? 'release')
+  const args = RELEASE_CHANNEL === 'pre-release' ? '--pre-release' : ''
 
   execSync(
-    `$(pnpm bin)/vsce package --out vue-language-features.vsix`,
+    `$(pnpm bin)/vsce package --no-dependencies ${args} --out vue-language-features.vsix`,
     execArgs,
   )
 
