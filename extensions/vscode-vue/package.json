@@ -188,7 +188,7 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "prerelease": "pnpm build",
-    "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath ./vue.vsix"
+    "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath ./vue.vsix",
+    "pre-release": "vsce publish --pre-release -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath ./vue.vsix"
   }
 }

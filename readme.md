@@ -48,9 +48,9 @@ A set of tools for better developer experience aka Vue Developer Experience or V
 
 ### VS Code Extensions
 
-- [Preview](https://github.com/znck/preview/tree/main/extension) — a quick-prototyping and component management tool — [insiders](https://marketplace.visualstudio.com/items?itemName=znck.preview-insiders) [stable](https://marketplace.visualstudio.com/items?itemName=znck.preview)
-- [Vue Syntax Highlight](./extensions/vscode-vue) — provides syntax highlight — [insiders](https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features-insiders) [stable](https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features)
-- [Vue Language Features](./extensions/vscode-vue-language-features) — provides typescript integration for VS Code — [insiders](https://marketplace.visualstudio.com/items?itemName=znck.vue-insiders) [stable](https://marketplace.visualstudio.com/items?itemName=znck.vue)
+- [Preview](https://github.com/znck/preview/tree/main/extension) — a quick-prototyping and component management tool — [Extension](https://marketplace.visualstudio.com/items?itemName=znck.preview)
+- [Vue Syntax Highlight](./extensions/vscode-vue) — provides syntax highlight — [Extension](https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features)
+- [Vue Language Features](./extensions/vscode-vue-language-features) — provides typescript integration for VS Code — [Extension](https://marketplace.visualstudio.com/items?itemName=znck.vue)
 
 ### Packages
 

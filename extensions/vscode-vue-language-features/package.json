@@ -4,7 +4,7 @@
   "name": "vue-language-features",
   "publisher": "znck",
   "displayName": "VueDX",
-  "version": "0.7.6",
+  "version": "0.8.0",
   "description": "Advanced TypeScript/JavaScript support for Vue",
   "icon": "logo.png",
   "main": "dist/index.js",
@@ -41,7 +41,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/znck/vue-developer-experience"
+    "url": "https://github.com/znck/vue-developer-experience",
+    "directory": "extensions/vscode-vue-language-features"
   },
   "keywords": [
     "vue",
@@ -182,7 +183,7 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "prerelease": "pnpm build",
-    "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath vue-language-features.vsix"
+    "release": "vsce publish -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath vue-language-features.vsix",
+    "pre-release": "vsce publish --pre-release -p ${VSCODE_MARKETPLACE_TOKEN} --packagePath vue-language-features.vsix"
   }
 }
