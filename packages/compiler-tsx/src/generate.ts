@@ -684,12 +684,17 @@ function genPropDirectiveNode(
   if (!shouldInlineDirectiveNode(node)) return
   if (node.name === 'bind') {
     if (isStaticExpression(node.arg)) {
-      const value =
-        tag === 'input' &&
-        (node.arg.content === 'true-value' ||
-          node.arg.content === 'false-value')
-          ? node.arg.content
-          : camelCase(node.arg.content)
+      const shouldAvoidCamelize =
+        node.arg.content.startsWith('data-') ||
+        node.arg.content.startsWith('aria-') ||
+        // true-value and false-value attributes on input/component
+        ((tag === 'input' || tag === 'component') &&
+          (node.arg.content === 'true-value' ||
+            node.arg.content === 'false-value'))
+
+      const value = shouldAvoidCamelize
+        ? node.arg.content
+        : camelCase(node.arg.content)
       context.write(value, node.arg.loc)
       genAttributeValue(context, node.exp)
     }
@@ -700,7 +705,7 @@ function genPropDirectiveNode(
         .map((chunk) => camelCase(chunk))
         .join(':')
       context.write(
-        'on' + name.substr(0, 1).toUpperCase() + name.substr(1),
+        'on' + name.substring(0, 1).toUpperCase() + name.substring(1),
         node.arg.loc,
       )
       genAttributeValue(context, node.exp, true)
