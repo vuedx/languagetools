@@ -69,7 +69,7 @@ export function createResolveComponentTransform(
       const prefix = node.tag.split('.')[0] ?? node.tag
       const id = `${pascalCase(prefix)}`
       node.resolvedName = node.tag.includes('.')
-        ? id + node.tag.substr(prefix.length)
+        ? id + node.tag.substring(prefix.length)
         : id
       if (!customContext.scope.hasIdentifier(id)) {
         customContext.scope.addIdentifier(id)

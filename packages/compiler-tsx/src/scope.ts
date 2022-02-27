@@ -93,9 +93,11 @@ export function withScope(ast: RootNode): RootNode {
           parent.exp === node
         )
       ) {
-        getIdentifiers(node.content).forEach((identifier) =>
-          scope.getBinding(identifier),
-        )
+        const isOnDirective = isDirectiveNode(parent) && parent.name === 'on'
+        getIdentifiers(node.content).forEach((identifier) => {
+          if (isOnDirective && identifier === '$event') return
+          scope.getBinding(identifier)
+        })
       }
     } else if (isElementNode(node)) {
       node.props.forEach((prop) => {
