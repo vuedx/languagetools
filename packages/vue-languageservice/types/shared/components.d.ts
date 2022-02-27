@@ -45,13 +45,13 @@ export function defineSetupComponent<P, E, B>(
   {}, // PropsOrPropOptions
   B, // RawBindings
   {}, // D
-  {}, // C
-  {}, // M
+  {}, // C = ComputedOptions
+  {}, // M = MethodOptions
   {}, // Mixin
   {}, // Extends
-  {}, // E
+  {}, // E = EmitsOptions
   string, // EE
-  VNodeProps & AllowedComponentProps & ComponentCustomProps, // PP
+  VNodeProps & AllowedComponentProps & ComponentCustomProps, // PP = PublicProps
   P & EmitsToProps<ToEmitOptions<E>>, // Props
   {} // Defaults
 >

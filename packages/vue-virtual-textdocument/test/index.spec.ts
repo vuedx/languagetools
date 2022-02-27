@@ -26,10 +26,14 @@ describe('VueSFCDocument', () => {
 
     expect(doc.getTypeScriptText()).toMatchInlineSnapshot(`
       "import 'vuedx~runtime'
-      import \\"./Example.vue?vue&type=template&lang\\"
+      import { _Slots } from \\"./Example.vue?vue&type=template&lang\\"
       import _Self from \\"./Example.vue?vue&type=script&setup=true&lang\\"
       export * from \\"./Example.vue?vue&type=script&setup=true&lang\\"
-      const Example = _Self
+
+      class Example {
+        $props: InstanceType<typeof _Self>['$props']
+        $slots: _Slots
+      }
       export default Example"
     `)
 
@@ -80,6 +84,13 @@ describe('VueSFCDocument', () => {
           </Foo.Bar>
         )
       }
+      /*<vuedx:diagnosticsIgnore>*/
+      function _slots(_ctx: _Self) {
+        let val = _ctx.val;
+        return [].flat()
+      }
+      export type _Slots = VueDX.internal.Slots<ReturnType<typeof _slots>>
+      /*</vuedx:diagnosticsIgnore>*/
       "
     `)
   })

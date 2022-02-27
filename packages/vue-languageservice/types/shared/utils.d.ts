@@ -5,6 +5,8 @@ export type TupleToUnion<T> = T extends Readonly<[infer F, ...infer R]>
   ? R
   : never
 
+export type UnwrapArray<T> = T extends Array<infer I> ? I : T extends ReadonlyArray<infer I> ? I : T;
+
 export type UnionToIntersection<U> =
   (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never;
 

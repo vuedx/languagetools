@@ -22,6 +22,7 @@ import {
   isInterpolationNode,
   isPlainElementNode,
   isRootNode,
+  isSlotNode,
   isSimpleExpressionNode,
   isSimpleIdentifier,
   isTextNode,
@@ -30,6 +31,8 @@ import {
   SimpleExpressionNode,
   SourceLocation,
   TextNode,
+  traverse,
+  TraversalAncestors,
 } from '@vuedx/template-ast-types'
 import * as Path from 'path'
 import { RawSourceMap, SourceNode } from 'source-map'
@@ -238,7 +241,121 @@ export function generate(
     .newLine()
   options.on('end', context)
 
+  genSlotTypes(ast, context)
+
   return context.getOutput()
+}
+
+function genSlotTypes(root: RootNode, context: GenerateContext): void {
+  const slots: Array<[ElementNode, TraversalAncestors]> = []
+
+  traverse(root, (node, ancestors) => {
+    if (isSlotNode(node)) {
+      slots.push([node, ancestors.slice()])
+    }
+  })
+
+  context.write(annotations.diagnosticsIgnore.start).newLine()
+  context.write('function _slots(_ctx: _Self) {').newLine().indent()
+  root.scope.globals.forEach((id) => {
+    context.write(`let ${id} = _ctx.${id};`).newLine()
+  })
+  context.write('return [').indent()
+  if (slots.length > 1) context.newLine()
+  for (const [slot, ancestors] of slots) {
+    for (const { node } of ancestors.slice().reverse()) {
+      if (isForNode(node)) {
+        context.write('VueDX.internal.renderList(')
+        genForNodeArgs(context, node)
+        context.write(' => (').newLine().indent()
+      }
+    }
+
+    //#region slot
+    const name = findProp(slot, 'name', false, true)
+    context.write('{ ')
+    //#region slot name
+    if (isAttributeNode(name)) {
+      if (name.value != null) {
+        context.write(JSON.stringify(name.value.content))
+      } else {
+        context.write('undefined')
+      }
+    } else if (isDirectiveNode(name)) {
+      context.write('[')
+      if (name.exp != null) {
+        genExpressionNode(context, name.exp, true)
+      } else {
+        context.write('undefined')
+      }
+      context.write(']')
+    } else {
+      context.write('"default"')
+    }
+    context.write(': ')
+    //#endregion
+
+    //#region slot props
+    context.write('{ ')
+    slot.props.forEach((prop) => {
+      if (prop === name) return
+      if (isAttributeNode(prop)) {
+        context
+          .write(prop.name, createLoc(prop.loc, 0, prop.name.length))
+          .write(': ')
+        if (prop.value != null) {
+          context.write(JSON.stringify(prop.value.content), prop.value.loc)
+        } else {
+          context.write('true')
+        }
+        context.write(', ')
+      } else if (prop.name === 'bind') {
+        if (prop.arg != null) {
+          if (isStaticExpression(prop.arg)) {
+            context.write(JSON.stringify(prop.arg.content), prop.arg.loc)
+          } else {
+            context.write('[')
+            genExpressionNode(context, prop.arg)
+            context.write(']')
+          }
+
+          context.write(': ')
+          if (prop.exp != null) {
+            genExpressionNode(context, prop.exp, true)
+          } else {
+            context.write('true')
+          }
+          context.write(', ')
+        } else {
+          if (prop.exp != null) {
+            context.write('...(')
+            genExpressionNode(context, prop.exp, false)
+            context.write('), ')
+          }
+        }
+      }
+    })
+    context.write('}')
+    //#endregion
+    context.write(' }')
+    //#endregion
+    for (const { node } of ancestors) {
+      if (isForNode(node)) {
+        context.newLine().deindent().write(')).flat()')
+      }
+    }
+
+    if (slots.length > 1) context.write(',').newLine()
+  }
+  context.deindent().write('].flat()').deindent().newLine()
+
+  context.write('}').newLine()
+  context
+    .write(
+      'export type _Slots = VueDX.internal.Slots<ReturnType<typeof _slots>>',
+    )
+    .newLine()
+  context.write(annotations.diagnosticsIgnore.end).newLine()
 }
 
 function genTemplateChildNode(context: GenerateContext, node: Node): void {
@@ -499,7 +616,7 @@ function genComponentSlots(
     if (isSimpleExpressionNode(node.name)) {
       const isConstant = isStaticExpression(node.name)
       if (isConstant) {
-        context.write(node.name.content, node.name.loc)
+        context.write(JSON.stringify(node.name.content), node.name.loc)
         context.write(': ')
       } else {
         context.write('[')
@@ -1053,7 +1170,7 @@ function isIfNode(node: Node): node is IfNode {
 }
 
 function isForNode(node: Node): node is ForNode {
-  return node.type === 11 /* NodeTypes.IF */
+  return node.type === 11 /* NodeTypes.For */
 }
 
 function genForNode(context: GenerateContext, node: ForNode): void {

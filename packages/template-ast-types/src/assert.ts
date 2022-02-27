@@ -10,6 +10,7 @@ import {
   PlainElementNode,
   RootNode,
   SimpleExpressionNode,
+  SlotOutletNode,
   TemplateNode,
   TextNode,
 } from '@vue/compiler-core'
@@ -66,6 +67,15 @@ export function isPlainElementNode(node: unknown): node is PlainElementNode {
  */
 export function isComponentNode(node: unknown): node is ComponentNode {
   return isElementNode(node) && node.tagType === 1
+}
+
+/**
+ * Checks if it is an AST SlotNode.
+ *
+ * @public
+ */
+export function isSlotNode(node: unknown): node is SlotOutletNode {
+  return isElementNode(node) && node.tag === 'slot'
 }
 
 /**

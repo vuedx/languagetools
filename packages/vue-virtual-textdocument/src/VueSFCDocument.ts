@@ -290,6 +290,7 @@ export class VueSFCDocument extends ProxyDocument {
 
     const code: string[] = [`import 'vuedx~runtime'`]
     const props: string[] = [] // TODO: Detect inner element to forward attrs.
+    const slots: string[] = [] // TODO: Detect slot types from script/script setup.
     const files = new Set<string>()
 
     const createImportSource = (id: string): string =>
@@ -303,7 +304,8 @@ export class VueSFCDocument extends ProxyDocument {
         if (isPlainElementNode(node)) {
           props.push(`JSX.IntrinsicElements['${node.tag}']`)
         }
-        code.push(`import ${createImportSource(id)}`)
+        code.push(`import { _Slots } from ${createImportSource(id)}`)
+        slots.push('_Slots')
       }
     }
 
@@ -355,8 +357,13 @@ export class VueSFCDocument extends ProxyDocument {
     }
 
     if (props.length === 0) props.push('{}')
+    if (slots.length === 0) slots.push('{}')
 
-    code.push(`const ${name} = _Self`)
+    code.push('')
+    code.push(`class ${name} {`)
+    code.push(`  $props: ${props.join(' & ')}`)
+    code.push(`  $slots: ${slots.join(' & ')}`)
+    code.push('}')
     code.push(`export default ${name}`)
 
     return {
