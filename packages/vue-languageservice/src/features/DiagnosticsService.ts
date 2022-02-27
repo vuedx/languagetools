@@ -305,7 +305,7 @@ export class DiagnosticsService {
           )
         } catch (error) {
           // Ignore for now.
-          this.logger.error(error)
+          this.logger.error(error as Error)
         }
       })
 

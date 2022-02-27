@@ -217,7 +217,7 @@ export class FilesystemService implements Disposable {
     )
 
     if (result == null) {
-      const text = file.generated?.getText().substr(0, range.start)
+      const text = file.generated?.getText().substring(0, range.start)
       if (text?.trim().endsWith(annotations.missingExpression) === true) {
         return this.getAbsoluteOffsets(file, {
           start: range.start - 10, // anywhere in comment

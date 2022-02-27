@@ -166,7 +166,7 @@ export class VueBlockDocument {
         this.errors = [
           {
             code: 1,
-            message: error.message,
+            message: (error as Error).message,
             severity: 'error',
             start: block.loc.start.offset,
             length: 1,
@@ -279,7 +279,7 @@ export class VueBlockDocument {
         case MappingKind.reverseOnly:
           return {
             offset: result.offset,
-            length: result.mapping.s.e - result.mapping.s.e,
+            length: result.mapping.s.e - result.mapping.s.s,
           }
 
         case MappingKind.copy: {
