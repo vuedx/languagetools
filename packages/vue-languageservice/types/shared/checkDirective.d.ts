@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
-import { Directive, DefineComponent } from '@vue/runtime-core'
+import { Directive } from '@vue/runtime-core'
 import { DirectiveUsage, VModelInput } from './directives'
 import {
   EventName,
@@ -7,7 +7,7 @@ import {
   KnownKeys,
   OnlyEventNames,
   RemoveOnPrefix,
-  TupleToUnion,
+  TupleToUnion
 } from './utils'
 
 type GenericInputModelCheck<B = string> = <E extends B>(
@@ -174,21 +174,8 @@ export function checkDirective<
   D extends Directive<T, E>
 >(dir: D, tag: T, directives: Array<DirectiveUsage<A, E, M>>): any
 
+
+
 type ExtractPublicInstance<T> = T extends new () => infer R ? R : never
-type PropsOf<T> = T extends DefineComponent<
-  unknown, // PropsOrPropOptions
-  any, // RawBindings
-  any, // D
-  any, // C
-  any, // M
-  any, // Mixin
-  any, // Extends
-  any, // E
-  any, // EE
-  unknown, // PP
-  any, // Props
-  any // Defaults
->
-  ? InstanceType<T>['$props']
-  : {}
+type PropsOf<T> =  T extends abstract new (...args: unknown[]) => { $props: infer Props } ? Props : {}
 type Get<T, K, F = never> = K extends keyof T ? T[K] : F

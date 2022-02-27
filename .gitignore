@@ -26,3 +26,9 @@ node_modules
 *.log
 .nyc_output/
 coverage/
+
+# Local debugging files
+*.wip.js
+*.wip.jsx
+*.wip.ts
+*.wip.tsx
