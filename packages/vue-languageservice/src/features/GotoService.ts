@@ -180,11 +180,6 @@ export class GotoService {
             this.getDefinitionAtPosition(fileName, range.start)?.slice() ?? []
           )
         } else if (blockFile.isOffsetInIgonredZone(info.textSpan.start)) {
-          const definitons =
-            this.service
-              .getTypeDefinitionAtPosition(fileName, info.textSpan.start)
-              ?.slice() ?? []
-
           this.logger.debug(
             `IgnoredZone(${this.depth.length}): ${
               info.textSpan.start
@@ -196,12 +191,13 @@ export class GotoService {
                   info.textSpan.start + info.textSpan.length,
                 ),
             )}`,
-            definitons,
           )
 
-          return definitons.flatMap((definition) =>
-            this.normalizeTSDefinitionInfo(definition),
-          )
+          return (
+            this.service
+              .getTypeDefinitionAtPosition(fileName, info.textSpan.start)
+              ?.slice() ?? []
+          ).flatMap((definition) => this.normalizeTSDefinitionInfo(definition))
         }
 
         info.textSpan = this.getTextSpan(blockFile, info.textSpan)
