@@ -70,7 +70,7 @@ export class FilesystemService implements Disposable {
   }
 
   public getLaguageId(fileName: string): string {
-    const ext = Path.posix.extname(fileName).substr(1)
+    const ext = Path.posix.extname(fileName).substring(1)
 
     switch (ext) {
       case 'js':
@@ -147,12 +147,12 @@ export class FilesystemService implements Disposable {
   public removeVirtualFileQuery(fileName: string): string {
     const index = fileName.indexOf('?vue')
     if (index < 0) return fileName
-    return fileName.substr(0, index)
+    return fileName.substring(0, index)
   }
 
   public removeVirtualFileScheme(fileName: string): string {
     if (fileName.startsWith('^vue:')) {
-      return fileName.substr(5)
+      return fileName.substring(5)
     }
 
     return fileName
@@ -162,7 +162,7 @@ export class FilesystemService implements Disposable {
     if (this.isVueVirtualFile(fileName))
       return this.removeVirtualFileQuery(fileName)
     else if (this.isVueTsFile(fileName))
-      return fileName.substr(0, fileName.length - 3)
+      return fileName.substring(0, fileName.length - 3)
     return fileName
   }
 
@@ -180,6 +180,14 @@ export class FilesystemService implements Disposable {
 
   public isVueVirtualSchemeFile(fileName: string): boolean {
     return fileName.startsWith('^vue:')
+  }
+
+  public isVueRuntimeFile(fileName: string): boolean {
+    return fileName.endsWith('.vuedx_runtime.d.ts')
+  }
+
+  public isProjectRuntimeFile(fileName: string): boolean {
+    return fileName.endsWith('project.vuedx_project_runtime.d.ts')
   }
 
   public getAbsolutePosition(

@@ -1,40 +1,73 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import type {
-  DefineComponent, EmitsOptions,
-  ObjectEmitsOptions, VNodeProps, AllowedComponentProps, ComponentCustomProps
-} from '@vue/runtime-core';
-import type { EventName, KnownKeys, Overloads, TupleToUnion, UnionToIntersection } from './utils';
+  AllowedComponentProps,
+  ComponentCustomProps,
+  DefineComponent,
+  EmitsOptions,
+  VNodeProps,
+  VNodeChild,
+  GlobalComponents,
+  Component,
+} from '@vue/runtime-core'
+import type { EmitsToProps } from './emits'
+import type {
+  KnownKeys,
+  Overloads,
+  TupleToUnion,
+  UnionToIntersection,
+} from './utils'
 
 declare global {
   namespace JSX {
-    interface IntrinsicElements { }
-    interface IntrinsicAttributes { }
+    interface IntrinsicElements {}
+    interface IntrinsicAttributes {}
   }
 }
 
+declare module '@vue/runtime-core' {
+  export interface GlobalComponents extends Record<string, Component> {}
+}
+
+type ComponentFromProps<P> = new () => {
+  $props: P
+  $slots: { default(): VNodeChild }
+}
+
 export function resolveComponent<T extends {}, A, B>(
-  components: T,
-  name: A,
-  pascalName?: B,
-): A extends keyof T
+  localRegisteredComponents: T,
+  tagNameOrComponent: A,
+  tagNameInPascalName?: B,
+): A extends Component
+  ? A
+  : A extends keyof KnownKeys<T>
   ? T[A]
-  : B extends keyof T
+  : B extends keyof KnownKeys<T>
   ? T[B]
   : A extends keyof KnownKeys<JSX.IntrinsicElements>
-  ? JSX.IntrinsicElements[A] 
+  ? ComponentFromProps<JSX.IntrinsicElements[A]>
   : B extends keyof KnownKeys<JSX.IntrinsicElements>
-  ? JSX.IntrinsicElements[B]
+  ? ComponentFromProps<JSX.IntrinsicElements[B]>
+  : A extends keyof KnownKeys<GlobalComponents>
+  ? GlobalComponents[A]
+  : B extends keyof KnownKeys<GlobalComponents>
+  ? GlobalComponents[B]
   : never
 
-type EmitsToProps<T extends EmitsOptions> = T extends string[] ? {
-  [K in string & EventName<T[number]>]?: (...args: any[]) => any;
-} : T extends ObjectEmitsOptions ? {
-  [K in string & EventName<Capitalize<string & keyof T>>]?: K extends `on${infer C}` ? T[Uncapitalize<C>] extends null ? (...args: any[]) => any : (...args: T[Uncapitalize<C>] extends (...args: infer P) => any ? P : never) => any : never;
-} : {};
-
-
-type TypeEmitsToOptions<T, TU = TupleToUnion<Overloads<T>>> = UnionToIntersection<TU extends ((eventName: infer P, ...rest: infer A) => infer R) ? P extends string ? { [K in P]: (...args: A) => R } : {} : {}>
-type ToEmitOptions<T> = T extends (...args: any) => any ? TypeEmitsToOptions<T> & {} : T extends EmitsOptions ? T : {}
+type TypeEmitsToOptions<
+  T,
+  TU = TupleToUnion<Overloads<T>>
+> = UnionToIntersection<
+  TU extends (eventName: infer P, ...rest: infer A) => infer R
+    ? P extends string
+      ? { [K in P]: (...args: A) => R }
+      : {}
+    : {}
+>
+type ToEmitOptions<T> = T extends (...args: any) => any
+  ? TypeEmitsToOptions<T> & {}
+  : T extends EmitsOptions
+  ? T
+  : {}
 
 export function defineSetupComponent<P, E, B>(
   props: P,

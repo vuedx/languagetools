@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "dependencies": {
+    "vue": "^3.2",
+    "vue-router": "^4.0"
+  }
+}

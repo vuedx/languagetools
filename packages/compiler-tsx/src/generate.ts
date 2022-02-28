@@ -632,6 +632,13 @@ function genComponentSlots(
     context.write(') => {').newLine()
 
     context.indent()
+
+    // generate scope
+    node.hoists.forEach((hoist) => {
+      genExpressionNode(context, hoist)
+      context.newLine()
+    })
+
     //#region 7 <
     context.write('return (').newLine()
     context.indent()

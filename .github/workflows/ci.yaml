@@ -211,9 +211,12 @@ jobs:
           RELEASE_CHANNEL: pre-release
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
       - name: Publish Pre-release Packages
-        run: |
+        run: >
+          pnpm recursive exec -- pnpm version prerelease --preid=next-$(date
+          +%s) --no-commit-hooks --no-git-tag-version
+
           echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
-          pnpm recursive exec -- npm version prerelease --preid=next-$(date +%s)
+
           pnpm recursive publish --tag next --access public --no-git-checks
   check_release:
     name: Check Release

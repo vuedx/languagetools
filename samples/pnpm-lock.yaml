@@ -47,6 +47,14 @@ importers:
     dependencies:
       vue: 3.2.1
 
+  vue3/typescript-with-vueconfig:
+    specifiers:
+      vue: ^3.2
+      vue-router: ^4.0
+    dependencies:
+      vue: 3.2.1
+      vue-router: 4.0.12_vue@3.2.1
+
 packages:
 
   /@babel/helper-validator-identifier/7.12.11:
@@ -82,6 +90,10 @@ packages:
     dependencies:
       '@vue/compiler-core': 3.2.1
       '@vue/shared': 3.2.1
+    dev: false
+
+  /@vue/devtools-api/6.0.12:
+    resolution: {integrity: sha512-iO/4FIezHKXhiDBdKySCvJVh8/mZPxHpiQrTy+PXVqJZgpTPTdHy4q8GXulaY+UKEagdkBb0onxNQZ0LNiqVhw==}
     dev: false
 
   /@vue/reactivity/3.2.1:
@@ -129,6 +141,15 @@ packages:
   /to-fast-properties/2.0.0:
     resolution: {integrity: sha1-3F5pjL0HkmW8c+A3doGk5Og/YW4=}
     engines: {node: '>=4'}
+    dev: false
+
+  /vue-router/4.0.12_vue@3.2.1:
+    resolution: {integrity: sha512-CPXvfqe+mZLB1kBWssssTiWg4EQERyqJZes7USiqfW9B5N2x+nHlnsM1D3b5CaJ6qgCvMmYJnz+G0iWjNCvXrg==}
+    peerDependencies:
+      vue: ^3.0.0
+    dependencies:
+      '@vue/devtools-api': 6.0.12
+      vue: 3.2.1
     dev: false
 
   /vue/3.2.1:

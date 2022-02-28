@@ -3,6 +3,8 @@ import { cache, toPosixPath } from '@vuedx/shared'
 import * as Path from 'path'
 import type { Disposable } from '../contracts/Disposable'
 import type { Typescript } from '../contracts/Typescript'
+import { CacheService } from './CacheService'
+import { LoggerService } from './LoggerService'
 
 export class TypescriptService implements Disposable {
   private static instance: TypescriptService | null = null
@@ -24,6 +26,8 @@ export class TypescriptService implements Disposable {
     )
   }
 
+  private readonly logger = new LoggerService('ts')
+
   constructor(
     public readonly lib: typeof Typescript,
     public readonly serverHost: Typescript.server.ServerHost,
@@ -31,8 +35,97 @@ export class TypescriptService implements Disposable {
     private readonly typesDir: string,
   ) {}
 
-  public getRuntimeHelperFileName(_version: '3.0' | '3.1' | '3.2'): string {
-    return toPosixPath(Path.resolve(this.typesDir, '3.x.d.ts'))
+  private readonly projectRuntimeFileCache = new CacheService<string>(
+    (fileName) => String(this.getVueProjectFor(fileName).projectVersion),
+  )
+
+  public getVueRuntimeFileName(_version: string): string {
+    return toPosixPath(Path.resolve(this.typesDir, '3.x.vuedx_runtime.d.ts'))
+  }
+
+  public getVueRuntimeFileNameFor(fileName: string): string {
+    return this.getVueRuntimeFileName(
+      this.getVueProjectFor(fileName).vueVersion,
+    )
+  }
+
+  public getProjectRuntimeFile(fileName: string): string {
+    const runtimeFileName = this.getProjectRuntimeFileName(fileName)
+
+    return this.projectRuntimeFileCache.withCache(
+      runtimeFileName,
+      (previous) => {
+        if (previous != null) return previous
+
+        const project = this.getVueProjectFor(fileName)
+        const lines: string[] = []
+
+        const components = Array.from(
+          Object.entries(project.config.globalComponents),
+        )
+
+        if (components.length > 0) {
+          const declarations = components.map(([name, sources]) => {
+            const types = sources
+              // Ignore namespace imports for now.
+              .filter((source) => source.exportName !== '*')
+              .map((source, index) => {
+                const localName = `${name}${index}`
+
+                if (source.exportName != null) {
+                  lines.push(
+                    `import { ${source.exportName} as ${localName} } from "${source.moduleName}"`,
+                  )
+                } else {
+                  lines.push(`import ${localName} from "${source.moduleName}"`)
+                }
+
+                return `typeof ${localName}`
+              })
+              .join(' | ')
+
+            return `${name}: ${types.trim().length === 0 ? 'never' : types}`
+          })
+
+          const globalComponentProperties = declarations
+            .map((declaration) => `    ${declaration}`)
+            .join('\n')
+          lines.push(
+            // Add global components to both vue an @vue/runtime-core
+            `declare module '@vue/runtime-core' {`,
+            `   interface GlobalComponents {`,
+            globalComponentProperties,
+            `   }`,
+            `}`,
+            `declare module 'vue' {`,
+            `   interface GlobalComponents {`,
+            globalComponentProperties,
+            `   }`,
+            `}`,
+          )
+        }
+
+        const code = lines.join('\n') + '\n'
+
+        this.logger.debug(
+          `Creating ${runtimeFileName} from ${
+            project.projectFile ?? '<inferred>'
+          }`,
+          project.config.globalComponents,
+          code,
+        )
+
+        return code
+      },
+    )
+  }
+
+  public getProjectRuntimeFileName(fileName: string): string {
+    const project = this.getVueProjectFor(fileName)
+
+    this.logger.debug(`Project runtime: ${toPosixPath(project.runtimeFile)}`)
+
+    return toPosixPath(project.runtimeFile)
   }
 
   /**

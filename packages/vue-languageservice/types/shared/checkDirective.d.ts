@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
-import { Directive } from '@vue/runtime-core'
+import { AllowedComponentProps, ComponentCustomProps, Directive, VNodeProps } from '@vue/runtime-core'
 import { DirectiveUsage, VModelInput } from './directives'
 import {
   EventName,
@@ -101,64 +101,64 @@ export function checkOnDirective<T>(
   tag: T,
 ): T extends keyof KnownKeys<JSX.IntrinsicElements>
   ? <
-      A extends RemoveOnPrefix<OnlyEventNames<keyof JSX.IntrinsicElements[T]>>,
-      M extends
-        | 'once'
-        | 'stop'
-        | 'prevent'
-        | 'capture'
-        | 'self'
-        | 'passive'
-        | (A extends KeyboardEventNames
-            ?
-                | 'enter'
-                | 'tab'
-                | 'delete'
-                | 'esc'
-                | 'space'
-                | 'left'
-                | 'right'
-                | 'up'
-                | 'down'
-                | 'ctrl'
-                | 'alt'
-                | 'shift'
-                | 'meta'
-                | 'exact'
-            : never)
-        | (A extends PointerEventNames
-            ?
-                | 'left'
-                | 'right'
-                | 'middle'
-                | 'ctrl'
-                | 'alt'
-                | 'shift'
-                | 'meta'
-                | 'exact'
-            : never)
-        | (A extends MouseEventNames
-            ?
-                | 'left'
-                | 'right'
-                | 'middle'
-                | 'ctrl'
-                | 'alt'
-                | 'shift'
-                | 'meta'
-                | 'exact'
-            : never),
-      E extends Get<JSX.IntrinsicElements[T], EventName<A>>
+    A extends RemoveOnPrefix<OnlyEventNames<keyof JSX.IntrinsicElements[T]>>,
+    M extends
+    | 'once'
+    | 'stop'
+    | 'prevent'
+    | 'capture'
+    | 'self'
+    | 'passive'
+    | (A extends KeyboardEventNames
+      ?
+      | 'enter'
+      | 'tab'
+      | 'delete'
+      | 'esc'
+      | 'space'
+      | 'left'
+      | 'right'
+      | 'up'
+      | 'down'
+      | 'ctrl'
+      | 'alt'
+      | 'shift'
+      | 'meta'
+      | 'exact'
+      : never)
+    | (A extends PointerEventNames
+      ?
+      | 'left'
+      | 'right'
+      | 'middle'
+      | 'ctrl'
+      | 'alt'
+      | 'shift'
+      | 'meta'
+      | 'exact'
+      : never)
+    | (A extends MouseEventNames
+      ?
+      | 'left'
+      | 'right'
+      | 'middle'
+      | 'ctrl'
+      | 'alt'
+      | 'shift'
+      | 'meta'
+      | 'exact'
+      : never),
+    E extends Get<JSX.IntrinsicElements[T], EventName<A>>
     >(
-      directives: Array<DirectiveUsage<A, E, M>>,
-    ) => E
+    directives: Array<DirectiveUsage<A, E, M>>,
+  ) => E
   : <
-      A extends RemoveOnPrefix<OnlyEventNames<keyof PropsOf<T>>>,
-      M extends 'once',
-      E extends Get<PropsOf<T>, EventName<A>>
+    A extends RemoveOnPrefix<OnlyEventNames<keyof PropsOf<T>>>,
+    M extends 'once',
+    E extends Get<PropsOf<T>, EventName<A>>
     >(
-      directives: Array<DirectiveUsage<A, E, M>>,
-    ) => E
+    directives: Array<DirectiveUsage<A, E, M>>,
+  ) => E
 
 export function checkModelDirective<
   T,
@@ -172,10 +172,8 @@ export function checkDirective<
   M extends string,
   E,
   D extends Directive<T, E>
->(dir: D, tag: T, directives: Array<DirectiveUsage<A, E, M>>): any
-
-
+>(dir: D, tag: T, directives: Array<DirectiveUsage<A, E, M>>): E
 
 type ExtractPublicInstance<T> = T extends new () => infer R ? R : never
-type PropsOf<T> =  T extends abstract new (...args: unknown[]) => { $props: infer Props } ? Props : {}
+type PropsOf<T> = T extends abstract new (...args: unknown[]) => { $props: infer Props } ? Props : T extends (props: infer Props) => unknown ? Props : AllowedComponentProps & ComponentCustomProps & VNodeProps
 type Get<T, K, F = never> = K extends keyof T ? T[K] : F

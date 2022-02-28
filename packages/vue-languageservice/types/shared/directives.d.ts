@@ -1,3 +1,12 @@
+/* eslint-disable @typescript-eslint/no-empty-interface */
+
+import type { GlobalDirectives } from '@vue/runtime-core'
+import type { KnownKeys } from './utils'
+
+declare module '@vue/runtime-core' {
+  interface GlobalDirectives {}
+}
+
 export interface DirectiveUsage<A, E, M extends string> {
   arg?: A
   exp?: E
@@ -11,7 +20,15 @@ export type VModelInput<E, EE = E> = DirectiveUsage<
 > & { _exp?: EE }
 
 export function resolveDirective<T extends {}, A, B>(
-  directives: T,
-  name: A,
-  cameelName?: B,
-): A extends keyof T ? T[A] : B extends keyof T ? T[B] : A
+  localRegisteredDirectives: T,
+  directiveName: A,
+  directiveNameInCamelCase?: B,
+): A extends keyof KnownKeys<T>
+  ? T[A]
+  : B extends keyof KnownKeys<T>
+  ? T[B]
+  : A extends keyof KnownKeys<GlobalDirectives>
+  ? GlobalDirectives[A]
+  : B extends keyof KnownKeys<GlobalDirectives>
+  ? GlobalDirectives[B]
+  : never

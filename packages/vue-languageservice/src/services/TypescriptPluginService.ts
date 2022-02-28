@@ -39,7 +39,8 @@ export class TypescriptPluginService
       if (
         this.fs.isVueFile(fileName) ||
         this.fs.isVueTsFile(fileName) ||
-        this.fs.isVueVirtualFile(fileName)
+        this.fs.isVueVirtualFile(fileName) ||
+        this.fs.isProjectRuntimeFile(fileName)
       ) {
         vueFiles.add(this.fs.getRealFileName(fileName))
       }

@@ -28,10 +28,11 @@ export function resolveComponents(
       add(getComponentName(resource), {
         moduleName: resolve(resource),
       })
-    } else
+    } else {
       Object.entries(resource).forEach(([key, value]) => {
         add(key, isString(value) ? { moduleName: resolve(value) } : value)
       })
+    }
   }
 
   return components

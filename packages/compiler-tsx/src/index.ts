@@ -75,9 +75,9 @@ export function compile(
     scopeId: null,
     nodeTransforms: [
       createResolveComponentTransform(customContext),
+      createSlotHoistScopeTransform(customContext),
       createTransformFor(customContext),
       createTransformIf(customContext),
-      createSlotHoistScopeTransform(customContext),
       createComponentChildrenTransform(customContext),
     ],
     onError(error) {

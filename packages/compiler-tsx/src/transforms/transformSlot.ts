@@ -11,7 +11,7 @@ export function createSlotHoistScopeTransform(
     const dir = findDir(node, 'slot', true)
     if (dir == null) return
 
-    customContext.scope.createNewHoistScope()
+    node.hoists = customContext.scope.createNewHoistScope()
 
     return () => {
       node.hoists = customContext.scope.popHoistScope()

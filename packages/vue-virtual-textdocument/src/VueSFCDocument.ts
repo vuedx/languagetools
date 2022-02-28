@@ -288,7 +288,10 @@ export class VueSFCDocument extends ProxyDocument {
   ): { content: string; files: Set<string> } {
     const { template, script, scriptSetup, styles, customBlocks } = descriptor
 
-    const code: string[] = [`import 'vuedx~runtime'`]
+    const code: string[] = [
+      `import 'vuedx~runtime'`,
+      `import 'vuedx~project-runtime'`,
+    ]
     const props: string[] = [] // TODO: Detect inner element to forward attrs.
     const slots: string[] = [] // TODO: Detect slot types from script/script setup.
     const files = new Set<string>()

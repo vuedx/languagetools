@@ -31,6 +31,8 @@ export function patchTSHosts(
         const exists = fileExists(fileName.substr(0, fileName.length - 3))
         if (exists) logger.debug(`Found ${fileName}`)
         return exists
+      } else if (fs.isProjectRuntimeFile(fileName)) {
+        return true
       }
 
       return fileExists(fileName)
@@ -42,7 +44,11 @@ export function patchTSHosts(
     options.serverHost,
     'watchFile',
     (watchFile) => (fileName, callback) => {
-      if (fs.isVueTsFile(fileName) || fs.isVueVirtualFile(fileName)) {
+      if (
+        fs.isVueTsFile(fileName) ||
+        fs.isVueVirtualFile(fileName) ||
+        fs.isProjectRuntimeFile(fileName)
+      ) {
         return { close: () => {} }
       }
 
@@ -71,6 +77,8 @@ export function patchTSHosts(
         const content = fs.getVueFile(fileName)?.getTypeScriptText()
         logger.debug(`Load ${fileName}${isDebug ? `\n${content ?? ''}` : ''}`)
         return content
+      } else if (fs.isProjectRuntimeFile(fileName)) {
+        return ts.getProjectRuntimeFile(fileName)
       }
 
       return readFile(fileName, encoding)
@@ -105,6 +113,10 @@ export function patchTSHosts(
     options.languageServiceHost,
     'getScriptVersion',
     (getScriptVersion) => (fileName: string): string => {
+      if (fs.isProjectRuntimeFile(fileName)) {
+        return `${ts.getVueProjectFor(fileName).projectVersion}`
+      }
+
       const version = getScriptVersion(fs.getRealFileName(fileName))
 
       if (
@@ -151,6 +163,10 @@ export function patchTSHosts(
         logger.error(`Missing snapshot: ${fileName}`)
 
         return undefined
+      } else if (fs.isProjectRuntimeFile(fileName)) {
+        return options.typescript.ScriptSnapshot.fromString(
+          ts.getProjectRuntimeFile(fileName),
+        )
       } else {
         return getScriptSnapshot(fileName)
       }
@@ -200,7 +216,7 @@ export function patchTSHosts(
       _options,
     ) => {
       // TODO: Use runtimeTypeDir instead.
-      if (containingFile === ts.getRuntimeHelperFileName('3.0')) {
+      if (fs.isVueRuntimeFile(containingFile)) {
         const anyProjectFile = first(project.getRootFiles())
         // Runtime dependencies have only 'vue' dependency for now.
         // TODO: Switch to resolveModuleNameFromCache
@@ -227,7 +243,9 @@ export function patchTSHosts(
           }" in "${containingFile}"`,
         )
 
-        return [result.resolvedModule]
+        return moduleNames.map((name) =>
+          name === '@vue/runtime-core' ? result.resolvedModule : undefined,
+        )
       }
 
       const isVueEntry = fs.isVueTsFile(containingFile)
@@ -235,7 +253,11 @@ export function patchTSHosts(
         if (moduleNames[0] !== 'vuedx~runtime') {
           throw new Error('Expected vuedx~runtime import in .vue.ts file')
         }
-        moduleNames = moduleNames.slice(1)
+        if (moduleNames[1] !== 'vuedx~project-runtime') {
+          throw new Error(
+            'Expected vuedx~project-runtime import in .vue.ts file',
+          )
+        }
       }
 
       const result =
@@ -271,10 +293,16 @@ export function patchTSHosts(
             }
           })
         }
-        result.unshift({
-          resolvedFileName: ts.getRuntimeHelperFileName('3.0'),
+
+        result[0] = result[0] ?? {
+          resolvedFileName: ts.getVueRuntimeFileNameFor(containingFile),
           isExternalLibraryImport: true,
-        })
+        }
+        result[1] = result[1] ?? {
+          resolvedFileName: ts.getProjectRuntimeFileName(containingFile),
+          isExternalLibraryImport: false,
+        }
+
         logger.debug('RESOLVE IN: ' + containingFile, moduleNames, result)
       }
       return result

@@ -163,9 +163,16 @@ export class GotoService {
             `TemplateGlobal(${this.depth.length}): ${
               info.textSpan.start
             }:${JSON.stringify(
-              blockFile.generated?.getText().substr(info.textSpan.start, 10),
+              blockFile.generated
+                ?.getText()
+                .substring(
+                  info.textSpan.start,
+                  info.textSpan.start + info.textSpan.length,
+                ),
             )} -> ${range.start}:${JSON.stringify(
-              blockFile.generated?.getText().substr(range.start, 10),
+              blockFile.generated
+                ?.getText()
+                .substring(range.start, range.start + range.length),
             )}`,
           )
 
@@ -177,16 +184,20 @@ export class GotoService {
             `IgnoredZone(${this.depth.length}): ${
               info.textSpan.start
             }:${JSON.stringify(
-              blockFile.generated?.getText().substr(info.textSpan.start, 10),
+              blockFile.generated
+                ?.getText()
+                .substring(
+                  info.textSpan.start,
+                  info.textSpan.start + info.textSpan.length,
+                ),
             )}`,
           )
 
           return (
-            this.getDefinitionAtPosition(
-              fileName,
-              info.textSpan.start,
-            )?.slice() ?? []
-          )
+            this.service
+              .getTypeDefinitionAtPosition(fileName, info.textSpan.start)
+              ?.slice() ?? []
+          ).flatMap((definition) => this.normalizeTSDefinitionInfo(definition))
         }
 
         info.textSpan = this.getTextSpan(blockFile, info.textSpan)
