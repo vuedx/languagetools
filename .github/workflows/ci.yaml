@@ -218,6 +218,8 @@ jobs:
           echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
 
           pnpm recursive publish --tag next --access public --no-git-checks
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
   check_release:
     name: Check Release
     runs-on: ubuntu-latest
