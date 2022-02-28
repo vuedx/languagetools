@@ -15,11 +15,11 @@
       "types/3.x.d.ts": [
         {
           "format": "dts",
-          "file": "lib/runtime/3.x.d.ts"
+          "file": "lib/runtime/3.x.vuedx_runtime.d.ts"
         },
         {
           "format": "dts",
-          "file": "../typescript-plugin-vue/runtime/3.x.d.ts"
+          "file": "../typescript-plugin-vue/runtime/3.x.vuedx_runtime.d.ts"
         }
       ]
     },

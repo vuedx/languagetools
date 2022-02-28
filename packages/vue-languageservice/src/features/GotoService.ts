@@ -163,9 +163,16 @@ export class GotoService {
             `TemplateGlobal(${this.depth.length}): ${
               info.textSpan.start
             }:${JSON.stringify(
-              blockFile.generated?.getText().substr(info.textSpan.start, 10),
+              blockFile.generated
+                ?.getText()
+                .substring(
+                  info.textSpan.start,
+                  info.textSpan.start + info.textSpan.length,
+                ),
             )} -> ${range.start}:${JSON.stringify(
-              blockFile.generated?.getText().substr(range.start, 10),
+              blockFile.generated
+                ?.getText()
+                .substring(range.start, range.start + range.length),
             )}`,
           )
 
@@ -173,19 +180,27 @@ export class GotoService {
             this.getDefinitionAtPosition(fileName, range.start)?.slice() ?? []
           )
         } else if (blockFile.isOffsetInIgonredZone(info.textSpan.start)) {
+          const definitons =
+            this.service
+              .getTypeDefinitionAtPosition(fileName, info.textSpan.start)
+              ?.slice() ?? []
+
           this.logger.debug(
             `IgnoredZone(${this.depth.length}): ${
               info.textSpan.start
             }:${JSON.stringify(
-              blockFile.generated?.getText().substr(info.textSpan.start, 10),
+              blockFile.generated
+                ?.getText()
+                .substring(
+                  info.textSpan.start,
+                  info.textSpan.start + info.textSpan.length,
+                ),
             )}`,
+            definitons,
           )
 
-          return (
-            this.getDefinitionAtPosition(
-              fileName,
-              info.textSpan.start,
-            )?.slice() ?? []
+          return definitons.flatMap((definition) =>
+            this.normalizeTSDefinitionInfo(definition),
           )
         }
 

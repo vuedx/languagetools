@@ -3,6 +3,6 @@ export function checkInterpolation(
 ): string
 
 /**
- * @deprecated
+ * @deprecated - You should not be using interpolation to render objects.
  */
 export function checkInterpolation(value: object | symbol | unknown[]): string

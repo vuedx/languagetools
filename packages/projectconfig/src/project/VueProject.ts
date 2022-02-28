@@ -30,48 +30,88 @@ export class VueProject {
 
   private readonly watchers: FileWatcher[] = []
 
+  private _vueVersion: string
+  private _projectVersion: number = 1
+
+  public readonly runtimeFile: string
+
+  public get vueVersion(): string {
+    return this._vueVersion
+  }
+
+  public get projectVersion(): number {
+    return this._projectVersion
+  }
+
   private constructor(
     protected readonly fs: FilesystemHost,
     public readonly rootDir: string,
     public readonly packageFile: string | null = null,
     public readonly projectFile: string | null = null,
   ) {
-    if (projectFile != null) {
+    this._vueVersion = '3.2.0'
+    this.runtimeFile = Path.resolve(
+      rootDir,
+      'project.vuedx_project_runtime.d.ts',
+    )
+    this.onPackageFileChange()
+    this.onProjectFileChange()
+
+    if (packageFile != null) {
       this.watchers.push(
-        fs.watchFile(projectFile, (fileName, event) => {
+        fs.watchFile(packageFile, (_fileName, event) => {
           if (event === FileWatcherEventKind.Changed) {
-            const content = fs.readFile(fileName)
-            if (content != null) {
-              try {
-                this.setConfig(JSON5.parse(content))
-              } catch (error) {
-                // FIXME: Store error for diagnostics usage.
-              }
-            }
+            this.onPackageFileChange()
           }
         }),
       )
     }
 
-    if (packageFile != null) {
+    if (projectFile != null) {
       this.watchers.push(
-        fs.watchFile(packageFile, (fileName, event) => {
+        fs.watchFile(projectFile, (_fileName, event) => {
           if (event === FileWatcherEventKind.Changed) {
-            const content = fs.readFile(fileName)
-            if (content != null) {
-              try {
-                const pkg = JSON.parse(content)
-                this.loadDependencies({
-                  ...pkg.devDependencies,
-                  ...pkg.dependencies,
-                })
-              } catch (error) {
-                // FIXME: Store error for diagnostics usage.
-              }
-            }
+            this.onProjectFileChange()
           }
         }),
       )
+    }
+  }
+
+  private onProjectFileChange(): void {
+    if (this.projectFile == null) return
+
+    const content = this.fs.readFile(this.projectFile)
+    if (content != null) {
+      try {
+        this.setConfig(JSON5.parse(content))
+      } catch (error) {
+        console.error(error)
+        // FIXME: Store error for diagnostics usage.
+      }
+    }
+  }
+
+  private onPackageFileChange(): void {
+    if (this.packageFile == null) return
+
+    const content = this.fs.readFile(this.packageFile)
+    if (content != null) {
+      try {
+        const pkg = JSON.parse(content)
+        this.loadDependencies({
+          ...pkg.devDependencies,
+          ...pkg.dependencies,
+        })
+      } catch (error) {
+        console.error(error)
+        // FIXME: Store error for diagnostics usage.
+      }
+
+      const vueVersion = this._dependencies['vue']
+      if (vueVersion != null) {
+        this._vueVersion = vueVersion
+      }
     }
   }
 
@@ -130,6 +170,8 @@ export class VueProject {
         config.globalDirectives,
       )
     }
+
+    this._projectVersion += 1
   }
 
   public get kind(): 'inferred' | 'configured' {
