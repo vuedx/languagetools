@@ -1,0 +1,9 @@
+{
+  "globalComponents": [
+    {
+      "RouterLink": { "moduleName": "vue-router", "exportName": "RouterLink" },
+      "MyRouterView": { "moduleName": "vue-router", "exportName": "RouterView" }
+    },
+    "./src/A.vue"
+  ]
+}
