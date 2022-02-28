@@ -63,9 +63,11 @@ export class ScopeManager {
     }
   }
 
-  createNewHoistScope(): void {
+  createNewHoistScope(): CompoundExpressionNode[] {
     this.hoists.push(this.currentScope)
     this.currentScope = []
+
+    return this.currentScope
   }
 
   popHoistScope(): CompoundExpressionNode[] {

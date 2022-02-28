@@ -22,7 +22,7 @@ export interface Options {
   /** Relative file import to get this context of render function. */
   selfSrc?: string
 
-  /** @deprecated */
+  /** @deprecated ??? What's alternative? */
   components?: Record<string, ComponentRegistration>
 
   /** @deprecated */
