@@ -51,7 +51,7 @@ export class DocumentService extends Installable {
     )
   }
 
-  private getVirtualFileUri(fileName: string): vscode.Uri {
+  public getVirtualFileUri(fileName: string): vscode.Uri {
     return vscode.Uri.file(fileName).with({ scheme: 'vue' })
   }
 
@@ -72,10 +72,10 @@ export class DocumentService extends Installable {
     } catch {}
   }
 
-  private removeVirtualFileQuery(fileName: string): string {
+  public removeVirtualFileQuery(fileName: string): string {
     const index = fileName.indexOf('?vue')
     if (index < 0) return fileName
-    return fileName.substr(0, index)
+    return fileName.substring(0, index)
   }
 
   public async getVirtualDocument(

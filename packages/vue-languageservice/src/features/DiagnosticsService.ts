@@ -13,15 +13,23 @@ import type {
   DiagnosticTag,
   Range,
 } from 'vscode-languageserver-types'
-import { INJECTABLE_TS_SERVICE } from '../constants'
-import type { TSLanguageService } from '../contracts/Typescript'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
 import { LoggerService } from '../services/LoggerService'
-import { TypescriptService } from '../services/TypescriptService'
+import { TypescriptContextService } from '../services/TypescriptContextService'
 import { ScriptSetupDiagnosticsProvider } from './diagnostics/ScriptSetupDiagnosticsProvider'
 import { TemplateGlobals } from './helpers'
+
+interface NormalizeOptions {
+  /**
+   * Only pass to force file on normalized diagnostics.
+   */
+  expectedFileName?: string
+
+  /** Diagnostics for ^vue scheme files */
+  isVueSchemeFile?: boolean
+}
 
 @injectable()
 export class DiagnosticsService {
@@ -45,14 +53,12 @@ export class DiagnosticsService {
   }
 
   constructor(
-    @inject(TypescriptService)
-    private readonly ts: TypescriptService,
+    @inject(TypescriptContextService)
+    private readonly ts: TypescriptContextService,
     @inject(FilesystemService)
     private readonly fs: FilesystemService,
     @inject(LanguageServiceProvider)
     private readonly lang: LanguageServiceProvider,
-    @inject(INJECTABLE_TS_SERVICE)
-    private readonly service: TSLanguageService,
     @inject(ScriptSetupDiagnosticsProvider)
     private readonly scriptSetup: ScriptSetupDiagnosticsProvider,
   ) {}
@@ -90,12 +96,12 @@ export class DiagnosticsService {
   }
 
   private readonly getVersion = (fileName: string): string => {
-    return (
-      this.ts
-        .getProjectFor(fileName)
-        ?.getScriptInfo(fileName)
-        ?.getLatestVersion() ?? '0'
-    )
+    const project = this.ts.getProjectFor(fileName)
+    if (project == null) return `-${Date.now()}`
+
+    return `${project.getProjectVersion()}-${project.getScriptVersion(
+      fileName,
+    )}`
   }
 
   public getDiagnostics(fileName: string): Diagnostic[] {
@@ -122,10 +128,10 @@ export class DiagnosticsService {
   public getExtraDiagnostics(fileName: string): Typescript.Diagnostic[] {
     return this.caches.extra.withCache(fileName, (result) => {
       if (result != null) return result
-
       this.logger.debug(`ExtraDiagnonstics in ${fileName}`)
       const diagnostics: Typescript.Diagnostic[] = []
 
+      if (this.fs.isVueSchemeFile(fileName)) return diagnostics
       const vueFile = this.fs.getVueFile(fileName)
       if (vueFile?.descriptor.scriptSetup != null) {
         const virtualFileName = vueFile.getBlockId(
@@ -154,13 +160,28 @@ export class DiagnosticsService {
   }
 
   public getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
+    if (this.fs.isVueSchemeFile(fileName)) {
+      const realFileName = this.fs.getRealFileName(fileName)
+      return (
+        this.ts
+          .getUndecoratedServiceFor(realFileName)
+          ?.getSemanticDiagnostics(realFileName)
+          .map((diagnostic) =>
+            this.normalizeTSDiagnostic(diagnostic, {
+              expectedFileName: fileName,
+              isVueSchemeFile: true,
+            }),
+          ) ?? []
+      )
+    }
+
     return this.caches.semantic.withCache(fileName, (result) => {
       if (result != null) return result
 
       this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
       return this.getDiagnosticsFromTS(fileName, (fileName) => {
         this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
-        return this.service.getSemanticDiagnostics(fileName)
+        return this.ts.service.getSemanticDiagnostics(fileName)
       })
     })
   }
@@ -168,12 +189,25 @@ export class DiagnosticsService {
   public getSyntacticDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
+    if (this.fs.isVueSchemeFile(fileName)) {
+      const realFileName = this.fs.getRealFileName(fileName)
+      return (this.ts
+        .getUndecoratedServiceFor(realFileName)
+        ?.getSyntacticDiagnostics(realFileName)
+        .map((diagnostic) =>
+          this.normalizeTSDiagnostic(diagnostic, {
+            expectedFileName: realFileName,
+            isVueSchemeFile: true,
+          }),
+        ) ?? []) as Typescript.DiagnosticWithLocation[]
+    }
+
     return this.caches.syntax.withCache(fileName, (result) => {
       if (result != null) return result
-      this.logger.debug(`SyntacticcDiagnonstics in ${fileName}`)
+      this.logger.debug(`SyntacticDiagnonstics in ${fileName}`)
       return this.getDiagnosticsFromTS(fileName, (fileName) => {
-        this.logger.debug(`SyntacticcDiagnonstics in ${fileName}`)
-        return this.service.getSyntacticDiagnostics(fileName)
+        this.logger.debug(`SyntacticDiagnonstics in ${fileName}`)
+        return this.ts.service.getSyntacticDiagnostics(fileName)
       }) as Typescript.DiagnosticWithLocation[]
     })
   }
@@ -181,12 +215,25 @@ export class DiagnosticsService {
   public getSuggestionDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
+    if (this.fs.isVueSchemeFile(fileName)) {
+      const realFileName = this.fs.getRealFileName(fileName)
+      return (this.ts
+        .getUndecoratedServiceFor(realFileName)
+        ?.getSuggestionDiagnostics(realFileName)
+        .map((diagnostic) =>
+          this.normalizeTSDiagnostic(diagnostic, {
+            expectedFileName: fileName,
+            isVueSchemeFile: true,
+          }),
+        ) ?? []) as Typescript.DiagnosticWithLocation[]
+    }
+
     return this.caches.suggestion.withCache(fileName, (result) => {
       if (result != null) return result
       this.logger.debug(`SuggestionDiagnonstics in ${fileName}`)
       return this.getDiagnosticsFromTS(fileName, (fileName) => {
         this.logger.debug(`SuggestionDiagnonstics in ${fileName}`)
-        return this.service.getSuggestionDiagnostics(fileName)
+        return this.ts.service.getSuggestionDiagnostics(fileName)
       }) as Typescript.DiagnosticWithLocation[]
     })
   }
@@ -258,7 +305,7 @@ export class DiagnosticsService {
           diagnostic.relatedInformation = diagnostic.relatedInformation?.map(
             (relatedInfo) => {
               // Only virtual files from current .vue file should be supported.
-              if (this.fs.isVueVirtualFile(relatedInfo.location.uri)) {
+              if (this.fs.isFilesystemSchemeFile(relatedInfo.location.uri)) {
                 relatedInfo.location.range = this.fs.getAbsoluteRange(
                   file,
                   doc,
@@ -310,15 +357,9 @@ export class DiagnosticsService {
       })
 
       return diagnostics
-    } else if (this.fs.isVueVirtualSchemeFile(fileName)) {
-      const filePath = this.fs.removeVirtualFileScheme(fileName)
-
-      return getter(filePath).map((diagnostic) =>
-        this.normalizeTSDiagnostic(diagnostic),
-      )
     } else {
       return getter(fileName).map((diagnostic) =>
-        this.normalizeTSDiagnostic(diagnostic, fileName),
+        this.normalizeTSDiagnostic(diagnostic, { expectedFileName: fileName }),
       )
     }
   }
@@ -364,7 +405,7 @@ export class DiagnosticsService {
           const range = TemplateGlobals.findLHS(blockFile, diagnostic.start)
           if (range == null) return null
 
-          const references = this.service.getReferencesAtPosition(
+          const references = this.ts.service.getReferencesAtPosition(
             fileName,
             range.start,
           )
@@ -510,22 +551,23 @@ export class DiagnosticsService {
     if (this.lastSourceFile?.[0] === fileName) return this.lastSourceFile[1]
 
     let sourceFile: Typescript.SourceFile | null = null
-    if (
-      this.fs.isVueFile(fileName) ||
-      this.fs.isVueVirtualFile(fileName) ||
-      this.fs.isVueTsFile(fileName)
-    ) {
-      sourceFile = this.fs.getVueFile(fileName) as any // VueSFCFile implements minimal required syntax.
-    } else if (this.fs.isVueVirtualSchemeFile(fileName)) {
-      const file = this.ts.getSourceFile(
-        this.fs.removeVirtualFileScheme(fileName),
-      )
+
+    if (this.fs.isVueSchemeFile(fileName)) {
+      const realFileName = this.fs.getRealFileName(fileName)
+      const file = this.ts.getSourceFile(realFileName)
+
       if (file != null) {
         sourceFile = {
           fileName,
           text: file.getFullText(),
         } as any
       }
+    } else if (
+      this.fs.isVueFile(fileName) ||
+      this.fs.isVueVirtualFile(fileName) ||
+      this.fs.isVueTsFile(fileName)
+    ) {
+      sourceFile = this.fs.getVueFile(fileName) as any // VueSFCFile implements minimal required syntax.
     }
 
     this.lastSourceFile = [
@@ -538,10 +580,7 @@ export class DiagnosticsService {
 
   private normalizeTSDiagnostic(
     diagnostic: Typescript.Diagnostic,
-    /**
-     * Only pass to force file on normalized diagnostics.
-     */
-    expectedFileName?: string,
+    options: NormalizeOptions = {},
   ): Typescript.Diagnostic {
     const file = diagnostic.file
     diagnostic = { ...diagnostic }
@@ -552,25 +591,28 @@ export class DiagnosticsService {
             diagnostic.file = file
           }
 
-          return this.normalizeTSDiagnosticRelatedInformation(diagnostic)
+          return this.normalizeTSDiagnosticRelatedInformation(
+            diagnostic,
+            options,
+          )
         },
       )
     }
 
     // Serve virtual files.
-    if (
-      expectedFileName != null &&
-      this.fs.isVueVirtualSchemeFile(expectedFileName)
-    ) {
+    if (options.isVueSchemeFile === true) {
       diagnostic.source = this.getSourceName(diagnostic.source ?? 'TS')
-      diagnostic.file = this.getSourceFile(expectedFileName)
+      if (options.expectedFileName != null) {
+        diagnostic.file = this.getSourceFile(options.expectedFileName)
+      }
+
       return diagnostic
     }
 
     const fileName = diagnostic.file?.fileName
 
-    if (expectedFileName != null) {
-      diagnostic.file = this.getSourceFile(expectedFileName)
+    if (options.expectedFileName != null) {
+      diagnostic.file = this.getSourceFile(options.expectedFileName)
     }
 
     if (fileName == null) {
@@ -584,12 +626,12 @@ export class DiagnosticsService {
       )
 
       diagnostic.source = this.getSourceName(diagnostic.source ?? 'TS')
-      diagnostic.file = this.getSourceFile(expectedFileName ?? fileName)
+      diagnostic.file = this.getSourceFile(options.expectedFileName ?? fileName)
       diagnostic.start = range.start
       diagnostic.length = range.length
     } else if (this.fs.isVueFile(fileName) || this.fs.isVueTsFile(fileName)) {
       diagnostic.source = this.getSourceName(diagnostic.source ?? 'TS')
-      diagnostic.file = this.getSourceFile(expectedFileName ?? fileName)
+      diagnostic.file = this.getSourceFile(options.expectedFileName ?? fileName)
     }
 
     return diagnostic
@@ -597,10 +639,11 @@ export class DiagnosticsService {
 
   private normalizeTSDiagnosticRelatedInformation(
     diagnostic: Typescript.DiagnosticRelatedInformation,
+    options: NormalizeOptions = {},
   ): Typescript.DiagnosticRelatedInformation {
     if (diagnostic.file == null) return diagnostic
 
-    return this.normalizeTSDiagnostic(diagnostic)
+    return this.normalizeTSDiagnostic(diagnostic, options)
   }
 
   private getSourceName(source?: string): string {

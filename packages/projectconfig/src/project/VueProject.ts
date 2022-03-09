@@ -85,9 +85,11 @@ export class VueProject {
     if (content != null) {
       try {
         this.setConfig(JSON5.parse(content))
-      } catch (error) {
-        console.error(error)
-        // FIXME: Store error for diagnostics usage.
+      } catch (e) {
+        const error = e as Error
+        console.error(
+          `[VueDX] (ProjectConfig) ${error.message} ${error.stack ?? ''}`,
+        )
       }
     }
   }
@@ -103,9 +105,11 @@ export class VueProject {
           ...pkg.devDependencies,
           ...pkg.dependencies,
         })
-      } catch (error) {
-        console.error(error)
-        // FIXME: Store error for diagnostics usage.
+      } catch (e) {
+        const error = e as Error
+        console.error(
+          `[VueDX] (ProjectConfig) ${error.message} ${error.stack ?? ''}`,
+        )
       }
 
       const vueVersion = this._dependencies['vue']
@@ -130,7 +134,19 @@ export class VueProject {
       )
 
       if (this.fs.fileExists(fileName)) {
-        this._dependencies[packageName] = JSON.parse(fileName).version
+        try {
+          this._dependencies[packageName] = JSON.parse(
+            this.fs.readFile(fileName) ?? '{}',
+          ).version
+        } catch (e) {
+          const error = e as Error
+          console.error(
+            `[VueDX] (ProjectConfig) ${error.message} in ${fileName} ${
+              error.stack ?? ''
+            }`,
+          )
+          this._dependencies[packageName] = '0.0.0'
+        }
       }
     })
   }

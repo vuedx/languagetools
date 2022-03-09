@@ -35,7 +35,6 @@
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue-language-features",
         "${workspaceRoot}/samples/vue3/typescript-diagnostics"
       ],
-
       "outFiles": [
         "${workspaceRoot}/extensions/vscode-vue/lib/*.js",
         "${workspaceRoot}/extensions/vscode-vue-language-features/dist/*.js"
@@ -50,11 +49,21 @@
         "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue",
         "${workspaceRoot}/samples"
       ],
-
       "outFiles": [
         "${workspaceRoot}/extensions/vscode-vue/dist/*.js",
         "${workspaceRoot}/extensions/vscode-vue-language-features/dist/*.js"
       ]
+    },
+    {
+      "type": "node",
+      "name": "vscode-jest-tests",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
+      "cwd": "${workspaceFolder}",
+      "args": ["--runInBand", "--watchAll=false"]
     }
   ],
   "compounds": [

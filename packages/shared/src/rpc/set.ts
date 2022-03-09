@@ -6,7 +6,15 @@ export async function set<T, K extends keyof T>(
   value: T[K],
 ): Promise<void> {
   const t = target as T
+
   t[property] = value
 
-  while (value !== (await t[property]));
+  while (true) {
+    const local = value
+    const remote = await target[property]
+
+    if (local === remote || JSON.stringify(local) === JSON.stringify(remote)) {
+      break
+    }
+  }
 }

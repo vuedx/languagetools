@@ -9,7 +9,7 @@
   ],
   "compilerOptions": {
     "module": "ESNext",
-    "target": "ES2019",
+    "target": "ES2020",
 
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
@@ -33,6 +33,7 @@
     "allowUnusedLabels": false,
     "forceConsistentCasingInFileNames": true,
     "importsNotUsedAsValues": "error",
+    "removeComments": false,
 
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

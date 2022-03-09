@@ -54,14 +54,12 @@ function createComputedModel<R>(
     effect(dependency[0], dependency[1], () => {
       isDirty = true
       state.dispatchEvent('@updated', ['value'])
-      if (value !== undefined) {
-        state.dispatchEvent('value', {
-          get value() {
-            return state.value
-          },
-          previousValue: value,
-        })
-      }
+      state.dispatchEvent('value', {
+        get value() {
+          return state.value
+        },
+        previousValue: value,
+      })
     })
   })
 

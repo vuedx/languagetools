@@ -1,5 +1,6 @@
+import { isVueFile, parseFileName, toFileName, ucfirst } from '@vuedx/shared'
 import {} from '@vuedx/vue-virtual-textdocument'
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 import {
   Disposable,
   StatusBarAlignment,
@@ -8,16 +9,8 @@ import {
   window,
 } from 'vscode'
 import { Installable } from '../utils/installable'
-
-const displayNames = {
-  _module: 'Module',
-  _internal: 'Internal Module',
-  _render: 'Render',
-  template: 'Template',
-  script: 'Script',
-  scriptSetup: 'Setup Script',
-  style: 'Style',
-}
+import { getVirtualFileUri } from '../utils/uri'
+import { PluginCommunicationService } from './PluginCommunicationService'
 
 @injectable()
 export class VirtualFileSwitcher extends Installable {
@@ -25,41 +18,63 @@ export class VirtualFileSwitcher extends Installable {
     StatusBarAlignment.Right,
   )
 
+  constructor(
+    @inject(PluginCommunicationService)
+    private readonly plugin: PluginCommunicationService,
+  ) {
+    super()
+  }
+
   public install(): Disposable {
     super.install()
 
+    void this.showStatusBar(window.activeTextEditor)
+
     return Disposable.from(
       this.statusBar,
-      window.onDidChangeVisibleTextEditors((editors): void => {
-        const editor = editors.find((_editor) => false)
-
-        void this.showStatusBar(editor)
+      window.onDidChangeActiveTextEditor(async (editor) => {
+        await this.showStatusBar(editor)
+      }),
+      this.plugin.onChange(() => {
+        void this.showStatusBar(window.activeTextEditor)
       }),
     )
   }
 
   async showStatusBar(editor: TextEditor | undefined): Promise<void> {
-    if (editor != null) {
-      const result = null as any
-      if (result != null) {
-        const { uri, selector } = result // TODO: Use language service
+    if (
+      this.plugin.connections.length === 0 ||
+      editor == null ||
+      (editor.document.languageId !== 'vue' &&
+        editor.document.uri.scheme !== 'vue')
+    ) {
+      return this.statusBar.hide()
+    }
 
-        this.statusBar.tooltip = `Showing virtual file from "${editor.document.uri.fsPath}"`
-        this.statusBar.text = `Virtual: ${
-          displayNames[selector.type as keyof typeof displayNames] ??
-          selector.type
-        }`
-        this.statusBar.command = {
-          title: 'Open virtual file',
-          command: 'vuedx.openVirtualFile',
-          arguments: [uri, selector],
-        }
-        this.statusBar.show()
-      } else {
-        this.statusBar.hide()
+    const parsed = parseFileName(editor.document.fileName)
+    if (!isVueFile(parsed.fileName)) return this.statusBar.hide()
+
+    if (parsed.type !== 'virtual') {
+      this.statusBar.tooltip = `Showing virtual file at cursor`
+      this.statusBar.text = `$(files)`
+      this.statusBar.command = {
+        title: 'Open virtual file',
+        command: 'vuedx.openVirtualFile',
+        arguments: [
+          getVirtualFileUri(
+            toFileName({ type: 'vue-ts', fileName: parsed.fileName }),
+          ),
+        ],
       }
     } else {
-      this.statusBar.hide()
+      this.statusBar.tooltip = `Showing virtual file from "${editor.document.fileName}"`
+      this.statusBar.text = `$(files) Virtual ${ucfirst(parsed.blockType)}`
+      this.statusBar.command = {
+        title: 'Select virtual file',
+        command: 'vuedx.selectVirtualFile',
+        arguments: [editor.document.uri],
+      }
     }
+    this.statusBar.show()
   }
 }

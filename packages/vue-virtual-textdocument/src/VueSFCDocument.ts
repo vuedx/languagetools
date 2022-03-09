@@ -426,7 +426,7 @@ export class VueSFCDocument extends ProxyDocument {
   ): SFCBlock | SFCStyleBlock | SFCTemplateBlock | SFCScriptBlock | null {
     const offset = id.indexOf('.vue?vue')
     if (offset < 0) return null
-    const query = id.substr(offset + 5)
+    const query = id.substring(offset + 5)
     const { type, index, setup } = parseQueryString(query) as Record<
       string,
       string

@@ -22,7 +22,7 @@ import { Installable } from '../utils/installable'
 export class TemplateLanguageProxy
   extends Installable
   implements CompletionItemProvider {
-  private readonly selector = { language: 'vue' }
+  private readonly selector = { language: 'vue', scheme: 'file' }
   private readonly triggerCharacters = [':', '/']
 
   public install(): Disposable {

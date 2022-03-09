@@ -49,12 +49,13 @@
     "url": "https://github.com/sponsors/znck"
   },
   "dependencies": {
+    "@vuedx/projectconfig": "workspace:*",
     "@vuedx/shared": "workspace:*",
     "@vuedx/template-ast-types": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
-    "@vuedx/projectconfig": "workspace:*",
     "inversify": "^5.1.1",
     "json5": "^2.2.0",
+    "node-ipc": "^10.1.0",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {

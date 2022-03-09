@@ -1,4 +1,4 @@
-export const enum ValueType {
+export enum ValueType {
   RAW = 'raw',
   HANDLER = 'handler',
 }
@@ -9,7 +9,7 @@ export interface BaseValue {
 
 export interface RawValue extends BaseValue {
   type: ValueType.RAW
-  value: unknown // JSON serializable object
+  value: unknown // Should be JSON serializable object
 }
 
 export interface HandlerValue extends BaseValue {

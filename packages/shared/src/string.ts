@@ -57,3 +57,7 @@ export function generateUUID(): string {
     .map(() => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(16))
     .join('-')
 }
+
+export function ucfirst(str: string): string {
+  return str.slice(0, 1).toUpperCase() + str.slice(1)
+}

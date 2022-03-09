@@ -1,17 +1,15 @@
 import { getComponentName } from '@vuedx/shared'
-import { inject, injectable } from 'inversify'
-import type { Range, CompletionItem } from 'vscode-languageserver-types'
-import { FilesystemService } from '../services/FilesystemService'
-import { LoggerService } from '../services/LoggerService'
-import { TypescriptService } from '../services/TypescriptService'
-import * as Path from 'path'
 import {
   ElementNode,
   findTemplateNodeAt,
   isElementNode,
 } from '@vuedx/template-ast-types'
-import { INJECTABLE_TS_SERVICE } from '../constants'
-import type { TSLanguageService } from '../contracts/Typescript'
+import { inject, injectable } from 'inversify'
+import * as Path from 'path'
+import type { CompletionItem, Range } from 'vscode-languageserver-types'
+import { FilesystemService } from '../services/FilesystemService'
+import { LoggerService } from '../services/LoggerService'
+import { TypescriptContextService } from '../services/TypescriptContextService'
 
 @injectable()
 export class TemplateCompletionsService {
@@ -19,12 +17,10 @@ export class TemplateCompletionsService {
   private readonly cache = new Map<string, CompletionItem[]>()
 
   constructor(
-    @inject(TypescriptService)
-    private readonly ts: TypescriptService,
+    @inject(TypescriptContextService)
+    private readonly ts: TypescriptContextService,
     @inject(FilesystemService)
     private readonly fs: FilesystemService,
-    @inject(INJECTABLE_TS_SERVICE)
-    private readonly service: TSLanguageService,
   ) {
     this.logger.debug('TepmlateCompletion')
   }
@@ -34,7 +30,7 @@ export class TemplateCompletionsService {
     position: number,
   ): CompletionItem[] | undefined {
     const vueFile = this.fs.getVueFile(fileName)
-    const program = this.service.getProgram()
+    const program = this.ts.service.getProgram()
     const tsProject = this.ts.getProjectFor(fileName)
     if (program == null || tsProject == null || vueFile == null) {
       return undefined

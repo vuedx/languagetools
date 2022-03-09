@@ -10,8 +10,11 @@ describe('rpc', () => {
 
     Bar = Bar
 
+    today = new Date()
+
     state = {
       foo: 1,
+      bi: BigInt(100),
       bar: {
         value() {
           return 100
@@ -35,6 +38,7 @@ describe('rpc', () => {
 
   let foo: RPC.Remote<Foo>
   beforeEach(() => {
+    RPC.Handlers.delete('date')
     const { port1, port2 } = createLocalChannel()
     foo = RPC.create<Foo>(RPC.createEndpoint(port2))
     RPC.expose(new Foo(), RPC.createEndpoint(port1))
@@ -50,8 +54,23 @@ describe('rpc', () => {
     await expect(foo.prop).resolves.toBe(false)
   })
 
+  it('can write object property', async () => {
+    RPC.Handlers.set('date', {
+      canHandle: (value) => value instanceof Date,
+      serialize: (value: Date) => value.toISOString(),
+      deserialize: (value: string) => new Date(value),
+    })
+
+    const date = new Date('1996-04-10')
+    await expect(foo.today).resolves.not.toEqual(date)
+    await RPC.set(foo, 'today', date)
+    await expect(foo.today).resolves.toEqual(date)
+  })
+
   it('can read complex property', async () => {
-    expect((await foo.state).foo).toBe(1)
+    await expect(foo.state).resolves.toEqual(
+      expect.objectContaining({ foo: 1 }),
+    )
   })
 
   it('can call method', async () => {
@@ -93,6 +112,18 @@ describe('rpc', () => {
         throw ({ message: 'not an error' } as unknown) as Error
       }, 2),
     ).rejects.toEqual({ message: 'not an error' })
+  })
+
+  it('custom handler', async () => {
+    await expect(foo.today).resolves.toEqual(expect.any(String))
+
+    RPC.Handlers.set('date', {
+      canHandle: (value) => value instanceof Date,
+      serialize: (value: Date) => value.toISOString(),
+      deserialize: (value: string) => new Date(value),
+    })
+
+    await expect(foo.today).resolves.toEqual(expect.any(Date))
   })
 })
 

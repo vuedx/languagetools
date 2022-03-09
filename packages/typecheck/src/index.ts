@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference types="../../../global" />
+
 import { collectError, Telemetry } from '@vuedx/shared'
 import { version } from '../package.json'
 import { Diagnostics, getDiagnostics2 } from './diagnostics'
@@ -16,8 +19,8 @@ export async function getDiagnostics(directory: string): Promise<Diagnostics> {
   try {
     return await getDiagnostics2(directory)
   } catch (error) {
-    collectError(error)
-    return error
+    collectError(error as Error)
+    return []
   }
 }
 

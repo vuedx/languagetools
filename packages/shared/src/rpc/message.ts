@@ -3,7 +3,7 @@ import type { Value } from './value'
 
 export type MessageID = Opaque<string, 'Message'>
 
-export const enum MessageType {
+export enum MessageType {
   // Proxy Methods
   get = 'get',
   set = 'set',

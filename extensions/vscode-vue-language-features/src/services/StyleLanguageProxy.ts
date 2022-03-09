@@ -8,6 +8,7 @@ import {
   CompletionItemProvider,
   CompletionList,
   Disposable,
+  DocumentSelector,
   languages,
   Position,
   TextDocument,
@@ -19,7 +20,10 @@ import { Installable } from '../utils/installable'
 export class StyleLanguageProxy
   extends Installable
   implements CompletionItemProvider {
-  private readonly selector = { language: 'vue' }
+  private readonly selector: DocumentSelector = {
+    language: 'vue',
+    scheme: 'file',
+  }
 
   public install(): Disposable {
     return Disposable.from(

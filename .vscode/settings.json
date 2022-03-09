@@ -10,5 +10,6 @@
     "vetur",
     "vuedx"
   ],
-  "grammarly.userWords": ["textdocument", "tsserver", "znck"]
+  "grammarly.userWords": ["textdocument", "tsserver", "znck"],
+  "jest.jestCommandLine": "node_modules/.bin/jest"
 }

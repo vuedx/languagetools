@@ -1,4 +1,4 @@
-import type vscode from 'vscode'
+import vscode from 'vscode'
 
 export function stringifyUri(uri: vscode.Uri): string {
   const str = uri.toString()
@@ -6,4 +6,8 @@ export function stringifyUri(uri: vscode.Uri): string {
     return str.replace(/^vue:/, 'vue://')
   }
   return str
+}
+
+export function getVirtualFileUri(fileName: string): vscode.Uri {
+  return vscode.Uri.file(fileName).with({ scheme: 'vue' })
 }

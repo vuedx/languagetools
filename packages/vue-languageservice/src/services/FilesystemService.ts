@@ -1,4 +1,13 @@
 import {
+  isFilesystemSchemeFile,
+  isProjectRuntimeFile,
+  isVueFile,
+  isVueRuntimeFile,
+  isVueTsFile,
+  isVueVirtualFile,
+  parseFileName,
+} from '@vuedx/shared'
+import {
   annotations,
   Position,
   Range,
@@ -14,20 +23,15 @@ import type { OffsetRangeLike } from '../contracts/OffsetRangeLike'
 import { createFilesystemProvider } from '../virtualFs'
 import { CacheService } from './CacheService'
 import { LoggerService } from './LoggerService'
-import type { TypescriptService } from './TypescriptService'
+import type { TypescriptContextService } from './TypescriptContextService'
 
 export class FilesystemService implements Disposable {
-  private static instance: FilesystemService | null = null
-
-  public static createSingletonInstance(
-    ts: TypescriptService,
+  public static createInstnace(
+    ts: TypescriptContextService,
   ): FilesystemService {
-    return (
-      this.instance ??
-      (this.instance = new FilesystemService(
-        createFilesystemProvider(ts.projectService, ts.serverHost),
-        ts,
-      ))
+    return new FilesystemService(
+      createFilesystemProvider(ts.projectService, ts.serverHost),
+      ts,
     )
   }
 
@@ -37,7 +41,7 @@ export class FilesystemService implements Disposable {
 
   constructor(
     private readonly provider: FilesystemProvider,
-    private readonly ts: TypescriptService,
+    private readonly ts: TypescriptContextService,
   ) {}
 
   public getVersion(fileName: string): string {
@@ -95,14 +99,9 @@ export class FilesystemService implements Disposable {
    * @returns null for non-vue files and when file does not exist
    */
   public getVueFile(fileName: string): VueSFCDocument | null {
-    if (this.isVueVirtualFile(fileName)) {
-      fileName = this.removeVirtualFileQuery(fileName)
-    } else if (this.isVueTsFile(fileName)) {
-      fileName = fileName.substr(0, fileName.length - 3)
-    }
+    fileName = this.getRealFileName(fileName)
+    this.logger.debug(`Get ${fileName}`)
     if (!this.isVueFile(fileName)) return null
-
-    // this.logger.debug('Get', fileName)
     const cachedFile = this.vueFiles.get(fileName)
     if (cachedFile != null) return cachedFile
     if (!this.provider.exists(fileName)) return null
@@ -144,50 +143,38 @@ export class FilesystemService implements Disposable {
     return file
   }
 
-  public removeVirtualFileQuery(fileName: string): string {
-    const index = fileName.indexOf('?vue')
-    if (index < 0) return fileName
-    return fileName.substring(0, index)
-  }
-
-  public removeVirtualFileScheme(fileName: string): string {
-    if (fileName.startsWith('^vue:')) {
-      return fileName.substring(5)
-    }
-
-    return fileName
-  }
-
   public getRealFileName(fileName: string): string {
-    if (this.isVueVirtualFile(fileName))
-      return this.removeVirtualFileQuery(fileName)
-    else if (this.isVueTsFile(fileName))
-      return fileName.substring(0, fileName.length - 3)
-    return fileName
+    return parseFileName(fileName).fileName
+  }
+
+  public isFilesystemSchemeFile(fileName: string): boolean {
+    return isFilesystemSchemeFile(fileName)
+  }
+
+  public isVueSchemeFile(fileName: string): boolean {
+    if (!isFilesystemSchemeFile(fileName)) return false
+    const parsed = parseFileName(fileName)
+    return parsed.type === 'scheme' && parsed.scheme === 'vue'
   }
 
   public isVueFile(fileName: string): boolean {
-    return fileName.endsWith('.vue')
+    return isVueFile(fileName)
   }
 
   public isVueTsFile(fileName: string): boolean {
-    return fileName.endsWith('.vue.ts')
+    return isVueTsFile(fileName)
   }
 
   public isVueVirtualFile(fileName: string): boolean {
-    return fileName.includes('.vue?vue')
-  }
-
-  public isVueVirtualSchemeFile(fileName: string): boolean {
-    return fileName.startsWith('^vue:')
+    return isVueVirtualFile(fileName)
   }
 
   public isVueRuntimeFile(fileName: string): boolean {
-    return fileName.endsWith('.vuedx_runtime.d.ts')
+    return isVueRuntimeFile(fileName)
   }
 
   public isProjectRuntimeFile(fileName: string): boolean {
-    return fileName.endsWith('project.vuedx_project_runtime.d.ts')
+    return isProjectRuntimeFile(fileName)
   }
 
   public getAbsolutePosition(

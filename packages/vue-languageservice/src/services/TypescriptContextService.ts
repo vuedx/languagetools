@@ -2,45 +2,66 @@ import { VueProject } from '@vuedx/projectconfig'
 import { cache, toPosixPath } from '@vuedx/shared'
 import * as Path from 'path'
 import type { Disposable } from '../contracts/Disposable'
-import type { Typescript } from '../contracts/Typescript'
+import type {
+  ExtendedTSLanguageService,
+  TSLanguageService,
+  Typescript,
+} from '../contracts/Typescript'
 import { CacheService } from './CacheService'
 import { LoggerService } from './LoggerService'
 
-export class TypescriptService implements Disposable {
-  private static instance: TypescriptService | null = null
+interface TypescriptContextServiceOptions {
+  lib: typeof Typescript
+  serverHost: Typescript.server.ServerHost
+  projectService: Typescript.server.ProjectService
+  tsService: TSLanguageService
+  typesDir: string
+}
 
-  public static createSingletonInstance(
-    lib: typeof Typescript,
-    serverHost: Typescript.server.ServerHost,
-    projectService: Typescript.server.ProjectService,
-    typesDir: string,
-  ): TypescriptService {
-    return (
-      this.instance ??
-      (this.instance = new TypescriptService(
-        lib,
-        serverHost,
-        projectService,
-        typesDir,
-      ))
-    )
+export class TypescriptContextService implements Disposable {
+  private readonly logger = new LoggerService('TypescriptContext')
+  private options: TypescriptContextServiceOptions
+
+  public constructor(options: TypescriptContextServiceOptions) {
+    this.options = options
   }
 
-  private readonly logger = new LoggerService('ts')
+  public get lib(): typeof Typescript {
+    return this.options.lib
+  }
 
-  constructor(
-    public readonly lib: typeof Typescript,
-    public readonly serverHost: Typescript.server.ServerHost,
-    public readonly projectService: Typescript.server.ProjectService,
-    private readonly typesDir: string,
-  ) {}
+  public get serverHost(): Typescript.server.ServerHost {
+    return this.options.serverHost
+  }
+
+  public get projectService(): Typescript.server.ProjectService {
+    return this.options.projectService
+  }
+
+  public get service(): TSLanguageService {
+    return this.options.tsService
+  }
+
+  public updateOptions(
+    options: Partial<TypescriptContextServiceOptions>,
+  ): void {
+    if (options.lib != null) this.options.lib = options.lib
+    if (options.serverHost != null) this.options.serverHost = options.serverHost
+    if (options.tsService != null) this.options.tsService = options.tsService
+    if (options.typesDir != null) this.options.typesDir = options.typesDir
+    if (options.projectService != null) {
+      this.options.projectService = options.projectService
+    }
+  }
 
   private readonly projectRuntimeFileCache = new CacheService<string>(
     (fileName) => String(this.getVueProjectFor(fileName).projectVersion),
   )
 
   public getVueRuntimeFileName(_version: string): string {
-    return toPosixPath(Path.resolve(this.typesDir, '3.x.vuedx_runtime.d.ts'))
+    return toPosixPath(
+      Path.resolve(this.options.typesDir, '3.x.vuedx_runtime.d.ts'),
+    )
   }
 
   public getVueRuntimeFileNameFor(fileName: string): string {
@@ -122,9 +143,6 @@ export class TypescriptService implements Disposable {
 
   public getProjectRuntimeFileName(fileName: string): string {
     const project = this.getVueProjectFor(fileName)
-
-    this.logger.debug(`Project runtime: ${toPosixPath(project.runtimeFile)}`)
-
     return toPosixPath(project.runtimeFile)
   }
 
@@ -171,6 +189,18 @@ export class TypescriptService implements Disposable {
    */
   public getServiceFor(fileName: string): Typescript.LanguageService | null {
     return this.getProjectFor(fileName)?.getLanguageService() ?? null
+  }
+
+  /**
+   * Find typescript laguage service for the file.
+   */
+  public getUndecoratedServiceFor(
+    fileName: string,
+  ): Typescript.LanguageService | null {
+    const service = this.getServiceFor(fileName) as ExtendedTSLanguageService
+    if (service == null) return null
+
+    return service._vueTS_inner ?? service
   }
 
   /**

@@ -10,6 +10,7 @@ export function toWindowsPath(path: string): string {
 }
 
 export const toPlatformPath =
+  /* istanbul ignore next */
   OS.platform() === 'win32' ? toWindowsPath : toPosixPath
 
 export function getRelativeFileName(

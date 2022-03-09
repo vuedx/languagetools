@@ -1,3 +1,4 @@
+import { isObject } from '../object'
 import { DisposableScope } from '../reactivity'
 import { generateUUID } from '../string'
 import type { Endpoint } from './channel'
@@ -20,10 +21,8 @@ const Symbols = {
   thrown: THROWN,
 } as const
 
-function isObject(value: unknown): value is object {
-  return (
-    (typeof value === 'object' && value !== null) || typeof value === 'function'
-  )
+function isObjectOrFunction(value: unknown): value is object {
+  return isObject(value) || typeof value === 'function'
 }
 
 interface Throwable {
@@ -32,7 +31,7 @@ interface Throwable {
 }
 
 function isThrowable(value: unknown): value is Throwable {
-  return isObject(value) && Symbols.thrown in value
+  return isObjectOrFunction(value) && Symbols.thrown in value
 }
 
 function createThrowable(value: unknown): Throwable {
@@ -72,7 +71,7 @@ const throwHandler: Handler = {
 }
 
 export function isExposed<T>(obj: T): obj is ExposedObject<T> {
-  return isObject(obj) && Symbols.exposed in obj
+  return isObjectOrFunction(obj) && Symbols.exposed in obj
 }
 
 export type ExposedObject<T> = T & {
@@ -92,10 +91,8 @@ export function withEndpoint<T>(endpoint: Endpoint, fn: () => T): T {
 
 export function createExposed<T>(
   value: T,
-  endpoint: Endpoint | null = currentEndpoint,
+  endpoint: Endpoint,
 ): ExposedObject<T> {
-  if (endpoint == null) throw new Error('No active endpoint')
-
   const target = Object.assign(value, {
     [Symbols.exposed]: endpoint.id,
   }) as ExposedObject<T>
@@ -310,12 +307,14 @@ export function createEndpointProxy<T>(
     set(_, property, value) {
       throwIfProxyReleased(isReleased)
 
-      return sendRequest(endpoint, {
+      void sendRequest(endpoint, {
         id: generateUUID(),
         type: MessageType.set,
         path: [...path, property].map((p) => p.toString()),
         value: toValue(endpoint, value),
-      }) as any
+      })
+
+      return true
     },
     apply(_, _this, args) {
       throwIfProxyReleased(isReleased)

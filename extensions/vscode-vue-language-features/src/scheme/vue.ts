@@ -1,13 +1,20 @@
 import vscode from 'vscode'
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 import { Installable } from '../utils/installable'
 import { DocumentService } from '../services/documents'
+import { PluginCommunicationService } from '../services/PluginCommunicationService'
 
 @injectable()
 export class VueVirtualDocumentProvider
   extends Installable
   implements vscode.TextDocumentContentProvider {
-  constructor(private readonly documents: DocumentService) {
+  constructor(
+    @inject(PluginCommunicationService)
+    private readonly plugin: PluginCommunicationService,
+
+    @inject(DocumentService)
+    private readonly documents: DocumentService,
+  ) {
     super()
   }
 
@@ -30,25 +37,19 @@ export class VueVirtualDocumentProvider
   ): Promise<string | undefined> {
     try {
       const fileName = request.with({ scheme: 'file' }).fsPath
-      if (fileName.endsWith('.vue.ts')) {
-        return this.documents
-          .getVueDocument(fileName.substr(0, fileName.length - 3))
-          ?.getTypeScriptText()
-      }
-      const document = await this.documents.getVirtualDocument(fileName)
 
-      if (document?.generated == null) return
-      if (document.rawSourceMap != null) {
-        return (
-          document.generated.getText() +
-          '\n//# sourceMappingURL=data:application/json;base64,' +
-          Buffer.from(JSON.stringify(document.rawSourceMap)).toString('base64')
-        )
+      for (const connection of this.plugin.connections) {
+        const contents = await connection.getVirtualFileContents(fileName)
+        if (contents != null) return contents
       }
-      return document.generated.getText()
+
+      if (this.plugin.connections.length === 0)
+        throw new Error('No active connection')
+
+      return undefined
     } catch (error) {
       if (error instanceof Error) {
-        return `/*\nError: ${error.message}\n${error.stack ?? ''}\n*/`
+        return `/*\nError: ${error.stack ?? ''}\n*/`
       }
 
       return `/*\nError: ${String(error)}\n*/`
