@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify'
 import type { Diagnostic } from 'vscode-languageserver-types'
 import { CacheService } from '../../services/CacheService'
 import { FilesystemService } from '../../services/FilesystemService'
-import { TypescriptService } from '../../services/TypescriptService'
+import { TypescriptContextService } from '../../services/TypescriptContextService'
 
 const enum SetupCodes {
   EXPORT_DEFAULT_NOT_ALLOWED = 1000,
@@ -23,8 +23,8 @@ export class ScriptSetupDiagnosticsProvider {
   )
 
   constructor(
-    @inject(TypescriptService)
-    private readonly ts: TypescriptService,
+    @inject(TypescriptContextService)
+    private readonly ts: TypescriptContextService,
     @inject(FilesystemService)
     private readonly fs: FilesystemService,
   ) {}

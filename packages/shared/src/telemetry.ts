@@ -19,15 +19,18 @@ interface EventDefaults {
 }
 
 export class Telemetry {
+  private static isTelemetryEnabled: boolean | null = null
+
   private readonly defaults: EventDefaults
   private readonly user = {
     id: this.getUserId(),
   }
 
   private isTelemetryEnabled: boolean =
-    process.env['VUEDX_TELEMETRY']?.toLowerCase() === 'on' ||
-    process.env['VUEDX_TELEMETRY']?.toLowerCase() === 'true' ||
-    false
+    Telemetry.isTelemetryEnabled ??
+    (process.env['VUEDX_TELEMETRY']?.toLowerCase() === 'on' ||
+      process.env['VUEDX_TELEMETRY']?.toLowerCase() === 'true' ||
+      false)
 
   constructor(
     key: string,
@@ -176,9 +179,11 @@ export class Telemetry {
     Object.assign(this.instance.defaults, defaults)
   }
 
-  static optOut(): void {
+  static setTelemetryEnabled(enabled: boolean): void {
+    this.isTelemetryEnabled = enabled
+
     if (this._instance != null) {
-      this._instance.isTelemetryEnabled = false
+      this._instance.isTelemetryEnabled = enabled
     }
   }
 }
@@ -191,7 +196,7 @@ export async function tracePromise<T>(
   try {
     return await promise
   } catch (error) {
-    collectError(error)
+    collectError(error as Error)
     throw error
   } finally {
     done()

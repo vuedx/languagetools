@@ -7,11 +7,15 @@ interface Writer {
 }
 
 export class LoggerService {
-  constructor(private readonly context: string) {}
+  private readonly id: string
+
+  constructor(private readonly context: string) {
+    this.id = LoggerService.currentId ?? 'unknown'
+  }
 
   public info(message: string, ...args: any[]): void {
     LoggerService.writer.info(
-      `[VueDX] (${this.context}) ${util.formatWithOptions(
+      `[VueDX] (${this.context}) ${this.id} ${util.formatWithOptions(
         { breakLength: Infinity, colors: false },
         message,
         ...args,
@@ -21,7 +25,7 @@ export class LoggerService {
 
   public debug(message: string, ...args: any[]): void {
     LoggerService.writer.debug(
-      `[VueDX] (${this.context}) ${util.formatWithOptions(
+      `[VueDX] (${this.context}) ${this.id} ${util.formatWithOptions(
         { breakLength: Infinity, colors: false },
         message,
         ...args,
@@ -31,7 +35,7 @@ export class LoggerService {
 
   public error(message: string | Error, ...args: any[]): void {
     LoggerService.writer.debug(
-      `[VueDX] (${this.context}) ${util.formatWithOptions(
+      `[VueDX] (${this.context}) ${this.id} ${util.formatWithOptions(
         { breakLength: Infinity, colors: false },
         '',
         message,
@@ -39,6 +43,8 @@ export class LoggerService {
       )}`,
     )
   }
+
+  public static currentId: string | null = null
 
   private static writer: Writer = {
     info: (line) => process.stderr.write(line + '\n'),

@@ -1,8 +1,6 @@
 import { inject, injectable } from 'inversify'
-import { INJECTABLE_TS_SERVICE } from '../constants'
 import type {
   ExtendedTSLanguageService,
-  TSLanguageService,
   TSProject,
   Typescript,
 } from '../contracts/Typescript'
@@ -11,7 +9,9 @@ import { DiagnosticsService } from '../features/DiagnosticsService'
 import { GotoService } from '../features/GotoService'
 import { HoverService } from '../features/HoverService'
 import { FilesystemService } from './FilesystemService'
+import { IPCService } from './IPCService'
 import { LoggerService } from './LoggerService'
+import { TypescriptContextService } from './TypescriptContextService'
 
 @injectable()
 export class TypescriptPluginService
@@ -29,30 +29,63 @@ export class TypescriptPluginService
     private readonly goto: GotoService,
     @inject(CompletionsService)
     private readonly completions: CompletionsService,
-    @inject(INJECTABLE_TS_SERVICE)
-    private readonly service: TSLanguageService,
+    @inject(TypescriptContextService)
+    private readonly ts: TypescriptContextService,
+    @inject(IPCService)
+    private readonly ipc: IPCService,
   ) {}
 
   getExternalFiles(project: TSProject): string[] {
     const vueFiles = new Set<string>()
-    project.getFileNames(true, true).forEach((fileName) => {
-      if (
-        this.fs.isVueFile(fileName) ||
+    const virtualFiles = new Set<string>()
+    let hasVirtualSchemeFiles = false
+    for (const fileName of project.getFileNames(true, true)) {
+      if (this.fs.isVueSchemeFile(fileName)) {
+        const realProject = this.ts.getProjectFor(
+          this.fs.getRealFileName(fileName),
+        )
+        if (realProject != null) {
+          project.getScriptInfo(fileName)?.attachToProject(realProject)
+        }
+
+        hasVirtualSchemeFiles = realProject !== project
+      } else if (this.fs.isVueFile(fileName)) {
+        vueFiles.add(this.fs.getRealFileName(fileName))
+      } else if (
         this.fs.isVueTsFile(fileName) ||
-        this.fs.isVueVirtualFile(fileName) ||
-        this.fs.isProjectRuntimeFile(fileName)
+        this.fs.isVueVirtualFile(fileName)
       ) {
         vueFiles.add(this.fs.getRealFileName(fileName))
+        virtualFiles.add(fileName)
+      } else if (this.fs.isProjectRuntimeFile(fileName)) {
+        virtualFiles.add(fileName)
       }
+    }
+
+    if (
+      project.projectKind === this.ts.lib.server.ProjectKind.Inferred &&
+      hasVirtualSchemeFiles
+    ) {
+      return [] // do not retain any files for inferred projects containing virtual scheme files
+    }
+
+    vueFiles.forEach((fileName) => {
+      this.fs
+        .getVueFile(fileName)
+        ?.getActiveTSDocIDs()
+        .forEach((id) => {
+          virtualFiles.add(id)
+        })
+
+      virtualFiles.add(`${fileName}.ts`)
+      virtualFiles.add(this.ts.getProjectRuntimeFileName(fileName))
     })
 
-    this.logger.debug('External Files', vueFiles)
-
-    return Array.from(vueFiles)
+    return Array.from(vueFiles).concat(Array.from(virtualFiles))
   }
 
   getCompilerOptionsDiagnostics(): Typescript.Diagnostic[] {
-    const diagnostics = this.service.getCompilerOptionsDiagnostics()
+    const diagnostics = this.ts.service.getCompilerOptionsDiagnostics()
     const re = /\.vue(\?vue|\.ts|\.js)/
     return diagnostics.filter((diagnostic) => {
       // Ignore diagnostics referring virtual files
@@ -151,7 +184,7 @@ export class TypescriptPluginService
       return { spans: [], endOfLineState: 0 }
     }
 
-    return this.service.getEncodedSyntacticClassifications(fileName, span)
+    return this.ts.service.getEncodedSyntacticClassifications(fileName, span)
   }
 
   getEncodedSemanticClassifications(
@@ -163,7 +196,7 @@ export class TypescriptPluginService
       return { spans: [], endOfLineState: 0 }
     }
 
-    return this.service.getEncodedSemanticClassifications(
+    return this.ts.service.getEncodedSemanticClassifications(
       fileName,
       span,
       format,
@@ -176,10 +209,26 @@ export class TypescriptPluginService
   ): Typescript.ReferencedSymbol[] | undefined {
     if (this.fs.isVueFile(fileName)) return
 
-    return this.service.findReferences(fileName, position)
+    return this.ts.service.findReferences(fileName, position)
+  }
+
+  getOutliningSpans(fileName: string): Typescript.OutliningSpan[] {
+    if (this.fs.isVueSchemeFile(fileName)) {
+      const realFileName = this.fs.getRealFileName(fileName)
+      return (
+        this.ts
+          .getUndecoratedServiceFor(realFileName)
+          ?.getOutliningSpans(realFileName) ?? []
+      )
+    } else if (this.fs.isVueFile(fileName)) {
+      return []
+    }
+
+    return this.ts.service.getOutliningSpans(fileName)
   }
 
   dispose(): void {
-    this.service.dispose()
+    this.ipc.dispose()
+    this.ts.service.dispose()
   }
 }

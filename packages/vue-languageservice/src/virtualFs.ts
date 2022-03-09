@@ -2,6 +2,7 @@ import type { TextDocumentContentChangeEvent } from '@vuedx/vue-virtual-textdocu
 import type { FilesystemProvider } from './contracts/FilesystemProvider'
 import type { Typescript } from './contracts/Typescript'
 import { overrideMethod } from './overrideMethod'
+import { LoggerService } from './services/LoggerService'
 
 const watchers = new Map<
   string,
@@ -12,6 +13,8 @@ export function createFilesystemProvider(
   projectService: Typescript.server.ProjectService,
   serverHost: Typescript.server.ServerHost,
 ): FilesystemProvider {
+  const logger = LoggerService.getLogger('virtualFs')
+
   const fix = (fileName: string): void => {
     const scriptInfo = projectService.getScriptInfo(fileName)
     if (scriptInfo == null) return
@@ -25,9 +28,10 @@ export function createFilesystemProvider(
           const latestVersion = scriptInfo.getLatestVersion()
           const version = parseFloat(
             latestVersion.startsWith('Text-')
-              ? latestVersion.substr(5)
-              : latestVersion.substr(4).replace('-', '.'),
+              ? latestVersion.substring(5)
+              : latestVersion.substring(4).replace('-', '.'),
           )
+          logger.debug(`${version} updated(${fileName})`)
           const changes = [{ text: fs.read(fileName) }]
           current.forEach((fn) => fn(changes, version))
         }
@@ -37,10 +41,13 @@ export function createFilesystemProvider(
 
   const fs: FilesystemProvider = {
     exists(fileName) {
-      return (
+      const result =
         projectService.getScriptInfo(fileName) != null ||
         serverHost.fileExists(fileName)
-      )
+
+      logger.debug(`${result ? 'Y' : 'N'} = exists(${fileName})`)
+
+      return result
     },
     read(fileName) {
       const snapshot = projectService.getScriptInfo(fileName)?.getSnapshot()

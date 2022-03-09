@@ -1,4 +1,3 @@
 import 'reflect-metadata'
-export type { ExtendedTSLanguageService } from './contracts/Typescript'
-export { createTypescriptLanguageService } from './plugin'
-export type { CreateLanguageServiceOptions } from './CreateLanguageServiceOptions'
+export * from './plugin'
+export type { LanguageServiceAPI } from './services/LanguageServiceAPI'

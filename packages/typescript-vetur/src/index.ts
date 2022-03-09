@@ -1,16 +1,6 @@
 import createPlugin, { PluginConfig } from '@vuedx/typescript-plugin-vue'
 
-const config: Partial<PluginConfig> = {
-  features: {
-    diagnostics: [],
-    organizeImports: true,
-    quickInfo: false,
-    rename: true,
-    refactor: true,
-    goto: true,
-    tagCompletions: false,
-  },
-}
+const config: Partial<PluginConfig> = {}
 
 export default function init(options: any): any {
   const plugin = createPlugin(options)

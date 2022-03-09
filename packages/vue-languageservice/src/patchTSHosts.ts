@@ -5,14 +5,14 @@ import { LoggerService } from './services/LoggerService'
 import type { Typescript } from './contracts/Typescript'
 import type { CreateLanguageServiceOptions } from './CreateLanguageServiceOptions'
 import type { FilesystemService } from './services/FilesystemService'
-import type { TypescriptService } from './services/TypescriptService'
+import type { TypescriptContextService } from './services/TypescriptContextService'
 
 const isDebug = process.env['DEBUG_VUE_TRANSFORMS'] != null
 
 export function patchTSHosts(
   options: CreateLanguageServiceOptions,
   fs: FilesystemService,
-  ts: TypescriptService,
+  ts: TypescriptContextService,
 ): void {
   const logger = LoggerService.getLogger('patch')
 
@@ -147,7 +147,7 @@ export function patchTSHosts(
           )
         }
 
-        logger.error(`Missing snapshot: ${fileName}`)
+        logger.debug(`VueTS file - missing snapshot: ${fileName}`)
 
         return undefined
       } else if (fs.isVueVirtualFile(fileName)) {
@@ -160,7 +160,7 @@ export function patchTSHosts(
           )
         }
 
-        logger.error(`Missing snapshot: ${fileName}`)
+        logger.error(`Virtual file - missing snapshot: ${fileName}`)
 
         return undefined
       } else if (fs.isProjectRuntimeFile(fileName)) {
@@ -182,7 +182,9 @@ export function patchTSHosts(
       const fileNames = new Set<string>()
 
       getScriptFileNames().forEach((fileName) => {
-        if (
+        if (fs.isVueSchemeFile(fileName)) {
+          // ignore
+        } else if (
           fs.isVueFile(fileName) ||
           fs.isVueTsFile(fileName) ||
           fs.isVueVirtualFile(fileName)

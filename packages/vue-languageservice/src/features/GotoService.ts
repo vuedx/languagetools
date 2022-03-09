@@ -1,14 +1,18 @@
+import { toFileName } from '@vuedx/shared'
 import type {
   VueBlockDocument,
   VueSFCDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type Typescript from 'typescript/lib/tsserverlibrary'
-import { INJECTABLE_TS_SERVICE } from '../constants'
-import type { TSLanguageService } from '../contracts/Typescript'
 import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService } from '../services/LoggerService'
+import { TypescriptContextService } from '../services/TypescriptContextService'
 import { TemplateGlobals } from './helpers'
+
+interface NormalizationOptions {
+  isVueSchemeRequest: boolean
+}
 
 @injectable()
 export class GotoService {
@@ -17,8 +21,8 @@ export class GotoService {
   constructor(
     @inject(FilesystemService)
     private readonly fs: FilesystemService,
-    @inject(INJECTABLE_TS_SERVICE)
-    private readonly service: TSLanguageService,
+    @inject(TypescriptContextService)
+    private readonly ts: TypescriptContextService,
   ) {}
 
   private readonly depth: Array<[string, number]> = []
@@ -38,12 +42,29 @@ export class GotoService {
     )
     this.depth.push([fileName, position])
     try {
-      if (this.fs.isVueFile(fileName)) {
+      if (this.fs.isVueSchemeFile(fileName)) {
+        const realFileName = this.fs.getRealFileName(fileName)
+        const result = this.ts
+          .getServiceFor(realFileName)
+          ?.getDefinitionAtPosition(realFileName, position)
+
+        if (result == null) return
+
+        return this.dedupeDefinitionInfos(
+          result
+            .map((info) =>
+              this.normalizeTSDefinitionInfo(info, {
+                isVueSchemeRequest: true,
+              }),
+            )
+            .flat(),
+        )
+      } else if (this.fs.isVueFile(fileName)) {
         return this.doActionAtPosition(
           fileName,
           position,
           ({ tsFileName, offset, vueFile, blockFile }) => {
-            const result = this.service.getDefinitionAtPosition(
+            const result = this.ts.service.getDefinitionAtPosition(
               tsFileName,
               offset,
             )
@@ -71,7 +92,10 @@ export class GotoService {
           },
         )
       } else {
-        const result = this.service.getDefinitionAtPosition(fileName, position)
+        const result = this.ts.service.getDefinitionAtPosition(
+          fileName,
+          position,
+        )
 
         if (result == null) return
 
@@ -91,12 +115,23 @@ export class GotoService {
     this.logger.debug(
       `getDefinitionAndBoundSpan(${this.depth.length}) ${fileName} ${position}`,
     )
-    if (this.fs.isVueFile(fileName)) {
+
+    if (this.fs.isVueSchemeFile(fileName)) {
+      const realFileName = this.fs.getRealFileName(fileName)
+      const result = this.ts
+        .getServiceFor(realFileName)
+        ?.getDefinitionAndBoundSpan(realFileName, position)
+
+      if (result == null) return undefined
+      return this.normalizeTSDefinitionInfoAndBoundSpan(result, {
+        isVueSchemeRequest: true,
+      })
+    } else if (this.fs.isVueFile(fileName)) {
       return this.doActionAtPosition(
         fileName,
         position,
         ({ tsFileName, blockFile, offset, vueFile }) => {
-          const result = this.service.getDefinitionAndBoundSpan(
+          const result = this.ts.service.getDefinitionAndBoundSpan(
             tsFileName,
             offset,
           )
@@ -117,7 +152,10 @@ export class GotoService {
         },
       )
     } else {
-      const result = this.service.getDefinitionAndBoundSpan(fileName, position)
+      const result = this.ts.service.getDefinitionAndBoundSpan(
+        fileName,
+        position,
+      )
       if (result == null) return undefined
       return this.normalizeTSDefinitionInfoAndBoundSpan(result)
     }
@@ -143,15 +181,27 @@ export class GotoService {
 
   private normalizeTSDefinitionInfo(
     info: Typescript.DefinitionInfo,
+    options: NormalizationOptions = { isVueSchemeRequest: false },
     depth: number = 0,
   ): Typescript.DefinitionInfo[] {
     const fileName = info.fileName
 
-    info.fileName = this.fs.getRealFileName(fileName)
     this.logger.debug(
       `Normalize: ${info.textSpan.start}:${info.name} in ${fileName}`,
     )
-    if (this.fs.isVueVirtualFile(fileName)) {
+
+    if (options.isVueSchemeRequest) {
+      if (this.fs.isVueVirtualFile(fileName)) {
+        info.fileName = toFileName({
+          type: 'scheme',
+          scheme: 'vue',
+          fileName: fileName,
+        })
+      }
+
+      return [info]
+    } else if (this.fs.isVueVirtualFile(fileName)) {
+      info.fileName = this.fs.getRealFileName(fileName)
       const vueFile = this.fs.getVueFile(fileName)
       const blockFile = vueFile?.getDocById(fileName)
 
@@ -194,7 +244,7 @@ export class GotoService {
           )
 
           return (
-            this.service
+            this.ts.service
               .getTypeDefinitionAtPosition(fileName, info.textSpan.start)
               ?.slice() ?? []
           ).flatMap((definition) => this.normalizeTSDefinitionInfo(definition))
@@ -211,8 +261,9 @@ export class GotoService {
         info.contextSpan = { start: 0, length: 1 }
       }
     } else if (this.fs.isVueTsFile(fileName)) {
+      info.fileName = this.fs.getRealFileName(fileName)
       if (depth < 2) {
-        const result = this.service.getDefinitionAtPosition(
+        const result = this.ts.service.getDefinitionAtPosition(
           fileName,
           info.textSpan.start,
         )
@@ -220,7 +271,7 @@ export class GotoService {
         if (result != null && result.length > 0) {
           return Array.from(
             result.flatMap((info) =>
-              this.normalizeTSDefinitionInfo(info, depth + 1),
+              this.normalizeTSDefinitionInfo(info, options, depth + 1),
             ),
           )
         }
@@ -233,10 +284,11 @@ export class GotoService {
 
   private normalizeTSDefinitionInfoAndBoundSpan(
     info: Typescript.DefinitionInfoAndBoundSpan,
+    options: NormalizationOptions = { isVueSchemeRequest: false },
   ): Typescript.DefinitionInfoAndBoundSpan {
     info.definitions = info.definitions
       ?.map((info) => {
-        return this.normalizeTSDefinitionInfo(info)
+        return this.normalizeTSDefinitionInfo(info, options)
       })
       .flat()
 

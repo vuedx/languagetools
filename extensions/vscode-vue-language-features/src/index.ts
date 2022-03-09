@@ -1,13 +1,15 @@
 import 'reflect-metadata'
-
 import vscode from 'vscode'
 import { Container } from 'inversify'
 import { OpenVirtualFileCommand } from './commands/openVirtualFile'
 import { VueVirtualDocumentProvider } from './scheme/vue'
 import { DocumentService } from './services/documents'
-import { VirtualFileSwitcher } from './services/VirtualFileSwitcher'
+import { PluginCommunicationService } from './services/PluginCommunicationService'
 import { StyleLanguageProxy } from './services/StyleLanguageProxy'
 import { TemplateLanguageProxy } from './services/TemplateLanguageProxy'
+import { VirtualFileSwitcher } from './services/VirtualFileSwitcher'
+import type { PluginConfig } from '@vuedx/typescript-plugin-vue'
+import { SelectVirtualFileCommand } from './commands/selectVirtualFile'
 
 export async function activate(
   context: vscode.ExtensionContext,
@@ -20,10 +22,12 @@ export async function activate(
   container.bind('context').toConstantValue(context)
   context.subscriptions.push(
     container.get(DocumentService).install(),
+    container.get(PluginCommunicationService).install(),
     container.get(StyleLanguageProxy).install(),
     container.get(TemplateLanguageProxy).install(),
     container.get(VueVirtualDocumentProvider).install(),
     container.get(OpenVirtualFileCommand).install(),
+    container.get(SelectVirtualFileCommand).install(),
     container.get(VirtualFileSwitcher).install(),
     new vscode.Disposable(() => container.unbindAll()),
   )
@@ -38,10 +42,17 @@ export async function activate(
 
     const api = ts.exports.getAPI(0)
     if (api != null) {
+      // sync now
+      syncConfig(api, getConfig(container.get(PluginCommunicationService)))
+
+      // sync on change
       context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration((event) => {
           if (event.affectsConfiguration('vuedx')) {
-            syncConfig(api, getConfig())
+            syncConfig(
+              api,
+              getConfig(container.get(PluginCommunicationService)),
+            )
           }
         }),
       )
@@ -53,19 +64,11 @@ function syncConfig(api: any, config: any): void {
   api.configurePlugin('@vuedx/typescript-plugin-vue', config)
 }
 
-function getConfig(): any {
+function getConfig(service: PluginCommunicationService): PluginConfig {
   const config = vscode.workspace.getConfiguration('vuedx')
 
   return {
     telemetry: config.get('telemetry') ?? true,
-    features: {
-      diagnostics: config.get('features.diagnostics') ?? true,
-      organizeImports: config.get('features.organizeImports') ?? true,
-      quickInfo: config.get('features.quickInfo') ?? true,
-      rename: config.get('features.rename') ?? true,
-      refactor: config.get('features.refactor') ?? true,
-      goto: config.get('features.goto') ?? true,
-      tagCompletions: config.get('features.tagCompletions') ?? ['html', 'svg'],
-    },
+    extensionSocketId: service.socketId,
   }
 }
