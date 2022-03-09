@@ -118,7 +118,7 @@ importers:
   extensions/vscode-vue-language-features:
     specifiers:
       '@types/vscode': ^1.63.0
-      '@vuedx/shared': workspace:^0.7.3
+      '@vuedx/shared': workspace:*
       '@vuedx/typescript-plugin-vue': workspace:*
       '@vuedx/vue-virtual-textdocument': workspace:*
       fast-glob: ^3.2.4
