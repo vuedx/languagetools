@@ -1,5 +1,7 @@
 import {
   isProjectRuntimeFile,
+  isVueSFCDescriptorFile,
+  isVueTemplateASTFile,
   isVueTsFile,
   parseFileName,
   ucfirst,
@@ -29,19 +31,18 @@ export class SelectVirtualFileCommand {
   private async onExecute(uri: vscode.Uri): Promise<void> {
     const parsed = parseFileName(uri.fsPath)
 
-    const relatedFiles = (
-      await Promise.all(
-        this.plugin.connections.map(
-          async (connection) =>
-            await connection.getRelatedVirtualFiles(parsed.fileName),
-        ),
-      )
-    ).flat()
+    const relatedFiles = await this.plugin.first(
+      async (connection) =>
+        await connection.getRelatedVirtualFiles(parsed.fileName),
+    )
+
+    if (relatedFiles == null) return
 
     const result = await vscode.window.showQuickPick(
       relatedFiles.map((id) => ({
         id,
         label: this.getDisplayName(id),
+        detail: basename(id),
         picked: id === uri.fsPath,
       })),
     )
@@ -55,6 +56,8 @@ export class SelectVirtualFileCommand {
   private getDisplayName(fileName: string): string {
     if (isVueTsFile(fileName)) return 'Virtual Module'
     if (isProjectRuntimeFile(fileName)) return 'Project Globals'
+    if (isVueSFCDescriptorFile(fileName)) return 'SFC Descriptor'
+    if (isVueTemplateASTFile(fileName)) return 'Template AST'
     const parsed = parseFileName(fileName)
     if (parsed.type === 'virtual') {
       if (parsed.blockType === 'sript') {

@@ -1,4 +1,5 @@
 import type {
+  CompilerError,
   RawSourceMap,
   SFCBlock,
   SFCDescriptor,
@@ -66,84 +67,104 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
   script: {
     output: (block) => (isSupportedLang(block.lang) ? block.lang : 'js'),
     transform: (source, _id, { block, document }) => {
-      const isScriptSetup =
-        'setup' in block && block.setup != null && block.setup !== false
-      const ast = toAST(source, {
-        sourceFilename: document.fileName,
-        startLine: block.loc.start.line,
-        isScriptSetup: isScriptSetup,
-        lang: block.lang,
-      })
+      try {
+        const isScriptSetup =
+          'setup' in block && block.setup != null && block.setup !== false
+        // TODO: Should it be typescript instead of babel?
+        const ast = toAST(source, {
+          sourceFilename: document.fileName,
+          startLine: block.loc.start.line,
+          isScriptSetup: isScriptSetup,
+          lang: block.lang,
+        })
 
-      const usedIdentifiers = new Set<string>()
-      const usedDirectives = new Set<string>()
-      const usedComponents = new Set<string>()
+        const usedIdentifiers = new Set<string>()
+        const usedDirectives = new Set<string>()
+        const usedComponents = new Set<string>()
 
-      if (document.descriptor.template != null && isScriptSetup) {
-        const ast = document.getDoc(document.descriptor.template)?.ast
+        if (document.descriptor.template != null && isScriptSetup) {
+          const ast = document.getDoc(document.descriptor.template)?.ast
 
-        if (isRootNode(ast)) {
-          ast.scope.globals.forEach((id) => {
-            usedIdentifiers.add(id)
-          })
+          if (isRootNode(ast)) {
+            ast.scope.globals.forEach((id) => {
+              usedIdentifiers.add(id)
+            })
 
-          ast.components.forEach((name) => {
-            const id = pascalCase(name.split('.').shift() ?? name)
-            usedComponents.add(id)
-          })
+            ast.components.forEach((name) => {
+              const id = pascalCase(name.split('.').shift() ?? name)
+              usedComponents.add(id)
+            })
 
-          ast.directives.forEach((name) => {
-            const id = 'v' + pascalCase(name)
-            usedDirectives.add(id)
-          })
+            ast.directives.forEach((name) => {
+              const id = 'v' + pascalCase(name)
+              usedDirectives.add(id)
+            })
+          }
         }
-      }
 
-      const nodes: any[] = [
-        createExportDeclarationForComponents(ast, {
-          isScriptSetup,
-          shouldIncludeScriptSetup: (id) => usedComponents.has(id),
-        }),
-        createExportDeclarationForDirectives(ast, {
-          isScriptSetup,
-          shouldIncludeScriptSetup: (id) => usedDirectives.has(id),
-        }),
-      ]
-
-      if (isScriptSetup) {
-        document.declarations.identifiers = new Set(findScopeBindings(ast))
-
-        nodes.push(
-          createExportDeclarationForScriptSetup(ast, {
-            shouldIncludeBinding: (id) => usedIdentifiers.has(id),
+        const nodes: any[] = [
+          createExportDeclarationForComponents(ast, {
+            isScriptSetup,
+            shouldIncludeScriptSetup: (id) => usedComponents.has(id),
           }),
-        )
+          createExportDeclarationForDirectives(ast, {
+            isScriptSetup,
+            shouldIncludeScriptSetup: (id) => usedDirectives.has(id),
+          }),
+        ]
 
-        const code = [
-          source,
-          annotations.diagnosticsIgnore.start,
-          toCode(nodes).code,
-          annotations.diagnosticsIgnore.end,
-          '',
-        ].join('\n')
+        if (isScriptSetup) {
+          document.declarations.identifiers = new Set(findScopeBindings(ast))
 
-        return {
-          ast,
-          code,
+          nodes.push(
+            createExportDeclarationForScriptSetup(ast, {
+              shouldIncludeBinding: (id) => usedIdentifiers.has(id),
+            }),
+          )
+
+          const code = [
+            source,
+            ';',
+            annotations.diagnosticsIgnore.start,
+            toCode(nodes).code,
+            annotations.diagnosticsIgnore.end,
+            '',
+          ].join('\n')
+
+          return {
+            ast,
+            code,
+          }
+        } else {
+          // TODO: Handle plain object exports.
+          const code = [
+            source,
+            ';',
+            annotations.diagnosticsIgnore.start,
+            toCode(nodes).code,
+            annotations.diagnosticsIgnore.end,
+            '',
+          ].join('\n')
+
+          return {
+            ast,
+            code,
+          }
         }
-      } else {
-        // TODO: Handle plain object exports.
-        const code = [
-          source,
-          annotations.diagnosticsIgnore.start,
-          toCode(nodes).code,
-          annotations.diagnosticsIgnore.end,
-          '',
-        ].join('\n')
+      } catch (error) {
+        console.error('[VueDX] BlockTransformer - Error parsing script:', error)
 
         return {
-          ast,
-          code,
+          code: [
+            source,
+            ';',
+            annotations.diagnosticsIgnore.start,
+            'export const __VueDX_components = {}',
+            'export const __VueDX_directives = {}',
+            annotations.diagnosticsIgnore.end,
+            '',
+          ].join('\n'),
+          errors: [],
         }
       }
     },
@@ -158,29 +179,31 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
             document.fallbackScript,
         )
 
-        const { code, ast, map, errors } = compile(source, {
+        const errors: CompilerError[] = []
+        const result = compile(source, {
           sourceMap: true,
           filename: document.fileName,
 
           selfSrc: `./${Path.posix.basename(
-            selfSrcFileName.substr(
+            selfSrcFileName.substring(
               0,
               selfSrcFileName.length -
                 Path.posix.extname(selfSrcFileName).length,
             ),
           )}`,
 
-          onError(_error) {
-            // TODO: Support error reporting
+          onError(_e) {
+            // errors.push(error)
           },
         })
 
-        document.templateAST = ast
+        errors.push(...result.errors)
+        document.templateAST = result.ast
 
         return {
-          code,
-          map,
-          ast,
+          code: result.code,
+          map: result.map,
+          ast: result.ast,
           errors: errors.map((error) => {
             const diag: TransformerError = {
               message: error.message,
@@ -199,7 +222,8 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
             return diag
           }),
         }
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error
         return {
           code: '',
 

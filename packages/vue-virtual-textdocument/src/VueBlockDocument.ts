@@ -360,4 +360,12 @@ export class VueBlockDocument {
   public toPosition(position: SourceMapPosition): Position {
     return { line: position.line - 1, character: position.column }
   }
+
+  public offsetAt(position: Position): number {
+    return this.source.offsetAt(position)
+  }
+
+  public positionAt(offset: number): Position {
+    return this.source.positionAt(offset)
+  }
 }

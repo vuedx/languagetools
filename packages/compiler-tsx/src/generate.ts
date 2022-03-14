@@ -5,7 +5,6 @@ import {
   ForNode,
   IfNode,
 } from '@vue/compiler-core'
-import * as builtins from './builtins'
 import { camelCase, last } from '@vuedx/shared'
 import {
   AttributeNode,
@@ -22,20 +21,21 @@ import {
   isInterpolationNode,
   isPlainElementNode,
   isRootNode,
-  isSlotNode,
   isSimpleExpressionNode,
   isSimpleIdentifier,
+  isSlotNode,
   isTextNode,
   Node,
   RootNode,
   SimpleExpressionNode,
   SourceLocation,
   TextNode,
-  traverse,
   TraversalAncestors,
+  traverse,
 } from '@vuedx/template-ast-types'
 import * as Path from 'path'
 import { RawSourceMap, SourceNode } from 'source-map'
+import * as builtins from './builtins'
 import type { CustomTransformContext } from './transforms/CustomTransformContext'
 import { createLoc } from './utils'
 
@@ -260,14 +260,14 @@ function genSlotTypes(root: RootNode, context: GenerateContext): void {
   root.scope.globals.forEach((id) => {
     context.write(`let ${id} = _ctx.${id};`).newLine()
   })
-  context.write('return [').indent()
+  context.write('return VueDX.internal.flat([').indent()
   if (slots.length > 1) context.newLine()
   for (const [slot, ancestors] of slots) {
     for (const { node } of ancestors.slice().reverse()) {
       if (isForNode(node)) {
         context.write('VueDX.internal.renderList(')
         genForNodeArgs(context, node)
-        context.write(' => (').newLine().indent()
+        context.write(' => VueDX.internal.flat((').newLine().indent()
       }
     }
 
@@ -341,13 +341,13 @@ function genSlotTypes(root: RootNode, context: GenerateContext): void {
     //#endregion
     for (const { node } of ancestors) {
       if (isForNode(node)) {
-        context.newLine().deindent().write(')).flat()')
+        context.newLine().deindent().write(')))')
       }
     }
 
     if (slots.length > 1) context.write(',').newLine()
   }
-  context.deindent().write('].flat()').deindent().newLine()
+  context.deindent().write('])').deindent().newLine()
 
   context.write('}').newLine()
   context
@@ -511,7 +511,7 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
       if (shouldInlineDirectiveNode(prop)) {
         if (useNewLines) context.newLine()
         else context.write(' ')
-        genPropDirectiveNode(context, prop, node.tag)
+        genPropDirectiveNode(context, node, prop)
       } else {
         const group = groups[prop.name]
         if (group != null) {
@@ -565,19 +565,36 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
 
 function genAttributeNode(context: GenerateContext, node: AttributeNode): void {
   const loc = createLoc(node.loc, 0, node.name.length)
-  if (node.name === 'class') {
-    context.write('data-class', loc)
-  } else if (node.name === 'style') {
-    context.write('data-style', loc)
-  } else {
-    context.write(node.name, loc)
-  }
 
-  genAttributeValue(context, node.value)
+  if (/["'`/><]/.test(node.name)) {
+    context.write('{...{')
+    context.write(JSON.stringify(node.name), loc)
+    context.write(':')
+    if (node.value != null) {
+      context.write(JSON.stringify(node.value), node.value?.loc)
+    } else {
+      context.write('""')
+    }
+    context.write('}}')
+  } else {
+    if (node.name === 'class') {
+      context.write('data-class', loc)
+    } else if (node.name === 'style') {
+      context.write('data-style', loc)
+    } else {
+      context.write(node.name, loc)
+    }
+
+    genAttributeValue(context, node.value)
+  }
 }
 
 function shouldInlineDirectiveNode(node: DirectiveNode): boolean {
-  return node.name === 'bind' && isStaticExpression(node.arg)
+  return (
+    node.name === 'bind' &&
+    isStaticExpression(node.arg) &&
+    !/["']/.test(node.arg.content)
+  )
 }
 
 function isStaticExpression(node?: Node): node is SimpleExpressionNode {
@@ -796,31 +813,49 @@ function getEventName(name: string): string {
     .map((chunk) => camelCase(chunk))
     .join(':')
   const eventName =
-    'on' + camelName.substr(0, 1).toUpperCase() + camelName.substr(1)
+    'on' + camelName.slice(0, 1).toUpperCase() + camelName.slice(1)
   return eventName
 }
 
 function genPropDirectiveNode(
   context: GenerateContext,
+  element: ElementNode,
   node: DirectiveNode,
-  tag?: string,
 ): void {
   if (!shouldInlineDirectiveNode(node)) return
   if (node.name === 'bind') {
     if (isStaticExpression(node.arg)) {
+      const attr = node.arg.content
       const shouldAvoidCamelize =
-        node.arg.content.startsWith('data-') ||
-        node.arg.content.startsWith('aria-') ||
+        attr.startsWith('data-') ||
+        attr.startsWith('aria-') ||
         // true-value and false-value attributes on input/component
-        ((tag === 'input' || tag === 'component') &&
-          (node.arg.content === 'true-value' ||
-            node.arg.content === 'false-value'))
+        ((element.tag === 'input' || element.tag === 'component') &&
+          (attr === 'true-value' || attr === 'false-value'))
 
-      const value = shouldAvoidCamelize
-        ? node.arg.content
-        : camelCase(node.arg.content)
+      const value = shouldAvoidCamelize ? attr : camelCase(attr)
       context.write(value, node.arg.loc)
-      genAttributeValue(context, node.exp)
+      if (attr === 'ref' && node.exp != null) {
+        const componentName =
+          (isComponentNode(element) ? element.resolvedName : undefined) ??
+          `${JSON.stringify(element.tag)} as const`
+        context.write('={VueDX.internal.checkRef(')
+        genExpressionNode(context, node.exp)
+        context.write(', ')
+        context.write(
+          'VueDX.internal.getElementType(',
+          node.exp.loc,
+          MappingKind.reverseOnly,
+        )
+        context.write(
+          componentName,
+          createLoc(element.loc, 1, element.tag.length),
+        )
+        context.write(')')
+        context.write(')}')
+      } else {
+        genAttributeValue(context, node.exp)
+      }
     }
   } else if (node.name === 'on') {
     if (isStaticExpression(node.arg)) {

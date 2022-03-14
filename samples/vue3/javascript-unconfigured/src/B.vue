@@ -11,4 +11,3 @@ export const bb = 1
   <A>{{ a }}</A>
   <AA>{{ aa }}</AA>
 </template>
-

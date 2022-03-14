@@ -94,6 +94,13 @@ export class FilesystemService implements Disposable {
     }
   }
 
+  public getVirtualFileAt(
+    fileName: string,
+    offset: number,
+  ): VueBlockDocument | null {
+    return this.getVueFile(fileName)?.getDocAt(offset) ?? null
+  }
+
   /**
    * Get Vue SFC File
    * @returns null for non-vue files and when file does not exist
@@ -115,26 +122,25 @@ export class FilesystemService implements Disposable {
         this.logger.debug(`File updated: ${version} - ${fileName}`, changes)
         const before = file.getActiveTSDocIDs()
         file.update(changes, version)
-        const project = this.ts.getProjectFor(file.tsFileName)
-        if (project != null) {
-          // TODO: Optimize. This triggers parse on every keystroke.
-          const after = file.getActiveTSDocIDs()
-          const deleted = Array.from(before).filter(
-            (fileName) => !after.has(fileName),
-          )
 
-          deleted.forEach((fileName) => {
-            this.logger.debug(`Virtual file deleted: ${fileName}`)
-            const info = project.getScriptInfo(fileName)
-            if (info != null) {
-              project.removeFile(info, false, true)
-              this.logger.debug(`Virtual removed deleted: ${fileName}`)
-            }
-          })
+        // TODO: Optimize. This triggers parse on every keystroke.
+        const after = file.getActiveTSDocIDs()
+        const deleted = Array.from(before).filter(
+          (fileName) => !after.has(fileName),
+        )
+        deleted.forEach((fileName) => {
+          this.logger.debug(`Virtual file deleted: ${fileName}`)
+          const info = this.ts.project.getScriptInfo(fileName)
+          if (info != null) {
+            this.ts.project.removeFile(info, false, true)
+            this.logger.debug(`Virtual removed deleted: ${fileName}`)
+          }
+        })
+        after.forEach((fileName) => {
+          this.ts.project.getScriptInfo(fileName)?.reloadFromFile()
+        })
 
-          project.registerFileUpdate(file.tsFileName)
-          project.markAsDirty()
-        }
+        this.ts.project.getScriptInfo(file.tsFileName)?.reloadFromFile()
       }),
     )
 
@@ -223,7 +229,16 @@ export class FilesystemService implements Disposable {
       return { start: file.block.loc.start.offset, length: 1 }
     }
 
-    return { start: result.offset, length: result.length }
+    return {
+      start: Math.min(
+        result.offset,
+        Math.max(
+          file.block.loc.start.offset,
+          file.block.loc.end.offset - result.length,
+        ),
+      ),
+      length: result.length,
+    }
   }
 
   private readonly NULL_RANGE: Range = {

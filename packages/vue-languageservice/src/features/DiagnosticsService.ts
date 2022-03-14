@@ -1,4 +1,4 @@
-import { isNotNull } from '@vuedx/shared'
+import { isNotNull, mayContainVirtualFileName, toFileName } from '@vuedx/shared'
 import type { SourceLocation } from '@vuedx/template-ast-types'
 import type {
   TextDocument,
@@ -13,6 +13,8 @@ import type {
   DiagnosticTag,
   Range,
 } from 'vscode-languageserver-types'
+import type { LanguageService } from '../contracts/LanguageService'
+import type { TSLanguageService } from '../contracts/Typescript'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
@@ -32,7 +34,15 @@ interface NormalizeOptions {
 }
 
 @injectable()
-export class DiagnosticsService {
+export class DiagnosticsService
+  implements
+    Pick<
+      TSLanguageService,
+      | 'getSemanticDiagnostics'
+      | 'getSyntacticDiagnostics'
+      | 'getSuggestionDiagnostics'
+    >,
+    Pick<LanguageService, 'getDiagnostics'> {
   private readonly logger = LoggerService.getLogger('Diagnostics')
   private readonly caches = {
     semantic: new CacheService<Typescript.Diagnostic[]>((fileName) =>
@@ -99,7 +109,7 @@ export class DiagnosticsService {
     const project = this.ts.getProjectFor(fileName)
     if (project == null) return `-${Date.now()}`
 
-    return `${project.getProjectVersion()}-${project.getScriptVersion(
+    return `${project.getProjectVersion()} + ${project.getScriptVersion(
       fileName,
     )}`
   }
@@ -109,7 +119,7 @@ export class DiagnosticsService {
       if (prevResult != null) return prevResult
 
       return [
-        this.getSemanticDiagnostics(fileName).map((diagnostic) =>
+        this.getSemanticDiagnosticsOnly(fileName).map((diagnostic) =>
           this.toDiagnostic(diagnostic),
         ),
         this.getSyntacticDiagnostics(fileName).map((diagnostic) =>
@@ -125,20 +135,34 @@ export class DiagnosticsService {
     })
   }
 
-  public getExtraDiagnostics(fileName: string): Typescript.Diagnostic[] {
+  public getCompilerOptionsDiagnostics(): Typescript.Diagnostic[] {
+    const diagnostics = this.ts.service.getCompilerOptionsDiagnostics()
+
+    return diagnostics.filter((diagnostic) => {
+      // Ignore diagnostics referring virtual files
+      if (
+        mayContainVirtualFileName(this.toDisplayMessage(diagnostic.messageText))
+      ) {
+        return false
+      }
+
+      return true
+    })
+  }
+
+  private getExtraDiagnostics(fileName: string): Typescript.Diagnostic[] {
+    if (!this.fs.isVueFile(fileName)) return []
     return this.caches.extra.withCache(fileName, (result) => {
       if (result != null) return result
       this.logger.debug(`ExtraDiagnonstics in ${fileName}`)
       const diagnostics: Typescript.Diagnostic[] = []
-
-      if (this.fs.isVueSchemeFile(fileName)) return diagnostics
       const vueFile = this.fs.getVueFile(fileName)
       if (vueFile?.descriptor.scriptSetup != null) {
         const virtualFileName = vueFile.getBlockId(
           vueFile.descriptor.scriptSetup,
         )
         diagnostics.push(
-          ...this.normalizeVirtualFileDiagnostics(
+          ...this.toVueFileDiagnostics(
             virtualFileName,
             this.scriptSetup
               .getDiagnostics(virtualFileName)
@@ -160,80 +184,79 @@ export class DiagnosticsService {
   }
 
   public getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
+    // VSCode does not support semantic diagnostics for virtual files.
     if (this.fs.isVueSchemeFile(fileName)) {
-      const realFileName = this.fs.getRealFileName(fileName)
-      return (
-        this.ts
-          .getUndecoratedServiceFor(realFileName)
-          ?.getSemanticDiagnostics(realFileName)
-          .map((diagnostic) =>
-            this.normalizeTSDiagnostic(diagnostic, {
-              expectedFileName: fileName,
-              isVueSchemeFile: true,
-            }),
-          ) ?? []
-      )
+      return []
     }
 
-    return this.caches.semantic.withCache(fileName, (result) => {
-      if (result != null) return result
-
-      this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
-      return this.getDiagnosticsFromTS(fileName, (fileName) => {
-        this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
-        return this.ts.service.getSemanticDiagnostics(fileName)
-      })
-    })
+    return [
+      ...this.getSemanticDiagnosticsOnly(fileName),
+      ...this.getExtraDiagnostics(fileName),
+    ]
   }
 
   public getSyntacticDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
     if (this.fs.isVueSchemeFile(fileName)) {
-      const realFileName = this.fs.getRealFileName(fileName)
-      return (this.ts
-        .getUndecoratedServiceFor(realFileName)
-        ?.getSyntacticDiagnostics(realFileName)
-        .map((diagnostic) =>
-          this.normalizeTSDiagnostic(diagnostic, {
-            expectedFileName: realFileName,
-            isVueSchemeFile: true,
-          }),
-        ) ?? []) as Typescript.DiagnosticWithLocation[]
+      // VSCode does not support semantic diagnostics for virtual files.
+      // So let's send all diagnostics as syntactic diagnostics
+      return [
+        ...this.getSyntacticDiagnosticsOnly(fileName),
+        ...this.getSemanticDiagnosticsOnly(fileName),
+        ...this.getSuggestionDiagnosticsOnly(fileName),
+      ] as Typescript.DiagnosticWithLocation[]
     }
 
-    return this.caches.syntax.withCache(fileName, (result) => {
-      if (result != null) return result
-      this.logger.debug(`SyntacticDiagnonstics in ${fileName}`)
-      return this.getDiagnosticsFromTS(fileName, (fileName) => {
-        this.logger.debug(`SyntacticDiagnonstics in ${fileName}`)
-        return this.ts.service.getSyntacticDiagnostics(fileName)
-      }) as Typescript.DiagnosticWithLocation[]
-    })
+    return this.getSyntacticDiagnosticsOnly(fileName)
   }
 
   public getSuggestionDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
+    // VSCode does not support semantic diagnostics for virtual files.
     if (this.fs.isVueSchemeFile(fileName)) {
-      const realFileName = this.fs.getRealFileName(fileName)
-      return (this.ts
-        .getUndecoratedServiceFor(realFileName)
-        ?.getSuggestionDiagnostics(realFileName)
-        .map((diagnostic) =>
-          this.normalizeTSDiagnostic(diagnostic, {
-            expectedFileName: fileName,
-            isVueSchemeFile: true,
-          }),
-        ) ?? []) as Typescript.DiagnosticWithLocation[]
+      return []
     }
 
+    return this.getSuggestionDiagnosticsOnly(fileName)
+  }
+
+  private getSyntacticDiagnosticsOnly(
+    fileName: string,
+  ): Typescript.DiagnosticWithLocation[] {
+    return this.caches.syntax.withCache(fileName, (result) => {
+      if (result != null) return result // use cached result.
+      this.logger.debug(`SyntacticDiagnonstics in ${fileName}`)
+      return this.getDiagnosticsFromTS(fileName, (fileName, service) => {
+        this.logger.debug(`SyntacticDiagnonstics in ${fileName}`)
+        return service.getSyntacticDiagnostics(fileName)
+      }) as Typescript.DiagnosticWithLocation[]
+    })
+  }
+
+  private getSemanticDiagnosticsOnly(
+    fileName: string,
+  ): Typescript.Diagnostic[] {
+    return this.caches.semantic.withCache(fileName, (result) => {
+      if (result != null) return result // use cached result.
+      this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
+      return this.getDiagnosticsFromTS(fileName, (fileName, service) => {
+        this.logger.debug(`SemanticDiagnonstics in ${fileName}`)
+        return service.getSemanticDiagnostics(fileName)
+      })
+    })
+  }
+
+  private getSuggestionDiagnosticsOnly(
+    fileName: string,
+  ): Typescript.DiagnosticWithLocation[] {
     return this.caches.suggestion.withCache(fileName, (result) => {
       if (result != null) return result
       this.logger.debug(`SuggestionDiagnonstics in ${fileName}`)
-      return this.getDiagnosticsFromTS(fileName, (fileName) => {
+      return this.getDiagnosticsFromTS(fileName, (fileName, service) => {
         this.logger.debug(`SuggestionDiagnonstics in ${fileName}`)
-        return this.ts.service.getSuggestionDiagnostics(fileName)
+        return service.getSuggestionDiagnostics(fileName)
       }) as Typescript.DiagnosticWithLocation[]
     })
   }
@@ -294,7 +317,7 @@ export class DiagnosticsService {
 
       this.lang
         .getLanguageService(fileName)
-        ?.getDiagnositcs(fileName)
+        ?.getDiagnostics(fileName)
         .forEach((diagnostic) => {
           diagnostic.range = this.fs.getAbsoluteRange(
             file,
@@ -332,7 +355,10 @@ export class DiagnosticsService {
    */
   private getDiagnosticsFromTS(
     fileName: string,
-    getter: (fileName: string) => Typescript.Diagnostic[],
+    getter: (
+      fileName: string,
+      service: TSLanguageService,
+    ) => Typescript.Diagnostic[],
   ): Typescript.Diagnostic[] {
     if (this.fs.isVueFile(fileName)) {
       const vueFile = this.fs.getVueFile(fileName)
@@ -340,31 +366,45 @@ export class DiagnosticsService {
         this.logger.debug(`File not found: ${fileName}`)
         return []
       }
-      const diagnostics: Typescript.Diagnostic[] = []
-      this.logger.debug(
-        `${vueFile.version} = ${vueFile.fileName}`,
-        vueFile.getActiveTSDocIDs(),
-      )
-      vueFile.getActiveTSDocIDs().forEach((id) => {
+
+      return Array.from(vueFile.getActiveTSDocIDs()).flatMap((fileName) => {
         try {
-          diagnostics.push(
-            ...this.normalizeVirtualFileDiagnostics(id, getter(id)),
+          return this.toVueFileDiagnostics(
+            fileName,
+            getter(fileName, this.ts.service),
           )
         } catch (error) {
-          // Ignore for now.
           this.logger.error(error as Error)
+          return this.errorAsTSDiagnostic(fileName, error as Error)
         }
       })
+    } else if (this.fs.isVueSchemeFile(fileName)) {
+      const realFileName = this.fs.getRealFileName(fileName)
+      const expectedFileName = toFileName({
+        type: 'scheme',
+        scheme: 'vue',
+        fileName: realFileName,
+      })
 
-      return diagnostics
+      const service =
+        this.ts.getUndecoratedServiceFor(realFileName) ?? this.ts.service
+
+      return (getter(realFileName, service).map((diagnostic) =>
+        this.normalizeTSDiagnostic(diagnostic, {
+          expectedFileName,
+          isVueSchemeFile: true,
+        }),
+      ) ?? []) as Typescript.DiagnosticWithLocation[]
     } else {
-      return getter(fileName).map((diagnostic) =>
-        this.normalizeTSDiagnostic(diagnostic, { expectedFileName: fileName }),
+      return getter(fileName, this.ts.service).map((diagnostic) =>
+        this.normalizeTSDiagnostic(diagnostic, {
+          expectedFileName: fileName,
+        }),
       )
     }
   }
 
-  private normalizeVirtualFileDiagnostics(
+  private toVueFileDiagnostics(
     fileName: string,
     diagnostics: Typescript.Diagnostic[],
   ): Typescript.Diagnostic[] {
@@ -487,6 +527,26 @@ export class DiagnosticsService {
     }
   }
 
+  private errorAsTSDiagnostic(
+    fileName: string,
+    error: Error,
+  ): Typescript.Diagnostic {
+    const range = { start: 0, length: 1 }
+    const sourceFile = this.ts.getSourceFile(fileName) ?? undefined
+
+    return {
+      source: this.getSourceName(),
+      messageText: error.message,
+      category: this.SEVERITY_TO_TS_CATEGORY[1],
+      code: 0,
+      reportsUnnecessary: false,
+      reportsDeprecated: false,
+      file: sourceFile,
+      start: range.start,
+      length: range.length,
+    }
+  }
+
   private toDiagnosticRelatedInformation(
     diagnostic: Typescript.DiagnosticRelatedInformation,
   ): DiagnosticRelatedInformation | null {
@@ -537,7 +597,7 @@ export class DiagnosticsService {
     )
   }
 
-  public toDisplayMessage(
+  private toDisplayMessage(
     message: string | Typescript.DiagnosticMessageChain,
   ): string {
     if (typeof message === 'string') return message

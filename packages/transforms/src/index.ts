@@ -43,7 +43,7 @@ export function toAST(
 
   finalOptions.plugins = Array.from(new Set(finalOptions.plugins))
 
-  return parse(code, finalOptions) as T.File
+  return parse(code, finalOptions) as any
 }
 
 export function toCode(

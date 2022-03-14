@@ -59,6 +59,7 @@
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
+    "@types/web": "^0.0.56",
     "@vue/runtime-core": "^3.2.31",
     "quick-lru": "^6.0.1",
     "vscode-languageserver-types": "^3.16.0"

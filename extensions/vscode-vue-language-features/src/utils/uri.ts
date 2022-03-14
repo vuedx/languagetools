@@ -11,3 +11,7 @@ export function stringifyUri(uri: vscode.Uri): string {
 export function getVirtualFileUri(fileName: string): vscode.Uri {
   return vscode.Uri.file(fileName).with({ scheme: 'vue' })
 }
+
+export function getVirtualFileNameFromUri(uri: vscode.Uri): string {
+  return uri.fsPath
+}

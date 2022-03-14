@@ -1,5 +1,5 @@
 import { RPC } from '@vuedx/shared'
-import type { LanguageServiceAPI } from '@vuedx/typescript-plugin-vue'
+import type { PluginSideChannel } from '@vuedx/typescript-plugin-vue'
 import { injectable } from 'inversify'
 import { IPCModule } from 'node-ipc'
 import * as vscode from 'vscode'
@@ -10,14 +10,25 @@ export class PluginCommunicationService extends Installable {
   private readonly ipc: IPCModule
   private readonly _connections = new Map<
     string,
-    RPC.Remote<LanguageServiceAPI>
+    RPC.Remote<PluginSideChannel>
   >()
 
   private readonly onConnectChangeEmitter = new vscode.EventEmitter()
   public onChange = this.onConnectChangeEmitter.event
 
-  public get connections(): Array<RPC.Remote<LanguageServiceAPI>> {
+  public get connections(): Array<RPC.Remote<PluginSideChannel>> {
     return Array.from(this._connections.values())
+  }
+
+  public async first<R>(
+    fn: (connection: RPC.Remote<PluginSideChannel>) => Promise<R | undefined>,
+  ): Promise<R | undefined> {
+    for (const connection of this.connections) {
+      const result = await fn(connection)
+      if (result !== undefined) return result
+    }
+
+    return undefined
   }
 
   constructor() {

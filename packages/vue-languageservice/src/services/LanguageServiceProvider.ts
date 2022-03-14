@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify'
 import type { Disposable } from '../contracts/Disposable'
 import type { LanguageService } from '../contracts/LanguageService'
+import { AggregateLanguageService } from './AggregateLanguageService'
 import { FilesystemService } from './FilesystemService'
 
 /**
@@ -8,7 +9,7 @@ import { FilesystemService } from './FilesystemService'
  */
 @injectable()
 export class LanguageServiceProvider implements Disposable {
-  private readonly services: Record<string, LanguageService> = {}
+  private readonly services = new Map<string, AggregateLanguageService>()
 
   constructor(
     @inject(FilesystemService)
@@ -16,16 +17,19 @@ export class LanguageServiceProvider implements Disposable {
   ) {}
 
   public getLanguageService(fileName: string): LanguageService | null {
-    const language = this.fs.getLaguageId(fileName)
-
-    return this.services[language] ?? null
+    return this.services.get(this.fs.getLaguageId(fileName)) ?? null
   }
 
   public registerLanguageService(
     language: string,
     service: LanguageService,
   ): void {
-    this.services[language] = service // TODO: Handle duplicate language services by combining them.
+    const current = this.services.get(language)
+    if (current == null) {
+      this.services.set(language, new AggregateLanguageService(service))
+    } else {
+      current.register(service)
+    }
   }
 
   dispose(): void {}

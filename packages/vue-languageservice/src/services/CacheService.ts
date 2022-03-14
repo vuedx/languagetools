@@ -1,4 +1,5 @@
 import QuickLRU from 'quick-lru'
+import { LoggerService } from './LoggerService'
 
 interface Item<T> {
   version: string
@@ -6,6 +7,7 @@ interface Item<T> {
 }
 
 export class CacheService<T> {
+  private readonly logger = new LoggerService('Cache')
   private readonly cache = new QuickLRU<string, Item<T>>({
     maxSize: this.maxSize,
   })
@@ -31,7 +33,12 @@ export class CacheService<T> {
   public withCache(fileName: string, fn: (item: T | null) => T): T {
     const prevItem = this.getItem(fileName)
     const nextItem = fn(prevItem)
-    if (prevItem !== nextItem) this.setItem(fileName, nextItem)
+    if (prevItem !== nextItem) {
+      this.logger.debug('Miss', fileName)
+      this.setItem(fileName, nextItem)
+    } else {
+      this.logger.debug('Hit', fileName)
+    }
     return nextItem
   }
 }
