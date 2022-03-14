@@ -15,7 +15,7 @@ describe(`parseFileName()/toFileName()`, () => {
   })
 
   test('virtual script block file', () => {
-    const fileName = `${baseFileName}?vue&type=script&lang.ts`
+    const fileName = `${baseFileName}+vue&type=script&lang.ts`
     const parsed = {
       type: 'virtual',
       fileName: baseFileName,
@@ -31,7 +31,7 @@ describe(`parseFileName()/toFileName()`, () => {
   })
 
   test('virtual script setup block file', () => {
-    const fileName = `${baseFileName}?vue&type=script&setup&lang.ts`
+    const fileName = `${baseFileName}+vue&type=script&setup&lang.ts`
     const parsed = {
       type: 'virtual',
       fileName: baseFileName,
@@ -47,7 +47,7 @@ describe(`parseFileName()/toFileName()`, () => {
   })
 
   test('virtual template block file', () => {
-    const fileName = `${baseFileName}?vue&type=template&lang.vue-html`
+    const fileName = `${baseFileName}+vue&type=template&lang.vue-html`
     const parsed = {
       type: 'virtual',
       fileName: baseFileName,
@@ -63,7 +63,7 @@ describe(`parseFileName()/toFileName()`, () => {
   })
 
   test('virtual style block file', () => {
-    const fileName = `${baseFileName}?vue&type=style&index=0&scoped&lang.css`
+    const fileName = `${baseFileName}+vue&type=style&index=0&scoped&lang.css`
     const parsed = {
       type: 'virtual',
       fileName: baseFileName,
@@ -81,7 +81,7 @@ describe(`parseFileName()/toFileName()`, () => {
   })
 
   test('virtual style module block file', () => {
-    const fileName = `${baseFileName}?vue&type=style&index=0&module=$style&scoped&lang.css`
+    const fileName = `${baseFileName}+vue&type=style&index=0&module=$style&scoped&lang.css`
     const parsed = {
       type: 'virtual',
       fileName: baseFileName,

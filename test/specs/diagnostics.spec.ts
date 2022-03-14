@@ -198,7 +198,7 @@ describe('project', () => {
             Type 'MouseEvent' is missing the following properties from type 'PointerEvent': height, isPrimary, pointerId, pointerType, and 8 more.",
           "Type '(event: KeyboardEvent) => void' is not assignable to type '(payload: MouseEvent) => void'.
           Types of parameters 'event' and 'payload' are incompatible.
-            Type 'MouseEvent' is missing the following properties from type 'KeyboardEvent': char, charCode, code, isComposing, and 8 more.",
+            Type 'MouseEvent' is missing the following properties from type 'KeyboardEvent': char, charCode, code, isComposing, and 9 more.",
           "Argument of type 'MouseEvent' is not assignable to parameter of type 'KeyboardEvent'.",
           "Type '\\"enter\\"' is not assignable to type '\\"meta\\" | \\"stop\\" | \\"alt\\" | \\"capture\\" | \\"once\\" | \\"prevent\\" | \\"self\\" | \\"passive\\" | \\"left\\" | \\"right\\" | \\"ctrl\\" | \\"shift\\" | \\"exact\\" | \\"middle\\"'.",
           "Type '\\"up\\"' is not assignable to type '\\"meta\\" | \\"stop\\" | \\"alt\\" | \\"capture\\" | \\"once\\" | \\"prevent\\" | \\"self\\" | \\"passive\\" | \\"left\\" | \\"right\\" | \\"ctrl\\" | \\"shift\\" | \\"exact\\" | \\"middle\\"'.",

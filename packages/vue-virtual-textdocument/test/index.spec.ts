@@ -25,18 +25,19 @@ describe('VueSFCDocument', () => {
     expect(Array.from(doc.getActiveTSDocIDs())).toHaveLength(2)
 
     expect(doc.getTypeScriptText()).toMatchInlineSnapshot(`
-"import 'vuedx~runtime'
-import 'vuedx~project-runtime'
-import { _Slots } from \\"./Example.vue?vue&type=template&lang\\"
-import _Self from \\"./Example.vue?vue&type=script&setup=true&lang\\"
-export * from \\"./Example.vue?vue&type=script&setup=true&lang\\"
+      "import 'vuedx~runtime'
+      import 'vuedx~project-runtime'
+      import { _Slots } from \\"./Example.vue+vue&type=template&lang\\"
+      import _Self from \\"./Example.vue+vue&type=script&setup&lang\\"
+      export * from \\"./Example.vue+vue&type=script&setup&lang\\"
 
-class Example {
-  $props: InstanceType<typeof _Self>['$props']
-  $slots: _Slots
-}
-export default Example"
-`)
+      class Example {
+        $props!: InstanceType<typeof _Self>['$props']
+        $slots!: _Slots
+      }
+      export default Example
+      "
+    `)
 
     expect(doc.getDoc(doc.descriptor.scriptSetup!)?.generated?.getText())
       .toMatchInlineSnapshot(`
@@ -44,7 +45,7 @@ export default Example"
               import Foo from './foo'
 
               const val = $ref(1)
-              
+              ;
       /*<vuedx:diagnosticsIgnore>*/
       export const __VueDX_components = {
         Foo
@@ -60,7 +61,7 @@ export default Example"
     expect(doc.getDoc(doc.descriptor.template!)?.generated?.getText())
       .toMatchInlineSnapshot(`
       "/*<vuedx:diagnosticsIgnore>*/
-      import Example, { __VueDX_components, __VueDX_directives } from './Example.vue?vue&type=script&setup=true&lang'
+      import Example, { __VueDX_components, __VueDX_directives } from './Example.vue+vue&type=script&setup&lang'
       type _Self = InstanceType<typeof Example>
       const Foo = VueDX.internal.resolveComponent(__VueDX_components, \\"Foo\\" as const, \\"Foo\\" as const);
       export function _render(_ctx: _Self): any {
@@ -88,7 +89,7 @@ export default Example"
       /*<vuedx:diagnosticsIgnore>*/
       function _slots(_ctx: _Self) {
         let val = _ctx.val;
-        return [].flat()
+        return VueDX.internal.flat([])
       }
       export type _Slots = VueDX.internal.Slots<ReturnType<typeof _slots>>
       /*</vuedx:diagnosticsIgnore>*/

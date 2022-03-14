@@ -63,6 +63,14 @@ function isSupportedLang(lang?: string): lang is 'js' | 'jsx' | 'ts' | 'tsx' {
   return ['js', 'jsx', 'ts', 'tsx'].includes(lang ?? '')
 }
 
+const caches = {
+  script: new WeakMap<VueSFCDocument, string>(),
+}
+
+function toText(...lines: string[]): string {
+  return lines.join('\n').replace(/\n$/, '') + '\n'
+}
+
 export const builtins: Record<'script' | 'template', BlockTransformer> = {
   script: {
     output: (block) => (isSupportedLang(block.lang) ? block.lang : 'js'),
@@ -122,48 +130,49 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
             }),
           )
 
-          const code = [
-            source,
+          const code = toText(
             ';',
             annotations.diagnosticsIgnore.start,
             toCode(nodes).code,
             annotations.diagnosticsIgnore.end,
-            '',
-          ].join('\n')
+          )
+
+          caches.script.set(document, code)
 
           return {
             ast,
-            code,
+            code: source + code,
           }
         } else {
           // TODO: Handle plain object exports.
-          const code = [
-            source,
+          const code = toText(
             ';',
             annotations.diagnosticsIgnore.start,
             toCode(nodes).code,
             annotations.diagnosticsIgnore.end,
-            '',
-          ].join('\n')
+          )
+
+          caches.script.set(document, code)
 
           return {
             ast,
-            code,
+            code: source + code,
           }
         }
       } catch (error) {
         console.error('[VueDX] BlockTransformer - Error parsing script:', error)
 
         return {
-          code: [
-            source,
-            ';',
-            annotations.diagnosticsIgnore.start,
-            'export const __VueDX_components = {}',
-            'export const __VueDX_directives = {}',
-            annotations.diagnosticsIgnore.end,
-            '',
-          ].join('\n'),
+          code:
+            source +
+            (caches.script.get(document) ??
+              toText(
+                ';',
+                annotations.diagnosticsIgnore.start,
+                'export const __VueDX_components = {};',
+                'export const __VueDX_directives = {};',
+                annotations.diagnosticsIgnore.end,
+              )),
           errors: [],
         }
       }
