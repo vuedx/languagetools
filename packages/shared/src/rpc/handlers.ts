@@ -259,8 +259,8 @@ export function fromValue(endpoint: Endpoint, value: Value): unknown {
         return value.value
       case ValueType.HANDLER: {
         const handler = Handlers.get(value.name)
-        if (handler == null) throw new Error(`Unknown handler: ${value.name}`)
-        return handler.deserialize(value.value)
+        if (handler != null) return handler.deserialize(value.value)
+        return value.value
       }
       default:
         throw new Error(`Unknown type: ${(value as Value).type}`)
