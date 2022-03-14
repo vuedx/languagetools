@@ -126,13 +126,7 @@ export function init({ typescript }: Modules): TS.server.PluginModule {
       const service = byProject.get(project)?.service
 
       if (service != null) {
-        const files = service.getExternalFiles(project)
-        logger.info(
-          `[VueDX] (plugin) ${
-            service._vueTS_id
-          } External files ${JSON.stringify(files, null, 2)}`,
-        )
-        return files
+        return service.getExternalFiles(project)
       } else {
         logger.info(
           `[VueDX] (plugin) Cannot find LanguageService provider for ${project.getProjectName()}`,

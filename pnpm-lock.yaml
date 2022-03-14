@@ -341,6 +341,7 @@ importers:
 
   packages/vue-languageservice:
     specifiers:
+      '@types/web': ^0.0.56
       '@vue/runtime-core': ^3.2.1
       '@vuedx/projectconfig': workspace:*
       '@vuedx/shared': workspace:*
@@ -362,6 +363,7 @@ importers:
       node-ipc: 10.1.0
       reflect-metadata: 0.1.13
     devDependencies:
+      '@types/web': 0.0.56
       '@vue/runtime-core': 3.2.6
       quick-lru: 6.0.1
       vscode-languageserver-types: 3.16.0
@@ -2234,6 +2236,13 @@ packages:
     resolution:
       {
         integrity: sha512-bSlAWz5WtcSL3cO9tAT/KpEH9rv5OBnm93OIIFwdCshaAiqr2bp1AUyEwW9MWeCvZBHEXc3V0fTYVdVyzDNwHA==,
+      }
+    dev: true
+
+  /@types/web/0.0.56:
+    resolution:
+      {
+        integrity: sha512-NEnxO4rY7FlE+7R6M7La55iendaExY5jGlvoE7ytM8h2Do4lD+r6ZmzEDNeP5DTNPdfmkft8Ya4Lt5K+LzZkLA==,
       }
     dev: true
 

@@ -1,12 +1,13 @@
 import { injectable, inject } from 'inversify'
 import vscode from 'vscode'
-import { DocumentService } from '../services/documents'
+import { PluginCommunicationService } from '../services/PluginCommunicationService'
+import { getVirtualFileUri } from '../utils/uri'
 
 @injectable()
 export class OpenVirtualFileCommand {
   public constructor(
-    @inject(DocumentService)
-    private readonly documents: DocumentService,
+    @inject(PluginCommunicationService)
+    private readonly plugin: PluginCommunicationService,
   ) {}
 
   public install(): vscode.Disposable {
@@ -24,41 +25,25 @@ export class OpenVirtualFileCommand {
       return
     }
 
-    await this.documents.ensureDocument(editor.document.uri.fsPath)
-
-    const doc = this.documents.getVueDocument(editor.document.uri.fsPath)
-    if (doc == null) {
-      await vscode.window.showInformationMessage(
-        'Failed to load current Vue file.',
+    const position = editor.document.offsetAt(editor.selection.start)
+    const fileName = await this.plugin.first(async (connection) => {
+      return await connection.getVirtualFileAt(
+        editor.document.fileName,
+        position,
       )
+    })
+
+    if (fileName == null) {
+      await vscode.window.showInformationMessage(
+        `There is no virtual file for line ${editor.selection.start.line}.`,
+      )
+
       return
     }
 
-    const block = doc.getBlockAt(doc.offsetAt(editor.selection.start))
-    if (block != null) {
-      const blockDoc = doc.getDoc(block)
-      if (blockDoc?.tsFileName != null) {
-        const uri = vscode.Uri.file(blockDoc.tsFileName).with({
-          scheme: 'vue',
-        })
-
-        await vscode.commands.executeCommand(
-          'vscode.open',
-          uri,
-          vscode.ViewColumn.Beside,
-        )
-
-        return
-      }
-    }
-
-    const uri = vscode.Uri.file(doc.tsFileName).with({
-      scheme: 'vue',
-    })
-
     await vscode.commands.executeCommand(
       'vscode.open',
-      uri,
+      getVirtualFileUri(fileName),
       vscode.ViewColumn.Beside,
     )
   }

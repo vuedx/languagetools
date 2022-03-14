@@ -1,4 +1,10 @@
-import { isVueFile, parseFileName, toFileName, ucfirst } from '@vuedx/shared'
+import {
+  isProjectRuntimeFile,
+  isVueFile,
+  parseFileName,
+  toFileName,
+  ucfirst,
+} from '@vuedx/shared'
 import {} from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import {
@@ -6,6 +12,7 @@ import {
   StatusBarAlignment,
   StatusBarItem,
   TextEditor,
+  Uri,
   window,
 } from 'vscode'
 import { Installable } from '../utils/installable'
@@ -41,6 +48,8 @@ export class VirtualFileSwitcher extends Installable {
     )
   }
 
+  private _lastFile: string | null = null
+
   async showStatusBar(editor: TextEditor | undefined): Promise<void> {
     if (
       this.plugin.connections.length === 0 ||
@@ -52,11 +61,53 @@ export class VirtualFileSwitcher extends Installable {
     }
 
     const parsed = parseFileName(editor.document.fileName)
+    if (isProjectRuntimeFile(parsed.fileName) && this._lastFile != null) {
+      this.statusBar.tooltip = `Showing virtual file from "${this._lastFile}"`
+      this.statusBar.text = `$(file-submodule) Project Globals`
+      this.statusBar.command = {
+        title: 'Select virtual file',
+        command: 'vuedx.selectVirtualFile',
+        arguments: [Uri.file(this._lastFile)],
+      }
+      this.statusBar.show()
+      return
+    }
+
     if (!isVueFile(parsed.fileName)) return this.statusBar.hide()
 
-    if (parsed.type !== 'virtual') {
+    this._lastFile = parsed.fileName
+
+    if (parsed.type === 'virtual') {
+      this.statusBar.tooltip = `Showing virtual file from "${editor.document.fileName}"`
+      this.statusBar.text = `$(file-submodule) Virtual ${ucfirst(
+        parsed.blockType,
+      )}`
+      this.statusBar.command = {
+        title: 'Select virtual file',
+        command: 'vuedx.selectVirtualFile',
+        arguments: [editor.document.uri],
+      }
+    } else if (
+      parsed.type === 'vue-ts' ||
+      parsed.type === 'vue-descriptor' ||
+      parsed.type === 'vue-template-ast'
+    ) {
+      const displayName =
+        parsed.type === 'vue-ts'
+          ? 'Virtual Module'
+          : parsed.type === 'vue-descriptor'
+          ? 'SFC Descriptor'
+          : 'Template AST'
+      this.statusBar.tooltip = `Showing virtual file from "${editor.document.fileName}"`
+      this.statusBar.text = `$(file-submodule) ${displayName}`
+      this.statusBar.command = {
+        title: 'Select virtual file',
+        command: 'vuedx.selectVirtualFile',
+        arguments: [editor.document.uri],
+      }
+    } else {
       this.statusBar.tooltip = `Showing virtual file at cursor`
-      this.statusBar.text = `$(files)`
+      this.statusBar.text = `$(file-submodule)`
       this.statusBar.command = {
         title: 'Open virtual file',
         command: 'vuedx.openVirtualFile',
@@ -65,14 +116,6 @@ export class VirtualFileSwitcher extends Installable {
             toFileName({ type: 'vue-ts', fileName: parsed.fileName }),
           ),
         ],
-      }
-    } else {
-      this.statusBar.tooltip = `Showing virtual file from "${editor.document.fileName}"`
-      this.statusBar.text = `$(files) Virtual ${ucfirst(parsed.blockType)}`
-      this.statusBar.command = {
-        title: 'Select virtual file',
-        command: 'vuedx.selectVirtualFile',
-        arguments: [editor.document.uri],
       }
     }
     this.statusBar.show()

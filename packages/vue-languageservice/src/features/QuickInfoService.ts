@@ -1,12 +1,11 @@
 import type { VueBlockDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type Typescript from 'typescript/lib/tsserverlibrary'
-import type { Hover, Position } from 'vscode-languageserver-types'
 import { FilesystemService } from '../services/FilesystemService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
 
 @injectable()
-export class HoverService {
+export class QuickInfoService {
   constructor(
     @inject(TypescriptContextService)
     private readonly ts: TypescriptContextService,
@@ -14,25 +13,22 @@ export class HoverService {
     private readonly fs: FilesystemService,
   ) {}
 
-  public getHover(_fileName: string, _position: Position): Hover | undefined {
-    return undefined
-  }
-
   public getQuickInfoAtPosition(
     fileName: string,
     position: number,
   ): Typescript.QuickInfo | undefined {
-    if (this.fs.isFilesystemSchemeFile(fileName)) {
+    if (this.fs.isVueSchemeFile(fileName)) {
       const realFileName = this.fs.getRealFileName(fileName)
 
       return this.ts
-        .getServiceFor(realFileName)
+        .getUndecoratedServiceFor(realFileName)
         ?.getQuickInfoAtPosition(realFileName, position)
     } else if (this.fs.isVueFile(fileName)) {
       const vueFile = this.fs.getVueFile(fileName)
       if (vueFile == null) return undefined
       const blockFile = vueFile.getDocAt(position)
       if (blockFile?.tsFileName == null) return undefined
+      if (this.ts.getSourceFile(blockFile.tsFileName) == null) return
       const offset = blockFile.generatedOffetAt(position)
       const quickInfo = this.ts.service.getQuickInfoAtPosition(
         blockFile.tsFileName,
@@ -45,6 +41,7 @@ export class HoverService {
 
       return quickInfo
     } else {
+      if (this.ts.getSourceFile(fileName) == null) return
       return this.ts.service.getQuickInfoAtPosition(fileName, position)
     }
   }

@@ -1,8 +1,9 @@
-import vscode from 'vscode'
+import { isVueFile, parseFileName, VueVirtualFileName } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
-import { Installable } from '../utils/installable'
-import { DocumentService } from '../services/documents'
+import vscode from 'vscode'
 import { PluginCommunicationService } from '../services/PluginCommunicationService'
+import { Installable } from '../utils/installable'
+import { getVirtualFileNameFromUri } from '../utils/uri'
 
 @injectable()
 export class VueVirtualDocumentProvider
@@ -11,20 +12,98 @@ export class VueVirtualDocumentProvider
   constructor(
     @inject(PluginCommunicationService)
     private readonly plugin: PluginCommunicationService,
-
-    @inject(DocumentService)
-    private readonly documents: DocumentService,
   ) {
     super()
   }
 
+  private readonly openVueFiles = new Map<string, Set<string>>()
+
   public install(): vscode.Disposable {
     super.install()
 
+    let selectionWatcher: vscode.Disposable | undefined
+    let cancellationToken: vscode.CancellationTokenSource | undefined
+
     return vscode.Disposable.from(
       vscode.workspace.registerTextDocumentContentProvider('vue', this),
-      this.documents.onDidChangeTextDocument(({ uri }) => {
-        this.onDidChangeEmitter.fire(uri)
+      vscode.workspace.onDidChangeTextDocument(({ document }) => {
+        if (document.languageId === 'vue') {
+          this.openVueFiles.get(document.fileName)?.forEach((uri) => {
+            this.onDidChangeEmitter.fire(vscode.Uri.parse(uri))
+          })
+        }
+      }),
+      vscode.workspace.onDidOpenTextDocument(({ uri }) => {
+        if (uri.scheme === 'vue') {
+          const fileName = getVirtualFileNameFromUri(uri)
+          const parsed = parseFileName(fileName) as VueVirtualFileName
+          const openFiles = this.openVueFiles.get(parsed.fileName)
+          if (openFiles == null) {
+            this.openVueFiles.set(parsed.fileName, new Set([uri.toString()]))
+          } else {
+            openFiles.add(uri.toString())
+          }
+        }
+      }),
+      vscode.workspace.onDidCloseTextDocument(({ uri }) => {
+        if (uri.scheme === 'vue') {
+          const fileName = getVirtualFileNameFromUri(uri)
+          const parsed = parseFileName(fileName) as VueVirtualFileName
+          const openFiles = this.openVueFiles.get(parsed.fileName)
+          if (openFiles == null) return
+          openFiles.delete(uri.toString())
+          if (openFiles.size === 0) this.openVueFiles.delete(parsed.fileName)
+        }
+      }),
+      vscode.window.onDidChangeActiveTextEditor((editor) => {
+        selectionWatcher?.dispose()
+        if (editor == null || !isVueFile(editor.document.fileName)) return
+        const fileName = editor.document.fileName
+
+        selectionWatcher = vscode.window.onDidChangeTextEditorSelection(
+          async ({ textEditor, selections }) => {
+            if (textEditor !== editor) return // ignore others
+            if (selections.length !== 1) return
+            cancellationToken?.cancel()
+            const current = new vscode.CancellationTokenSource()
+            cancellationToken = current
+
+            const start = textEditor.document.offsetAt(editor.selection.start)
+            const end = textEditor.document.offsetAt(editor.selection.end)
+            const result = await this.plugin.first(async (conneciton) => {
+              return await conneciton.findGeneratedFileAndRange(
+                fileName,
+                start,
+                end,
+              )
+            })
+
+            // not found or cancelled
+            if (result == null || current.token.isCancellationRequested) return
+
+            const virtualEditor = vscode.window.visibleTextEditors.find(
+              (editor) => editor.document.fileName === result.fileName,
+            )
+
+            if (virtualEditor == null) return // not active
+
+            const range = new vscode.Range(
+              virtualEditor.document.positionAt(result.start),
+              virtualEditor.document.positionAt(result.end),
+            )
+
+            virtualEditor.options.cursorStyle =
+              vscode.TextEditorCursorStyle.Underline
+            virtualEditor.selection = new vscode.Selection(
+              range.start,
+              range.end,
+            )
+            virtualEditor.revealRange(
+              range,
+              vscode.TextEditorRevealType.Default,
+            )
+          },
+        )
       }),
     )
   }
@@ -35,24 +114,16 @@ export class VueVirtualDocumentProvider
   async provideTextDocumentContent(
     request: vscode.Uri,
   ): Promise<string | undefined> {
-    try {
-      const fileName = request.with({ scheme: 'file' }).fsPath
+    const fileName = request.with({ scheme: 'file' }).fsPath
 
-      for (const connection of this.plugin.connections) {
-        const contents = await connection.getVirtualFileContents(fileName)
-        if (contents != null) return contents
-      }
+    await delay(100)
 
-      if (this.plugin.connections.length === 0)
-        throw new Error('No active connection')
-
-      return undefined
-    } catch (error) {
-      if (error instanceof Error) {
-        return `/*\nError: ${error.stack ?? ''}\n*/`
-      }
-
-      return `/*\nError: ${String(error)}\n*/`
-    }
+    return await this.plugin.first(
+      async (connection) => await connection.getVirtualFileContents(fileName),
+    )
   }
+}
+
+async function delay(duration: number): Promise<void> {
+  return await new Promise((resolve) => setTimeout(resolve, duration))
 }

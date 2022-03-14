@@ -27,7 +27,8 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "env": {
-        "TSS_DEBUG": "9999"
+        "TSS_DEBUG": "9999",
+        "DEBUG_VUE_TRANSFORMS": "true"
       },
       "args": [
         "--disable-extensions",

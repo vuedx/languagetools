@@ -1,4 +1,5 @@
 import * as RPC from './index'
+import type { Remote } from './types'
 
 describe('rpc', () => {
   class Bar {
@@ -36,19 +37,20 @@ describe('rpc', () => {
     }
   }
 
-  let foo: RPC.Remote<Foo>
-  beforeEach(() => {
-    RPC.Handlers.delete('date')
+  function create(): Remote<Foo> {
     const { port1, port2 } = createLocalChannel()
-    foo = RPC.create<Foo>(RPC.createEndpoint(port2))
     RPC.expose(new Foo(), RPC.createEndpoint(port1))
-  })
+
+    return RPC.create<Foo>(RPC.createEndpoint(port2))
+  }
 
   it('can read primitive property', async () => {
+    const foo = create()
     await expect(foo.prop).resolves.toBe(true)
   })
 
   it('can write primitive property', async () => {
+    const foo = create()
     await expect(foo.prop).resolves.toBe(true)
     await RPC.set(foo, 'prop', false)
     await expect(foo.prop).resolves.toBe(false)
@@ -60,29 +62,38 @@ describe('rpc', () => {
       serialize: (value: Date) => value.toISOString(),
       deserialize: (value: string) => new Date(value),
     })
+    const foo = create()
 
-    const date = new Date('1996-04-10')
-    await expect(foo.today).resolves.not.toEqual(date)
-    await RPC.set(foo, 'today', date)
-    await expect(foo.today).resolves.toEqual(date)
+    try {
+      const date = new Date('1996-04-10')
+      await expect(foo.today).resolves.not.toEqual(date)
+      await RPC.set(foo, 'today', date)
+      await expect(foo.today).resolves.toEqual(date)
+    } finally {
+      RPC.Handlers.delete('date')
+    }
   })
 
   it('can read complex property', async () => {
+    const foo = create()
     await expect(foo.state).resolves.toEqual(
       expect.objectContaining({ foo: 1 }),
     )
   })
 
   it('can call method', async () => {
+    const foo = create()
     await expect(foo.sum(1, 2)).resolves.toBe(3)
   })
 
   it('can bind method', async () => {
+    const foo = create()
     const s = foo.sum.bind(null, 1)
     await expect(s(2)).resolves.toBe(3)
   })
 
   it('can create instance', async () => {
+    const foo = create()
     const instance = await new foo.Bar()
     await expect(instance.baz).resolves.toEqual(5)
     await instance[RPC.Symbols.release]()
@@ -93,6 +104,7 @@ describe('rpc', () => {
 
   it('can call callback', async () => {
     const fn = jest.fn()
+    const foo = create()
     await foo.callMeBack(fn, 2)
 
     await waitFor(() => {
@@ -101,12 +113,14 @@ describe('rpc', () => {
   })
 
   it('throws error on non-existent method', async () => {
+    const foo = create()
     await expect((foo as any).nonExistingMethod()).rejects.toThrow(
       /Cannot read properties of undefined/,
     )
   })
 
   it('throws custom error', async () => {
+    const foo = create()
     await expect(
       foo.callMeNow(() => {
         throw ({ message: 'not an error' } as unknown) as Error
@@ -115,6 +129,7 @@ describe('rpc', () => {
   })
 
   it('custom handler', async () => {
+    const foo = create()
     await expect(foo.today).resolves.toEqual(expect.any(String))
 
     RPC.Handlers.set('date', {
@@ -123,7 +138,11 @@ describe('rpc', () => {
       deserialize: (value: string) => new Date(value),
     })
 
-    await expect(foo.today).resolves.toEqual(expect.any(Date))
+    try {
+      await expect(foo.today).resolves.toEqual(expect.any(Date))
+    } finally {
+      RPC.Handlers.delete('date')
+    }
   })
 })
 

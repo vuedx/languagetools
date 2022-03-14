@@ -1,4 +1,4 @@
-import { first } from '@vuedx/shared'
+import { first, toFileName } from '@vuedx/shared'
 import { overrideMethod } from './overrideMethod'
 import { LoggerService } from './services/LoggerService'
 
@@ -26,6 +26,7 @@ export function patchTSHosts(
         if (file == null) return false
         const exists = file.getActiveTSDocIDs().has(fileName)
         if (exists) logger.debug(`Found ${fileName}`)
+        else logger.debug(`Not found ${fileName}`)
         return exists
       } else if (fs.isVueTsFile(fileName)) {
         const exists = fileExists(fileName.substr(0, fileName.length - 3))
@@ -124,7 +125,7 @@ export function patchTSHosts(
         fs.isVueVirtualFile(fileName) ||
         fs.isVueTsFile(fileName)
       ) {
-        logger.debug(`Version ${version} of ${fileName}`)
+        logger.debug(`getScriptVersion(${fileName}): ${version}`)
       }
 
       return version
@@ -178,29 +179,31 @@ export function patchTSHosts(
     options.languageServiceHost,
     'getScriptFileNames',
     (getScriptFileNames) => () => {
-      const virtuals = new Set<string>()
+      const vueFiles = new Set<string>()
       const fileNames = new Set<string>()
 
       getScriptFileNames().forEach((fileName) => {
         if (fs.isVueSchemeFile(fileName)) {
           // ignore
-        } else if (
-          fs.isVueFile(fileName) ||
-          fs.isVueTsFile(fileName) ||
-          fs.isVueVirtualFile(fileName)
-        ) {
-          virtuals.add(fs.getRealFileName(fileName))
+        } else if (fs.isVueFile(fileName)) {
+          vueFiles.add(fileName)
+        } else if (fs.isVueTsFile(fileName) || fs.isVueVirtualFile(fileName)) {
+          vueFiles.add(fs.getRealFileName(fileName))
+          fileNames.add(fileName)
         } else {
           fileNames.add(fileName)
         }
       })
 
-      virtuals.forEach((fileName) => {
+      vueFiles.forEach((fileName) => {
         fileNames.add(fileName)
-        fileNames.add(`${fileName}.ts`)
+        fileNames.add(toFileName({ type: 'vue-ts', fileName }))
       })
 
-      logger.debug('getScriptFileNames', fileNames)
+      logger.debug(
+        'getScriptFileNames()',
+        JSON.stringify([...fileNames], null, 2),
+      )
 
       return Array.from(fileNames)
     },
@@ -217,7 +220,6 @@ export function patchTSHosts(
       redirectedReference,
       _options,
     ) => {
-      // TODO: Use runtimeTypeDir instead.
       if (fs.isVueRuntimeFile(containingFile)) {
         const anyProjectFile = first(project.getRootFiles())
         // Runtime dependencies have only 'vue' dependency for now.
@@ -305,7 +307,21 @@ export function patchTSHosts(
           isExternalLibraryImport: false,
         }
 
-        logger.debug('RESOLVE IN: ' + containingFile, moduleNames, result)
+        if (__DEV__) {
+          logger.debug(
+            'RESOLVE IN: ' + containingFile,
+            JSON.stringify(
+              Object.fromEntries(
+                moduleNames.map((moduleName, index) => [
+                  moduleName,
+                  result[index],
+                ]),
+              ),
+              null,
+              2,
+            ),
+          )
+        }
       }
       return result
     },

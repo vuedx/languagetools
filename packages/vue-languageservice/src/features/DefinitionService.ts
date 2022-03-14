@@ -5,7 +5,10 @@ import type {
 } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type Typescript from 'typescript/lib/tsserverlibrary'
+import type { LanguageService } from '../contracts/LanguageService'
+import type { TSLanguageService } from '../contracts/Typescript'
 import { FilesystemService } from '../services/FilesystemService'
+import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
 import { LoggerService } from '../services/LoggerService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
 import { TemplateGlobals } from './helpers'
@@ -15,111 +18,50 @@ interface NormalizationOptions {
 }
 
 @injectable()
-export class GotoService {
-  private readonly logger = LoggerService.getLogger(`Goto`)
+export class DefinitionService
+  implements
+    Pick<
+      TSLanguageService,
+      | 'getDefinitionAtPosition'
+      | 'getDefinitionAndBoundSpan'
+      | 'getTypeDefinitionAtPosition'
+    > {
+  private readonly logger = LoggerService.getLogger(`DefinitionService`)
 
   constructor(
     @inject(FilesystemService)
     private readonly fs: FilesystemService,
     @inject(TypescriptContextService)
     private readonly ts: TypescriptContextService,
+    @inject(LanguageServiceProvider)
+    private readonly langs: LanguageServiceProvider,
   ) {}
-
-  private readonly depth: Array<[string, number]> = []
 
   public getDefinitionAtPosition(
     fileName: string,
     position: number,
   ): readonly Typescript.DefinitionInfo[] | undefined {
-    if (
-      this.depth.some((args) => fileName === args[0] && position === args[1])
-    ) {
-      return undefined
-    }
-
-    this.logger.debug(
-      `getDefinitionAtPostion(${this.depth.length}) ${fileName} ${position}`,
+    return this.definitionsAtPosition(
+      fileName,
+      position,
+      (service, fileName, position) =>
+        service.getDefinitionAtPosition(fileName, position) ?? [],
+      (fileName, position) =>
+        this.langs
+          .getLanguageService(fileName)
+          ?.getDefinitionAt(fileName, position) ?? [],
     )
-    this.depth.push([fileName, position])
-    try {
-      if (this.fs.isVueSchemeFile(fileName)) {
-        const realFileName = this.fs.getRealFileName(fileName)
-        const result = this.ts
-          .getServiceFor(realFileName)
-          ?.getDefinitionAtPosition(realFileName, position)
-
-        if (result == null) return
-
-        return this.dedupeDefinitionInfos(
-          result
-            .map((info) =>
-              this.normalizeTSDefinitionInfo(info, {
-                isVueSchemeRequest: true,
-              }),
-            )
-            .flat(),
-        )
-      } else if (this.fs.isVueFile(fileName)) {
-        return this.doActionAtPosition(
-          fileName,
-          position,
-          ({ tsFileName, offset, vueFile, blockFile }) => {
-            const result = this.ts.service.getDefinitionAtPosition(
-              tsFileName,
-              offset,
-            )
-
-            if (result == null) {
-              this.logger.debug(
-                `NoDefintion(${
-                  this.depth.length
-                }) ${fileName} ${position}:${JSON.stringify(
-                  vueFile.getText().substr(position, 15),
-                )} -> ${offset}:${JSON.stringify(
-                  blockFile.generated?.getText().substr(offset, 15),
-                )}`,
-              )
-
-              return
-            }
-            this.logger.debug(
-              `DefinitionAtPostion(${this.depth.length}) ${fileName} ${position} (Found ${result.length} definitions)`,
-            )
-
-            return this.dedupeDefinitionInfos(
-              result.map((info) => this.normalizeTSDefinitionInfo(info)).flat(),
-            )
-          },
-        )
-      } else {
-        const result = this.ts.service.getDefinitionAtPosition(
-          fileName,
-          position,
-        )
-
-        if (result == null) return
-
-        return this.dedupeDefinitionInfos(
-          result.map((info) => this.normalizeTSDefinitionInfo(info)).flat(),
-        )
-      }
-    } finally {
-      this.depth.pop()
-    }
   }
 
   public getDefinitionAndBoundSpan(
     fileName: string,
     position: number,
   ): Typescript.DefinitionInfoAndBoundSpan | undefined {
-    this.logger.debug(
-      `getDefinitionAndBoundSpan(${this.depth.length}) ${fileName} ${position}`,
-    )
-
+    this.logger.debug(`getDefinitionAndBoundSpan: ${fileName} ${position}`)
     if (this.fs.isVueSchemeFile(fileName)) {
       const realFileName = this.fs.getRealFileName(fileName)
       const result = this.ts
-        .getServiceFor(realFileName)
+        .getUndecoratedServiceFor(realFileName)
         ?.getDefinitionAndBoundSpan(realFileName, position)
 
       if (result == null) return undefined
@@ -137,9 +79,7 @@ export class GotoService {
           )
           if (result == null) {
             this.logger.debug(
-              `NoDefinition(${
-                this.depth.length
-              }) at ${position}:${JSON.stringify(
+              `NoDefinition: at ${position}:${JSON.stringify(
                 vueFile.getText().substring(position, position + 10),
               )} -> ${offset}:${JSON.stringify(
                 blockFile.generated?.getText().substring(offset, offset + 10),
@@ -148,6 +88,7 @@ export class GotoService {
             return undefined
           }
           result.textSpan = this.getTextSpan(blockFile, result.textSpan)
+          // TODO: Get defintions from embedded services?
           return this.normalizeTSDefinitionInfoAndBoundSpan(result)
         },
       )
@@ -158,6 +99,106 @@ export class GotoService {
       )
       if (result == null) return undefined
       return this.normalizeTSDefinitionInfoAndBoundSpan(result)
+    }
+  }
+
+  public getTypeDefinitionAtPosition(
+    fileName: string,
+    position: number,
+  ): readonly Typescript.DefinitionInfo[] | undefined {
+    return this.definitionsAtPosition(
+      fileName,
+      position,
+      (service, fileName, position) =>
+        service.getTypeDefinitionAtPosition(fileName, position) ?? [],
+      (fileName, position) =>
+        this.langs
+          .getLanguageService(fileName)
+          ?.getTypeDefinitionAt(fileName, position) ?? [],
+    )
+  }
+
+  private definitionsAtPosition(
+    fileName: string,
+    position: number,
+    fromTS: (
+      service: TSLanguageService,
+      fileName: string,
+      position: number,
+    ) => readonly Typescript.DefinitionInfo[],
+    fromLS: (
+      fileName: string,
+      position: LanguageService.Position,
+    ) => LanguageService.Definition[],
+  ): readonly Typescript.DefinitionInfo[] | undefined {
+    return this._call(
+      (fileName, position) => {
+        this.logger.debug(
+          `getTypeDefinitionAtPosition: ${fileName} ${position}`,
+        )
+        if (this.fs.isVueSchemeFile(fileName)) {
+          const realFileName = this.fs.getRealFileName(fileName)
+          const service = this.ts.getUndecoratedServiceFor(realFileName)
+          if (service == null) return
+
+          return this.dedupeDefinitionInfos(
+            fromTS(service, realFileName, position).flatMap((info) =>
+              this.normalizeTSDefinitionInfo(info, {
+                isVueSchemeRequest: true,
+              }),
+            ),
+          )
+        } else if (this.fs.isVueFile(fileName)) {
+          return this.doActionAtPosition(
+            fileName,
+            position,
+            ({ tsFileName, offset, blockFile }) => {
+              const resultsFromTS = fromTS(this.ts.service, tsFileName, offset)
+              const resultsFromLS = this.toTSDefintionInfo(
+                fromLS(blockFile.fileName, blockFile.positionAt(offset)),
+              )
+
+              this.logger.debug(
+                `DefinitionAtPostion: ${fileName} ${position} (Found TS: ${resultsFromTS.length}, LS: ${resultsFromLS.length})`,
+              )
+
+              return this.dedupeDefinitionInfos([
+                ...resultsFromTS.flatMap((info) =>
+                  this.normalizeTSDefinitionInfo(info),
+                ),
+                ...resultsFromLS,
+              ])
+            },
+          )
+        } else {
+          return this.dedupeDefinitionInfos(
+            fromTS(this.ts.service, fileName, position).flatMap((info) =>
+              this.normalizeTSDefinitionInfo(info),
+            ),
+          )
+        }
+      },
+      [fileName, position],
+    )
+  }
+
+  private readonly _calls: Array<[fileName: string, position: number]> = []
+  private _call<R>(
+    fn: (fileName: string, position: number) => R,
+    args: [fileName: string, position: number],
+  ): R | undefined {
+    if (
+      this._calls.some(
+        (previous) => previous[0] === args[0] && previous[1] === args[1],
+      )
+    )
+      return
+    try {
+      this._calls.push(args)
+
+      return fn(...args)
+    } finally {
+      this._calls.pop()
     }
   }
 
@@ -177,6 +218,58 @@ export class GotoService {
     })
 
     return output
+  }
+
+  private toTSDefintionInfo(
+    locations: LanguageService.Definition[],
+  ): Typescript.DefinitionInfo[] {
+    return locations.flatMap((location) => {
+      if (Array.isArray(location)) return this.toTSDefintionInfo(location)
+      const fileName = location.uri
+      if (!this.fs.isVueVirtualFile(fileName)) {
+        const file = this.fs.getFile(fileName)
+        if (file == null) {
+          this.logger.debug(`No such file: ${location.uri}`)
+          return []
+        }
+
+        const start = file.offsetAt(location.range.start)
+        const end = file.offsetAt(location.range.end)
+        return {
+          fileName: location.uri,
+          textSpan: { start, length: end - start },
+          kind: this.ts.lib.ScriptElementKind.unknown,
+          name: '',
+          containerKind: this.ts.lib.ScriptElementKind.unknown,
+          containerName: '',
+          unverified: true,
+        }
+      }
+      const vueDoc = this.fs.getVueFile(fileName)
+      if (vueDoc == null) {
+        this.logger.debug(`No such file: ${fileName}`)
+        return []
+      }
+      const blockDoc = vueDoc.getDocById(fileName)
+      if (blockDoc == null) {
+        this.logger.debug(`No such file: ${fileName}`)
+        return []
+      }
+
+      const range = this.fs.getAbsoluteRange(vueDoc, blockDoc, location.range)
+      const start = blockDoc.offsetAt(range.start)
+      const end = blockDoc.offsetAt(range.end)
+
+      return {
+        fileName: location.uri,
+        textSpan: { start, length: end - start },
+        kind: this.ts.lib.ScriptElementKind.unknown,
+        name: '',
+        containerKind: this.ts.lib.ScriptElementKind.unknown,
+        containerName: '',
+        unverified: true,
+      }
+    })
   }
 
   private normalizeTSDefinitionInfo(
@@ -210,9 +303,7 @@ export class GotoService {
           const range = TemplateGlobals.findRHS(blockFile, info.textSpan.start)
           if (range == null) return []
           this.logger.debug(
-            `TemplateGlobal(${this.depth.length}): ${
-              info.textSpan.start
-            }:${JSON.stringify(
+            `TemplateGlobal: ${info.textSpan.start}:${JSON.stringify(
               blockFile.generated
                 ?.getText()
                 .substring(
@@ -231,9 +322,7 @@ export class GotoService {
           )
         } else if (blockFile.isOffsetInIgonredZone(info.textSpan.start)) {
           this.logger.debug(
-            `IgnoredZone(${this.depth.length}): ${
-              info.textSpan.start
-            }:${JSON.stringify(
+            `IgnoredZone: ${info.textSpan.start}:${JSON.stringify(
               blockFile.generated
                 ?.getText()
                 .substring(

@@ -13,6 +13,7 @@ function onObj3(payload: { bar: string }) {}
 
 <template>
   <A a="" @a="on" />
+  
   <A a="" @a="onStr" />
   <A a="" @a="onNum" @b.once="onNum" />
   

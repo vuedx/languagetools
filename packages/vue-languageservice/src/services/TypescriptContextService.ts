@@ -5,6 +5,7 @@ import type { Disposable } from '../contracts/Disposable'
 import type {
   ExtendedTSLanguageService,
   TSLanguageService,
+  TSProject,
   Typescript,
 } from '../contracts/Typescript'
 import { CacheService } from './CacheService'
@@ -15,6 +16,7 @@ interface TypescriptContextServiceOptions {
   serverHost: Typescript.server.ServerHost
   projectService: Typescript.server.ProjectService
   tsService: TSLanguageService
+  project: TSProject
   typesDir: string
 }
 
@@ -42,6 +44,10 @@ export class TypescriptContextService implements Disposable {
     return this.options.tsService
   }
 
+  public get project(): TSProject {
+    return this.options.project
+  }
+
   public updateOptions(
     options: Partial<TypescriptContextServiceOptions>,
   ): void {
@@ -51,6 +57,9 @@ export class TypescriptContextService implements Disposable {
     if (options.typesDir != null) this.options.typesDir = options.typesDir
     if (options.projectService != null) {
       this.options.projectService = options.projectService
+    }
+    if (options.project != null) {
+      this.options.project = options.project
     }
   }
 
@@ -187,7 +196,7 @@ export class TypescriptContextService implements Disposable {
   /**
    * Find typescript laguage service for the file.
    */
-  public getServiceFor(fileName: string): Typescript.LanguageService | null {
+  private _getServiceFor(fileName: string): Typescript.LanguageService | null {
     return this.getProjectFor(fileName)?.getLanguageService() ?? null
   }
 
@@ -197,17 +206,26 @@ export class TypescriptContextService implements Disposable {
   public getUndecoratedServiceFor(
     fileName: string,
   ): Typescript.LanguageService | null {
-    const service = this.getServiceFor(fileName) as ExtendedTSLanguageService
+    const service = this._getServiceFor(fileName) as ExtendedTSLanguageService
     if (service == null) return null
 
     return service._vueTS_inner ?? service
   }
 
-  /**
-   * Find typescript program for the file.
-   */
-  public getProgramFor(fileName: string): Typescript.Program | null {
-    return this.getServiceFor(fileName)?.getProgram() ?? null
+  public ensureProjectFor(fileName: string): void {
+    const scriptInfo = this.projectService.getScriptInfoEnsuringProjectsUptoDate(
+      fileName,
+    )
+
+    if (scriptInfo == null) {
+      this.logger.debug(`No ScriptInfo for ${fileName}`)
+      return
+    }
+
+    this.logger.debug(
+      `Project of ${fileName}`,
+      scriptInfo.containingProjects.map((project) => project.getProjectName()),
+    )
   }
 
   /**
@@ -215,7 +233,7 @@ export class TypescriptContextService implements Disposable {
    */
   public getSourceFile(fileName: string): Typescript.SourceFile | null {
     try {
-      return this.getProgramFor(fileName)?.getSourceFile(fileName) ?? null
+      return this.service.getProgram()?.getSourceFile(fileName) ?? null
     } catch {
       return null
     }

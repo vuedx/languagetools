@@ -258,6 +258,32 @@ export class CompletionsService {
     }
   }
 
+  public getCompletionEntrySymbol(
+    fileName: string,
+    position: number,
+    name: string,
+    source: string | undefined,
+  ): Typescript.Symbol | undefined {
+    if (this.fs.isVueFile(fileName)) {
+      const blockFile = this.fs.getVirtualFileAt(fileName, position)
+      if (blockFile?.tsFileName == null) return
+
+      return this.ts.service.getCompletionEntrySymbol(
+        blockFile.tsFileName,
+        blockFile.generatedOffetAt(position),
+        name,
+        source,
+      )
+    }
+
+    return this.ts.service.getCompletionEntrySymbol(
+      fileName,
+      position,
+      name,
+      source,
+    )
+  }
+
   public getCompletionEntryDetails(
     fileName: string,
     position: number,

@@ -15,7 +15,7 @@ export class LoggerService {
 
   public info(message: string, ...args: any[]): void {
     LoggerService.writer.info(
-      `[VueDX] (${this.context}) ${this.id} ${util.formatWithOptions(
+      `[VueDX] (${this.context}) P(${this.id}) ${util.formatWithOptions(
         { breakLength: Infinity, colors: false },
         message,
         ...args,
@@ -25,7 +25,7 @@ export class LoggerService {
 
   public debug(message: string, ...args: any[]): void {
     LoggerService.writer.debug(
-      `[VueDX] (${this.context}) ${this.id} ${util.formatWithOptions(
+      `[VueDX] (${this.context}) P(${this.id}) ${util.formatWithOptions(
         { breakLength: Infinity, colors: false },
         message,
         ...args,
@@ -34,8 +34,8 @@ export class LoggerService {
   }
 
   public error(message: string | Error, ...args: any[]): void {
-    LoggerService.writer.debug(
-      `[VueDX] (${this.context}) ${this.id} ${util.formatWithOptions(
+    LoggerService.writer.error(
+      `[VueDX] (${this.context}) P(${this.id}) ${util.formatWithOptions(
         { breakLength: Infinity, colors: false },
         '',
         message,

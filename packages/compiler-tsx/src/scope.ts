@@ -339,7 +339,7 @@ function parseUsingBabel(source: string, withTS = false): File | Expression {
         : ['bigInt', 'optionalChaining'],
       // @ts-expect-error
       errorRecovery: true,
-    }) as File
+    }) as any
   } catch {
     return parseExpression(source, {
       plugins: withTS
@@ -347,7 +347,7 @@ function parseUsingBabel(source: string, withTS = false): File | Expression {
         : ['bigInt', 'optionalChaining'],
       // @ts-expect-error
       errorRecovery: true,
-    }) as Expression
+    }) as any
   }
 }
 

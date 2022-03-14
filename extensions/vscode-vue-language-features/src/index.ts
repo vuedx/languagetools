@@ -1,15 +1,14 @@
+import type { PluginConfig } from '@vuedx/typescript-plugin-vue'
+import { Container } from 'inversify'
 import 'reflect-metadata'
 import vscode from 'vscode'
-import { Container } from 'inversify'
 import { OpenVirtualFileCommand } from './commands/openVirtualFile'
+import { SelectVirtualFileCommand } from './commands/selectVirtualFile'
 import { VueVirtualDocumentProvider } from './scheme/vue'
-import { DocumentService } from './services/documents'
 import { PluginCommunicationService } from './services/PluginCommunicationService'
 import { StyleLanguageProxy } from './services/StyleLanguageProxy'
 import { TemplateLanguageProxy } from './services/TemplateLanguageProxy'
 import { VirtualFileSwitcher } from './services/VirtualFileSwitcher'
-import type { PluginConfig } from '@vuedx/typescript-plugin-vue'
-import { SelectVirtualFileCommand } from './commands/selectVirtualFile'
 
 export async function activate(
   context: vscode.ExtensionContext,
@@ -21,7 +20,6 @@ export async function activate(
 
   container.bind('context').toConstantValue(context)
   context.subscriptions.push(
-    container.get(DocumentService).install(),
     container.get(PluginCommunicationService).install(),
     container.get(StyleLanguageProxy).install(),
     container.get(TemplateLanguageProxy).install(),
