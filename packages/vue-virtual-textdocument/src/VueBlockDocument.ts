@@ -19,6 +19,11 @@ import * as Path from 'path'
 import { MappingKind, MappingMetadata } from '@vuedx/compiler-tsx'
 import { cache } from '@vuedx/shared'
 
+export interface TextSpan {
+  start: number
+  length: number
+}
+
 const METADATA_PREFIX = ';;;VueDX:'
 export class VueBlockDocument {
   public readonly source: TextDocument
@@ -54,7 +59,7 @@ export class VueBlockDocument {
 
   public readonly tsFileName: string | null = null
 
-  constructor(
+  public constructor(
     private readonly id: string,
     public readonly parent: VueSFCDocument,
     private readonly blockGetter: () => SFCBlock,
@@ -66,7 +71,7 @@ export class VueBlockDocument {
 
     this.source = TextDocument.create(
       id,
-      Path.posix.extname(id).substr(1),
+      Path.posix.extname(id).slice(1),
       0,
       block.content,
     )
@@ -177,31 +182,68 @@ export class VueBlockDocument {
     }
   }
 
+  /**
+   * Finds generated position using source map if availabe.
+   * @param offset position in .vue file
+   * @returns position in generated .ts/.tsx file
+   * @deprecated - Use {@link findGeneratedOffetAt}
+   */
   @cache()
   public generatedOffetAt(offset: number): number {
-    return this.generatedOffetAndLengthAt(offset, 1).offset
+    return this.findGeneratedOffetAt(this.toBlockOffset(offset))
   }
 
+  /**
+   * Finds generated range using source map if availabe.
+   * @param offset position in .vue file
+   * @param length text length
+   * @returns range in generated .ts/.tsx file
+   * @deprecated - Use {@link findGeneratedTextSpan}
+   */
   @cache((args: [number, number]) => `${args[0]}:${args[1]}`)
   public generatedOffetAndLengthAt(
     offset: number,
     length: number,
   ): { offset: number; length: number } {
+    const textSpan = this.findGeneratedTextSpan({
+      start: this.toBlockOffset(offset),
+      length,
+    })
+
+    return { offset: textSpan.start, length: textSpan.length }
+  }
+
+  /**
+   * Finds generated position using source map if availabe.
+   */
+  @cache()
+  public findGeneratedOffetAt(offset: number): number {
+    return this.findGeneratedTextSpan({ start: offset, length: 1 }).start
+  }
+
+  /**
+   * Finds generated range using source map if availabe.
+   * @param offset position in .vue file
+   * @param length text length
+   * @returns range in generated .ts/.tsx file
+   */
+  @cache(([span]: [TextSpan]) => `${span.start}:${span.length}`)
+  public findGeneratedTextSpan(textSpanInBlockText: TextSpan): TextSpan {
     if (this.sourceMap == null || this.generated == null) {
-      return { offset: offset - this.block.loc.start.offset, length }
+      return textSpanInBlockText
     }
 
+    const { start: offset, length } = textSpanInBlockText
+
     const args = {
-      ...this.toSourceMapPosition(
-        this.source.positionAt(offset - this.block.loc.start.offset),
-      ),
+      ...this._toSourceMapPosition(this.source.positionAt(offset)),
       source: this.fileName,
     }
     const gen = this.generated
 
     const opPos: SourceMapPosition = this.sourceMap.generatedPositionFor(args)
-    const opOffset = this.generated.offsetAt(this.toPosition(opPos))
-    const opOrginal = this.originalOffsetMappingAt(opOffset, 1)
+    const opOffset = this.generated.offsetAt(this._toPosition(opPos))
+    const opOrginal = this.findOriginalOffsetMappingAt(opOffset, 1)
 
     let position = opPos
     let result = opOffset
@@ -210,14 +252,14 @@ export class VueBlockDocument {
     if (opOrginal?.mapping != null) {
       const positions = this.sourceMap
         .allGeneratedPositionsFor({
-          ...this.toSourceMapPosition(
+          ...this._toSourceMapPosition(
             this.source.positionAt(opOrginal.mapping.s.s),
           ),
           source: this.fileName,
         })
         .filter((position) => {
-          const og = this.originalOffsetMappingAt(
-            gen.offsetAt(this.toPosition(position)),
+          const og = this.findOriginalOffsetMappingAt(
+            gen.offsetAt(this._toPosition(position)),
             -1,
           )
 
@@ -227,50 +269,74 @@ export class VueBlockDocument {
       const newPosition = positions.pop()
       if (newPosition != null) {
         position = newPosition
-        result = this.generated.offsetAt(this.toPosition(position))
-        original = this.originalOffsetMappingAt(result, -1)
+        result = this.generated.offsetAt(this._toPosition(position))
+        original = this.findOriginalOffsetMappingAt(result, -1)
       }
     }
 
     // If generated text is copied from original text then we can get exact position.
     if (original?.mapping?.k === MappingKind.copy) {
-      const diff = offset - original.mapping.s.s - this.block.loc.start.offset
+      const diff = offset - original.mapping.s.s
 
-      return { offset: result + diff, length }
+      return { start: result + diff, length }
     }
 
-    // Transformed text sohuld always match the whole text.
+    // Transformed text should always match the whole text.
     return {
-      offset: result,
+      start: result,
       length: original?.mapping != null ? original.mapping.g.l : length,
     }
   }
 
   /**
    * Find original position in .vue file for position in genreated text
-   * @param offset position in generated text
+   * @param offset position in generated .ts/.tsx
    * @returns position in .vue file
+   * @deprecated - Use {@link findOriginalOffsetAt}
    */
   @cache()
   public originalOffsetAt(offset: number): number {
-    return (
-      this.originalOffsetAndLengthAt(offset, 1)?.offset ??
-      this.block.loc.start.offset
-    )
+    return this.toFileOffset(this.findOriginalOffsetAt(offset))
   }
 
   /**
    * Find original range in .vue file for position in genreated text
-   * @param offset position in generated text
+   * @param offset position in generated .ts/.tsx
    * @param length range at offset
    * @returns range in .vue file
+   * @deprecated - Use {@link findOriginalTextSpan}
    */
   @cache((args: [number, number]) => `${args[0]}:${args[1]}`)
   public originalOffsetAndLengthAt(
     offset: number,
     length: number,
   ): { offset: number; length: number } | null {
-    const result = this.originalOffsetMappingAt(offset, 0)
+    const textSpan = this.findOriginalTextSpan({ start: offset, length })
+    if (textSpan == null) return null
+
+    return {
+      offset: this.toFileOffset(textSpan.start),
+      length: textSpan.length,
+    }
+  }
+
+  /**
+   * Find original position in block text for position in genreated text
+   */
+  @cache()
+  public findOriginalOffsetAt(offset: number): number {
+    return this.findOriginalTextSpan({ start: offset, length: 1 })?.start ?? 0
+  }
+
+  /**
+   * Find original range in block file for range in genreated text
+   */
+  @cache(([span]: [TextSpan]) => `${span.start}:${span.length}`)
+  public findOriginalTextSpan(
+    textSpanInGeneratedText: TextSpan,
+  ): TextSpan | null {
+    const { start: offset, length } = textSpanInGeneratedText
+    const result = this.findOriginalOffsetMappingAt(offset, 0)
     if (result == null) return null
 
     if (result.mapping != null && this.generated != null) {
@@ -278,7 +344,7 @@ export class VueBlockDocument {
         case MappingKind.transformed:
         case MappingKind.reverseOnly:
           return {
-            offset: result.offset,
+            start: result.offset,
             length: result.mapping.s.e - result.mapping.s.s,
           }
 
@@ -294,23 +360,23 @@ export class VueBlockDocument {
           const pos = content.indexOf(query)
           const diff = offset - (min + pos)
 
-          return { offset: result.offset + diff, length }
+          return { start: result.offset + diff, length }
         }
       }
     }
 
-    return { offset: result.offset, length }
+    return { start: result.offset, length }
   }
 
-  private originalOffsetMappingAt(
+  private findOriginalOffsetMappingAt(
     offset: number,
     bias: -1 | 0 | 1 = 0,
   ): { offset: number; mapping?: MappingMetadata } | null {
     if (this.sourceMap == null || this.generated == null) {
-      return { offset: this.block.loc.start.offset + offset } // no source map == no transformation
+      return { offset: offset } // no source map == no transformation
     }
 
-    const position = this.toSourceMapPosition(
+    const position = this._toSourceMapPosition(
       this.generated.positionAt(offset),
     ) as FindPosition
 
@@ -324,9 +390,7 @@ export class VueBlockDocument {
 
     if (original.line == null) return null
     return {
-      offset:
-        this.block.loc.start.offset +
-        this.source.offsetAt(this.toPosition(original)),
+      offset: this.source.offsetAt(this._toPosition(original)),
       mapping: this.getMappingMetadata(original.name),
     }
   }
@@ -353,18 +417,59 @@ export class VueBlockDocument {
           offset <= this.templateGlobals.end
   }
 
-  public toSourceMapPosition(position: Position): SourceMapPosition {
+  private _toSourceMapPosition(position: Position): SourceMapPosition {
     return { line: position.line + 1, column: position.character }
   }
 
-  public toPosition(position: SourceMapPosition): Position {
+  private _toPosition(position: SourceMapPosition): Position {
     return { line: position.line - 1, character: position.column }
   }
 
+  /**
+   * Find offset in block text.
+   */
+  public toBlockOffset(offsetInVueFile: number): number {
+    return offsetInVueFile - this.block.loc.start.offset
+  }
+
+  public toBlockSpan(textSpanInVueFile: TextSpan): TextSpan {
+    const start = this.toBlockOffset(textSpanInVueFile.start)
+
+    return {
+      start,
+      length: Math.min(
+        textSpanInVueFile.length,
+        this.block.loc.end.offset - start,
+      ),
+    }
+  }
+
+  /**
+   * Find offset in .vue file.
+   */
+  public toFileOffset(offsetInBlockText: number): number {
+    return offsetInBlockText + this.block.loc.start.offset
+  }
+
+  public toFileSpan(textSpanInBlockText: TextSpan): TextSpan {
+    const start = this.toFileOffset(textSpanInBlockText.start)
+
+    return {
+      start,
+      length: textSpanInBlockText.length,
+    }
+  }
+
+  /**
+   * Convert position in block text to offset in block text.
+   */
   public offsetAt(position: Position): number {
     return this.source.offsetAt(position)
   }
 
+  /**
+   * Convert offset in block text to position in block text.
+   */
   public positionAt(offset: number): Position {
     return this.source.positionAt(offset)
   }

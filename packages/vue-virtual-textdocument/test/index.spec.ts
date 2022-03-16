@@ -47,13 +47,16 @@ describe('VueSFCDocument', () => {
               const val = $ref(1)
               ;
       /*<vuedx:diagnosticsIgnore>*/
+      ;
+      /*<vuedx:templateGlobals>*/
       export const __VueDX_components = {
-        Foo
+        Foo: Foo
       };
       export const __VueDX_directives = {};
       export default VueDX.internal.defineSetupComponent({}, {}, {
-        val
+        val: val
       }, {});
+      /*</vuedx:templateGlobals>*/
       /*</vuedx:diagnosticsIgnore>*/
       "
     `)

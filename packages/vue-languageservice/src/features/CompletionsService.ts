@@ -118,7 +118,7 @@ export class CompletionsService {
       tsFile,
       fileName: tsFileName,
       cursor: {
-        original: position - blockFile.block.loc.start.offset,
+        original: blockFile.toBlockOffset(position),
         generated: offset,
         template,
         setup:
@@ -197,6 +197,7 @@ export class CompletionsService {
   ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
     this.logger.debug(`Find completions at ${position} in ${fileName}`)
     if (this.fs.isVueFile(fileName)) {
+      // TODO: Find completions from embedded language services.
       const result = this.getTSCompletionsAtPositionInVueFile(
         fileName,
         position,
@@ -233,9 +234,9 @@ export class CompletionsService {
         }
 
         const content = result.vueFile.getText()
-        const charAtCursor = content.substr(position - 1, 1)
+        const charAtCursor = content.slice(position - 1, position)
         const lastTag = content.substring(
-          content.substr(0, position).lastIndexOf('<'),
+          content.slice(0, position).lastIndexOf('<'),
           position,
         )
 

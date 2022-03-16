@@ -14,6 +14,9 @@ import { FilesystemService } from './FilesystemService'
 import { IPCService } from './IPCService'
 import { LoggerService } from './LoggerService'
 import { TypescriptContextService } from './TypescriptContextService'
+import { CssLanguageService } from '../features/CssLanguageService'
+import { LanguageServiceProvider } from './LanguageServiceProvider'
+import { HtmlLanguageService } from '../features/HtmlLanguageService'
 
 @injectable()
 export class TypescriptPluginService
@@ -35,9 +38,22 @@ export class TypescriptPluginService
     private readonly ts: TypescriptContextService,
     @inject(IPCService)
     private readonly ipc: IPCService,
-  ) {}
+    @inject(LanguageServiceProvider)
+    private readonly languages: LanguageServiceProvider,
+    @inject(CssLanguageService)
+    private readonly css: CssLanguageService,
+    @inject(HtmlLanguageService)
+    private readonly html: HtmlLanguageService,
+  ) {
+    this.css.supportedLanguages.forEach((language) => {
+      this.languages.registerLanguageService(language, this.css)
+    })
+    this.html.supportedLanguages.forEach((language) => {
+      this.languages.registerLanguageService(language, this.html)
+    })
+  }
 
-  getExternalFiles(project: TSProject): string[] {
+  public getExternalFiles(project: TSProject): string[] {
     let hasVirtualSchemeFiles = false
 
     const allFileNames = project.getFileNames(true, true)
@@ -141,55 +157,78 @@ export class TypescriptPluginService
     return fileNames
   }
 
-  getCompilerOptionsDiagnostics(): Typescript.Diagnostic[] {
+  public toLineColumnOffset(
+    fileName: string,
+    position: number,
+  ): Typescript.LineAndCharacter {
+    if (this.fs.isVueSchemeFile(fileName)) {
+      fileName = this.fs.getRealFileName(fileName)
+
+      return (
+        this.fs.getFile(fileName)?.positionAt(position) ?? {
+          line: 0,
+          character: position,
+        }
+      )
+    }
+
+    return (
+      this.ts.service.toLineColumnOffset?.(fileName, position) ?? {
+        line: 0,
+        character: position,
+      }
+    )
+  }
+
+  public getCompilerOptionsDiagnostics(): Typescript.Diagnostic[] {
     return this.diagnostics.getCompilerOptionsDiagnostics()
   }
 
-  getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
+  public getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
     return this.diagnostics.getSemanticDiagnostics(fileName)
   }
 
-  getSyntacticDiagnostics(
+  public getSyntacticDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
     return this.diagnostics.getSyntacticDiagnostics(fileName)
   }
 
-  getSuggestionDiagnostics(
+  public getSuggestionDiagnostics(
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
     return this.diagnostics.getSuggestionDiagnostics(fileName)
   }
 
-  getDefinitionAtPosition(
+  public getDefinitionAtPosition(
     fileName: string,
     position: number,
   ): readonly Typescript.DefinitionInfo[] | undefined {
     return this.definitions.getDefinitionAtPosition(fileName, position)
   }
 
-  getTypeDefinitionAtPosition(
+  public getTypeDefinitionAtPosition(
     fileName: string,
     position: number,
   ): readonly Typescript.DefinitionInfo[] | undefined {
     return this.definitions.getTypeDefinitionAtPosition(fileName, position)
   }
 
-  getDefinitionAndBoundSpan(
+  public getDefinitionAndBoundSpan(
     fileName: string,
     position: number,
   ): Typescript.DefinitionInfoAndBoundSpan | undefined {
     return this.definitions.getDefinitionAndBoundSpan(fileName, position)
   }
 
-  getQuickInfoAtPosition(
+  public getQuickInfoAtPosition(
     fileName: string,
     position: number,
   ): Typescript.QuickInfo | undefined {
     return this.quickInfo.getQuickInfoAtPosition(fileName, position)
   }
 
-  getCompletionsAtPosition(
+  public getCompletionsAtPosition(
     fileName: string,
     position: number,
     options: Typescript.GetCompletionsAtPositionOptions | undefined,
@@ -587,6 +626,10 @@ export class TypescriptPluginService
           )
         },
       )
+    }
+
+    if (this.fs.isVueSchemeFile(fileName)) {
+      return undefined
     }
 
     return this.ts.service.getDocumentHighlights(

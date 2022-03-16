@@ -21,12 +21,14 @@ export class CacheService<T> {
     const item = this.cache.get(fileName)
     if (item == null) return null
     if (item.version === this.getVersion(fileName)) return item.value
+    this.logger.debug('Evict ' + item.version, fileName)
     this.cache.delete(fileName)
     return null
   }
 
   public setItem(fileName: string, value: T): void {
     const version = this.getVersion(fileName)
+    this.logger.debug('Set ' + version, fileName)
     this.cache.set(fileName, { version, value })
   }
 

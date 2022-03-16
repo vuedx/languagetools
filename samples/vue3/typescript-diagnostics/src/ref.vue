@@ -14,7 +14,9 @@ function setRef(value: typeof A| null): void {
 
 <template>
   <div :ref="input" />
-  <input :ref="input" />
+  <input :ref="input" type="text" />
+
+  <button autofocus>text</button>
   <!-- Because A, B and C share same interface. -->
   <A a="" :ref="a" />
   <B a="" :ref="setRef" />

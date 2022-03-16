@@ -7,6 +7,7 @@ import {
   isVueVirtualFile,
   parseFileName,
 } from '@vuedx/shared'
+import type { TextSpan } from '@vuedx/vue-virtual-textdocument'
 import {
   annotations,
   Position,
@@ -45,6 +46,10 @@ export class FilesystemService implements Disposable {
   ) {}
 
   public getVersion(fileName: string): string {
+    if (isVueVirtualFile(fileName)) {
+      fileName = this.getRealFileName(fileName)
+    }
+
     return (
       this.ts
         .getProjectFor(fileName)
@@ -57,8 +62,23 @@ export class FilesystemService implements Disposable {
     (fileName) => this.getVersion(fileName),
   )
 
+  /**
+   * Returns source file for virtual files.
+   */
+  public getSourceFile(fileName: string): TextDocument | null {
+    if (this.isVueVirtualFile(fileName)) {
+      return this.getVueFile(fileName)?.getDocById(fileName)?.source ?? null
+    }
+
+    return this.getFile(fileName)
+  }
+
   public getFile(fileName: string): TextDocument | null {
     if (this.isVueFile(fileName)) return this.getVueFile(fileName)
+    if (this.isVueVirtualFile(fileName)) {
+      return this.getGeneratedVirtualFile(fileName)
+    }
+
     if (!this.provider.exists(fileName)) return null
 
     return this.textDocumentCache.withCache(fileName, (prevFile) => {
@@ -66,15 +86,23 @@ export class FilesystemService implements Disposable {
 
       return TextDocument.create(
         fileName,
-        this.getLaguageId(fileName),
-        0, // Version should be ignored.
+        this.getLanguageId(fileName),
+        Date.now(),
         this.provider.read(fileName),
       )
     })
   }
 
-  public getLaguageId(fileName: string): string {
-    const ext = Path.posix.extname(fileName).substring(1)
+  public getGeneratedVirtualFile(fileName: string): TextDocument | null {
+    return this.getVirtualFile(fileName)?.generated ?? null
+  }
+
+  public getVirtualFile(fileName: string): VueBlockDocument | null {
+    return this.getVueFile(fileName)?.getDocById(fileName) ?? null
+  }
+
+  public getLanguageId(fileName: string): string {
+    const ext = this.getFileExtension(fileName)
 
     switch (ext) {
       case 'js':
@@ -98,7 +126,20 @@ export class FilesystemService implements Disposable {
     fileName: string,
     offset: number,
   ): VueBlockDocument | null {
-    return this.getVueFile(fileName)?.getDocAt(offset) ?? null
+    return this.findFilesAt(fileName, offset)[1]
+  }
+
+  /**
+   * Find block file and containing vue file.
+   */
+  public findFilesAt(
+    fileName: string,
+    offset: number,
+  ): [VueSFCDocument, VueBlockDocument] | [null, null] {
+    const file = this.getVueFile(fileName)
+    const block = file?.getDocAt(offset)
+
+    return file != null && block != null ? [file, block] : [null, null]
   }
 
   /**
@@ -149,6 +190,13 @@ export class FilesystemService implements Disposable {
     return file
   }
 
+  public getTextSpan(
+    doc: Pick<TextDocument, 'getText'>,
+    span: TextSpan,
+  ): string {
+    return doc.getText().slice(span.start, span.start + span.length)
+  }
+
   public getRealFileName(fileName: string): string {
     return parseFileName(fileName).fileName
   }
@@ -183,16 +231,22 @@ export class FilesystemService implements Disposable {
     return isProjectRuntimeFile(fileName)
   }
 
+  /**
+   * @deprecated
+   */
   public getAbsolutePosition(
     vueDoc: VueSFCDocument,
     blockDoc: VueBlockDocument,
     position: Position,
   ): Position {
     return vueDoc.positionAt(
-      blockDoc.block.loc.start.offset + blockDoc.source.offsetAt(position),
+      blockDoc.toFileOffset(blockDoc.source.offsetAt(position)),
     )
   }
 
+  /**
+   * @deprecated
+   */
   public getAbsoluteRange(
     vueDoc: VueSFCDocument,
     blockDoc: VueBlockDocument,
@@ -204,6 +258,9 @@ export class FilesystemService implements Disposable {
     }
   }
 
+  /**
+   * @deprecated
+   */
   public getAbsoluteOffsets<T extends OffsetRangeLike>(
     file: VueBlockDocument | undefined,
     range: T,
@@ -265,6 +322,19 @@ export class FilesystemService implements Disposable {
     const end = file.offsetAt(range.end)
 
     return { start, length: end - start }
+  }
+
+  public getFileExtension(fileName: string): string {
+    return Path.posix.extname(fileName).slice(1)
+  }
+
+  public getPositionString(
+    doc: Pick<TextDocument, 'positionAt'>,
+    offset: number,
+  ): string {
+    const position = doc.positionAt(offset)
+
+    return `${position.line + 1}:${position.character + 1}`
   }
 
   public dispose(): void {

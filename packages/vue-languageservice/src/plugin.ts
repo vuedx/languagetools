@@ -153,6 +153,7 @@ export function createTypescriptLanguageService(
       getDocumentHighlights: (...args) => service.getDocumentHighlights(...args),
       getEmitOutput: (...args) => service.getEmitOutput(...args),
       getFileReferences: (...args) => service.getFileReferences(...args),
+      toLineColumnOffset: (...args) => service.toLineColumnOffset(...args),
      
       getIndentationAtPosition: (...args) => service.getIndentationAtPosition(...args),
       getJsxClosingTagAtPosition: (...args) => service.getJsxClosingTagAtPosition(...args),

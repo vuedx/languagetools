@@ -226,11 +226,11 @@ describe('createExportDeclarationForComponents', () => {
     })
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-      "export const __VueDX_components = {
-        Foo,
-        Bar
-      };"
-    `)
+"export const __VueDX_components = {
+  Foo: Foo,
+  Bar: Bar
+};"
+`)
 
     createExportDeclarationForComponents.evict(ast)
 
@@ -240,10 +240,10 @@ describe('createExportDeclarationForComponents', () => {
     })
 
     expect(getCode(node3)).toMatchInlineSnapshot(`
-      "export const __VueDX_components = {
-        Bar
-      };"
-    `)
+"export const __VueDX_components = {
+  Bar: Bar
+};"
+`)
   })
 })
 
@@ -337,11 +337,11 @@ describe('createExportDeclarationForDirectives', () => {
     })
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-      "export const __VueDX_directives = {
-        vFoo,
-        vBar
-      };"
-    `)
+"export const __VueDX_directives = {
+  vFoo: vFoo,
+  vBar: vBar
+};"
+`)
 
     createExportDeclarationForDirectives.evict(ast)
 
@@ -351,10 +351,10 @@ describe('createExportDeclarationForDirectives', () => {
     })
 
     expect(getCode(node3)).toMatchInlineSnapshot(`
-      "export const __VueDX_directives = {
-        vBar
-      };"
-    `)
+"export const __VueDX_directives = {
+  vBar: vBar
+};"
+`)
   })
 })
 
@@ -368,11 +368,11 @@ describe('createExportDeclarationForScriptSetup', () => {
     const node = createExportDeclarationForScriptSetup(ast)
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-      "export default VueDX.internal.defineSetupComponent({}, {}, {
-        foo,
-        bar
-      }, {});"
-    `)
+"export default VueDX.internal.defineSetupComponent({}, {}, {
+  foo: foo,
+  bar: bar
+}, {});"
+`)
   })
 
   test('defineX imported', () => {
@@ -389,14 +389,14 @@ describe('createExportDeclarationForScriptSetup', () => {
     const node = createExportDeclarationForScriptSetup(ast)
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-      "export default VueDX.internal.defineSetupComponent(props, e({
-        click: () => true
-      }), {
-        defineProps,
-        e,
-        props
-      }, {});"
-    `)
+"export default VueDX.internal.defineSetupComponent(props, e({
+  click: () => true
+}), {
+  defineProps: defineProps,
+  e: e,
+  props: props
+}, {});"
+`)
   })
 
   test('defineX', () => {
@@ -411,11 +411,11 @@ describe('createExportDeclarationForScriptSetup', () => {
     const node = createExportDeclarationForScriptSetup(ast)
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-      "export default VueDX.internal.defineSetupComponent(props, defineEmits({
-        click: () => true
-      }), {
-        props
-      }, {});"
-    `)
+"export default VueDX.internal.defineSetupComponent(props, defineEmits({
+  click: () => true
+}), {
+  props: props
+}, {});"
+`)
   })
 })
