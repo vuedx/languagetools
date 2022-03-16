@@ -14,6 +14,6 @@ export {
   annotations,
   Annotations,
 } from './BlockTransformer'
-export { VueBlockDocument } from './VueBlockDocument'
+export { VueBlockDocument, TextSpan } from './VueBlockDocument'
 export { VueSFCDocument } from './VueSFCDocument'
 export type { VueSFCDocumentOptions } from './VueSFCDocument'

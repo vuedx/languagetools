@@ -132,7 +132,7 @@ export const createExportDeclarationForScriptSetup = memoizeByFirstArg(
       findScopeBindings(ast)
         .filter((id) => config.shouldIncludeBinding(id))
         .map((id) => T.identifier(id))
-        .map((id) => T.objectProperty(id, id, false, true)),
+        .map((id) => T.objectProperty(id, id, false, false)),
     )
 
     const statement = createExpr({ props, emits, bindings, extra })
@@ -320,7 +320,7 @@ function createExportDeclarationFor(
         findScopeBindings(ast)
           .filter((id) => RE.test(id) && config.shouldIncludeScriptSetup(id))
           .map((id) => T.identifier(id))
-          .map((id) => T.objectProperty(id, id, false, true)),
+          .map((id) => T.objectProperty(id, id, false, false)),
       )
     : findComponentOption(ast, kind) ?? T.objectExpression([])
 

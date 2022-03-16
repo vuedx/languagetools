@@ -1,21 +1,12 @@
-import { toFileName } from '@vuedx/shared'
-import type {
-  VueBlockDocument,
-  VueSFCDocument,
-} from '@vuedx/vue-virtual-textdocument'
+import { parseFileName, toFileName } from '@vuedx/shared'
+import { findTemplateNodeAt, isElementNode } from '@vuedx/template-ast-types'
 import { inject, injectable } from 'inversify'
-import type Typescript from 'typescript/lib/tsserverlibrary'
 import type { LanguageService } from '../contracts/LanguageService'
-import type { TSLanguageService } from '../contracts/Typescript'
+import type { TSLanguageService, Typescript } from '../contracts/Typescript'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
 import { LoggerService } from '../services/LoggerService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
-import { TemplateGlobals } from './helpers'
-
-interface NormalizationOptions {
-  isVueSchemeRequest: boolean
-}
 
 @injectable()
 export class DefinitionService
@@ -41,190 +32,449 @@ export class DefinitionService
     fileName: string,
     position: number,
   ): readonly Typescript.DefinitionInfo[] | undefined {
-    return this.definitionsAtPosition(
-      fileName,
-      position,
-      (service, fileName, position) =>
-        service.getDefinitionAtPosition(fileName, position) ?? [],
-      (fileName, position) =>
-        this.langs
-          .getLanguageService(fileName)
-          ?.getDefinitionAt(fileName, position) ?? [],
-    )
+    if (this.fs.isVueSchemeFile(fileName) || this.fs.isVueFile(fileName)) {
+      return this.getDefinitionAndBoundSpan(fileName, position)?.definitions
+    }
+
+    return this.ts.service.getDefinitionAtPosition(fileName, position)
   }
 
   public getDefinitionAndBoundSpan(
     fileName: string,
     position: number,
   ): Typescript.DefinitionInfoAndBoundSpan | undefined {
-    this.logger.debug(`getDefinitionAndBoundSpan: ${fileName} ${position}`)
+    this.logger.debug(
+      `getDefinitionAndBoundSpan in ${fileName} at ${position})`,
+    )
     if (this.fs.isVueSchemeFile(fileName)) {
-      const realFileName = this.fs.getRealFileName(fileName)
-      const result = this.ts
-        .getUndecoratedServiceFor(realFileName)
-        ?.getDefinitionAndBoundSpan(realFileName, position)
+      const parsed = parseFileName(fileName)
+      const info = this.ts
+        .getUndecoratedServiceFor(parsed.fileName)
+        ?.getDefinitionAndBoundSpan(parsed.fileName, position)
 
-      if (result == null) return undefined
-      return this.normalizeTSDefinitionInfoAndBoundSpan(result, {
-        isVueSchemeRequest: true,
-      })
-    } else if (this.fs.isVueFile(fileName)) {
-      return this.doActionAtPosition(
-        fileName,
-        position,
-        ({ tsFileName, blockFile, offset, vueFile }) => {
-          const result = this.ts.service.getDefinitionAndBoundSpan(
-            tsFileName,
-            offset,
-          )
-          if (result == null) {
-            this.logger.debug(
-              `NoDefinition: at ${position}:${JSON.stringify(
-                vueFile.getText().substring(position, position + 10),
-              )} -> ${offset}:${JSON.stringify(
-                blockFile.generated?.getText().substring(offset, offset + 10),
-              )}`,
-            )
-            return undefined
-          }
-          result.textSpan = this.getTextSpan(blockFile, result.textSpan)
-          // TODO: Get defintions from embedded services?
-          return this.normalizeTSDefinitionInfoAndBoundSpan(result)
-        },
-      )
-    } else {
-      const result = this.ts.service.getDefinitionAndBoundSpan(
-        fileName,
-        position,
-      )
-      if (result == null) return undefined
-      return this.normalizeTSDefinitionInfoAndBoundSpan(result)
+      if (info?.definitions != null) {
+        info.definitions = info.definitions.map((definition) =>
+          this.resolveForVueSchemeFile(definition),
+        )
+      }
+
+      return info
     }
+
+    if (this.fs.isVueFile(fileName)) {
+      return this.vueDefinitionAndBoundSpan(fileName, position)
+    }
+
+    return this.ts.service.getDefinitionAndBoundSpan(fileName, position)
   }
 
   public getTypeDefinitionAtPosition(
     fileName: string,
     position: number,
   ): readonly Typescript.DefinitionInfo[] | undefined {
-    return this.definitionsAtPosition(
-      fileName,
-      position,
-      (service, fileName, position) =>
-        service.getTypeDefinitionAtPosition(fileName, position) ?? [],
-      (fileName, position) =>
-        this.langs
-          .getLanguageService(fileName)
-          ?.getTypeDefinitionAt(fileName, position) ?? [],
-    )
-  }
+    if (this.fs.isVueSchemeFile(fileName)) {
+      const parsed = parseFileName(fileName)
+      const definitions = this.ts
+        .getUndecoratedServiceFor(parsed.fileName)
+        ?.getTypeDefinitionAtPosition(parsed.fileName, position)
 
-  private definitionsAtPosition(
-    fileName: string,
-    position: number,
-    fromTS: (
-      service: TSLanguageService,
-      fileName: string,
-      position: number,
-    ) => readonly Typescript.DefinitionInfo[],
-    fromLS: (
-      fileName: string,
-      position: LanguageService.Position,
-    ) => LanguageService.Definition[],
-  ): readonly Typescript.DefinitionInfo[] | undefined {
-    return this._call(
-      (fileName, position) => {
-        this.logger.debug(
-          `getTypeDefinitionAtPosition: ${fileName} ${position}`,
-        )
-        if (this.fs.isVueSchemeFile(fileName)) {
-          const realFileName = this.fs.getRealFileName(fileName)
-          const service = this.ts.getUndecoratedServiceFor(realFileName)
-          if (service == null) return
+      if (definitions == null) return undefined
 
-          return this.dedupeDefinitionInfos(
-            fromTS(service, realFileName, position).flatMap((info) =>
-              this.normalizeTSDefinitionInfo(info, {
-                isVueSchemeRequest: true,
-              }),
-            ),
-          )
-        } else if (this.fs.isVueFile(fileName)) {
-          return this.doActionAtPosition(
-            fileName,
-            position,
-            ({ tsFileName, offset, blockFile }) => {
-              const resultsFromTS = fromTS(this.ts.service, tsFileName, offset)
-              const resultsFromLS = this.toTSDefintionInfo(
-                fromLS(blockFile.fileName, blockFile.positionAt(offset)),
-              )
-
-              this.logger.debug(
-                `DefinitionAtPostion: ${fileName} ${position} (Found TS: ${resultsFromTS.length}, LS: ${resultsFromLS.length})`,
-              )
-
-              return this.dedupeDefinitionInfos([
-                ...resultsFromTS.flatMap((info) =>
-                  this.normalizeTSDefinitionInfo(info),
-                ),
-                ...resultsFromLS,
-              ])
-            },
-          )
-        } else {
-          return this.dedupeDefinitionInfos(
-            fromTS(this.ts.service, fileName, position).flatMap((info) =>
-              this.normalizeTSDefinitionInfo(info),
-            ),
-          )
-        }
-      },
-      [fileName, position],
-    )
-  }
-
-  private readonly _calls: Array<[fileName: string, position: number]> = []
-  private _call<R>(
-    fn: (fileName: string, position: number) => R,
-    args: [fileName: string, position: number],
-  ): R | undefined {
-    if (
-      this._calls.some(
-        (previous) => previous[0] === args[0] && previous[1] === args[1],
+      return definitions.map((definition) =>
+        this.resolveForVueSchemeFile(definition),
       )
-    )
-      return
-    try {
-      this._calls.push(args)
+    }
 
-      return fn(...args)
-    } finally {
-      this._calls.pop()
+    if (this.fs.isVueFile(fileName)) {
+      return this.vueTypeDefinitionAt(fileName, position)
+    }
+
+    return this.ts.service.getTypeDefinitionAtPosition(fileName, position)
+  }
+
+  private resolveForVueSchemeFile(
+    definition: Typescript.DefinitionInfo,
+  ): Typescript.DefinitionInfo {
+    if (this.fs.isVueVirtualFile(definition.fileName)) {
+      return {
+        ...definition,
+        fileName: toFileName({
+          type: 'scheme',
+          scheme: 'vue',
+          fileName: definition.fileName,
+        }),
+      }
+    } else if (this.fs.isVueTsFile(definition.fileName)) {
+      return {
+        ...definition,
+        fileName: this.fs.getRealFileName(definition.fileName),
+        textSpan: { start: 0, length: Infinity },
+      }
+    } else {
+      return definition
     }
   }
 
-  private dedupeDefinitionInfos(
-    definitions: readonly Typescript.DefinitionInfo[],
-  ): Typescript.DefinitionInfo[] {
-    const output: Typescript.DefinitionInfo[] = []
-    const ids = new Set<string>()
+  private vueDefinitionAndBoundSpan(
+    fileName: string,
+    position: number,
+  ): Typescript.DefinitionInfoAndBoundSpan | undefined {
+    const [file, block] = this.fs.findFilesAt(fileName, position)
+    if (block == null) return undefined
+    this.logger.debug(
+      `[Vue] getDefinitionAndBoundSpan in ${fileName}:${this.fs.getPositionString(
+        file,
+        position,
+      )})`,
+    )
+    const definitions = this._createTSDefinitionInfoFromLSDefinition(
+      this.langs
+        .getLanguageService(block.fileName)
+        ?.getDefinitionAt(
+          block.fileName,
+          block.positionAt(block.toBlockOffset(position)),
+        ),
+    )
 
-    definitions.forEach((definition) => {
-      const id = `${definition.fileName}:${definition.textSpan.start}:${definition.textSpan.length}`
+    if (block.tsFileName == null) {
+      return this._createDefinitionInfoAndBoundSpan(position, definitions)
+    }
 
-      if (!ids.has(id)) {
-        ids.add(id)
-        output.push(definition)
+    const inner = {
+      fileName: block.tsFileName,
+      position: block.findGeneratedOffetAt(block.toBlockOffset(position)),
+    }
+
+    if (block.block.type === 'template' && file.templateAST != null) {
+      const offset = block.toBlockOffset(position)
+      const { node } = findTemplateNodeAt(file.templateAST, offset)
+      if (
+        isElementNode(node) &&
+        offset <= node.loc.start.offset + node.tag.length + 1
+      ) {
+        definitions.push(
+          ...this.virtualTypeDefintionAtPosition(
+            inner.fileName,
+            inner.position,
+          ),
+        )
       }
-    })
+    }
 
-    return output
+    const info = this.virtualDefinitionAndBoundSpan(
+      inner.fileName,
+      inner.position,
+    )
+
+    if (info == null) {
+      this.logger.debug(`[Vue] No results`)
+      return this._createDefinitionInfoAndBoundSpan(position, definitions)
+    }
+
+    if (info.definitions != null) {
+      definitions.push(...info.definitions)
+    }
+
+    info.definitions = dedupeDefinitionInfos(definitions)
+
+    return info
   }
 
-  private toTSDefintionInfo(
-    locations: LanguageService.Definition[],
+  private vueTypeDefinitionAt(
+    fileName: string,
+    position: number,
+  ): Typescript.DefinitionInfo[] | undefined {
+    const [file, block] = this.fs.findFilesAt(fileName, position)
+    if (block == null) return undefined
+    this.logger.debug(
+      `[Vue] getDefinitionAndBoundSpan in ${fileName}:${this.fs.getPositionString(
+        file,
+        position,
+      )})`,
+    )
+    const definitions = this._createTSDefinitionInfoFromLSDefinition(
+      this.langs
+        .getLanguageService(block.fileName)
+        ?.getTypeDefinitionAt?.(
+          block.fileName,
+          block.positionAt(block.toBlockOffset(position)),
+        ),
+    )
+
+    if (block.tsFileName == null) {
+      return definitions
+    }
+
+    const inner = {
+      fileName: block.tsFileName,
+      position: block.findGeneratedOffetAt(block.toBlockOffset(position)),
+    }
+
+    definitions.push(
+      ...this.virtualTypeDefintionAtPosition(inner.fileName, inner.position),
+    )
+
+    return dedupeDefinitionInfos(definitions)
+  }
+
+  private virtualTypeDefintionAtPosition(
+    fileName: string,
+    position: number,
   ): Typescript.DefinitionInfo[] {
+    const file = this.fs.getVirtualFile(fileName)
+    if (file == null) return []
+
+    this.logger.debug(
+      `[Virtual] getTypeDefintionAtPosition in ${fileName}:${this.fs.getPositionString(
+        file.generated ?? file.source,
+        position,
+      )})`,
+    )
+
+    return this._resolveTypeDefinitions(
+      fileName,
+      this.ts.service.getTypeDefinitionAtPosition(fileName, position) ?? [],
+    )
+  }
+
+  private virtualDefinitionAndBoundSpan(
+    fileName: string,
+    position: number,
+  ): Typescript.DefinitionInfoAndBoundSpan | undefined {
+    const file = this.fs.getVirtualFile(fileName)
+    if (file == null) return
+    this.logger.debug(
+      `[Virtual] getDefinitionAndBoundSpan in ${fileName}:${this.fs.getPositionString(
+        file.generated ?? file.source,
+        position,
+      )})`,
+    )
+
+    const info = this.ts.service.getDefinitionAndBoundSpan(fileName, position)
+
+    if (info == null) {
+      this.logger.debug(`[Virtual] No results`)
+      return
+    }
+
+    if (info.definitions != null) {
+      info.definitions = this._resolveDefinitions(fileName, info.definitions)
+    }
+
+    info.textSpan = file.toFileSpan(
+      file.findOriginalTextSpan(info.textSpan) ?? {
+        start: 0,
+        length: info.textSpan.length,
+      },
+    )
+
+    return info
+  }
+
+  private _createDefinitionInfoAndBoundSpan(
+    position: number,
+    definitions: Typescript.DefinitionInfo[],
+  ): Typescript.DefinitionInfoAndBoundSpan | undefined {
+    const first = definitions[0]
+    if (definitions.length === 0 || first == null) return
+
+    return {
+      textSpan: { start: position, length: first.textSpan.length },
+      definitions,
+    }
+  }
+
+  private _resolveTypeDefinitions(
+    currentFile: string,
+    definitions:
+      | Typescript.DefinitionInfo[]
+      | readonly Typescript.DefinitionInfo[],
+  ): Typescript.DefinitionInfo[] {
+    this.logger.debug(
+      `[Vue] (Type) Resolve ${definitions.length} definition(s) in ${currentFile}.`,
+    )
+    return definitions.flatMap(({ ...definition }) => {
+      if (this.fs.isVueVirtualFile(definition.fileName)) {
+        const file = this.fs
+          .getVueFile(definition.fileName)
+          ?.getDocById(definition.fileName)
+        if (file == null || file.generated == null) {
+          return []
+        }
+
+        const debugInfo = {
+          textSpan: this.fs.getTextSpan(file.generated, definition.textSpan),
+          contextSpan:
+            definition.contextSpan != null
+              ? this.fs.getTextSpan(file.generated, definition.contextSpan)
+              : null,
+        }
+
+        if (file.isOffsetInTemplateGlobals(definition.textSpan.start)) {
+          this.logger.debug(
+            `(Type) Template globals in ${definition.fileName}`,
+            debugInfo,
+          )
+          if (definition.contextSpan == null) return []
+
+          return this.virtualTypeDefintionAtPosition(
+            definition.fileName,
+            definition.contextSpan.start + definition.contextSpan.length - 1,
+          )
+        } else if (file.isOffsetInIgonredZone(definition.textSpan.start)) {
+          this.logger.debug(
+            `(Type) Ignored zone in ${definition.fileName}`,
+            debugInfo,
+          )
+          return []
+        } else {
+          definition.fileName = file.parent.fileName
+          definition.textSpan = file.toFileSpan(
+            file.findOriginalTextSpan(definition.textSpan) ?? {
+              start: 0,
+              length: 1,
+            },
+          )
+
+          if (definition.contextSpan != null) {
+            const span = file.findOriginalTextSpan(definition.contextSpan)
+
+            definition.contextSpan =
+              span != null ? file.toFileSpan(span) : undefined
+          }
+
+          this.logger.debug(
+            `(Type) Resolved in ${definition.fileName}`,
+            debugInfo,
+          )
+
+          return [definition]
+        }
+      } else if (this.fs.isVueTsFile(definition.fileName)) {
+        if (definition.contextSpan == null) {
+          return [
+            {
+              ...definition,
+              textSpan: { start: 0, length: Infinity },
+              fileName: this.fs.getRealFileName(definition.fileName),
+            },
+          ]
+        }
+
+        return this._resolveTypeDefinitions(
+          definition.fileName,
+          this.ts.service.getTypeDefinitionAtPosition(
+            definition.fileName,
+            definition.contextSpan.start + definition.contextSpan.length - 1,
+          ) ?? [
+            {
+              ...definition,
+              textSpan: { start: 0, length: Infinity },
+              fileName: this.fs.getRealFileName(definition.fileName),
+            },
+          ],
+        )
+      } else {
+        return definition
+      }
+    })
+  }
+
+  private _resolveDefinitions(
+    currentFileName: string,
+    definitions:
+      | Typescript.DefinitionInfo[]
+      | readonly Typescript.DefinitionInfo[],
+  ): Typescript.DefinitionInfo[] {
+    this.logger.debug(
+      `[Vue] Resolve ${definitions.length} definition(s) in ${currentFileName}.`,
+    )
+
+    return definitions.flatMap(({ ...definition }) => {
+      if (this.fs.isVueVirtualFile(definition.fileName)) {
+        const file = this.fs
+          .getVueFile(definition.fileName)
+          ?.getDocById(definition.fileName)
+        if (file == null || file.generated == null) {
+          return []
+        }
+
+        const debugInfo = {
+          textSpan: this.fs.getTextSpan(file.generated, definition.textSpan),
+          contextSpan:
+            definition.contextSpan != null
+              ? this.fs.getTextSpan(file.generated, definition.contextSpan)
+              : null,
+        }
+
+        if (file.isOffsetInTemplateGlobals(definition.textSpan.start)) {
+          this.logger.debug(
+            `Template globals in ${definition.fileName}`,
+            debugInfo,
+          )
+          if (definition.contextSpan == null) return []
+          const info = this.virtualDefinitionAndBoundSpan(
+            definition.fileName,
+            definition.contextSpan.start + definition.contextSpan.length - 1,
+          )
+          return info?.definitions ?? []
+        } else if (file.isOffsetInIgonredZone(definition.textSpan.start)) {
+          this.logger.debug(`Ignored zone in ${definition.fileName}`, debugInfo)
+          return []
+        } else {
+          definition.fileName = file.parent.fileName
+          definition.textSpan = file.toFileSpan(
+            file.findOriginalTextSpan(definition.textSpan) ?? {
+              start: 0,
+              length: 1,
+            },
+          )
+
+          if (definition.contextSpan != null) {
+            const span = file.findOriginalTextSpan(definition.contextSpan)
+
+            definition.contextSpan =
+              span != null ? file.toFileSpan(span) : undefined
+          }
+
+          this.logger.debug(`Resolved in ${definition.fileName}`, debugInfo)
+
+          return [definition]
+        }
+      } else if (this.fs.isVueTsFile(definition.fileName)) {
+        if (definition.contextSpan == null) {
+          return [
+            {
+              ...definition,
+              textSpan: { start: 0, length: Infinity },
+              fileName: this.fs.getRealFileName(definition.fileName),
+            },
+          ]
+        }
+
+        const info = this.ts.service.getDefinitionAndBoundSpan(
+          definition.fileName,
+          definition.contextSpan.start + definition.contextSpan.length - 1,
+        )
+        if (info == null || info.definitions == null) return []
+
+        return info.definitions
+      } else {
+        return definition
+      }
+    })
+  }
+
+  private _createTSDefinitionInfoFromLSDefinition(
+    locations?: LanguageService.Definition[],
+  ): Typescript.DefinitionInfo[] {
+    if (locations == null) return []
+
     return locations.flatMap((location) => {
-      if (Array.isArray(location)) return this.toTSDefintionInfo(location)
+      if (Array.isArray(location)) {
+        return this._createTSDefinitionInfoFromLSDefinition(location)
+      }
+
       const fileName = location.uri
       if (!this.fs.isVueVirtualFile(fileName)) {
         const file = this.fs.getFile(fileName)
@@ -271,163 +521,22 @@ export class DefinitionService
       }
     })
   }
+}
 
-  private normalizeTSDefinitionInfo(
-    info: Typescript.DefinitionInfo,
-    options: NormalizationOptions = { isVueSchemeRequest: false },
-    depth: number = 0,
-  ): Typescript.DefinitionInfo[] {
-    const fileName = info.fileName
+function dedupeDefinitionInfos(
+  definitions: readonly Typescript.DefinitionInfo[],
+): Typescript.DefinitionInfo[] {
+  const output: Typescript.DefinitionInfo[] = []
+  const ids = new Set<string>()
 
-    this.logger.debug(
-      `Normalize: ${info.textSpan.start}:${info.name} in ${fileName}`,
-    )
+  definitions.forEach((definition) => {
+    const id = `${definition.fileName}:${definition.textSpan.start}:${definition.textSpan.length}`
 
-    if (options.isVueSchemeRequest) {
-      if (this.fs.isVueVirtualFile(fileName)) {
-        info.fileName = toFileName({
-          type: 'scheme',
-          scheme: 'vue',
-          fileName: fileName,
-        })
-      }
-
-      return [info]
-    } else if (this.fs.isVueVirtualFile(fileName)) {
-      info.fileName = this.fs.getRealFileName(fileName)
-      const vueFile = this.fs.getVueFile(fileName)
-      const blockFile = vueFile?.getDocById(fileName)
-
-      if (blockFile != null) {
-        if (blockFile.isOffsetInTemplateGlobals(info.textSpan.start)) {
-          const range = TemplateGlobals.findRHS(blockFile, info.textSpan.start)
-          if (range == null) return []
-          this.logger.debug(
-            `TemplateGlobal: ${info.textSpan.start}:${JSON.stringify(
-              blockFile.generated
-                ?.getText()
-                .substring(
-                  info.textSpan.start,
-                  info.textSpan.start + info.textSpan.length,
-                ),
-            )} -> ${range.start}:${JSON.stringify(
-              blockFile.generated
-                ?.getText()
-                .substring(range.start, range.start + range.length),
-            )}`,
-          )
-
-          return (
-            this.getDefinitionAtPosition(fileName, range.start)?.slice() ?? []
-          )
-        } else if (blockFile.isOffsetInIgonredZone(info.textSpan.start)) {
-          this.logger.debug(
-            `IgnoredZone: ${info.textSpan.start}:${JSON.stringify(
-              blockFile.generated
-                ?.getText()
-                .substring(
-                  info.textSpan.start,
-                  info.textSpan.start + info.textSpan.length,
-                ),
-            )}`,
-          )
-
-          return (
-            this.ts.service
-              .getTypeDefinitionAtPosition(fileName, info.textSpan.start)
-              ?.slice() ?? []
-          ).flatMap((definition) => this.normalizeTSDefinitionInfo(definition))
-        }
-
-        info.textSpan = this.getTextSpan(blockFile, info.textSpan)
-        info.contextSpan = this.getTextSpan(blockFile, info.contextSpan)
-
-        return [info]
-      }
-
-      info.textSpan = { start: 0, length: 1 }
-      if (info.contextSpan != null) {
-        info.contextSpan = { start: 0, length: 1 }
-      }
-    } else if (this.fs.isVueTsFile(fileName)) {
-      info.fileName = this.fs.getRealFileName(fileName)
-      if (depth < 2) {
-        const result = this.ts.service.getDefinitionAtPosition(
-          fileName,
-          info.textSpan.start,
-        )
-
-        if (result != null && result.length > 0) {
-          return Array.from(
-            result.flatMap((info) =>
-              this.normalizeTSDefinitionInfo(info, options, depth + 1),
-            ),
-          )
-        }
-      }
-      info.textSpan = { start: 0, length: 1 }
+    if (!ids.has(id)) {
+      ids.add(id)
+      output.push(definition)
     }
+  })
 
-    return [info]
-  }
-
-  private normalizeTSDefinitionInfoAndBoundSpan(
-    info: Typescript.DefinitionInfoAndBoundSpan,
-    options: NormalizationOptions = { isVueSchemeRequest: false },
-  ): Typescript.DefinitionInfoAndBoundSpan {
-    info.definitions = info.definitions
-      ?.map((info) => {
-        return this.normalizeTSDefinitionInfo(info, options)
-      })
-      .flat()
-
-    if (info.definitions != null) {
-      info.definitions = this.dedupeDefinitionInfos(info.definitions)
-    }
-
-    return info
-  }
-
-  private doActionAtPosition<T>(
-    fileName: string,
-    position: number,
-    fn: (options: {
-      tsFileName: string
-      blockFile: VueBlockDocument
-      vueFile: VueSFCDocument
-      offset: number
-    }) => T,
-  ): T | undefined {
-    const vueFile = this.fs.getVueFile(fileName)
-    if (vueFile == null) return undefined
-    const blockFile = vueFile.getDocAt(position)
-    if (blockFile?.tsFileName == null) return undefined // TODO: Support non-ts-blocks?
-    const offset = blockFile.generatedOffetAt(position)
-
-    return fn({ tsFileName: blockFile.tsFileName, vueFile, blockFile, offset })
-  }
-
-  private getTextSpan(
-    blockFile: VueBlockDocument,
-    textSpan: Typescript.TextSpan,
-  ): Typescript.TextSpan
-
-  private getTextSpan(
-    blockFile: VueBlockDocument,
-    textSpan: Typescript.TextSpan | undefined,
-  ): Typescript.TextSpan | undefined
-
-  private getTextSpan(
-    blockFile: VueBlockDocument,
-    textSpan: Typescript.TextSpan | undefined,
-  ): Typescript.TextSpan | undefined {
-    if (textSpan == null) return undefined
-
-    const range = this.fs.getAbsoluteOffsets(blockFile, textSpan)
-
-    return {
-      start: range.start ?? 0,
-      length: Math.max(range.length ?? 1, textSpan.length),
-    }
-  }
+  return output
 }

@@ -414,9 +414,6 @@ export class DiagnosticsService
     const blockFile = vueFile.getDocById(fileName)
     if (blockFile == null) return []
 
-    const tsFile = blockFile.generated
-    if (tsFile == null) return []
-
     const isScriptSetup =
       blockFile.block.type === 'script' &&
       blockFile.block.attrs['setup'] != null
@@ -466,7 +463,7 @@ export class DiagnosticsService
 
         if (blockFile.isOffsetInIgonredZone(diagnostic.start)) {
           this.logger.debug(
-            `Ignoring ${diagnostic.code} at ${diagnostic.start}`,
+            `Ignoring ${diagnostic.code} at ${diagnostic.start} because it's in ignored zone`,
           )
           return null
         }
@@ -510,6 +507,12 @@ export class DiagnosticsService
         ? this.fs.toOffsets(file, diagnostic.range)
         : { start: undefined, length: undefined }
     const sourceFile = this.ts.getSourceFile(fileName) ?? undefined
+
+    this.logger.debug(
+      `Transform ${diagnostic.range.start.line}:${
+        diagnostic.range.start.character
+      } -> ${String(range.start)}: ${diagnostic.message}`,
+    )
 
     return {
       source: this.getSourceName(diagnostic.source),
