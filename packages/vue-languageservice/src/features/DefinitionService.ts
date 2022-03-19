@@ -120,7 +120,7 @@ export class DefinitionService
     position: number,
   ): Typescript.DefinitionInfoAndBoundSpan | undefined {
     const [file, block] = this.fs.findFilesAt(fileName, position)
-    if (block == null) return undefined
+    if (block == null || file == null) return undefined
     this.logger.debug(
       `[Vue] getDefinitionAndBoundSpan in ${fileName}:${this.fs.getPositionString(
         file,
@@ -185,7 +185,7 @@ export class DefinitionService
     position: number,
   ): Typescript.DefinitionInfo[] | undefined {
     const [file, block] = this.fs.findFilesAt(fileName, position)
-    if (block == null) return undefined
+    if (block == null || file == null) return undefined
     this.logger.debug(
       `[Vue] getDefinitionAndBoundSpan in ${fileName}:${this.fs.getPositionString(
         file,

@@ -319,26 +319,13 @@ export class DiagnosticsService
         .getLanguageService(fileName)
         ?.getDiagnostics(fileName)
         .forEach((diagnostic) => {
-          diagnostic.range = this.fs.getAbsoluteRange(
-            file,
-            doc,
-            diagnostic.range,
-          )
+          const start = doc.source.offsetAt(diagnostic.range.start)
+          const end = doc.source.offsetAt(diagnostic.range.start)
 
-          diagnostic.relatedInformation = diagnostic.relatedInformation?.map(
-            (relatedInfo) => {
-              // Only virtual files from current .vue file should be supported.
-              if (this.fs.isFilesystemSchemeFile(relatedInfo.location.uri)) {
-                relatedInfo.location.range = this.fs.getAbsoluteRange(
-                  file,
-                  doc,
-                  relatedInfo.location.range,
-                )
-              }
-
-              return relatedInfo
-            },
-          )
+          diagnostic.range = {
+            start: file.positionAt(doc.toFileOffset(start)),
+            end: file.positionAt(doc.toFileOffset(end)),
+          }
 
           diagnostics.push(diagnostic)
         })

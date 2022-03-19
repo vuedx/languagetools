@@ -55,7 +55,7 @@
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "inversify": "^5.1.1",
     "json5": "^2.2.0",
-    "node-ipc": "^10.1.0",
+    "node-ipc": "10.1.0",
     "reflect-metadata": "^0.1.13",
     "vscode-css-languageservice": "^5.1.13",
     "vscode-html-languageservice": "^4.2.2"

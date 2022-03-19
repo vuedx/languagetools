@@ -61,6 +61,26 @@ export class AggregateLanguageService implements LanguageService, Disposable {
     })
   }
 
+  public getCompletionsAtPosition(
+    fileName: string,
+    position: LanguageService.Position,
+  ): LanguageService.CompletionList {
+    return (
+      this._reduce((aggregated, service) => {
+        const completions = service.getCompletionsAtPosition(fileName, position)
+
+        if (aggregated == null) return completions
+
+        return {
+          isIncomplete: completions.isIncomplete
+            ? true
+            : aggregated.isIncomplete,
+          items: [...aggregated.items, ...completions.items],
+        }
+      }) ?? { isIncomplete: false, items: [] }
+    )
+  }
+
   //#endregion
 
   private _each(fn: (service: LanguageService) => void): void {

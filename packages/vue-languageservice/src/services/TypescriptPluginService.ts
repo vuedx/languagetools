@@ -7,16 +7,24 @@ import type {
   Typescript,
 } from '../contracts/Typescript'
 import { CompletionsService } from '../features/CompletionsService'
-import { DiagnosticsService } from '../features/DiagnosticsService'
+import {
+  CssLanguageService,
+  LessLanguageService,
+  ScssLanguageService,
+} from '../features/CssLanguageService'
 import { DefinitionService } from '../features/DefinitionService'
+import { DiagnosticsService } from '../features/DiagnosticsService'
 import { QuickInfoService } from '../features/QuickInfoService'
+import {
+  VueHtmlLanguageService,
+  VueSfcLanguageService,
+} from '../features/HtmlLanguageService'
+import { EncodedClassificationsService } from './EncodedClassificationsService'
 import { FilesystemService } from './FilesystemService'
 import { IPCService } from './IPCService'
+import { LanguageServiceProvider } from './LanguageServiceProvider'
 import { LoggerService } from './LoggerService'
 import { TypescriptContextService } from './TypescriptContextService'
-import { CssLanguageService } from '../features/CssLanguageService'
-import { LanguageServiceProvider } from './LanguageServiceProvider'
-import { HtmlLanguageService } from '../features/HtmlLanguageService'
 
 @injectable()
 export class TypescriptPluginService
@@ -34,6 +42,8 @@ export class TypescriptPluginService
     private readonly definitions: DefinitionService,
     @inject(CompletionsService)
     private readonly completions: CompletionsService,
+    @inject(EncodedClassificationsService)
+    private readonly classifications: EncodedClassificationsService,
     @inject(TypescriptContextService)
     private readonly ts: TypescriptContextService,
     @inject(IPCService)
@@ -41,15 +51,20 @@ export class TypescriptPluginService
     @inject(LanguageServiceProvider)
     private readonly languages: LanguageServiceProvider,
     @inject(CssLanguageService)
-    private readonly css: CssLanguageService,
-    @inject(HtmlLanguageService)
-    private readonly html: HtmlLanguageService,
+    css: CssLanguageService,
+    @inject(ScssLanguageService)
+    scss: ScssLanguageService,
+    @inject(LessLanguageService)
+    less: LessLanguageService,
+    @inject(VueHtmlLanguageService)
+    html: VueHtmlLanguageService,
+    @inject(VueSfcLanguageService)
+    sfc: VueSfcLanguageService,
   ) {
-    this.css.supportedLanguages.forEach((language) => {
-      this.languages.registerLanguageService(language, this.css)
-    })
-    this.html.supportedLanguages.forEach((language) => {
-      this.languages.registerLanguageService(language, this.html)
+    ;[css, scss, less, html, sfc].forEach((service) => {
+      service.supportedLanguages.forEach((language) => {
+        this.languages.registerLanguageService(language, service)
+      })
     })
   }
 
@@ -281,11 +296,10 @@ export class TypescriptPluginService
     fileName: string,
     span: Typescript.TextSpan,
   ): Typescript.Classifications {
-    if (this.fs.isVueFile(fileName)) {
-      return { spans: [], endOfLineState: 0 }
-    }
-
-    return this.ts.service.getEncodedSyntacticClassifications(fileName, span)
+    return this.classifications.getEncodedSyntacticClassifications(
+      fileName,
+      span,
+    )
   }
 
   getEncodedSemanticClassifications(
@@ -293,11 +307,7 @@ export class TypescriptPluginService
     span: Typescript.TextSpan,
     format?: Typescript.SemanticClassificationFormat,
   ): Typescript.Classifications {
-    if (this.fs.isVueFile(fileName)) {
-      return { spans: [], endOfLineState: 0 }
-    }
-
-    return this.ts.service.getEncodedSemanticClassifications(
+    return this.classifications.getEncodedSemanticClassifications(
       fileName,
       span,
       format,

@@ -133,7 +133,7 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
           const code = toText(
             ';',
             annotations.diagnosticsIgnore.start,
-            ';',
+            ';' + annotations.tsCompletions,
             annotations.templateGlobals.start,
             toCode(nodes).code,
             annotations.templateGlobals.end,
@@ -151,7 +151,7 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
           const code = toText(
             ';',
             annotations.diagnosticsIgnore.start,
-            ';',
+            ';' + annotations.tsCompletions,
             annotations.templateGlobals.start,
             toCode(nodes).code,
             annotations.templateGlobals.end,
@@ -175,7 +175,7 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
               toText(
                 ';',
                 annotations.diagnosticsIgnore.start,
-                ';',
+                ';' + annotations.tsCompletions,
                 annotations.templateGlobals.start,
                 'export const __VueDX_components = {};',
                 'export const __VueDX_directives = {};',

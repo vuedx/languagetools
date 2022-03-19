@@ -1,6 +1,6 @@
 import { first, toFileName } from '@vuedx/shared'
 import { overrideMethod } from './overrideMethod'
-import { LoggerService } from './services/LoggerService'
+import { LoggerService, LogLevel } from './services/LoggerService'
 
 import type { Typescript } from './contracts/Typescript'
 import type { CreateLanguageServiceOptions } from './CreateLanguageServiceOptions'
@@ -15,7 +15,7 @@ export function patchTSHosts(
   ts: TypescriptContextService,
 ): void {
   const logger = LoggerService.getLogger('patch')
-
+  logger.setLevel(LogLevel.SILENT)
   // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
   overrideMethod(
     options.serverHost,

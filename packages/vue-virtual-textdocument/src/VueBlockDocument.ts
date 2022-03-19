@@ -462,6 +462,7 @@ export class VueBlockDocument {
 
   /**
    * Convert position in block text to offset in block text.
+   * @deprecated - Use {@link source}
    */
   public offsetAt(position: Position): number {
     return this.source.offsetAt(position)
@@ -469,6 +470,7 @@ export class VueBlockDocument {
 
   /**
    * Convert offset in block text to position in block text.
+   * @deprecated - Use {@link source}
    */
   public positionAt(offset: number): Position {
     return this.source.positionAt(offset)

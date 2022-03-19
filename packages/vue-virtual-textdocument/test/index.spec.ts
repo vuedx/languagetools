@@ -99,4 +99,25 @@ describe('VueSFCDocument', () => {
       "
     `)
   })
+
+  test(`multiple style blocks`, () => {
+    const doc = VueSFCDocument.create(
+      '/foo/bar/Example.vue',
+      `
+        <style>
+        .red {}
+        </style>
+        <style>
+        .green {}
+        </style>
+      `,
+    )
+
+    expect(doc.descriptor.styles).toHaveLength(2)
+    const a = doc.getBlockId(doc.descriptor.styles[0])
+    const b = doc.getBlockId(doc.descriptor.styles[1])
+    expect(a).not.toBe(b)
+    expect(doc.getDocById(a)?.source.getText().trim()).toEqual('.red {}')
+    expect(doc.getDocById(b)?.source.getText().trim()).toEqual('.green {}')
+  })
 })

@@ -99,7 +99,7 @@ export function compile(
             `import ${selfName}, { __VueDX_components, __VueDX_directives } from '${selfSrc}'`,
           )
           .newLine()
-          .write(`type _Self = InstanceType<typeof ${selfName}>`)
+          .write(`type __VueDX_Self = InstanceType<typeof ${selfName}>`)
           .newLine()
       }
     },

@@ -76,8 +76,103 @@
       "properties": {
         "vuedx.telemetry": {
           "type": "boolean",
+          "default": false,
+          "description": "Enable/disable telemetry.",
+          "scope": "machine-overridable"
+        },
+        "vuedx.suggest.enabled": {
+          "type": "boolean",
           "default": true,
-          "description": "Enable/disable telemetry."
+          "description": "Enabled/disable autocomplete suggestions.",
+          "scope": "language-overridable"
+        },
+        "vuedx.implementationsCodeLens.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable implementations CodeLens. This CodeLens shows the implementers of an interface.",
+          "scope": "window"
+        },
+        "vuedx.referencesCodeLens.showOnAllFunctions": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable references CodeLens on all functions in Vue files.",
+          "scope": "window"
+        },
+        "vuedx.referencesCodeLens.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable references CodeLens in Vue files.",
+          "scope": "window"
+        },
+        "vuedx.format.enable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable default Vue formatter.",
+          "scope": "window"
+        },
+        "vuedx.inlayHints.parameterNames.enabled": {
+          "type": "string",
+          "enum": [
+            "none",
+            "literals",
+            "all"
+          ],
+          "enumDescriptions": [
+            "Disable parameter name hints.",
+            "Enable parameter name hints only for literal arguments.",
+            "Enable parameter name hints for literal and non-literal arguments."
+          ],
+          "default": "none",
+          "markdownDescription": "Enable/disable inlay hints for parameter names:\n```typescript\n\nparseInt(/* str: */ '123', /* radix: */ 8)\n \n```\nRequires using TypeScript 4.4+ in the workspace.",
+          "scope": "resource"
+        },
+        "vuedx.inlayHints.parameterNames.suppressWhenArgumentMatchesName": {
+          "type": "boolean",
+          "default": false,
+          "markdownDeprecationMessage": "Suppress parameter name hints on arguments whose text is identical to the parameter name.",
+          "scope": "resource"
+        },
+        "vuedx.inlayHints.parameterTypes.enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable/disable inlay hints for implicit parameter types:\n```typescript\n\nel.addEventListener('click', e /* :MouseEvent */ => ...)\n \n```\nRequires using TypeScript 4.4+ in the workspace.",
+          "scope": "resource"
+        },
+        "vuedx.inlayHints.variableTypes.enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable/disable inlay hints for implicit variable types:\n```typescript\n\nconst foo /* :number */ = Date.now();\n \n```\nRequires using TypeScript 4.4+ in the workspace.",
+          "scope": "resource"
+        },
+        "vuedx.inlayHints.propertyDeclarationTypes.enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable/disable inlay hints for implicit types on property declarations:\n```typescript\n\nclass Foo {\n\tprop /* :number */ = Date.now();\n}\n \n```\nRequires using TypeScript 4.4+ in the workspace.",
+          "scope": "resource"
+        },
+        "vuedx.inlayHints.functionLikeReturnTypes.enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable/disable inlay hints for implicit return types on function signatures:\n```typescript\n\nfunction foo() /* :number */ {\n\treturn Date.now();\n} \n \n```\nRequires using TypeScript 4.4+ in the workspace.",
+          "scope": "resource"
+        },
+        "vuedx.inlayHints.enumMemberValues.enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable/disable inlay hints for member values in enum declarations:\n```typescript\n\nenum MyValue {\n\tA /* = 0 */;\n\tB /* = 1 */;\n}\n \n```\nRequires using TypeScript 4.4+ in the workspace.",
+          "scope": "resource"
+        },
+        "vuedx.suggest.completeJSDocs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable suggestion to complete JSDoc comments.",
+          "scope": "language-overridable"
+        },
+        "vuedx.autoClosingTags": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable autoclosing of HTML tags in <template> block and top-level block tags.",
+          "scope": "language-overridable"
         }
       }
     },
@@ -140,7 +235,7 @@
     "fast-glob": "^3.2.4",
     "inversify": "^5.0.1",
     "json5": "^2.1.3",
-    "node-ipc": "^10.1.0",
+    "node-ipc": "10.1.0",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
