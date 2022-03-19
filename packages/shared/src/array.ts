@@ -98,3 +98,49 @@ export function flatten<T extends unknown, D extends number = 1>(
 
   return items
 }
+
+type Chunk<T, Size extends number> = {
+  done: []
+  recurr: [
+    T,
+    ...Chunk<
+      T,
+      [
+        -1,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+      ][Size]
+    >
+  ]
+}[Size extends 0 ? 'done' : 'recurr']
+
+export function chunk<T, D extends number>(
+  items: T[],
+  chunkSize: D,
+): Array<Chunk<T, D>> {
+  const chunks: Array<Chunk<T, D>> = []
+  for (let i = 0; i < items.length; i += chunkSize) {
+    chunks.push(items.slice(i, i + chunkSize) as Chunk<T, D>)
+  }
+
+  return chunks
+}

@@ -6,16 +6,32 @@ interface Writer {
   debug(line: string): void
 }
 
+export const enum LogLevel {
+  DEBUG,
+  INFO,
+  ERROR,
+  SILENT,
+}
+
 export class LoggerService {
   private readonly id: string
+  private readonly context: string
+  private level: LogLevel
 
-  constructor(private readonly context: string) {
+  constructor(context: string, level: LogLevel = LogLevel.INFO) {
     this.id = LoggerService.currentId ?? 'unknown'
+    this.context = context
+    this.level = level
   }
 
-  public info(message: string, ...args: any[]): void {
-    LoggerService.writer.info(
-      `[VueDX] P(${this.id}) (${this.context}) ${util.formatWithOptions(
+  public setLevel(level: LogLevel): void {
+    this.level = level
+  }
+
+  public debug(message: string, ...args: any[]): void {
+    if (this.level > LogLevel.DEBUG) return
+    LoggerService.writer.debug(
+      `D [VueDX] P(${this.id}) (${this.context}) ${util.formatWithOptions(
         { breakLength: Infinity, colors: false },
         message,
         ...args,
@@ -23,9 +39,10 @@ export class LoggerService {
     )
   }
 
-  public debug(message: string, ...args: any[]): void {
-    LoggerService.writer.debug(
-      `[VueDX] P(${this.id}) (${this.context}) ${util.formatWithOptions(
+  public info(message: string, ...args: any[]): void {
+    if (this.level > LogLevel.INFO) return
+    LoggerService.writer.info(
+      `I [VueDX] P(${this.id}) (${this.context}) ${util.formatWithOptions(
         { breakLength: Infinity, colors: false },
         message,
         ...args,
@@ -34,8 +51,9 @@ export class LoggerService {
   }
 
   public error(message: string | Error, ...args: any[]): void {
+    if (this.level > LogLevel.ERROR) return
     LoggerService.writer.error(
-      `[VueDX] P(${this.id}) (${this.context}) ${util.formatWithOptions(
+      `E [VueDX] P(${this.id}) (${this.context}) ${util.formatWithOptions(
         { breakLength: Infinity, colors: false },
         '',
         message,
@@ -56,7 +74,7 @@ export class LoggerService {
     this.writer = writer
   }
 
-  public static getLogger(name: string): LoggerService {
-    return new LoggerService(name)
+  public static getLogger(name: string, level?: LogLevel): LoggerService {
+    return new LoggerService(name, level)
   }
 }

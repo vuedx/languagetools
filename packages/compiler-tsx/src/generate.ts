@@ -73,6 +73,7 @@ export interface MappingMetadata {
 export enum MappingKind {
   copy = 'c',
   transformed = 't',
+  /** Use when only required to map diagnostics.  */
   reverseOnly = 'r',
 }
 
@@ -203,20 +204,20 @@ export function generate(
   options.on('afterImports', context)
 
   context
-    .write(`export function _render(_ctx: _Self): any {`)
+    .write(`export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {`)
     .newLine()
     .indent()
   //#region 1 <
   context.write(annotations.templateGlobals.start).newLine()
   ast.scope.globals.forEach((id) => {
-    context.write(`let ${id} = _ctx.${id};`).newLine()
+    context.write(`let ${id} = __VueDX_ctx.${id};`).newLine()
   })
   context.write(annotations.templateGlobals.end).newLine()
 
   context
     .write(`${annotations.tsxCompletions}<></>;`)
     .newLine()
-    .write(`_ctx.${annotations.tsCompletions}$;`)
+    .write(`__VueDX_ctx.${annotations.tsCompletions}$;`)
     .newLine()
 
   options.on('renderBodyIgnored', context)
@@ -256,9 +257,12 @@ function genSlotTypes(root: RootNode, context: GenerateContext): void {
   })
 
   context.write(annotations.diagnosticsIgnore.start).newLine()
-  context.write('function _slots(_ctx: _Self) {').newLine().indent()
+  context
+    .write('function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {')
+    .newLine()
+    .indent()
   root.scope.globals.forEach((id) => {
-    context.write(`let ${id} = _ctx.${id};`).newLine()
+    context.write(`let ${id} = __VueDX_ctx.${id};`).newLine()
   })
   context.write('return VueDX.internal.flat([').indent()
   if (slots.length > 1) context.newLine()
@@ -352,7 +356,7 @@ function genSlotTypes(root: RootNode, context: GenerateContext): void {
   context.write('}').newLine()
   context
     .write(
-      'export type _Slots = VueDX.internal.Slots<ReturnType<typeof _slots>>',
+      'export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>',
     )
     .newLine()
   context.write(annotations.diagnosticsIgnore.end).newLine()
@@ -419,7 +423,7 @@ function genChildren(
 
 function genSlotNode(context: GenerateContext, node: ElementNode): void {
   context.write('{')
-  context.write('VueDX.internal.renderSlot(_ctx.$slots, ')
+  context.write('VueDX.internal.renderSlot(__VueDX_ctx.$slots, ')
   const name = findProp(node, 'name', false, true)
   if (isAttributeNode(name)) {
     if (name.value != null) {
@@ -622,7 +626,7 @@ function genComponentSlots(
   const loc = createLoc(node.loc, 1, node.tag.length)
   if (node.resolvedName != null) {
     context.write(`VueDX.internal.checkSlots(`, node.loc)
-    context.write(`${node.resolvedName}`, loc)
+    context.write(`${node.resolvedName}`, loc, MappingKind.reverseOnly)
     context.write(', ')
   }
   context.write('{')

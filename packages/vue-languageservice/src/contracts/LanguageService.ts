@@ -9,6 +9,8 @@ export namespace LanguageService {
   export type Diagnostic = LS.Diagnostic
   export type QuickInfo = LS.Hover
   export type MarkupContent = LS.MarkupContent
+  export type CompletionList = LS.CompletionList
+  export type CompletionItem = LS.CompletionItem
 }
 
 export interface LanguageService extends Disposable {
@@ -28,4 +30,9 @@ export interface LanguageService extends Disposable {
     fileName: string,
     position: LanguageService.Position,
   ): LanguageService.QuickInfo | null
+
+  getCompletionsAtPosition(
+    fileName: string,
+    position: LanguageService.Position,
+  ): LanguageService.CompletionList
 }

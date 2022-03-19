@@ -38,7 +38,7 @@ export class FilesystemService implements Disposable {
 
   private readonly vueFiles = new Map<string, VueSFCDocument>()
   private readonly watchers = new Set<() => void>()
-  private readonly logger = new LoggerService('fs')
+  private readonly logger = new LoggerService(FilesystemService.name)
 
   constructor(
     private readonly provider: FilesystemProvider,
@@ -67,7 +67,15 @@ export class FilesystemService implements Disposable {
    */
   public getSourceFile(fileName: string): TextDocument | null {
     if (this.isVueVirtualFile(fileName)) {
-      return this.getVueFile(fileName)?.getDocById(fileName)?.source ?? null
+      const file = this.getVirtualFile(fileName)
+      if (file == null) return file
+      if (file.fileName !== fileName) {
+        throw new Error(
+          `Unexpected file: ${file.fileName}, expecting ${fileName}`,
+        )
+      }
+
+      return file.source
     }
 
     return this.getFile(fileName)

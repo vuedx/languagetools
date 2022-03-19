@@ -1,34 +1,71 @@
 import type { TextDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
-import {
-  getLanguageService,
+import type {
+  CompletionList,
   HTMLDocument,
   LanguageService as VSCodeHtmlLanguageService,
+  Position,
+} from 'vscode-html-languageservice'
+import {
+  newHTMLDataProvider,
+  getLanguageService,
 } from 'vscode-html-languageservice'
 import type { LanguageService } from '../contracts/LanguageService'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService } from '../services/LoggerService'
+import { data } from './languageFacts/vue'
 
-@injectable()
-export class HtmlLanguageService implements LanguageService {
-  private readonly logger = LoggerService.getLogger('HTML')
-  private readonly sfc: VSCodeHtmlLanguageService
-  private readonly template: VSCodeHtmlLanguageService
+abstract class HtmlLanguageService implements LanguageService {
+  protected readonly logger = LoggerService.getLogger('HTML')
 
   private readonly documents = new CacheService<HTMLDocument>((fileName) =>
     this.fs.getVersion(fileName),
   )
 
-  constructor(
-    @inject(FilesystemService)
-    private readonly fs: FilesystemService,
-  ) {
-    this.sfc = getLanguageService({ useDefaultDataProvider: false })
-    this.template = getLanguageService({ useDefaultDataProvider: true })
+  protected constructor(
+    protected readonly fs: FilesystemService,
+    protected readonly service: VSCodeHtmlLanguageService,
+  ) {}
+
+  getDiagnostics(_fileName: string): LanguageService.Diagnostic[] {
+    return []
   }
 
-  private getTextDocument(fileName: string): TextDocument {
+  getDefinitionAt(
+    _fileName: string,
+    _position: LanguageService.Position,
+  ): LanguageService.Definition[] {
+    return []
+  }
+
+  getQuickInfoAtPosition(
+    fileName: string,
+    position: LanguageService.Position,
+  ): LanguageService.QuickInfo | null {
+    return this.service.doHover(
+      this.getTextDocument(fileName),
+      position,
+      this.getHTMLDocument(fileName),
+    )
+  }
+
+  public getCompletionsAtPosition(
+    fileName: string,
+    position: LanguageService.Position,
+  ): LanguageService.CompletionList {
+    return this.service.doComplete(
+      this.getTextDocument(fileName),
+      position,
+      this.getHTMLDocument(fileName),
+      {
+        attributeDefaultValue: 'doublequotes',
+        hideAutoCompleteProposals: false,
+      },
+    )
+  }
+
+  protected getTextDocument(fileName: string): TextDocument {
     const doc = this.fs.getSourceFile(fileName)
 
     if (doc == null) throw new Error(`File not found: ${fileName}`)
@@ -36,39 +73,29 @@ export class HtmlLanguageService implements LanguageService {
     return doc
   }
 
-  private getHTMLDocument(fileName: string): HTMLDocument {
+  protected getHTMLDocument(fileName: string): HTMLDocument {
     return this.documents.withCache(fileName, (document) => {
       if (document != null) return document
 
-      return this.getLanguageService(fileName).parseHTMLDocument(
-        this.getTextDocument(fileName),
-      )
+      return this.service.parseHTMLDocument(this.getTextDocument(fileName))
     })
   }
 
-  public readonly supportedLanguages = ['vue-html', 'vue']
+  public dispose(): void {
+    // noop
+  }
+}
 
-  private getLanguageService(fileName: string): VSCodeHtmlLanguageService {
-    switch (this.fs.getLanguageId(fileName)) {
-      case 'vue-html':
-        return this.template
-      case 'vue':
-        return this.sfc
-      default:
-        throw new Error('Unsupported file: ' + fileName)
-    }
+@injectable()
+export class VueHtmlLanguageService extends HtmlLanguageService {
+  public constructor(
+    @inject(FilesystemService)
+    fs: FilesystemService,
+  ) {
+    super(fs, getLanguageService({ useDefaultDataProvider: true }))
   }
 
-  public getDiagnostics(_fileName: string): LanguageService.Diagnostic[] {
-    return []
-  }
-
-  public getDefinitionAt(
-    _fileName: string,
-    _position: LanguageService.Position,
-  ): LanguageService.Definition[] {
-    return []
-  }
+  public readonly supportedLanguages = ['vue-html']
 
   public getQuickInfoAtPosition(
     fileName: string,
@@ -94,10 +121,37 @@ export class HtmlLanguageService implements LanguageService {
       return null
     }
 
-    return this.getLanguageService(fileName).doHover(text, position, html)
+    return this.service.doHover(text, position, html)
+  }
+}
+
+@injectable()
+export class VueSfcLanguageService extends HtmlLanguageService {
+  public constructor(
+    @inject(FilesystemService)
+    fs: FilesystemService,
+  ) {
+    super(
+      fs,
+      getLanguageService({
+        useDefaultDataProvider: false,
+        customDataProviders: [newHTMLDataProvider('vue', data)],
+      }),
+    )
   }
 
-  public dispose(): void {
-    // noop
+  public readonly supportedLanguages = ['vue']
+
+  public getCompletionsAtPosition(
+    fileName: string,
+    position: Position,
+  ): CompletionList {
+    const result = super.getCompletionsAtPosition(fileName, position)
+    const file = this.fs.getVueFile(fileName)
+    if (file != null) {
+      // TODO: Hide template and script is not valid.
+    }
+
+    return result
   }
 }
