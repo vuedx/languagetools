@@ -204,12 +204,20 @@ jobs:
           name: build-artefact
           path: .
       - name: Publish Pre-release Extension
-        run: |
+        run: >
           pnpm recursive --filter ./extensions run build
+
           pnpm recursive --filter ./extensions run pre-release
+
+          pnpx -y ovsx --pre-release publish -p ${OVSX_REGISTRY_TOKEN}
+          ./extensions/vscode-vue/vue.vsix
+
+          pnpx -y ovsx --pre-release publish -p ${OVSX_REGISTRY_TOKEN}
+          ./extensions/vscode-vue-language-features/vue-language-features.vsix
         env:
           RELEASE_CHANNEL: pre-release
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
+          OVSX_REGISTRY_TOKEN: ${{ secrets.OVSX_REGISTRY_TOKEN }}
       - name: Publish Pre-release Packages
         run: >
           pnpm recursive exec -- pnpm version prerelease --preid=next-$(date
@@ -278,10 +286,10 @@ jobs:
 
           pnpm recursive --filter ./extensions run release'
 
-          pnpm -y osvx publish -p ${OVSX_REGISTRY_TOKEN}
+          pnpm -y ovsx publish -p ${OVSX_REGISTRY_TOKEN}
           ./extensions/vscode-vue/vue.vsix
 
-          pnpm -y osvx publish -p ${OVSX_REGISTRY_TOKEN}
+          pnpm -y ovsx publish -p ${OVSX_REGISTRY_TOKEN}
           ./extensions/vscode-vue-language-features/vue-language-features.vsix
         env:
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
