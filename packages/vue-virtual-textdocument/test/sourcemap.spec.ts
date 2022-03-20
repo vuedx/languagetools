@@ -32,7 +32,7 @@ describe('VueBlockDocument', () => {
           {
              arg: "a" as const, 
              exp: onNum,
-                  ^^^^^ > 5 at 728
+                  ^^^^^ > 5 at 755
           },
         ])}
 `)
@@ -41,7 +41,7 @@ describe('VueBlockDocument', () => {
           {
              arg: "a" as const, 
              exp: onNum,
-                     ^^ > 2 at 731
+                     ^^ > 2 at 758
           },
         ])}
 `)
@@ -51,7 +51,7 @@ describe('VueBlockDocument', () => {
           {
              arg: "a" as const, 
              exp: onNum,
-                  ^^^^^ > 5 at 728
+                  ^^^^^ > 5 at 755
           },
         ])}
 `)
@@ -61,7 +61,7 @@ describe('VueBlockDocument', () => {
           {
              arg: "a" as const, 
              exp: onNum,
-                     ^^ > 2 at 731
+                     ^^ > 2 at 758
           },
         ])}
 `)
@@ -71,7 +71,7 @@ describe('VueBlockDocument', () => {
              arg: "b" as const, 
              exp: onNum,
              modifiers: [ "once", ],
-                          ^^^^^^ > 6 at 904
+                          ^^^^^^ > 6 at 931
           },
         ])}
 `)
@@ -80,7 +80,7 @@ describe('VueBlockDocument', () => {
              arg: "c" as const, 
              exp: ($event) => {
               call.a['func']($event)
-                    ^^^^^^^^ > 8 at 1085
+                    ^^^^^^^^ > 8 at 1112
             },
           },
 `)
@@ -89,7 +89,7 @@ describe('VueBlockDocument', () => {
              arg: "c" as const, 
              exp: ($event) => {
               call.a['func']($event)
-                             ^^^^^^ > 6 at 1094
+                             ^^^^^^ > 6 at 1121
             },
           },
 `)

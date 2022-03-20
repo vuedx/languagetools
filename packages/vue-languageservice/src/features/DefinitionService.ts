@@ -132,7 +132,7 @@ export class DefinitionService
         .getLanguageService(block.fileName)
         ?.getDefinitionAt(
           block.fileName,
-          block.positionAt(block.toBlockOffset(position)),
+          block.source.positionAt(block.toBlockOffset(position)),
         ),
     )
 
@@ -309,8 +309,9 @@ export class DefinitionService
               ? this.fs.getTextSpan(file.generated, definition.contextSpan)
               : null,
         }
-
-        if (file.isOffsetInTemplateGlobals(definition.textSpan.start)) {
+        if (file.isOffsetInCopiedZone(definition.textSpan.start)) {
+          // noop, just don't process
+        } else if (file.isOffsetInTemplateGlobals(definition.textSpan.start)) {
           this.logger.debug(
             `(Type) Template globals in ${definition.fileName}`,
             debugInfo,
@@ -327,29 +328,29 @@ export class DefinitionService
             debugInfo,
           )
           return []
-        } else {
-          definition.fileName = file.parent.fileName
-          definition.textSpan = file.toFileSpan(
-            file.findOriginalTextSpan(definition.textSpan) ?? {
-              start: 0,
-              length: 1,
-            },
-          )
-
-          if (definition.contextSpan != null) {
-            const span = file.findOriginalTextSpan(definition.contextSpan)
-
-            definition.contextSpan =
-              span != null ? file.toFileSpan(span) : undefined
-          }
-
-          this.logger.debug(
-            `(Type) Resolved in ${definition.fileName}`,
-            debugInfo,
-          )
-
-          return [definition]
         }
+
+        definition.fileName = file.parent.fileName
+        definition.textSpan = file.toFileSpan(
+          file.findOriginalTextSpan(definition.textSpan) ?? {
+            start: 0,
+            length: 1,
+          },
+        )
+
+        if (definition.contextSpan != null) {
+          const span = file.findOriginalTextSpan(definition.contextSpan)
+
+          definition.contextSpan =
+            span != null ? file.toFileSpan(span) : undefined
+        }
+
+        this.logger.debug(
+          `(Type) Resolved in ${definition.fileName}`,
+          debugInfo,
+        )
+
+        return [definition]
       } else if (this.fs.isVueTsFile(definition.fileName)) {
         if (definition.contextSpan == null) {
           return [
@@ -407,40 +408,62 @@ export class DefinitionService
               : null,
         }
 
-        if (file.isOffsetInTemplateGlobals(definition.textSpan.start)) {
+        if (file.isOffsetInCopiedZone(definition.textSpan.start)) {
+          // noop, just don't process
+        } else if (file.isOffsetInTemplateGlobals(definition.textSpan.start)) {
           this.logger.debug(
-            `Template globals in ${definition.fileName}`,
+            `Template globals in ${
+              definition.fileName
+            }:${this.fs.getPositionString(
+              file.generated ?? file,
+              definition.textSpan.start,
+            )}`,
             debugInfo,
           )
           if (definition.contextSpan == null) return []
-          const info = this.virtualDefinitionAndBoundSpan(
-            definition.fileName,
-            definition.contextSpan.start + definition.contextSpan.length - 1,
-          )
-          return info?.definitions ?? []
+          const doc = this.fs.getFile(definition.fileName)
+          if (doc == null) return []
+          const text = doc
+            .getText()
+            .slice(
+              definition.contextSpan.start,
+              definition.contextSpan.start + definition.contextSpan.length,
+            )
+
+          return text.includes('VueDX.internal.resolve')
+            ? this.virtualTypeDefintionAtPosition(
+                definition.fileName,
+                definition.textSpan.start,
+              )
+            : this.virtualDefinitionAndBoundSpan(
+                definition.fileName,
+                definition.contextSpan.start +
+                  definition.contextSpan.length -
+                  1,
+              )?.definitions ?? []
         } else if (file.isOffsetInIgonredZone(definition.textSpan.start)) {
           this.logger.debug(`Ignored zone in ${definition.fileName}`, debugInfo)
           return []
-        } else {
-          definition.fileName = file.parent.fileName
-          definition.textSpan = file.toFileSpan(
-            file.findOriginalTextSpan(definition.textSpan) ?? {
-              start: 0,
-              length: 1,
-            },
-          )
-
-          if (definition.contextSpan != null) {
-            const span = file.findOriginalTextSpan(definition.contextSpan)
-
-            definition.contextSpan =
-              span != null ? file.toFileSpan(span) : undefined
-          }
-
-          this.logger.debug(`Resolved in ${definition.fileName}`, debugInfo)
-
-          return [definition]
         }
+
+        definition.fileName = file.parent.fileName
+        definition.textSpan = file.toFileSpan(
+          file.findOriginalTextSpan(definition.textSpan) ?? {
+            start: 0,
+            length: 1,
+          },
+        )
+
+        if (definition.contextSpan != null) {
+          const span = file.findOriginalTextSpan(definition.contextSpan)
+
+          definition.contextSpan =
+            span != null ? file.toFileSpan(span) : undefined
+        }
+
+        this.logger.debug(`Resolved in ${definition.fileName}`, debugInfo)
+
+        return [definition]
       } else if (this.fs.isVueTsFile(definition.fileName)) {
         if (definition.contextSpan == null) {
           return [

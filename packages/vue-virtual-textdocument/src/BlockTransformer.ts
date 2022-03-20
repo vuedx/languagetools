@@ -13,7 +13,8 @@ import { isRootNode } from '@vuedx/template-ast-types'
 import {
   createExportDeclarationForComponents,
   createExportDeclarationForDirectives,
-  createExportDeclarationForScriptSetup,
+  createExportDeclarationForExpose,
+  createExportDeclarationForComponent,
   findScopeBindings,
   toAST,
   toCode,
@@ -81,7 +82,6 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
         // TODO: Should it be typescript instead of babel?
         const ast = toAST(source, {
           sourceFilename: document.fileName,
-          startLine: block.loc.start.line,
           isScriptSetup: isScriptSetup,
           lang: block.lang,
         })
@@ -110,60 +110,52 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
           }
         }
 
+        const config = {
+          isScriptSetup,
+          leadingCommentForCopiedSource: annotations.copiedSource.start,
+          trailingCommentForCopiedSource: annotations.copiedSource.end,
+          leadingCommentForIdentifiers: annotations.templateGlobals.start,
+          trailingCommentForIdentifiers: annotations.templateGlobals.end,
+        }
+
         const nodes: any[] = [
           createExportDeclarationForComponents(ast, {
-            isScriptSetup,
+            ...config,
             shouldIncludeScriptSetup: (id) => usedComponents.has(id),
           }),
           createExportDeclarationForDirectives(ast, {
-            isScriptSetup,
+            ...config,
             shouldIncludeScriptSetup: (id) => usedDirectives.has(id),
           }),
+          createExportDeclarationForExpose(ast, config),
         ]
 
         if (isScriptSetup) {
           document.declarations.identifiers = new Set(findScopeBindings(ast))
 
           nodes.push(
-            createExportDeclarationForScriptSetup(ast, {
-              shouldIncludeBinding: (id) => usedIdentifiers.has(id),
+            createExportDeclarationForComponent(ast, {
+              ...config,
+              shouldIncludeScriptSetup: (id) => usedIdentifiers.has(id),
             }),
           )
-
-          const code = toText(
-            ';',
-            annotations.diagnosticsIgnore.start,
-            ';' + annotations.tsCompletions,
-            annotations.templateGlobals.start,
-            toCode(nodes).code,
-            annotations.templateGlobals.end,
-            annotations.diagnosticsIgnore.end,
-          )
-
-          caches.script.set(document, code)
-
-          return {
-            ast,
-            code: source + code,
-          }
         } else {
-          // TODO: Handle plain object exports.
-          const code = toText(
-            ';',
-            annotations.diagnosticsIgnore.start,
-            ';' + annotations.tsCompletions,
-            annotations.templateGlobals.start,
-            toCode(nodes).code,
-            annotations.templateGlobals.end,
-            annotations.diagnosticsIgnore.end,
-          )
+          nodes.push(createExportDeclarationForComponent(ast, config))
+        }
 
-          caches.script.set(document, code)
+        const code = toText(
+          ';',
+          annotations.diagnosticsIgnore.start,
+          ';' + annotations.tsCompletions,
+          toCode(nodes, { sourceText: source }).code,
+          annotations.diagnosticsIgnore.end,
+        )
 
-          return {
-            ast,
-            code: source + code,
-          }
+        caches.script.set(document, code)
+
+        return {
+          ast,
+          code: source + code,
         }
       } catch (error) {
         console.error('[VueDX] BlockTransformer - Error parsing script:', error)
@@ -176,10 +168,10 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
                 ';',
                 annotations.diagnosticsIgnore.start,
                 ';' + annotations.tsCompletions,
-                annotations.templateGlobals.start,
                 'export const __VueDX_components = {};',
                 'export const __VueDX_directives = {};',
-                annotations.templateGlobals.end,
+                'export const __VueDX_expose = {};',
+                'export const __VueDX_DefineComponent = VueDX.internal.defineComponent({});',
                 annotations.diagnosticsIgnore.end,
               )),
           errors: [],

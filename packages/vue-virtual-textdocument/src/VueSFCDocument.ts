@@ -344,7 +344,7 @@ export class VueSFCDocument extends ProxyDocument {
         const idPath = createImportSource(id)
 
         props.push(`InstanceType<typeof _Self>['$props']`)
-        code.push(`import _Self from ${idPath}`)
+        code.push(`import { __VueDX_DefineComponent as _Self } from ${idPath}`)
         code.push(`export * from ${idPath}`) // TODO: Only type exports are supported.
 
         if (script != null) {
@@ -363,7 +363,7 @@ export class VueSFCDocument extends ProxyDocument {
         const idPath = createImportSource(id)
 
         props.push(`InstanceType<typeof _Self>['$props']`)
-        code.push(`import _Self from ${idPath}`)
+        code.push(`import { __VueDX_DefineComponent as _Self } from ${idPath}`)
         code.push(`export * from ${idPath}`)
       }
     }

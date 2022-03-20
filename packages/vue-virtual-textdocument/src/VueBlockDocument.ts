@@ -1,4 +1,7 @@
 import type { RawSourceMap, SFCBlock, SFCDescriptor } from '@vuedx/compiler-sfc'
+import { MappingKind, MappingMetadata } from '@vuedx/compiler-tsx'
+import { cache } from '@vuedx/shared'
+import * as Path from 'path'
 import {
   FindPosition,
   Position as SourceMapPosition,
@@ -15,13 +18,15 @@ import {
   TransformerError,
 } from './BlockTransformer'
 import type { VueSFCDocument } from './VueSFCDocument'
-import * as Path from 'path'
-import { MappingKind, MappingMetadata } from '@vuedx/compiler-tsx'
-import { cache } from '@vuedx/shared'
 
 export interface TextSpan {
   start: number
   length: number
+}
+
+interface TextRange {
+  start: number
+  end: number
 }
 
 const METADATA_PREFIX = ';;;VueDX:'
@@ -35,15 +40,14 @@ export class VueBlockDocument {
   public ast?: any
 
   public readonly sourceRange: Range
-  public readonly ignoredZones: Array<{
-    start: number
-    end: number
-    range: Range
-  }> = []
+  public readonly ignoredTextRanges: TextRange[] = []
+
+  private readonly copiedTextRanges: TextRange[] = []
+  private readonly originalsForCopiedTextRanges: TextRange[] = []
+  private readonly templateGlobalsTextRanges: TextRange[] = []
 
   public readonly tsxCompletionsOffset: number | null = null
   public readonly tsCompletionsOffset: number | null = null
-  private readonly templateGlobals: { start: number; end: number } | null = null
 
   public get block(): SFCBlock {
     return this.blockGetter()
@@ -109,64 +113,71 @@ export class VueBlockDocument {
           this.rawSourceMap = map
         }
 
+        this.ignoredTextRanges = findAnnotatedTextRanges(
+          code,
+          annotations.diagnosticsIgnore.start,
+          annotations.diagnosticsIgnore.end,
+        )
+        this.copiedTextRanges = findAnnotatedTextRanges(
+          code,
+          annotations.copiedSource.start,
+          annotations.copiedSource.end,
+        )
+        this.originalsForCopiedTextRanges = this.copiedTextRanges.map(
+          (range) => {
+            const match = /\/\/\s*@vuedx-copied-from\s(.*)/.exec(
+              code.slice(range.start, range.end),
+            )
+            if (match == null) return range
+            const serialized = match[1]
+            if (serialized == null) return range
+            range.end = range.start + match.index // collapse range to exclude source annotation
+            range.start += 1 // expand to exclude leading newline
+
+            try {
+              const range = JSON.parse(serialized) as TextRange
+
+              if (
+                !Number.isSafeInteger(range.start) ||
+                !Number.isSafeInteger(range.end)
+              ) {
+                throw new Error(`Invalid range for copied from: ${serialized}`)
+              }
+
+              return range
+            } catch (error) {
+              console.error(
+                `[VueDX] Error processing @vuedx-copied-from in ${
+                  this.fileName
+                }: ${(error as Error).message}`,
+              )
+              return range
+            }
+          },
+        )
+
+        this.templateGlobalsTextRanges = findAnnotatedTextRanges(
+          code,
+          annotations.templateGlobals.start,
+          annotations.templateGlobals.end,
+        )
+
+        this.tsxCompletionsOffset =
+          tsLang === 'tsx'
+            ? findAnnotatedPosition(code, annotations.tsxCompletions, 1)
+            : null
+
+        this.tsCompletionsOffset = findAnnotatedPosition(
+          code,
+          annotations.tsCompletions,
+        )
+
         this.generated = TextDocument.create(
           this.tsFileName,
           tsLang, // TODO: Convert to vscode lang
           0,
           code,
         )
-
-        let lastIndex = 0
-        this.ignoredZones = []
-        while (lastIndex < code.length) {
-          const start = code.indexOf(
-            annotations.diagnosticsIgnore.start,
-            lastIndex,
-          )
-          if (start < 0) break
-          let end = code.indexOf(annotations.diagnosticsIgnore.end, start)
-          if (end < 0) {
-            end = code.length
-          }
-
-          this.ignoredZones.push({
-            start,
-            end,
-            range: {
-              start: this.generated.positionAt(start),
-              end: this.generated.positionAt(end),
-            },
-          })
-
-          lastIndex = end
-        }
-
-        this.tsxCompletionsOffset = null
-        if (tsLang === 'tsx') {
-          const tsxOffset = code.indexOf(annotations.tsxCompletions)
-          if (tsxOffset >= 0) {
-            const prefixLength = tsxOffset + annotations.tsxCompletions.length
-            this.tsxCompletionsOffset = prefixLength + 1 // TODO: Maybe use next index of "<""
-          }
-        }
-
-        const tsOffset = code.indexOf(annotations.tsCompletions)
-        if (tsOffset >= 0) {
-          this.tsCompletionsOffset = tsOffset
-        } else {
-          this.tsCompletionsOffset = null
-        }
-
-        const globalsOffset = code.indexOf(annotations.templateGlobals.start)
-
-        if (globalsOffset >= 0) {
-          const start = globalsOffset + annotations.templateGlobals.end.length
-          const end = code.indexOf(
-            annotations.templateGlobals.end,
-            globalsOffset,
-          )
-          this.templateGlobals = { start, end }
-        }
       } catch (error) {
         this.errors = [
           {
@@ -336,6 +347,9 @@ export class VueBlockDocument {
     textSpanInGeneratedText: TextSpan,
   ): TextSpan | null {
     const { start: offset, length } = textSpanInGeneratedText
+    if (this.isOffsetInCopiedZone(offset)) {
+      return this.findOriginalForCopiedTextSpan(textSpanInGeneratedText)
+    }
     const result = this.findOriginalOffsetMappingAt(offset, 0)
     if (result == null) return null
 
@@ -360,12 +374,34 @@ export class VueBlockDocument {
           const pos = content.indexOf(query)
           const diff = offset - (min + pos)
 
-          return { start: result.offset + diff, length }
+          return {
+            start: result.offset + diff,
+            length,
+          }
         }
       }
     }
 
     return { start: result.offset, length }
+  }
+
+  private findOriginalForCopiedTextSpan(span: TextSpan): TextSpan {
+    const i = this.copiedTextRanges.findIndex((range) =>
+      isOffsetInRange(range, span.start),
+    )
+
+    const copied = this.copiedTextRanges[i]
+    const original = this.originalsForCopiedTextRanges[i]
+    if (copied == null || original == null) {
+      throw new Error(
+        'Invalid span, use isOffsetInCopiedSpan() before calling this method',
+      )
+    }
+
+    return {
+      start: original.start + span.start - copied.start,
+      length: span.length,
+    }
   }
 
   private findOriginalOffsetMappingAt(
@@ -398,23 +434,26 @@ export class VueBlockDocument {
   @cache()
   public getMappingMetadata(context?: string): MappingMetadata | undefined {
     if (context?.startsWith(METADATA_PREFIX) === true) {
-      return JSON.parse(context.substr(METADATA_PREFIX.length))
+      return JSON.parse(context.slice(METADATA_PREFIX.length))
     }
 
     return undefined
   }
 
   public isOffsetInIgonredZone(offset: number): boolean {
-    return this.ignoredZones.some(
-      (zone) => zone.start <= offset && offset <= zone.end,
-    )
+    return this._isOffsetInZone(this.ignoredTextRanges, offset)
   }
 
   public isOffsetInTemplateGlobals(offset: number): boolean {
-    return this.templateGlobals == null
-      ? false
-      : this.templateGlobals.start <= offset &&
-          offset <= this.templateGlobals.end
+    return this._isOffsetInZone(this.templateGlobalsTextRanges, offset)
+  }
+
+  public isOffsetInCopiedZone(offset: number): boolean {
+    return this._isOffsetInZone(this.copiedTextRanges, offset)
+  }
+
+  private _isOffsetInZone(ranges: TextRange[], offset: number): boolean {
+    return ranges.some((range) => isOffsetInRange(range, offset))
   }
 
   private _toSourceMapPosition(position: Position): SourceMapPosition {
@@ -475,4 +514,44 @@ export class VueBlockDocument {
   public positionAt(offset: number): Position {
     return this.source.positionAt(offset)
   }
+}
+
+function isOffsetInRange(range: TextRange, offset: number): unknown {
+  return range.start <= offset && offset <= range.end
+}
+
+function findAnnotatedTextRanges(
+  code: string,
+  openTag: string,
+  closeTag: string,
+): Array<{ start: number; end: number }> {
+  let lastIndex = 0
+  const ranges: Array<{ start: number; end: number }> = []
+  while (lastIndex < code.length) {
+    let start = code.indexOf(openTag, lastIndex)
+    if (start < 0) break
+    start = start + openTag.length
+
+    let end = code.indexOf(closeTag, start)
+    if (end < 0) {
+      end = code.length
+    }
+
+    ranges.push({ start, end })
+
+    lastIndex = end
+  }
+
+  return ranges
+}
+
+function findAnnotatedPosition(
+  code: string,
+  tag: string,
+  offset: number = 0,
+): number | null {
+  const tsxOffset = code.indexOf(tag)
+  if (tsxOffset < 0) return null
+  const prefixLength = tsxOffset + tag.length
+  return prefixLength + offset
 }

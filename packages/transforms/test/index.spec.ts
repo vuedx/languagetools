@@ -4,15 +4,15 @@ import generate from '@babel/generator'
 import {
   createExportDeclarationForComponents,
   createExportDeclarationForDirectives,
-  createExportDeclarationForScriptSetup,
+  createExportDeclarationForComponent,
   findScopeBindings,
 } from '../src'
 
 const getAST = (code: string) =>
-  parse(code, {
+  (parse(code, {
     sourceType: 'module',
     plugins: ['typescript', 'importAssertions'],
-  }) as T.File
+  }) as unknown) as T.File
 
 const getCode = (node: T.Node) =>
   generate(node as any, { compact: false, concise: false, minified: false })
@@ -152,11 +152,23 @@ describe('createExportDeclarationForComponents', () => {
     const node = createExportDeclarationForComponents(ast)
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-      "export const __VueDX_components = {
-        Foo,
-        Bar: Foo
-      };"
-    `)
+"export const __VueDX_components =
+/**/
+// @vuedx-copied-start
+
+/**/
+// @vuedx-copied-start
+{
+  Foo,
+  Bar: Foo
+} // @vuedx-copied-from {\\"line\\":5,\\"column\\":20,\\"start\\":79,\\"end\\":125}
+
+/**/
+// @vuedx-copied-from {\\"line\\":5,\\"column\\":20,\\"start\\":79,\\"end\\":125}
+
+/**/
+;"
+`)
   })
 
   test(`local reference`, () => {
@@ -175,9 +187,21 @@ describe('createExportDeclarationForComponents', () => {
 
     const node = createExportDeclarationForComponents(ast)
 
-    expect(getCode(node)).toMatchInlineSnapshot(
-      `"export const __VueDX_components = components;"`,
-    )
+    expect(getCode(node)).toMatchInlineSnapshot(`
+"export const __VueDX_components =
+/**/
+// @vuedx-copied-start
+
+/**/
+// @vuedx-copied-start
+components // @vuedx-copied-from {\\"line\\":10,\\"column\\":8,\\"start\\":134,\\"end\\":144}
+
+/**/
+// @vuedx-copied-from {\\"line\\":10,\\"column\\":8,\\"start\\":134,\\"end\\":144}
+
+/**/
+;"
+`)
   })
   test(`defineComponent`, () => {
     const ast = getAST(`
@@ -194,11 +218,23 @@ describe('createExportDeclarationForComponents', () => {
     const node = createExportDeclarationForComponents(ast)
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-      "export const __VueDX_components = {
-        Foo,
-        Bar: Foo
-      };"
-    `)
+"export const __VueDX_components =
+/**/
+// @vuedx-copied-start
+
+/**/
+// @vuedx-copied-start
+{
+  Foo,
+  Bar: Foo
+} // @vuedx-copied-from {\\"line\\":5,\\"column\\":20,\\"start\\":95,\\"end\\":141}
+
+/**/
+// @vuedx-copied-from {\\"line\\":5,\\"column\\":20,\\"start\\":95,\\"end\\":141}
+
+/**/
+;"
+`)
   })
 
   test(`no components`, () => {
@@ -226,10 +262,14 @@ describe('createExportDeclarationForComponents', () => {
     })
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-"export const __VueDX_components = {
+"export const __VueDX_components =
+/**/
+{
   Foo: Foo,
   Bar: Bar
-};"
+}
+/**/
+;"
 `)
 
     createExportDeclarationForComponents.evict(ast)
@@ -240,9 +280,13 @@ describe('createExportDeclarationForComponents', () => {
     })
 
     expect(getCode(node3)).toMatchInlineSnapshot(`
-"export const __VueDX_components = {
+"export const __VueDX_components =
+/**/
+{
   Bar: Bar
-};"
+}
+/**/
+;"
 `)
   })
 })
@@ -263,11 +307,23 @@ describe('createExportDeclarationForDirectives', () => {
     const node = createExportDeclarationForDirectives(ast)
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-      "export const __VueDX_directives = {
-        Foo,
-        Bar: Foo
-      };"
-    `)
+"export const __VueDX_directives =
+/**/
+// @vuedx-copied-start
+
+/**/
+// @vuedx-copied-start
+{
+  Foo,
+  Bar: Foo
+} // @vuedx-copied-from {\\"line\\":5,\\"column\\":20,\\"start\\":79,\\"end\\":125}
+
+/**/
+// @vuedx-copied-from {\\"line\\":5,\\"column\\":20,\\"start\\":79,\\"end\\":125}
+
+/**/
+;"
+`)
   })
 
   test(`local reference`, () => {
@@ -286,9 +342,21 @@ describe('createExportDeclarationForDirectives', () => {
 
     const node = createExportDeclarationForDirectives(ast)
 
-    expect(getCode(node)).toMatchInlineSnapshot(
-      `"export const __VueDX_directives = directives;"`,
-    )
+    expect(getCode(node)).toMatchInlineSnapshot(`
+"export const __VueDX_directives =
+/**/
+// @vuedx-copied-start
+
+/**/
+// @vuedx-copied-start
+directives // @vuedx-copied-from {\\"line\\":10,\\"column\\":8,\\"start\\":134,\\"end\\":144}
+
+/**/
+// @vuedx-copied-from {\\"line\\":10,\\"column\\":8,\\"start\\":134,\\"end\\":144}
+
+/**/
+;"
+`)
   })
   test(`defineComponent`, () => {
     const ast = getAST(`
@@ -305,11 +373,23 @@ describe('createExportDeclarationForDirectives', () => {
     const node = createExportDeclarationForDirectives(ast)
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-      "export const __VueDX_directives = {
-        Foo,
-        Bar: Foo
-      };"
-    `)
+"export const __VueDX_directives =
+/**/
+// @vuedx-copied-start
+
+/**/
+// @vuedx-copied-start
+{
+  Foo,
+  Bar: Foo
+} // @vuedx-copied-from {\\"line\\":5,\\"column\\":20,\\"start\\":95,\\"end\\":141}
+
+/**/
+// @vuedx-copied-from {\\"line\\":5,\\"column\\":20,\\"start\\":95,\\"end\\":141}
+
+/**/
+;"
+`)
   })
 
   test(`no components`, () => {
@@ -337,10 +417,14 @@ describe('createExportDeclarationForDirectives', () => {
     })
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-"export const __VueDX_directives = {
+"export const __VueDX_directives =
+/**/
+{
   vFoo: vFoo,
   vBar: vBar
-};"
+}
+/**/
+;"
 `)
 
     createExportDeclarationForDirectives.evict(ast)
@@ -351,27 +435,35 @@ describe('createExportDeclarationForDirectives', () => {
     })
 
     expect(getCode(node3)).toMatchInlineSnapshot(`
-"export const __VueDX_directives = {
+"export const __VueDX_directives =
+/**/
+{
   vBar: vBar
-};"
+}
+/**/
+;"
 `)
   })
 })
 
-describe('createExportDeclarationForScriptSetup', () => {
+describe('createExportDeclarationForComponent', () => {
   test('simple script setup', () => {
     const ast = getAST(`
       const foo = 1
       const { bar } = ref(2)
     `)
 
-    const node = createExportDeclarationForScriptSetup(ast)
+    const node = createExportDeclarationForComponent(ast)
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-"export default VueDX.internal.defineSetupComponent({}, {}, {
+"export const __VueDX_DefineComponent = VueDX.internal.defineSetupComponent({}, {},
+/**/
+{
   foo: foo,
   bar: bar
-}, {});"
+}
+/**/
+, {});"
 `)
   })
 
@@ -386,16 +478,26 @@ describe('createExportDeclarationForScriptSetup', () => {
       const props = defineProps<{ foo: string }>()
     `)
 
-    const node = createExportDeclarationForScriptSetup(ast)
+    const node = createExportDeclarationForComponent(ast)
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-"export default VueDX.internal.defineSetupComponent(props, e({
+"export const __VueDX_DefineComponent = VueDX.internal.defineSetupComponent(props,
+/**/
+// @vuedx-copied-start
+e({
   click: () => true
-}), {
+}) // @vuedx-copied-from {\\"line\\":4,\\"column\\":6,\\"start\\":66,\\"end\\":104}
+
+/**/
+,
+/**/
+{
   defineProps: defineProps,
   e: e,
   props: props
-}, {});"
+}
+/**/
+, {});"
 `)
   })
 
@@ -408,14 +510,24 @@ describe('createExportDeclarationForScriptSetup', () => {
       const props = defineProps<{ foo: string }>()
     `)
 
-    const node = createExportDeclarationForScriptSetup(ast)
+    const node = createExportDeclarationForComponent(ast)
 
     expect(getCode(node)).toMatchInlineSnapshot(`
-"export default VueDX.internal.defineSetupComponent(props, defineEmits({
+"export const __VueDX_DefineComponent = VueDX.internal.defineSetupComponent(props,
+/**/
+// @vuedx-copied-start
+defineEmits({
   click: () => true
-}), {
+}) // @vuedx-copied-from {\\"line\\":2,\\"column\\":6,\\"start\\":7,\\"end\\":55}
+
+/**/
+,
+/**/
+{
   props: props
-}, {});"
+}
+/**/
+, {});"
 `)
   })
 })

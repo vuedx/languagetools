@@ -2,20 +2,30 @@ import * as T from '@babel/types'
 import template from '@babel/template'
 import generator, { GeneratorResult, GeneratorOptions } from '@babel/generator'
 import { parse, ParserOptions } from '@babel/parser'
+import MagicString from 'magic-string'
 
 interface ParseOptions extends ParserOptions {
   isScriptSetup: boolean
   lang: string
 }
 
+interface GenerateOptions extends GeneratorOptions {
+  sourceText?: string
+}
+
+type RequiredProperties<T, K extends keyof T> = Pick<Required<T>, K> &
+  Exclude<T, K>
+
 export function toAST(
   code: string,
   options: Partial<ParseOptions> = {},
 ): T.File {
   const { isScriptSetup = false, lang = 'js', ...config } = options
-  const finalOptions = {
+  const finalOptions: RequiredProperties<ParserOptions, 'plugins'> = {
     sourceType: 'module' as const,
+    allowAwaitOutsideFunction: isScriptSetup,
     ...config,
+    ranges: true,
     errorRecovery: true,
     plugins: [
       'bigInt',
@@ -24,7 +34,7 @@ export function toAST(
       'optionalCatchBinding',
       'dynamicImport',
       'logicalAssignment',
-    ] as Required<ParserOptions>['plugins'],
+    ],
   }
 
   if (options.plugins != null) finalOptions.plugins.push(...options.plugins)
@@ -48,7 +58,7 @@ export function toAST(
 
 export function toCode(
   node: T.Node | T.Node[],
-  options: GeneratorOptions = {},
+  { sourceText, ...options }: GenerateOptions = {},
 ): GeneratorResult {
   const nodes = Array.isArray(node) ? node : [node]
   const statement = T.program(
@@ -59,10 +69,70 @@ export function toCode(
       ),
   )
 
-  return generator(statement as any, {
+  const result = generator(statement as any, {
     comments: true,
     ...options,
   })
+
+  if (sourceText == null) return result
+
+  const ranges = findAnnotatedTextRanges(
+    result.code,
+    '// @vuedx-copied-start',
+    '// @vuedx-copied-from',
+  )
+  if (ranges.length === 0) return result // does not include copied code
+  const code = result.code
+  const magic = new MagicString(code, {
+    filename: options.sourceFileName,
+  })
+
+  for (const range of ranges) {
+    const matches = /\/\/ @vuedx-copied-from (.*)/.exec(code.slice(range.end))
+    if (matches == null) continue
+    const { column, start, end } = JSON.parse(matches[1] ?? '') as {
+      column: number
+      start: number
+      end: number
+    }
+    magic.overwrite(
+      range.start,
+      range.end + (matches[0] ?? '').length,
+      ' '.repeat(column) +
+        sourceText.slice(start, end) +
+        '// @vuedx-copied-from ' +
+        JSON.stringify({ start: start - column, end }),
+    )
+  }
+
+  return {
+    ...result,
+    code: magic.toString(),
+    map: magic.generateMap(),
+  }
+}
+
+function findAnnotatedTextRanges(
+  code: string,
+  openTag: string,
+  closeTag: string,
+): Array<{ start: number; end: number }> {
+  let lastIndex = 0
+  const ranges: Array<{ start: number; end: number }> = []
+  while (lastIndex < code.length) {
+    const start = code.indexOf(openTag, lastIndex)
+    if (start < 0) break
+    let end = code.indexOf(closeTag, start + openTag.length)
+    if (end < 0) {
+      end = code.length
+    }
+
+    ranges.push({ start, end })
+
+    lastIndex = end
+  }
+
+  return ranges
 }
 
 type Evictable<T extends (...args: any) => any> = T & {
@@ -96,59 +166,125 @@ function memoizeByFirstArg<F extends (...args: any) => any>(
   return memoize(fn, (args) => args[0])
 }
 
-export interface CreateExportDeclarationOptions {
+interface DeclarationOptions {
+  leadingCommentForCopiedSource: string
+  trailingCommentForCopiedSource: string
+  leadingCommentForIdentifiers: string
+  trailingCommentForIdentifiers: string
+}
+
+export interface CreateExportDeclarationOptions extends DeclarationOptions {
   exportName: string
   isScriptSetup: boolean
   shouldIncludeScriptSetup(id: string): boolean
 }
 
-export interface CreateExportDeclarationForScriptSetupOptions {
+export interface CreateExportDeclarationForScriptSetupOptions
+  extends CreateExportDeclarationOptions {
   defineComponent: string
-  shouldIncludeBinding(id: string): boolean
 }
 
 /**
  * Create export statement from local components.
  */
-export const createExportDeclarationForScriptSetup = memoizeByFirstArg(
+export const createExportDeclarationForComponent = memoizeByFirstArg(
   (
     ast: T.File,
     options?: Partial<CreateExportDeclarationForScriptSetupOptions>,
-  ): T.ExportDefaultDeclaration => {
+  ): T.ExportNamedDeclaration => {
+    const isScriptSetup = options?.isScriptSetup ?? true
     const config: CreateExportDeclarationForScriptSetupOptions = {
-      defineComponent: 'VueDX.internal.defineSetupComponent',
-      shouldIncludeBinding: () => true,
+      defineComponent: isScriptSetup
+        ? 'VueDX.internal.defineSetupComponent'
+        : 'VueDX.internal.defineComponent',
+      shouldIncludeScriptSetup: () => true,
+      leadingCommentForCopiedSource: '',
+      trailingCommentForCopiedSource: '',
+      leadingCommentForIdentifiers: '',
+      trailingCommentForIdentifiers: '',
+      isScriptSetup: true,
+      exportName: '__VueDX_DefineComponent',
       ...options,
     }
 
-    const createExpr = template(
-      `${config.defineComponent}(%%props%%, %%emits%%, %%bindings%%, %%extra%%)`,
-    )
+    const statement = isScriptSetup
+      ? createDeclarationForScriptSetup()
+      : createDeclarationForScript()
 
-    const props = getExpressionOrReference(findDefinePropsStatement(ast))
-    const emits = getExpressionOrReference(findDefineEmitsStatement(ast))
-    const extra = getExpressionOrReference(null)
-    const bindings = T.objectExpression(
-      findScopeBindings(ast)
-        .filter((id) => config.shouldIncludeBinding(id))
-        .map((id) => T.identifier(id))
-        .map((id) => T.objectProperty(id, id, false, false)),
-    )
-
-    const statement = createExpr({ props, emits, bindings, extra })
-
-    if (Array.isArray(statement) || !T.isExpressionStatement(statement)) {
+    if (!T.isDeclaration(statement)) {
       throw new Error('Unexpected')
     }
 
-    return T.exportDefaultDeclaration(statement.expression)
+    return T.exportNamedDeclaration(statement)
+
+    function createDeclarationForScriptSetup(): T.Statement | T.Statement[] {
+      const createExpr = template(
+        `const ${config.exportName} = ${config.defineComponent}(
+        %%props%%, 
+        %%emits%%, 
+        %%bindings%%, 
+        %%extra%%
+        )`,
+      )
+
+      const props = getExpressionOrReference(
+        findDefinePropsStatement(ast),
+        config,
+      )
+      const emits = getExpressionOrReference(
+        findDefineEmitsStatement(ast),
+        config,
+      )
+      const extra = getExpressionOrReference(null, config)
+      const bindings = getExpressionOrReference(
+        T.objectExpression(
+          findScopeBindings(ast)
+            .filter((id) => config.shouldIncludeScriptSetup(id))
+            .map((id) => T.identifier(id))
+            .map((id) => T.objectProperty(id, id, false, false)),
+        ),
+        config,
+      )
+
+      return createExpr({ props, emits, bindings, extra })
+    }
+    function createDeclarationForScript(): T.Statement | T.Statement[] {
+      const createExpr = template(
+        `const ${config.exportName} = ${config.defineComponent}(%%options%%)`,
+      )
+
+      const options = getExpressionOrReference(
+        findComponentOptions(ast),
+        config,
+      )
+
+      return createExpr({ options })
+    }
+  },
+)
+
+/**
+ * Create export statement from expose.
+ */
+export const createExportDeclarationForExpose = memoizeByFirstArg(
+  (
+    ast: T.File,
+    options?: Partial<CreateExportDeclarationOptions>,
+  ): T.ExportNamedDeclaration => {
+    return createExportDeclarationFor(ast, 'expose', options)
   },
 )
 
 export const findDefinePropsStatement = memoizeByFirstArg((ast: T.File) => {
-  return findTopLevelCall(
-    ast,
-    findLocalName(ast, 'vue', 'defineProps') ?? 'defineProps',
+  return (
+    findTopLevelCall(
+      ast,
+      findLocalName(ast, 'vue', 'withDefaults') ?? 'withDefaults',
+    ) ??
+    findTopLevelCall(
+      ast,
+      findLocalName(ast, 'vue', 'defineProps') ?? 'defineProps',
+    )
   )
 })
 
@@ -303,32 +439,49 @@ export const findComponentOptions = memoizeByFirstArg(
  */
 function createExportDeclarationFor(
   ast: T.File,
-  kind: 'components' | 'directives',
+  kind: 'components' | 'directives' | 'expose',
   options?: Partial<CreateExportDeclarationOptions>,
 ): T.ExportNamedDeclaration {
   const config: CreateExportDeclarationOptions = {
     exportName: `__VueDX_${kind}`,
     isScriptSetup: false,
     shouldIncludeScriptSetup: () => true,
+    leadingCommentForCopiedSource: '',
+    trailingCommentForCopiedSource: '',
+    leadingCommentForIdentifiers: '',
+    trailingCommentForIdentifiers: '',
     ...options,
   }
 
-  const RE = kind === 'components' ? /^[A-Z]/ : /^v[A-Z]/
+  const createExpr = template(`const ${config.exportName} = %%value%%;`)
+  const declaration = createExpr({
+    value: getExpressionOrReference(findTargetExpression(), config),
+  })
+  if (!T.isDeclaration(declaration)) throw new Error('Unexpected')
 
-  const expr = config.isScriptSetup
-    ? T.objectExpression(
+  return T.exportNamedDeclaration(declaration)
+
+  function findTargetExpression(): T.Expression | null {
+    if (config.isScriptSetup) {
+      if (kind === 'expose') {
+        return getExpressionOrReference(findDefineExposeStatement(ast), config)
+      }
+
+      const RE = kind === 'components' ? /^[A-Z]/ : /^v[A-Z]/
+
+      return T.objectExpression(
         findScopeBindings(ast)
           .filter((id) => RE.test(id) && config.shouldIncludeScriptSetup(id))
           .map((id) => T.identifier(id))
           .map((id) => T.objectProperty(id, id, false, false)),
       )
-    : findComponentOption(ast, kind) ?? T.objectExpression([])
+    }
 
-  return T.exportNamedDeclaration(
-    T.variableDeclaration('const', [
-      T.variableDeclarator(T.identifier(config.exportName), expr),
-    ]),
-  )
+    return getExpressionOrReference(
+      findComponentOption(ast, kind) ?? T.objectExpression([]),
+      config,
+    )
+  }
 }
 
 function findComponentOption(ast: T.File, name: string): T.Expression | null {
@@ -402,8 +555,8 @@ function findLocalIdentifierName(
 function findTopLevelCall(
   ast: T.File,
   fn: string,
-): T.Expression | T.VariableDeclarator | null {
-  const isExpression = (exp: T.Expression): boolean =>
+): T.CallExpression | T.VariableDeclarator | null {
+  const isExpression = (exp: T.Expression): exp is T.CallExpression =>
     T.isCallExpression(exp) &&
     T.isIdentifier(exp.callee) &&
     exp.callee.name === fn
@@ -427,12 +580,44 @@ function findTopLevelCall(
 
 function getExpressionOrReference(
   statement: T.Expression | T.VariableDeclarator | null,
+  options: DeclarationOptions,
 ): T.Expression | T.Identifier {
-  if (T.isExpression(statement)) return statement
+  if (T.isExpression(statement)) return wrapInComments(statement)
   else if (T.isVariableDeclarator(statement)) {
     if (T.isIdentifier(statement.id)) return statement.id
-    else if (statement.init != null) return statement.init
+    else if (statement.init != null) return wrapInComments(statement.init)
   }
 
   return T.objectExpression([])
+
+  function wrapInComments(e: T.Expression): T.Expression {
+    if (T.isObjectExpression(e) && e.properties.length === 0) return e
+    if (options == null) return e
+    let isCopied = false
+    if (e.start != null && e.end != null && e.loc != null) {
+      isCopied = true
+      const loc = JSON.stringify({
+        line: e.loc.start.line,
+        column: e.loc.start.column,
+        start: e.start,
+        end: e.end,
+      })
+
+      e = T.addComment(e, 'leading', ` @vuedx-copied-start`, true)
+      e = T.addComment(e, 'trailing', ` @vuedx-copied-from ${loc}`, true)
+    }
+
+    const leading = isCopied
+      ? options.leadingCommentForCopiedSource
+      : options.leadingCommentForIdentifiers
+
+    const trailing = isCopied
+      ? options.trailingCommentForCopiedSource
+      : options.trailingCommentForIdentifiers
+
+    e = T.addComment(e, 'leading', leading.replace(/\/\*|\*\//g, ''))
+    e = T.addComment(e, 'trailing', trailing.replace(/\/\*|\*\//g, ''))
+
+    return e
+  }
 }

@@ -176,6 +176,10 @@ export const annotations = {
     start: '/*<vuedx:diagnosticsIgnore>*/',
     end: '/*</vuedx:diagnosticsIgnore>*/',
   },
+  copiedSource: {
+    start: '/*<vuedx:copiedSource>*/',
+    end: '/*</vuedx:copiedSource>*/',
+  },
   templateGlobals: {
     start: '/*<vuedx:templateGlobals>*/',
     end: '/*</vuedx:templateGlobals>*/',
