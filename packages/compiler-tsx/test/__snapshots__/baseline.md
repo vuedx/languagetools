@@ -8,7 +8,7 @@
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -44,7 +44,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const HelloWorld = VueDX.internal.resolveComponent(__VueDX_components, "HelloWorld" as const, "HelloWorld" as const);
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
@@ -97,7 +97,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const FooBar = VueDX.internal.resolveComponent(__VueDX_components, "FooBar" as const, "FooBar" as const);
 const Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
@@ -205,7 +205,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -265,7 +265,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -335,7 +335,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
@@ -401,7 +401,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -521,7 +521,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -599,7 +599,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -641,7 +641,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -688,7 +688,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -748,7 +748,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -799,7 +799,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -832,7 +832,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -869,7 +869,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -905,7 +905,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -959,7 +959,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1035,7 +1035,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1073,7 +1073,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1111,7 +1111,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1154,7 +1154,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1216,7 +1216,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1268,7 +1268,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1346,7 +1346,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1424,7 +1424,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
@@ -1494,7 +1494,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const FooBar = VueDX.internal.resolveComponent(__VueDX_components, "FooBar" as const, "FooBar" as const);
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
@@ -1604,7 +1604,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1637,7 +1637,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1679,7 +1679,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const Tr = VueDX.internal.resolveComponent(__VueDX_components, "tr" as const, "Tr" as const);
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
@@ -1744,7 +1744,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1950,7 +1950,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -2031,7 +2031,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 
 ```tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/

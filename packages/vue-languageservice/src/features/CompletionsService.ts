@@ -1,4 +1,4 @@
-import { getComponentName } from '@vuedx/shared'
+import { getComponentName, isNotNull, isString } from '@vuedx/shared'
 import {
   findTemplateNodeAt,
   isInterpolationNode,
@@ -6,6 +6,9 @@ import {
   SearchResult,
 } from '@vuedx/template-ast-types'
 import type {
+  Position,
+  TextDocument,
+  TextSpan,
   VueBlockDocument,
   VueSFCDocument,
 } from '@vuedx/vue-virtual-textdocument'
@@ -35,6 +38,7 @@ type CompletionAdditionalInfo =
     }
   | {
       type: 'embedded-service'
+      fileName: string
       data: LanguageService.CompletionItem
     }
 
@@ -100,25 +104,17 @@ export class CompletionsService {
     position: number,
     options: Typescript.GetCompletionsAtPositionOptions | undefined,
   ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
-    return this.cache.withCache(fileName, (previous) => {
-      if (previous != null && previous.position === position) return previous
+    const result = this._getCompletionsAtPosition(fileName, position, options)
+    if (result == null) return
 
-      this.logger.debug(`Miss ${fileName} at ${position}`)
+    this.logger.debug('Completions:', JSON.stringify(result, null, 2))
 
-      return {
-        position,
-        options,
-        completions: this.cleanup(
-          this.fs.isVueFile(fileName)
-            ? this.vueCompletionsAtPosition(fileName, position, options)
-            : this.ts.service.getCompletionsAtPosition(
-                fileName,
-                position,
-                options,
-              ),
-        ),
-      }
-    }).completions
+    return {
+      ...result,
+      entries: result.entries.map((entry) =>
+        this.omitCompletionAdditionalInfo(entry),
+      ),
+    }
   }
 
   private vueCompletionsAtPosition(
@@ -137,23 +133,23 @@ export class CompletionsService {
         file.positionAt(position),
       )
 
-      return {
-        ...(result.isIncomplete ? { isIncomplete: true } : undefined),
-        entries: result.items.map((item) => {
-          return this.completionItemToEntry(item)
+      const completions = this.combine(
+        result.items.map((item) => {
+          return this.completionItemToEntry(file.fileName, file, item)
         }),
-        isGlobalCompletion: false,
-        isMemberCompletion: false,
-        isNewIdentifierLocation: false,
-      }
+      )
+      if (result.isIncomplete && completions != null)
+        completions.isIncomplete = true
+      return completions
     }
 
     this.logger.debug(
-      `Find completions at ${fileName}:${this.fs.getPositionString(
+      `(Vue) Find completions at ${fileName}:${this.fs.getPositionString(
         file,
         position,
       )}`,
     )
+
     switch (block.block.type) {
       case 'template':
         return this.templateCompletionsAtPosition(
@@ -190,10 +186,9 @@ export class CompletionsService {
 
     const offset = block.toBlockOffset(position)
     this.logger.debug(
-      `Find completions at ${block.fileName}:${this.fs.getPositionString(
-        block,
-        offset,
-      )}`,
+      `(Template) Find completions at ${
+        block.fileName
+      }:${this.fs.getPositionString(block, offset)}`,
     )
     const content = block.source.getText()
     let start: number = offset - 1
@@ -262,7 +257,7 @@ export class CompletionsService {
             {
               kind: this.ts.lib.ScriptElementKind.classElement,
               name: name,
-              sortText: name,
+              sortText: `\uffff${name}`,
               isSnippet: shouldProvideSnippet ? true : undefined,
               // TODO: Find indent at current line.
               // TODO: Add action to add import statement.
@@ -437,29 +432,203 @@ export class CompletionsService {
         block.source.positionAt(block.toBlockOffset(position)),
       )
 
-      completions.push({
-        ...(result.isIncomplete ? { isIncomplete: true } : undefined),
-        entries: result.items.map((item) => {
-          return this.completionItemToEntry(item)
+      completions.push(
+        result.items.map((item) => {
+          return this.completionItemToEntry(block.fileName, block.source, item)
         }),
-        isGlobalCompletion: false,
-        isMemberCompletion: false,
-        isNewIdentifierLocation: false,
-      })
+      )
     }
 
     return this.combine(...completions)
   }
 
   private completionItemToEntry(
+    fileName: string,
+    file: TextDocument,
     item: LanguageService.CompletionItem,
   ): Typescript.CompletionEntry {
-    return {
-      kind: this.ts.lib.ScriptElementKind.unknown,
-      name: item.label,
-      sortText: item.sortText ?? item.label,
-      insertText: item.insertText,
-      isSnippet: item.insertTextMode === 2 ? true : undefined,
+    const kind = this.toScriptElementKind(item.kind)
+    const isRecommended = item.preselect === true ? true : undefined
+    const isSnippet = item.insertTextFormat === 2 ? true : undefined
+
+    let insertText = item.insertText
+    let replacementSpan: TextSpan | undefined
+    if (item.textEdit != null) {
+      insertText = item.textEdit.newText
+
+      const range =
+        'replace' in item.textEdit ? item.textEdit.replace : item.textEdit.range
+
+      const start = file.offsetAt(range.start)
+      const end = file.offsetAt(range.end)
+
+      if (end > start) {
+        replacementSpan = { start, length: end - start }
+      }
+    }
+
+    if (item.tags?.includes(1) === true) {
+      kind.kindModifiers.push('deprecated')
+    }
+
+    return this.patchCompletionEntry(
+      {
+        kind: kind.kind,
+        kindModifiers:
+          kind.kindModifiers.length > 0
+            ? kind.kindModifiers.join(',')
+            : undefined,
+        name: item.label,
+        sortText: item.sortText ?? item.label,
+        isRecommended,
+        insertText,
+        replacementSpan,
+        isSnippet,
+      },
+      {
+        attachAdditionalInfo: {
+          type: 'embedded-service',
+          fileName: fileName,
+          data: item,
+        },
+      },
+    )
+  }
+
+  private toScriptElementKind(
+    kind?: LanguageService.CompletionItemKind,
+  ): { kind: Typescript.ScriptElementKind; kindModifiers: string[] } {
+    switch (kind) {
+      case 1 /* Text */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.warning,
+          kindModifiers: [],
+        }
+      case 2 /* Method */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.memberFunctionElement,
+          kindModifiers: [],
+        }
+      case 3 /* Function */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.functionElement,
+          kindModifiers: [],
+        }
+      case 4 /* Constructor */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.constructSignatureElement,
+          kindModifiers: [],
+        }
+      case 5 /* Field */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.memberVariableElement,
+          kindModifiers: [],
+        }
+      case 6 /* Variable */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.variableElement,
+          kindModifiers: [],
+        }
+      case 7 /* Class */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.classElement,
+          kindModifiers: [],
+        }
+      case 8 /* Interface */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.interfaceElement,
+          kindModifiers: [],
+        }
+      case 9 /* Module */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.moduleElement,
+          kindModifiers: [],
+        }
+      case 10 /* Property */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.memberVariableElement,
+          kindModifiers: [],
+        }
+      case 11 /* Unit */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.label,
+          kindModifiers: [],
+        }
+      case 12 /* Value */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.primitiveType,
+          kindModifiers: [],
+        }
+      case 13 /* Enum */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.enumElement,
+          kindModifiers: [],
+        }
+      case 14 /* Keyword */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.keyword,
+          kindModifiers: [],
+        }
+      case 15 /* Snippet */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.label,
+          kindModifiers: [],
+        }
+      case 16 /* Color */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.label,
+          kindModifiers: ['color'],
+        }
+      case 17 /* File */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.scriptElement,
+          kindModifiers: [],
+        }
+      case 18 /* Reference */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.localVariableElement,
+          kindModifiers: [],
+        }
+      case 19 /* Folder */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.directory,
+          kindModifiers: [],
+        }
+      case 20 /* EnumMember */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.enumMemberElement,
+          kindModifiers: [],
+        }
+      case 21 /* Constant */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.constElement,
+          kindModifiers: [],
+        }
+      case 22 /* Struct */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.interfaceElement,
+          kindModifiers: [],
+        }
+      case 23 /* Event */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.parameterElement,
+          kindModifiers: [],
+        }
+      case 24 /* Operator */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.label,
+          kindModifiers: [],
+        }
+      case 25 /* TypeParameter */:
+        return {
+          kind: this.ts.lib.ScriptElementKind.typeParameterElement,
+          kindModifiers: [],
+        }
+      default:
+        return {
+          kind: this.ts.lib.ScriptElementKind.label,
+          kindModifiers: [],
+        }
     }
   }
 
@@ -487,6 +656,13 @@ export class CompletionsService {
     _options: Typescript.GetCompletionsAtPositionOptions | undefined,
   ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
     const service = this.langs.getLanguageService(block.source.languageId)
+
+    this.logger.debug(
+      `(${block.source.languageId}) Find completions at ${
+        block.fileName
+      }:${this.fs.getPositionString(_file, position)}`,
+    )
+
     if (service == null) return
 
     const result = service.getCompletionsAtPosition(
@@ -494,15 +670,11 @@ export class CompletionsService {
       block.source.positionAt(block.toBlockOffset(position)),
     )
 
-    return this.combine({
-      ...(result.isIncomplete ? { isIncomplete: true } : undefined),
-      entries: result.items.map((item) => {
-        return this.completionItemToEntry(item)
+    return this.combine(
+      result.items.map((item) => {
+        return this.completionItemToEntry(block.fileName, block.source, item)
       }),
-      isGlobalCompletion: false,
-      isMemberCompletion: false,
-      isNewIdentifierLocation: false,
-    })
+    )
   }
 
   private customBlockCompletionsAtPosition(
@@ -519,15 +691,11 @@ export class CompletionsService {
       block.source.positionAt(block.toBlockOffset(position)),
     )
 
-    return this.combine({
-      ...(result.isIncomplete ? { isIncomplete: true } : undefined),
-      entries: result.items.map((item) => {
-        return this.completionItemToEntry(item)
+    return this.combine(
+      result.items.map((item) => {
+        return this.completionItemToEntry(block.fileName, block.source, item)
       }),
-      isGlobalCompletion: false,
-      isMemberCompletion: false,
-      isNewIdentifierLocation: false,
-    })
+    )
   }
 
   public getCompletionEntrySymbol(
@@ -553,8 +721,6 @@ export class CompletionsService {
             name,
             source,
           )
-        case 'embedded-service':
-          return // TODO: Get symbol
         default:
           return
       }
@@ -580,14 +746,16 @@ export class CompletionsService {
     preferences: Typescript.UserPreferences | undefined,
     data: Typescript.CompletionEntryData | undefined,
   ): Typescript.CompletionEntryDetails | undefined {
+    const item = this.findCompletionItem(fileName, position, entryName, source)
     const info = this.getCompletionAdditionalInfo(
       fileName,
       position,
       entryName,
       source,
+      item?.data,
     )
 
-    if (info != null) {
+    if (item != null && info != null) {
       switch (info.type) {
         case 'expression':
         case 'tag-completion-tsx':
@@ -601,7 +769,30 @@ export class CompletionsService {
             data,
           )
         case 'embedded-service':
-          return // TODO: Get Details
+          return {
+            name: item.name,
+            kind: item.kind,
+            kindModifiers: item.kindModifiers ?? '',
+            displayParts: [],
+            documentation:
+              info.data.documentation != null
+                ? [
+                    info.data.detail != null
+                      ? { kind: 'text', text: info.data.detail }
+                      : null,
+                    {
+                      kind: 'text',
+                      text: isString(info.data.documentation)
+                        ? info.data.documentation
+                        : info.data.documentation.value,
+                    },
+                  ].filter(isNotNull)
+                : undefined,
+            codeActions: this.getCodeActionsFromCompletionItem(
+              info.fileName,
+              info.data,
+            ),
+          }
         default:
           return
       }
@@ -633,6 +824,66 @@ export class CompletionsService {
     )
   }
 
+  private getCodeActionsFromCompletionItem(
+    fileName: string,
+    item: LanguageService.CompletionItem,
+  ): Typescript.CodeAction[] | undefined {
+    if (item.additionalTextEdits == null) return
+    const isVueFile = this.fs.isVueFile(fileName)
+    const file = isVueFile
+      ? this.fs.getVueFile(fileName)
+      : this.fs.getVueFile(fileName)?.getDocById(fileName)
+    if (file == null) return
+    const offsetAt: (pos: Position) => number = isVueFile
+      ? (pos) => file.offsetAt(pos)
+      : (pos) =>
+          (file as VueBlockDocument).toFileOffset(
+            (file as VueBlockDocument).source.offsetAt(pos),
+          )
+
+    return [
+      {
+        description: item.detail ?? '',
+        changes: [
+          {
+            fileName: this.fs.getRealFileName(fileName),
+            textChanges: item.additionalTextEdits.map((item) => {
+              const start = offsetAt(item.range.start)
+              const end = offsetAt(item.range.start)
+              return {
+                newText: item.newText,
+                span: { start, length: end - start },
+              }
+            }),
+          },
+        ],
+
+        commands:
+          item.command != null
+            ? [
+                {
+                  command: item.command.command,
+                  arguments: item.command.arguments,
+                },
+              ]
+            : undefined,
+      },
+    ]
+  }
+
+  private omitCompletionAdditionalInfo(
+    entry: Typescript.CompletionEntry,
+  ): Typescript.CompletionEntry {
+    if (entry.data != null && 'vuedx' in entry.data) {
+      const { vuedx, ...data } = entry.data as any
+
+      if (Object.keys(data).length === 0) return { ...entry, data: undefined }
+
+      return { ...entry, data }
+    }
+    return entry
+  }
+
   private getCompletionAdditionalInfo(
     fileName: string,
     position: number,
@@ -642,14 +893,54 @@ export class CompletionsService {
   ): null | CompletionAdditionalInfo {
     if (data != null && 'vuedx' in data) return (data as any).vuedx ?? null
 
-    const result = this.getCompletionsAtPosition(
-      fileName,
-      position,
-      {},
-    )?.entries.find((entry) => entry.name === name && entry.source === source)
+    const result = this.findCompletionItem(fileName, position, name, source)
       ?.data
 
     return (result as any)?.vuedx ?? null
+  }
+
+  private _getCompletionsAtPosition(
+    fileName: string,
+    position: number,
+    options: Typescript.GetCompletionsAtPositionOptions | undefined,
+  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    return this.cache.withCache(fileName, (previous) => {
+      if (
+        previous != null &&
+        previous.position === position &&
+        previous.completions?.isIncomplete !== true &&
+        previous.options?.triggerCharacter === options?.triggerCharacter
+      ) {
+        return previous
+      }
+
+      this.logger.debug(`Miss ${fileName} at ${position}`)
+
+      return {
+        position,
+        options,
+        completions: this.cleanup(
+          this.fs.isVueFile(fileName)
+            ? this.vueCompletionsAtPosition(fileName, position, options)
+            : this.ts.service.getCompletionsAtPosition(
+                fileName,
+                position,
+                options,
+              ),
+        ),
+      }
+    }).completions
+  }
+
+  private findCompletionItem(
+    fileName: string,
+    position: number,
+    name: string,
+    source: string | undefined,
+  ): Typescript.CompletionEntry | undefined {
+    return this._getCompletionsAtPosition(fileName, position, {})?.entries.find(
+      (entry) => entry.name === name && entry.source === source,
+    )
   }
 
   private rebase(
@@ -750,41 +1041,7 @@ export class CompletionsService {
         if (final == null) return current
         if (current == null) return final
 
-        if (
-          final.isGlobalCompletion !== current.isGlobalCompletion ||
-          final.isMemberCompletion !== current.isMemberCompletion ||
-          final.isNewIdentifierLocation !== current.isNewIdentifierLocation
-        ) {
-          if (__DEV__) {
-            const reasons: string[] = []
-            if (final.isGlobalCompletion !== current.isGlobalCompletion) {
-              reasons.push(final.isGlobalCompletion ? 'Local' : 'Global')
-            }
-            if (final.isMemberCompletion !== current.isMemberCompletion) {
-              reasons.push(final.isMemberCompletion ? 'Non-member' : 'Member')
-            }
-
-            if (
-              final.isNewIdentifierLocation !== current.isNewIdentifierLocation
-            ) {
-              reasons.push(
-                final.isNewIdentifierLocation
-                  ? 'Old identifier'
-                  : 'New identifier',
-              )
-            }
-
-            const content = current.entries
-              .map((entry) => ` - (${entry.kind}) ${entry.name}`)
-              .join('\n')
-
-            this.logger.debug(
-              `Dropping completisions due to ${reasons.join(
-                ', ',
-              )}:\n${content}`,
-            )
-          }
-        } else if (current.optionalReplacementSpan == null) {
+        if (current.optionalReplacementSpan == null) {
           final.entries.push(...current.entries)
         } else {
           final.entries.push(

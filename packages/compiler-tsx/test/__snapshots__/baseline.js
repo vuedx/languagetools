@@ -15,7 +15,7 @@ exports[`Baseline Spec Dynamic component with v-for default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -107,7 +107,7 @@ exports[`Baseline Spec Nested Dynamic components default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -191,7 +191,7 @@ exports[`Baseline Spec element  components 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const FooBar = VueDX.internal.resolveComponent(__VueDX_components, "FooBar" as const, "FooBar" as const);
 const Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
@@ -299,7 +299,7 @@ exports[`Baseline Spec element  fragment with errors 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const HelloWorld = VueDX.internal.resolveComponent(__VueDX_components, "HelloWorld" as const, "HelloWorld" as const);
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
@@ -351,7 +351,7 @@ exports[`Baseline Spec element  single 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -393,7 +393,7 @@ exports[`Baseline Spec element  slots + v-for 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -473,7 +473,7 @@ exports[`Baseline Spec element  slots 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -533,7 +533,7 @@ exports[`Baseline Spec v-bind default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
@@ -602,7 +602,7 @@ exports[`Baseline Spec v-for default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -801,7 +801,7 @@ exports[`Baseline Spec v-html default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -844,7 +844,7 @@ exports[`Baseline Spec v-if/v-else/v-else-if  elif no if 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -888,7 +888,7 @@ exports[`Baseline Spec v-if/v-else/v-else-if  else condition 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -927,7 +927,7 @@ exports[`Baseline Spec v-if/v-else/v-else-if  if condition 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -972,7 +972,7 @@ exports[`Baseline Spec v-if/v-else/v-else-if  if on fragment 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1026,7 +1026,7 @@ exports[`Baseline Spec v-if/v-else/v-else-if  if/else 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1084,7 +1084,7 @@ exports[`Baseline Spec v-if/v-else/v-else-if  if/else/if chain 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1153,7 +1153,7 @@ exports[`Baseline Spec v-if/v-else/v-else-if  nested if/else chains 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1233,7 +1233,7 @@ exports[`Baseline Spec v-if/v-else/v-else-if  no if 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1270,7 +1270,7 @@ exports[`Baseline Spec v-if/v-else/v-else-if  single if statement 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1319,7 +1319,7 @@ exports[`Baseline Spec v-is default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const Tr = VueDX.internal.resolveComponent(__VueDX_components, "tr" as const, "Tr" as const);
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
@@ -1377,7 +1377,7 @@ exports[`Baseline Spec v-model  checkbox 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1453,7 +1453,7 @@ exports[`Baseline Spec v-model  input 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1526,7 +1526,7 @@ exports[`Baseline Spec v-model  select 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1607,7 +1607,7 @@ exports[`Baseline Spec v-model  select/textarea 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1675,7 +1675,7 @@ exports[`Baseline Spec v-on default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1799,7 +1799,7 @@ exports[`Baseline Spec v-on multiple events default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1881,7 +1881,7 @@ exports[`Baseline Spec v-once default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1923,7 +1923,7 @@ exports[`Baseline Spec v-pre default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -1960,7 +1960,7 @@ exports[`Baseline Spec v-show default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/
@@ -2007,7 +2007,7 @@ exports[`Baseline Spec v-slot  Invalid 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
@@ -2081,7 +2081,7 @@ exports[`Baseline Spec v-slot  use slots 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 const FooBar = VueDX.internal.resolveComponent(__VueDX_components, "FooBar" as const, "FooBar" as const);
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
@@ -2195,7 +2195,7 @@ exports[`Baseline Spec v-text default 1`] = `
 
 \`\`\`tsx
 /*<vuedx:diagnosticsIgnore>*/
-import Example, { __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
+import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
 type __VueDX_Self = InstanceType<typeof Example>
 export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*<vuedx:templateGlobals>*/

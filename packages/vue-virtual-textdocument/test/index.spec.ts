@@ -28,7 +28,7 @@ describe('VueSFCDocument', () => {
       "import 'vuedx~runtime'
       import 'vuedx~project-runtime'
       import { __VueDX_Slots } from \\"./Example.vue+vue&type=template&lang\\"
-      import _Self from \\"./Example.vue+vue&type=script&setup&lang\\"
+      import { __VueDX_DefineComponent as _Self } from \\"./Example.vue+vue&type=script&setup&lang\\"
       export * from \\"./Example.vue+vue&type=script&setup&lang\\"
 
       class Example {
@@ -48,15 +48,22 @@ describe('VueSFCDocument', () => {
               ;
       /*<vuedx:diagnosticsIgnore>*/
       ;/*<vuedx:ts-competions-target/>*/
+      export const __VueDX_components =
       /*<vuedx:templateGlobals>*/
-      export const __VueDX_components = {
+      {
         Foo: Foo
-      };
-      export const __VueDX_directives = {};
-      export default VueDX.internal.defineSetupComponent({}, {}, {
-        val: val
-      }, {});
+      }
       /*</vuedx:templateGlobals>*/
+      ;
+      export const __VueDX_directives = {};
+      export const __VueDX_expose = {};
+      export const __VueDX_DefineComponent = VueDX.internal.defineSetupComponent({}, {},
+      /*<vuedx:templateGlobals>*/
+      {
+        val: val
+      }
+      /*</vuedx:templateGlobals>*/
+      , {});
       /*</vuedx:diagnosticsIgnore>*/
       "
     `)
@@ -64,7 +71,7 @@ describe('VueSFCDocument', () => {
     expect(doc.getDoc(doc.descriptor.template!)?.generated?.getText())
       .toMatchInlineSnapshot(`
       "/*<vuedx:diagnosticsIgnore>*/
-      import Example, { __VueDX_components, __VueDX_directives } from './Example.vue+vue&type=script&setup&lang'
+      import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from './Example.vue+vue&type=script&setup&lang'
       type __VueDX_Self = InstanceType<typeof Example>
       const Foo = VueDX.internal.resolveComponent(__VueDX_components, \\"Foo\\" as const, \\"Foo\\" as const);
       export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
@@ -119,5 +126,24 @@ describe('VueSFCDocument', () => {
     expect(a).not.toBe(b)
     expect(doc.getDocById(a)?.source.getText().trim()).toEqual('.red {}')
     expect(doc.getDocById(b)?.source.getText().trim()).toEqual('.green {}')
+  })
+
+  test(`copied source`, () => {
+    const doc = VueSFCDocument.create(
+      '/foo/bar/Example.vue',
+      `
+        <script setup lang="ts">
+          defineProps<{ foo: string }>()
+        </script>
+      `,
+    )
+
+    const block = doc.getDoc(doc.descriptor.scriptSetup!)!
+    const offset = block.source.getText().indexOf('foo')
+    const offsetInCopied = block.generated!.getText().lastIndexOf('foo')
+
+    expect(offsetInCopied).not.toEqual(offset)
+    expect(block.isOffsetInCopiedZone(offsetInCopied)).toBe(true)
+    expect(block.findOriginalOffsetAt(offsetInCopied)).toBe(offset)
   })
 })

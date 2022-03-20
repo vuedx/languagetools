@@ -96,7 +96,7 @@ export function compile(
       if (event === 'beforeImports') {
         context
           .write(
-            `import ${selfName}, { __VueDX_components, __VueDX_directives } from '${selfSrc}'`,
+            `import { __VueDX_DefineComponent as ${selfName}, __VueDX_components, __VueDX_directives } from '${selfSrc}'`,
           )
           .newLine()
           .write(`type __VueDX_Self = InstanceType<typeof ${selfName}>`)
