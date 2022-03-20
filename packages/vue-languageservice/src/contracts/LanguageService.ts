@@ -11,6 +11,7 @@ export namespace LanguageService {
   export type MarkupContent = LS.MarkupContent
   export type CompletionList = LS.CompletionList
   export type CompletionItem = LS.CompletionItem
+  export type CompletionItemKind = LS.CompletionItemKind
 }
 
 export interface LanguageService extends Disposable {

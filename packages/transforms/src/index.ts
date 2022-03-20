@@ -217,7 +217,7 @@ export const createExportDeclarationForComponent = memoizeByFirstArg(
 
     return T.exportNamedDeclaration(statement)
 
-    function createDeclarationForScriptSetup(): T.Statement | T.Statement[] {
+    function createDeclarationForScriptSetup(): any {
       const createExpr = template(
         `const ${config.exportName} = ${config.defineComponent}(
         %%props%%, 
