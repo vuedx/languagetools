@@ -248,7 +248,7 @@ export const createExportDeclarationForComponent = memoizeByFirstArg(
 
       return createExpr({ props, emits, bindings, extra })
     }
-    function createDeclarationForScript(): T.Statement | T.Statement[] {
+    function createDeclarationForScript(): any {
       const createExpr = template(
         `const ${config.exportName} = ${config.defineComponent}(%%options%%)`,
       )

@@ -908,7 +908,8 @@ export class CompletionsService {
       if (
         previous != null &&
         previous.position === position &&
-        previous.completions?.isIncomplete !== true
+        previous.completions?.isIncomplete !== true &&
+        previous.options?.triggerCharacter === options?.triggerCharacter
       ) {
         return previous
       }
