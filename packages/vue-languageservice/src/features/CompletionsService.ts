@@ -1,4 +1,10 @@
-import { getComponentName, isNotNull, isString } from '@vuedx/shared'
+import {
+  isHTMLTag,
+  isNotNull,
+  isPascalCase,
+  isString,
+  isSVGTag,
+} from '@vuedx/shared'
 import {
   findTemplateNodeAt,
   isInterpolationNode,
@@ -13,15 +19,17 @@ import type {
   VueSFCDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
-import type Typescript from 'typescript/lib/tsserverlibrary'
 import type { LanguageService } from '../contracts/LanguageService'
+import type { Typescript } from '../contracts/Typescript'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
 import { LoggerService, LogLevel } from '../services/LoggerService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
 
-type CompletionAdditionalInfo =
+type CompletionAdditionalInfo = {
+  merged?: Typescript.CompletionEntry[]
+} & (
   | {
       type: 'tag-completion-tsx'
       fileName: string
@@ -41,6 +49,10 @@ type CompletionAdditionalInfo =
       fileName: string
       data: LanguageService.CompletionItem
     }
+  | {
+      type: 'unknown'
+    }
+)
 
 @injectable()
 export class CompletionsService {
@@ -63,6 +75,219 @@ export class CompletionsService {
     @inject(LanguageServiceProvider)
     private readonly langs: LanguageServiceProvider,
   ) {}
+
+  public getCompletionsAtPosition(
+    fileName: string,
+    position: number,
+    options: Typescript.GetCompletionsAtPositionOptions | undefined,
+  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    const result = this._getCompletionsAtPosition(fileName, position, options)
+    if (result == null) return
+    return {
+      ...result,
+      entries: result.entries.map((entry) =>
+        this.omitCompletionAdditionalInfo(entry),
+      ),
+    }
+  }
+
+  public getCompletionEntrySymbol(
+    fileName: string,
+    position: number,
+    name: string,
+    source: string | undefined,
+  ): Typescript.Symbol | undefined {
+    const info = this.findCompletionAdditionalInfo(
+      fileName,
+      position,
+      name,
+      source,
+    )
+
+    if (info != null) {
+      switch (info.type) {
+        case 'expression':
+        case 'tag-completion-tsx':
+          return this.ts.service.getCompletionEntrySymbol(
+            info.fileName,
+            info.position,
+            name,
+            source,
+          )
+        default:
+          return
+      }
+    }
+
+    return this.ts.service.getCompletionEntrySymbol(
+      fileName,
+      position,
+      name,
+      source,
+    )
+  }
+
+  public getCompletionEntryDetails(
+    fileName: string,
+    position: number,
+    entryName: string,
+    formatOptions:
+      | Typescript.FormatCodeOptions
+      | Typescript.FormatCodeSettings
+      | undefined,
+    source: string | undefined,
+    preferences: Typescript.UserPreferences | undefined,
+    data: Typescript.CompletionEntryData | undefined,
+  ): Typescript.CompletionEntryDetails | undefined {
+    const item = this.findCompletionItem(fileName, position, entryName, source)
+
+    if (item != null) {
+      const info = this.getAdditionalInfo(item)
+      if (info != null) {
+        const details = this.getCompletionEntryDetailsFromAdditionalInfo(
+          item,
+          info,
+          entryName,
+          formatOptions,
+          source,
+          preferences,
+          data,
+        )
+
+        if (info.merged == null) return details
+
+        __DEV__ &&
+          this.logger.debug(
+            `Merged completion entry, resolving from:`,
+            JSON.stringify(info.merged, null, 2),
+          )
+
+        return info.merged.reduce((details, entry) => {
+          const info = this.getAdditionalInfo(entry)
+          if (info == null) return details
+          const current = this.getCompletionEntryDetailsFromAdditionalInfo(
+            entry,
+            info,
+            entryName,
+            formatOptions,
+            source,
+            preferences,
+            data,
+          )
+          if (current == null) return details
+          if (details == null) return current
+
+          const result = { ...details }
+
+          details.documentation = [
+            ...(details.documentation ?? []),
+            ...(current.documentation ?? []),
+          ]
+
+          details.displayParts = [
+            ...details.displayParts,
+            ...current.displayParts,
+          ]
+
+          details.codeActions = [
+            ...(details.codeActions ?? []),
+            ...(current.codeActions ?? []),
+          ]
+
+          details.sourceDisplay = [
+            ...(details.sourceDisplay ?? []),
+            ...(current.sourceDisplay ?? []),
+          ]
+
+          details.tags = [...(details.tags ?? []), ...(current.tags ?? [])]
+
+          return result
+        }, details)
+      }
+
+      return // Unlikely to happen.
+    }
+
+    if (this.fs.isVueFile(fileName)) {
+      const block = this.fs.getVirtualFileAt(fileName, position)
+      if (block == null || block.tsFileName == null) return
+
+      return this.ts.service.getCompletionEntryDetails(
+        block.tsFileName,
+        block.findGeneratedOffetAt(block.toBlockOffset(position)),
+        entryName,
+        formatOptions,
+        source,
+        preferences,
+        data,
+      )
+    }
+
+    return this.ts.service.getCompletionEntryDetails(
+      fileName,
+      position,
+      entryName,
+      formatOptions,
+      source,
+      preferences,
+      data,
+    )
+  }
+
+  private getCompletionEntryDetailsFromAdditionalInfo(
+    item: Typescript.CompletionEntry,
+    info: CompletionAdditionalInfo,
+    entryName: string,
+    formatOptions:
+      | Typescript.FormatCodeOptions
+      | Typescript.FormatCodeSettings
+      | undefined,
+    source: string | undefined,
+    preferences: Typescript.UserPreferences | undefined,
+    data: Typescript.CompletionEntryData | undefined,
+  ): Typescript.CompletionEntryDetails | undefined {
+    switch (info.type) {
+      case 'expression':
+      case 'tag-completion-tsx':
+        this.logger.debug('Find entry details', info)
+        return this.ts.service.getCompletionEntryDetails(
+          info.fileName,
+          info.position,
+          entryName,
+          formatOptions,
+          source,
+          preferences,
+          data,
+        )
+      case 'embedded-service':
+        return {
+          name: item.name,
+          kind: item.kind,
+          kindModifiers: item.kindModifiers ?? '',
+          displayParts: [],
+          documentation:
+            info.data.documentation != null
+              ? [
+                  info.data.detail != null
+                    ? { kind: 'text', text: info.data.detail }
+                    : null,
+                  {
+                    kind: 'text',
+                    text: isString(info.data.documentation)
+                      ? info.data.documentation
+                      : info.data.documentation.value,
+                  },
+                ].filter(isNotNull)
+              : undefined,
+          codeActions: this.getCodeActionsFromCompletionItem(
+            info.fileName,
+            info.data,
+          ),
+        }
+    }
+
+    return undefined
+  }
 
   private getTsxCompletionOptions(
     options: Typescript.GetCompletionsAtPositionOptions | undefined,
@@ -99,24 +324,6 @@ export class CompletionsService {
     }
   }
 
-  public getCompletionsAtPosition(
-    fileName: string,
-    position: number,
-    options: Typescript.GetCompletionsAtPositionOptions | undefined,
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
-    const result = this._getCompletionsAtPosition(fileName, position, options)
-    if (result == null) return
-
-    this.logger.debug('Completions:', JSON.stringify(result, null, 2))
-
-    return {
-      ...result,
-      entries: result.entries.map((entry) =>
-        this.omitCompletionAdditionalInfo(entry),
-      ),
-    }
-  }
-
   private vueCompletionsAtPosition(
     fileName: string,
     position: number,
@@ -135,7 +342,12 @@ export class CompletionsService {
 
       const completions = this.combine(
         result.items.map((item) => {
-          return this.completionItemToEntry(file.fileName, file, item)
+          return this.completionItemToEntry(
+            file.fileName,
+            file,
+            item,
+            (offset) => offset,
+          )
         }),
       )
       if (result.isIncomplete && completions != null)
@@ -197,20 +409,19 @@ export class CompletionsService {
       if (stopCharacters.has(content.charAt(start))) break
     }
     const tokenAtPosition = content.slice(start, offset)
-    this.logger.debug(`Token at cursor:`, { tokenAtPosition })
-    if (/^<[a-z0-9-]*$/i.test(tokenAtPosition)) {
+    this.logger.debug(`(Template) Token at cursor:`, { tokenAtPosition })
+    // TODO: Move to separate service to provide completions in other languages like pug.
+    const isTagCompletion = /^<[a-z0-9-]*$/i.test(tokenAtPosition)
+    let isAttributeCompletion = false
+    if (isTagCompletion) {
       if (block.tsFileName != null && block.generated != null) {
-        const position =
-          tokenAtPosition === '<'
-            ? block.tsxCompletionsOffset ?? -1
-            : block.findGeneratedOffetAt(offset)
+        const position = block.tsxCompletionsOffset
 
-        if (position >= 0) {
+        if (position != null) {
           this.logger.debug(
-            `Tag completion at ${block.tsFileName}:${this.fs.getPositionString(
-              block.generated,
-              position,
-            )}`,
+            `(Template) Tag completion at ${
+              block.tsFileName
+            }:${this.fs.getPositionString(block.generated, position)}`,
           )
           completions.push(
             this.rebase(
@@ -225,7 +436,7 @@ export class CompletionsService {
                   mode: 'tag',
                   attachAdditionalInfo: {
                     type: 'tag-completion-tsx',
-                    fileName: block.fileName,
+                    fileName: block.tsFileName,
                     position,
                   },
                 },
@@ -233,62 +444,7 @@ export class CompletionsService {
             ),
           )
         }
-
-        const nextOpenTag = content.indexOf('<', offset)
-        const nextCloseTag = content.indexOf('>', offset)
-        const shouldProvideSnippet =
-          nextCloseTag < 0 || nextOpenTag < nextCloseTag
-
-        const entries: Typescript.CompletionEntry[] = Array.from(
-          new Set(
-            this.ts.project
-              .getFileNames(true, true)
-              .filter(
-                (fileName) =>
-                  this.fs.isVueFile(fileName) ||
-                  this.fs.isVueTsFile(fileName) ||
-                  this.fs.isVueVirtualFile(fileName),
-              )
-              .map((fileName) => this.fs.getRealFileName(fileName)),
-          ),
-        ).map((fileName) => {
-          const name = getComponentName(fileName) // TODO: Use user preferences kebab vs Pascal
-          return this.patchCompletionEntry(
-            {
-              kind: this.ts.lib.ScriptElementKind.classElement,
-              name: name,
-              sortText: `\uffff${name}`,
-              isSnippet: shouldProvideSnippet ? true : undefined,
-              // TODO: Find indent at current line.
-              // TODO: Add action to add import statement.
-              insertText:
-                '<' + name + (shouldProvideSnippet ? `>$0</${name}>` : ' '),
-              replacementSpan: {
-                start: block.toFileOffset(start),
-                length: tokenAtPosition.length,
-              },
-              source: fileName,
-              // TODO: Create snippet to add required props?
-              isImportStatementCompletion: true,
-              data: {
-                fileName,
-                exportName: this.ts.lib.InternalSymbolName.Default,
-              },
-            },
-            {
-              attachAdditionalInfo: { type: 'tag-for-project-file', fileName },
-            },
-          )
-        })
-
-        if (entries.length > 0) {
-          this.logger.debug(
-            `Import suggestions from project: ${entries.length} items`,
-          )
-          completions.push(entries)
-        }
       }
-      // TODO: Load completions from VueHTML language service
     } else if (block.tsFileName != null) {
       const { node }: SearchResult =
         file.templateAST != null
@@ -297,7 +453,7 @@ export class CompletionsService {
 
       if (isSimpleExpressionNode(node) || isInterpolationNode(node)) {
         this.logger.debug(
-          `Expression completions at ${block.fileName}:` +
+          `(Template) Expression completions at ${block.fileName}:` +
             this.fs.getPositionString(block, offset),
         )
         const position = block.findGeneratedOffetAt(offset)
@@ -393,10 +549,11 @@ export class CompletionsService {
           }
         }
       } else {
+        isAttributeCompletion = true
         if (block.generated != null) {
           const position = block.findGeneratedOffetAt(offset)
           this.logger.debug(
-            `Completions at ${block.tsFileName}:` +
+            `(Template) Maybe attribute completions at ${block.tsFileName}:` +
               this.fs.getPositionString(block.generated, position),
           )
           completions.push(
@@ -426,26 +583,41 @@ export class CompletionsService {
     const templateService = this.langs.getLanguageService(
       block.source.languageId,
     )
-    if (templateService != null) {
+    if ((isTagCompletion || isAttributeCompletion) && templateService != null) {
+      const offset = block.toBlockOffset(position)
+      this.logger.debug(
+        `(Template) Tag completion at ${
+          block.fileName
+        }:${this.fs.getPositionString(block.source, offset)}`,
+      )
       const result = templateService.getCompletionsAtPosition(
         block.fileName,
-        block.source.positionAt(block.toBlockOffset(position)),
+        block.source.positionAt(offset),
       )
 
       completions.push(
         result.items.map((item) => {
-          return this.completionItemToEntry(block.fileName, block.source, item)
+          return this.completionItemToEntry(
+            block.fileName,
+            block.source,
+            item,
+            (offset) => block.toFileOffset(offset),
+          )
         }),
       )
     }
 
-    return this.combine(...completions)
+    return this.dedupe(
+      this.combine(...completions),
+      isTagCompletion ? 'tag' : isAttributeCompletion ? 'attribute' : 'value',
+    )
   }
 
   private completionItemToEntry(
     fileName: string,
     file: TextDocument,
     item: LanguageService.CompletionItem,
+    toFileOffset: (offset: number) => number,
   ): Typescript.CompletionEntry {
     const kind = this.toScriptElementKind(item.kind)
     const isRecommended = item.preselect === true ? true : undefined
@@ -463,7 +635,7 @@ export class CompletionsService {
       const end = file.offsetAt(range.end)
 
       if (end > start) {
-        replacementSpan = { start, length: end - start }
+        replacementSpan = { start: toFileOffset(start), length: end - start }
       }
     }
 
@@ -479,7 +651,7 @@ export class CompletionsService {
             ? kind.kindModifiers.join(',')
             : undefined,
         name: item.label,
-        sortText: item.sortText ?? item.label,
+        sortText: '16',
         isRecommended,
         insertText,
         replacementSpan,
@@ -521,7 +693,7 @@ export class CompletionsService {
         }
       case 5 /* Field */:
         return {
-          kind: this.ts.lib.ScriptElementKind.memberVariableElement,
+          kind: this.ts.lib.ScriptElementKind.jsxAttribute,
           kindModifiers: [],
         }
       case 6 /* Variable */:
@@ -551,7 +723,7 @@ export class CompletionsService {
         }
       case 11 /* Unit */:
         return {
-          kind: this.ts.lib.ScriptElementKind.label,
+          kind: this.ts.lib.ScriptElementKind.unknown,
           kindModifiers: [],
         }
       case 12 /* Value */:
@@ -571,12 +743,12 @@ export class CompletionsService {
         }
       case 15 /* Snippet */:
         return {
-          kind: this.ts.lib.ScriptElementKind.label,
+          kind: this.ts.lib.ScriptElementKind.unknown,
           kindModifiers: [],
         }
       case 16 /* Color */:
         return {
-          kind: this.ts.lib.ScriptElementKind.label,
+          kind: this.ts.lib.ScriptElementKind.unknown,
           kindModifiers: ['color'],
         }
       case 17 /* File */:
@@ -616,7 +788,7 @@ export class CompletionsService {
         }
       case 24 /* Operator */:
         return {
-          kind: this.ts.lib.ScriptElementKind.label,
+          kind: this.ts.lib.ScriptElementKind.unknown,
           kindModifiers: [],
         }
       case 25 /* TypeParameter */:
@@ -626,7 +798,7 @@ export class CompletionsService {
         }
       default:
         return {
-          kind: this.ts.lib.ScriptElementKind.label,
+          kind: this.ts.lib.ScriptElementKind.unknown,
           kindModifiers: [],
         }
     }
@@ -672,7 +844,12 @@ export class CompletionsService {
 
     return this.combine(
       result.items.map((item) => {
-        return this.completionItemToEntry(block.fileName, block.source, item)
+        return this.completionItemToEntry(
+          block.fileName,
+          block.source,
+          item,
+          (offset) => block.toFileOffset(offset),
+        )
       }),
     )
   }
@@ -693,134 +870,13 @@ export class CompletionsService {
 
     return this.combine(
       result.items.map((item) => {
-        return this.completionItemToEntry(block.fileName, block.source, item)
+        return this.completionItemToEntry(
+          block.fileName,
+          block.source,
+          item,
+          (offset) => block.toFileOffset(offset),
+        )
       }),
-    )
-  }
-
-  public getCompletionEntrySymbol(
-    fileName: string,
-    position: number,
-    name: string,
-    source: string | undefined,
-  ): Typescript.Symbol | undefined {
-    const info = this.getCompletionAdditionalInfo(
-      fileName,
-      position,
-      name,
-      source,
-    )
-
-    if (info != null) {
-      switch (info.type) {
-        case 'expression':
-        case 'tag-completion-tsx':
-          return this.ts.service.getCompletionEntrySymbol(
-            info.fileName,
-            info.position,
-            name,
-            source,
-          )
-        default:
-          return
-      }
-    }
-
-    return this.ts.service.getCompletionEntrySymbol(
-      fileName,
-      position,
-      name,
-      source,
-    )
-  }
-
-  public getCompletionEntryDetails(
-    fileName: string,
-    position: number,
-    entryName: string,
-    formatOptions:
-      | Typescript.FormatCodeOptions
-      | Typescript.FormatCodeSettings
-      | undefined,
-    source: string | undefined,
-    preferences: Typescript.UserPreferences | undefined,
-    data: Typescript.CompletionEntryData | undefined,
-  ): Typescript.CompletionEntryDetails | undefined {
-    const item = this.findCompletionItem(fileName, position, entryName, source)
-    const info = this.getCompletionAdditionalInfo(
-      fileName,
-      position,
-      entryName,
-      source,
-      item?.data,
-    )
-
-    if (item != null && info != null) {
-      switch (info.type) {
-        case 'expression':
-        case 'tag-completion-tsx':
-          return this.ts.service.getCompletionEntryDetails(
-            info.fileName,
-            info.position,
-            entryName,
-            formatOptions,
-            source,
-            preferences,
-            data,
-          )
-        case 'embedded-service':
-          return {
-            name: item.name,
-            kind: item.kind,
-            kindModifiers: item.kindModifiers ?? '',
-            displayParts: [],
-            documentation:
-              info.data.documentation != null
-                ? [
-                    info.data.detail != null
-                      ? { kind: 'text', text: info.data.detail }
-                      : null,
-                    {
-                      kind: 'text',
-                      text: isString(info.data.documentation)
-                        ? info.data.documentation
-                        : info.data.documentation.value,
-                    },
-                  ].filter(isNotNull)
-                : undefined,
-            codeActions: this.getCodeActionsFromCompletionItem(
-              info.fileName,
-              info.data,
-            ),
-          }
-        default:
-          return
-      }
-    }
-
-    if (this.fs.isVueFile(fileName)) {
-      const block = this.fs.getVirtualFileAt(fileName, position)
-      if (block == null || block.tsFileName == null) return
-
-      return this.ts.service.getCompletionEntryDetails(
-        block.tsFileName,
-        block.findGeneratedOffetAt(block.toBlockOffset(position)),
-        entryName,
-        formatOptions,
-        source,
-        preferences,
-        data,
-      )
-    }
-
-    return this.ts.service.getCompletionEntryDetails(
-      fileName,
-      position,
-      entryName,
-      formatOptions,
-      source,
-      preferences,
-      data,
     )
   }
 
@@ -884,19 +940,16 @@ export class CompletionsService {
     return entry
   }
 
-  private getCompletionAdditionalInfo(
+  private findCompletionAdditionalInfo(
     fileName: string,
     position: number,
     name: string,
     source: string | undefined,
-    data?: Typescript.CompletionEntryData,
   ): null | CompletionAdditionalInfo {
-    if (data != null && 'vuedx' in data) return (data as any).vuedx ?? null
+    const entry = this.findCompletionItem(fileName, position, name, source)
+    if (entry == null) return null
 
-    const result = this.findCompletionItem(fileName, position, name, source)
-      ?.data
-
-    return (result as any)?.vuedx ?? null
+    return this.getAdditionalInfo(entry)
   }
 
   private _getCompletionsAtPosition(
@@ -934,13 +987,15 @@ export class CompletionsService {
 
   private findCompletionItem(
     fileName: string,
-    position: number,
+    _position: number,
     name: string,
     source: string | undefined,
   ): Typescript.CompletionEntry | undefined {
-    return this._getCompletionsAtPosition(fileName, position, {})?.entries.find(
-      (entry) => entry.name === name && entry.source === source,
-    )
+    return this.cache
+      .getItem(fileName)
+      ?.completions?.entries.find(
+        (entry) => entry.name === name && entry.source === source,
+      )
   }
 
   private rebase(
@@ -974,23 +1029,76 @@ export class CompletionsService {
       attachAdditionalInfo?: CompletionAdditionalInfo
     } = { mode: 'all' },
   ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
-    if (completions == null) return
+    if (completions == null) {
+      this.logger.debug(`(Cleanup) No results to process`)
+      return
+    }
+    const shouldInclude = (
+      entry: Typescript.CompletionEntry,
+    ): string | null => {
+      if (entry.name.startsWith('__VueDX_')) return 'VueDX internal'
+      if (options.mode === 'tag') {
+        if (entry.kind === this.ts.lib.ScriptElementKind.keyword) {
+          return 'Keyword'
+        }
+
+        if (isHTMLTag(entry.name) || isSVGTag(entry.name)) {
+          if (
+            entry.kind === this.ts.lib.ScriptElementKind.memberVariableElement
+          ) {
+            return null
+          }
+
+          return 'Expected property for HTML/SVG tag'
+        }
+
+        if (!(isPascalCase(entry.name) || entry.name.includes('-'))) {
+          return 'Not a tag'
+        }
+
+        const modifier = entry.kindModifiers ?? ''
+        if (modifier.includes('declare')) return 'Has declare modifier'
+        if (entry.source != null) {
+          if (
+            !(
+              this.fs.isVueTsFile(entry.source) ||
+              this.fs.isVueFile(entry.source)
+            )
+          ) {
+            return 'Not a valid component import'
+          }
+          if (entry.data?.exportName !== 'default') {
+            return 'Only default imports from .vue files'
+          }
+        }
+      } else if (entry.source != null) {
+        if (this.fs.isVueVirtualFile(entry.source)) return 'Not a valid import'
+      }
+
+      return null
+    }
     const copy = { ...completions }
     copy.entries = completions.entries
       .filter((entry) => {
-        if (entry.name.startsWith('__VueDX_')) return false
-        if (options.mode === 'tag') {
-          if (!/^([A-Z][A-Za-z0-9]*|[a-z0-9-]+)$/.test(entry.name)) return false
-        }
-        if (entry.source != null) {
-          if (this.fs.isVueVirtualFile(entry.source)) return false
-        }
+        const reason = shouldInclude(entry)
+        // // THIS IS FOR DEBUGGING DROPPED ITEMS.
+        // this.logger.debug(
+        //   `(Cleanup) ${reason == null ? 'Pick' : 'Drop'} ${entry.name} (${
+        //     entry.kind
+        //   } - ${entry.kindModifiers ?? ''}) from ${entry.source ?? '.'} ${
+        //     reason ?? ''
+        //   }`,
+        // )
 
-        return true
+        return reason == null
       })
       .map(({ ...entry }) => {
         return this.patchCompletionEntry(entry, options)
       })
+
+    this.logger.debug(
+      `(Cleanup) Picked ${copy.entries.length} of ${completions.entries.length} items`,
+    )
 
     return copy
   }
@@ -1015,6 +1123,11 @@ export class CompletionsService {
     return entry
   }
 
+  /**
+   * Mutates results
+   * @param completions
+   * @returns
+   */
   private combine(
     ...completions: Array<
       | Typescript.WithMetadata<Typescript.CompletionInfo>
@@ -1057,5 +1170,60 @@ export class CompletionsService {
 
         return final
       })
+  }
+
+  /**
+   * NOTE: Modifies completion items.
+   */
+  private dedupe(
+    completions: Typescript.WithMetadata<Typescript.CompletionInfo> | undefined,
+    kind: 'tag' | 'attribute' | 'value',
+  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    if (completions == null) return completions
+
+    const entries = new Map<string, Typescript.CompletionEntry>()
+    if (kind === 'tag' || kind === 'attribute') {
+      completions.entries.forEach((current) => {
+        const id = getId(current)
+        const previous = entries.get(id)
+        if (previous == null) {
+          entries.set(id, current)
+          return
+        }
+
+        const a = this.getAdditionalInfo(previous)
+        __DEV__ &&
+          this.logger.debug(
+            `Merging ${current.name} ( ${current.kind} ${
+              current.kindModifiers ?? ''
+            } ) into ${previous.name} ( ${previous.kind} ${
+              previous.kindModifiers ?? ''
+            } )`,
+          )
+        if (a == null) {
+          this.patchCompletionEntry(previous, {
+            attachAdditionalInfo: { type: 'unknown', merged: [current] },
+          })
+        } else {
+          a.merged = a.merged ?? []
+          a.merged.push(current)
+        }
+      })
+
+      completions.entries = Array.from(entries.values())
+    }
+
+    return completions
+
+    function getId(entry: Typescript.CompletionEntry): string {
+      if (entry.source == null) return entry.name
+      return `${entry.source}::${entry.name}`
+    }
+  }
+
+  private getAdditionalInfo(
+    entry: Typescript.CompletionEntry,
+  ): CompletionAdditionalInfo | null {
+    return (entry.data as any)?.vuedx ?? null
   }
 }
