@@ -2,6 +2,7 @@ import Path from 'node:path'
 import FS from 'node:fs'
 import fetch, { Headers } from 'node-fetch'
 import semver from 'semver'
+import { execSync } from 'node:child_process'
 
 /**
  * @param {string} itemName
@@ -140,4 +141,44 @@ export async function prepareExtensionForPackaging(dir, fn) {
   } finally {
     revert(dir)
   }
+}
+
+/**
+ *
+ * @param {{ vsixFileName: string, extensionDir: string, fn: (writeFile: (fileName: string, contents: string | Buffer) => void) => void}} options
+ */
+export function appendExtraFiles({ vsixFileName, extensionDir, fn }) {
+  const outputDir = Path.resolve(extensionDir, 'tmp/extension')
+  const execArgs = { stdio: [0, 1, 2], cwd: extensionDir }
+
+  if (!Path.isAbsolute(vsixFileName)) {
+    vsixFileName = Path.resolve(extensionDir, vsixFileName)
+  }
+
+  try {
+    execSync(`rm -rf tmp`, execArgs)
+    execSync(`mkdir -p tmp`, execArgs)
+    execSync(`unzip ${vsixFileName} -d tmp`)
+
+    fn((fileName, contents) => {
+      writeFile(Path.resolve(outputDir, fileName), contents)
+    })
+
+    execSync(`zip -r ${vsixFileName} .`, {
+      cwd: Path.resolve(extensionDir, 'tmp'),
+    })
+  } finally {
+    execSync(`rm -r tmp`, execArgs)
+  }
+}
+
+/**
+ *
+ * @param {string} fileName
+ * @param {string|Buffer} contents
+ */
+function writeFile(fileName, contents) {
+  const dirName = Path.dirname(fileName)
+  FS.mkdirSync(dirName, { recursive: true })
+  FS.writeFileSync(fileName, contents)
 }

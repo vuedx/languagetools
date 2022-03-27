@@ -3,8 +3,12 @@ import glob from 'fast-glob'
 import FS from 'fs'
 import Path from 'path'
 import { fileURLToPath } from 'url'
-import { prepareExtensionForPackaging } from '../../../scripts/extension-package.mjs'
+import {
+  appendExtraFiles,
+  prepareExtensionForPackaging,
+} from '../../../scripts/extension-package.mjs'
 
+const files = ['CHANGELOG.md']
 // Copy packages to vsix bundle.
 const packages = {
   '@vuedx/typescript-plugin-vue': {
@@ -28,75 +32,52 @@ prepareExtensionForPackaging(dir, () => {
     execArgs,
   )
 
-  try {
-    execSync(`rm -rf tmp`, execArgs)
-    execSync(`mkdir -p tmp`, execArgs)
-    execSync(`unzip vue-language-features.vsix -d tmp`)
+  appendExtraFiles({
+    vsixFileName: 'vue-language-features.vsix',
+    extensionDir: dir,
+    fn: (writeFile) => {
+      files.forEach((fileName) => {
+        writeFile(fileName, FS.readFileSync(Path.resolve(dir, fileName)))
+      })
 
-    const extensionDir = Path.resolve(dir, 'tmp/extension')
-
-    Object.entries(packages).forEach(([name, options]) => {
-      const packageDir = Path.resolve(dir, 'node_modules', name)
-      const originalPackageJson = JSON.parse(
-        FS.readFileSync(Path.resolve(packageDir, 'package.json'), 'utf-8'),
-      )
-
-      const packageJson = {
-        ...originalPackageJson,
-        main: options.main,
-        dependencies: {},
-        devDependencies: {},
-        module: undefined,
-        exports: undefined,
-      }
-
-      writeFile(
-        Path.resolve(
-          Path.resolve(extensionDir, 'node_modules', name),
-          'package.json',
-        ),
-        JSON.stringify(packageJson, null, 2),
-      )
-
-      const files = glob.sync(
-        [
-          packageJson.main,
-          `${packageJson.main}.map`,
-          ...options.files,
-          'LICENSE',
-          'readme.md',
-        ],
-        { cwd: packageDir, absolute: false },
-      )
-
-      files.forEach((file) => {
-        const targetFile = Path.resolve(
-          extensionDir,
-          'node_modules',
-          name,
-          file,
+      Object.entries(packages).forEach(([name, options]) => {
+        const packageDir = Path.resolve(dir, 'node_modules', name)
+        const originalPackageJson = JSON.parse(
+          FS.readFileSync(Path.resolve(packageDir, 'package.json'), 'utf-8'),
         )
 
-        FS.mkdirSync(Path.dirname(targetFile), { recursive: true })
-        FS.copyFileSync(Path.resolve(packageDir, file), targetFile)
+        const packageJson = {
+          ...originalPackageJson,
+          main: options.main,
+          dependencies: {},
+          devDependencies: {},
+          module: undefined,
+          exports: undefined,
+        }
+
+        writeFile(
+          Path.join('node_modules', name, 'package.json'),
+          JSON.stringify(packageJson, null, 2),
+        )
+
+        const files = glob.sync(
+          [
+            packageJson.main,
+            `${packageJson.main}.map`,
+            ...options.files,
+            'LICENSE',
+            'readme.md',
+          ],
+          { cwd: packageDir, absolute: false },
+        )
+
+        files.forEach((file) => {
+          writeFile(
+            Path.join('node_modules', name, file),
+            FS.readFileSync(Path.resolve(packageDir, file)),
+          )
+        })
       })
-    })
-
-    execSync(`zip -r ../vue-language-features.vsix .`, {
-      cwd: Path.resolve(dir, 'tmp'),
-    })
-  } finally {
-    execSync(`rm -r tmp`, execArgs)
-  }
+    },
+  })
 })
-
-/**
- *
- * @param {string} fileName
- * @param {string|Buffer} contents
- */
-function writeFile(fileName, contents) {
-  const dirName = Path.dirname(fileName)
-  FS.mkdirSync(dirName, { recursive: true })
-  FS.writeFileSync(fileName, contents)
-}

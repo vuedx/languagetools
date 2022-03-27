@@ -17,9 +17,7 @@
     "onCommand:vuedx.openVirtualFile"
   ],
   "files": [
-    "dist",
-    "readme.md",
-    "CHANGELOG.md"
+    "dist"
   ],
   "buildConfig": {
     "useMain": false,
