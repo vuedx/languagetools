@@ -201,10 +201,12 @@ export function generate(
   options.on('begin', context)
   context.write(annotations.diagnosticsIgnore.start).newLine()
   options.on('beforeImports', context)
+  context.write(annotations.templateGlobals.start).newLine()
   options.customContext.scope.getTopLevelNodes().forEach((node) => {
     genExpressionNode(context, node)
     context.newLine()
   })
+  context.write(annotations.templateGlobals.end).newLine()
   options.on('afterImports', context)
 
   context
@@ -659,10 +661,14 @@ function genComponentSlots(
     context.indent()
 
     // generate scope
-    node.hoists.forEach((hoist) => {
-      genExpressionNode(context, hoist)
-      context.newLine()
-    })
+    if (node.hoists.length > 0) {
+      context.write(annotations.templateGlobals.start).newLine()
+      node.hoists.forEach((hoist) => {
+        genExpressionNode(context, hoist)
+        context.newLine()
+      })
+      context.write(annotations.templateGlobals.end).newLine()
+    }
 
     //#region 7 <
     context.write('return (').newLine()
@@ -690,11 +696,13 @@ function genComponentSlots(
     context.indent()
     //#region 9 <
     // START BODY
-    if (node.hoists != null) {
+    if (node.hoists != null && node.hoists.length > 0) {
+      context.write(annotations.templateGlobals.start).newLine()
       node.hoists.forEach((node) => {
         genExpressionNode(context, node)
         context.newLine()
       })
+      context.write(annotations.templateGlobals.end).newLine()
     }
     context.write('return (').newLine()
     context.indent()
@@ -796,7 +804,7 @@ function genOnGroupDirectiveNode(
       createLoc(dir.loc, 0, dir.loc.source.startsWith('@') ? 1 : 4),
       MappingKind.reverseOnly,
     )
-    context.write(componentName, node.loc).write(')(')
+    context.write(componentName, node.loc, MappingKind.reverseOnly).write(')(')
     context.indent()
     //#region 12 <
     genDirectiveUsage(context, directives)
@@ -858,6 +866,7 @@ function genPropDirectiveNode(
         context.write(
           componentName,
           createLoc(element.loc, 1, element.tag.length),
+          MappingKind.reverseOnly,
         )
         context.write(')')
         context.write(')}')
@@ -988,6 +997,7 @@ function genDirectives(
       context.write(
         `VueDX.internal.checkModelDirective(${componentName}, `,
         dirLoc,
+        MappingKind.reverseOnly,
       )
     }
   } else if (dir.name === 'on') {
@@ -998,11 +1008,11 @@ function genDirectives(
       `VueDX.internal.checkBuiltinDirective["${dir.name}"](`,
       dirLoc,
     )
-    context.write(`${componentName}, `, nodeLoc)
+    context.write(`${componentName}, `, nodeLoc, MappingKind.reverseOnly)
   } else {
     context.write(`VueDX.internal.checkDirective(`, dirLoc)
     context.write(`${directiveName}, `, dirLoc)
-    context.write(`${componentName}, `, nodeLoc)
+    context.write(`${componentName}, `, nodeLoc, MappingKind.reverseOnly)
   }
 
   genDirectiveUsage(context, directives, isInputModelDirective)
@@ -1234,10 +1244,14 @@ function genForNode(context: GenerateContext, node: ForNode): void {
   context.write(' => {').newLine()
   context.indent()
   //#region 17 <
-  node.hoists.forEach((node) => {
-    genExpressionNode(context, node)
-    context.newLine()
-  })
+  if (node.hoists.length > 0) {
+    context.write(annotations.templateGlobals.start).newLine()
+    node.hoists.forEach((node) => {
+      genExpressionNode(context, node)
+      context.newLine()
+    })
+    context.write(annotations.templateGlobals.end).newLine()
+  }
 
   context.write('return (')
   context.indent()

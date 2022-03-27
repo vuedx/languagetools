@@ -73,7 +73,9 @@ describe('VueSFCDocument', () => {
       "/*<vuedx:diagnosticsIgnore>*/
       import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from './Example.vue+vue&type=script&setup&lang'
       type __VueDX_Self = InstanceType<typeof Example>
+      /*<vuedx:templateGlobals>*/
       const Foo = VueDX.internal.resolveComponent(__VueDX_components, \\"Foo\\" as const, \\"Foo\\" as const);
+      /*</vuedx:templateGlobals>*/
       export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
         /*<vuedx:templateGlobals>*/
         let val = __VueDX_ctx.val;

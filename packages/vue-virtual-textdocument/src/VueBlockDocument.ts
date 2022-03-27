@@ -299,6 +299,32 @@ export class VueBlockDocument {
     }
   }
 
+  public findCopiedOffsets(offsetInBlockText: number): number[] {
+    return this.findCopiedTextSpans({
+      start: offsetInBlockText,
+      length: 1,
+    }).map((span) => span.start)
+  }
+
+  public findCopiedTextSpans(textSpanInBlockText: TextSpan): TextSpan[] {
+    const spans: TextSpan[] = []
+
+    if (this.isOffsetInOriginalZone(textSpanInBlockText.start)) {
+      for (let i = 0; i < this.originalsForCopiedTextRanges.length; i++) {
+        const copied = this.copiedTextRanges[i]
+        const original = this.originalsForCopiedTextRanges[i]
+        if (copied == null || original == null) continue
+
+        spans.push({
+          start: copied.start + textSpanInBlockText.start - original.start,
+          length: textSpanInBlockText.length,
+        })
+      }
+    }
+
+    return spans
+  }
+
   /**
    * Find original position in .vue file for position in genreated text
    * @param offset position in generated .ts/.tsx
@@ -450,6 +476,10 @@ export class VueBlockDocument {
 
   public isOffsetInCopiedZone(offset: number): boolean {
     return this._isOffsetInZone(this.copiedTextRanges, offset)
+  }
+
+  public isOffsetInOriginalZone(offset: number): boolean {
+    return this._isOffsetInZone(this.originalsForCopiedTextRanges, offset)
   }
 
   private _isOffsetInZone(ranges: TextRange[], offset: number): boolean {

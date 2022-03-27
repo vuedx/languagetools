@@ -118,8 +118,10 @@ export function createTypescriptLanguageService(
       getCompletionEntrySymbol: (...args) => service.getCompletionEntrySymbol(...args),
       getDocCommentTemplateAtPosition: (...args) => service.getDocCommentTemplateAtPosition(...args),
 
-      // Feature: Declaration
+      // Feature: References
       findReferences: (...args) => service.findReferences(...args),
+      getFileReferences: (...args) => service.getFileReferences(...args),
+      getReferencesAtPosition: (...args) => service.getReferencesAtPosition(...args),
 
       // Feature: Refactoring
       getApplicableRefactors: (...args) => service.getApplicableRefactors(...args),
@@ -152,7 +154,6 @@ export function createTypescriptLanguageService(
       getBreakpointStatementAtPosition: (...args) => service.getBreakpointStatementAtPosition(...args),
       getDocumentHighlights: (...args) => service.getDocumentHighlights(...args),
       getEmitOutput: (...args) => service.getEmitOutput(...args),
-      getFileReferences: (...args) => service.getFileReferences(...args),
       toLineColumnOffset: (...args) => service.toLineColumnOffset(...args),
      
       getIndentationAtPosition: (...args) => service.getIndentationAtPosition(...args),
@@ -161,7 +162,6 @@ export function createTypescriptLanguageService(
       getNavigateToItems: (...args) => service.getNavigateToItems(...args),
       getNavigationBarItems: (...args) => service.getNavigationBarItems(...args),
       getNavigationTree: (...args) => service.getNavigationTree(...args),
-      getReferencesAtPosition: (...args) => service.getReferencesAtPosition(...args),
       getRenameInfo: (...args) => service.getRenameInfo(...args),
       getSignatureHelpItems: (...args) => service.getSignatureHelpItems.apply(service, args as any),
       getSmartSelectionRange: (...args) => service.getSmartSelectionRange(...args),

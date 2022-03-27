@@ -1,11 +1,12 @@
-import { parseFileName, toFileName } from '@vuedx/shared'
+import { debug, parseFileName, toFileName, traceInDevMode } from '@vuedx/shared'
 import { findTemplateNodeAt, isElementNode } from '@vuedx/template-ast-types'
 import { inject, injectable } from 'inversify'
 import type { LanguageService } from '../contracts/LanguageService'
 import type { TSLanguageService, Typescript } from '../contracts/Typescript'
+import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
-import { LoggerService } from '../services/LoggerService'
+import { LoggerService, LogLevel } from '../services/LoggerService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
 
 @injectable()
@@ -17,7 +18,10 @@ export class DefinitionService
       | 'getDefinitionAndBoundSpan'
       | 'getTypeDefinitionAtPosition'
     > {
-  private readonly logger = LoggerService.getLogger(`DefinitionService`)
+  private readonly logger = LoggerService.getLogger(
+    DefinitionService.name,
+    LogLevel.DEBUG,
+  )
 
   constructor(
     @inject(FilesystemService)
@@ -28,6 +32,7 @@ export class DefinitionService
     private readonly langs: LanguageServiceProvider,
   ) {}
 
+  @debug()
   public getDefinitionAtPosition(
     fileName: string,
     position: number,
@@ -39,6 +44,7 @@ export class DefinitionService
     return this.ts.service.getDefinitionAtPosition(fileName, position)
   }
 
+  @debug()
   public getDefinitionAndBoundSpan(
     fileName: string,
     position: number,
@@ -107,8 +113,11 @@ export class DefinitionService
     } else if (this.fs.isVueTsFile(definition.fileName)) {
       return {
         ...definition,
-        fileName: this.fs.getRealFileName(definition.fileName),
-        textSpan: { start: 0, length: Infinity },
+        fileName: toFileName({
+          type: 'scheme',
+          scheme: 'vue',
+          fileName: definition.fileName,
+        }),
       }
     } else {
       return definition
@@ -237,38 +246,56 @@ export class DefinitionService
     )
   }
 
-  private virtualDefinitionAndBoundSpan(
+  private readonly virtualDefinitionAndBoundSpanCache = new CacheService<{
+    position: number
+    result: Typescript.DefinitionInfoAndBoundSpan | undefined
+  }>((fileName) => this.fs.getVersion(fileName))
+
+  public virtualDefinitionAndBoundSpan(
     fileName: string,
     position: number,
   ): Typescript.DefinitionInfoAndBoundSpan | undefined {
-    const file = this.fs.getVirtualFile(fileName)
-    if (file == null) return
-    this.logger.debug(
-      `[Virtual] getDefinitionAndBoundSpan in ${fileName}:${this.fs.getPositionString(
-        file.generated ?? file.source,
-        position,
-      )})`,
-    )
+    return this.virtualDefinitionAndBoundSpanCache.withCache(
+      fileName,
+      (previous) => {
+        if (previous?.position === position) return previous
+        const file = this.fs.getVirtualFile(fileName)
+        if (file == null) return { position, result: undefined }
 
-    const info = this.ts.service.getDefinitionAndBoundSpan(fileName, position)
+        this.logger.debug(
+          `[Virtual] getDefinitionAndBoundSpan in ${fileName}:${this.fs.getPositionString(
+            file.generated ?? file.source,
+            position,
+          )})`,
+        )
 
-    if (info == null) {
-      this.logger.debug(`[Virtual] No results`)
-      return
-    }
+        const info = this.ts.service.getDefinitionAndBoundSpan(
+          fileName,
+          position,
+        )
 
-    if (info.definitions != null) {
-      info.definitions = this._resolveDefinitions(fileName, info.definitions)
-    }
+        if (info == null) {
+          this.logger.debug(`[Virtual] No results`)
+          return { position, result: undefined }
+        }
 
-    info.textSpan = file.toFileSpan(
-      file.findOriginalTextSpan(info.textSpan) ?? {
-        start: 0,
-        length: info.textSpan.length,
+        if (info.definitions != null) {
+          info.definitions = this._resolveDefinitions(
+            fileName,
+            info.definitions,
+          )
+        }
+
+        info.textSpan = file.toFileSpan(
+          file.findOriginalTextSpan(info.textSpan) ?? {
+            start: 0,
+            length: info.textSpan.length,
+          },
+        )
+
+        return { position, result: info }
       },
-    )
-
-    return info
+    ).result
   }
 
   private _createDefinitionInfoAndBoundSpan(
@@ -284,6 +311,7 @@ export class DefinitionService
     }
   }
 
+  @traceInDevMode()
   private _resolveTypeDefinitions(
     currentFile: string,
     definitions:
@@ -358,6 +386,8 @@ export class DefinitionService
               ...definition,
               textSpan: { start: 0, length: Infinity },
               fileName: this.fs.getRealFileName(definition.fileName),
+              originalFileName: definition.fileName,
+              originalTextSpan: definition.textSpan,
             },
           ]
         }
@@ -372,6 +402,8 @@ export class DefinitionService
               ...definition,
               textSpan: { start: 0, length: Infinity },
               fileName: this.fs.getRealFileName(definition.fileName),
+              originalFileName: definition.fileName,
+              originalTextSpan: definition.textSpan,
             },
           ],
         )
@@ -471,6 +503,8 @@ export class DefinitionService
               ...definition,
               textSpan: { start: 0, length: Infinity },
               fileName: this.fs.getRealFileName(definition.fileName),
+              originalFileName: definition.fileName,
+              originalTextSpan: definition.textSpan,
             },
           ]
         }

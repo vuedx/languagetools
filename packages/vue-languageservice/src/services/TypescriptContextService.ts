@@ -196,7 +196,7 @@ export class TypescriptContextService implements Disposable {
   /**
    * Find typescript laguage service for the file.
    */
-  private _getServiceFor(fileName: string): Typescript.LanguageService | null {
+  public getServiceFor(fileName: string): Typescript.LanguageService | null {
     return this.getProjectFor(fileName)?.getLanguageService() ?? null
   }
 
@@ -206,10 +206,11 @@ export class TypescriptContextService implements Disposable {
   public getUndecoratedServiceFor(
     fileName: string,
   ): Typescript.LanguageService | null {
-    const service = this._getServiceFor(fileName) as ExtendedTSLanguageService
+    const service = this.getServiceFor(fileName) as ExtendedTSLanguageService
     if (service == null) return null
-
-    return service._vueTS_inner ?? service
+    if (service._vueTS_inner != null) return service._vueTS_inner
+    this.logger.debug(`Cannot find inner service for ${fileName}`)
+    return service
   }
 
   public ensureProjectFor(fileName: string): void {
@@ -242,5 +243,21 @@ export class TypescriptContextService implements Disposable {
   public dispose(): void {
     this.projects.forEach((project) => project.dispose())
     this.projects.clear()
+  }
+
+  private _isRunningSchemeMode: boolean = false
+
+  public get isRunningSchemeMode(): boolean {
+    return this._isRunningSchemeMode
+  }
+
+  public runInSchemeMode<R>(fn: () => R): R {
+    const before = this._isRunningSchemeMode
+    this._isRunningSchemeMode = true
+    try {
+      return fn()
+    } finally {
+      this._isRunningSchemeMode = before
+    }
   }
 }

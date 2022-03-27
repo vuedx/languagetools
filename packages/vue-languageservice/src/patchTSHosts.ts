@@ -21,6 +21,7 @@ export function patchTSHosts(
     options.serverHost,
     'fileExists',
     (fileExists) => (fileName) => {
+      if (fs.isVueSchemeFile(fileName)) fileName = fs.getRealFileName(fileName)
       if (fs.isVueVirtualFile(fileName)) {
         const file = fs.getVueFile(fileName)
         if (file == null) return false
@@ -62,6 +63,7 @@ export function patchTSHosts(
     options.serverHost,
     'readFile',
     (readFile) => (fileName, encoding) => {
+      if (fs.isVueSchemeFile(fileName)) fileName = fs.getRealFileName(fileName)
       if (fs.isVueVirtualFile(fileName)) {
         const doc = fs.getVueFile(fileName)?.getDocById(fileName)
         if (doc != null) {
