@@ -33,6 +33,7 @@ export default {
         'dot-notation': 'off',
         '@typescript-eslint/dot-notation': 'off',
         '@typescript-eslint/method-signature-style': [2, 'method'],
+        'spaced-comment': 'off',
       },
     },
     {

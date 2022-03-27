@@ -4,6 +4,7 @@
 export * from './any'
 export * from './array'
 export * from './cache'
+export * from './debug'
 export * from './component'
 export * from './fileName'
 export * from './html'

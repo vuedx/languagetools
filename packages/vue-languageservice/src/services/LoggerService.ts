@@ -32,7 +32,7 @@ export class LoggerService {
     if (this.level > LogLevel.DEBUG) return
     LoggerService.writer.debug(
       `D [VueDX] P(${this.id}) (${this.context}) ${util.formatWithOptions(
-        { breakLength: Infinity, colors: false },
+        { breakLength: Infinity, colors: false, depth: Infinity },
         message,
         ...args,
       )}`,
