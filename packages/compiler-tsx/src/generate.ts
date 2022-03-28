@@ -117,7 +117,7 @@ function createGenerateContext(
         const mapping: MappingMetadata = {
           k:
             kind ??
-            (code === loc.source ? MappingKind.copy : MappingKind.transformed),
+            (code === loc.source ? MappingKind.copy : MappingKind.reverseOnly),
           g: { l: code.length },
           s: { s: loc.start.offset, e: loc.end.offset },
         }
@@ -632,7 +632,7 @@ function genComponentSlots(
   const loc = createLoc(node.loc, 1, node.tag.length)
   if (node.resolvedName != null) {
     context.write(`VueDX.internal.checkSlots(`, node.loc)
-    context.write(`${node.resolvedName}`, loc, MappingKind.reverseOnly)
+    context.write(`${node.resolvedName}`, loc)
     context.write(', ')
   }
   context.write('{')
@@ -650,7 +650,7 @@ function genComponentSlots(
         genExpressionNode(context, node.name)
         context.write(']: ')
       }
-    } else context.write('default: ', loc, MappingKind.reverseOnly)
+    } else context.write('default: ', loc)
 
     context.write('(')
     if (isSimpleExpressionNode(node.args)) {
@@ -686,13 +686,7 @@ function genComponentSlots(
     context.write('},').newLine()
   })
   if (node.children.length > 0) {
-    context
-      .write(
-        `[Symbol.for('VueDX:UnknownSlot')]: () => {`,
-        loc,
-        MappingKind.reverseOnly,
-      )
-      .newLine()
+    context.write(`[Symbol.for('VueDX:UnknownSlot')]: () => {`, loc).newLine()
     context.indent()
     //#region 9 <
     // START BODY
@@ -802,9 +796,8 @@ function genOnGroupDirectiveNode(
     context.write(
       'VueDX.internal.checkOnDirective(',
       createLoc(dir.loc, 0, dir.loc.source.startsWith('@') ? 1 : 4),
-      MappingKind.reverseOnly,
     )
-    context.write(componentName, node.loc, MappingKind.reverseOnly).write(')(')
+    context.write(componentName, node.loc).write(')(')
     context.indent()
     //#region 12 <
     genDirectiveUsage(context, directives)
@@ -858,11 +851,7 @@ function genPropDirectiveNode(
         context.write('={VueDX.internal.checkRef(')
         genExpressionNode(context, node.exp)
         context.write(', ')
-        context.write(
-          'VueDX.internal.getElementType(',
-          node.exp.loc,
-          MappingKind.reverseOnly,
-        )
+        context.write('VueDX.internal.getElementType(', node.exp.loc)
         context.write(
           componentName,
           createLoc(element.loc, 1, element.tag.length),
@@ -883,6 +872,7 @@ function genPropDirectiveNode(
       context.write(
         'on' + name.substring(0, 1).toUpperCase() + name.substring(1),
         node.arg.loc,
+        MappingKind.transformed,
       )
       genAttributeValue(context, node.exp, true)
     }
@@ -898,7 +888,11 @@ function genAttributeValue(
 
   context.write('=')
   if (isStaticExpression(node) || isTextNode(node)) {
-    context.write(JSON.stringify(node.content), node.loc)
+    context.write(
+      JSON.stringify(node.content),
+      node.loc,
+      MappingKind.transformed,
+    )
   } else {
     context.write('{')
     if (isEvent) {
@@ -997,7 +991,6 @@ function genDirectives(
       context.write(
         `VueDX.internal.checkModelDirective(${componentName}, `,
         dirLoc,
-        MappingKind.reverseOnly,
       )
     }
   } else if (dir.name === 'on') {
@@ -1008,11 +1001,11 @@ function genDirectives(
       `VueDX.internal.checkBuiltinDirective["${dir.name}"](`,
       dirLoc,
     )
-    context.write(`${componentName}, `, nodeLoc, MappingKind.reverseOnly)
+    context.write(`${componentName}, `, nodeLoc)
   } else {
     context.write(`VueDX.internal.checkDirective(`, dirLoc)
     context.write(`${directiveName}, `, dirLoc)
-    context.write(`${componentName}, `, nodeLoc, MappingKind.reverseOnly)
+    context.write(`${componentName}, `, nodeLoc)
   }
 
   genDirectiveUsage(context, directives, isInputModelDirective)
@@ -1086,40 +1079,28 @@ function genDirectiveUsage(
       0,
       directive.loc.source.startsWith('v-') ? directive.name.length + 2 : 1,
     )
-    context.write('{', fallback, MappingKind.reverseOnly).newLine()
+    context.write('{', fallback).newLine()
     context.indent()
     //#region 15 <
     if (directive.arg != null) {
-      context
-        .write(' ')
-        .write('arg', directive.arg.loc, MappingKind.reverseOnly)
-        .write(': ', fallback, MappingKind.reverseOnly)
+      context.write(' ').write('arg', directive.arg.loc).write(': ', fallback)
       genExpressionNode(context, directive.arg)
       if (isStaticExpression(directive.arg)) context.write(' as const')
-      context.write(', ', fallback, MappingKind.reverseOnly).newLine()
+      context.write(', ', fallback).newLine()
     } else if (directive.name === 'model' && !isInputModelDirective) {
-      context
-        .write(
-          ' arg: "modelValue" as const,',
-          fallback,
-          MappingKind.reverseOnly,
-        )
-        .newLine()
+      context.write(' arg: "modelValue" as const,', fallback).newLine()
     }
     if (directive.exp != null) {
-      context
-        .write(' ')
-        .write('exp', directive.exp.loc, MappingKind.reverseOnly)
-        .write(': ', fallback, MappingKind.reverseOnly)
+      context.write(' ').write('exp', directive.exp.loc).write(': ', fallback)
       if (directive.name === 'on') {
         genEventHandler(context, directive.exp)
       } else {
         genExpressionNode(context, directive.exp)
       }
-      context.write(',', fallback, MappingKind.reverseOnly).newLine()
+      context.write(',', fallback).newLine()
     }
     if (directive.modifiers.length > 0) {
-      context.write(' modifiers: [ ', fallback, MappingKind.reverseOnly)
+      context.write(' modifiers: [ ', fallback)
       directive.modifiers.forEach((name) => {
         context
           .write(
@@ -1132,7 +1113,7 @@ function genDirectiveUsage(
           )
           .write(', ')
       })
-      context.write('],', fallback, MappingKind.reverseOnly).newLine()
+      context.write('],', fallback).newLine()
     }
     //#endregion
     // > 15
@@ -1178,7 +1159,11 @@ function genPropValue(
   wrapInParantheses: boolean = false,
 ): boolean {
   if (isAttributeNode(node) && node.value != null) {
-    context.write(JSON.stringify(node.value.content), node.value.loc)
+    context.write(
+      JSON.stringify(node.value.content),
+      node.value.loc,
+      MappingKind.transformed,
+    )
 
     return true
   } else if (isDirectiveNode(node) && node.exp != null) {
@@ -1199,7 +1184,11 @@ function genExpressionNode(
     if (node.content.trim() === '') {
       context.write(annotations.missingExpression, node.loc)
     } else if (node.constType > 0) {
-      context.write(JSON.stringify(node.content), node.loc)
+      context.write(
+        JSON.stringify(node.content),
+        node.loc,
+        MappingKind.transformed,
+      )
     } else {
       const ok = wrapInParantheses && node.content.includes(',')
       if (ok) context.write('(')

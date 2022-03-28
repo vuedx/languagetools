@@ -26,6 +26,7 @@ import { LanguageServiceProvider } from './LanguageServiceProvider'
 import { LoggerService } from './LoggerService'
 import { TypescriptContextService } from './TypescriptContextService'
 import { ReferencesService } from '../features/ReferencesService'
+import { RenameService } from '../features/RenameService'
 
 @injectable()
 export class TypescriptPluginService
@@ -45,6 +46,8 @@ export class TypescriptPluginService
     private readonly completions: CompletionsService,
     @inject(ReferencesService)
     private readonly references: ReferencesService,
+    @inject(RenameService)
+    private readonly rename: RenameService,
     @inject(EncodedClassificationsService)
     private readonly classifications: EncodedClassificationsService,
     @inject(TypescriptContextService)
@@ -329,7 +332,7 @@ export class TypescriptPluginService
   }
   //#endregion
 
-  //#region TODO:  references
+  //#region references
   public getReferencesAtPosition(
     fileName: string,
     position: number,
@@ -451,20 +454,13 @@ export class TypescriptPluginService
   }
   //#endregion
 
-  //#region TODO: rename
-
+  //#region rename
   public getRenameInfo(
     fileName: string,
     position: number,
     options?: Typescript.RenameInfoOptions,
   ): Typescript.RenameInfo {
-    if (this.fs.isVueFile(fileName)) {
-      return {
-        canRename: false,
-        localizedErrorMessage: 'Renaming in .vue is not supported yet.',
-      }
-    }
-    return this.ts.service.getRenameInfo(fileName, position, options)
+    return this.rename.getRenameInfo(fileName, position, options)
   }
 
   public findRenameLocations(
@@ -474,22 +470,7 @@ export class TypescriptPluginService
     findInComments: boolean,
     providePrefixAndSuffixTextForRename?: boolean,
   ): readonly Typescript.RenameLocation[] | undefined {
-    if (this.fs.isVueFile(fileName)) {
-      return whenNotNull(
-        this.fs.getVirtualFileAt(fileName, position),
-        (fileName, blockFile) => {
-          return this.ts.service.findRenameLocations(
-            fileName,
-            blockFile.generatedOffetAt(position),
-            findInStrings,
-            findInComments,
-            providePrefixAndSuffixTextForRename,
-          )
-        },
-      )
-    }
-
-    return this.ts.service.findRenameLocations(
+    return this.rename.findRenameLocations(
       fileName,
       position,
       findInStrings,
@@ -504,11 +485,7 @@ export class TypescriptPluginService
     formatOptions: Typescript.FormatCodeSettings,
     preferences: Typescript.UserPreferences | undefined,
   ): readonly Typescript.FileTextChanges[] {
-    if (this.fs.isVueFile(newFilePath) || this.fs.isVueFile(oldFilePath)) {
-      return []
-    }
-
-    return this.ts.service.getEditsForFileRename(
+    return this.rename.getEditsForFileRename(
       oldFilePath,
       newFilePath,
       formatOptions,
