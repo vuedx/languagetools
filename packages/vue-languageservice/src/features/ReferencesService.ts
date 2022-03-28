@@ -1,10 +1,4 @@
-import {
-  debug,
-  isNotNull,
-  parseFileName,
-  toFileName,
-  traceInDevMode,
-} from '@vuedx/shared'
+import { debug, parseFileName, toFileName, traceInDevMode } from '@vuedx/shared'
 import type { VueBlockDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type { Typescript } from '../contracts/Typescript'
@@ -14,6 +8,7 @@ import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
 import { LoggerService, LogLevel } from '../services/LoggerService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
 import { DefinitionService } from './DefinitionService'
+import { findLinkedTextSpan } from './helpers'
 
 @injectable()
 export class ReferencesService
@@ -229,6 +224,7 @@ export class ReferencesService
     return references
   }
 
+  @traceInDevMode()
   private resolveReferenceEntries(
     references: Typescript.ReferenceEntry[] = [],
   ): Typescript.ReferenceEntry[] {
@@ -243,7 +239,6 @@ export class ReferencesService
     })
   }
 
-  @traceInDevMode()
   private resolveReferenceEntry(
     reference: Typescript.ReferenceEntry,
   ): Typescript.ReferenceEntry[] {
@@ -258,116 +253,29 @@ export class ReferencesService
     }
     const offset = reference.textSpan.start
     if (block.isOffsetInTemplateGlobals(offset)) {
-      if (reference.contextSpan == null) {
-        const text = block.generated
-          .getText()
-          .substring(
-            block.generated.offsetAt({
-              line: block.generated.positionAt(offset).line,
-              character: 0,
-            }),
-            offset,
-          )
-          .trimStart()
-
-        reference.contextSpan = {
-          start: offset - text.length,
-          length: text.length + reference.textSpan.length,
-        }
-      }
-      const code = block.generated.getText()
-      const componentsOffset = code.indexOf('__VueDX_components')
-      const directivesOffset = code.indexOf('__VueDX_directives')
-
-      if (
-        componentsOffset < reference.contextSpan.start &&
-        reference.contextSpan.start < directivesOffset &&
-        block.parent.descriptor.template != null
-      ) {
-        const render = block.parent.getDoc(block.parent.descriptor.template)
-        if (
-          render == null ||
-          render.tsFileName == null ||
-          render.generated == null
-        ) {
-          return []
-        }
-
-        const tag = code.slice(
-          reference.textSpan.start,
-          reference.textSpan.start + reference.textSpan.length,
-        )
-        const offset = render.generated
-          .getText()
-          .indexOf(`const ${tag} = VueDX.internal.resolveComponent(`)
-
-        if (offset < 0) return []
-
-        const position = offset + 6
-
-        const references = this.ts.service.getReferencesAtPosition(
-          render.tsFileName,
-          position,
-        )
-
-        this.logger.debug(
-          `Looking deeper: ${String(
-            render.tsFileName,
-          )}:${this.fs.getPositionString(
-            render.generated,
-            position,
-          )} => "${tag}"`,
-        )
-
-        return this.resolveReferenceEntries(references ?? [])
-      } else {
-        const contextText = code.slice(
-          reference.contextSpan.start,
-          reference.contextSpan.start + reference.contextSpan.length,
-        )
-
-        const position =
-          reference.contextSpan.start + getLeadingKeywordLength(contextText)
-
-        const references =
-          this.ts.service.getReferencesAtPosition(block.tsFileName, position) ??
-          []
-
-        this.logger.debug(
-          `Looking deeper: ${String(
-            block.tsFileName,
-          )}:${this.fs.getPositionString(
-            block.generated,
-            position,
-          )} => "${contextText}"`,
-          references,
-        )
-
-        return this.resolveReferenceEntries(
-          references.filter(
-            (item) =>
-              !(
-                item.fileName === reference.fileName &&
-                item.textSpan.start === position
-              ),
-          ),
-        )
-      }
-    } else if (block.isOffsetInIgonredZone(offset)) {
-      this.logger.debug(
-        `Dropping reference in ignored zone ${JSON.stringify(
-          reference.textSpan,
-        )}, no original location for ${reference.fileName}`,
+      const docSpan = findLinkedTextSpan(
+        block,
+        reference.textSpan,
+        reference.contextSpan,
       )
+      if (docSpan == null) return []
+      return this.resolveReferenceEntries(
+        this.ts.service.getReferencesAtPosition(
+          docSpan.fileName,
+          docSpan.textSpan.start,
+        ) ?? [],
+      )
+    } else if (block.isOffsetInIgonredZone(offset)) {
+      this.logger.debug(`Dropping reference in ignored zone`)
       return []
     } else {
       const textSpan = block.findOriginalTextSpan(reference.textSpan)
       if (textSpan == null) {
-        this.logger.debug(
-          `Dropping reference ${JSON.stringify(
-            reference.textSpan,
-          )}, no original location for ${reference.fileName}`,
-        )
+        this.logger.debug(`Dropping reference`)
+        return []
+      }
+      if (textSpan.length !== reference.textSpan.length) {
+        this.logger.debug(`Dropping reference because length changed`)
         return []
       }
       const copy = { ...reference }
@@ -378,24 +286,6 @@ export class ReferencesService
           contextSpan != null ? block.toFileSpan(contextSpan) : undefined
       }
       copy.fileName = this.fs.getRealFileName(reference.fileName)
-      this.logger.debug(
-        `Map reference ${reference.fileName}:${this.fs.getPositionString(
-          block.generated as any,
-          reference.textSpan.start,
-        )} to ${copy.fileName}:${this.fs.getPositionString(
-          block.parent,
-          copy.textSpan.start,
-        )}`,
-        {
-          from: block.generated
-            ?.getText()
-            .substr(reference.textSpan.start, reference.textSpan.length),
-          to: block.source?.getText().substr(textSpan.start, textSpan.length),
-          parent: block.parent
-            ?.getText()
-            .substr(copy.textSpan.start, copy.textSpan.length),
-        },
-      )
 
       return [copy]
     }
@@ -427,20 +317,18 @@ export class ReferencesService
   private resolveReferencedSymbols(
     symbols: Typescript.ReferencedSymbol[] = [],
   ): Typescript.ReferencedSymbol[] {
-    return symbols
-      .flatMap((symbol) => {
-        const fileName = symbol.definition.fileName
-        if (this.fs.isVueTsFile(fileName)) return []
-        else if (this.fs.isVueVirtualFile(fileName)) {
-          return this.resolveReferencedSymbol(symbol)
-        }
+    return symbols.flatMap((symbol) => {
+      const fileName = symbol.definition.fileName
+      if (this.fs.isVueTsFile(fileName)) return []
+      else if (this.fs.isVueVirtualFile(fileName)) {
+        return this.resolveReferencedSymbol(symbol)
+      }
 
-        return {
-          definition: symbol.definition,
-          references: this.resolveReferenceEntries(symbol.references),
-        }
-      })
-      .filter(isNotNull)
+      return {
+        definition: symbol.definition,
+        references: this.resolveReferenceEntries(symbol.references),
+      }
+    })
   }
 
   @traceInDevMode()
@@ -460,26 +348,18 @@ export class ReferencesService
 
     const offset = definition.textSpan.start
     if (block.isOffsetInTemplateGlobals(offset)) {
-      if (definition.contextSpan == null) {
-        this.logger.debug(`Dropping in globals, no context`)
-        return []
-      }
+      const docSpan = findLinkedTextSpan(
+        block,
+        definition.textSpan,
+        definition.contextSpan,
+      )
+      if (docSpan == null) return []
 
-      const text = block.generated
-        .getText()
-        .slice(
-          definition.contextSpan.start,
-          definition.contextSpan.start + definition.contextSpan.length,
-        )
-
-      const position =
-        definition.contextSpan.start + getLeadingKeywordLength(text)
       const result = this.definitions.virtualDefinitionAndBoundSpan(
-        definition.fileName,
-        position,
+        docSpan.fileName,
+        docSpan.textSpan.start,
       )
 
-      this.logger.debug(`Checking "${text}"`, result)
       if (result?.definitions == null || result.definitions.length === 0) {
         return []
       }
@@ -488,10 +368,6 @@ export class ReferencesService
         ...definition,
         ...result.definitions[0],
         displayParts: definition.displayParts,
-      }
-
-      if (text.includes('VueDX.internal.resolveComponent(')) {
-        references.push(...this.getFileReferences(block.parent.fileName))
       }
 
       const symbols: Typescript.ReferencedSymbol[] = [
@@ -598,7 +474,4 @@ export class ReferencesService
       }
     })
   }
-}
-function getLeadingKeywordLength(text: string): number {
-  return text.startsWith('let ') ? 4 : text.startsWith('const ') ? 6 : 0
 }

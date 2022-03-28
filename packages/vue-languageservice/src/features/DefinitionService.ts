@@ -251,6 +251,7 @@ export class DefinitionService
     result: Typescript.DefinitionInfoAndBoundSpan | undefined
   }>((fileName) => this.fs.getVersion(fileName))
 
+  @debug()
   public virtualDefinitionAndBoundSpan(
     fileName: string,
     position: number,
@@ -261,13 +262,6 @@ export class DefinitionService
         if (previous?.position === position) return previous
         const file = this.fs.getVirtualFile(fileName)
         if (file == null) return { position, result: undefined }
-
-        this.logger.debug(
-          `[Virtual] getDefinitionAndBoundSpan in ${fileName}:${this.fs.getPositionString(
-            file.generated ?? file.source,
-            position,
-          )})`,
-        )
 
         const info = this.ts.service.getDefinitionAndBoundSpan(
           fileName,
@@ -280,10 +274,7 @@ export class DefinitionService
         }
 
         if (info.definitions != null) {
-          info.definitions = this._resolveDefinitions(
-            fileName,
-            info.definitions,
-          )
+          info.definitions = this._resolveDefinitions(info.definitions)
         }
 
         info.textSpan = file.toFileSpan(
@@ -413,16 +404,12 @@ export class DefinitionService
     })
   }
 
+  @traceInDevMode()
   private _resolveDefinitions(
-    currentFileName: string,
     definitions:
       | Typescript.DefinitionInfo[]
       | readonly Typescript.DefinitionInfo[],
   ): Typescript.DefinitionInfo[] {
-    this.logger.debug(
-      `[Vue] Resolve ${definitions.length} definition(s) in ${currentFileName}.`,
-    )
-
     return definitions.flatMap(({ ...definition }) => {
       if (this.fs.isVueVirtualFile(definition.fileName)) {
         const file = this.fs
@@ -497,25 +484,15 @@ export class DefinitionService
 
         return [definition]
       } else if (this.fs.isVueTsFile(definition.fileName)) {
-        if (definition.contextSpan == null) {
-          return [
-            {
-              ...definition,
-              textSpan: { start: 0, length: Infinity },
-              fileName: this.fs.getRealFileName(definition.fileName),
-              originalFileName: definition.fileName,
-              originalTextSpan: definition.textSpan,
-            },
-          ]
-        }
-
-        const info = this.ts.service.getDefinitionAndBoundSpan(
-          definition.fileName,
-          definition.contextSpan.start + definition.contextSpan.length - 1,
-        )
-        if (info == null || info.definitions == null) return []
-
-        return info.definitions
+        return [
+          {
+            ...definition,
+            textSpan: { start: 0, length: Infinity },
+            fileName: this.fs.getRealFileName(definition.fileName),
+            originalFileName: definition.fileName,
+            originalTextSpan: definition.textSpan,
+          },
+        ]
       } else {
         return definition
       }

@@ -26,10 +26,14 @@ export class PluginSideChannel {
     if (this.fs.isVueTsFile(fileName)) {
       return this.fs.getVueFile(fileName)?.getTypeScriptText()
     } else if (this.fs.isVueVirtualFile(fileName)) {
-      return this.fs
-        .getVueFile(fileName)
-        ?.getDocById(fileName)
-        ?.generated?.getText()
+      const doc = this.fs.getVueFile(fileName)?.getDocById(fileName)
+      if (doc == null || doc.generated == null) return
+      return (
+        doc.generated.getText() +
+        '\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,' +
+        Buffer.from(JSON.stringify(doc.rawSourceMap)).toString('base64') +
+        '\n'
+      )
     } else if (this.fs.isProjectRuntimeFile(fileName)) {
       return this.ts.getProjectRuntimeFile(fileName)
     } else if (isVueSFCDescriptorFile(fileName)) {
