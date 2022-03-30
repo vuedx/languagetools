@@ -21,7 +21,7 @@ import * as Path from 'path'
 import type { Disposable } from '../contracts/Disposable'
 import type { FilesystemProvider } from '../contracts/FilesystemProvider'
 import type { OffsetRangeLike } from '../contracts/OffsetRangeLike'
-import { createFilesystemProvider } from '../virtualFs'
+import { createFilesystemProvider } from '../helpers/createFilesystemProvider'
 import { CacheService } from './CacheService'
 import { LoggerService } from './LoggerService'
 import type { TypescriptContextService } from './TypescriptContextService'
@@ -166,34 +166,58 @@ export class FilesystemService implements Disposable {
       transformers,
     })
 
-    this.watchers.add(
-      this.provider.watch(fileName, (changes, version) => {
-        this.logger.debug(`File updated: ${version} - ${fileName}`, changes)
-        const before = file.getActiveTSDocIDs()
-        file.update(changes, version)
+    const stopWatching = this.provider.watch(fileName, (changes, version) => {
+      this.logger.debug(`File updated: ${version} - ${fileName}`, changes)
+      const before = file.getActiveTSDocIDs()
+      file.update(changes, version)
 
-        // TODO: Optimize. This triggers parse on every keystroke.
-        const after = file.getActiveTSDocIDs()
-        const deleted = Array.from(before).filter(
-          (fileName) => !after.has(fileName),
-        )
-        deleted.forEach((fileName) => {
-          this.logger.debug(`Virtual file deleted: ${fileName}`)
-          const info = this.ts.project.getScriptInfo(fileName)
-          if (info != null) {
-            this.ts.project.removeFile(info, false, true)
-            this.logger.debug(`Virtual removed deleted: ${fileName}`)
-          }
-        })
-        after.forEach((fileName) => {
-          this.ts.project.getScriptInfo(fileName)?.reloadFromFile()
-        })
+      // TODO: Optimize. This triggers parse on every keystroke.
+      const after = file.getActiveTSDocIDs()
+      const deleted = Array.from(before).filter(
+        (fileName) => !after.has(fileName),
+      )
+      deleted.forEach((fileName) => {
+        this.logger.debug(`Virtual file deleted: ${fileName}`)
+        const info = this.ts.project.getScriptInfo(fileName)
+        if (info != null) {
+          this.ts.project.removeFile(info, false, true)
+          this.logger.debug(`Virtual removed deleted: ${fileName}`)
+        }
+      })
+      after.forEach((fileName) => {
+        this.ts.project.registerFileUpdate(fileName)
+      })
 
-        this.ts.project.getScriptInfo(file.tsFileName)?.reloadFromFile()
-      }),
-    )
+      this.ts.project.registerFileUpdate(fileName)
+    })
 
+    this.watchers.add(stopWatching)
     this.vueFiles.set(fileName, file)
+
+    const fsWatcher = this.ts.serverHost.watchFile(
+      fileName,
+      (fileName, eventKind) => {
+        this.logger.info(`File changed: ${eventKind} - ${fileName}`)
+        if (eventKind === this.ts.lib.FileWatcherEventKind.Deleted) {
+          file.getActiveTSDocIDs().forEach((fileName) => {
+            const scriptInfo = this.ts.project.getScriptInfo(fileName)
+            if (scriptInfo != null) {
+              this.ts.project.removeFile(scriptInfo, false, true)
+            }
+          })
+
+          const scriptInfo = this.ts.project.getScriptInfo(fileName)
+          if (scriptInfo != null) {
+            this.ts.project.removeFile(scriptInfo, false, true)
+          }
+
+          stopWatching()
+          this.vueFiles.delete(fileName)
+          this.watchers.delete(stopWatching)
+          fsWatcher.close()
+        }
+      },
+    )
 
     return file
   }

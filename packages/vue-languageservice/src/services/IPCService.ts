@@ -1,6 +1,6 @@
 import { DisposableScope, EventEmitter, RPC, generateUUID } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
-import { ConfigService } from './ConfigService'
+import { ConfigManager } from '../managers/ConfigManager'
 import { Client, IPCModule } from 'node-ipc'
 import { PluginSideChannel } from './PluginSideChannel'
 import { LoggerService } from './LoggerService'
@@ -18,7 +18,7 @@ export class IPCService extends EventEmitter<ExtensionEvents> {
   private readonly logger = new LoggerService('IPCService')
 
   public constructor(
-    @inject(ConfigService) private readonly config: ConfigService,
+    @inject(ConfigManager) private readonly config: ConfigManager,
     @inject(PluginSideChannel) private readonly api: PluginSideChannel,
   ) {
     super()

@@ -1,8 +1,8 @@
 import type { TextDocumentContentChangeEvent } from '@vuedx/vue-virtual-textdocument'
-import type { FilesystemProvider } from './contracts/FilesystemProvider'
-import type { Typescript } from './contracts/Typescript'
+import type { FilesystemProvider } from '../contracts/FilesystemProvider'
+import type { Typescript } from '../contracts/Typescript'
 import { overrideMethod } from './overrideMethod'
-import { LoggerService } from './services/LoggerService'
+import { LoggerService } from '../services/LoggerService'
 
 const watchers = new Map<
   string,
