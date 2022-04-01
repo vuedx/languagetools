@@ -1,6 +1,7 @@
 /* eslint-disable spaced-comment */
 import {
   CompoundExpressionNode,
+  createCompoundExpression,
   findProp,
   ForNode,
   IfNode,
@@ -83,6 +84,7 @@ interface GenerateContext {
   indent(): GenerateContext
   deindent(): GenerateContext
   getOutput(): { code: string; map: RawSourceMap }
+  typeGuards: Array<SimpleExpressionNode | CompoundExpressionNode>
 }
 
 function createGenerateContext(
@@ -105,6 +107,7 @@ function createGenerateContext(
   const nl = new SourceNode(null as any, null as any, null as any, '\n')
 
   const context: GenerateContext = {
+    typeGuards: [],
     write(code, loc, kind) {
       if (output.length > 0) {
         const el = last(output)
@@ -657,8 +660,21 @@ function genComponentSlots(
       genExpressionNode(context, node.args)
     }
     context.write(') => {').newLine()
-
     context.indent()
+
+    if (context.typeGuards.length > 0) {
+      context.write(annotations.diagnosticsIgnore.start).newLine()
+
+      context.write('if (').newLine().indent()
+      context.typeGuards.forEach((guard, index) => {
+        if (index > 0) context.write(' || ').newLine()
+        genExpressionNode(context, createCompoundExpression(['!(', guard, ')']))
+      })
+      context.newLine().deindent().write(') {').newLine().indent()
+      context.write(`throw new Error('TypeGuard')`)
+      context.newLine().deindent().write('}').newLine()
+      context.write(annotations.diagnosticsIgnore.end).newLine()
+    }
 
     // generate scope
     if (node.hoists.length > 0) {
@@ -1328,7 +1344,9 @@ function genIfNode(context: GenerateContext, node: IfNode): void {
     context.indent()
     //#region 23 <
     ++indent
+    if (node.condition != null) context.typeGuards.push(node.condition)
     genChildren(context, node.children, { hasParentElement: false })
+    if (node.condition != null) context.typeGuards.pop()
     while (indent-- > 0) {
       //#endregion
       // > 23
