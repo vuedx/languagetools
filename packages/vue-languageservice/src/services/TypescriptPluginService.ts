@@ -80,6 +80,7 @@ export class TypescriptPluginService
     self.ts.project.getProjectVersion(),
   )
   public getExternalFiles(): string[] {
+    this.ts.project.getLanguageService(true) // Triggers Project.updateGraph() if dirty.
     let hasVirtualSchemeFiles = false
     const allFileNames: string[] = this.ts.project.getFileNames(true, true)
     const vueFileNames = new Set<string>()

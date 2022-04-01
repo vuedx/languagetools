@@ -6,6 +6,7 @@ import {
   isVueTsFile,
   isVueVirtualFile,
   parseFileName,
+  SetOps,
 } from '@vuedx/shared'
 import type { TextSpan } from '@vuedx/vue-virtual-textdocument'
 import {
@@ -21,6 +22,7 @@ import * as Path from 'path'
 import type { Disposable } from '../contracts/Disposable'
 import type { FilesystemProvider } from '../contracts/FilesystemProvider'
 import type { OffsetRangeLike } from '../contracts/OffsetRangeLike'
+import type { Typescript } from '../contracts/Typescript'
 import { createFilesystemProvider } from '../helpers/createFilesystemProvider'
 import { CacheService } from './CacheService'
 import { LoggerService } from './LoggerService'
@@ -152,6 +154,7 @@ export class FilesystemService implements Disposable {
 
   /**
    * Get Vue SFC File
+   * TODO: Create a shared cache for closed files.
    * @returns null for non-vue files and when file does not exist
    */
   public getVueFile(fileName: string): VueSFCDocument | null {
@@ -166,29 +169,35 @@ export class FilesystemService implements Disposable {
       transformers,
     })
 
-    const stopWatching = this.provider.watch(fileName, (changes, version) => {
-      this.logger.debug(`File updated: ${version} - ${fileName}`, changes)
-      const before = file.getActiveTSDocIDs()
-      file.update(changes, version)
-
-      // TODO: Optimize. This triggers parse on every keystroke.
-      const after = file.getActiveTSDocIDs()
-      const deleted = Array.from(before).filter(
-        (fileName) => !after.has(fileName),
-      )
-      deleted.forEach((fileName) => {
-        this.logger.debug(`Virtual file deleted: ${fileName}`)
-        const info = this.ts.project.getScriptInfo(fileName)
-        if (info != null) {
-          this.ts.project.removeFile(info, false, true)
-          this.logger.debug(`Virtual removed deleted: ${fileName}`)
-        }
-      })
-      after.forEach((fileName) => {
-        this.ts.project.registerFileUpdate(fileName)
-      })
-
+    const registerFileUpdate = (
+      fileName: string,
+    ): Typescript.server.ScriptInfo | undefined => {
+      const info = this.ts.project.getScriptInfo(fileName)
       this.ts.project.registerFileUpdate(fileName)
+      this.ts.project.markAsDirty()
+      if (info == null) return
+      info.registerFileUpdate()
+      info.markContainingProjectsAsDirty()
+      return info
+    }
+
+    const stopWatching = this.provider.watch(fileName, (changes, version) => {
+      const previousTsFiles = file.getActiveTSDocIDs()
+      file.update(changes, version)
+      // TODO: Optimize. This triggers parse on every keystroke.
+      const currentTsFiles = file.getActiveTSDocIDs()
+      const deletedTsFiles = SetOps.difference(previousTsFiles, currentTsFiles)
+      const scriptInfo = registerFileUpdate(fileName)
+      deletedTsFiles.forEach((fileName) => {
+        const info = this.ts.project.getScriptInfo(fileName)
+        if (info == null) return
+        this.ts.project.removeFile(info, false, true)
+      })
+      currentTsFiles.forEach((fileName) => registerFileUpdate(fileName))
+      if (scriptInfo == null) return
+      scriptInfo.containingProjects.forEach((project) => {
+        project.refreshDiagnostics()
+      })
     })
 
     this.watchers.add(stopWatching)
