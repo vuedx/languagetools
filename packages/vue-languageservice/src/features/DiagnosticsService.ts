@@ -189,6 +189,8 @@ export class DiagnosticsService
       return []
     }
 
+    this.ts.ensureUptoDate(fileName)
+
     return [
       ...this.getSemanticDiagnosticsOnly(fileName),
       ...this.getExtraDiagnostics(fileName),
@@ -208,6 +210,8 @@ export class DiagnosticsService
       ] as Typescript.DiagnosticWithLocation[]
     }
 
+    this.ts.ensureUptoDate(fileName)
+
     return this.getSyntacticDiagnosticsOnly(fileName)
   }
 
@@ -218,6 +222,8 @@ export class DiagnosticsService
     if (this.fs.isVueSchemeFile(fileName)) {
       return []
     }
+
+    this.ts.ensureUptoDate(fileName)
 
     return this.getSuggestionDiagnosticsOnly(fileName)
   }

@@ -66,6 +66,7 @@ function getConfig(service: PluginCommunicationService): PluginConfig {
   const config = vscode.workspace.getConfiguration('vuedx')
 
   return {
+    enabled: config.get('enabled') ?? true,
     telemetry: config.get('telemetry') ?? true,
     extensionSocketId: service.socketId,
   }

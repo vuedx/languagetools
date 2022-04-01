@@ -18,11 +18,13 @@ export class EncodedClassificationsService
     private readonly ts: TypescriptContextService,
   ) {}
 
-  getEncodedSemanticClassifications(
+  public getEncodedSemanticClassifications(
     fileName: string,
     span: Typescript.TextSpan,
     format?: Typescript.SemanticClassificationFormat,
   ): Typescript.Classifications {
+    this.ts.ensureUptoDate(fileName)
+
     return this.getEncodedClassifications(
       (fileName, span, format) => {
         return this.ts.service.getEncodedSemanticClassifications(
@@ -37,10 +39,12 @@ export class EncodedClassificationsService
     )
   }
 
-  getEncodedSyntacticClassifications(
+  public getEncodedSyntacticClassifications(
     fileName: string,
     span: Typescript.TextSpan,
   ): Typescript.Classifications {
+    this.ts.ensureUptoDate(fileName)
+
     return this.getEncodedClassifications(
       (fileName, span) => {
         return this.ts.service.getEncodedSyntacticClassifications(

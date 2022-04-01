@@ -1,7 +1,6 @@
 import { debug, isNotNull, toFileName, traceInDevMode } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import type {
-  FileTextChanges,
   FormatCodeSettings,
   UserPreferences,
 } from 'typescript/lib/tsserverlibrary'
@@ -78,28 +77,28 @@ export class RenameService
     preferences: UserPreferences | undefined,
   ): readonly Typescript.FileTextChanges[] {
     if (this.fs.isVueFile(oldFilePath) && this.fs.isVueFile(newFilePath)) {
-      return this.ts.service
-        .getEditsForFileRename(
+      return this._resolveAllFileTextChanges(
+        this.ts.service.getEditsForFileRename(
           toFileName({ type: 'vue-ts', fileName: oldFilePath }),
           toFileName({ type: 'vue-ts', fileName: newFilePath }),
           formatOptions,
           preferences,
-        )
-        .map((textChanges) => this._resolveFileTextChanges(textChanges))
+        ),
+      )
     } else if (
       this.fs.isVueFile(oldFilePath) ||
       this.fs.isVueFile(newFilePath)
     ) {
       return []
     } else {
-      return this.ts.service
-        .getEditsForFileRename(
+      return this._resolveAllFileTextChanges(
+        this.ts.service.getEditsForFileRename(
           oldFilePath,
           newFilePath,
           formatOptions,
           preferences,
-        )
-        .map((textChanges) => this._resolveFileTextChanges(textChanges))
+        ),
+      )
     }
   }
 
@@ -136,7 +135,10 @@ export class RenameService
       renameInfo,
       block.generated
         ?.getText()
-        .substr(renameInfo.triggerSpan.start, renameInfo.triggerSpan.length),
+        .slice(
+          renameInfo.triggerSpan.start,
+          renameInfo.triggerSpan.start + renameInfo.triggerSpan.length,
+        ),
     )
     const originalSpan = block.findOriginalTextSpan(renameInfo.triggerSpan)
 
@@ -145,6 +147,13 @@ export class RenameService
         canRename: false,
         localizedErrorMessage: '',
       }
+    }
+
+    if (
+      renameInfo.fileToRename != null &&
+      this.fs.isVueTsFile(renameInfo.fileToRename)
+    ) {
+      originalSpan.length -= 4
     }
 
     return {
@@ -185,22 +194,49 @@ export class RenameService
     })
   }
 
+  /**
+   * Dedupe changes by fileName
+   */
+  private _resolveAllFileTextChanges(
+    changes: readonly Typescript.FileTextChanges[],
+  ): Typescript.FileTextChanges[] {
+    const changesByFileName = new Map<string, Typescript.FileTextChanges>()
+
+    for (const textChanges of changes) {
+      const tranformedChanges = this._resolveFileTextChanges(textChanges)
+
+      if (changesByFileName.has(tranformedChanges.fileName)) {
+        // TODO: Merge changes
+      } else {
+        changesByFileName.set(tranformedChanges.fileName, tranformedChanges)
+      }
+    }
+
+    return Array.from(changesByFileName.values())
+  }
+
   private _resolveFileTextChanges({
     fileName,
     textChanges,
     isNewFile,
-  }: Typescript.FileTextChanges): FileTextChanges {
+  }: Typescript.FileTextChanges): Typescript.FileTextChanges {
+    const asFileTextChanges = (
+      changes: Typescript.FileTextChanges,
+    ): Typescript.FileTextChanges => {
+      if (isNewFile !== true) return changes
+      return { ...changes, isNewFile }
+    }
+
     if (this.fs.isVueVirtualFile(fileName)) {
       const block = this.fs.getVirtualFile(fileName)
       if (block == null) {
-        return {
+        return asFileTextChanges({
           fileName: this.fs.getRealFileName(fileName),
           textChanges: [],
-          isNewFile,
-        }
+        })
       }
 
-      return {
+      return asFileTextChanges({
         fileName: this.fs.getRealFileName(fileName),
         textChanges: textChanges
           .map((textChange) => {
@@ -208,22 +244,20 @@ export class RenameService
 
             if (span == null) return null
 
-            return { span, newText: textChange.newText }
+            return { span: block.toFileSpan(span), newText: textChange.newText }
           })
           .filter(isNotNull),
-        isNewFile,
-      }
+      })
     }
 
     if (this.fs.isVueTsFile(fileName)) {
-      return {
+      return asFileTextChanges({
         fileName: this.fs.getRealFileName(fileName),
         textChanges: [],
-        isNewFile,
-      }
+      })
     }
 
-    return { fileName, textChanges, isNewFile }
+    return asFileTextChanges({ fileName, textChanges })
   }
 
   private _resolveRenameLocation(

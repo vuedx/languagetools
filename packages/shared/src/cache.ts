@@ -263,8 +263,8 @@ export function versioned<T extends unknown[], R = unknown>(
  * By default, it uses a "least recently used" or LRU cache
  * of size 100.
  */
-export function cache<T extends unknown[], R = unknown>(
-  getKey: (args: T) => R = (args) => args[0] as R,
+export function cache<T extends unknown[], I = unknown, R = unknown>(
+  getKey: (args: T, instance: I) => R = (args) => args[0] as R,
   isAsync: boolean = false,
   isWeak: boolean = false,
 ): MethodDecorator {
@@ -280,7 +280,7 @@ export function cache<T extends unknown[], R = unknown>(
       })
 
       descriptor.value = function (this: any, ...args: T): any {
-        return using(this)[method](getKey(args) as any, () =>
+        return using(this)[method](getKey(args, this) as any, () =>
           fn.apply(this, args),
         )
       } as any

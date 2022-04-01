@@ -6,21 +6,24 @@ import {
   ReadonlyModel,
   Telemetry,
 } from '@vuedx/shared'
-import { injectable } from 'inversify'
 
 export interface PluginConfig {
+  /** Enable/disable .vue support */
+  enabled: boolean
   /** Enable/disable telemetry */
   telemetry: boolean
   /** A file to communicate with extension? */
   extensionSocketId?: string
 }
 
-@injectable()
-export class ConfigService {
+export class ConfigManager {
+  public static instance = new ConfigManager()
+
   private readonly _config: Model<PluginConfig>
 
-  constructor() {
+  private constructor() {
     this._config = createModel<PluginConfig>({
+      enabled: true,
       telemetry: true,
     })
 

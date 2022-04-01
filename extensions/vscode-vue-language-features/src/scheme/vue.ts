@@ -64,6 +64,15 @@ export class VueVirtualDocumentProvider
           async ({ textEditor, selections }) => {
             if (textEditor !== editor) return // ignore others
             if (selections.length !== 1) return
+            if (
+              !vscode.window.visibleTextEditors.some(
+                (editor) =>
+                  parseFileName(editor.document.fileName).fileName === fileName,
+              )
+            ) {
+              return // No active virtual document
+            }
+
             cancellationToken?.cancel()
             const current = new vscode.CancellationTokenSource()
             cancellationToken = current

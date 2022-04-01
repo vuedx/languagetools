@@ -74,6 +74,12 @@
     "configuration": {
       "title": "VueDX",
       "properties": {
+        "vuedx.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable VueDX extension",
+          "scope": "machine-overridable"
+        },
         "vuedx.telemetry": {
           "type": "boolean",
           "default": false,

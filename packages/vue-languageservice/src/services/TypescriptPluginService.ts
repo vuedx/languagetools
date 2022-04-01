@@ -1,9 +1,8 @@
-import { debug, toFileName } from '@vuedx/shared'
+import { cache, debug, toFileName } from '@vuedx/shared'
 import type { VueBlockDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type {
   ExtendedTSLanguageService,
-  TSProject,
   Typescript,
 } from '../contracts/Typescript'
 import { CompletionsService } from '../features/CompletionsService'
@@ -14,24 +13,26 @@ import {
 } from '../features/CssLanguageService'
 import { DefinitionService } from '../features/DefinitionService'
 import { DiagnosticsService } from '../features/DiagnosticsService'
-import { QuickInfoService } from '../features/QuickInfoService'
 import {
   VueHtmlLanguageService,
   VueSfcLanguageService,
 } from '../features/HtmlLanguageService'
+import { QuickInfoService } from '../features/QuickInfoService'
+import { ReferencesService } from '../features/ReferencesService'
+import { RenameService } from '../features/RenameService'
 import { EncodedClassificationsService } from './EncodedClassificationsService'
 import { FilesystemService } from './FilesystemService'
 import { IPCService } from './IPCService'
 import { LanguageServiceProvider } from './LanguageServiceProvider'
 import { LoggerService } from './LoggerService'
 import { TypescriptContextService } from './TypescriptContextService'
-import { ReferencesService } from '../features/ReferencesService'
-import { RenameService } from '../features/RenameService'
 
 @injectable()
 export class TypescriptPluginService
   implements Partial<ExtendedTSLanguageService> {
-  private readonly logger = LoggerService.getLogger('TSPluginService')
+  private readonly logger = LoggerService.getLogger(
+    TypescriptPluginService.name,
+  )
 
   constructor(
     @inject(FilesystemService)
@@ -75,12 +76,23 @@ export class TypescriptPluginService
   }
 
   //#region fs
-  public getExternalFiles(project: TSProject): string[] {
+  @cache((_args, self: TypescriptPluginService) =>
+    self.ts.project.getProjectVersion(),
+  )
+  public getExternalFiles(): string[] {
+    this.ts.project.getLanguageService(true) // Triggers Project.updateGraph() if dirty.
     let hasVirtualSchemeFiles = false
-
-    const allFileNames = project.getFileNames(true, true)
+    const allFileNames: string[] = this.ts.project.getFileNames(true, true)
     const vueFileNames = new Set<string>()
     const virtualFileNames = new Set<string>()
+
+    if (this.ts.isConfugeredProject(this.ts.project)) {
+      const options = this.ts.project.getParsedCommandLine?.(
+        this.ts.project.getConfigFilePath(),
+      )
+
+      if (options != null) allFileNames.push(...options.fileNames)
+    }
 
     for (const fileName of allFileNames) {
       if (this.fs.isVueSchemeFile(fileName)) {
@@ -88,10 +100,10 @@ export class TypescriptPluginService
           this.fs.getRealFileName(fileName),
         )
         if (realProject != null) {
-          project.getScriptInfo(fileName)?.attachToProject(realProject)
+          this.ts.project.getScriptInfo(fileName)?.attachToProject(realProject)
         }
 
-        hasVirtualSchemeFiles = realProject !== project
+        hasVirtualSchemeFiles = realProject !== this.ts.project
       } else if (this.fs.isVueFile(fileName)) {
         vueFileNames.add(this.fs.getRealFileName(fileName))
       } else if (
@@ -99,41 +111,22 @@ export class TypescriptPluginService
         this.fs.isVueVirtualFile(fileName)
       ) {
         vueFileNames.add(this.fs.getRealFileName(fileName))
-        virtualFileNames.add(fileName)
+        // virtualFileNames.add(fileName)
       } else if (this.fs.isProjectRuntimeFile(fileName)) {
         virtualFileNames.add(fileName)
       }
     }
 
-    if (
-      project.projectKind === this.ts.lib.server.ProjectKind.Inferred &&
-      hasVirtualSchemeFiles
-    ) {
+    if (this.ts.isInferredProject(this.ts.project) && hasVirtualSchemeFiles) {
       return [] // do not retain any files for inferred projects containing virtual scheme files
     }
 
-    const ensureProject = (fileName: string): void => {
-      if (project.containsFile(this.ts.lib.server.toNormalizedPath(fileName)))
-        return // already in project
-
-      const scriptInfo = project.projectService.getOrCreateScriptInfoForNormalizedPath(
-        this.ts.lib.server.toNormalizedPath(fileName),
-        false,
-      )
-
-      if (scriptInfo == null) {
-        this.logger.debug('No ScriptInfo for project file:', fileName)
-        return
-      }
-
-      scriptInfo.attachToProject(project)
-    }
-
     vueFileNames.forEach((fileName) => {
+      if (!this.ts.serverHost.fileExists(fileName)) return
       const tsFileName = toFileName({ type: 'vue-ts', fileName })
 
-      ensureProject(fileName)
-      ensureProject(tsFileName)
+      this.ts.ensureProject(fileName)
+      this.ts.ensureProject(tsFileName)
 
       this.fs
         .getVueFile(fileName)
@@ -148,33 +141,8 @@ export class TypescriptPluginService
       Array.from(virtualFileNames),
     )
 
-    if (__DEV__) {
-      this.logger.debug(
-        `getExternalFiles() ${JSON.stringify(
-          Object.fromEntries(
-            fileNames
-              .sort()
-              .map((fileName) => [
-                fileName,
-                this.ts.getSourceFile(fileName) != null,
-              ]),
-          ),
-          null,
-          2,
-        )}`,
-      )
-
-      const known = new Set(allFileNames.map((fileName) => fileName.toString()))
-
-      this.logger.debug(
-        'Additional:',
-        JSON.stringify(
-          fileNames.filter((fileName) => !known.has(fileName)),
-          null,
-          2,
-        ),
-      )
-    }
+    this.logger.debug(`External files:`, fileNames)
+    this.logger.debug('Open files:', this.ts.projectService.openFiles)
 
     return fileNames
   }
@@ -510,8 +478,8 @@ export class TypescriptPluginService
           (fileName, blockFile) => {
             return this.ts.service.getCodeFixesAtPosition(
               fileName,
-              blockFile.generatedOffetAt(start),
-              blockFile.generatedOffetAt(end),
+              blockFile.findGeneratedOffetAt(start),
+              blockFile.findGeneratedOffetAt(end),
               errorCodes,
               formatOptions,
               preferences,

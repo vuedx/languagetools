@@ -1,12 +1,15 @@
 import type Typescript from 'typescript/lib/tsserverlibrary'
+import type { TS_LANGUAGE_SERVICE } from '../constants'
 
 export { Typescript }
 export type TSLanguageService = Typescript.LanguageService
-export type TSProject = Typescript.server.Project
+export type TSLanguageServiceHost = Typescript.LanguageServiceHost
+export type TSProject = Typescript.server.Project & {
+  getParsedCommandLine?(
+    fileName: string,
+  ): Typescript.ParsedCommandLine | undefined
+}
 export type TSServerHost = Typescript.server.ServerHost
 export interface ExtendedTSLanguageService extends TSLanguageService {
-  _isVueTS: boolean
-  _vueTS_id: string
-  _vueTS_inner: TSLanguageService
-  getExternalFiles(project: TSProject): string[]
+  [TS_LANGUAGE_SERVICE](): TSLanguageService
 }

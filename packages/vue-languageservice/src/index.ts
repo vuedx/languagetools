@@ -1,3 +1,4 @@
 import 'reflect-metadata'
-export * from './plugin'
+export type { PluginConfig } from './managers/ConfigManager'
+export { pluginManager } from './managers/PluginManager'
 export type { PluginSideChannel } from './services/PluginSideChannel'
