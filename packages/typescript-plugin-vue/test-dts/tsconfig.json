@@ -1,7 +1,0 @@
-{
-  "include": ["*.test-d.ts", "*.test-d.tsx", "../types/vue3.0.d.ts"],
-  "compilerOptions": {
-    "jsx": "preserve",
-    "strict": true
-  }
-}

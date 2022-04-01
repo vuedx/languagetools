@@ -88,12 +88,8 @@
     "@vue/runtime-core": "^3.2.6",
     "csstype": "^3.0.5",
     "quick-lru": "^5.1.1",
-    "tsd": "^0.17.0",
     "typescript": "^4.0.3",
     "vscode-languageserver-textdocument": "^1.0.1",
     "vue": "^3.2"
-  },
-  "scripts": {
-    "test": "tsd"
   }
 }
