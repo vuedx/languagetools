@@ -58,16 +58,22 @@ export async function activate(
   }
 }
 
-function syncConfig(api: any, config: any): void {
+function syncConfig(api: any, config: PluginConfig): void {
   api.configurePlugin('@vuedx/typescript-plugin-vue', config)
+  void vscode.commands.executeCommand(
+    'setContext',
+    'vuedx.debug',
+    config.extensionSocketId != null,
+  )
 }
 
 function getConfig(service: PluginCommunicationService): PluginConfig {
   const config = vscode.workspace.getConfiguration('vuedx')
+  const isDebug = config.get<boolean>('debug') ?? false
 
   return {
-    enabled: config.get('enabled') ?? true,
-    telemetry: config.get('telemetry') ?? true,
-    extensionSocketId: service.socketId,
+    enabled: config.get<boolean>('enabled') ?? true,
+    telemetry: config.get<boolean>('telemetry') ?? true,
+    extensionSocketId: isDebug ? undefined : service.socketId,
   }
 }

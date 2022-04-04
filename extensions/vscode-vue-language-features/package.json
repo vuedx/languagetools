@@ -68,7 +68,8 @@
     "commands": [
       {
         "command": "vuedx.openVirtualFile",
-        "title": "Vue: Show virtual file"
+        "title": "Vue: Show virtual file",
+        "enablement": "vuedx.debug && resourceLangId == vue"
       }
     ],
     "configuration": {
@@ -78,6 +79,12 @@
           "type": "boolean",
           "default": true,
           "description": "Enable/disable VueDX extension",
+          "scope": "machine-overridable"
+        },
+        "vuedx.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable VueDX extension debug mode",
           "scope": "machine-overridable"
         },
         "vuedx.telemetry": {
@@ -186,7 +193,7 @@
       "commandPalette": [
         {
           "command": "vuedx.openVirtualFile",
-          "when": "editorLangId == vue"
+          "when": "vuedx.debug && editorLangId == vue"
         },
         {
           "command": "typescript.reloadProjects",
