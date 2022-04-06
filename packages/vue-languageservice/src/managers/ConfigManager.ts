@@ -14,6 +14,8 @@ export interface PluginConfig {
   telemetry: boolean
   /** A file to communicate with extension? */
   extensionSocketId?: string
+  /** Include sourcemaps in debug mode */
+  debugSourceMaps?: boolean
 }
 
 export class ConfigManager {
