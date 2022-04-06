@@ -241,8 +241,10 @@
     ]
   },
   "extensionDependencies": [
-    "znck.vue",
     "vscode.typescript-language-features"
+  ],
+  "extensionPack": [
+    "znck.vue"
   ],
   "bugs": {
     "url": "https://github.com/znck/vue-developer-experience/issues"
