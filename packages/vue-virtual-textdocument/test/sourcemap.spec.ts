@@ -27,72 +27,30 @@ describe('VueBlockDocument', () => {
     const call = code.indexOf('call.a')
     const event = code.indexOf('$event')
 
-    expect(file.snapshot(file.doc.generatedOffetAndLengthAt(first, 5)))
-      .toMatchInlineSnapshot(`
-          <B
-            a=""
-            onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
-                                                                  ^^^^^ > 5 at 761
-            onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
-            onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
-    `)
-    expect(file.snapshot(file.doc.generatedOffetAndLengthAt(first + 3, 2)))
-      .toMatchInlineSnapshot(`
-          <B
-            a=""
-            onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
-                                                                     ^^ > 2 at 764
-            onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
-            onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
-    `)
+    expect(
+      file.snapshot(file.doc.generatedOffetAndLengthAt(first, 5)),
+    ).toMatchSnapshot()
+    expect(
+      file.snapshot(file.doc.generatedOffetAndLengthAt(first + 3, 2)),
+    ).toMatchSnapshot()
 
-    expect(file.snapshot(file.doc.generatedOffetAndLengthAt(second, 5)))
-      .toMatchInlineSnapshot(`
-          <B
-            a=""
-            onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
-                                                                  ^^^^^ > 5 at 761
-            onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
-            onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
-    `)
+    expect(
+      file.snapshot(file.doc.generatedOffetAndLengthAt(second, 5)),
+    ).toMatchSnapshot()
 
-    expect(file.snapshot(file.doc.generatedOffetAndLengthAt(second + 3, 2)))
-      .toMatchInlineSnapshot(`
-          <B
-            a=""
-            onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
-                                                                     ^^ > 2 at 764
-            onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
-            onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
-    `)
+    expect(
+      file.snapshot(file.doc.generatedOffetAndLengthAt(second + 3, 2)),
+    ).toMatchSnapshot()
 
-    expect(file.snapshot(file.doc.generatedOffetAndLengthAt(once, 4)))
-      .toMatchInlineSnapshot(`
-      a=""
-      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
-      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
-                                                                   ^ > 1 at 840
-      onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
-        call.a['func']($event)
-`)
-    expect(file.snapshot(file.doc.generatedOffetAndLengthAt(call + 6, 8)))
-      .toMatchInlineSnapshot(`
-      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
-      onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
-        call.a['func']($event)
-              ^^^^^^^^ > 8 at 945
-      }, {})}
-     />
-`)
-    expect(file.snapshot(file.doc.generatedOffetAndLengthAt(event, 6)))
-      .toMatchInlineSnapshot(`
-      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
-      onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
-        call.a['func']($event)
-                       ^^^^^^ > 6 at 954
-      }, {})}
-     />
-`)
+    expect(
+      file.snapshot(file.doc.generatedOffetAndLengthAt(once, 4)),
+    ).toMatchSnapshot()
+    expect(
+      file.snapshot(file.doc.generatedOffetAndLengthAt(call + 6, 8)),
+    ).toMatchSnapshot()
+    expect(
+      file.snapshot(file.doc.generatedOffetAndLengthAt(event, 6)),
+    ).toMatchSnapshot()
   })
 })
 
