@@ -6,7 +6,7 @@ import {
   ForNode,
   IfNode,
 } from '@vue/compiler-core'
-import { camelCase, last } from '@vuedx/shared'
+import { camelCase, isNotNull, last } from '@vuedx/shared'
 import {
   AttributeNode,
   CommentNode,
@@ -1016,17 +1016,46 @@ function genModelDirectiveOptions(
   directive: DirectiveNode,
 ): void {
   context.write('{')
+  // type
   const type = findProp(node, 'type')
   if (type != null) {
     context.write('type: ')
     genPropValue(context, type)
     context.write(',')
   }
+  // isAssignable
   if (directive.exp != null) {
     context.write('isAssignable: () => {')
     genExpressionNode(context, directive.exp)
     context.write('=(null as any)},')
   }
+  // checkbox
+  const checkbox = [
+    findProp(node, 'true-value'),
+    findProp(node, 'trueValue'),
+    findProp(node, 'false-value'),
+    findProp(node, 'falseValue'),
+  ].filter(isNotNull)
+
+  if (checkbox.length > 0) {
+    context.write('checkbox: [')
+    genList(checkbox, (prop, isLast) => {
+      if (isAttributeNode(prop)) {
+        context.write(JSON.stringify(prop.value?.content))
+      } else if (prop.exp != null) {
+        genExpressionNode(context, prop.exp)
+      } else {
+        context.write(
+          'true',
+          createLoc(prop.loc, prop.loc.source.length - 1, 1),
+          MappingKind.reverseOnly,
+        )
+      }
+      if (!isLast) context.write(', ')
+    })
+    context.write('] as const,')
+  }
+
   context.write('} as const')
 }
 
@@ -1148,6 +1177,16 @@ function genDirectiveAsParams(
   if (directive.arg != null) {
     genExpressionNode(context, directive.arg)
     if (isStaticExpression(directive.arg)) context.write(' as const')
+  } else if (directive.name === 'model') {
+    context.write(
+      '"modelValue"',
+      createLoc(
+        directive.loc,
+        directive.loc.source.startsWith('v-') ? directive.name.length + 1 : 0,
+        1,
+      ),
+      MappingKind.transformed,
+    )
   } else {
     context.write('undefined')
   }

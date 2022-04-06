@@ -2,7 +2,15 @@ import { Directive } from '@vue/runtime-core'
 
 export function checkDirective<
   T,
-  D extends Directive<T, unknown>,
+  D extends
+    | Directive<T, unknown>
+    | 'show'
+    | 'text'
+    | 'html'
+    | 'once'
+    | 'pre'
+    | 'cloak'
+    | 'memo',
   A extends string | undefined,
   E extends GetExp<T, D>,
   M extends GetModifiers<D>

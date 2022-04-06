@@ -19,9 +19,7 @@ type GetArg<T> = T extends 'input' | 'textarea' | 'select'
   ? undefined
   : T extends KnownKeys<keyof JSX.IntrinsicElements>
   ? never
-  : MaybeUndefined<keyof PropsOf<T>>
-
-type MaybeUndefined<T> = 'modelValue' extends T ? T | undefined : T
+  : keyof PropsOf<T>
 
 type GetExp<T, A, O> = T extends 'textarea'
   ? string
