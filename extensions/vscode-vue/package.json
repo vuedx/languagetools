@@ -170,10 +170,6 @@
       }
     }
   },
-  "extensionPack": [
-    "znck.vue-language-features",
-    "znck.preview"
-  ],
   "bugs": {
     "url": "https://github.com/znck/vue-developer-experience/issues"
   },
