@@ -29,69 +29,69 @@ describe('VueBlockDocument', () => {
 
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(first, 5)))
       .toMatchInlineSnapshot(`
-          {
-             arg: "a" as const, 
-             exp: onNum,
-                  ^^^^^ > 5 at 812
-          },
-        ])}
-`)
+          <B
+            a=""
+            onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
+                                                                  ^^^^^ > 5 at 761
+            onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+            onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
+    `)
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(first + 3, 2)))
       .toMatchInlineSnapshot(`
-          {
-             arg: "a" as const, 
-             exp: onNum,
-                     ^^ > 2 at 815
-          },
-        ])}
-`)
+          <B
+            a=""
+            onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
+                                                                     ^^ > 2 at 764
+            onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+            onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
+    `)
 
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(second, 5)))
       .toMatchInlineSnapshot(`
-          {
-             arg: "a" as const, 
-             exp: onNum,
-                  ^^^^^ > 5 at 812
-          },
-        ])}
-`)
+          <B
+            a=""
+            onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
+                                                                  ^^^^^ > 5 at 761
+            onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+            onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
+    `)
 
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(second + 3, 2)))
       .toMatchInlineSnapshot(`
-          {
-             arg: "a" as const, 
-             exp: onNum,
-                     ^^ > 2 at 815
-          },
-        ])}
-`)
+          <B
+            a=""
+            onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
+                                                                     ^^ > 2 at 764
+            onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+            onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
+    `)
 
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(once, 4)))
       .toMatchInlineSnapshot(`
-             arg: "b" as const, 
-             exp: onNum,
-             modifiers: [ "once", ],
-                          ^^^^^^ > 6 at 988
-          },
-        ])}
+      a=""
+      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
+      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+                                                                   ^ > 1 at 840
+      onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
+        call.a['func']($event)
 `)
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(call + 6, 8)))
       .toMatchInlineSnapshot(`
-             arg: "c" as const, 
-             exp: ($event) => {
-              call.a['func']($event)
-                    ^^^^^^^^ > 8 at 1169
-            },
-          },
+      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+      onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
+        call.a['func']($event)
+              ^^^^^^^^ > 8 at 945
+      }, {})}
+     />
 `)
     expect(file.snapshot(file.doc.generatedOffetAndLengthAt(event, 6)))
       .toMatchInlineSnapshot(`
-             arg: "c" as const, 
-             exp: ($event) => {
-              call.a['func']($event)
-                             ^^^^^^ > 6 at 1178
-            },
-          },
+      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+      onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
+        call.a['func']($event)
+                       ^^^^^^ > 6 at 954
+      }, {})}
+     />
 `)
   })
 })

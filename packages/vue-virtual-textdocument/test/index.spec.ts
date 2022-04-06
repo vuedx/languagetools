@@ -92,7 +92,7 @@ describe('VueSFCDocument', () => {
                   <>
                     {VueDX.internal.checkInterpolation(val)}
                   </>
-                )
+                ) as any
               },
             })}
           </Foo.Bar>

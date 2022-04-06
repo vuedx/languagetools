@@ -109,10 +109,12 @@ export function withScope(ast: RootNode): RootNode {
               const localScope = (prop.exp.scope = new Scope(directiveScope))
               const content = prop.exp.content.trim()
 
-              getIdentifiers(`(${content}) => {}`).forEach((identifier) => {
-                scope.setBinding(identifier, node)
-                localScope.getBinding(identifier)
-              })
+              getIdentifiers(`(${content}) => {}`, false).forEach(
+                (identifier) => {
+                  scope.setBinding(identifier, node)
+                  localScope.getBinding(identifier)
+                },
+              )
             }
           } else if (prop.name === 'for') {
             if (isSimpleExpressionNode(prop.exp)) {
@@ -126,10 +128,12 @@ export function withScope(ast: RootNode): RootNode {
                   localScope.getBinding(identifier)
                 })
 
-                getIdentifiers(`${LHS ?? '()'} => {}`).forEach((identifier) => {
-                  scope.setBinding(identifier, node)
-                  localScope.getBinding(identifier)
-                })
+                getIdentifiers(`${LHS ?? '()'} => {}`, false).forEach(
+                  (identifier) => {
+                    scope.setBinding(identifier, node)
+                    localScope.getBinding(identifier)
+                  },
+                )
               }
             }
           }
@@ -284,7 +288,10 @@ export function getTopLevelIdentifiers(
     propsIdentifier,
   }
 }
-function getIdentifiers(source: string): Set<string> {
+function getIdentifiers(
+  source: string,
+  ignoreFunctionParameters = true,
+): Set<string> {
   source = source
     .trim()
     // Common errors when user is typing.
@@ -302,10 +309,12 @@ function getIdentifiers(source: string): Set<string> {
       let definedInScope = new Set<string>()
       const scopes: Array<Set<string>> = []
       const pushScope = (scope: Set<string>): void => {
+        if (!ignoreFunctionParameters) return
         scopes.push(scope)
         definedInScope = new Set([...definedInScope, ...scope])
       }
       const popScope = (): void => {
+        if (!ignoreFunctionParameters) return
         scopes.pop()
         definedInScope = new Set(scopes.flatMap((scope) => Array.from(scope)))
       }
