@@ -125,6 +125,8 @@ export type KnownKeys<T> = {
   : K]: T[K];
 }
 
+export type KnownInterface<T> = Pick<T, KnownKeys<keyof T>>
+
 export type FlatArray<Arr, Depth extends number> = {
   "done": Arr,
   "recur": Arr extends ReadonlyArray<infer InnerArr>
@@ -137,3 +139,7 @@ export function flat<T extends unknown[], D extends number = 1>(
   array: T,
   depth?: D
 ): Array<FlatArray<T, D>>
+
+export function union<T extends unknown[]>(...args: T): TupleToUnion<T>
+
+export type Get<T, K, F = never> = K extends keyof T ? T[K] : F

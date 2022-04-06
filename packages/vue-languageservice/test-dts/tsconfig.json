@@ -1,0 +1,7 @@
+{
+  "include": ["*.test-d.ts", "*.test-d.tsx", "../types/3.x.d.ts", "index.d.ts"],
+  "compilerOptions": {
+    "jsx": "preserve",
+    "strict": true
+  }
+}

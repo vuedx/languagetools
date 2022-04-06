@@ -36,6 +36,7 @@
     "rollup": "^2.50.6",
     "semver": "^7.3.5",
     "ts-jest": "^27.0.5",
+    "tsd": "^0.19.1",
     "tslib": "^2.2.0",
     "typescript": "^4.3.5",
     "vscode-languageserver-textdocument": "^1.0.1",
@@ -54,6 +55,7 @@
   "scripts": {
     "prepare": "node scripts/build-monorepo-tools.mjs",
     "test": "jest --verbose",
+    "test:types": "cd packages/vue-languageservice/test-dts && tsd && cd -",
     "coverage": "jest --verbose --coverage",
     "build": "rollup -c",
     "build:dev": "rollup -c --environment BUILD:development",

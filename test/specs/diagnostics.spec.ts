@@ -102,9 +102,9 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type 'boolean' is not assignable to type 'string | undefined'.",
-          "Type 'number' is not assignable to type 'string | undefined'.",
-          "Type '{ foo: string; } | undefined' is not assignable to type 'string | undefined'.
+          "Argument of type 'boolean' is not assignable to parameter of type 'string | undefined'.",
+          "Argument of type 'number' is not assignable to parameter of type 'string | undefined'.",
+          "Argument of type '{ foo: string; } | undefined' is not assignable to parameter of type 'string | undefined'.
           Type '{ foo: string; }' is not assignable to type 'string'.",
         ]
       `)
@@ -117,8 +117,8 @@ describe('project', () => {
         .toMatchInlineSnapshot(`
         Array [
           "Property 'd' does not exist on type '{ $: ComponentInternalInstance; $data: {}; $props: Partial<{}> & Omit<{} & VNodeProps & AllowedComponentProps & ComponentCustomProps, never>; ... 10 more ...; $watch(source: string | Function, cb: Function, options?: WatchOptions<...> | undefined): WatchStopHandle; } & ... 4 more ... & ComponentCustomProperties'.",
-          "Type 'boolean' is not assignable to type 'any[] | undefined'.",
-          "Type 'number' is not assignable to type 'any[] | undefined'.",
+          "Argument of type 'boolean' is not assignable to parameter of type 'any[]'.",
+          "Argument of type 'number' is not assignable to parameter of type 'any[]'.",
         ]
       `)
     })
@@ -129,15 +129,15 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type '\\"modelValue\\"' is not assignable to type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"foo\\" | \\"bar\\" | undefined'.",
-          "Type 'number | undefined' is not assignable to type 'string | undefined'.
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"foo\\" | \\"bar\\"'.",
+          "Argument of type 'number | undefined' is not assignable to parameter of type 'string | undefined'.
           Type 'number' is not assignable to type 'string | undefined'.",
-          "Type '\\"modelValue\\"' is not assignable to type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"foo\\" | \\"bar\\" | undefined'.",
-          "Type '\\"foo\\"' is not assignable to type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\" | undefined'.",
-          "Type '\\"foo\\"' is not assignable to type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\" | undefined'.",
-          "Type 'number | undefined' is not assignable to type 'string | undefined'.",
-          "Type '\\"bar\\"' is not assignable to type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\" | undefined'.",
-          "Type '\\"bar\\"' is not assignable to type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\" | undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"foo\\" | \\"bar\\"'.",
+          "Argument of type '\\"foo\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
+          "Argument of type '\\"foo\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
+          "Argument of type 'number | undefined' is not assignable to parameter of type 'string | undefined'.",
+          "Argument of type '\\"bar\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
+          "Argument of type '\\"bar\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
         ]
       `)
     })
@@ -148,10 +148,12 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type '\\"yes\\" | \\"no\\"' is not assignable to type 'boolean | undefined'.
-          Type '\\"yes\\"' is not assignable to type 'boolean | undefined'.",
-          "Type 'boolean' is not assignable to type '\\"yes\\" | \\"no\\" | undefined'.",
-          "Type 'boolean' is not assignable to type 'string | undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
         ]
       `)
     })
@@ -162,9 +164,13 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type 'number | undefined' is not assignable to type 'string | undefined'.",
-          "Type 'Date | undefined' is not assignable to type 'string | undefined'.
-          Type 'Date' is not assignable to type 'string'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Cannot assign to 'foo' because it is a read-only property.",
         ]
       `)
     })
@@ -175,14 +181,15 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type 'string | undefined' is not assignable to type 'undefined'.
-          Type 'string' is not assignable to type 'undefined'.",
-          "Type '\\"a\\" | \\"b\\" | \\"c\\" | undefined' is not assignable to type 'undefined'.
-          Type '\\"a\\"' is not assignable to type 'undefined'.",
-          "Type '\\"a\\" | \\"b\\" | \\"c\\" | undefined' is not assignable to type 'undefined'.",
-          "Type '1 | 2 | 3 | undefined' is not assignable to type 'undefined'.
-          Type '1' is not assignable to type 'undefined'.",
-          "Type '1 | 2 | 3 | undefined' is not assignable to type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
         ]
       `)
     })
@@ -193,16 +200,24 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type '(event: PointerEvent) => void' is not assignable to type '(payload: MouseEvent) => void'.
+          "Argument of type '(event: PointerEvent) => void' is not assignable to parameter of type '(payload: MouseEvent) => void'.
           Types of parameters 'event' and 'payload' are incompatible.
             Type 'MouseEvent' is missing the following properties from type 'PointerEvent': height, isPrimary, pointerId, pointerType, and 8 more.",
-          "Type '(event: KeyboardEvent) => void' is not assignable to type '(payload: MouseEvent) => void'.
+          "Argument of type '(event: KeyboardEvent) => void' is not assignable to parameter of type '(payload: MouseEvent) => void'.
           Types of parameters 'event' and 'payload' are incompatible.
             Type 'MouseEvent' is missing the following properties from type 'KeyboardEvent': char, charCode, code, isComposing, and 9 more.",
           "Argument of type 'MouseEvent' is not assignable to parameter of type 'KeyboardEvent'.",
-          "Type '\\"enter\\"' is not assignable to type '\\"meta\\" | \\"stop\\" | \\"alt\\" | \\"capture\\" | \\"once\\" | \\"prevent\\" | \\"self\\" | \\"passive\\" | \\"left\\" | \\"right\\" | \\"ctrl\\" | \\"shift\\" | \\"exact\\" | \\"middle\\"'.",
-          "Type '\\"up\\"' is not assignable to type '\\"meta\\" | \\"stop\\" | \\"alt\\" | \\"capture\\" | \\"once\\" | \\"prevent\\" | \\"self\\" | \\"passive\\" | \\"left\\" | \\"right\\" | \\"ctrl\\" | \\"shift\\" | \\"exact\\" | \\"middle\\"'.",
-          "Type '\\"middle\\"' is not assignable to type '\\"meta\\" | \\"stop\\" | \\"alt\\" | \\"capture\\" | \\"once\\" | \\"prevent\\" | \\"self\\" | \\"passive\\" | \\"enter\\" | \\"tab\\" | \\"delete\\" | \\"esc\\" | \\"space\\" | \\"left\\" | \\"right\\" | \\"up\\" | \\"down\\" | \\"ctrl\\" | \\"shift\\" | \\"exact\\"'.",
+          "Argument of type 'MouseEvent' is not assignable to parameter of type 'KeyboardEvent'.",
+          "Argument of type '{ enter: boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          Object literal may only specify known properties, and '\\"enter\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
+          "Argument of type '{ up: boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
+          "Argument of type '{ shift: true; up: boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
+          "Argument of type '{ shift: true; up: boolean; alt: true; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
+          "Argument of type '{ middle: boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"keypress\\">, boolean>>'.
+          Object literal may only specify known properties, and '\\"middle\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"keypress\\">, boolean>>'.",
         ]
       `)
     })
@@ -213,13 +228,16 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type '(payload?: number | undefined) => void' is not assignable to type '(_payload: string) => void'.
+          "Type '{ onA: () => void; onInput: () => void; onClick: () => void; onSubmit: () => void; }' is not assignable to type 'IntrinsicAttributes & ButtonHTMLAttributes & ReservedProps & InputHTMLAttributes'.
+          Property 'onA' does not exist on type 'IntrinsicAttributes & ButtonHTMLAttributes & ReservedProps & InputHTMLAttributes'.",
+          "Argument of type '\\"a\\"' is not assignable to parameter of type '\\"input\\" | \\"progress\\" | \\"select\\" | \\"click\\" | \\"keydown\\" | \\"keypress\\" | \\"keyup\\" | \\"pointerdown\\" | \\"pointermove\\" | \\"pointerup\\" | \\"pointercancel\\" | \\"pointerenter\\" | \\"pointerleave\\" | ... 68 more ... | \\"transitionstart\\"'.",
+          "Argument of type '(payload?: number | undefined) => void' is not assignable to parameter of type '(_payload: string) => void'.
           Types of parameters 'payload' and '_payload' are incompatible.
             Type 'string' is not assignable to type 'number | undefined'.",
-          "Type '(payload?: number | undefined) => void' is not assignable to type '(payload: string) => any'.
+          "Argument of type '(payload?: number | undefined) => void' is not assignable to parameter of type '(payload: string) => any'.
           Types of parameters 'payload' and 'payload' are incompatible.
             Type 'string' is not assignable to type 'number | undefined'.",
-          "Type '(payload?: number | undefined) => void' is not assignable to type '(payload: string) => any'.
+          "Argument of type '(payload?: number | undefined) => void' is not assignable to parameter of type '(payload: string) => any'.
           Types of parameters 'payload' and 'payload' are incompatible.
             Type 'string' is not assignable to type 'number | undefined'.",
         ]
@@ -232,11 +250,11 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type 'boolean' is not assignable to type 'undefined'.",
-          "Type 'number' is not assignable to type 'undefined'.",
-          "Type '{ foo: string; } | undefined' is not assignable to type 'undefined'.
+          "Argument of type 'boolean' is not assignable to parameter of type 'undefined'.",
+          "Argument of type 'number' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '{ foo: string; } | undefined' is not assignable to parameter of type 'undefined'.
           Type '{ foo: string; }' is not assignable to type 'undefined'.",
-          "Type 'string | undefined' is not assignable to type 'undefined'.
+          "Argument of type 'string | undefined' is not assignable to parameter of type 'undefined'.
           Type 'string' is not assignable to type 'undefined'.",
         ]
       `)
@@ -256,8 +274,8 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type 'number' is not assignable to type 'boolean | undefined'.",
-          "Type '{ foo: string; } | undefined' is not assignable to type 'boolean | undefined'.
+          "Argument of type 'number' is not assignable to parameter of type 'boolean | undefined'.",
+          "Argument of type '{ foo: string; } | undefined' is not assignable to parameter of type 'boolean | undefined'.
           Type '{ foo: string; }' is not assignable to type 'boolean | undefined'.
             Type '{ foo: string; }' is not assignable to type 'true'.",
         ]
@@ -270,9 +288,9 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type 'boolean' is not assignable to type 'string | undefined'.",
-          "Type 'number' is not assignable to type 'string | undefined'.",
-          "Type '{ foo: string; } | undefined' is not assignable to type 'string | undefined'.
+          "Argument of type 'boolean' is not assignable to parameter of type 'string | undefined'.",
+          "Argument of type 'number' is not assignable to parameter of type 'string | undefined'.",
+          "Argument of type '{ foo: string; } | undefined' is not assignable to parameter of type 'string | undefined'.
           Type '{ foo: string; }' is not assignable to type 'string'.",
         ]
       `)

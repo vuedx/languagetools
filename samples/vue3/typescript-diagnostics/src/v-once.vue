@@ -7,6 +7,7 @@ let c: { foo: string} | undefined
 </script>
 
 <template>
+  <div v-once />
   <div v-once="a" />
   <div v-once="b" />
   <div v-once="c" />
