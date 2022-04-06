@@ -115,6 +115,13 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           file: ./coverage/coverage-final.json
+  dts:
+    name: DTS
+    runs-on: ubuntu-latest
+    steps:
+      - *setup
+      - name: Test
+        run: pnpm test:types
 
   eslint:
     runs-on: ubuntu-latest
