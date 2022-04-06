@@ -15,6 +15,7 @@ function onKeyboard(event: KeyboardEvent) {}
 
   <button @click="onMouse($event)" />
   <button @click="onKeyboard($event)" />
+  <button @click="event => onKeyboard(event)" />
   
   <button @pointerenter="onPointer" />
   <button @keypress="onKeyboard" />
@@ -29,6 +30,8 @@ function onKeyboard(event: KeyboardEvent) {}
       @click="onMouse" 
       @click.left="onEvent" 
       @click.up="onEvent" 
+      @click.shift.up="onEvent" 
+      @click.shift.up.alt="onEvent" 
       @click.shift.left.exact="onEvent" 
       @keypress.enter="onKeyboard" 
       @keypress.middle="onKeyboard" 

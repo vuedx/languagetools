@@ -694,7 +694,7 @@ function genComponentSlots(
     //#endregion
     // > 8
     context.deindent()
-    context.write(')').newLine()
+    context.write(') as any').newLine()
     //#endregion
     // > 7
     context.deindent()
@@ -739,10 +739,11 @@ function genComponentSlots(
 
 function genBindGroupDirectiveNode(
   context: GenerateContext,
-  nodes: DirectiveNode[],
+  _node: ElementNode,
+  directives: DirectiveNode[],
   options: { useNewlines: boolean },
 ): void {
-  if (nodes.length === 0) return
+  if (directives.length === 0) return
   // Only dynamic and spread properties should come here.
 
   const shouldUseNewLine = options.useNewlines
@@ -753,7 +754,7 @@ function genBindGroupDirectiveNode(
     //#region 11 <
   }
 
-  nodes.forEach((node) => {
+  directives.forEach((node) => {
     if (!shouldUseNewLine) context.write(' ')
     else context.newLine()
     if (node.arg != null) {
@@ -792,9 +793,6 @@ function genOnGroupDirectiveNode(
 ): void {
   if (directives.length === 0) return
   const byEventName: Record<string, DirectiveNode[]> = {}
-  const componentName =
-    (isComponentNode(node) ? node.resolvedName : undefined) ??
-    `${JSON.stringify(node.tag)} as const`
   const others: DirectiveNode[] = []
   directives.forEach((directive) => {
     if (isStaticExpression(directive.arg)) {
@@ -809,26 +807,24 @@ function genOnGroupDirectiveNode(
     if (dir == null) return
     context.write(eventName, dir.loc)
     context.write('={')
-    context.write(
-      'VueDX.internal.checkOnDirective(',
-      createLoc(dir.loc, 0, dir.loc.source.startsWith('@') ? 1 : 4),
+    genUnionFn(
+      context,
+      directives,
+      (directive) => genDirective(context, node, directive),
+      options.useNewlines,
     )
-    context.write(componentName, node.loc).write(')(')
-    context.indent()
-    //#region 12 <
-    genDirectiveUsage(context, directives)
-    context.write(')}')
-    //#endregion
-    // > 12
-    context.deindent()
+    context.write('}')
 
     if (options.useNewlines) context.newLine()
     else context.write(' ')
   })
 
-  genDirectives(context, node, others, {
-    useNewlines: true,
-    skipGroupCheck: true,
+  others.forEach((directive) => {
+    context.write('{...')
+    genDirective(context, node, directive)
+    context.write('}')
+    if (options.useNewlines) context.newLine()
+    else context.write(' ')
   })
 }
 
@@ -960,185 +956,240 @@ function genDirectives(
   context: GenerateContext,
   node: ElementNode,
   directives: DirectiveNode[],
-  options: { useNewlines: boolean; skipGroupCheck?: boolean },
+  options: { useNewlines: boolean },
 ): void {
   const dir = directives[0]
   if (dir == null || directives.length === 0) return
   if (directives.some((directive) => directive.name !== dir.name))
     throw new Error(`All directives should be same in genDirectives.`)
-  if (options.skipGroupCheck !== true) {
-    if (dir.name === 'on') {
-      return genOnGroupDirectiveNode(context, node, directives, options)
-    }
-  }
 
   if (dir.name === 'bind') {
-    return genBindGroupDirectiveNode(context, directives, options)
-  }
-
-  const componentName =
-    (isComponentNode(node) ? node.resolvedName : undefined) ??
-    `${JSON.stringify(node.tag)} as const`
-  const directiveName = dir.resolvedName ?? JSON.stringify(dir.name)
-  context.write(`data-vuedx-directive-${dir.name}={`)
-  let isInputModelDirective = false
-
-  const dirLoc = createLoc(
-    dir.loc,
-    0,
-    dir.loc.source.startsWith('v-') ? dir.name.length + 2 : 1,
-  )
-  const nodeLoc = createLoc(node.loc, 1, node.tag.length)
-  if (dir.name === 'model') {
-    if (node.tag === 'input') {
-      isInputModelDirective = true
-      context.write('VueDX.internal.checkModelDirectiveForDOM[', dirLoc)
-      const type = findProp(node, 'type', false, true)
-      if (type != null && genPropValue(context, type)) {
-        context.write(' as const')
-      } else {
-        context.write('"text" as const')
-      }
-      context.write('](')
-    } else if (node.tag === 'select') {
-      isInputModelDirective = true
-      context.write('VueDX.internal.checkModelDirectiveForDOM.select(', dirLoc)
-    } else {
-      context.write(
-        `VueDX.internal.checkModelDirective(${componentName}, `,
-        dirLoc,
-      )
-    }
+    return genBindGroupDirectiveNode(context, node, directives, options)
   } else if (dir.name === 'on') {
-    context.write(`VueDX.internal.checkOnDirective(`, dirLoc)
-    context.write(`${componentName})(`, nodeLoc)
-  } else if (builtins.directives.has(dir.name)) {
-    context.write(
-      `VueDX.internal.checkBuiltinDirective["${dir.name}"](`,
-      dirLoc,
-    )
-    context.write(`${componentName}, `, nodeLoc)
+    return genOnGroupDirectiveNode(context, node, directives, options)
   } else {
-    context.write(`VueDX.internal.checkDirective(`, dirLoc)
-    context.write(`${directiveName}, `, dirLoc)
-    context.write(`${componentName}, `, nodeLoc)
+    context.write(`data-vuedx-directive-${dir.name}={`)
+    genUnionFn(
+      context,
+      directives,
+      (directive) => genDirective(context, node, directive),
+      options.useNewlines,
+    )
+    context.write('}')
   }
-
-  genDirectiveUsage(context, directives, isInputModelDirective)
-
-  if (isInputModelDirective) {
-    context.write(', ')
-    if (node.tag === 'select') {
-      context.write('[')
-      let count = 0
-      node.children.forEach((child) => {
-        if (isElementNode(child) && child.tag === 'option') {
-          const value = findProp(child, 'value', false, true)
-          if (value != null) {
-            if (count > 0) context.write(', ')
-            if (!genPropValue(context, value)) {
-              context.write('undefined')
-            }
-            ++count
-          }
-        } else if (isForNode(child) && child.parseResult.source != null) {
-          const option = child.children.find(
-            (node): node is ElementNode =>
-              isElementNode(node) && node.tag === 'option',
-          )
-          if (option != null) {
-            const value = findProp(option, 'value', false, true)
-            if (value != null) {
-              if (count > 0) context.write(', ')
-              context.write('...VueDX.internal.renderList(')
-              genForNodeArgs(context, child)
-              context.write(' => ')
-              if (!genPropValue(context, value, true)) context.write('""')
-              context.write(')')
-              count++
-            }
-          }
-        }
-      })
-      context.write(']')
-      if (count > 0) context.write(' as const')
-      else context.write(' as unknown as [string]')
-    } else {
-      context.write('[] as unknown as [string]') // TODO: Infer value type
-    }
-
-    const yes = findProp(node, 'true-value') ?? findProp(node, 'trueValue')
-    const no = findProp(node, 'false-value') ?? findProp(node, 'falseValue')
-
-    context.write(', [')
-    if (yes != null && genPropValue(context, yes)) context.write(', ')
-    else context.write('true, ')
-    if (no != null && genPropValue(context, no)) context.write('')
-    else context.write('false')
-    context.write('] as const')
-  }
-  context.write(')}')
 }
 
-function genDirectiveUsage(
+function genUnionFn<T extends Node>(
   context: GenerateContext,
-  directives: DirectiveNode[],
-  isInputModelDirective: boolean = false,
+  nodes: T[],
+  fn: (node: T) => void,
+  useNewLines = true,
 ): void {
-  context.write(`[`)
-  context.indent()
-  //#region 14 <
-  context.newLine()
-  directives.forEach((directive) => {
-    const fallback = createLoc(
-      directive.loc,
-      0,
-      directive.loc.source.startsWith('v-') ? directive.name.length + 2 : 1,
-    )
-    context.write('{', fallback).newLine()
-    context.indent()
-    //#region 15 <
-    if (directive.arg != null) {
-      context.write(' ').write('arg', directive.arg.loc).write(': ', fallback)
-      genExpressionNode(context, directive.arg)
-      if (isStaticExpression(directive.arg)) context.write(' as const')
-      context.write(', ', fallback).newLine()
-    } else if (directive.name === 'model' && !isInputModelDirective) {
-      context.write(' arg: "modelValue" as const,', fallback).newLine()
-    }
-    if (directive.exp != null) {
-      context.write(' ').write('exp', directive.exp.loc).write(': ', fallback)
-      if (directive.name === 'on') {
-        genEventHandler(context, directive.exp)
-      } else {
-        genExpressionNode(context, directive.exp)
-      }
-      context.write(',', fallback).newLine()
-    }
-    if (directive.modifiers.length > 0) {
-      context.write(' modifiers: [ ', fallback)
-      directive.modifiers.forEach((name) => {
-        context
-          .write(
-            JSON.stringify(name),
-            createLoc(
-              directive.loc,
-              directive.loc.source.lastIndexOf(name),
-              name.length,
-            ),
-          )
-          .write(', ')
-      })
-      context.write('],', fallback).newLine()
-    }
-    //#endregion
-    // > 15
-    context.deindent().write('},').newLine()
+  if (nodes.length === 0) {
+    context.write('undefined')
+    return
+  } else if (nodes.length === 1) {
+    return fn(nodes[0] as T)
+  }
+
+  context.write(`VueDX.internal.union(`)
+  if (useNewLines) context.newLine().indent()
+  genList(nodes, (node, isLast) => {
+    fn(node)
+
+    if (useNewLines) context.write(',').newLine()
+    else if (!isLast) context.write(', ')
   })
-  //#endregion
-  // > 14
-  context.deindent()
-  context.write(']')
+  if (useNewLines) context.deindent()
+  context.write(')')
+}
+
+function genList<T>(nodes: T[], fn: (node: T, isLast: boolean) => void): void {
+  nodes.forEach((node, index) => {
+    fn(node, index === nodes.length - 1)
+  })
+}
+
+function genModelDirectiveOptions(
+  context: GenerateContext,
+  node: ElementNode,
+  directive: DirectiveNode,
+): void {
+  context.write('{')
+  const type = findProp(node, 'type')
+  if (type != null) {
+    context.write('type: ')
+    genPropValue(context, type)
+    context.write(',')
+  }
+  if (directive.exp != null) {
+    context.write('isAssignable: () => {')
+    genExpressionNode(context, directive.exp)
+    context.write('=(null as any)},')
+  }
+  context.write('} as const')
+}
+
+function genPropValue(
+  context: GenerateContext,
+  node: AttributeNode | DirectiveNode,
+  wrapInParantheses: boolean = false,
+): void {
+  if (isAttributeNode(node) && node.value != null) {
+    context.write(
+      JSON.stringify(node.value.content),
+      node.value.loc,
+      MappingKind.transformed,
+    )
+    context.write(' as const')
+  } else if (isDirectiveNode(node) && node.exp != null) {
+    genExpressionNode(context, node.exp, wrapInParantheses)
+  } else {
+    context.write('undefined')
+  }
+}
+
+function genDirective(
+  context: GenerateContext,
+  node: ElementNode,
+  directive: DirectiveNode,
+): void {
+  switch (directive.name) {
+    case 'model':
+      genDirectiveCheckFn(context, directive)
+      context.write('(')
+      genElementTagAsParam(context, node)
+      context.write(', ')
+      genDirectiveAsParams(context, directive)
+      context.write(', ')
+      genModelDirectiveOptions(context, node, directive)
+      context.write(')')
+      break
+    case 'on':
+      genDirectiveCheckFn(context, directive)
+      context.write('(')
+      genElementTagAsParam(context, node)
+      context.write(', ')
+      genDirectiveAsParams(context, directive)
+      context.write(')')
+      break
+    default:
+      genDirectiveCheckFn(context, directive)
+      context.write('(')
+      genDirecteNameAsParam(context, directive)
+      context.write(', ')
+      genElementTagAsParam(context, node)
+      context.write(', ')
+      genDirectiveAsParams(context, directive)
+      context.write(')')
+  }
+}
+
+function genDirectiveCheckFn(
+  context: GenerateContext,
+  directive: DirectiveNode,
+): void {
+  context.write(
+    `VueDX.internal.${
+      directive.name === 'model'
+        ? 'checkModelDirective'
+        : directive.name === 'on'
+        ? 'checkOnDirective'
+        : 'checkDirective'
+    }`,
+    directive.loc,
+    MappingKind.reverseOnly,
+  )
+}
+
+function genDirecteNameAsParam(
+  context: GenerateContext,
+  directive: DirectiveNode,
+): void {
+  const directiveNameLoc = createLoc(
+    directive.loc,
+    0,
+    directive.loc.source.startsWith('v-') ? directive.name.length + 2 : 1,
+  )
+  if (
+    builtins.directives.has(directive.name) ||
+    directive.resolvedName == null
+  ) {
+    context.write(
+      `${JSON.stringify(directive.name)} as const`,
+      directiveNameLoc,
+      MappingKind.reverseOnly,
+    )
+  } else {
+    context.write(
+      directive.resolvedName,
+      directiveNameLoc,
+      MappingKind.reverseOnly,
+    )
+  }
+}
+
+function genElementTagAsParam(
+  context: GenerateContext,
+  node: ElementNode,
+): void {
+  context.write(
+    (isComponentNode(node) ? node.resolvedName : undefined) ??
+      `${JSON.stringify(node.tag)} as const`,
+    createLoc(node.loc, 1, node.tag.length),
+    MappingKind.reverseOnly,
+  )
+}
+
+function genDirectiveAsParams(
+  context: GenerateContext,
+  directive: DirectiveNode,
+): void {
+  if (directive.arg != null) {
+    genExpressionNode(context, directive.arg)
+    if (isStaticExpression(directive.arg)) context.write(' as const')
+  } else {
+    context.write('undefined')
+  }
+  context.write(', ')
+
+  // exp
+  if (directive.exp != null) {
+    if (directive.name === 'on') {
+      genEventHandler(context, directive.exp)
+    } else {
+      genExpressionNode(context, directive.exp)
+    }
+  } else {
+    context.write('undefined')
+  }
+  context.write(', ')
+
+  // modifiers
+  const first = directive.modifiers[0]
+  if (first != null) {
+    const start = directive.loc.source.lastIndexOf(first)
+    context.write(
+      '{',
+      createLoc(directive.loc, start, directive.modifiers.join('.').length),
+    )
+  } else {
+    context.write('{')
+  }
+  genList(directive.modifiers, (name, isLast) => {
+    context.write(
+      JSON.stringify(name),
+      createLoc(
+        directive.loc,
+        directive.loc.source.lastIndexOf(name),
+        name.length,
+      ),
+    )
+    context.write(': true')
+    if (!isLast) context.write(', ')
+  })
+
+  context.write('}')
 }
 
 function genTextNode(context: GenerateContext, node: TextNode): void {
@@ -1167,28 +1218,6 @@ function genCommentNode(context: GenerateContext, node: CommentNode): void {
   context.write('{/*')
   context.write(node.content.replace(/\*\//g, '*\u200b/'))
   context.write('*/}')
-}
-
-function genPropValue(
-  context: GenerateContext,
-  node: AttributeNode | DirectiveNode,
-  wrapInParantheses: boolean = false,
-): boolean {
-  if (isAttributeNode(node) && node.value != null) {
-    context.write(
-      JSON.stringify(node.value.content),
-      node.value.loc,
-      MappingKind.transformed,
-    )
-
-    return true
-  } else if (isDirectiveNode(node) && node.exp != null) {
-    genExpressionNode(context, node.exp, wrapInParantheses)
-
-    return true
-  }
-
-  return false
 }
 
 function genExpressionNode(

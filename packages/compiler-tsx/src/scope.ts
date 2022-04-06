@@ -8,6 +8,7 @@ import {
   File,
   Identifier,
   isArrayPattern,
+  isArrowFunctionExpression,
   isAssignmentPattern,
   isCallExpression,
   isClassDeclaration,
@@ -132,8 +133,6 @@ export function withScope(ast: RootNode): RootNode {
               }
             }
           }
-          // TODO: Handle scope in v-on
-          // If block statement and uses `$event`, add to scope.
         }
       })
     }
@@ -299,19 +298,40 @@ function getIdentifiers(source: string): Set<string> {
     add(source)
   } else {
     try {
-      const ast = parseUsingBabel(source, false)
+      const ast = parseUsingBabel(source, true)
+      let definedInScope = new Set<string>()
+      const scopes: Array<Set<string>> = []
+      const pushScope = (scope: Set<string>): void => {
+        scopes.push(scope)
+        definedInScope = new Set([...definedInScope, ...scope])
+      }
+      const popScope = (): void => {
+        scopes.pop()
+        definedInScope = new Set(scopes.flatMap((scope) => Array.from(scope)))
+      }
+      traverseBabel(ast, {
+        enter: (node, ancestors) => {
+          if (isFunctionDeclaration(node) || isArrowFunctionExpression(node)) {
+            const scope = new Set<string>()
+            node.params.forEach((param) => {
+              traverseBabel(param, (node) => {
+                if (isIdentifier(node)) scope.add(node.name)
+              })
+            })
+            pushScope(scope)
+          }
 
-      traverseBabel(ast, (node, ancestors) => {
-        if (isIdentifier(node)) {
-          if (ancestors.length > 0) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            if (shouldTrack(node, ancestors[ancestors.length - 1]!.node)) {
+          if (isIdentifier(node) && !definedInScope.has(node.name)) {
+            if (shouldTrack(node, ancestors.slice())) {
               add(node.name)
             }
-          } else {
-            add(node.name)
           }
-        }
+        },
+        exit: (node) => {
+          if (isFunctionDeclaration(node) || isArrowFunctionExpression(node)) {
+            popScope()
+          }
+        },
       })
     } catch {
       const RE = /\b[a-z$_][a-z0-9$_]+\b/gi
@@ -327,7 +347,7 @@ function getIdentifiers(source: string): Set<string> {
 function isValidIdentifier(id: string): boolean {
   return (
     id.trim().length > 0 &&
-    !/^(of|in|for|while|function|class|const|let|var)$/.test(id)
+    !/^(of|in|for|while|function|class|const|let|var|true|false)$/.test(id)
   )
 }
 
@@ -352,13 +372,21 @@ function parseUsingBabel(source: string, withTS = false): File | Expression {
 }
 
 // TODO: This misses destructured arguments
-function shouldTrack(identifier: Identifier, parent: BabelNode): boolean {
+function shouldTrack(
+  identifier: Identifier,
+  ancestors: Array<{
+    node: BabelNode
+    key: string
+    index?: number
+  }>,
+): boolean {
+  const ancestor = ancestors.pop()
+  if (ancestor == null) return true
+  const parent = ancestor.node
+
   if (
-    !(
-      isFunction(parent) &&
-      // not id of a FunctionDeclaration
-      (parent as any).id === identifier
-    ) &&
+    // not id of a FunctionDeclaration
+    !(isFunction(parent) && (parent as any).id === identifier) &&
     // not a key of Property
     !isStaticPropertyKey(identifier, parent) &&
     // not a property of a MemberExpression

@@ -3,6 +3,7 @@ import A from './fixture-script.vue'
 import B from './fixture-script-setup.vue'
 import C from './fixture-script-setup-type-only.vue'
 
+const c: 'input' | 'button' = '' as any
 function on() {}
 function onStr(payload: string) {}
 function onNum(payload?: number) {}
@@ -12,6 +13,8 @@ function onObj3(payload: { bar: string }) {}
 </script>
 
 <template>
+  <component :is="c" @a="on" @input="on" @click="on" @submit="on" />
+  
   <A a="" @a="on" />
   
   <A a="" @a="onStr" />
