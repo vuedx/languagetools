@@ -81,12 +81,6 @@
           "description": "Enable/disable VueDX extension",
           "scope": "machine-overridable"
         },
-        "vuedx.debug": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable/disable VueDX extension debug mode",
-          "scope": "machine-overridable"
-        },
         "vuedx.telemetry": {
           "type": "boolean",
           "default": false,
@@ -186,6 +180,18 @@
           "default": true,
           "description": "Enable/disable autoclosing of HTML tags in <template> block and top-level block tags.",
           "scope": "language-overridable"
+        },
+        "vuedx.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable VueDX extension debug mode",
+          "scope": "machine-overridable"
+        },
+        "vuedx.debugSourceMaps": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable/disable sourcemaps in virtual files (debug mode)",
+          "scope": "machine-overridable"
         }
       }
     },
@@ -236,6 +242,9 @@
   },
   "extensionDependencies": [
     "vscode.typescript-language-features"
+  ],
+  "extensionPack": [
+    "znck.vue"
   ],
   "bugs": {
     "url": "https://github.com/znck/vue-developer-experience/issues"

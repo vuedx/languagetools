@@ -148,12 +148,10 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type '\\"yes\\" | \\"no\\"' is not assignable to parameter of type 'boolean | null | undefined'.
+          Type '\\"yes\\"' is not assignable to type 'boolean | null | undefined'.",
+          "Argument of type 'boolean' is not assignable to parameter of type '\\"yes\\" | \\"no\\" | null | undefined'.",
+          "Argument of type 'boolean' is not assignable to parameter of type 'string | null | undefined'.",
         ]
       `)
     })
@@ -164,12 +162,10 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type 'number | undefined' is not assignable to parameter of type 'string | null | undefined'.
+          Type 'number' is not assignable to type 'string | null | undefined'.",
+          "Argument of type 'Date | undefined' is not assignable to parameter of type 'string | null | undefined'.
+          Type 'Date' is not assignable to type 'string'.",
           "Cannot assign to 'foo' because it is a read-only property.",
         ]
       `)
@@ -181,15 +177,20 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
-          "Argument of type '\\"modelValue\\"' is not assignable to parameter of type 'undefined'.",
+          "Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+          Type 'undefined' is not assignable to type 'string'.",
+          "Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+          Type 'undefined' is not assignable to type 'string'.",
+          "Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+          Type 'undefined' is not assignable to type 'string'.",
+          "Argument of type 'string | undefined' is not assignable to parameter of type 'string'.",
+          "Argument of type 'string | undefined' is not assignable to parameter of type 'string'.",
+          "Argument of type 'number | undefined' is not assignable to parameter of type 'string'.
+          Type 'undefined' is not assignable to type 'string'.",
+          "Argument of type 'number | undefined' is not assignable to parameter of type 'string'.",
+          "Argument of type 'number | undefined' is not assignable to parameter of type 'string'.",
+          "Argument of type 'number | undefined' is not assignable to parameter of type 'string'.
+          Type 'undefined' is not assignable to type 'string'.",
         ]
       `)
     })

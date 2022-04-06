@@ -1089,7 +1089,7 @@ function genDirective(
       context.write('(')
       genElementTagAsParam(context, node)
       context.write(', ')
-      genDirectiveAsParams(context, directive)
+      genDirectiveAsParams(context, node, directive)
       context.write(', ')
       genModelDirectiveOptions(context, node, directive)
       context.write(')')
@@ -1099,7 +1099,7 @@ function genDirective(
       context.write('(')
       genElementTagAsParam(context, node)
       context.write(', ')
-      genDirectiveAsParams(context, directive)
+      genDirectiveAsParams(context, node, directive)
       context.write(')')
       break
     default:
@@ -1109,7 +1109,7 @@ function genDirective(
       context.write(', ')
       genElementTagAsParam(context, node)
       context.write(', ')
-      genDirectiveAsParams(context, directive)
+      genDirectiveAsParams(context, node, directive)
       context.write(')')
   }
 }
@@ -1172,12 +1172,13 @@ function genElementTagAsParam(
 
 function genDirectiveAsParams(
   context: GenerateContext,
+  node: ElementNode,
   directive: DirectiveNode,
 ): void {
   if (directive.arg != null) {
     genExpressionNode(context, directive.arg)
     if (isStaticExpression(directive.arg)) context.write(' as const')
-  } else if (directive.name === 'model') {
+  } else if (directive.name === 'model' && isComponentNode(node)) {
     context.write(
       '"modelValue"',
       createLoc(

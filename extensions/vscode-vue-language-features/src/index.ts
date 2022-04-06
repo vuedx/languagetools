@@ -32,6 +32,7 @@ export async function activate(
   const ts = vscode.extensions.getExtension(
     'vscode.typescript-language-features',
   )
+  const config = getConfig(container.get(PluginCommunicationService))
 
   if (ts != null) {
     if (!ts.isActive) {
@@ -41,7 +42,7 @@ export async function activate(
     const api = ts.exports.getAPI(0)
     if (api != null) {
       // sync now
-      syncConfig(api, getConfig(container.get(PluginCommunicationService)))
+      syncConfig(api, config)
 
       // sync on change
       context.subscriptions.push(
@@ -74,6 +75,9 @@ function getConfig(service: PluginCommunicationService): PluginConfig {
   return {
     enabled: config.get<boolean>('enabled') ?? true,
     telemetry: config.get<boolean>('telemetry') ?? true,
-    extensionSocketId: isDebug ? undefined : service.socketId,
+    extensionSocketId: isDebug ? service.socketId : undefined,
+    debugSourceMaps: isDebug
+      ? config.get<boolean>('debugSourceMaps') ?? false
+      : false,
   }
 }
