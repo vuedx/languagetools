@@ -3,8 +3,8 @@ import type { VueBlockDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type {
   ExtendedTSLanguageService,
-  Typescript,
-} from '../contracts/Typescript'
+  TypeScript,
+} from '../contracts/TypeScript'
 import { CompletionsService } from '../features/CompletionsService'
 import {
   CssLanguageService,
@@ -75,12 +75,16 @@ export class TypescriptPluginService
     })
   }
 
+  public get isVueProject(): boolean {
+    return this.getExternalFiles().length > 0
+  }
+
   //#region fs
-  @cache((_args, self: TypescriptPluginService) =>
-    self.ts.project.getProjectVersion(),
-  )
+  @cache((_args, self: TypescriptPluginService) => {
+    self.ts.project.getLanguageService(true) // triggers updateGraph if project is dirty
+    return self.ts.project.getProjectVersion()
+  })
   public getExternalFiles(): string[] {
-    this.ts.project.getLanguageService(true) // Triggers Project.updateGraph() if dirty.
     let hasVirtualSchemeFiles = false
     const allFileNames: string[] = this.ts.project.getFileNames(true, true)
     const vueFileNames = new Set<string>()
@@ -137,6 +141,8 @@ export class TypescriptPluginService
       virtualFileNames.add(this.ts.getProjectRuntimeFileName(fileName))
     })
 
+    if (vueFileNames.size === 0) return [] // do not retain any files if no .vue files
+
     const fileNames = Array.from(vueFileNames).concat(
       Array.from(virtualFileNames),
     )
@@ -150,7 +156,7 @@ export class TypescriptPluginService
   public toLineColumnOffset(
     fileName: string,
     position: number,
-  ): Typescript.LineAndCharacter {
+  ): TypeScript.LineAndCharacter {
     if (this.fs.isVueSchemeFile(fileName)) {
       fileName = this.fs.getRealFileName(fileName)
 
@@ -172,23 +178,23 @@ export class TypescriptPluginService
   //#endregion
 
   //#region diagnotics
-  public getCompilerOptionsDiagnostics(): Typescript.Diagnostic[] {
+  public getCompilerOptionsDiagnostics(): TypeScript.Diagnostic[] {
     return this.diagnostics.getCompilerOptionsDiagnostics()
   }
 
-  public getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
+  public getSemanticDiagnostics(fileName: string): TypeScript.Diagnostic[] {
     return this.diagnostics.getSemanticDiagnostics(fileName)
   }
 
   public getSyntacticDiagnostics(
     fileName: string,
-  ): Typescript.DiagnosticWithLocation[] {
+  ): TypeScript.DiagnosticWithLocation[] {
     return this.diagnostics.getSyntacticDiagnostics(fileName)
   }
 
   public getSuggestionDiagnostics(
     fileName: string,
-  ): Typescript.DiagnosticWithLocation[] {
+  ): TypeScript.DiagnosticWithLocation[] {
     return this.diagnostics.getSuggestionDiagnostics(fileName)
   }
   //#endregion
@@ -197,21 +203,21 @@ export class TypescriptPluginService
   public getDefinitionAtPosition(
     fileName: string,
     position: number,
-  ): readonly Typescript.DefinitionInfo[] | undefined {
+  ): readonly TypeScript.DefinitionInfo[] | undefined {
     return this.definitions.getDefinitionAtPosition(fileName, position)
   }
 
   public getTypeDefinitionAtPosition(
     fileName: string,
     position: number,
-  ): readonly Typescript.DefinitionInfo[] | undefined {
+  ): readonly TypeScript.DefinitionInfo[] | undefined {
     return this.definitions.getTypeDefinitionAtPosition(fileName, position)
   }
 
   public getDefinitionAndBoundSpan(
     fileName: string,
     position: number,
-  ): Typescript.DefinitionInfoAndBoundSpan | undefined {
+  ): TypeScript.DefinitionInfoAndBoundSpan | undefined {
     return this.definitions.getDefinitionAndBoundSpan(fileName, position)
   }
   //#endregion
@@ -220,7 +226,7 @@ export class TypescriptPluginService
   public getQuickInfoAtPosition(
     fileName: string,
     position: number,
-  ): Typescript.QuickInfo | undefined {
+  ): TypeScript.QuickInfo | undefined {
     return this.quickInfo.getQuickInfoAtPosition(fileName, position)
   }
   //#endregion
@@ -229,8 +235,8 @@ export class TypescriptPluginService
   public getCompletionsAtPosition(
     fileName: string,
     position: number,
-    options: Typescript.GetCompletionsAtPositionOptions | undefined,
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     return this.completions.getCompletionsAtPosition(
       fileName,
       position,
@@ -243,13 +249,13 @@ export class TypescriptPluginService
     position: number,
     entryName: string,
     formatOptions:
-      | Typescript.FormatCodeOptions
-      | Typescript.FormatCodeSettings
+      | TypeScript.FormatCodeOptions
+      | TypeScript.FormatCodeSettings
       | undefined,
     source: string | undefined,
-    preferences: Typescript.UserPreferences | undefined,
-    data: Typescript.CompletionEntryData | undefined,
-  ): Typescript.CompletionEntryDetails | undefined {
+    preferences: TypeScript.UserPreferences | undefined,
+    data: TypeScript.CompletionEntryData | undefined,
+  ): TypeScript.CompletionEntryDetails | undefined {
     return this.completions.getCompletionEntryDetails(
       fileName,
       position,
@@ -266,7 +272,7 @@ export class TypescriptPluginService
     position: number,
     name: string,
     source: string | undefined,
-  ): Typescript.Symbol | undefined {
+  ): TypeScript.Symbol | undefined {
     return this.completions.getCompletionEntrySymbol(
       fileName,
       position,
@@ -279,8 +285,8 @@ export class TypescriptPluginService
   //#region classifications
   public getEncodedSyntacticClassifications(
     fileName: string,
-    span: Typescript.TextSpan,
-  ): Typescript.Classifications {
+    span: TypeScript.TextSpan,
+  ): TypeScript.Classifications {
     return this.classifications.getEncodedSyntacticClassifications(
       fileName,
       span,
@@ -289,9 +295,9 @@ export class TypescriptPluginService
 
   public getEncodedSemanticClassifications(
     fileName: string,
-    span: Typescript.TextSpan,
-    format?: Typescript.SemanticClassificationFormat,
-  ): Typescript.Classifications {
+    span: TypeScript.TextSpan,
+    format?: TypeScript.SemanticClassificationFormat,
+  ): TypeScript.Classifications {
     return this.classifications.getEncodedSemanticClassifications(
       fileName,
       span,
@@ -304,7 +310,7 @@ export class TypescriptPluginService
   public getReferencesAtPosition(
     fileName: string,
     position: number,
-  ): Typescript.ReferenceEntry[] | undefined {
+  ): TypeScript.ReferenceEntry[] | undefined {
     return this.references.getReferencesAtPosition(fileName, position)
   }
 
@@ -312,11 +318,11 @@ export class TypescriptPluginService
   public findReferences(
     fileName: string,
     position: number,
-  ): Typescript.ReferencedSymbol[] | undefined {
+  ): TypeScript.ReferencedSymbol[] | undefined {
     return this.references.findReferences(fileName, position)
   }
 
-  public getFileReferences(fileName: string): Typescript.ReferenceEntry[] {
+  public getFileReferences(fileName: string): TypeScript.ReferenceEntry[] {
     return this.references.getFileReferences(fileName)
   }
   //#endregion
@@ -325,7 +331,7 @@ export class TypescriptPluginService
   public getImplementationAtPosition(
     fileName: string,
     position: number,
-  ): readonly Typescript.ImplementationLocation[] | undefined {
+  ): readonly TypeScript.ImplementationLocation[] | undefined {
     if (this.fs.isVueFile(fileName)) {
       return whenNotNull(
         this.fs.getVirtualFileAt(fileName, position),
@@ -345,11 +351,11 @@ export class TypescriptPluginService
   //#region TODO: refactor
   public getApplicableRefactors(
     fileName: string,
-    positionOrRange: number | Typescript.TextRange,
-    preferences: Typescript.UserPreferences | undefined,
-    triggerReason?: Typescript.RefactorTriggerReason,
+    positionOrRange: number | TypeScript.TextRange,
+    preferences: TypeScript.UserPreferences | undefined,
+    triggerReason?: TypeScript.RefactorTriggerReason,
     kind?: string,
-  ): Typescript.ApplicableRefactorInfo[] {
+  ): TypeScript.ApplicableRefactorInfo[] {
     if (this.fs.isVueFile(fileName)) return []
     return this.ts.service.getApplicableRefactors(
       fileName,
@@ -362,12 +368,12 @@ export class TypescriptPluginService
 
   public getEditsForRefactor(
     fileName: string,
-    formatOptions: Typescript.FormatCodeSettings,
-    positionOrRange: number | Typescript.TextRange,
+    formatOptions: TypeScript.FormatCodeSettings,
+    positionOrRange: number | TypeScript.TextRange,
     refactorName: string,
     actionName: string,
-    preferences: Typescript.UserPreferences | undefined,
-  ): Typescript.RefactorEditInfo | undefined {
+    preferences: TypeScript.UserPreferences | undefined,
+  ): TypeScript.RefactorEditInfo | undefined {
     if (this.fs.isVueFile(fileName)) return
 
     return this.ts.service.getEditsForRefactor(
@@ -381,42 +387,42 @@ export class TypescriptPluginService
   }
 
   public organizeImports(
-    args: Typescript.OrganizeImportsArgs,
-    formatOptions: Typescript.FormatCodeSettings,
-    preferences: Typescript.UserPreferences | undefined,
-  ): readonly Typescript.FileTextChanges[] {
+    args: TypeScript.OrganizeImportsArgs,
+    formatOptions: TypeScript.FormatCodeSettings,
+    preferences: TypeScript.UserPreferences | undefined,
+  ): readonly TypeScript.FileTextChanges[] {
     if (this.fs.isVueFile(args.fileName)) return []
     return this.ts.service.organizeImports(args, formatOptions, preferences)
   }
 
   public toggleLineComment(
     fileName: string,
-    textRange: Typescript.TextRange,
-  ): Typescript.TextChange[] {
+    textRange: TypeScript.TextRange,
+  ): TypeScript.TextChange[] {
     if (this.fs.isVueFile(fileName)) return []
     return this.ts.service.toggleLineComment(fileName, textRange)
   }
 
   public toggleMultilineComment(
     fileName: string,
-    textRange: Typescript.TextRange,
-  ): Typescript.TextChange[] {
+    textRange: TypeScript.TextRange,
+  ): TypeScript.TextChange[] {
     if (this.fs.isVueFile(fileName)) return []
     return this.ts.service.toggleMultilineComment(fileName, textRange)
   }
 
   public commentSelection(
     fileName: string,
-    textRange: Typescript.TextRange,
-  ): Typescript.TextChange[] {
+    textRange: TypeScript.TextRange,
+  ): TypeScript.TextChange[] {
     if (this.fs.isVueFile(fileName)) return []
     return this.ts.service.commentSelection(fileName, textRange)
   }
 
   public uncommentSelection(
     fileName: string,
-    textRange: Typescript.TextRange,
-  ): Typescript.TextChange[] {
+    textRange: TypeScript.TextRange,
+  ): TypeScript.TextChange[] {
     if (this.fs.isVueFile(fileName)) return []
     return this.ts.service.uncommentSelection(fileName, textRange)
   }
@@ -426,8 +432,8 @@ export class TypescriptPluginService
   public getRenameInfo(
     fileName: string,
     position: number,
-    options?: Typescript.RenameInfoOptions,
-  ): Typescript.RenameInfo {
+    options?: TypeScript.RenameInfoOptions,
+  ): TypeScript.RenameInfo {
     return this.rename.getRenameInfo(fileName, position, options)
   }
 
@@ -437,7 +443,7 @@ export class TypescriptPluginService
     findInStrings: boolean,
     findInComments: boolean,
     providePrefixAndSuffixTextForRename?: boolean,
-  ): readonly Typescript.RenameLocation[] | undefined {
+  ): readonly TypeScript.RenameLocation[] | undefined {
     return this.rename.findRenameLocations(
       fileName,
       position,
@@ -450,9 +456,9 @@ export class TypescriptPluginService
   public getEditsForFileRename(
     oldFilePath: string,
     newFilePath: string,
-    formatOptions: Typescript.FormatCodeSettings,
-    preferences: Typescript.UserPreferences | undefined,
-  ): readonly Typescript.FileTextChanges[] {
+    formatOptions: TypeScript.FormatCodeSettings,
+    preferences: TypeScript.UserPreferences | undefined,
+  ): readonly TypeScript.FileTextChanges[] {
     return this.rename.getEditsForFileRename(
       oldFilePath,
       newFilePath,
@@ -468,9 +474,9 @@ export class TypescriptPluginService
     start: number,
     end: number,
     errorCodes: readonly number[],
-    formatOptions: Typescript.FormatCodeSettings,
-    preferences: Typescript.UserPreferences,
-  ): readonly Typescript.CodeFixAction[] {
+    formatOptions: TypeScript.FormatCodeSettings,
+    preferences: TypeScript.UserPreferences,
+  ): readonly TypeScript.CodeFixAction[] {
     if (this.fs.isVueFile(fileName)) {
       return (
         whenNotNull(
@@ -500,11 +506,11 @@ export class TypescriptPluginService
   }
 
   public getCombinedCodeFix(
-    scope: Typescript.CombinedCodeFixScope,
+    scope: TypeScript.CombinedCodeFixScope,
     fixId: {},
-    formatOptions: Typescript.FormatCodeSettings,
-    preferences: Typescript.UserPreferences,
-  ): Typescript.CombinedCodeActions {
+    formatOptions: TypeScript.FormatCodeSettings,
+    preferences: TypeScript.UserPreferences,
+  ): TypeScript.CombinedCodeActions {
     if (this.fs.isVueFile(scope.fileName)) {
       return {
         changes: [],
@@ -520,7 +526,7 @@ export class TypescriptPluginService
   }
   //#endregion
 
-  public getOutliningSpans(fileName: string): Typescript.OutliningSpan[] {
+  public getOutliningSpans(fileName: string): TypeScript.OutliningSpan[] {
     if (this.fs.isVueSchemeFile(fileName)) {
       const realFileName = this.fs.getRealFileName(fileName)
       return (
@@ -538,8 +544,8 @@ export class TypescriptPluginService
   public getDocCommentTemplateAtPosition(
     fileName: string,
     position: number,
-    options?: Typescript.DocCommentTemplateOptions,
-  ): Typescript.TextInsertion | undefined {
+    options?: TypeScript.DocCommentTemplateOptions,
+  ): TypeScript.TextInsertion | undefined {
     if (this.fs.isVueFile(fileName)) {
       return whenNotNull(
         this.fs.getVirtualFileAt(fileName, position),
@@ -564,8 +570,8 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
     key: string,
-    options: Typescript.FormatCodeOptions | Typescript.FormatCodeSettings,
-  ): Typescript.TextChange[] {
+    options: TypeScript.FormatCodeOptions | TypeScript.FormatCodeSettings,
+  ): TypeScript.TextChange[] {
     if (this.fs.isVueFile(fileName)) return []
 
     return this.ts.service.getFormattingEditsAfterKeystroke(
@@ -578,8 +584,8 @@ export class TypescriptPluginService
 
   public getFormattingEditsForDocument(
     fileName: string,
-    options: Typescript.FormatCodeOptions | Typescript.FormatCodeSettings,
-  ): Typescript.TextChange[] {
+    options: TypeScript.FormatCodeOptions | TypeScript.FormatCodeSettings,
+  ): TypeScript.TextChange[] {
     if (this.fs.isVueFile(fileName)) return []
     return this.ts.service.getFormattingEditsForDocument(fileName, options)
   }
@@ -588,8 +594,8 @@ export class TypescriptPluginService
     fileName: string,
     start: number,
     end: number,
-    options: Typescript.FormatCodeOptions | Typescript.FormatCodeSettings,
-  ): Typescript.TextChange[] {
+    options: TypeScript.FormatCodeOptions | TypeScript.FormatCodeSettings,
+  ): TypeScript.TextChange[] {
     if (this.fs.isVueFile(fileName)) return []
     return this.ts.service.getFormattingEditsForRange(
       fileName,
@@ -601,11 +607,11 @@ export class TypescriptPluginService
 
   // @ts-expect-error - TODO: fix this
   public async applyCodeActionCommand(
-    action: Typescript.CodeActionCommand | Typescript.CodeActionCommand[],
-    formatSettings?: Typescript.FormatCodeSettings,
+    action: TypeScript.CodeActionCommand | TypeScript.CodeActionCommand[],
+    formatSettings?: TypeScript.FormatCodeSettings,
   ): Promise<
-    | Typescript.ApplyCodeActionCommandResult
-    | Typescript.ApplyCodeActionCommandResult[]
+    | TypeScript.ApplyCodeActionCommandResult
+    | TypeScript.ApplyCodeActionCommandResult[]
   > {
     return await this.ts.service.applyCodeActionCommand(action, formatSettings)
   }
@@ -617,7 +623,7 @@ export class TypescriptPluginService
   public getBraceMatchingAtPosition(
     fileName: string,
     position: number,
-  ): Typescript.TextSpan[] {
+  ): TypeScript.TextSpan[] {
     if (this.fs.isVueFile(fileName)) {
       return (
         whenNotNull(
@@ -638,7 +644,7 @@ export class TypescriptPluginService
   public getBreakpointStatementAtPosition(
     fileName: string,
     position: number,
-  ): Typescript.TextSpan | undefined {
+  ): TypeScript.TextSpan | undefined {
     if (this.fs.isVueFile(fileName)) {
       return whenNotNull(
         this.fs.getVirtualFileAt(fileName, position),
@@ -658,7 +664,7 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
     filesToSearch: string[],
-  ): Typescript.DocumentHighlights[] | undefined {
+  ): TypeScript.DocumentHighlights[] | undefined {
     if (this.fs.isVueFile(fileName)) {
       return whenNotNull(
         this.fs.getVirtualFileAt(fileName, position),
@@ -689,7 +695,7 @@ export class TypescriptPluginService
     fileName: string,
     emitOnlyDtsFiles?: boolean,
     forceDtsEmit?: boolean,
-  ): Typescript.EmitOutput {
+  ): TypeScript.EmitOutput {
     if (this.fs.isVueFile(fileName)) {
       return { outputFiles: [], emitSkipped: true }
     }
@@ -704,7 +710,7 @@ export class TypescriptPluginService
   public getIndentationAtPosition(
     fileName: string,
     position: number,
-    options: Typescript.EditorOptions | Typescript.EditorSettings,
+    options: TypeScript.EditorOptions | TypeScript.EditorSettings,
   ): number {
     if (this.fs.isVueFile(fileName)) return 0
     return this.ts.service.getIndentationAtPosition(fileName, position, options)
@@ -713,7 +719,7 @@ export class TypescriptPluginService
   public getJsxClosingTagAtPosition(
     fileName: string,
     position: number,
-  ): Typescript.JsxClosingTagInfo | undefined {
+  ): TypeScript.JsxClosingTagInfo | undefined {
     if (this.fs.isVueFile(fileName)) return
     return this.ts.service.getJsxClosingTagAtPosition(fileName, position)
   }
@@ -722,7 +728,7 @@ export class TypescriptPluginService
     fileName: string,
     startPos: number,
     endPos: number,
-  ): Typescript.TextSpan | undefined {
+  ): TypeScript.TextSpan | undefined {
     if (this.fs.isVueFile(fileName)) return
     return this.ts.service.getNameOrDottedNameSpan(fileName, startPos, endPos)
   }
@@ -732,7 +738,7 @@ export class TypescriptPluginService
     maxResultCount?: number,
     fileName?: string,
     excludeDtsFiles?: boolean,
-  ): Typescript.NavigateToItem[] {
+  ): TypeScript.NavigateToItem[] {
     return this.ts.service.getNavigateToItems(
       searchValue,
       maxResultCount,
@@ -743,12 +749,12 @@ export class TypescriptPluginService
 
   public getNavigationBarItems(
     fileName: string,
-  ): Typescript.NavigationBarItem[] {
+  ): TypeScript.NavigationBarItem[] {
     if (this.fs.isVueFile(fileName)) return []
     return this.ts.service.getNavigationBarItems(fileName)
   }
 
-  public getNavigationTree(fileName: string): Typescript.NavigationTree {
+  public getNavigationTree(fileName: string): TypeScript.NavigationTree {
     if (this.fs.isVueFile(fileName))
       return {
         text: '<component>',
@@ -763,8 +769,8 @@ export class TypescriptPluginService
   public getSignatureHelpItems(
     fileName: string,
     position: number,
-    options: Typescript.SignatureHelpItemsOptions,
-  ): Typescript.SignatureHelpItems | undefined {
+    options: TypeScript.SignatureHelpItemsOptions,
+  ): TypeScript.SignatureHelpItems | undefined {
     if (this.fs.isVueFile(fileName)) return
     return this.ts.service.getSignatureHelpItems(fileName, position, options)
   }
@@ -772,7 +778,7 @@ export class TypescriptPluginService
   public getSmartSelectionRange(
     fileName: string,
     position: number,
-  ): Typescript.SelectionRange {
+  ): TypeScript.SelectionRange {
     if (this.fs.isVueFile(fileName)) {
       return { textSpan: { start: position, length: 1 } }
     }
@@ -783,7 +789,7 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
     onlyMultiLine: boolean,
-  ): Typescript.TextSpan | undefined {
+  ): TypeScript.TextSpan | undefined {
     if (this.fs.isVueFile(fileName)) return
     return this.ts.service.getSpanOfEnclosingComment(
       fileName,
@@ -794,8 +800,8 @@ export class TypescriptPluginService
 
   public getTodoComments(
     fileName: string,
-    descriptors: Typescript.TodoCommentDescriptor[],
-  ): Typescript.TodoComment[] {
+    descriptors: TypeScript.TodoCommentDescriptor[],
+  ): TypeScript.TodoComment[] {
     if (this.fs.isVueFile(fileName)) return []
     return this.ts.service.getTodoComments(fileName, descriptors)
   }
@@ -819,7 +825,7 @@ export class TypescriptPluginService
   public prepareCallHierarchy(
     fileName: string,
     position: number,
-  ): Typescript.CallHierarchyItem | Typescript.CallHierarchyItem[] | undefined {
+  ): TypeScript.CallHierarchyItem | TypeScript.CallHierarchyItem[] | undefined {
     if (this.fs.isVueFile(fileName)) return
     return this.ts.service.prepareCallHierarchy(fileName, position)
   }
@@ -827,7 +833,7 @@ export class TypescriptPluginService
   public provideCallHierarchyIncomingCalls(
     fileName: string,
     position: number,
-  ): Typescript.CallHierarchyIncomingCall[] {
+  ): TypeScript.CallHierarchyIncomingCall[] {
     if (this.fs.isVueFile(fileName)) return []
     return this.ts.service.provideCallHierarchyIncomingCalls(fileName, position)
   }
@@ -835,7 +841,7 @@ export class TypescriptPluginService
   public provideCallHierarchyOutgoingCalls(
     fileName: string,
     position: number,
-  ): Typescript.CallHierarchyOutgoingCall[] {
+  ): TypeScript.CallHierarchyOutgoingCall[] {
     if (this.fs.isVueFile(fileName)) return []
     return this.ts.service.provideCallHierarchyOutgoingCalls(fileName, position)
   }

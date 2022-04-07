@@ -1,7 +1,7 @@
 import { debug, parseFileName, toFileName, traceInDevMode } from '@vuedx/shared'
 import type { VueBlockDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
-import type { Typescript } from '../contracts/Typescript'
+import type { TypeScript } from '../contracts/TypeScript'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
@@ -14,7 +14,7 @@ import { findLinkedTextSpan } from './helpers'
 export class ReferencesService
   implements
     Pick<
-      Typescript.LanguageService,
+      TypeScript.LanguageService,
       'getReferencesAtPosition' | 'findReferences' | 'getFileReferences'
     > {
   private readonly logger = LoggerService.getLogger(
@@ -25,7 +25,7 @@ export class ReferencesService
   private readonly cache = {
     references: new CacheService<{
       position: number
-      references: Typescript.ReferenceEntry[]
+      references: TypeScript.ReferenceEntry[]
     }>(
       (fileName) =>
         `${this.ts.project.getProjectVersion()}::${this.fs.getVersion(
@@ -35,7 +35,7 @@ export class ReferencesService
     ),
     symbols: new CacheService<{
       position: number
-      references: Typescript.ReferencedSymbol[]
+      references: TypeScript.ReferencedSymbol[]
     }>(
       (fileName) =>
         `${this.ts.project.getProjectVersion()}::${this.fs.getVersion(
@@ -44,7 +44,7 @@ export class ReferencesService
       5,
     ),
 
-    file: new CacheService<Typescript.ReferenceEntry[]>(
+    file: new CacheService<TypeScript.ReferenceEntry[]>(
       (fileName) =>
         `${this.ts.project.getProjectVersion()}::${this.fs.getVersion(
           fileName,
@@ -68,7 +68,7 @@ export class ReferencesService
   public getReferencesAtPosition(
     fileName: string,
     position: number,
-  ): Typescript.ReferenceEntry[] | undefined {
+  ): TypeScript.ReferenceEntry[] | undefined {
     if (this.fs.isVueSchemeFile(fileName)) {
       const parsed = parseFileName(fileName)
       return this.resolveReferenceEntryInVueSchemeFile(
@@ -99,7 +99,7 @@ export class ReferencesService
   public findReferences(
     fileName: string,
     position: number,
-  ): Typescript.ReferencedSymbol[] | undefined {
+  ): TypeScript.ReferencedSymbol[] | undefined {
     if (this.fs.isVueSchemeFile(fileName)) {
       const parsed = parseFileName(fileName)
       return this.ts.runInSchemeMode(() =>
@@ -128,7 +128,7 @@ export class ReferencesService
   }
 
   @debug()
-  public getFileReferences(fileName: string): Typescript.ReferenceEntry[] {
+  public getFileReferences(fileName: string): TypeScript.ReferenceEntry[] {
     return this.cache.file.withCache(fileName, (previous) => {
       if (previous != null) return previous
 
@@ -143,7 +143,7 @@ export class ReferencesService
   private getReferencesAtPositionInVueFile(
     fileName: string,
     position: number,
-  ): Typescript.ReferenceEntry[] {
+  ): TypeScript.ReferenceEntry[] {
     const block = this.fs.getVirtualFileAt(fileName, position)
     if (block == null) return []
     return this.getReferencesAtPositionInVirtualFile(
@@ -155,8 +155,8 @@ export class ReferencesService
   private getReferencesAtPositionInVirtualFile(
     block: VueBlockDocument,
     position: number,
-  ): Typescript.ReferenceEntry[] {
-    const references: Typescript.ReferenceEntry[] = []
+  ): TypeScript.ReferenceEntry[] {
+    const references: TypeScript.ReferenceEntry[] = []
 
     if (block.tsFileName != null) {
       for (const offset of block.findCopiedOffsets(position)) {
@@ -180,7 +180,7 @@ export class ReferencesService
   private findReferencesInVueFile(
     fileName: string,
     position: number,
-  ): Typescript.ReferencedSymbol[] {
+  ): TypeScript.ReferencedSymbol[] {
     const block = this.fs.getVirtualFileAt(fileName, position)
     if (block == null) return []
 
@@ -193,9 +193,9 @@ export class ReferencesService
   private findReferencesInVirtualFile(
     block: VueBlockDocument,
     position: number,
-  ): Typescript.ReferencedSymbol[] {
+  ): TypeScript.ReferencedSymbol[] {
     if (block.tsFileName == null || block.generated == null) return []
-    const references: Typescript.ReferencedSymbol[] = []
+    const references: TypeScript.ReferencedSymbol[] = []
     const fileName = block.tsFileName
     const doc = block.generated
 
@@ -226,8 +226,8 @@ export class ReferencesService
 
   @traceInDevMode()
   private resolveReferenceEntries(
-    references: Typescript.ReferenceEntry[] = [],
-  ): Typescript.ReferenceEntry[] {
+    references: TypeScript.ReferenceEntry[] = [],
+  ): TypeScript.ReferenceEntry[] {
     return references.flatMap((reference) => {
       if (this.fs.isVueVirtualFile(reference.fileName)) {
         return this.resolveReferenceEntry(reference)
@@ -240,8 +240,8 @@ export class ReferencesService
   }
 
   private resolveReferenceEntry(
-    reference: Typescript.ReferenceEntry,
-  ): Typescript.ReferenceEntry[] {
+    reference: TypeScript.ReferenceEntry,
+  ): TypeScript.ReferenceEntry[] {
     const block = this.fs.getVirtualFile(reference.fileName)
     if (block == null || block.generated == null || block.tsFileName == null) {
       this.logger.debug(
@@ -292,8 +292,8 @@ export class ReferencesService
   }
 
   private resolveReferenceEntryInVueSchemeFile(
-    references: Typescript.ReferenceEntry[] = [],
-  ): Typescript.ReferenceEntry[] {
+    references: TypeScript.ReferenceEntry[] = [],
+  ): TypeScript.ReferenceEntry[] {
     return references.map((reference) => {
       if (!this.fs.isVueVirtualFile(reference.fileName)) return reference
       const fileName = toFileName({
@@ -315,8 +315,8 @@ export class ReferencesService
   }
 
   private resolveReferencedSymbols(
-    symbols: Typescript.ReferencedSymbol[] = [],
-  ): Typescript.ReferencedSymbol[] {
+    symbols: TypeScript.ReferencedSymbol[] = [],
+  ): TypeScript.ReferencedSymbol[] {
     return symbols.flatMap((symbol) => {
       const fileName = symbol.definition.fileName
       if (this.fs.isVueTsFile(fileName)) return []
@@ -335,7 +335,7 @@ export class ReferencesService
   private resolveReferencedSymbol({
     definition,
     references,
-  }: Typescript.ReferencedSymbol): Typescript.ReferencedSymbol[] {
+  }: TypeScript.ReferencedSymbol): TypeScript.ReferencedSymbol[] {
     const block = this.fs.getVirtualFile(definition.fileName)
     if (block == null || block.generated == null || block.tsFileName == null) {
       this.logger.debug(
@@ -370,7 +370,7 @@ export class ReferencesService
         displayParts: definition.displayParts,
       }
 
-      const symbols: Typescript.ReferencedSymbol[] = [
+      const symbols: TypeScript.ReferencedSymbol[] = [
         { definition, references: this.resolveReferenceEntries(references) },
       ]
 
@@ -452,8 +452,8 @@ export class ReferencesService
   }
 
   private resolveReferencedSymbolInVueSchemeFile(
-    references: Typescript.ReferencedSymbol[] = [],
-  ): Typescript.ReferencedSymbol[] {
+    references: TypeScript.ReferencedSymbol[] = [],
+  ): TypeScript.ReferencedSymbol[] {
     return references.map((reference) => {
       return {
         definition: {

@@ -1,6 +1,6 @@
 import { chunk, isNotNull } from '@vuedx/shared'
 import { injectable, inject } from 'inversify'
-import type { TSLanguageService, Typescript } from '../contracts/Typescript'
+import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
 import { FilesystemService } from './FilesystemService'
 import { TypescriptContextService } from './TypescriptContextService'
 
@@ -20,9 +20,9 @@ export class EncodedClassificationsService
 
   public getEncodedSemanticClassifications(
     fileName: string,
-    span: Typescript.TextSpan,
-    format?: Typescript.SemanticClassificationFormat,
-  ): Typescript.Classifications {
+    span: TypeScript.TextSpan,
+    format?: TypeScript.SemanticClassificationFormat,
+  ): TypeScript.Classifications {
     this.ts.ensureUptoDate(fileName)
 
     return this.getEncodedClassifications(
@@ -41,8 +41,8 @@ export class EncodedClassificationsService
 
   public getEncodedSyntacticClassifications(
     fileName: string,
-    span: Typescript.TextSpan,
-  ): Typescript.Classifications {
+    span: TypeScript.TextSpan,
+  ): TypeScript.Classifications {
     this.ts.ensureUptoDate(fileName)
 
     return this.getEncodedClassifications(
@@ -60,13 +60,13 @@ export class EncodedClassificationsService
   private getEncodedClassifications(
     getter: (
       fileName: string,
-      span: Typescript.TextSpan,
-      format?: Typescript.SemanticClassificationFormat,
-    ) => Typescript.Classifications,
+      span: TypeScript.TextSpan,
+      format?: TypeScript.SemanticClassificationFormat,
+    ) => TypeScript.Classifications,
     fileName: string,
-    span: Typescript.TextSpan,
-    format?: Typescript.SemanticClassificationFormat,
-  ): Typescript.Classifications {
+    span: TypeScript.TextSpan,
+    format?: TypeScript.SemanticClassificationFormat,
+  ): TypeScript.Classifications {
     if (!this.fs.isVueFile(fileName)) {
       return getter(fileName, span, format)
     }
@@ -83,7 +83,7 @@ export class EncodedClassificationsService
       .map((block) => file.getDoc(block))
       .filter(isNotNull)
 
-    return docs.reduce<Typescript.Classifications>(
+    return docs.reduce<TypeScript.Classifications>(
       (result, doc) => {
         if (doc.tsFileName == null) return result
         if (doc.block.type === 'template') return result

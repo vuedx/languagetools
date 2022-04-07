@@ -14,7 +14,7 @@ import type {
   Range,
 } from 'vscode-languageserver-types'
 import type { LanguageService } from '../contracts/LanguageService'
-import type { TSLanguageService } from '../contracts/Typescript'
+import type { TSLanguageService } from '../contracts/TypeScript'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'

@@ -4,7 +4,7 @@ import type {
   FormatCodeSettings,
   UserPreferences,
 } from 'typescript/lib/tsserverlibrary'
-import type { TSLanguageService, Typescript } from '../contracts/Typescript'
+import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
 import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService, LogLevel } from '../services/LoggerService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
@@ -33,8 +33,8 @@ export class RenameService
   public getRenameInfo(
     fileName: string,
     position: number,
-    options?: Typescript.RenameInfoOptions,
-  ): Typescript.RenameInfo {
+    options?: TypeScript.RenameInfoOptions,
+  ): TypeScript.RenameInfo {
     if (this.fs.isVueFile(fileName)) {
       return this.vueGetRenameInfo(fileName, position, options)
     }
@@ -49,7 +49,7 @@ export class RenameService
     findInStrings: boolean,
     findInComments: boolean,
     providePrefixAndSuffixTextForRename?: boolean,
-  ): readonly Typescript.RenameLocation[] | undefined {
+  ): readonly TypeScript.RenameLocation[] | undefined {
     if (this.fs.isVueFile(fileName)) {
       return this.vueFindRenameLocations(
         fileName,
@@ -75,7 +75,7 @@ export class RenameService
     newFilePath: string,
     formatOptions: FormatCodeSettings,
     preferences: UserPreferences | undefined,
-  ): readonly Typescript.FileTextChanges[] {
+  ): readonly TypeScript.FileTextChanges[] {
     if (this.fs.isVueFile(oldFilePath) && this.fs.isVueFile(newFilePath)) {
       return this._resolveAllFileTextChanges(
         this.ts.service.getEditsForFileRename(
@@ -105,8 +105,8 @@ export class RenameService
   private vueGetRenameInfo(
     fileName: string,
     position: number,
-    options?: Typescript.RenameInfoOptions,
-  ): Typescript.RenameInfo {
+    options?: TypeScript.RenameInfoOptions,
+  ): TypeScript.RenameInfo {
     const block = this.fs.getVirtualFileAt(fileName, position)
     if (block == null || block.tsFileName == null) {
       return {
@@ -172,7 +172,7 @@ export class RenameService
     findInStrings: boolean,
     findInComments: boolean,
     providePrefixAndSuffixTextForRename?: boolean,
-  ): readonly Typescript.RenameLocation[] {
+  ): readonly TypeScript.RenameLocation[] {
     const block = this.fs.getVirtualFileAt(fileName, position)
     // TODO: Support rename locations from LanguageService
     if (block == null || block.tsFileName == null) return []
@@ -198,9 +198,9 @@ export class RenameService
    * Dedupe changes by fileName
    */
   private _resolveAllFileTextChanges(
-    changes: readonly Typescript.FileTextChanges[],
-  ): Typescript.FileTextChanges[] {
-    const changesByFileName = new Map<string, Typescript.FileTextChanges>()
+    changes: readonly TypeScript.FileTextChanges[],
+  ): TypeScript.FileTextChanges[] {
+    const changesByFileName = new Map<string, TypeScript.FileTextChanges>()
 
     for (const textChanges of changes) {
       const tranformedChanges = this._resolveFileTextChanges(textChanges)
@@ -219,10 +219,10 @@ export class RenameService
     fileName,
     textChanges,
     isNewFile,
-  }: Typescript.FileTextChanges): Typescript.FileTextChanges {
+  }: TypeScript.FileTextChanges): TypeScript.FileTextChanges {
     const asFileTextChanges = (
-      changes: Typescript.FileTextChanges,
-    ): Typescript.FileTextChanges => {
+      changes: TypeScript.FileTextChanges,
+    ): TypeScript.FileTextChanges => {
       if (isNewFile !== true) return changes
       return { ...changes, isNewFile }
     }
@@ -261,14 +261,14 @@ export class RenameService
   }
 
   private _resolveRenameLocation(
-    location: Typescript.RenameLocation,
+    location: TypeScript.RenameLocation,
     options: {
       findInStrings: boolean
       findInComments: boolean
       providePrefixAndSuffixTextForRename?: boolean
       resolveInner?: boolean
     },
-  ): Typescript.RenameLocation[] {
+  ): TypeScript.RenameLocation[] {
     if (this.fs.isVueTsFile(location.fileName)) return []
     if (!this.fs.isVueVirtualFile(location.fileName)) return [location]
 
@@ -348,14 +348,14 @@ export class RenameService
 
   @traceInDevMode()
   private _resolveRenameLocations(
-    locations: readonly Typescript.RenameLocation[],
+    locations: readonly TypeScript.RenameLocation[],
     options: {
       findInStrings: boolean
       findInComments: boolean
       providePrefixAndSuffixTextForRename?: boolean | undefined
       resolveInner?: boolean
     },
-  ): Typescript.RenameLocation[] {
+  ): TypeScript.RenameLocation[] {
     return locations.flatMap((location) =>
       this._resolveRenameLocation(location, options),
     )

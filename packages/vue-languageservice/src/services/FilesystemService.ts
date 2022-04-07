@@ -22,7 +22,7 @@ import * as Path from 'path'
 import type { Disposable } from '../contracts/Disposable'
 import type { FilesystemProvider } from '../contracts/FilesystemProvider'
 import type { OffsetRangeLike } from '../contracts/OffsetRangeLike'
-import type { Typescript } from '../contracts/Typescript'
+import type { TypeScript } from '../contracts/TypeScript'
 import { createFilesystemProvider } from '../helpers/createFilesystemProvider'
 import { CacheService } from './CacheService'
 import { LoggerService } from './LoggerService'
@@ -171,7 +171,7 @@ export class FilesystemService implements Disposable {
 
     const registerFileUpdate = (
       fileName: string,
-    ): Typescript.server.ScriptInfo | undefined => {
+    ): TypeScript.server.ScriptInfo | undefined => {
       const info = this.ts.project.getScriptInfo(fileName)
       this.ts.project.registerFileUpdate(fileName)
       this.ts.project.markAsDirty()

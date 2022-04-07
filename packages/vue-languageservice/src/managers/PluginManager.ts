@@ -6,8 +6,8 @@ import type {
   TSLanguageServiceHost,
   TSProject,
   TSServerHost,
-  Typescript,
-} from '../contracts/Typescript'
+  TypeScript,
+} from '../contracts/TypeScript'
 import { createHash } from 'crypto'
 import { overrideMethod } from '../helpers/overrideMethod'
 import { FilesystemService } from '../services/FilesystemService'
@@ -16,8 +16,8 @@ import { TypescriptContextService } from '../services/TypescriptContextService'
 import { TypescriptPluginService } from '../services/TypescriptPluginService'
 import { ConfigManager, PluginConfig } from './ConfigManager'
 
-export interface Options extends Typescript.server.PluginCreateInfo {
-  typescript: typeof Typescript
+export interface Options extends TypeScript.server.PluginCreateInfo {
+  typescript: typeof TypeScript
   typesDir: string
 }
 
@@ -59,7 +59,7 @@ export class PluginManager {
       )
     } finally {
       const current = ((options.project.projectService as any)
-        .hostConfiguration as Typescript.server.HostConfiguration)
+        .hostConfiguration as TypeScript.server.HostConfiguration)
         .extraFileExtensions
 
       if (
@@ -99,7 +99,7 @@ export class PluginManager {
     console.error = (...args) => logger.error(...args)
   }
 
-  #patchTypescript(typescript: typeof Typescript): void {
+  #patchTypescript(typescript: typeof TypeScript): void {
     overrideMethod(
       typescript as any,
       'getSupportedExtensions',
@@ -147,7 +147,7 @@ export class PluginManager {
       },
     )
 
-    const extraFileExtensions: Typescript.server.HostConfiguration['extraFileExtensions'] = [
+    const extraFileExtensions: TypeScript.server.HostConfiguration['extraFileExtensions'] = [
       {
         extension: '.vue',
         isMixedContent: false,
@@ -160,11 +160,11 @@ export class PluginManager {
       'setHostConfiguration',
       (setHostConfiguration) => {
         return (
-          args: Typescript.server.protocol.ConfigureRequestArguments,
+          args: TypeScript.server.protocol.ConfigureRequestArguments,
         ): void => {
           logger.debug('setHostConfiguration: ', args)
           const current = ((project.projectService as any)
-            .hostConfiguration as Typescript.server.HostConfiguration)
+            .hostConfiguration as TypeScript.server.HostConfiguration)
             .extraFileExtensions
 
           logger.debug('Current Extra Extensions: ', current)
@@ -277,7 +277,7 @@ export class PluginManager {
       'getScriptSnapshot',
       (getScriptSnapshot) => (
         fileName: string,
-      ): Typescript.IScriptSnapshot | undefined => {
+      ): TypeScript.IScriptSnapshot | undefined => {
         if (fs.isVueTsFile(fileName)) {
           const file = fs.getVueFile(fileName)
 
@@ -507,7 +507,7 @@ export class PluginManager {
   #createLanguageService(
     languageService: TSLanguageService,
     pluginService: TypescriptPluginService,
-  ): Typescript.LanguageService {
+  ): TypeScript.LanguageService {
     const config = ConfigManager.instance
     const cache = new Map<Function, Function>()
 
@@ -519,7 +519,7 @@ export class PluginManager {
     return new Proxy(languageService, {
       get: (target, prop) => {
         if (prop === TS_LANGUAGE_SERVICE) return () => languageService
-        if (config.state.enabled) {
+        if (config.state.enabled && pluginService.isVueProject) {
           const value = pluginService[prop as keyof TypescriptPluginService]
           if (typeof value === 'function') {
             return bind(value, pluginService)

@@ -2,13 +2,13 @@ import type {
   TSLanguageService,
   TSProject,
   TSServerHost,
-  Typescript,
-} from './Typescript'
+  TypeScript,
+} from './TypeScript'
 
 export interface TypescriptProvider {
   mode: 'plugin' | 'service'
   context: null | { project: TSProject; service: TSLanguageService }
-  typescript: typeof Typescript
+  typescript: typeof TypeScript
   getProjectFor(fileName: string): TSProject
   /**
    * @remark This must not include TS-Plugin-Vue.
