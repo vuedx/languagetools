@@ -1,8 +1,8 @@
 import type { TextDocumentContentChangeEvent } from '@vuedx/vue-virtual-textdocument'
 import type { FilesystemProvider } from '../contracts/FilesystemProvider'
-import type { Typescript } from '../contracts/Typescript'
-import { overrideMethod } from './overrideMethod'
+import type { TypeScript } from '../contracts/TypeScript'
 import { LoggerService } from '../services/LoggerService'
+import { overrideMethod } from './overrideMethod'
 
 const watchers = new Map<
   string,
@@ -10,8 +10,8 @@ const watchers = new Map<
 >()
 
 export function createFilesystemProvider(
-  projectService: Typescript.server.ProjectService,
-  serverHost: Typescript.server.ServerHost,
+  projectService: TypeScript.server.ProjectService,
+  serverHost: TypeScript.server.ServerHost,
 ): FilesystemProvider {
   const logger = LoggerService.getLogger('virtualFs')
 

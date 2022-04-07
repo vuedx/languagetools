@@ -1,10 +1,10 @@
-import { debug, isNotNull, toFileName, traceInDevMode } from '@vuedx/shared'
+import { debug, toFileName, traceInDevMode } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import type {
   FormatCodeSettings,
   UserPreferences,
 } from 'typescript/lib/tsserverlibrary'
-import type { TSLanguageService, Typescript } from '../contracts/Typescript'
+import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
 import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService, LogLevel } from '../services/LoggerService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
@@ -33,8 +33,8 @@ export class RenameService
   public getRenameInfo(
     fileName: string,
     position: number,
-    options?: Typescript.RenameInfoOptions,
-  ): Typescript.RenameInfo {
+    options?: TypeScript.RenameInfoOptions,
+  ): TypeScript.RenameInfo {
     if (this.fs.isVueFile(fileName)) {
       return this.vueGetRenameInfo(fileName, position, options)
     }
@@ -49,7 +49,7 @@ export class RenameService
     findInStrings: boolean,
     findInComments: boolean,
     providePrefixAndSuffixTextForRename?: boolean,
-  ): readonly Typescript.RenameLocation[] | undefined {
+  ): readonly TypeScript.RenameLocation[] | undefined {
     if (this.fs.isVueFile(fileName)) {
       return this.vueFindRenameLocations(
         fileName,
@@ -75,9 +75,9 @@ export class RenameService
     newFilePath: string,
     formatOptions: FormatCodeSettings,
     preferences: UserPreferences | undefined,
-  ): readonly Typescript.FileTextChanges[] {
+  ): readonly TypeScript.FileTextChanges[] {
     if (this.fs.isVueFile(oldFilePath) && this.fs.isVueFile(newFilePath)) {
-      return this._resolveAllFileTextChanges(
+      return this.fs.resolveAllFileTextChanges(
         this.ts.service.getEditsForFileRename(
           toFileName({ type: 'vue-ts', fileName: oldFilePath }),
           toFileName({ type: 'vue-ts', fileName: newFilePath }),
@@ -91,7 +91,7 @@ export class RenameService
     ) {
       return []
     } else {
-      return this._resolveAllFileTextChanges(
+      return this.fs.resolveAllFileTextChanges(
         this.ts.service.getEditsForFileRename(
           oldFilePath,
           newFilePath,
@@ -105,8 +105,8 @@ export class RenameService
   private vueGetRenameInfo(
     fileName: string,
     position: number,
-    options?: Typescript.RenameInfoOptions,
-  ): Typescript.RenameInfo {
+    options?: TypeScript.RenameInfoOptions,
+  ): TypeScript.RenameInfo {
     const block = this.fs.getVirtualFileAt(fileName, position)
     if (block == null || block.tsFileName == null) {
       return {
@@ -172,7 +172,7 @@ export class RenameService
     findInStrings: boolean,
     findInComments: boolean,
     providePrefixAndSuffixTextForRename?: boolean,
-  ): readonly Typescript.RenameLocation[] {
+  ): readonly TypeScript.RenameLocation[] {
     const block = this.fs.getVirtualFileAt(fileName, position)
     // TODO: Support rename locations from LanguageService
     if (block == null || block.tsFileName == null) return []
@@ -194,81 +194,15 @@ export class RenameService
     })
   }
 
-  /**
-   * Dedupe changes by fileName
-   */
-  private _resolveAllFileTextChanges(
-    changes: readonly Typescript.FileTextChanges[],
-  ): Typescript.FileTextChanges[] {
-    const changesByFileName = new Map<string, Typescript.FileTextChanges>()
-
-    for (const textChanges of changes) {
-      const tranformedChanges = this._resolveFileTextChanges(textChanges)
-
-      if (changesByFileName.has(tranformedChanges.fileName)) {
-        // TODO: Merge changes
-      } else {
-        changesByFileName.set(tranformedChanges.fileName, tranformedChanges)
-      }
-    }
-
-    return Array.from(changesByFileName.values())
-  }
-
-  private _resolveFileTextChanges({
-    fileName,
-    textChanges,
-    isNewFile,
-  }: Typescript.FileTextChanges): Typescript.FileTextChanges {
-    const asFileTextChanges = (
-      changes: Typescript.FileTextChanges,
-    ): Typescript.FileTextChanges => {
-      if (isNewFile !== true) return changes
-      return { ...changes, isNewFile }
-    }
-
-    if (this.fs.isVueVirtualFile(fileName)) {
-      const block = this.fs.getVirtualFile(fileName)
-      if (block == null) {
-        return asFileTextChanges({
-          fileName: this.fs.getRealFileName(fileName),
-          textChanges: [],
-        })
-      }
-
-      return asFileTextChanges({
-        fileName: this.fs.getRealFileName(fileName),
-        textChanges: textChanges
-          .map((textChange) => {
-            const span = block.findOriginalTextSpan(textChange.span)
-
-            if (span == null) return null
-
-            return { span: block.toFileSpan(span), newText: textChange.newText }
-          })
-          .filter(isNotNull),
-      })
-    }
-
-    if (this.fs.isVueTsFile(fileName)) {
-      return asFileTextChanges({
-        fileName: this.fs.getRealFileName(fileName),
-        textChanges: [],
-      })
-    }
-
-    return asFileTextChanges({ fileName, textChanges })
-  }
-
   private _resolveRenameLocation(
-    location: Typescript.RenameLocation,
+    location: TypeScript.RenameLocation,
     options: {
       findInStrings: boolean
       findInComments: boolean
       providePrefixAndSuffixTextForRename?: boolean
       resolveInner?: boolean
     },
-  ): Typescript.RenameLocation[] {
+  ): TypeScript.RenameLocation[] {
     if (this.fs.isVueTsFile(location.fileName)) return []
     if (!this.fs.isVueVirtualFile(location.fileName)) return [location]
 
@@ -348,14 +282,14 @@ export class RenameService
 
   @traceInDevMode()
   private _resolveRenameLocations(
-    locations: readonly Typescript.RenameLocation[],
+    locations: readonly TypeScript.RenameLocation[],
     options: {
       findInStrings: boolean
       findInComments: boolean
       providePrefixAndSuffixTextForRename?: boolean | undefined
       resolveInner?: boolean
     },
-  ): Typescript.RenameLocation[] {
+  ): TypeScript.RenameLocation[] {
     return locations.flatMap((location) =>
       this._resolveRenameLocation(location, options),
     )

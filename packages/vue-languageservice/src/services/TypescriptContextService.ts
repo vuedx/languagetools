@@ -8,18 +8,18 @@ import type {
   TSLanguageService,
   TSLanguageServiceHost,
   TSProject,
-  Typescript,
-} from '../contracts/Typescript'
+  TypeScript,
+} from '../contracts/TypeScript'
 import { CacheService } from './CacheService'
 import { LoggerService, LogLevel } from './LoggerService'
 
 interface TypescriptContextServiceOptions {
   project: TSProject
   typesDir: string
-  typescript: typeof Typescript
+  typescript: typeof TypeScript
   languageService: TSLanguageService
   languageServiceHost: TSLanguageServiceHost
-  serverHost: Typescript.server.ServerHost
+  serverHost: TypeScript.server.ServerHost
 }
 
 export class TypescriptContextService implements Disposable {
@@ -34,15 +34,15 @@ export class TypescriptContextService implements Disposable {
     this.options = options
   }
 
-  public get lib(): typeof Typescript {
+  public get lib(): typeof TypeScript {
     return this.options.typescript
   }
 
-  public get serverHost(): Typescript.server.ServerHost {
+  public get serverHost(): TypeScript.server.ServerHost {
     return this.options.serverHost
   }
 
-  public get projectService(): Typescript.server.ProjectService {
+  public get projectService(): TypeScript.server.ProjectService {
     return this.options.project.projectService
   }
 
@@ -56,13 +56,13 @@ export class TypescriptContextService implements Disposable {
 
   public isConfugeredProject(
     project: TSProject,
-  ): project is Typescript.server.ConfiguredProject & TSProject {
+  ): project is TypeScript.server.ConfiguredProject & TSProject {
     return project.projectKind === this.lib.server.ProjectKind.Configured
   }
 
   public isInferredProject(
     project: TSProject,
-  ): project is Typescript.server.InferredProject & TSProject {
+  ): project is TypeScript.server.InferredProject & TSProject {
     return project.projectKind === this.lib.server.ProjectKind.Inferred
   }
 
@@ -174,7 +174,7 @@ export class TypescriptContextService implements Disposable {
   /**
    * Find typescript project for the file.
    */
-  public getProjectFor(fileName: string): Typescript.server.Project | null {
+  public getProjectFor(fileName: string): TypeScript.server.Project | null {
     return (
       this.projectService.getDefaultProjectForFile(
         this.toNormalizedPath(fileName),
@@ -184,7 +184,7 @@ export class TypescriptContextService implements Disposable {
   }
 
   @cache()
-  public toNormalizedPath(fileName: string): Typescript.server.NormalizedPath {
+  public toNormalizedPath(fileName: string): TypeScript.server.NormalizedPath {
     return this.lib.server.toNormalizedPath(fileName)
   }
 
@@ -217,7 +217,7 @@ export class TypescriptContextService implements Disposable {
   /**
    * Find typescript laguage service for the file.
    */
-  public getServiceFor(fileName: string): Typescript.LanguageService | null {
+  public getServiceFor(fileName: string): TypeScript.LanguageService | null {
     return this.getProjectFor(fileName)?.getLanguageService() ?? null
   }
 
@@ -226,7 +226,7 @@ export class TypescriptContextService implements Disposable {
    */
   public getUndecoratedServiceFor(
     fileName: string,
-  ): Typescript.LanguageService | null {
+  ): TypeScript.LanguageService | null {
     const service = this.getServiceFor(fileName) as ExtendedTSLanguageService
     if (service == null) return null
     if (TS_LANGUAGE_SERVICE in service) return service[TS_LANGUAGE_SERVICE]()
@@ -252,7 +252,7 @@ export class TypescriptContextService implements Disposable {
   /**
    * Find source file in typescript program
    */
-  public getSourceFile(fileName: string): Typescript.SourceFile | null {
+  public getSourceFile(fileName: string): TypeScript.SourceFile | null {
     try {
       return this.service.getProgram()?.getSourceFile(fileName) ?? null
     } catch {

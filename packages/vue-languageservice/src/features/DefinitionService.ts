@@ -2,7 +2,7 @@ import { debug, parseFileName, toFileName, traceInDevMode } from '@vuedx/shared'
 import { findTemplateNodeAt, isElementNode } from '@vuedx/template-ast-types'
 import { inject, injectable } from 'inversify'
 import type { LanguageService } from '../contracts/LanguageService'
-import type { TSLanguageService, Typescript } from '../contracts/Typescript'
+import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
@@ -36,7 +36,7 @@ export class DefinitionService
   public getDefinitionAtPosition(
     fileName: string,
     position: number,
-  ): readonly Typescript.DefinitionInfo[] | undefined {
+  ): readonly TypeScript.DefinitionInfo[] | undefined {
     if (this.fs.isVueSchemeFile(fileName) || this.fs.isVueFile(fileName)) {
       return this.getDefinitionAndBoundSpan(fileName, position)?.definitions
     }
@@ -48,7 +48,7 @@ export class DefinitionService
   public getDefinitionAndBoundSpan(
     fileName: string,
     position: number,
-  ): Typescript.DefinitionInfoAndBoundSpan | undefined {
+  ): TypeScript.DefinitionInfoAndBoundSpan | undefined {
     this.logger.debug(
       `getDefinitionAndBoundSpan in ${fileName} at ${position})`,
     )
@@ -77,7 +77,7 @@ export class DefinitionService
   public getTypeDefinitionAtPosition(
     fileName: string,
     position: number,
-  ): readonly Typescript.DefinitionInfo[] | undefined {
+  ): readonly TypeScript.DefinitionInfo[] | undefined {
     if (this.fs.isVueSchemeFile(fileName)) {
       const parsed = parseFileName(fileName)
       const definitions = this.ts
@@ -99,8 +99,8 @@ export class DefinitionService
   }
 
   private resolveForVueSchemeFile(
-    definition: Typescript.DefinitionInfo,
-  ): Typescript.DefinitionInfo {
+    definition: TypeScript.DefinitionInfo,
+  ): TypeScript.DefinitionInfo {
     if (this.fs.isVueVirtualFile(definition.fileName)) {
       return {
         ...definition,
@@ -127,7 +127,7 @@ export class DefinitionService
   private vueDefinitionAndBoundSpan(
     fileName: string,
     position: number,
-  ): Typescript.DefinitionInfoAndBoundSpan | undefined {
+  ): TypeScript.DefinitionInfoAndBoundSpan | undefined {
     const [file, block] = this.fs.findFilesAt(fileName, position)
     if (block == null || file == null) return undefined
     this.logger.debug(
@@ -192,7 +192,7 @@ export class DefinitionService
   private vueTypeDefinitionAt(
     fileName: string,
     position: number,
-  ): Typescript.DefinitionInfo[] | undefined {
+  ): TypeScript.DefinitionInfo[] | undefined {
     const [file, block] = this.fs.findFilesAt(fileName, position)
     if (block == null || file == null) return undefined
     this.logger.debug(
@@ -229,7 +229,7 @@ export class DefinitionService
   private virtualTypeDefintionAtPosition(
     fileName: string,
     position: number,
-  ): Typescript.DefinitionInfo[] {
+  ): TypeScript.DefinitionInfo[] {
     const file = this.fs.getVirtualFile(fileName)
     if (file == null) return []
 
@@ -248,14 +248,14 @@ export class DefinitionService
 
   private readonly virtualDefinitionAndBoundSpanCache = new CacheService<{
     position: number
-    result: Typescript.DefinitionInfoAndBoundSpan | undefined
+    result: TypeScript.DefinitionInfoAndBoundSpan | undefined
   }>((fileName) => this.fs.getVersion(fileName))
 
   @debug()
   public virtualDefinitionAndBoundSpan(
     fileName: string,
     position: number,
-  ): Typescript.DefinitionInfoAndBoundSpan | undefined {
+  ): TypeScript.DefinitionInfoAndBoundSpan | undefined {
     return this.virtualDefinitionAndBoundSpanCache.withCache(
       fileName,
       (previous) => {
@@ -291,8 +291,8 @@ export class DefinitionService
 
   private _createDefinitionInfoAndBoundSpan(
     position: number,
-    definitions: Typescript.DefinitionInfo[],
-  ): Typescript.DefinitionInfoAndBoundSpan | undefined {
+    definitions: TypeScript.DefinitionInfo[],
+  ): TypeScript.DefinitionInfoAndBoundSpan | undefined {
     const first = definitions[0]
     if (definitions.length === 0 || first == null) return
 
@@ -306,9 +306,9 @@ export class DefinitionService
   private _resolveTypeDefinitions(
     currentFile: string,
     definitions:
-      | Typescript.DefinitionInfo[]
-      | readonly Typescript.DefinitionInfo[],
-  ): Typescript.DefinitionInfo[] {
+      | TypeScript.DefinitionInfo[]
+      | readonly TypeScript.DefinitionInfo[],
+  ): TypeScript.DefinitionInfo[] {
     this.logger.debug(
       `[Vue] (Type) Resolve ${definitions.length} definition(s) in ${currentFile}.`,
     )
@@ -407,9 +407,9 @@ export class DefinitionService
   @traceInDevMode()
   private _resolveDefinitions(
     definitions:
-      | Typescript.DefinitionInfo[]
-      | readonly Typescript.DefinitionInfo[],
-  ): Typescript.DefinitionInfo[] {
+      | TypeScript.DefinitionInfo[]
+      | readonly TypeScript.DefinitionInfo[],
+  ): TypeScript.DefinitionInfo[] {
     return definitions.flatMap(({ ...definition }) => {
       if (this.fs.isVueVirtualFile(definition.fileName)) {
         const file = this.fs
@@ -501,7 +501,7 @@ export class DefinitionService
 
   private _createTSDefinitionInfoFromLSDefinition(
     locations?: LanguageService.Definition[],
-  ): Typescript.DefinitionInfo[] {
+  ): TypeScript.DefinitionInfo[] {
     if (locations == null) return []
 
     return locations.flatMap((location) => {
@@ -558,9 +558,9 @@ export class DefinitionService
 }
 
 function dedupeDefinitionInfos(
-  definitions: readonly Typescript.DefinitionInfo[],
-): Typescript.DefinitionInfo[] {
-  const output: Typescript.DefinitionInfo[] = []
+  definitions: readonly TypeScript.DefinitionInfo[],
+): TypeScript.DefinitionInfo[] {
+  const output: TypeScript.DefinitionInfo[] = []
   const ids = new Set<string>()
 
   definitions.forEach((definition) => {

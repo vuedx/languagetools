@@ -20,7 +20,7 @@ import type {
 } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type { LanguageService } from '../contracts/LanguageService'
-import type { Typescript } from '../contracts/Typescript'
+import type { TypeScript } from '../contracts/TypeScript'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
@@ -28,7 +28,7 @@ import { LoggerService, LogLevel } from '../services/LoggerService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
 
 type CompletionAdditionalInfo = {
-  merged?: Typescript.CompletionEntry[]
+  merged?: TypeScript.CompletionEntry[]
 } & (
   | {
       type: 'tag-completion-tsx'
@@ -63,8 +63,8 @@ export class CompletionsService {
 
   private readonly cache = new CacheService<{
     position: number
-    options: Typescript.GetCompletionsAtPositionOptions | undefined
-    completions: Typescript.WithMetadata<Typescript.CompletionInfo> | undefined
+    options: TypeScript.GetCompletionsAtPositionOptions | undefined
+    completions: TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined
   }>((fileName) => this.fs.getVersion(fileName), 5)
 
   constructor(
@@ -79,8 +79,8 @@ export class CompletionsService {
   public getCompletionsAtPosition(
     fileName: string,
     position: number,
-    options: Typescript.GetCompletionsAtPositionOptions | undefined,
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     const result = this._getCompletionsAtPosition(fileName, position, options)
     if (result == null) return
     return {
@@ -96,7 +96,7 @@ export class CompletionsService {
     position: number,
     name: string,
     source: string | undefined,
-  ): Typescript.Symbol | undefined {
+  ): TypeScript.Symbol | undefined {
     const info = this.findCompletionAdditionalInfo(
       fileName,
       position,
@@ -132,13 +132,13 @@ export class CompletionsService {
     position: number,
     entryName: string,
     formatOptions:
-      | Typescript.FormatCodeOptions
-      | Typescript.FormatCodeSettings
+      | TypeScript.FormatCodeOptions
+      | TypeScript.FormatCodeSettings
       | undefined,
     source: string | undefined,
-    preferences: Typescript.UserPreferences | undefined,
-    data: Typescript.CompletionEntryData | undefined,
-  ): Typescript.CompletionEntryDetails | undefined {
+    preferences: TypeScript.UserPreferences | undefined,
+    data: TypeScript.CompletionEntryData | undefined,
+  ): TypeScript.CompletionEntryDetails | undefined {
     const item = this.findCompletionItem(fileName, position, entryName, source)
 
     if (item != null) {
@@ -235,17 +235,17 @@ export class CompletionsService {
   }
 
   private getCompletionEntryDetailsFromAdditionalInfo(
-    item: Typescript.CompletionEntry,
+    item: TypeScript.CompletionEntry,
     info: CompletionAdditionalInfo,
     entryName: string,
     formatOptions:
-      | Typescript.FormatCodeOptions
-      | Typescript.FormatCodeSettings
+      | TypeScript.FormatCodeOptions
+      | TypeScript.FormatCodeSettings
       | undefined,
     source: string | undefined,
-    preferences: Typescript.UserPreferences | undefined,
-    data: Typescript.CompletionEntryData | undefined,
-  ): Typescript.CompletionEntryDetails | undefined {
+    preferences: TypeScript.UserPreferences | undefined,
+    data: TypeScript.CompletionEntryData | undefined,
+  ): TypeScript.CompletionEntryDetails | undefined {
     switch (info.type) {
       case 'expression':
       case 'tag-completion-tsx':
@@ -290,8 +290,8 @@ export class CompletionsService {
   }
 
   private getTsxCompletionOptions(
-    options: Typescript.GetCompletionsAtPositionOptions | undefined,
-  ): Typescript.GetCompletionsAtPositionOptions {
+    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.GetCompletionsAtPositionOptions {
     return {
       ...options,
       allowTextChangesInNewFiles: false,
@@ -310,8 +310,8 @@ export class CompletionsService {
   }
 
   private getContextCompletionOptions(
-    options: Typescript.GetCompletionsAtPositionOptions | undefined,
-  ): Typescript.GetCompletionsAtPositionOptions {
+    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.GetCompletionsAtPositionOptions {
     return {
       ...options,
       allowTextChangesInNewFiles: false,
@@ -327,8 +327,8 @@ export class CompletionsService {
   private vueCompletionsAtPosition(
     fileName: string,
     position: number,
-    options: Typescript.GetCompletionsAtPositionOptions | undefined,
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     const file = this.fs.getVueFile(fileName)
     if (file == null) return
     const block = file.getDocAt(position)
@@ -388,11 +388,11 @@ export class CompletionsService {
     file: VueSFCDocument,
     block: VueBlockDocument,
     position: number,
-    options: Typescript.GetCompletionsAtPositionOptions | undefined,
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     const completions: Array<
-      | Typescript.WithMetadata<Typescript.CompletionInfo>
-      | Typescript.CompletionEntry[]
+      | TypeScript.WithMetadata<TypeScript.CompletionInfo>
+      | TypeScript.CompletionEntry[]
       | undefined
     > = []
 
@@ -618,7 +618,7 @@ export class CompletionsService {
     file: TextDocument,
     item: LanguageService.CompletionItem,
     toFileOffset: (offset: number) => number,
-  ): Typescript.CompletionEntry {
+  ): TypeScript.CompletionEntry {
     const kind = this.toScriptElementKind(item.kind)
     const isRecommended = item.preselect === true ? true : undefined
     const isSnippet = item.insertTextFormat === 2 ? true : undefined
@@ -669,7 +669,7 @@ export class CompletionsService {
 
   private toScriptElementKind(
     kind?: LanguageService.CompletionItemKind,
-  ): { kind: Typescript.ScriptElementKind; kindModifiers: string[] } {
+  ): { kind: TypeScript.ScriptElementKind; kindModifiers: string[] } {
     switch (kind) {
       case 1 /* Text */:
         return {
@@ -808,8 +808,8 @@ export class CompletionsService {
     _file: VueSFCDocument,
     block: VueBlockDocument,
     position: number,
-    options: Typescript.GetCompletionsAtPositionOptions | undefined,
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     if (block.tsFileName == null) return undefined
     return this.rebase(
       block,
@@ -825,8 +825,8 @@ export class CompletionsService {
     _file: VueSFCDocument,
     block: VueBlockDocument,
     position: number,
-    _options: Typescript.GetCompletionsAtPositionOptions | undefined,
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    _options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     const service = this.langs.getLanguageService(block.source.languageId)
 
     this.logger.debug(
@@ -858,8 +858,8 @@ export class CompletionsService {
     _file: VueSFCDocument,
     block: VueBlockDocument,
     position: number,
-    _options: Typescript.GetCompletionsAtPositionOptions | undefined,
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    _options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     const service = this.langs.getLanguageService(block.source.languageId)
     if (service == null) return
 
@@ -883,7 +883,7 @@ export class CompletionsService {
   private getCodeActionsFromCompletionItem(
     fileName: string,
     item: LanguageService.CompletionItem,
-  ): Typescript.CodeAction[] | undefined {
+  ): TypeScript.CodeAction[] | undefined {
     if (item.additionalTextEdits == null) return
     const isVueFile = this.fs.isVueFile(fileName)
     const file = isVueFile
@@ -928,8 +928,8 @@ export class CompletionsService {
   }
 
   private omitCompletionAdditionalInfo(
-    entry: Typescript.CompletionEntry,
-  ): Typescript.CompletionEntry {
+    entry: TypeScript.CompletionEntry,
+  ): TypeScript.CompletionEntry {
     if (entry.data != null && 'vuedx' in entry.data) {
       const { vuedx, ...data } = entry.data as any
 
@@ -955,8 +955,8 @@ export class CompletionsService {
   private _getCompletionsAtPosition(
     fileName: string,
     position: number,
-    options: Typescript.GetCompletionsAtPositionOptions | undefined,
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     return this.cache.withCache(fileName, (previous) => {
       if (
         previous != null &&
@@ -990,7 +990,7 @@ export class CompletionsService {
     _position: number,
     name: string,
     source: string | undefined,
-  ): Typescript.CompletionEntry | undefined {
+  ): TypeScript.CompletionEntry | undefined {
     return this.cache
       .getItem(fileName)
       ?.completions?.entries.find(
@@ -1000,8 +1000,8 @@ export class CompletionsService {
 
   private rebase(
     doc: VueBlockDocument,
-    completions: Typescript.WithMetadata<Typescript.CompletionInfo> | undefined,
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+    completions: TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     if (completions == null) return completions
     const copy = { ...completions }
     if (completions.optionalReplacementSpan != null) {
@@ -1023,18 +1023,18 @@ export class CompletionsService {
   }
 
   private cleanup(
-    completions: Typescript.WithMetadata<Typescript.CompletionInfo> | undefined,
+    completions: TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined,
     options: {
       mode: 'tag' | 'all'
       attachAdditionalInfo?: CompletionAdditionalInfo
     } = { mode: 'all' },
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     if (completions == null) {
       this.logger.debug(`(Cleanup) No results to process`)
       return
     }
     const shouldInclude = (
-      entry: Typescript.CompletionEntry,
+      entry: TypeScript.CompletionEntry,
     ): string | null => {
       if (entry.name.startsWith('__VueDX_')) return 'VueDX internal'
       if (options.mode === 'tag') {
@@ -1104,9 +1104,9 @@ export class CompletionsService {
   }
 
   private patchCompletionEntry(
-    entry: Typescript.CompletionEntry,
+    entry: TypeScript.CompletionEntry,
     options: { attachAdditionalInfo?: CompletionAdditionalInfo },
-  ): Typescript.CompletionEntry {
+  ): TypeScript.CompletionEntry {
     if (entry.source != null) {
       if (this.fs.isVueTsFile(entry.source)) {
         entry.source = this.fs.getRealFileName(entry.source)
@@ -1130,13 +1130,13 @@ export class CompletionsService {
    */
   private combine(
     ...completions: Array<
-      | Typescript.WithMetadata<Typescript.CompletionInfo>
-      | Typescript.CompletionEntry[]
+      | TypeScript.WithMetadata<TypeScript.CompletionInfo>
+      | TypeScript.CompletionEntry[]
       | undefined
     >
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     const first = completions.find(
-      (item): item is Typescript.WithMetadata<Typescript.CompletionInfo> =>
+      (item): item is TypeScript.WithMetadata<TypeScript.CompletionInfo> =>
         item != null && !Array.isArray(item),
     )
 
@@ -1176,12 +1176,12 @@ export class CompletionsService {
    * NOTE: Modifies completion items.
    */
   private dedupe(
-    completions: Typescript.WithMetadata<Typescript.CompletionInfo> | undefined,
+    completions: TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined,
     kind: 'tag' | 'attribute' | 'value',
-  ): Typescript.WithMetadata<Typescript.CompletionInfo> | undefined {
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     if (completions == null) return completions
 
-    const entries = new Map<string, Typescript.CompletionEntry>()
+    const entries = new Map<string, TypeScript.CompletionEntry>()
     if (kind === 'tag' || kind === 'attribute') {
       completions.entries.forEach((current) => {
         const id = getId(current)
@@ -1215,14 +1215,14 @@ export class CompletionsService {
 
     return completions
 
-    function getId(entry: Typescript.CompletionEntry): string {
+    function getId(entry: TypeScript.CompletionEntry): string {
       if (entry.source == null) return entry.name
       return `${entry.source}::${entry.name}`
     }
   }
 
   private getAdditionalInfo(
-    entry: Typescript.CompletionEntry,
+    entry: TypeScript.CompletionEntry,
   ): CompletionAdditionalInfo | null {
     return (entry.data as any)?.vuedx ?? null
   }

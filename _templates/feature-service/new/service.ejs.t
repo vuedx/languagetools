@@ -2,7 +2,7 @@
 to: packages/vue-languageservice/src/features/<%= name %>Service.ts
 ---
 import { inject, injectable } from 'inversify'
-import type {Typescript} from '../contracts/Typescript'
+import type {Typescript} from '../contracts/TypeScript'
 import { LoggerService } from '../services/LoggerService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
 
