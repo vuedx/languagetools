@@ -5,6 +5,7 @@ import type {
   ExtendedTSLanguageService,
   TypeScript,
 } from '../contracts/TypeScript'
+import { CodeFixService } from '../features/CodeFixService'
 import { CompletionsService } from '../features/CompletionsService'
 import {
   CssLanguageService,
@@ -51,6 +52,8 @@ export class TypescriptPluginService
     private readonly rename: RenameService,
     @inject(EncodedClassificationsService)
     private readonly classifications: EncodedClassificationsService,
+    @inject(CodeFixService)
+    private readonly codeFix: CodeFixService,
     @inject(TypescriptContextService)
     private readonly ts: TypescriptContextService,
     @inject(IPCService)
@@ -75,8 +78,9 @@ export class TypescriptPluginService
     })
   }
 
+  #isVueProject = true
   public get isVueProject(): boolean {
-    return this.getExternalFiles().length > 0
+    return this.#isVueProject
   }
 
   //#region fs
@@ -122,6 +126,7 @@ export class TypescriptPluginService
     }
 
     if (this.ts.isInferredProject(this.ts.project) && hasVirtualSchemeFiles) {
+      this.#isVueProject = false
       return [] // do not retain any files for inferred projects containing virtual scheme files
     }
 
@@ -141,8 +146,12 @@ export class TypescriptPluginService
       virtualFileNames.add(this.ts.getProjectRuntimeFileName(fileName))
     })
 
-    if (vueFileNames.size === 0) return [] // do not retain any files if no .vue files
+    if (vueFileNames.size === 0) {
+      this.#isVueProject = false
+      return [] // do not retain any files if no .vue files
+    }
 
+    this.#isVueProject = true
     const fileNames = Array.from(vueFileNames).concat(
       Array.from(virtualFileNames),
     )
@@ -468,7 +477,7 @@ export class TypescriptPluginService
   }
   //#endregion
 
-  //#region TODO: codefix
+  //#region codefix
   public getCodeFixesAtPosition(
     fileName: string,
     start: number,
@@ -477,25 +486,7 @@ export class TypescriptPluginService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences,
   ): readonly TypeScript.CodeFixAction[] {
-    if (this.fs.isVueFile(fileName)) {
-      return (
-        whenNotNull(
-          this.fs.getVirtualFileAt(fileName, start),
-          (fileName, blockFile) => {
-            return this.ts.service.getCodeFixesAtPosition(
-              fileName,
-              blockFile.findGeneratedOffetAt(start),
-              blockFile.findGeneratedOffetAt(end),
-              errorCodes,
-              formatOptions,
-              preferences,
-            )
-          },
-        ) ?? []
-      )
-    }
-
-    return this.ts.service.getCodeFixesAtPosition(
+    return this.codeFix.getCodeFixesAtPosition(
       fileName,
       start,
       end,
@@ -511,13 +502,7 @@ export class TypescriptPluginService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences,
   ): TypeScript.CombinedCodeActions {
-    if (this.fs.isVueFile(scope.fileName)) {
-      return {
-        changes: [],
-      }
-    }
-
-    return this.ts.service.getCombinedCodeFix(
+    return this.codeFix.getCombinedCodeFix(
       scope,
       fixId,
       formatOptions,

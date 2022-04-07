@@ -1,5 +1,6 @@
 import {
   isFilesystemSchemeFile,
+  isNotNull,
   isProjectRuntimeFile,
   isVueFile,
   isVueRuntimeFile,
@@ -23,6 +24,7 @@ import type { Disposable } from '../contracts/Disposable'
 import type { FilesystemProvider } from '../contracts/FilesystemProvider'
 import type { OffsetRangeLike } from '../contracts/OffsetRangeLike'
 import type { TypeScript } from '../contracts/TypeScript'
+import { areOverlappingTextSpans } from '../helpers/areOverlappingTextSpans'
 import { createFilesystemProvider } from '../helpers/createFilesystemProvider'
 import { CacheService } from './CacheService'
 import { LoggerService } from './LoggerService'
@@ -382,5 +384,71 @@ export class FilesystemService implements Disposable {
     this.watchers.forEach((stop) => stop())
     this.watchers.clear()
     this.vueFiles.clear()
+  }
+
+  /**
+   * Dedupe changes by fileName
+   */
+  public resolveAllFileTextChanges<T extends TypeScript.FileTextChanges>(
+    changes: readonly T[],
+  ): T[] {
+    const changesByFileName = new Map<string, T>()
+
+    for (const textChanges of changes) {
+      const tranformedChanges = this.resolveFileTextChanges(textChanges)
+      if (tranformedChanges == null) continue
+      const current = changesByFileName.get(tranformedChanges.fileName)
+      if (current != null) {
+        const changes = [...current.textChanges]
+        tranformedChanges.textChanges.forEach((change) => {
+          const duplicate = current.textChanges.find((c) =>
+            areOverlappingTextSpans(c.span, change.span),
+          )
+          if (duplicate != null) return
+          changes.push(change)
+        })
+        current.textChanges = changes
+      } else {
+        changesByFileName.set(tranformedChanges.fileName, tranformedChanges)
+      }
+    }
+
+    return Array.from(changesByFileName.values())
+  }
+
+  public resolveFileTextChanges<T extends TypeScript.FileTextChanges>(
+    fileTextChanges: T,
+  ): T | null {
+    const asFileTextChanges = (changes: T): T => {
+      if (fileTextChanges.isNewFile !== true) return changes
+      return { ...changes, isNewFile: fileTextChanges.isNewFile }
+    }
+
+    if (this.isVueVirtualFile(fileTextChanges.fileName)) {
+      const block = this.getVirtualFile(fileTextChanges.fileName)
+      if (block == null) {
+        return null
+      }
+
+      return asFileTextChanges({
+        ...fileTextChanges,
+        fileName: this.getRealFileName(fileTextChanges.fileName),
+        textChanges: fileTextChanges.textChanges
+          .map((textChange) => {
+            const span = block.findOriginalTextSpan(textChange.span)
+
+            if (span == null) return null
+
+            return { span: block.toFileSpan(span), newText: textChange.newText }
+          })
+          .filter(isNotNull),
+      })
+    }
+
+    if (this.isVueTsFile(fileTextChanges.fileName)) {
+      return null
+    }
+
+    return fileTextChanges
   }
 }

@@ -1,4 +1,4 @@
-import { debug, isNotNull, toFileName, traceInDevMode } from '@vuedx/shared'
+import { debug, toFileName, traceInDevMode } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import type {
   FormatCodeSettings,
@@ -77,7 +77,7 @@ export class RenameService
     preferences: UserPreferences | undefined,
   ): readonly TypeScript.FileTextChanges[] {
     if (this.fs.isVueFile(oldFilePath) && this.fs.isVueFile(newFilePath)) {
-      return this._resolveAllFileTextChanges(
+      return this.fs.resolveAllFileTextChanges(
         this.ts.service.getEditsForFileRename(
           toFileName({ type: 'vue-ts', fileName: oldFilePath }),
           toFileName({ type: 'vue-ts', fileName: newFilePath }),
@@ -91,7 +91,7 @@ export class RenameService
     ) {
       return []
     } else {
-      return this._resolveAllFileTextChanges(
+      return this.fs.resolveAllFileTextChanges(
         this.ts.service.getEditsForFileRename(
           oldFilePath,
           newFilePath,
@@ -192,72 +192,6 @@ export class RenameService
       findInStrings,
       providePrefixAndSuffixTextForRename,
     })
-  }
-
-  /**
-   * Dedupe changes by fileName
-   */
-  private _resolveAllFileTextChanges(
-    changes: readonly TypeScript.FileTextChanges[],
-  ): TypeScript.FileTextChanges[] {
-    const changesByFileName = new Map<string, TypeScript.FileTextChanges>()
-
-    for (const textChanges of changes) {
-      const tranformedChanges = this._resolveFileTextChanges(textChanges)
-
-      if (changesByFileName.has(tranformedChanges.fileName)) {
-        // TODO: Merge changes
-      } else {
-        changesByFileName.set(tranformedChanges.fileName, tranformedChanges)
-      }
-    }
-
-    return Array.from(changesByFileName.values())
-  }
-
-  private _resolveFileTextChanges({
-    fileName,
-    textChanges,
-    isNewFile,
-  }: TypeScript.FileTextChanges): TypeScript.FileTextChanges {
-    const asFileTextChanges = (
-      changes: TypeScript.FileTextChanges,
-    ): TypeScript.FileTextChanges => {
-      if (isNewFile !== true) return changes
-      return { ...changes, isNewFile }
-    }
-
-    if (this.fs.isVueVirtualFile(fileName)) {
-      const block = this.fs.getVirtualFile(fileName)
-      if (block == null) {
-        return asFileTextChanges({
-          fileName: this.fs.getRealFileName(fileName),
-          textChanges: [],
-        })
-      }
-
-      return asFileTextChanges({
-        fileName: this.fs.getRealFileName(fileName),
-        textChanges: textChanges
-          .map((textChange) => {
-            const span = block.findOriginalTextSpan(textChange.span)
-
-            if (span == null) return null
-
-            return { span: block.toFileSpan(span), newText: textChange.newText }
-          })
-          .filter(isNotNull),
-      })
-    }
-
-    if (this.fs.isVueTsFile(fileName)) {
-      return asFileTextChanges({
-        fileName: this.fs.getRealFileName(fileName),
-        textChanges: [],
-      })
-    }
-
-    return asFileTextChanges({ fileName, textChanges })
   }
 
   private _resolveRenameLocation(
