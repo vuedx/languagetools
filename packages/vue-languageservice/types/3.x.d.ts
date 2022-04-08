@@ -4,7 +4,10 @@
 import { defineComponent } from '@vue/runtime-core'
 import { checkDirective } from './shared/checkDirective'
 import { checkModelDirective } from './shared/checkDirectiveModel'
-import { checkOnDirective } from './shared/checkDirectiveOn'
+import {
+  checkHTMLElementType,
+  checkOnDirective,
+} from './shared/checkDirectiveOn'
 import { checkInterpolation } from './shared/checkInterpolation'
 import { checkRef } from './shared/checkRef'
 import { checkSlots } from './shared/checkSlots'
@@ -31,6 +34,7 @@ declare global {
         checkSlots,
         checkDirective,
         checkOnDirective,
+        checkHTMLElementType,
         checkModelDirective,
       }
     }

@@ -7,6 +7,15 @@ import {
   RemoveOnPrefix,
 } from './utils'
 
+export function checkHTMLElementType<K extends string>(
+  tag: K,
+  instance: unknown,
+): instance is K extends keyof HTMLElementTagNameMap
+  ? HTMLElementTagNameMap[K]
+  : K extends keyof SVGElementTagNameMap
+  ? SVGElementTagNameMap[K]
+  : EventTarget
+
 export function checkOnDirective<
   T,
   A extends GetArg<T>,
