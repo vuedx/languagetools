@@ -71,6 +71,14 @@ export class EncodedClassificationsService
       return getter(fileName, span, format)
     }
 
+    if (this.fs.isVueFile(fileName)) {
+      // Not reliable so skip for now.
+      return {
+        spans: [],
+        endOfLineState: 0,
+      }
+    }
+
     const file = this.fs.getVueFile(fileName)
     if (file == null) return { spans: [], endOfLineState: 0 }
 
@@ -86,7 +94,7 @@ export class EncodedClassificationsService
     return docs.reduce<TypeScript.Classifications>(
       (result, doc) => {
         if (doc.tsFileName == null) return result
-        if (doc.block.type === 'template') return result
+        if (doc.block.type !== 'script') return result
 
         const classifications = getter(
           doc.tsFileName,
