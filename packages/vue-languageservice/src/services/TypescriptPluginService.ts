@@ -14,6 +14,7 @@ import {
 } from '../features/CssLanguageService'
 import { DefinitionService } from '../features/DefinitionService'
 import { DiagnosticsService } from '../features/DiagnosticsService'
+import { FoldingRangeService } from '../features/FoldingRangeService'
 import {
   VueHtmlLanguageService,
   VueSfcLanguageService,
@@ -22,6 +23,7 @@ import { QuickInfoService } from '../features/QuickInfoService'
 import { RefactorService } from '../features/RefactorService'
 import { ReferencesService } from '../features/ReferencesService'
 import { RenameService } from '../features/RenameService'
+import { SignatureHelpService } from '../features/SignatureHelpService'
 import { EncodedClassificationsService } from './EncodedClassificationsService'
 import { FilesystemService } from './FilesystemService'
 import { IPCService } from './IPCService'
@@ -32,6 +34,7 @@ import { TypescriptContextService } from './TypescriptContextService'
 @injectable()
 export class TypescriptPluginService
   implements Partial<ExtendedTSLanguageService> {
+  //#region setup
   private readonly logger = LoggerService.getLogger(
     TypescriptPluginService.name,
   )
@@ -57,6 +60,10 @@ export class TypescriptPluginService
     private readonly codeFix: CodeFixService,
     @inject(RefactorService)
     private readonly refactor: RefactorService,
+    @inject(FoldingRangeService)
+    private readonly folding: FoldingRangeService,
+    @inject(SignatureHelpService)
+    private readonly signature: SignatureHelpService,
     @inject(TypescriptContextService)
     private readonly ts: TypescriptContextService,
     @inject(IPCService)
@@ -80,16 +87,17 @@ export class TypescriptPluginService
       })
     })
   }
+  //#endregion
 
+  //#region fs
   #isVueProject = true
   public get isVueProject(): boolean {
     return this.#isVueProject
   }
 
-  //#region fs
-  @cache((_args, self: TypescriptPluginService) => {
-    self.ts.project.getLanguageService(true) // triggers updateGraph if project is dirty
-    return self.ts.project.getProjectVersion()
+  @cache((_args, { ts }: TypescriptPluginService) => {
+    ts.project.getLanguageService(true) // triggers updateGraph if project is dirty
+    return ts.project.getProjectVersion()
   })
   public getExternalFiles(): string[] {
     let hasVirtualSchemeFiles = false
@@ -291,6 +299,25 @@ export class TypescriptPluginService
       name,
       source,
     )
+  }
+
+  public getDocCommentTemplateAtPosition(
+    fileName: string,
+    position: number,
+    options?: TypeScript.DocCommentTemplateOptions,
+  ): TypeScript.TextInsertion | undefined {
+    return this.completions.getDocCommentTemplateAtPosition(
+      fileName,
+      position,
+      options,
+    )
+  }
+
+  public getJsxClosingTagAtPosition(
+    fileName: string,
+    position: number,
+  ): TypeScript.JsxClosingTagInfo | undefined {
+    return this.completions.getJsxClosingTagAtPosition(fileName, position)
   }
   //#endregion
 
@@ -513,46 +540,13 @@ export class TypescriptPluginService
   }
   //#endregion
 
+  //#region folding
   public getOutliningSpans(fileName: string): TypeScript.OutliningSpan[] {
-    if (this.fs.isVueSchemeFile(fileName)) {
-      const realFileName = this.fs.getRealFileName(fileName)
-      return (
-        this.ts
-          .getUndecoratedServiceFor(realFileName)
-          ?.getOutliningSpans(realFileName) ?? []
-      )
-    } else if (this.fs.isVueFile(fileName)) {
-      return []
-    }
-
-    return this.ts.service.getOutliningSpans(fileName)
+    return this.folding.getOutliningSpans(fileName)
   }
+  //#endregion
 
-  public getDocCommentTemplateAtPosition(
-    fileName: string,
-    position: number,
-    options?: TypeScript.DocCommentTemplateOptions,
-  ): TypeScript.TextInsertion | undefined {
-    if (this.fs.isVueFile(fileName)) {
-      return whenNotNull(
-        this.fs.getVirtualFileAt(fileName, position),
-        (fileName, blockFile) => {
-          return this.ts.service.getDocCommentTemplateAtPosition(
-            fileName,
-            blockFile.generatedOffetAt(position),
-            options,
-          )
-        },
-      )
-    }
-
-    return this.ts.service.getDocCommentTemplateAtPosition(
-      fileName,
-      position,
-      options,
-    )
-  }
-
+  //#region formatting
   public getFormattingEditsAfterKeystroke(
     fileName: string,
     position: number,
@@ -591,42 +585,67 @@ export class TypescriptPluginService
       options,
     )
   }
+  //#endregion
 
-  // @ts-expect-error - TODO: fix this
-  public async applyCodeActionCommand(
-    action: TypeScript.CodeActionCommand | TypeScript.CodeActionCommand[],
-    formatSettings?: TypeScript.FormatCodeSettings,
-  ): Promise<
-    | TypeScript.ApplyCodeActionCommandResult
-    | TypeScript.ApplyCodeActionCommandResult[]
-  > {
-    return await this.ts.service.applyCodeActionCommand(action, formatSettings)
+  //#region signature help
+  public getSignatureHelpItems(
+    fileName: string,
+    position: number,
+    options: TypeScript.SignatureHelpItemsOptions,
+  ): TypeScript.SignatureHelpItems | undefined {
+    return this.signature.getSignatureHelpItems(fileName, position, options)
   }
 
-  public cleanupSemanticCache(): void {
-    this.ts.service.cleanupSemanticCache()
+  public prepareCallHierarchy(
+    fileName: string,
+    position: number,
+  ): TypeScript.CallHierarchyItem | TypeScript.CallHierarchyItem[] | undefined {
+    return this.signature.prepareCallHierarchy(fileName, position)
+  }
+
+  public provideCallHierarchyIncomingCalls(
+    fileName: string,
+    position: number,
+  ): TypeScript.CallHierarchyIncomingCall[] {
+    if (this.fs.isVueFile(fileName)) return []
+    return this.signature.provideCallHierarchyIncomingCalls(fileName, position)
+  }
+
+  public provideCallHierarchyOutgoingCalls(
+    fileName: string,
+    position: number,
+  ): TypeScript.CallHierarchyOutgoingCall[] {
+    if (this.fs.isVueFile(fileName)) return []
+    return this.signature.provideCallHierarchyOutgoingCalls(fileName, position)
   }
 
   public getBraceMatchingAtPosition(
     fileName: string,
     position: number,
   ): TypeScript.TextSpan[] {
-    if (this.fs.isVueFile(fileName)) {
-      return (
-        whenNotNull(
-          this.fs.getVirtualFileAt(fileName, position),
-          (fileName, blockFile) => {
-            return this.ts.service.getBraceMatchingAtPosition(
-              fileName,
-              blockFile.generatedOffetAt(position),
-            )
-          },
-        ) ?? []
-      )
-    }
-
-    return this.ts.service.getBraceMatchingAtPosition(fileName, position)
+    return this.signature.getBraceMatchingAtPosition(fileName, position)
   }
+
+  public isValidBraceCompletionAtPosition(
+    fileName: string,
+    position: number,
+    openingBrace: number,
+  ): boolean {
+    return this.signature.isValidBraceCompletionAtPosition(
+      fileName,
+      position,
+      openingBrace,
+    )
+  }
+
+  public getNameOrDottedNameSpan(
+    fileName: string,
+    startPos: number,
+    endPos: number,
+  ): TypeScript.TextSpan | undefined {
+    return this.signature.getNameOrDottedNameSpan(fileName, startPos, endPos)
+  }
+  //#endregion
 
   public getBreakpointStatementAtPosition(
     fileName: string,
@@ -652,24 +671,8 @@ export class TypescriptPluginService
     position: number,
     filesToSearch: string[],
   ): TypeScript.DocumentHighlights[] | undefined {
-    if (this.fs.isVueFile(fileName)) {
-      return whenNotNull(
-        this.fs.getVirtualFileAt(fileName, position),
-        (fileName, blockFile) => {
-          if (blockFile.block.type !== 'script') return
-          if (this.ts.projectService.getScriptInfo(fileName) == null) return
-          return this.ts.service.getDocumentHighlights(
-            fileName,
-            blockFile.generatedOffetAt(position),
-            [fileName, ...filesToSearch],
-          )
-        },
-      )
-    }
-
-    if (this.fs.isVueSchemeFile(fileName)) {
-      return undefined
-    }
+    if (this.fs.isVueFile(fileName)) return []
+    if (this.fs.isVueSchemeFile(fileName)) return []
 
     return this.ts.service.getDocumentHighlights(
       fileName,
@@ -683,7 +686,13 @@ export class TypescriptPluginService
     emitOnlyDtsFiles?: boolean,
     forceDtsEmit?: boolean,
   ): TypeScript.EmitOutput {
-    if (this.fs.isVueFile(fileName)) {
+    if (
+      this.fs.isVueFile(fileName) ||
+      this.fs.isVueSchemeFile(fileName) ||
+      this.fs.isVueRuntimeFile(fileName) ||
+      this.fs.isProjectRuntimeFile(fileName) ||
+      this.fs.isVueVirtualFile(fileName)
+    ) {
       return { outputFiles: [], emitSkipped: true }
     }
 
@@ -701,23 +710,6 @@ export class TypescriptPluginService
   ): number {
     if (this.fs.isVueFile(fileName)) return 0
     return this.ts.service.getIndentationAtPosition(fileName, position, options)
-  }
-
-  public getJsxClosingTagAtPosition(
-    fileName: string,
-    position: number,
-  ): TypeScript.JsxClosingTagInfo | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getJsxClosingTagAtPosition(fileName, position)
-  }
-
-  public getNameOrDottedNameSpan(
-    fileName: string,
-    startPos: number,
-    endPos: number,
-  ): TypeScript.TextSpan | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getNameOrDottedNameSpan(fileName, startPos, endPos)
   }
 
   public getNavigateToItems(
@@ -753,15 +745,6 @@ export class TypescriptPluginService
     return this.ts.service.getNavigationTree(fileName)
   }
 
-  public getSignatureHelpItems(
-    fileName: string,
-    position: number,
-    options: TypeScript.SignatureHelpItemsOptions,
-  ): TypeScript.SignatureHelpItems | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getSignatureHelpItems(fileName, position, options)
-  }
-
   public getSmartSelectionRange(
     fileName: string,
     position: number,
@@ -793,47 +776,7 @@ export class TypescriptPluginService
     return this.ts.service.getTodoComments(fileName, descriptors)
   }
 
-  public isValidBraceCompletionAtPosition(
-    fileName: string,
-    position: number,
-    openingBrace: number,
-  ): boolean {
-    if (this.fs.isVueFile(fileName)) {
-      return false
-    }
-
-    return this.ts.service.isValidBraceCompletionAtPosition(
-      fileName,
-      position,
-      openingBrace,
-    )
-  }
-
-  public prepareCallHierarchy(
-    fileName: string,
-    position: number,
-  ): TypeScript.CallHierarchyItem | TypeScript.CallHierarchyItem[] | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.prepareCallHierarchy(fileName, position)
-  }
-
-  public provideCallHierarchyIncomingCalls(
-    fileName: string,
-    position: number,
-  ): TypeScript.CallHierarchyIncomingCall[] {
-    if (this.fs.isVueFile(fileName)) return []
-    return this.ts.service.provideCallHierarchyIncomingCalls(fileName, position)
-  }
-
-  public provideCallHierarchyOutgoingCalls(
-    fileName: string,
-    position: number,
-  ): TypeScript.CallHierarchyOutgoingCall[] {
-    if (this.fs.isVueFile(fileName)) return []
-    return this.ts.service.provideCallHierarchyOutgoingCalls(fileName, position)
-  }
-
-  dispose(): void {
+  public dispose(): void {
     this.ipc.dispose()
     this.ts.service.dispose()
   }
