@@ -433,7 +433,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   return (
     <>
       <input onFocus={VueDX.internal.checkOnDirective("input" as const, "focus" as const, onFocus, {})}  />
-      <input onUpdate:value={VueDX.internal.checkOnDirective("input" as const, "update:value" as const, ($event) => {
+      <input onUpdate:value={VueDX.internal.checkOnDirective("input" as const, "update:value" as const, ($event) => {if ($event.target == null || $event.currentTarget == null || !VueDX.internal.checkHTMLElementType("input", $event.currentTarget)) throw new Error("Guard: event.target, event.currentTarget")
           value = $event
         }, {})}  />
       <input
@@ -447,7 +447,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       <input
         onKeydown={VueDX.internal.union(
           VueDX.internal.checkOnDirective("input" as const, "keydown" as const, fnName, {}),
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, ($event) => {
+          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, ($event) => {if ($event.target == null || $event.currentTarget == null || !VueDX.internal.checkHTMLElementType("input", $event.currentTarget)) throw new Error("Guard: event.target, event.currentTarget")
             callMyFn($event)
           }, {"left": true}),
           VueDX.internal.checkOnDirective("input" as const, "keydown" as const, $event => callMyFn($event), {"shift": true, "left": true}),

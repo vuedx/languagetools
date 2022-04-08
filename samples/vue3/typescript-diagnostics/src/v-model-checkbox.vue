@@ -6,6 +6,7 @@ const TF = ref<boolean>(false)
 
 const yes = 'yes'
 const no = 'no'
+const value = ref(false)
 </script>
 
 <template>
@@ -14,5 +15,6 @@ const no = 'no'
   <input type="checkbox" v-model="YN" true-value="yes" false-value="no" />
   <input type="checkbox" v-model="TF" true-value="yes" false-value="no" />
   <input type="checkbox" v-model="YN" :true-value="yes" :false-value="no" />
-  <input type="checkbox" v-model="TF" :true-value="yes" :false-value="no" />
+  <input type="checkbox" v-model="TF" :true-value="yes" :false-value="no" 
+    @change="value = $event.currentTarget.checked" />
 </template>

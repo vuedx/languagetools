@@ -886,7 +886,7 @@ function genPropDirectiveNode(
         node.arg.loc,
         MappingKind.transformed,
       )
-      genAttributeValue(context, node.exp, true)
+      genAttributeValue(context, node.exp, element)
     }
   }
 }
@@ -894,7 +894,7 @@ function genPropDirectiveNode(
 function genAttributeValue(
   context: GenerateContext,
   node: TextNode | SimpleExpressionNode | CompoundExpressionNode | undefined,
-  isEvent = false,
+  elementWhenEvent: ElementNode | undefined = undefined,
 ): void {
   if (node == null) return
 
@@ -907,8 +907,8 @@ function genAttributeValue(
     )
   } else {
     context.write('{')
-    if (isEvent) {
-      genEventHandler(context, node)
+    if (elementWhenEvent != null) {
+      genEventHandler(context, elementWhenEvent, node)
     } else {
       genExpressionNode(context, node)
     }
@@ -918,6 +918,7 @@ function genAttributeValue(
 
 function genEventHandler(
   context: GenerateContext,
+  element: ElementNode,
   node: SimpleExpressionNode | CompoundExpressionNode,
 ): void {
   let shouldWrap = false
@@ -936,7 +937,13 @@ function genEventHandler(
 
   if (shouldWrap) {
     if (shouldGenerateEventArg) {
-      context.write('($event) => {').newLine()
+      context.write('($event) => {')
+      if (isPlainElementNode(element)) {
+        context.write(
+          `if ($event.target == null || $event.currentTarget == null || !VueDX.internal.checkHTMLElementType("${element.tag}", $event.currentTarget)) throw new Error("Guard: event.target, event.currentTarget")`,
+        )
+      }
+      context.newLine()
     } else {
       context.write('() => {').newLine()
     }
@@ -1196,7 +1203,7 @@ function genDirectiveAsParams(
   // exp
   if (directive.exp != null) {
     if (directive.name === 'on') {
-      genEventHandler(context, directive.exp)
+      genEventHandler(context, node, directive.exp)
     } else {
       genExpressionNode(context, directive.exp)
     }
