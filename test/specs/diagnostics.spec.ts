@@ -152,8 +152,6 @@ describe('project', () => {
           Type '\\"yes\\"' is not assignable to type 'boolean | null | undefined'.",
           "Argument of type 'boolean' is not assignable to parameter of type '\\"yes\\" | \\"no\\" | null | undefined'.",
           "Argument of type 'boolean' is not assignable to parameter of type 'string | null | undefined'.",
-          "Object is possibly 'null'.",
-          "Property 'checked' does not exist on type 'EventTarget'.",
         ]
       `)
     })
