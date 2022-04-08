@@ -152,6 +152,8 @@ describe('project', () => {
           Type '\\"yes\\"' is not assignable to type 'boolean | null | undefined'.",
           "Argument of type 'boolean' is not assignable to parameter of type '\\"yes\\" | \\"no\\" | null | undefined'.",
           "Argument of type 'boolean' is not assignable to parameter of type 'string | null | undefined'.",
+          "Object is possibly 'null'.",
+          "Property 'checked' does not exist on type 'EventTarget'.",
         ]
       `)
     })
@@ -231,7 +233,7 @@ describe('project', () => {
         Array [
           "Type '{ onA: () => void; onInput: () => void; onClick: () => void; onSubmit: () => void; }' is not assignable to type 'IntrinsicAttributes & ButtonHTMLAttributes & ReservedProps & InputHTMLAttributes'.
           Property 'onA' does not exist on type 'IntrinsicAttributes & ButtonHTMLAttributes & ReservedProps & InputHTMLAttributes'.",
-          "Argument of type '\\"a\\"' is not assignable to parameter of type '\\"input\\" | \\"progress\\" | \\"select\\" | \\"click\\" | \\"keydown\\" | \\"keypress\\" | \\"keyup\\" | \\"pointerdown\\" | \\"pointermove\\" | \\"pointerup\\" | \\"pointercancel\\" | \\"pointerenter\\" | \\"pointerleave\\" | ... 68 more ... | \\"transitionstart\\"'.",
+          "Argument of type '\\"a\\"' is not assignable to parameter of type '\\"input\\" | \\"progress\\" | \\"select\\" | \\"change\\" | \\"keydown\\" | \\"keypress\\" | \\"keyup\\" | \\"pointerdown\\" | \\"pointermove\\" | \\"pointerup\\" | \\"pointercancel\\" | \\"pointerenter\\" | \\"pointerleave\\" | ... 68 more ... | \\"transitionstart\\"'.",
           "Argument of type '(payload?: number | undefined) => void' is not assignable to parameter of type '(_payload: string) => void'.
           Types of parameters 'payload' and '_payload' are incompatible.
             Type 'string' is not assignable to type 'number | undefined'.",
