@@ -19,6 +19,7 @@ import {
   VueSfcLanguageService,
 } from '../features/HtmlLanguageService'
 import { QuickInfoService } from '../features/QuickInfoService'
+import { RefactorService } from '../features/RefactorService'
 import { ReferencesService } from '../features/ReferencesService'
 import { RenameService } from '../features/RenameService'
 import { EncodedClassificationsService } from './EncodedClassificationsService'
@@ -54,6 +55,8 @@ export class TypescriptPluginService
     private readonly classifications: EncodedClassificationsService,
     @inject(CodeFixService)
     private readonly codeFix: CodeFixService,
+    @inject(RefactorService)
+    private readonly refactor: RefactorService,
     @inject(TypescriptContextService)
     private readonly ts: TypescriptContextService,
     @inject(IPCService)
@@ -400,8 +403,7 @@ export class TypescriptPluginService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences | undefined,
   ): readonly TypeScript.FileTextChanges[] {
-    if (this.fs.isVueFile(args.fileName)) return []
-    return this.ts.service.organizeImports(args, formatOptions, preferences)
+    return this.refactor.organizeImports(args, formatOptions, preferences)
   }
 
   public toggleLineComment(

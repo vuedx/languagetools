@@ -282,6 +282,7 @@ export class TypescriptContextService implements Disposable {
   }
 
   public ensureUptoDate(fileName: string): void {
+    this.project.getLanguageService(true) // forces update
     if (isVueFile(fileName)) {
       fileName = toFileName({ type: 'vue-ts', fileName })
     }
