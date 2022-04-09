@@ -27,12 +27,12 @@ describe('VueSFCDocument', () => {
     expect(doc.getTypeScriptText()).toMatchInlineSnapshot(`
       "import 'vuedx~runtime'
       import 'vuedx~project-runtime'
-      import { __VueDX_Slots } from \\"./Example.vue+vue&type=template&lang\\"
+      import { __VueDX_Slots, __VueDX_Attrs } from \\"./Example.vue+vue&type=template&lang\\"
       import { __VueDX_DefineComponent as _Self } from \\"./Example.vue+vue&type=script&setup&lang\\"
       export * from \\"./Example.vue+vue&type=script&setup&lang\\"
 
       class Example {
-        $props!: InstanceType<typeof _Self>['$props']
+        $props!: VueDX.internal.MergeAttrs<InstanceType<typeof _Self>['$props'], __VueDX_Attrs>
         $slots!: __VueDX_Slots
       }
       export default Example
@@ -104,6 +104,7 @@ describe('VueSFCDocument', () => {
         return VueDX.internal.flat([])
       }
       export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
+      export type __VueDX_Attrs = VueDX.internal.AttrsOf<\\"Foo.Bar\\">;
       /*</vuedx:diagnosticsIgnore>*/
       "
     `)
