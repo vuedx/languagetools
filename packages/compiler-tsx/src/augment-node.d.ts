@@ -11,6 +11,9 @@ declare module '@vue/compiler-core' {
 
   export interface BaseElementNode {
     hoists?: CompoundExpressionNode[]
+    tagLoc: SourceLocation
+    startTagLoc: SourceLocation
+    endTagLoc?: SourceLocation
   }
 
   export interface DirectiveNode {

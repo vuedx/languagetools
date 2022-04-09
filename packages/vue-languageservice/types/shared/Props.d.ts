@@ -24,3 +24,8 @@ export type AttrsOf<T> = T extends KnownKeys<keyof JSX.IntrinsicElements>
   : {}
 
 export type MergeAttrs<P, A> = P & Omit<A, keyof KnownKeys<P>>
+
+export function propCompletionHelper<T>(
+  propName: keyof PropsOf<T>,
+  tagOrComponent: T,
+): any

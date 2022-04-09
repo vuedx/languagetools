@@ -39,17 +39,24 @@ export function advancePositionWithMutation(
 }
 
 export function createLoc(
+  loc: SourceLocation,
+  offset: number,
+  length: number,
+): SourceLocation
+export function createLoc(
+  loc: undefined,
+  offset: number,
+  length: number,
+): undefined
+export function createLoc(
   loc: SourceLocation | undefined,
   offset: number,
   length: number,
 ): SourceLocation | undefined {
   if (loc == null) return
 
-  const source = loc.source.substr(offset, length)
-  const start = advancePositionWithClone(
-    loc.start,
-    loc.source.substr(0, offset),
-  )
+  const source = loc.source.slice(offset, offset + length)
+  const start = advancePositionWithClone(loc.start, loc.source.slice(0, offset))
   const end = advancePositionWithClone(start, source)
 
   return { source, start, end }

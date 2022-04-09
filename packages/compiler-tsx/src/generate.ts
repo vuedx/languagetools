@@ -224,11 +224,7 @@ export function generate(
   })
   context.write(annotations.templateGlobals.end).newLine()
 
-  context
-    .write(`${annotations.tsxCompletions}<></>;`)
-    .newLine()
-    .write(`__VueDX_ctx.${annotations.tsCompletions}$;`)
-    .newLine()
+  context.write(`__VueDX_ctx.${annotations.tsCompletions}$;`).newLine()
 
   options.on('renderBodyIgnored', context)
   context.write(annotations.diagnosticsIgnore.end).newLine()
@@ -587,6 +583,15 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
   //#endregion
   // > 4
   context.deindent()
+
+  if (node.tag.length > 0) {
+    const tagName = isComponentNode(node)
+      ? node.resolvedName ?? node.tag
+      : `${JSON.stringify(node.tag)} as const`
+    context.write(
+      ` data-vuedx-prop-completion-helper={${annotations.diagnosticsIgnore.start}VueDX.internal.propCompletionHelper("", ${tagName})${annotations.diagnosticsIgnore.end}}`,
+    )
+  }
 
   if (node.isSelfClosing) {
     context.write(' />')

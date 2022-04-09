@@ -61,3 +61,7 @@ export function generateUUID(): string {
 export function ucfirst(str: string): string {
   return str.slice(0, 1).toUpperCase() + str.slice(1)
 }
+
+export function lcfirst(str: string): string {
+  return str.slice(0, 1).toLowerCase() + str.slice(1)
+}

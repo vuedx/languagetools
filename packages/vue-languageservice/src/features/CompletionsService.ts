@@ -1,19 +1,28 @@
 import {
+  debug,
   isHTMLTag,
   isNotNull,
   isPascalCase,
   isString,
   isSVGTag,
+  isVueFile,
+  last,
+  lcfirst,
+  ucfirst,
 } from '@vuedx/shared'
 import {
   findTemplateNodeAt,
+  isAttributeNode,
+  isCommentNode,
+  isDirectiveNode,
+  isElementNode,
   isInterpolationNode,
   isSimpleExpressionNode,
-  SearchResult,
+  isTextNode,
+  SourceLocation,
 } from '@vuedx/template-ast-types'
 import type {
   Position,
-  TextDocument,
   TextSpan,
   VueBlockDocument,
   VueSFCDocument,
@@ -31,28 +40,35 @@ type CompletionAdditionalInfo = {
   merged?: TypeScript.CompletionEntry[]
 } & (
   | {
-      type: 'tag-completion-tsx'
+      type: TemplateCompletionItemKind
       fileName: string
       position: number
-    }
-  | {
-      type: 'expression'
-      fileName: string
-      position: number
-    }
-  | {
-      type: 'tag-for-project-file'
-      fileName: string
     }
   | {
       type: 'embedded-service'
       fileName: string
       data: LanguageService.CompletionItem
     }
-  | {
-      type: 'unknown'
-    }
 )
+
+const PROP_COMPLETION_HELPER = 'VueDX.internal.propCompletionHelper("'
+
+const enum TemplateCompletionItemKind {
+  OpenTag = 'open-tag',
+  CloseTag = 'close-tag',
+  Attribute = 'attribute',
+  Event = 'event',
+  AttributeValue = 'attribute-value',
+  DirectiveArgument = 'directive-argument',
+  DirectiveModifier = 'directive-modifier',
+  DirectiveValue = 'directive-value',
+  Interpolation = 'interpolation',
+
+  None = 'none',
+  Comment = 'comment',
+
+  Unknown = 'unknown',
+}
 
 @injectable()
 export class CompletionsService
@@ -85,6 +101,7 @@ export class CompletionsService
     private readonly langs: LanguageServiceProvider,
   ) {}
 
+  @debug()
   public getCompletionsAtPosition(
     fileName: string,
     position: number,
@@ -115,16 +132,15 @@ export class CompletionsService
 
     if (info != null) {
       switch (info.type) {
-        case 'expression':
-        case 'tag-completion-tsx':
+        case 'embedded-service':
+          return
+        default:
           return this.ts.service.getCompletionEntrySymbol(
             info.fileName,
             info.position,
             name,
             source,
           )
-        default:
-          return
       }
     }
 
@@ -152,6 +168,7 @@ export class CompletionsService
 
     if (item != null) {
       const info = this.#getAdditionalInfo(item)
+      this.logger.debug('Found entry', item)
       if (info != null) {
         const details = this.#getCompletionEntryDetailsFromAdditionalInfo(
           item,
@@ -311,18 +328,6 @@ export class CompletionsService
     data: TypeScript.CompletionEntryData | undefined,
   ): TypeScript.CompletionEntryDetails | undefined {
     switch (info.type) {
-      case 'expression':
-      case 'tag-completion-tsx':
-        this.logger.debug('Find entry details', info)
-        return this.ts.service.getCompletionEntryDetails(
-          info.fileName,
-          info.position,
-          entryName,
-          formatOptions,
-          source,
-          preferences,
-          data,
-        )
       case 'embedded-service':
         return {
           name: item.name,
@@ -341,16 +346,29 @@ export class CompletionsService
                       ? info.data.documentation
                       : info.data.documentation.value,
                   },
+                  { kind: 'text', text: 'from embeded language service' },
                 ].filter(isNotNull)
-              : undefined,
+              : [{ kind: 'text', text: 'from embeded language service' }],
           codeActions: this.#getCodeActionsFromCompletionItem(
             info.fileName,
             info.data,
           ),
         }
+      default:
+        if (entryName.startsWith('@')) {
+          entryName = `on${ucfirst(entryName.slice(1))}`
+        }
+        // TODO: Unwrap entryName for v-bind and v-on directives.
+        return this.ts.service.getCompletionEntryDetails(
+          info.fileName,
+          info.position,
+          entryName,
+          formatOptions,
+          source,
+          preferences,
+          data,
+        )
     }
-
-    return undefined
   }
 
   #getTsxCompletionOptions(
@@ -406,12 +424,7 @@ export class CompletionsService
 
       const completions = this.#combine(
         result.items.map((item) => {
-          return this.#completionItemToEntry(
-            file.fileName,
-            file,
-            item,
-            (offset) => offset,
-          )
+          return this.#completionItemToEntry(file, item)
         }),
       )
       if (result.isIncomplete && completions != null)
@@ -454,187 +467,249 @@ export class CompletionsService
     position: number,
     options: TypeScript.GetCompletionsAtPositionOptions | undefined,
   ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
-    const completions: Array<
+    const completionsInGeneratedCode: Array<
+      | TypeScript.WithMetadata<TypeScript.CompletionInfo>
+      | TypeScript.CompletionEntry[]
+      | undefined
+    > = []
+    const completionsInVueFile: Array<
       | TypeScript.WithMetadata<TypeScript.CompletionInfo>
       | TypeScript.CompletionEntry[]
       | undefined
     > = []
 
-    const offset = block.toBlockOffset(position)
-    this.logger.debug(
-      `(Template) Find completions at ${
-        block.fileName
-      }:${this.fs.getPositionString(block, offset)}`,
+    if (
+      file.templateAST == null ||
+      block.tsFileName == null ||
+      block.generated == null
     )
-    const content = block.source.getText()
-    let start: number = offset - 1
-    const stopCharacters = new Set(' <\t\n'.split(''))
-    for (; start >= 0; --start) {
-      if (stopCharacters.has(content.charAt(start))) break
-    }
-    const tokenAtPosition = content.slice(start, offset)
-    this.logger.debug(`(Template) Token at cursor:`, { tokenAtPosition })
-    // TODO: Move to separate service to provide completions in other languages like pug.
-    const isTagCompletion = /^<[a-z0-9-]*$/i.test(tokenAtPosition)
-    let isAttributeCompletion = false
-    if (isTagCompletion) {
-      if (block.tsFileName != null && block.generated != null) {
-        const position = block.tsxCompletionsOffset
+      return
 
-        if (position != null) {
-          this.logger.debug(
-            `(Template) Tag completion at ${
-              block.tsFileName
-            }:${this.fs.getPositionString(block.generated, position)}`,
-          )
-          completions.push(
-            this.#rebase(
-              block,
-              this.#cleanup(
-                this.ts.service.getCompletionsAtPosition(
-                  block.tsFileName,
-                  position,
-                  this.#getTsxCompletionOptions(options),
-                ),
-                {
-                  mode: 'tag',
-                  attachAdditionalInfo: {
-                    type: 'tag-completion-tsx',
-                    fileName: block.tsFileName,
-                    position,
-                  },
-                },
-              ),
-            ),
-          )
+    let completionKind: TemplateCompletionItemKind =
+      TemplateCompletionItemKind.Unknown
+
+    const offset = block.toBlockOffset(position)
+    const generatedOffset = block.findGeneratedOffetAt(offset)
+    let contextOffset = offset
+    let generatedContextOffset = generatedOffset
+    const { node, ancestors } = findTemplateNodeAt(file.templateAST, offset)
+
+    if (isElementNode(node)) {
+      contextOffset = node.loc.start.offset
+
+      if (
+        isOffsetInSourceLocation(offset, node.tagLoc) ||
+        node.tag.length === 0
+      ) {
+        completionKind = TemplateCompletionItemKind.OpenTag
+      } else if (isOffsetInSourceLocation(offset, node.startTagLoc)) {
+        completionKind = TemplateCompletionItemKind.Attribute
+      } else if (isOffsetInSourceLocation(offset, node.endTagLoc)) {
+        completionKind = TemplateCompletionItemKind.CloseTag
+      }
+    } else if (isAttributeNode(node)) {
+      contextOffset = node.loc.start.offset
+      completionKind = TemplateCompletionItemKind.Attribute
+    } else if (isDirectiveNode(node)) {
+      contextOffset = node.loc.start.offset
+      if (node.arg == null || offset <= node.arg.loc.end.offset) {
+        completionKind =
+          node.name === 'on'
+            ? TemplateCompletionItemKind.Event
+            : TemplateCompletionItemKind.DirectiveArgument
+      } else {
+        completionKind = TemplateCompletionItemKind.DirectiveModifier
+      }
+    } else if (isInterpolationNode(node)) {
+      contextOffset = node.loc.start.offset
+      completionKind = TemplateCompletionItemKind.Interpolation
+    } else if (isSimpleExpressionNode(node)) {
+      if (ancestors.length === 0) {
+        completionKind = TemplateCompletionItemKind.Unknown
+      } else {
+        const parent = last(ancestors).node
+
+        if (isInterpolationNode(parent)) {
+          completionKind = TemplateCompletionItemKind.Interpolation
+        } else if (isDirectiveNode(parent)) {
+          if (parent.arg === node) {
+            completionKind = TemplateCompletionItemKind.DirectiveArgument
+          } else {
+            completionKind = TemplateCompletionItemKind.DirectiveValue
+          }
         }
       }
-    } else if (block.tsFileName != null) {
-      const { node }: SearchResult =
-        file.templateAST != null
-          ? findTemplateNodeAt(file.templateAST, offset)
-          : { node: null, ancestors: [] }
-
-      if (isSimpleExpressionNode(node) || isInterpolationNode(node)) {
-        this.logger.debug(
-          `(Template) Expression completions at ${block.fileName}:` +
-            this.fs.getPositionString(block, offset),
-        )
-        const position = block.findGeneratedOffetAt(offset)
-        const completionsAtOffset = this.ts.service.getCompletionsAtPosition(
-          block.tsFileName,
-          position,
-          options,
-        )
-
-        completions.push(
-          this.#rebase(
-            block,
-            this.#cleanup(completionsAtOffset, {
-              mode: 'all',
-              attachAdditionalInfo: {
-                type: 'expression',
-                fileName: block.tsFileName,
-                position,
-              },
-            }),
-          ),
-        )
-
-        if (
-          completionsAtOffset == null ||
-          completionsAtOffset.isGlobalCompletion ||
-          completionsAtOffset.isNewIdentifierLocation
-        ) {
-          if (block.generated != null) {
-            const position = block.findOriginalOffsetAt(offset)
-            this.logger.debug(
-              `Completions at ${block.tsFileName}:` +
-                this.fs.getPositionString(block.generated, position),
-            )
-            completions.push(
-              this.#rebase(
-                block,
-                this.#cleanup(
-                  this.ts.service.getCompletionsAtPosition(
-                    block.tsFileName,
-                    position,
-                    options,
-                  ),
-                  {
-                    mode: 'all',
-                    attachAdditionalInfo: {
-                      type: 'expression',
-                      fileName: block.tsFileName,
-                      position,
-                    },
-                  },
-                ),
-              ),
-            )
-          }
-
-          if (file.descriptor.scriptSetup != null) {
-            const block = file.getDoc(file.descriptor.scriptSetup)
-
-            if (
-              block?.tsFileName != null &&
-              block.tsCompletionsOffset != null &&
-              block.generated != null
-            ) {
-              this.logger.debug(
-                `Script globals at ${block.tsFileName}:` +
-                  this.fs.getPositionString(
-                    block.generated,
-                    block.tsCompletionsOffset,
-                  ),
-              )
-              completions.push(
-                this.#rebase(
-                  block,
-                  this.#cleanup(
-                    this.ts.service.getCompletionsAtPosition(
-                      block.tsFileName,
-                      block.tsCompletionsOffset,
-                      this.#getContextCompletionOptions(options),
-                    ),
-                    {
-                      mode: 'all',
-                      attachAdditionalInfo: {
-                        type: 'expression',
-                        fileName: block.tsFileName,
-                        position: block.tsCompletionsOffset,
-                      },
-                    },
-                  ),
-                ),
-              )
-            }
-          }
+    } else if (isTextNode(node)) {
+      if (ancestors.length > 0) {
+        const parent = last(ancestors).node
+        if (isAttributeNode(parent)) {
+          completionKind = TemplateCompletionItemKind.AttributeValue
         }
       } else {
-        isAttributeCompletion = true
-        if (block.generated != null) {
-          const position = block.findGeneratedOffetAt(offset)
-          this.logger.debug(
-            `(Template) Maybe attribute completions at ${block.tsFileName}:` +
-              this.fs.getPositionString(block.generated, position),
-          )
-          completions.push(
+        completionKind = TemplateCompletionItemKind.None
+      }
+    } else if (isCommentNode(node)) {
+      completionKind = TemplateCompletionItemKind.Comment
+    }
+
+    generatedContextOffset = block.findGeneratedOffetAt(contextOffset)
+
+    this.logger.debug(
+      'Detected type:',
+      completionKind,
+      'Node at position:',
+      node?.type,
+      node?.loc.source,
+    )
+
+    switch (completionKind) {
+      case TemplateCompletionItemKind.OpenTag:
+      case TemplateCompletionItemKind.CloseTag:
+        completionsInGeneratedCode.push(
+          this.#cleanup(
+            this.ts.service.getCompletionsAtPosition(
+              block.tsFileName,
+              generatedOffset,
+              this.#getTsxCompletionOptions(options),
+            ),
+            {
+              mode: 'tag',
+              attachAdditionalInfo: {
+                type: completionKind,
+                fileName: block.tsFileName,
+                position: generatedOffset,
+              },
+            },
+          ),
+        )
+        break
+
+      case TemplateCompletionItemKind.DirectiveArgument:
+        break
+      case TemplateCompletionItemKind.Event:
+      case TemplateCompletionItemKind.Attribute:
+        {
+          const index = block.generated
+            .getText()
+            .indexOf(PROP_COMPLETION_HELPER, generatedContextOffset)
+
+          if (index > 0) {
+            const offset = index + PROP_COMPLETION_HELPER.length
+            const completions = this.#cleanup(
+              this.ts.service.getCompletionsAtPosition(
+                block.tsFileName,
+                offset,
+                options,
+              ),
+              {
+                mode: 'attribute',
+                attachAdditionalInfo: {
+                  type: completionKind,
+                  fileName: block.tsFileName,
+                  position: offset,
+                },
+              },
+            )
+
+            if (completions?.entries != null) {
+              if (completionKind === TemplateCompletionItemKind.Event) {
+                completions.entries = completions.entries.filter((entry) =>
+                  /^on[A-Z]/.test(entry.name),
+                )
+              }
+
+              if (isAttributeNode(node) || isDirectiveNode(node)) {
+                completions.entries.forEach((entry) => {
+                  entry.replacementSpan = {
+                    start: block.toFileOffset(node.loc.start.offset),
+                    length: node.loc.source.length,
+                  }
+                })
+              } else {
+                completions.entries.forEach((entry) => {
+                  entry.replacementSpan = undefined
+                })
+              }
+            }
+
+            completionsInVueFile.push(completions)
+          }
+        }
+        break
+
+      case TemplateCompletionItemKind.DirectiveModifier:
+        // TODO: find directive modifier completion position
+        break
+
+      case TemplateCompletionItemKind.AttributeValue:
+      case TemplateCompletionItemKind.DirectiveValue:
+      case TemplateCompletionItemKind.Interpolation:
+        completionsInGeneratedCode.push(
+          this.#cleanup(
+            this.ts.service.getCompletionsAtPosition(
+              block.tsFileName,
+              generatedOffset,
+              options,
+            ),
+            {
+              mode: 'all',
+              attachAdditionalInfo: {
+                type: completionKind,
+                fileName: block.tsFileName,
+                position: generatedOffset,
+              },
+            },
+          ),
+        )
+        break
+
+      case TemplateCompletionItemKind.Comment:
+        // Complete doc comments?
+        break
+    }
+
+    if (isSimpleExpressionNode(node)) {
+      if (block.tsCompletionsOffset != null) {
+        completionsInGeneratedCode.push(
+          this.#cleanup(
+            this.ts.service.getCompletionsAtPosition(
+              block.tsFileName,
+              block.tsCompletionsOffset,
+              this.#getContextCompletionOptions(options),
+            ),
+            {
+              mode: 'all',
+              attachAdditionalInfo: {
+                type: completionKind,
+                fileName: block.tsFileName,
+                position: block.tsCompletionsOffset,
+              },
+            },
+          ),
+        )
+      }
+
+      if (block.parent.descriptor.scriptSetup != null) {
+        const scriptSetup = file.getDoc(block.parent.descriptor.scriptSetup)
+        if (
+          scriptSetup?.tsFileName != null &&
+          scriptSetup.tsCompletionsOffset != null
+        ) {
+          completionsInVueFile.push(
             this.#rebase(
-              block,
+              scriptSetup,
               this.#cleanup(
                 this.ts.service.getCompletionsAtPosition(
-                  block.tsFileName,
-                  position,
-                  this.#getContextCompletionOptions(options),
+                  scriptSetup.tsFileName,
+                  scriptSetup.tsCompletionsOffset,
+                  options,
                 ),
                 {
                   mode: 'all',
                   attachAdditionalInfo: {
-                    type: 'expression',
-                    fileName: block.tsFileName,
-                    position,
+                    type: completionKind,
+                    fileName: scriptSetup.tsFileName,
+                    position: scriptSetup.tsCompletionsOffset,
                   },
                 },
               ),
@@ -644,44 +719,43 @@ export class CompletionsService
       }
     }
 
-    const templateService = this.langs.getLanguageService(
-      block.source.languageId,
-    )
-    if ((isTagCompletion || isAttributeCompletion) && templateService != null) {
-      const offset = block.toBlockOffset(position)
-      this.logger.debug(
-        `(Template) Tag completion at ${
-          block.fileName
-        }:${this.fs.getPositionString(block.source, offset)}`,
-      )
-      const result = templateService.getCompletionsAtPosition(
-        block.fileName,
-        block.source.positionAt(offset),
-      )
-
-      completions.push(
-        result.items.map((item) => {
-          return this.#completionItemToEntry(
-            block.fileName,
-            block.source,
-            item,
-            (offset) => block.toFileOffset(offset),
-          )
-        }),
-      )
+    if (
+      completionKind === TemplateCompletionItemKind.Attribute ||
+      completionKind === TemplateCompletionItemKind.AttributeValue ||
+      completionKind === TemplateCompletionItemKind.OpenTag ||
+      completionKind === TemplateCompletionItemKind.CloseTag
+    ) {
+      const service = this.langs.getLanguageService(block.fileName)
+      if (service != null) {
+        completionsInVueFile.push(
+          service
+            .getCompletionsAtPosition(
+              block.fileName,
+              block.source.positionAt(offset),
+            )
+            .items.map((item) => this.#completionItemToEntry(block, item)),
+        )
+      }
     }
 
-    return this.#dedupe(
-      this.#combine(...completions),
-      isTagCompletion ? 'tag' : isAttributeCompletion ? 'attribute' : 'value',
+    return this.#dedupeAndTransform(
+      this.#combine(
+        this.#rebase(block, this.#combine(...completionsInGeneratedCode)),
+        ...completionsInVueFile,
+      ),
+      TemplateCompletionItemKind.Attribute === completionKind ||
+        TemplateCompletionItemKind.Event === completionKind
+        ? 'attribute'
+        : TemplateCompletionItemKind.OpenTag === completionKind ||
+          TemplateCompletionItemKind.CloseTag === completionKind
+        ? 'tag'
+        : undefined,
     )
   }
 
   #completionItemToEntry(
-    fileName: string,
-    file: TextDocument,
+    file: VueBlockDocument | VueSFCDocument,
     item: LanguageService.CompletionItem,
-    toFileOffset: (offset: number) => number,
   ): TypeScript.CompletionEntry {
     const kind = this.#toScriptElementKind(item.kind)
     const isRecommended = item.preselect === true ? true : undefined
@@ -694,12 +768,22 @@ export class CompletionsService
 
       const range =
         'replace' in item.textEdit ? item.textEdit.replace : item.textEdit.range
+      const offsetAt = (position: Position): number => {
+        if (isVueBlockDocument(file)) {
+          return file.toFileOffset(file.source.offsetAt(position))
+        }
 
-      const start = file.offsetAt(range.start)
-      const end = file.offsetAt(range.end)
+        return file.offsetAt(position)
+      }
+
+      const start = offsetAt(range.start)
+      const end = offsetAt(range.end)
 
       if (end > start) {
-        replacementSpan = { start: toFileOffset(start), length: end - start }
+        replacementSpan = {
+          start: start,
+          length: end - start,
+        }
       }
     }
 
@@ -724,7 +808,7 @@ export class CompletionsService
       {
         attachAdditionalInfo: {
           type: 'embedded-service',
-          fileName: fileName,
+          fileName: file.fileName,
           data: item,
         },
       },
@@ -906,15 +990,13 @@ export class CompletionsService
       block.source.positionAt(block.toBlockOffset(position)),
     )
 
-    return this.#combine(
-      result.items.map((item) => {
-        return this.#completionItemToEntry(
-          block.fileName,
-          block.source,
-          item,
-          (offset) => block.toFileOffset(offset),
-        )
-      }),
+    return this.#rebase(
+      block,
+      this.#combine(
+        result.items.map((item) => {
+          return this.#completionItemToEntry(block, item)
+        }),
+      ),
     )
   }
 
@@ -932,15 +1014,13 @@ export class CompletionsService
       block.source.positionAt(block.toBlockOffset(position)),
     )
 
-    return this.#combine(
-      result.items.map((item) => {
-        return this.#completionItemToEntry(
-          block.fileName,
-          block.source,
-          item,
-          (offset) => block.toFileOffset(offset),
-        )
-      }),
+    return this.#rebase(
+      block,
+      this.#combine(
+        result.items.map((item) => {
+          return this.#completionItemToEntry(block, item)
+        }),
+      ),
     )
   }
 
@@ -1070,14 +1150,18 @@ export class CompletionsService
     const copy = { ...completions }
     if (completions.optionalReplacementSpan != null) {
       copy.optionalReplacementSpan =
-        doc.findOriginalTextSpan(completions.optionalReplacementSpan) ??
-        undefined
+        completions.optionalReplacementSpan.length === 0
+          ? undefined
+          : doc.findOriginalTextSpan(completions.optionalReplacementSpan) ??
+            undefined
     }
 
     copy.entries = completions.entries.map(({ ...entry }) => {
       if (entry.replacementSpan != null) {
         entry.replacementSpan =
-          doc.findOriginalTextSpan(entry.replacementSpan) ?? undefined
+          entry.replacementSpan.length === 0
+            ? undefined
+            : doc.findOriginalTextSpan(entry.replacementSpan) ?? undefined
       }
 
       return entry
@@ -1089,7 +1173,7 @@ export class CompletionsService
   #cleanup(
     completions: TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined,
     options: {
-      mode: 'tag' | 'all'
+      mode: 'tag' | 'attribute' | 'all'
       attachAdditionalInfo?: CompletionAdditionalInfo
     } = { mode: 'all' },
   ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
@@ -1135,10 +1219,13 @@ export class CompletionsService
             return 'Only default imports from .vue files'
           }
         }
-      } else if (entry.source != null) {
-        if (this.fs.isVueVirtualFile(entry.source)) return 'Not a valid import'
+      } else if (options.mode === 'attribute') {
+        return null
       }
-
+      if (entry.source != null) {
+        if (this.fs.isVueVirtualFile(entry.source)) return 'Not a valid import'
+        // todo handle component imports??
+      }
       return null
     }
     const copy = { ...completions }
@@ -1169,7 +1256,9 @@ export class CompletionsService
 
   #patchCompletionEntry(
     entry: TypeScript.CompletionEntry,
-    options: { attachAdditionalInfo?: CompletionAdditionalInfo },
+    options: {
+      attachAdditionalInfo?: CompletionAdditionalInfo
+    },
   ): TypeScript.CompletionEntry {
     if (entry.source != null) {
       if (this.fs.isVueTsFile(entry.source)) {
@@ -1199,6 +1288,8 @@ export class CompletionsService
       | undefined
     >
   ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
+    if (completions.length === 0) return undefined
+
     const first = completions.find(
       (item): item is TypeScript.WithMetadata<TypeScript.CompletionInfo> =>
         item != null && !Array.isArray(item),
@@ -1239,15 +1330,32 @@ export class CompletionsService
   /**
    * NOTE: Modifies completion items.
    */
-  #dedupe(
+  #dedupeAndTransform(
     completions: TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined,
-    kind: 'tag' | 'attribute' | 'value',
+    kind?: 'tag' | 'attribute',
   ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     if (completions == null) return completions
 
     const entries = new Map<string, TypeScript.CompletionEntry>()
     if (kind === 'tag' || kind === 'attribute') {
       completions.entries.forEach((current) => {
+        if (kind === 'attribute') {
+          current.kind = this.ts.lib.ScriptElementKind.jsxAttribute
+          // TODO: Use preferences to determine longhand or shorthand syntax
+          if (/^on[A-Z]/.test(current.name)) {
+            current.kindModifiers = 'directive'
+            const name = `@${lcfirst(current.name.slice(2))}`
+            if (current.insertText != null) {
+              current.insertText = current.insertText.replace(
+                current.name,
+                name,
+              )
+            }
+            current.name = name
+            current.sortText = '17'
+          }
+        }
+
         const id = getId(current)
         const previous = entries.get(id)
         if (previous == null) {
@@ -1256,21 +1364,27 @@ export class CompletionsService
         }
 
         const a = this.#getAdditionalInfo(previous)
-        __DEV__ &&
-          this.logger.debug(
-            `Merging ${current.name} ( ${current.kind} ${
-              current.kindModifiers ?? ''
-            } ) into ${previous.name} ( ${previous.kind} ${
-              previous.kindModifiers ?? ''
-            } )`,
-          )
-        if (a == null) {
-          this.#patchCompletionEntry(previous, {
-            attachAdditionalInfo: { type: 'unknown', merged: [current] },
-          })
-        } else {
+
+        if (a != null) {
+          __DEV__ &&
+            this.logger.debug(
+              `Merging ${current.name} ( ${current.kind} ${
+                current.kindModifiers ?? ''
+              } ) into ${previous.name} ( ${previous.kind} ${
+                previous.kindModifiers ?? ''
+              } )`,
+            )
           a.merged = a.merged ?? []
           a.merged.push(current)
+        } else {
+          __DEV__ &&
+            this.logger.debug(
+              `Cannot merge ${current.name} ( ${current.kind} ${
+                current.kindModifiers ?? ''
+              } ) into ${previous.name} ( ${previous.kind} ${
+                previous.kindModifiers ?? ''
+              } )`,
+            )
         }
       })
 
@@ -1290,4 +1404,18 @@ export class CompletionsService
   ): CompletionAdditionalInfo | null {
     return (entry.data as any)?.vuedx ?? null
   }
+}
+
+function isOffsetInSourceLocation(
+  offset: number,
+  loc?: SourceLocation,
+): boolean {
+  if (loc == null) return false
+  return loc.start.offset <= offset && offset <= loc.end.offset
+}
+
+function isVueBlockDocument(
+  file: VueBlockDocument | VueSFCDocument,
+): file is VueBlockDocument {
+  return !isVueFile(file.fileName)
 }
