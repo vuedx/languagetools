@@ -47,7 +47,7 @@ describe('VueSFCDocument', () => {
               const val = $ref(1)
               ;
       /*<vuedx:diagnosticsIgnore>*/
-      ;/*<vuedx:ts-competions-target/>*/
+      ;console.log(/*<vuedx:ts-competions-target/>*/);
       export const __VueDX_components =
       /*<vuedx:templateGlobals>*/
       {
@@ -80,12 +80,11 @@ describe('VueSFCDocument', () => {
         /*<vuedx:templateGlobals>*/
         let val = __VueDX_ctx.val;
         /*</vuedx:templateGlobals>*/
-        /*<vuedx:tsx-competions-target/>*/<></>;
         __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
         /*</vuedx:diagnosticsIgnore>*/
 
         return (
-          <Foo.Bar>
+          <Foo.Bar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper(\\"\\", Foo.Bar)/*</vuedx:diagnosticsIgnore>*/}>
             {VueDX.internal.checkSlots(Foo.Bar, {
               default: () => {
                 return (

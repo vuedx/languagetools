@@ -6,7 +6,7 @@ import { checkDirective } from './shared/checkDirective'
 import { checkModelDirective } from './shared/checkDirectiveModel'
 import {
   checkHTMLElementType,
-  checkOnDirective
+  checkOnDirective,
 } from './shared/checkDirectiveOn'
 import { checkInterpolation } from './shared/checkInterpolation'
 import { checkRef } from './shared/checkRef'
@@ -14,7 +14,12 @@ import { checkSlots } from './shared/checkSlots'
 import { defineSetupComponent, resolveComponent } from './shared/components'
 import { resolveDirective } from './shared/directives'
 import { getElementType } from './shared/element'
-import { AttrsOf, MergeAttrs, PropsOf } from './shared/Props'
+import {
+  AttrsOf,
+  MergeAttrs,
+  propCompletionHelper,
+  PropsOf,
+} from './shared/Props'
 import { renderList } from './shared/renderList'
 import { renderSlot } from './shared/renderSlot'
 import { Slots } from './shared/Slots'
@@ -38,6 +43,7 @@ declare global {
         checkHTMLElementType,
         checkModelDirective,
       }
+      export { propCompletionHelper }
       export { PropsOf, AttrsOf, MergeAttrs }
     }
   }

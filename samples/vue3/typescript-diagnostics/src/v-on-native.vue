@@ -36,7 +36,7 @@ function onKeyboard(event: KeyboardEvent) {}
       @keypress.enter="onKeyboard" 
       @keypress.middle="onKeyboard" 
       @keypress.shift.left.exact="onKeyboard" 
-      @keypress.shift.right.exact="onKeyboard" 
+      @keypress.shift.right.exact="onKeyboard"
   />
 
 </template>

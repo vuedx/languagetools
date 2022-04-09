@@ -9,6 +9,7 @@ import {
 import { getComponentName } from '@vuedx/shared'
 import * as Path from 'path'
 import { generate } from './generate'
+import { parseElementTagLoc } from './parseElementTagLoc'
 import { parserOptions } from './parserOptions'
 import { withScope } from './scope'
 import { ScopeManager } from './transforms/ScopeManager'
@@ -116,8 +117,10 @@ export function compile(
 }
 
 export function parse(template: string, options: ParserOptions): RootNode {
-  return baseParse(template, {
+  const ast = baseParse(template, {
     ...parserOptions,
     ...options,
   })
+  transform(ast, { nodeTransforms: [parseElementTagLoc] })
+  return ast
 }

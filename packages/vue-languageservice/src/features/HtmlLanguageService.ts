@@ -1,3 +1,4 @@
+import { ucfirst } from '@vuedx/shared'
 import type { TextDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type {
@@ -7,8 +8,8 @@ import type {
   Position,
 } from 'vscode-html-languageservice'
 import {
-  newHTMLDataProvider,
   getLanguageService,
+  newHTMLDataProvider,
 } from 'vscode-html-languageservice'
 import type { LanguageService } from '../contracts/LanguageService'
 import { CacheService } from '../services/CacheService'
@@ -97,6 +98,32 @@ export class VueHtmlLanguageService extends HtmlLanguageService {
 
   public readonly supportedLanguages = ['vue-html']
 
+  public getCompletionsAtPosition(
+    fileName: string,
+    position: Position,
+  ): CompletionList {
+    const result = super.getCompletionsAtPosition(fileName, position)
+
+    result.items = result.items.map((item) => {
+      if (item.label.startsWith('on')) {
+        const label = item.label
+        item.label = `on${ucfirst(item.label.slice(2))}`
+        if (item.insertText != null) {
+          item.insertText = item.insertText.replace(label, item.label)
+        }
+        if (item.textEdit != null) {
+          item.textEdit.newText = item.textEdit.newText.replace(
+            label,
+            item.label,
+          )
+        }
+      }
+      return item
+    })
+
+    return result
+  }
+
   public getQuickInfoAtPosition(
     fileName: string,
     position: LanguageService.Position,
@@ -112,11 +139,7 @@ export class VueHtmlLanguageService extends HtmlLanguageService {
     // <template> block is case-sensitive and
     // capital letters are only used in component
     // names.
-    if (
-      node.tag != null &&
-      /[A-Z]/.test(node.tag) &&
-      this.fs.getLanguageId(fileName) === 'vue-html'
-    ) {
+    if (node.tag != null && /[A-Z]/.test(node.tag)) {
       this.logger.debug(`Skipping component node: ${node.tag}`)
       return null
     }

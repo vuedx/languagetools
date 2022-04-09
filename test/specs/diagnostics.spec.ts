@@ -229,9 +229,9 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type '{ onA: () => void; onInput: () => void; onClick: () => void; onSubmit: () => void; }' is not assignable to type 'IntrinsicAttributes & ButtonHTMLAttributes & ReservedProps & InputHTMLAttributes'.
+          "Type '{ onA: () => void; onInput: () => void; onClick: () => void; onSubmit: () => void; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & ButtonHTMLAttributes & ReservedProps & InputHTMLAttributes'.
           Property 'onA' does not exist on type 'IntrinsicAttributes & ButtonHTMLAttributes & ReservedProps & InputHTMLAttributes'.",
-          "Argument of type '\\"a\\"' is not assignable to parameter of type '\\"input\\" | \\"progress\\" | \\"select\\" | \\"change\\" | \\"keydown\\" | \\"keypress\\" | \\"keyup\\" | \\"pointerdown\\" | \\"pointermove\\" | \\"pointerup\\" | \\"pointercancel\\" | \\"pointerenter\\" | \\"pointerleave\\" | ... 68 more ... | \\"transitionstart\\"'.",
+          "Argument of type '\\"a\\"' is not assignable to parameter of type '\\"input\\" | \\"progress\\" | \\"select\\" | \\"contextmenu\\" | \\"change\\" | \\"keydown\\" | \\"keypress\\" | \\"keyup\\" | \\"pointerdown\\" | \\"pointermove\\" | \\"pointerup\\" | \\"pointercancel\\" | \\"pointerenter\\" | ... 68 more ... | \\"transitionstart\\"'.",
           "Argument of type '(payload?: number | undefined) => void' is not assignable to parameter of type '(_payload: string) => void'.
           Types of parameters 'payload' and '_payload' are incompatible.
             Type 'string' is not assignable to type 'number | undefined'.",
