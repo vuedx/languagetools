@@ -1,5 +1,4 @@
 import { cache, debug, toFileName } from '@vuedx/shared'
-import type { VueBlockDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type {
   ExtendedTSLanguageService,
@@ -19,6 +18,7 @@ import {
   VueHtmlLanguageService,
   VueSfcLanguageService,
 } from '../features/HtmlLanguageService'
+import { ImplementationService } from '../features/ImplementationService'
 import { QuickInfoService } from '../features/QuickInfoService'
 import { RefactorService } from '../features/RefactorService'
 import { ReferencesService } from '../features/ReferencesService'
@@ -64,6 +64,8 @@ export class TypescriptPluginService
     private readonly folding: FoldingRangeService,
     @inject(SignatureHelpService)
     private readonly signature: SignatureHelpService,
+    @inject(ImplementationService)
+    private readonly implementation: ImplementationService,
     @inject(TypescriptContextService)
     private readonly ts: TypescriptContextService,
     @inject(IPCService)
@@ -366,24 +368,12 @@ export class TypescriptPluginService
   }
   //#endregion
 
-  //#region TODO: implementation
+  //#region implementation
   public getImplementationAtPosition(
     fileName: string,
     position: number,
   ): readonly TypeScript.ImplementationLocation[] | undefined {
-    if (this.fs.isVueFile(fileName)) {
-      return whenNotNull(
-        this.fs.getVirtualFileAt(fileName, position),
-        (fileName, blockFile) => {
-          return this.ts.service.getImplementationAtPosition(
-            fileName,
-            blockFile.generatedOffetAt(position),
-          )
-        },
-      )
-    }
-
-    return this.ts.service.getImplementationAtPosition(fileName, position)
+    return this.implementation.getImplementationAtPosition(fileName, position)
   }
   //#endregion
 
@@ -651,18 +641,7 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
   ): TypeScript.TextSpan | undefined {
-    if (this.fs.isVueFile(fileName)) {
-      return whenNotNull(
-        this.fs.getVirtualFileAt(fileName, position),
-        (fileName, blockFile) => {
-          return this.ts.service.getBreakpointStatementAtPosition(
-            fileName,
-            blockFile.generatedOffetAt(position),
-          )
-        },
-      )
-    }
-
+    if (this.fs.isVueFile(fileName)) return
     return this.ts.service.getBreakpointStatementAtPosition(fileName, position)
   }
 
@@ -780,11 +759,4 @@ export class TypescriptPluginService
     this.ipc.dispose()
     this.ts.service.dispose()
   }
-}
-
-function whenNotNull<R>(
-  value: VueBlockDocument | null | undefined,
-  fn: (fileName: string, doc: VueBlockDocument) => R,
-): R | undefined {
-  return value?.tsFileName == null ? undefined : fn(value.tsFileName, value)
 }
