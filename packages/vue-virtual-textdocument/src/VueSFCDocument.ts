@@ -12,7 +12,7 @@ import {
   parseFileName,
   toFileName,
 } from '@vuedx/shared'
-import { isPlainElementNode, RootNode } from '@vuedx/template-ast-types'
+import type { RootNode } from '@vuedx/template-ast-types'
 import * as Path from 'path'
 import {
   TextDocument,
@@ -300,8 +300,9 @@ export class VueSFCDocument extends ProxyDocument {
       `import 'vuedx~runtime'`,
       `import 'vuedx~project-runtime'`,
     ]
-    const props: string[] = [] // TODO: Detect inner element to forward attrs.
+    const props: string[] = []
     const slots: string[] = [] // TODO: Detect slot types from script/script setup.
+    const attrs: string[] = []
     const files = new Set<string>()
 
     const createImportSource = (id: string): string =>
@@ -311,12 +312,13 @@ export class VueSFCDocument extends ProxyDocument {
       const id = this._getBlockTSId(template, 0)
       if (id != null) {
         files.add(id)
-        const node = this.templateAST?.children[0]
-        if (isPlainElementNode(node)) {
-          props.push(`JSX.IntrinsicElements['${node.tag}']`)
-        }
-        code.push(`import { __VueDX_Slots } from ${createImportSource(id)}`)
+        code.push(
+          `import { __VueDX_Slots, __VueDX_Attrs } from ${createImportSource(
+            id,
+          )}`,
+        )
         slots.push('__VueDX_Slots')
+        attrs.push('__VueDX_Attrs')
       }
     }
 
@@ -346,7 +348,7 @@ export class VueSFCDocument extends ProxyDocument {
         props.push(`InstanceType<typeof _Self>['$props']`)
         code.push(`import { __VueDX_DefineComponent as _Self } from ${idPath}`)
         code.push(`export * from ${idPath}`) // TODO: Only type exports are supported.
-
+        // TODO: detect useAttrs() decalration to find `attrsVarName`.
         if (script != null) {
           const id = this._getBlockTSId(script, 0)
           if (id != null) {
@@ -366,6 +368,16 @@ export class VueSFCDocument extends ProxyDocument {
         code.push(`import { __VueDX_DefineComponent as _Self } from ${idPath}`)
         code.push(`export * from ${idPath}`)
       }
+    }
+
+    if (props.length === 0) {
+      props.push(...attrs)
+    } else if (attrs.length > 0) {
+      const copy = props.slice()
+      props.length = 0
+      props.push(
+        `VueDX.internal.MergeAttrs<${copy.join(' & ')}, ${attrs.join(' & ')}>`,
+      )
     }
 
     if (props.length === 0) props.push('{}')

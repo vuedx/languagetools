@@ -1,5 +1,18 @@
-import { debug, parseFileName, toFileName, traceInDevMode } from '@vuedx/shared'
-import { findTemplateNodeAt, isElementNode } from '@vuedx/template-ast-types'
+import {
+  debug,
+  first,
+  last,
+  parseFileName,
+  toFileName,
+  traceInDevMode,
+} from '@vuedx/shared'
+import {
+  DirectiveNode,
+  findTemplateNodeAt,
+  isDirectiveNode,
+  isElementNode,
+  isSimpleExpressionNode,
+} from '@vuedx/template-ast-types'
 import { inject, injectable } from 'inversify'
 import type { LanguageService } from '../contracts/LanguageService'
 import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
@@ -156,7 +169,7 @@ export class DefinitionService
 
     if (block.block.type === 'template' && file.templateAST != null) {
       const offset = block.toBlockOffset(position)
-      const { node } = findTemplateNodeAt(file.templateAST, offset)
+      const { node, ancestors } = findTemplateNodeAt(file.templateAST, offset)
       if (
         isElementNode(node) &&
         offset <= node.loc.start.offset + node.tag.length + 1
@@ -167,6 +180,54 @@ export class DefinitionService
             inner.position,
           ),
         )
+      }
+
+      if (
+        ancestors.length > 0 &&
+        isSimpleExpressionNode(node) &&
+        isDirectiveNode(last(ancestors).node)
+      ) {
+        const directive = last(ancestors).node
+        const element = last(ancestors, 2).node
+        if (
+          isElementNode(element) &&
+          isDirectiveNode(directive) &&
+          isSimpleExpressionNode(directive.arg)
+        ) {
+          const attribute = directive.arg.content
+          const directives = element.props.filter(
+            (prop): prop is DirectiveNode =>
+              isDirectiveNode(prop) &&
+              isSimpleExpressionNode(prop.arg) &&
+              directive.name === prop.name &&
+              attribute === prop.arg.content,
+          )
+          if (directives.length > 1) {
+            // find for the first one
+            const firstDirective = first(directives)
+            if (firstDirective.arg != null) {
+              const info = this.virtualDefinitionAndBoundSpan(
+                inner.fileName,
+                block.findGeneratedOffetAt(firstDirective.arg.loc.start.offset),
+              )
+
+              if (info != null) {
+                info.textSpan = {
+                  start: block.toFileOffset(directive.arg.loc.start.offset),
+                  length:
+                    directive.arg.loc.end.offset -
+                    directive.arg.loc.start.offset,
+                }
+                info.definitions = dedupeDefinitionInfos([
+                  ...(info.definitions ?? []),
+                  ...definitions,
+                ])
+
+                return info
+              }
+            }
+          }
+        }
       }
     }
 

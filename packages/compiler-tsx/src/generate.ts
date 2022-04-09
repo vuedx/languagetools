@@ -33,6 +33,7 @@ import {
   TextNode,
   TraversalAncestors,
   traverse,
+  traverseFast,
 } from '@vuedx/template-ast-types'
 import * as Path from 'path'
 import { RawSourceMap, SourceNode } from 'source-map'
@@ -251,11 +252,55 @@ export function generate(
     .newLine()
   options.on('end', context)
 
+  context.write(annotations.diagnosticsIgnore.start).newLine()
   genSlotTypes(ast, context)
+  genAttrsTypes(ast, context)
+  context.write(annotations.diagnosticsIgnore.end).newLine()
 
   return context.getOutput()
 }
 
+function genAttrsTypes(root: RootNode, context: GenerateContext): void {
+  const tags = new Set<string>()
+  const attrsIdentifier = '$attrs'
+  traverseFast(root, (node) => {
+    if (!isPlainElementNode(node)) return // only one-level deep.
+    node.props.forEach((prop) => {
+      if (
+        !isDirectiveNode(prop) ||
+        prop.name !== 'bind' ||
+        prop.arg != null ||
+        !isSimpleExpressionNode(prop.exp)
+      ) {
+        return // not a $attrt bind.
+      }
+
+      if (prop.exp.content.trim() === attrsIdentifier) {
+        tags.add(node.tag)
+      }
+    })
+  })
+
+  // TODO: Support inheritAttrs
+  const children = root.children.filter((node) => !isCommentNode(node))
+  if (children.length === 1 && isElementNode(children[0])) {
+    tags.add(children[0].tag)
+  }
+
+  context.write(`export type __VueDX_Attrs = `)
+
+  if (tags.size === 0) {
+    context.write(`{}`)
+  } else {
+    context.write(
+      Array.from(tags)
+        .map((tag) => `VueDX.internal.AttrsOf<${JSON.stringify(tag)}>`)
+        .join(' & '),
+    )
+  }
+
+  context.write(';').newLine()
+}
 function genSlotTypes(root: RootNode, context: GenerateContext): void {
   const slots: Array<[ElementNode, TraversalAncestors]> = []
 
@@ -265,7 +310,6 @@ function genSlotTypes(root: RootNode, context: GenerateContext): void {
     }
   })
 
-  context.write(annotations.diagnosticsIgnore.start).newLine()
   context
     .write('function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {')
     .newLine()
@@ -297,7 +341,7 @@ function genSlotTypes(root: RootNode, context: GenerateContext): void {
     } else if (isDirectiveNode(name)) {
       context.write('[')
       if (name.exp != null) {
-        genExpressionNode(context, name.exp, true)
+        genExpressionNode(context, name.exp, { wrapInParantheses: true })
       } else {
         context.write('undefined')
       }
@@ -334,7 +378,7 @@ function genSlotTypes(root: RootNode, context: GenerateContext): void {
 
           context.write(': ')
           if (prop.exp != null) {
-            genExpressionNode(context, prop.exp, true)
+            genExpressionNode(context, prop.exp, { wrapInParantheses: true })
           } else {
             context.write('true')
           }
@@ -342,7 +386,7 @@ function genSlotTypes(root: RootNode, context: GenerateContext): void {
         } else {
           if (prop.exp != null) {
             context.write('...(')
-            genExpressionNode(context, prop.exp, false)
+            genExpressionNode(context, prop.exp, { wrapInParantheses: false })
             context.write('), ')
           }
         }
@@ -368,7 +412,6 @@ function genSlotTypes(root: RootNode, context: GenerateContext): void {
       'export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>',
     )
     .newLine()
-  context.write(annotations.diagnosticsIgnore.end).newLine()
 }
 
 function genTemplateChildNode(context: GenerateContext, node: Node): void {
@@ -442,7 +485,7 @@ function genSlotNode(context: GenerateContext, node: ElementNode): void {
     }
   } else if (isDirectiveNode(name)) {
     if (name.exp != null) {
-      genExpressionNode(context, name.exp, true)
+      genExpressionNode(context, name.exp, { wrapInParantheses: true })
     } else {
       context.write('undefined')
     }
@@ -474,7 +517,7 @@ function genSlotNode(context: GenerateContext, node: ElementNode): void {
 
         context.write(': ')
         if (prop.exp != null) {
-          genExpressionNode(context, prop.exp, true)
+          genExpressionNode(context, prop.exp, { wrapInParantheses: true })
         } else {
           context.write('true')
         }
@@ -482,7 +525,7 @@ function genSlotNode(context: GenerateContext, node: ElementNode): void {
       } else {
         if (prop.exp != null) {
           context.write('...(')
-          genExpressionNode(context, prop.exp, false)
+          genExpressionNode(context, prop.exp, { wrapInParantheses: false })
           context.write('), ')
         }
       }
@@ -762,14 +805,14 @@ function genBindGroupDirectiveNode(
       genExpressionNode(context, node.arg)
       context.write(']: ')
       if (node.exp != null) {
-        genExpressionNode(context, node.exp, true)
+        genExpressionNode(context, node.exp, { wrapInParantheses: true })
       } else {
         context.write('undefined')
       }
       context.write(',')
     } else if (node.exp != null) {
       context.write('...(')
-      genExpressionNode(context, node.exp, false)
+      genExpressionNode(context, node.exp, { wrapInParantheses: false })
       context.write('),')
     }
   })
@@ -805,7 +848,7 @@ function genOnGroupDirectiveNode(
   Object.entries(byEventName).forEach(([eventName, directives]) => {
     const dir = directives[0]
     if (dir == null) return
-    context.write(eventName, dir.loc)
+    context.write(eventName, dir.arg?.loc ?? dir.loc)
     context.write('={')
     genUnionFn(
       context,
@@ -1079,7 +1122,7 @@ function genPropValue(
     )
     context.write(' as const')
   } else if (isDirectiveNode(node) && node.exp != null) {
-    genExpressionNode(context, node.exp, wrapInParantheses)
+    genExpressionNode(context, node.exp, { wrapInParantheses })
   } else {
     context.write('undefined')
   }
@@ -1183,7 +1226,9 @@ function genDirectiveAsParams(
   directive: DirectiveNode,
 ): void {
   if (directive.arg != null) {
-    genExpressionNode(context, directive.arg)
+    genExpressionNode(context, directive.arg, {
+      mappingKind: MappingKind.reverseOnly,
+    })
     if (isStaticExpression(directive.arg)) context.write(' as const')
   } else if (directive.name === 'model' && isComponentNode(node)) {
     context.write(
@@ -1193,7 +1238,7 @@ function genDirectiveAsParams(
         directive.loc.source.startsWith('v-') ? directive.name.length + 1 : 0,
         1,
       ),
-      MappingKind.transformed,
+      MappingKind.reverseOnly,
     )
   } else {
     context.write('undefined')
@@ -1267,28 +1312,42 @@ function genCommentNode(context: GenerateContext, node: CommentNode): void {
   context.write('*/}')
 }
 
+interface GenExpressionNodeOptions {
+  wrapInParantheses: boolean
+  mappingKind?: MappingKind
+}
+
 function genExpressionNode(
   context: GenerateContext,
   node: SimpleExpressionNode | CompoundExpressionNode,
-  wrapInParantheses = false,
+  _options: Partial<GenExpressionNodeOptions> = {},
 ): void {
+  const options: GenExpressionNodeOptions = {
+    wrapInParantheses: false,
+    ..._options,
+  }
+
   if (isSimpleExpressionNode(node)) {
     if (node.content.trim() === '') {
-      context.write(annotations.missingExpression, node.loc)
+      context.write(
+        annotations.missingExpression,
+        node.loc,
+        MappingKind.reverseOnly,
+      )
     } else if (node.constType > 0) {
       context.write(
         JSON.stringify(node.content),
         node.loc,
-        MappingKind.transformed,
+        options.mappingKind ?? MappingKind.transformed,
       )
     } else {
-      const ok = wrapInParantheses && node.content.includes(',')
+      const ok = options.wrapInParantheses && node.content.includes(',')
       if (ok) context.write('(')
-      context.write(node.content, node.loc)
+      context.write(node.content, node.loc, options.mappingKind)
       if (ok) context.write(')')
     }
   } else {
-    if (wrapInParantheses) context.write('(')
+    if (options.wrapInParantheses) context.write('(')
     node.children.forEach((node) => {
       if (typeof node === 'string') {
         context.write(node)
@@ -1297,12 +1356,12 @@ function genExpressionNode(
       } else if (isTextNode(node)) {
         genTextNode(context, node)
       } else if (isInterpolationNode(node)) {
-        genExpressionNode(context, node.content)
+        genExpressionNode(context, node.content, options)
       } else {
-        genExpressionNode(context, node)
+        genExpressionNode(context, node, options)
       }
     })
-    if (wrapInParantheses) context.write(')')
+    if (options.wrapInParantheses) context.write(')')
   }
 }
 

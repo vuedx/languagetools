@@ -93,15 +93,9 @@ type ModifiersForNativeEvent<EventName> =
           | 'exact'
       : never)
 
-type GetArg<T> = T extends keyof KnownKeys<JSX.IntrinsicElements>
-  ? RemoveOnPrefix<OnlyEventNames<keyof JSX.IntrinsicElements[T]>>
-  : RemoveOnPrefix<OnlyEventNames<keyof PropsOf<T>>>
+type GetArg<T> = RemoveOnPrefix<OnlyEventNames<keyof PropsOf<T>>>
 
-type GetExp<T, A extends GetArg<T>> = T extends keyof KnownKeys<
-  JSX.IntrinsicElements
->
-  ? Get<JSX.IntrinsicElements[T], EventName<A>>
-  : Get<PropsOf<T>, EventName<A>>
+type GetExp<T, A extends GetArg<T>> = Get<PropsOf<T>, EventName<A>>
 
 type GetModifiers<T, A> = T extends keyof KnownKeys<JSX.IntrinsicElements>
   ? A extends GetArg<T>
