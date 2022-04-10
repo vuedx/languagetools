@@ -637,14 +637,6 @@ export class TypescriptPluginService
   }
   //#endregion
 
-  public getBreakpointStatementAtPosition(
-    fileName: string,
-    position: number,
-  ): TypeScript.TextSpan | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getBreakpointStatementAtPosition(fileName, position)
-  }
-
   public getDocumentHighlights(
     fileName: string,
     position: number,

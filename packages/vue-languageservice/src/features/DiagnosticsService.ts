@@ -13,7 +13,6 @@ import type {
   DiagnosticTag,
   Range,
 } from 'vscode-languageserver-types'
-import type { LanguageService } from '../contracts/LanguageService'
 import type { TSLanguageService } from '../contracts/TypeScript'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
@@ -41,24 +40,23 @@ export class DiagnosticsService
       | 'getSemanticDiagnostics'
       | 'getSyntacticDiagnostics'
       | 'getSuggestionDiagnostics'
-    >,
-    Pick<LanguageService, 'getDiagnostics'> {
+    > {
   private readonly logger = LoggerService.getLogger('Diagnostics')
   private readonly caches = {
     semantic: new CacheService<Typescript.Diagnostic[]>((fileName) =>
-      this.getVersion(fileName),
+      this.#getVersion(fileName),
     ),
     syntax: new CacheService<Typescript.DiagnosticWithLocation[]>((fileName) =>
-      this.getVersion(fileName),
+      this.#getVersion(fileName),
     ),
     suggestion: new CacheService<Typescript.DiagnosticWithLocation[]>(
-      (fileName) => this.getVersion(fileName),
+      (fileName) => this.#getVersion(fileName),
     ),
     extra: new CacheService<Typescript.Diagnostic[]>((fileName) =>
-      this.getVersion(fileName),
+      this.#getVersion(fileName),
     ),
     all: new CacheService<Diagnostic[]>((fileName) =>
-      this.getVersion(fileName),
+      this.#getVersion(fileName),
     ),
   }
 
@@ -73,17 +71,7 @@ export class DiagnosticsService
     private readonly scriptSetup: ScriptSetupDiagnosticsProvider,
   ) {}
 
-  private readonly TS_CATEGORY_TO_SEVERITY: Record<
-    Typescript.DiagnosticCategory,
-    DiagnosticSeverity
-  > = {
-    0: 2,
-    1: 1,
-    2: 4,
-    3: 3,
-  }
-
-  private readonly SEVERITY_TO_TS_CATEGORY: Record<
+  readonly #SEVERITY_TO_TS_CATEGORY: Record<
     DiagnosticSeverity,
     Typescript.DiagnosticCategory
   > = {
@@ -93,7 +81,7 @@ export class DiagnosticsService
     4: 2,
   }
 
-  private readonly NAMED_SEVERITY_TO_SEVERITY: Record<
+  readonly #NAMED_SEVERITY_TO_SEVERITY: Record<
     TransformerError['severity'],
     DiagnosticSeverity
   > = {
@@ -105,34 +93,13 @@ export class DiagnosticsService
     deprecated: 4,
   }
 
-  private readonly getVersion = (fileName: string): string => {
+  readonly #getVersion = (fileName: string): string => {
     const project = this.ts.getProjectFor(fileName)
     if (project == null) return `-${Date.now()}`
 
     return `${project.getProjectVersion()} + ${project.getScriptVersion(
       fileName,
     )}`
-  }
-
-  public getDiagnostics(fileName: string): Diagnostic[] {
-    return this.caches.all.withCache(fileName, (prevResult) => {
-      if (prevResult != null) return prevResult
-
-      return [
-        this.getSemanticDiagnosticsOnly(fileName).map((diagnostic) =>
-          this.toDiagnostic(diagnostic),
-        ),
-        this.getSyntacticDiagnostics(fileName).map((diagnostic) =>
-          this.toDiagnostic(diagnostic),
-        ),
-        this.getSuggestionDiagnostics(fileName).map((diagnostic) =>
-          this.toDiagnostic(diagnostic),
-        ),
-        this.getDiagnosticsFromEmbeddedLanguageServices(fileName),
-      ]
-        .flat()
-        .filter(isNotNull)
-    })
   }
 
   public getCompilerOptionsDiagnostics(): Typescript.Diagnostic[] {
@@ -150,7 +117,7 @@ export class DiagnosticsService
     })
   }
 
-  private getExtraDiagnostics(fileName: string): Typescript.Diagnostic[] {
+  #getExtraDiagnostics(fileName: string): Typescript.Diagnostic[] {
     if (!this.fs.isVueFile(fileName)) return []
     return this.caches.extra.withCache(fileName, (result) => {
       if (result != null) return result
@@ -185,15 +152,15 @@ export class DiagnosticsService
 
   public getSemanticDiagnostics(fileName: string): Typescript.Diagnostic[] {
     // VSCode does not support semantic diagnostics for virtual files.
-    if (this.fs.isVueSchemeFile(fileName)) {
-      return []
-    }
+    if (this.fs.isVueSchemeFile(fileName)) return []
+    // Do not send diagnostics for virtual files.
+    if (this.fs.isVueVirtualFile(fileName)) return []
 
     this.ts.ensureUptoDate(fileName)
 
     return [
       ...this.getSemanticDiagnosticsOnly(fileName),
-      ...this.getExtraDiagnostics(fileName),
+      ...this.#getExtraDiagnostics(fileName),
     ]
   }
 
@@ -210,6 +177,9 @@ export class DiagnosticsService
       ] as Typescript.DiagnosticWithLocation[]
     }
 
+    // Do not send diagnostics for virtual files.
+    if (this.fs.isVueVirtualFile(fileName)) return []
+
     this.ts.ensureUptoDate(fileName)
 
     return this.getSyntacticDiagnosticsOnly(fileName)
@@ -219,9 +189,9 @@ export class DiagnosticsService
     fileName: string,
   ): Typescript.DiagnosticWithLocation[] {
     // VSCode does not support semantic diagnostics for virtual files.
-    if (this.fs.isVueSchemeFile(fileName)) {
-      return []
-    }
+    if (this.fs.isVueSchemeFile(fileName)) return []
+    // Do not send diagnostics for virtual files.
+    if (this.fs.isVueVirtualFile(fileName)) return []
 
     this.ts.ensureUptoDate(fileName)
 
@@ -282,7 +252,7 @@ export class DiagnosticsService
         message: error.message,
         range: this.getRangeFromLoc(file, error),
         code: 'code' in error ? error.code : undefined,
-        severity: this.NAMED_SEVERITY_TO_SEVERITY['error'],
+        severity: this.#NAMED_SEVERITY_TO_SEVERITY['error'],
         source: 'VueDX/SFC parser',
       })
     })
@@ -305,7 +275,7 @@ export class DiagnosticsService
           source: this.getSourceName(
             error.source ?? doc.block.type + ' parser',
           ),
-          severity: this.NAMED_SEVERITY_TO_SEVERITY[error.severity],
+          severity: this.#NAMED_SEVERITY_TO_SEVERITY[error.severity],
           tags: [
             error.severity === 'unused' ? (1 as DiagnosticTag) : null,
             error.severity === 'deprecated' ? (2 as DiagnosticTag) : null,
@@ -466,30 +436,6 @@ export class DiagnosticsService
       .filter(isNotNull)
   }
 
-  private toDiagnostic(diagnostic: Typescript.Diagnostic): Diagnostic | null {
-    if (diagnostic.file == null) return null
-    const file = this.fs.getFile(diagnostic.file.fileName)
-    if (file == null) return null
-
-    const transformed: Diagnostic = {
-      message: this.toDisplayMessage(diagnostic.messageText),
-      range: this.fs.toRange(file, diagnostic),
-      code: diagnostic.code,
-      severity: this.TS_CATEGORY_TO_SEVERITY[diagnostic.category],
-      source: this.getSourceName(diagnostic.source),
-      tags: [
-        diagnostic.reportsUnnecessary != null ? (1 as DiagnosticTag) : null,
-        diagnostic.reportsDeprecated != null ? (2 as DiagnosticTag) : null,
-      ].filter(isNotNull),
-    }
-
-    transformed.relatedInformation = diagnostic.relatedInformation
-      ?.map((diagnostic) => this.toDiagnosticRelatedInformation(diagnostic))
-      .filter(isNotNull)
-
-    return transformed
-  }
-
   private toTSDiagnostic(
     fileName: string,
     diagnostic: Diagnostic,
@@ -510,7 +456,7 @@ export class DiagnosticsService
     return {
       source: this.getSourceName(diagnostic.source),
       messageText: diagnostic.message,
-      category: this.SEVERITY_TO_TS_CATEGORY[diagnostic.severity ?? 1],
+      category: this.#SEVERITY_TO_TS_CATEGORY[diagnostic.severity ?? 1],
       code: diagnostic.code != null ? Number(diagnostic.code) : 0,
       reportsUnnecessary: diagnostic.tags?.includes(1 as DiagnosticTag),
       reportsDeprecated: diagnostic.tags?.includes(2 as DiagnosticTag),
@@ -533,29 +479,13 @@ export class DiagnosticsService
     return {
       source: this.getSourceName(),
       messageText: error.message,
-      category: this.SEVERITY_TO_TS_CATEGORY[1],
+      category: this.#SEVERITY_TO_TS_CATEGORY[1],
       code: 0,
       reportsUnnecessary: false,
       reportsDeprecated: false,
       file: sourceFile,
       start: range.start,
       length: range.length,
-    }
-  }
-
-  private toDiagnosticRelatedInformation(
-    diagnostic: Typescript.DiagnosticRelatedInformation,
-  ): DiagnosticRelatedInformation | null {
-    if (diagnostic.file == null) return null
-    const file = this.fs.getFile(diagnostic.file.fileName)
-    if (file == null) return null
-
-    return {
-      message: this.toDisplayMessage(diagnostic.messageText),
-      location: {
-        range: this.fs.toRange(file, diagnostic),
-        uri: file.uri,
-      },
     }
   }
 
