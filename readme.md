@@ -1,15 +1,6 @@
 <div align="center">
 
-<table border="0">  
-  <tr>
-  <td align="center">
-    <a href="https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features">
-      <img src="./extensions/vscode-vue-language-features/logo.png" width="96" />
-    </a>
-   
-  </td>
-</tr>
-</table>
+<img src="./extensions/vscode-vue-language-features/logo.png" width="96" />
 
 # VueDX
 

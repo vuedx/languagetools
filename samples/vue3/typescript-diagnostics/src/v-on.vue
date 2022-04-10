@@ -14,12 +14,12 @@ function onObj3(payload: { bar: string }) {}
 
 <template>
   <component :is="c" @a="on" @input="on" @click="on" @submit="on" />
-  
+
   <A a="" @a="on" />
-  
+
   <A a="" @a="onStr" />
   <A a="" @a="onNum" @b.once="onNum" />
-  
+
   <B a="" @a="on" />
   <B a="" @a="onStr" />
   <B a="" @a="onNum" @b.once="onNum" />
