@@ -1,4 +1,4 @@
-import { VueProject } from '@vuedx/projectconfig'
+import { ProjectPreferences, VueProject } from '@vuedx/projectconfig'
 import { cache, isVueFile, toFileName, toPosixPath } from '@vuedx/shared'
 import * as Path from 'path'
 import { TS_LANGUAGE_SERVICE } from '../constants'
@@ -10,6 +10,7 @@ import type {
   TSProject,
   TypeScript,
 } from '../contracts/TypeScript'
+import { ConfigManager } from '../managers/ConfigManager'
 import { CacheService } from './CacheService'
 import { LoggerService, LogLevel } from './LoggerService'
 
@@ -181,6 +182,31 @@ export class TypescriptContextService implements Disposable {
         false,
       ) ?? null
     )
+  }
+
+  public getVuePrefrencesFor(fileName: string): ProjectPreferences {
+    const project = this.getVueProjectFor(fileName)
+    const preferences = ConfigManager.instance.state.preferences
+
+    this.logger.debug('Preferences', preferences)
+
+    return project.kind === 'inferred'
+      ? {
+          ...project.config.preferences,
+          script: {
+            ...project.config.preferences.script,
+            ...preferences?.script,
+          },
+          template: {
+            ...project.config.preferences.template,
+            ...preferences?.template,
+          },
+          style: {
+            ...project.config.preferences.style,
+            ...preferences?.style,
+          },
+        }
+      : project.config.preferences
   }
 
   @cache()

@@ -1,4 +1,4 @@
-import { ucfirst } from '@vuedx/shared'
+import { debug, ucfirst } from '@vuedx/shared'
 import type { TextDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type {
@@ -15,6 +15,7 @@ import type { LanguageService } from '../contracts/LanguageService'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService } from '../services/LoggerService'
+import { TypescriptContextService } from '../services/TypescriptContextService'
 import { data } from './languageFacts/vue'
 
 abstract class HtmlLanguageService implements LanguageService {
@@ -153,6 +154,8 @@ export class VueSfcLanguageService extends HtmlLanguageService {
   public constructor(
     @inject(FilesystemService)
     fs: FilesystemService,
+    @inject(TypescriptContextService)
+    private readonly ts: TypescriptContextService,
   ) {
     super(
       fs,
@@ -165,16 +168,179 @@ export class VueSfcLanguageService extends HtmlLanguageService {
 
   public readonly supportedLanguages = ['vue']
 
+  @debug()
   public getCompletionsAtPosition(
     fileName: string,
     position: Position,
-  ): CompletionList {
-    const result = super.getCompletionsAtPosition(fileName, position)
+  ): LanguageService.CompletionList {
+    const result: LanguageService.CompletionList = {
+      isIncomplete: false,
+      items: [],
+    }
+    const blocks = this.#getBlockCompletions(fileName)
     const file = this.fs.getVueFile(fileName)
     if (file != null) {
-      // TODO: Hide template and script is not valid.
+      const offset = file.offsetAt({ line: position.line, character: 0 })
+      const text = file.getText().slice(offset, file.offsetAt(position))
+      if (text.trim().length > 0) {
+        result.items.push(
+          ...super
+            .getCompletionsAtPosition(fileName, position)
+            .items.filter((item) => !/doctype|data-/i.test(item.label)),
+        )
+      } else {
+        const isEmpty = file.getText().trim().length === 0
+        result.items.push(
+          ...blocks.filter((block) => {
+            switch (block._kind) {
+              case 'snippet':
+                return isEmpty
+              case 'script':
+                return file.descriptor.script == null
+              case 'scriptSetup':
+                return file.descriptor.scriptSetup == null
+              case 'template':
+                return file.descriptor.template == null
+              default:
+                return true
+            }
+          }),
+        )
+      }
+    } else {
+      result.items.push(...blocks)
     }
 
     return result
+  }
+
+  #getBlockCompletions(
+    fileName: string,
+  ): Array<
+    LanguageService.CompletionItem & {
+      _kind: 'snippet' | 'script' | 'scriptSetup' | 'style' | 'template'
+    }
+  > {
+    const preferences = this.ts.getVuePrefrencesFor(fileName)
+    const scriptLang = preferences.script.language ?? '$1'
+    const styleLang = preferences.style.language ?? '$1'
+    const scriptSetupTemplate =
+      preferences.script.mode === 'setup' ? ' setup' : ''
+    const styleLangTemplate =
+      preferences.style.language === 'css' || preferences.style.language == null
+        ? ''
+        : ` lang="${preferences.style.language}"`
+    const scriptLangTemplate =
+      preferences.script.language === 'js' ||
+      preferences.script.language == null
+        ? ''
+        : ` lang="${preferences.script.language}"`
+
+    return [
+      {
+        _kind: 'snippet',
+        label: `snippet: script${scriptSetupTemplate} + template`,
+        sortText: '0',
+        insertTextFormat: 2,
+        insertText: `<script${scriptSetupTemplate}${scriptLangTemplate}>\n$0\n</script>\n\n<template>\n  \n</template>\n`,
+        kind: 11,
+        documentation: {
+          kind: 'markdown',
+          value: [
+            `Snippet with script${scriptSetupTemplate} and template block.`,
+            '[Vue Docs](https://vuejs.org/api/sfc-spec.html#language-blocks)',
+          ].join('\n\n'),
+        },
+      },
+      {
+        _kind: 'snippet',
+        label: `snippet: script${scriptSetupTemplate} + template + style`,
+        sortText: '0',
+        insertTextFormat: 2,
+        insertText: `<script${scriptSetupTemplate}${scriptLangTemplate}>\n$0\n</script>\n\n<template>\n  \n</template>\n\n<style${styleLangTemplate}>\n\n</style>\n`,
+        kind: 11,
+        documentation: {
+          kind: 'markdown',
+          value: [
+            `Snippet with script${scriptSetupTemplate}, template and style block.`,
+            '[Vue Docs](https://vuejs.org/api/sfc-spec.html#language-blocks)',
+          ].join('\n\n'),
+        },
+      },
+      {
+        _kind: 'scriptSetup',
+        label: 'script setup',
+        sortText: '1',
+        insertTextFormat: 2,
+        insertText:
+          scriptLang === 'js'
+            ? `<script setup>\n\t$0\n</script>`
+            : `<script setup lang="${scriptLang}">\n$0\n</script>`,
+        kind: 11,
+        documentation: {
+          kind: 'markdown',
+          value: [
+            'Each *.vue file can contain at most one `<script setup>` block at a time (excluding normal `<script>`).',
+            "The script is pre-processed and used as the component's `setup()` function, which means it will be executed for each instance of the component. Top-level bindings in `<script setup>` are automatically exposed to the template. For more details, [see dedicated documentation on `<script setup>`](https://vuejs.org/api/sfc-script-setup.html).",
+            '[Vue Docs](https://vuejs.org/api/sfc-spec.html#language-blocks)',
+          ].join('\n\n'),
+        },
+      },
+      {
+        _kind: 'template',
+        label: 'template',
+        sortText: '2',
+        insertTextFormat: 2,
+        insertText: `<template>\n$0\n</template>`,
+        kind: 11,
+        documentation: {
+          kind: 'markdown',
+          value: [
+            'Each `*.vue` file can contain at most one top-level `<template>` block at a time.',
+            'Contents will be extracted and passed on to `@vue/compiler-dom`, pre-compiled into JavaScript render functions, and attached to the exported component as its render option.',
+            '[Vue Docs](https://vuejs.org/api/sfc-spec.html#language-blocks)',
+          ].join('\n\n'),
+        },
+      },
+      {
+        _kind: 'script',
+        label: 'script',
+        sortText: '3',
+        insertTextFormat: 2,
+        insertText:
+          scriptLang === 'js'
+            ? `<script>\n\t$0\n</script>`
+            : `<script lang="${scriptLang}">\n$0\n</script>`,
+        kind: 11,
+        documentation: {
+          kind: 'markdown',
+          value: [
+            'Each *.vue file can contain at most one `<script>` block at a time (excluding `<script setup>`).',
+            'The script is executed as an ES Module.',
+            'The default export should be a Vue component options object, either as a plain object or as the return value of [`defineComponent()`](https://vuejs.org/api/general.html#definecomponent).',
+            '[Vue Docs](https://vuejs.org/api/sfc-spec.html#language-blocks)',
+          ].join('\n\n'),
+        },
+      },
+      {
+        _kind: 'style',
+        label: 'style',
+        sortText: '4',
+        insertTextFormat: 2,
+        insertText:
+          styleLang === 'css'
+            ? `<style>\n$0\n</style>`
+            : `<style lang="${styleLang}">\n$0\n</style>`,
+        kind: 11,
+        documentation: {
+          kind: 'markdown',
+          value: [
+            'A single `*.vue` file can contain multiple `<style>` tags.',
+            'A `<style>` tag can have scoped or module attributes (see [SFC Style Features](https://vuejs.org/api/sfc-css-features.html) for more details) to help encapsulate the styles to the current component. Multiple `<style>` tags with different encapsulation modes can be mixed in the same component.',
+            '[Vue Docs](https://vuejs.org/api/sfc-spec.html#language-blocks)',
+          ].join('\n\n'),
+        },
+      },
+    ]
   }
 }

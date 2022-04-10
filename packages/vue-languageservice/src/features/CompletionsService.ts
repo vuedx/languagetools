@@ -346,9 +346,8 @@ export class CompletionsService
                       ? info.data.documentation
                       : info.data.documentation.value,
                   },
-                  { kind: 'text', text: 'from embeded language service' },
                 ].filter(isNotNull)
-              : [{ kind: 'text', text: 'from embeded language service' }],
+              : [],
           codeActions: this.#getCodeActionsFromCompletionItem(
             info.fileName,
             info.data,
@@ -799,7 +798,7 @@ export class CompletionsService
             ? kind.kindModifiers.join(',')
             : undefined,
         name: item.label,
-        sortText: '16',
+        sortText: item.sortText ?? '16',
         isRecommended,
         insertText,
         replacementSpan,

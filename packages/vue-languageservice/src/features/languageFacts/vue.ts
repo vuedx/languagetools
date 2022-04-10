@@ -5,15 +5,23 @@ export const data: HTMLDataV1 = {
   tags: [
     {
       name: 'template',
-      attributes: [
-        {
-          name: 'lang',
-          values: [{ name: 'html' }, { name: 'pug' }],
-        },
-      ],
+      description: {
+        kind: 'markdown',
+
+        value: [
+          'Each `*.vue` file can contain at most one top-level `<template>` block at a time.',
+        ].join('\n'),
+      },
+      attributes: [],
     },
     {
       name: 'script',
+      description: {
+        kind: 'markdown',
+        value: [
+          'Each `*.vue` file can contain at most one top-level `<script>` block at a time (excluding `<script setup>`).',
+        ].join('\n'),
+      },
       attributes: [
         {
           name: 'lang',
@@ -24,60 +32,26 @@ export const data: HTMLDataV1 = {
             { name: 'tsx' },
           ],
         },
-        { name: 'setup', valueSet: 'v' },
+        { name: 'setup', values: [] },
       ],
     },
     {
       name: 'style',
+      description: {
+        kind: 'markdown',
+        value: [
+          'A single `*.vue` file can contain multiple `<style>` tags.',
+        ].join('\n'),
+      },
       attributes: [
         {
           name: 'lang',
-          values: [
-            { name: 'css' },
-            { name: 'scss' },
-            { name: 'less' },
-            { name: 'stylus' },
-            { name: 'postcss' },
-            { name: 'sass' },
-          ],
+          values: [{ name: 'css' }, { name: 'scss' }, { name: 'less' }],
         },
-        { name: 'scoped', valueSet: 'v' },
-        { name: 'module', valueSet: 'v' },
+        { name: 'scoped', values: [] },
+        { name: 'module' },
       ],
     },
   ],
-  globalAttributes: [
-    {
-      name: 'src',
-    },
-    {
-      name: 'lang',
-      // all other embedded languages
-      values: [
-        // template
-        { name: 'html' },
-        { name: 'pug' },
-        // script
-        { name: 'js' },
-        { name: 'ts' },
-        { name: 'jsx' },
-        { name: 'tsx' },
-        // style
-        { name: 'css' },
-        { name: 'scss' },
-        { name: 'less' },
-        { name: 'stylus' },
-        { name: 'postcss' },
-        { name: 'sass' },
-        // custom block
-        { name: 'md' },
-        { name: 'json' },
-        { name: 'jsonc' },
-        { name: 'yaml' },
-        { name: 'toml' },
-        { name: 'gql' },
-        { name: 'graphql' },
-      ],
-    },
-  ],
+  globalAttributes: [],
 }
