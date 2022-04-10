@@ -1,5 +1,37 @@
 # @vuedx/typescript-plugin-vue
 
+## 0.7.5
+
+### Patch Changes
+
+- 7c910a6: Support import path module rename and file rename
+- Updated dependencies [382f971]
+- Updated dependencies [89c2a70]
+- Updated dependencies [35ec24d]
+- Updated dependencies [73c5ff7]
+- Updated dependencies [7d1d193]
+- Updated dependencies [28d00a4]
+- Updated dependencies [94505e8]
+- Updated dependencies [7c910a6]
+- Updated dependencies [302ba56]
+- Updated dependencies [4cca358]
+- Updated dependencies [909d207]
+- Updated dependencies [47b3f73]
+- Updated dependencies [7f086c2]
+- Updated dependencies [73c5ff7]
+- Updated dependencies [e1a2cf9]
+- Updated dependencies [125a76f]
+- Updated dependencies [3035e14]
+- Updated dependencies [8bb4220]
+- Updated dependencies [d913a13]
+- Updated dependencies [d15dd7d]
+- Updated dependencies [7d1d193]
+  - @vuedx/vue-languageservice@0.0.1
+  - @vuedx/vue-virtual-textdocument@0.7.5
+  - @vuedx/shared@0.7.4
+  - @vuedx/template-ast-types@0.7.3
+  - @vuedx/projectconfig@0.7.2
+
 ## 0.7.4
 
 ### Patch Changes

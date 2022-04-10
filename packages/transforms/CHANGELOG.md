@@ -1,5 +1,12 @@
 # @vuedx/compiler-tsx
 
+## 0.7.5
+
+### Patch Changes
+
+- 47b3f73: Support for goto definition and type definition
+- 125a76f: Add location hints in geneated code
+
 ## 0.7.4
 
 ### Patch Changes

@@ -1,5 +1,47 @@
 # @vuedx/vue-virtual-textdocument
 
+## 0.7.5
+
+### Patch Changes
+
+- 89c2a70: Support go to references
+- 73c5ff7: Use LRU cache for sourcemap lookups
+- 302ba56: support global components
+- 47b3f73: Support for goto definition and type definition
+- 73c5ff7: Find precise generated locations using reverse lookup of original and then most relevant generated location
+- e1a2cf9: Detect \$attrs forwarding target to merge props
+- 125a76f: Add location hints in geneated code
+- 8bb4220: Add support for completions
+- d15dd7d: Calculate correct mapping length
+- 7d1d193: Infer type of \$slots from template and typecheck v-slot
+- Updated dependencies [382f971]
+- Updated dependencies [8c90abe]
+- Updated dependencies [e52111f]
+- Updated dependencies [89c2a70]
+- Updated dependencies [28d00a4]
+- Updated dependencies [f4752aa]
+- Updated dependencies [35ec24d]
+- Updated dependencies [7d1d193]
+- Updated dependencies [28d00a4]
+- Updated dependencies [73c5ff7]
+- Updated dependencies [94505e8]
+- Updated dependencies [7c910a6]
+- Updated dependencies [302ba56]
+- Updated dependencies [4cca358]
+- Updated dependencies [c35ebff]
+- Updated dependencies [47b3f73]
+- Updated dependencies [f4752aa]
+- Updated dependencies [73c5ff7]
+- Updated dependencies [cf397c6]
+- Updated dependencies [e1a2cf9]
+- Updated dependencies [125a76f]
+- Updated dependencies [8bb4220]
+- Updated dependencies [7d1d193]
+  - @vuedx/compiler-tsx@0.8.0
+  - @vuedx/shared@0.7.4
+  - @vuedx/template-ast-types@0.7.3
+  - @vuedx/transforms@0.7.5
+
 ## 0.7.4
 
 ### Patch Changes

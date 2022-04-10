@@ -1,5 +1,14 @@
 # @vuedx/shared
 
+## 0.7.4
+
+### Patch Changes
+
+- 35ec24d: Filter and merge tag and attribute completions in template block
+- 28d00a4: Expose template AST and SFC descriptor as virtual files
+- 7c910a6: Support import path module rename and file rename
+- 8bb4220: Add support for completions
+
 ## 0.7.3
 
 ### Patch Changes
