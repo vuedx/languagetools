@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Close Stale Issues
         uses: actions/stale@v5.0.0
+        with:
+          days-before-issue-stale: 30
+          days-before-pr-stale: 90
     permissions:
       issues: write
       pull-requests: write
