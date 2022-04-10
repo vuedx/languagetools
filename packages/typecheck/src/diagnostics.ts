@@ -1,9 +1,8 @@
-import type * as ts from 'typescript/lib/tsserverlibrary'
-
-import { flatten } from '@vuedx/shared'
+import { flatten, isNotNull, parseFileName } from '@vuedx/shared'
 import glob from 'fast-glob'
 import * as FS from 'fs'
 import * as Path from 'path'
+import type * as ts from 'typescript/lib/tsserverlibrary'
 import * as TS from 'typescript/lib/tsserverlibrary'
 import { TypeScriptServerHost } from './TypeScriptServerHost'
 
@@ -140,23 +139,33 @@ export async function* getDiagnostics(
       needFileNameList: true,
     })
 
-    files =
-      body?.fileNames?.filter(
-        (fileName) =>
-          !fileName.includes('/node_modules/') && !fileName.endsWith('.json'),
-      ) ?? []
+    files = Array.from(
+      new Set(
+        (body?.fileNames ?? [])
+          .map((fileName) => {
+            if (
+              fileName.includes('/node_modules/') ||
+              fileName.endsWith('.json')
+            ) {
+              return null
+            }
 
-    if (files[0] != null) {
+            return parseFileName(fileName).fileName
+          })
+          .filter(isNotNull),
+      ),
+    )
+
+    if (files.length > 0) {
       await host.sendCommand('updateOpen', {
         closedFiles: [toNormalizedPath(configFile)],
       })
+      const projectFileName = toNormalizedPath(configFile)
       await host.sendCommand('updateOpen', {
-        openFiles: [
-          {
-            file: toNormalizedPath(files[0]),
-            projectFileName: toNormalizedPath(configFile),
-          },
-        ],
+        openFiles: files.map((file) => ({
+          file: toNormalizedPath(file),
+          projectFileName,
+        })),
       })
     }
   } else {
