@@ -64,20 +64,17 @@ function syncConfig(api: any, config: PluginConfig): void {
   void vscode.commands.executeCommand(
     'setContext',
     'vuedx.debug',
-    config.extensionSocketId != null,
+    vscode.workspace.getConfiguration('vuedx.debug'),
   )
 }
 
 function getConfig(service: PluginCommunicationService): PluginConfig {
   const config = vscode.workspace.getConfiguration('vuedx')
-  const isDebug = config.get<boolean>('debug') ?? false
-
   return {
+    extensionSocketId: service.socketId,
     enabled: config.get<boolean>('enabled') ?? true,
     telemetry: config.get<boolean>('telemetry') ?? true,
-    extensionSocketId: isDebug ? service.socketId : undefined,
-    debugSourceMaps: isDebug
-      ? config.get<boolean>('debugSourceMaps') ?? false
-      : false,
+    debugSourceMaps: config.get<boolean>('debugSourceMaps'),
+    preferences: { ...config.get('preferences') },
   }
 }

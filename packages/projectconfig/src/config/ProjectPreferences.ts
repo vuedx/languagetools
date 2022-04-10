@@ -2,7 +2,7 @@ export interface ProjectPreferences {
   componentsDirectories: string[]
   script: {
     mode: 'setup' | 'normal'
-    language: 'js' | 'ts'
+    language: 'js' | 'ts' | 'jsx' | 'tsx'
   }
   style: {
     language: 'css' | 'scss' | 'sass' | 'styl' | 'stylus' | 'less'

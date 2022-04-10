@@ -215,6 +215,7 @@ export class VueSFCDocument extends ProxyDocument {
         sourceMap: false,
         filename: this.fileName,
         pad: false,
+        ignoreEmpty: false,
       })
 
       if (this._descriptor != null) {

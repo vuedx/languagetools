@@ -18,7 +18,7 @@ export const DEFAULT_PROJECT_CONFIG: ResolvedProjectConfig = {
   globalDirectives: {},
   preferences: {
     componentsDirectories: ['src/components'],
-    script: { mode: 'normal', language: 'js' },
+    script: { mode: 'setup', language: 'js' },
     style: { language: 'css' },
     template: {
       directiveSyntax: 'shorthand',

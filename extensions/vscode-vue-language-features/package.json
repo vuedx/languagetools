@@ -192,6 +192,58 @@
           "default": false,
           "description": "Enable/disable sourcemaps in virtual files (debug mode)",
           "scope": "machine-overridable"
+        },
+        "vuedx.preferences.template.directiveSyntax": {
+          "enum": [
+            "shorthand",
+            "langhand"
+          ],
+          "default": "shorthand",
+          "scope": "resource"
+        },
+        "vuedx.preferences.template.propCase": {
+          "enum": [
+            "kebab",
+            "camel"
+          ],
+          "default": "camel",
+          "scope": "resource"
+        },
+        "vuedx.preferences.template.tagCase": {
+          "enum": [
+            "kebab",
+            "pascal",
+            "auto"
+          ],
+          "default": "auto",
+          "scope": "resource"
+        },
+        "vuedx.preferences.style.language": {
+          "enum": [
+            "css",
+            "scss",
+            "less"
+          ],
+          "default": "css",
+          "scope": "resource"
+        },
+        "vuedx.preferences.script.language": {
+          "enum": [
+            "js",
+            "ts",
+            "jsx",
+            "tsx"
+          ],
+          "default": "js",
+          "scope": "resource"
+        },
+        "vuedx.preferences.script.mode": {
+          "enum": [
+            "setup",
+            "normal"
+          ],
+          "default": "setup",
+          "scope": "resource"
         }
       }
     },

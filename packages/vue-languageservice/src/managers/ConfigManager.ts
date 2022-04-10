@@ -1,3 +1,4 @@
+import type { ProjectPreferences } from '@vuedx/projectconfig'
 import {
   createModel,
   effect,
@@ -16,6 +17,10 @@ export interface PluginConfig {
   extensionSocketId?: string
   /** Include sourcemaps in debug mode */
   debugSourceMaps?: boolean
+  /** Prefrences  */
+  preferences?: Partial<
+    Pick<ProjectPreferences, 'script' | 'style' | 'template'>
+  >
 }
 
 export class ConfigManager {
