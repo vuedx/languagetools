@@ -244,6 +244,12 @@
           ],
           "default": "setup",
           "scope": "resource"
+        },
+        "vuedx.checkForExtensionConflicts": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check if conflicting extension (volar, vetur etc.) are active.",
+          "scope": "machine-overridable"
         }
       }
     },

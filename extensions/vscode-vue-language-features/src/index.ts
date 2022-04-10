@@ -1,3 +1,4 @@
+import { isNotNull } from '@vuedx/shared'
 import type { PluginConfig } from '@vuedx/typescript-plugin-vue'
 import { Container } from 'inversify'
 import 'reflect-metadata'
@@ -33,7 +34,6 @@ export async function activate(
     'vscode.typescript-language-features',
   )
   const config = getConfig(container.get(PluginCommunicationService))
-
   if (ts != null) {
     if (!ts.isActive) {
       await ts.activate()
@@ -57,6 +57,8 @@ export async function activate(
       )
     }
   }
+
+  await checkForConflicts()
 }
 
 function syncConfig(api: any, config: PluginConfig): void {
@@ -76,5 +78,34 @@ function getConfig(service: PluginCommunicationService): PluginConfig {
     telemetry: config.get<boolean>('telemetry') ?? true,
     debugSourceMaps: config.get<boolean>('debugSourceMaps'),
     preferences: { ...config.get('preferences') },
+  }
+}
+
+async function checkForConflicts(): Promise<void> {
+  const config = vscode.workspace.getConfiguration('vuedx')
+  if (config.get<boolean>('checkForExtensionConflicts') !== true) {
+    return
+  }
+
+  const ids = ['johnsoncodehk.volar', 'octref.vetur']
+  const extensions = ids
+    .map((id) => vscode.extensions.getExtension(id))
+    .filter(isNotNull)
+    .filter((extension) => extension.isActive)
+
+  if (extensions.length === 0) return
+
+  const result = await vscode.window.showInformationMessage(
+    `There are active extensions that may conflict with VueDX. Would you like to disable them?`,
+    'Show conflicts',
+    'Do not show again',
+  )
+
+  if (result === 'Show conflicts') {
+    const query = '@enabled ' + ids.join(' ')
+
+    await vscode.commands.executeCommand('workbench.extensions.search', query)
+  } else if (result === 'Do not show again') {
+    await config.update('checkForExtensionConflicts', false, true)
   }
 }
