@@ -1,0 +1,16 @@
+name: Maintenance
+
+on:
+  schedule:
+    - cron: '30 1 * * *' # 8:30am everyday in PAST
+  workflow_dispatch:
+
+jobs:
+  close-stale-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close Stale Issues
+        uses: actions/stale@v5.0.0
+    permissions:
+      issues: write
+      pull-requests: write
