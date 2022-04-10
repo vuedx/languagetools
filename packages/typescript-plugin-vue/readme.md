@@ -4,10 +4,6 @@
   <p>Enables <code>.vue</code> file support in typescript (tsserver).</p>
 </div>
 
-## Support
-
-This package is part of [VueDX project](https://github.com/znck/vue-developer-experience), maintained by [Rahul Kadyan](https://github.com/znck). You can [💖 sponsor him](https://github.com/sponsors/znck) for continued development of this package and other VueDX tools.
-
 ## Goals
 
 The goal of this plugin to improve developer experience in `.vue` files by providing features available in `.ts` file. To do so, a Vue SFC must:
@@ -518,3 +514,14 @@ We can detect type interface of slots and that would help in completion of `v-sl
 
 - Provide css identifier completion in `class` attribute
 - Declare CSS modules type render (maybe for script block too?)
+
+
+## Support
+
+This package is part of [VueDX project](https://github.com/znck/vue-developer-experience), maintained by [Rahul Kadyan](https://github.com/znck). You can [💖 sponsor him](https://github.com/sponsors/znck) for continued development of this package and other VueDX tools.
+
+<p align="center">
+  <a href="https://cdn.jsdelivr.net/gh/znck/sponsors@main/sponsors.svg">
+    <img src='https://cdn.jsdelivr.net/gh/znck/sponsors@main/sponsors.png'/>
+  </a>
+</p>

@@ -1,4 +1,4 @@
-# COC Vue
+# VueDX for [coc.nvim](https://github.com/neoclide/coc.nvim)
 
 This extension provides features like type checking, completion, renaming and refactoring for `.vue` files by extending TypeScript extension.
 
@@ -6,10 +6,14 @@ This extension provides features like type checking, completion, renaming and re
 
 This extension is part of [VueDX project](https://github.com/znck/vue-developer-experience), maintained by [Rahul Kadyan](https://github.com/znck). You can [💖 sponsor him](https://github.com/sponsors/znck) for continued development of this extension and other VueDX tools.
 
-## Features
+<p align="center">
+  <a href="https://cdn.jsdelivr.net/gh/znck/sponsors@main/sponsors.svg">
+    <img src='https://cdn.jsdelivr.net/gh/znck/sponsors@main/sponsors.png'/>
+  </a>
+</p>
 
-> TODO: Sync with vue-language-features.
-
+<br>
+<br>
 <br>
 
 ---
