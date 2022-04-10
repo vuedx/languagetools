@@ -24,16 +24,30 @@ A set of tools for better developer experience aka Vue Developer Experience or V
 
 <br>
 <br>
-<br>
-<br>
 
 ## Getting Started
 
-- [Vue Syntax Highlight](./extensions/vscode-vue) — provides syntax highlight — [Extension](https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features)
-- [Vue Language Features](./extensions/vscode-vue-language-features) — provides typescript integration for VS Code
-  - [VS Code](https://marketplace.visualstudio.com/items?itemName=znck.vue)
-  - [Open VSX](https://open-vsx.org/extension/znck/vue-language-features)
-  - [VIM]()
+To install VueDX extension:
+
+- Visual Studio Code
+  - [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features)
+  - [Open VSX Registry](https://open-vsx.org/extension/znck/vue-language-features)
+- Neovim
+  - Use [coc-vue](https://www.npmjs.com/package/coc-vue) with [coc.nvim](https://github.com/neoclide/coc.nvim)
+
+## How to get help
+
+Have a question, or want to provide feedback? Use [repository discussions](https://github.com/vuedx/languagetools/discussions) to ask questions, share bugs or feedback, or chat with other users in the Preview. The VueDX team will respond as often as possible, but we also welcome you to share your experiences and help others in the community.
+
+## Contributing
+
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [How to Build](CONTRIBUTING.md)
+
+### Extensions
+
+- [Vue Syntax Highlight](./extensions/vscode-vue) — provides syntax highlight — [Extension](https://marketplace.visualstudio.com/items?itemName=znck.vue)
+- [Vue Language Features](./extensions/vscode-vue-language-features) — provides typescript integration for VS Code — [Extension](https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features)
 
 ### Packages
 
@@ -44,11 +58,6 @@ A set of tools for better developer experience aka Vue Developer Experience or V
 - [@vuedx/typecheck](./packages/typecheck) — a command line tool to check types, functionally equivalent to `tsc --noEmit` but includes .vue support
 - [@vuedx/typescript-plugin-vue](./packages/typescript-plugin-vue) — enables TypeScript language server to understand `.vue` files
 <!--EOL:Packages-->
-
-## Contributing
-
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [How to Build](CONTRIBUTING.md)
 
 ## Sponsors
 
