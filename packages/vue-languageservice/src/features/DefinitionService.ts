@@ -50,11 +50,14 @@ export class DefinitionService
     fileName: string,
     position: number,
   ): readonly TypeScript.DefinitionInfo[] | undefined {
-    if (this.fs.isVueSchemeFile(fileName) || this.fs.isVueFile(fileName)) {
-      return this.getDefinitionAndBoundSpan(fileName, position)?.definitions
-    }
+    return (this.fs.isVueSchemeFile(fileName) || this.fs.isVueFile(fileName)
+      ? this.getDefinitionAndBoundSpan(fileName, position)?.definitions
+      : this.ts.service.getDefinitionAtPosition(fileName, position)
+    )?.map((info) => {
+      info.fileName = parseFileName(info.fileName).fileName
 
-    return this.ts.service.getDefinitionAtPosition(fileName, position)
+      return info
+    })
   }
 
   @debug()
@@ -80,11 +83,18 @@ export class DefinitionService
       return info
     }
 
-    if (this.fs.isVueFile(fileName)) {
-      return this.vueDefinitionAndBoundSpan(fileName, position)
+    const result = this.fs.isVueFile(fileName)
+      ? this.vueDefinitionAndBoundSpan(fileName, position)
+      : this.ts.service.getDefinitionAndBoundSpan(fileName, position)
+
+    if (result?.definitions != null) {
+      result.definitions = result.definitions.map((info) => {
+        info.fileName = parseFileName(info.fileName).fileName
+        return info
+      })
     }
 
-    return this.ts.service.getDefinitionAndBoundSpan(fileName, position)
+    return result
   }
 
   public getTypeDefinitionAtPosition(
@@ -104,11 +114,14 @@ export class DefinitionService
       )
     }
 
-    if (this.fs.isVueFile(fileName)) {
-      return this.vueTypeDefinitionAt(fileName, position)
-    }
+    return (this.fs.isVueFile(fileName)
+      ? this.vueTypeDefinitionAt(fileName, position)
+      : this.ts.service.getTypeDefinitionAtPosition(fileName, position)
+    )?.map((info) => {
+      info.fileName = parseFileName(info.fileName).fileName
 
-    return this.ts.service.getTypeDefinitionAtPosition(fileName, position)
+      return info
+    })
   }
 
   private resolveForVueSchemeFile(
