@@ -10,7 +10,7 @@ import {
 } from './shared/checkDirectiveOn'
 import { checkInterpolation } from './shared/checkInterpolation'
 import { checkRef } from './shared/checkRef'
-import { checkSlots } from './shared/checkSlots'
+import { checkSlots, SlotsFrom } from './shared/checkSlots'
 import { defineSetupComponent, resolveComponent } from './shared/components'
 import { resolveDirective } from './shared/directives'
 import { getElementType } from './shared/element'
@@ -44,7 +44,7 @@ declare global {
         checkModelDirective,
       }
       export { propCompletionHelper }
-      export { PropsOf, AttrsOf, MergeAttrs }
+      export { PropsOf, AttrsOf, SlotsFrom, MergeAttrs }
     }
   }
 }

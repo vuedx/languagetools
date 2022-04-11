@@ -103,7 +103,7 @@ describe('VueSFCDocument', () => {
         return VueDX.internal.flat([])
       }
       export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-      export type __VueDX_Attrs = VueDX.internal.AttrsOf<\\"Foo.Bar\\">;
+      export type __VueDX_Attrs = {};
       /*</vuedx:diagnosticsIgnore>*/
       "
     `)

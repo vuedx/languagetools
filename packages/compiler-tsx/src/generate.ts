@@ -6,7 +6,7 @@ import {
   ForNode,
   IfNode,
 } from '@vue/compiler-core'
-import { camelCase, isNotNull, last } from '@vuedx/shared'
+import { camelCase, first, isNotNull, last } from '@vuedx/shared'
 import {
   AttributeNode,
   CommentNode,
@@ -260,27 +260,28 @@ function genAttrsTypes(root: RootNode, context: GenerateContext): void {
   const tags = new Set<string>()
   const attrsIdentifier = '$attrs'
   traverseFast(root, (node) => {
-    if (!isPlainElementNode(node)) return // only one-level deep.
-    node.props.forEach((prop) => {
-      if (
-        !isDirectiveNode(prop) ||
-        prop.name !== 'bind' ||
-        prop.arg != null ||
-        !isSimpleExpressionNode(prop.exp)
-      ) {
-        return // not a $attrt bind.
-      }
-
-      if (prop.exp.content.trim() === attrsIdentifier) {
-        tags.add(node.tag)
-      }
-    })
+    if (isPlainElementNode(node)) {
+      node.props.forEach((prop) => {
+        if (
+          isDirectiveNode(prop) &&
+          prop.arg == null &&
+          prop.name === 'bind' &&
+          isSimpleExpressionNode(prop.exp) &&
+          prop.exp.content.includes(attrsIdentifier)
+        ) {
+          tags.add(node.tag)
+        }
+      })
+    }
   })
 
   // TODO: Support inheritAttrs
   const children = root.children.filter((node) => !isCommentNode(node))
-  if (children.length === 1 && isElementNode(children[0])) {
-    tags.add(children[0].tag)
+  if (children.length === 1) {
+    const node = first(children)
+    if (isPlainElementNode(node)) {
+      tags.add(node.tag)
+    }
   }
 
   context.write(`export type __VueDX_Attrs = `)
@@ -318,15 +319,15 @@ function genSlotTypes(root: RootNode, context: GenerateContext): void {
   for (const [slot, ancestors] of slots) {
     for (const { node } of ancestors.slice().reverse()) {
       if (isForNode(node)) {
-        context.write('VueDX.internal.renderList(')
+        context.write('VueDX.internal.flat(VueDX.internal.renderList(')
         genForNodeArgs(context, node)
-        context.write(' => VueDX.internal.flat((').newLine().indent()
+        context.write(' => VueDX.internal.flat([').newLine().indent()
       }
     }
 
     //#region slot
     const name = findProp(slot, 'name', false, true)
-    context.write('{ ')
+    context.write('VueDX.internal.flat([{ ')
     //#region slot name
     if (isAttributeNode(name)) {
       if (name.value != null) {
@@ -390,11 +391,11 @@ function genSlotTypes(root: RootNode, context: GenerateContext): void {
     })
     context.write('}')
     //#endregion
-    context.write(' }')
+    context.write(' }])')
     //#endregion
     for (const { node } of ancestors) {
       if (isForNode(node)) {
-        context.newLine().deindent().write(')))')
+        context.newLine().deindent().write('])))')
       }
     }
 
@@ -584,7 +585,7 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
   // > 4
   context.deindent()
 
-  if (node.tag.length > 0) {
+  if (node.tag.length > 0 && node.tag !== 'template') {
     const tagName = isComponentNode(node)
       ? node.resolvedName ?? node.tag
       : `${JSON.stringify(node.tag)} as const`
@@ -610,15 +611,10 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
     //#endregion
     // > 5
     context.deindent().write('</')
-    const endLoc = createLoc(
-      node.loc,
-      node.loc.source.lastIndexOf('</') + 2,
-      node.tag.length,
-    )
     if (isComponentNode(node)) {
-      context.write(node.resolvedName ?? node.tag, endLoc)
+      context.write(node.resolvedName ?? node.tag, node.endTagLoc)
     } else if (node.tag !== 'template') {
-      context.write(node.tag, endLoc)
+      context.write(node.tag, node.endTagLoc)
     }
     context.write('>')
   }
@@ -749,7 +745,7 @@ function genComponentSlots(
 
     context.write('},').newLine()
   })
-  if (node.children.length > 0) {
+  if (node.unassignedSlots != null && node.unassignedSlots.length > 0) {
     context.write(`[Symbol.for('VueDX:UnknownSlot')]: () => {`, loc).newLine()
     context.indent()
     //#region 9 <
@@ -831,6 +827,37 @@ function genBindGroupDirectiveNode(
     context.write(' ')
   }
   context.write('})}')
+}
+
+function genModelGroupDirectiveNode(
+  context: GenerateContext,
+  node: ElementNode,
+  directives: DirectiveNode[],
+  options: { useNewlines: boolean },
+): void {
+  if (directives.length === 0) return
+
+  directives.forEach((directive) => {
+    if (!options.useNewlines) context.write(' ')
+    else context.newLine()
+    if (directive.arg == null) {
+      context.write('modelValue', createLoc(directive.loc, 0, 'v-model'.length))
+      context.write('={')
+      genDirective(context, node, directive)
+      context.write('}')
+    } else if (isStaticExpression(directive.arg)) {
+      context.write(directive.arg.content, directive.arg.loc)
+      context.write('={')
+      genDirective(context, node, directive)
+      context.write('}')
+    } else {
+      context.write('...({[')
+      genExpressionNode(context, directive.arg)
+      context.write(']:')
+      genDirective(context, node, directive)
+      context.write('})')
+    }
+  })
 }
 
 function genOnGroupDirectiveNode(
@@ -1022,6 +1049,8 @@ function genDirectives(
     return genBindGroupDirectiveNode(context, node, directives, options)
   } else if (dir.name === 'on') {
     return genOnGroupDirectiveNode(context, node, directives, options)
+  } else if (dir.name === 'model' && isComponentNode(node)) {
+    return genModelGroupDirectiveNode(context, node, directives, options)
   } else {
     context.write(`data-vuedx-directive-${dir.name}={`)
     genUnionFn(

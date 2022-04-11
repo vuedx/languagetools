@@ -46,12 +46,11 @@ export function createComponentChildrenTransform(
             children: node.children,
           },
         ]
-        node.children = []
       } else if (hasSlotsAsChildren) {
         node.slots = []
         const slots = node.slots
 
-        node.children = node.children.filter((node) => {
+        node.unassignedSlots = node.children.filter((node) => {
           if (isTemplateNode(node)) {
             const dir = findDir(node, 'slot', true)
             if (dir != null) {
@@ -75,7 +74,6 @@ export function createComponentChildrenTransform(
             children: node.children,
           },
         ]
-        node.children = []
       }
     }
   }
@@ -97,7 +95,7 @@ function createTemplateNode(
     hoists: [],
     tagLoc: undefined as any,
     startTagLoc: undefined as any,
-    endTagLoc: undefined as any,
+    endTagLoc: undefined,
     loc: undefined as any,
     scope: undefined as any,
   }

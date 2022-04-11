@@ -27,5 +27,6 @@ declare module '@vue/compiler-core' {
       hoists: CompoundExpressionNode[]
       children: Node[]
     }>
+    unassignedSlots?: Node[]
   }
 }

@@ -253,12 +253,14 @@ export const createExportDeclarationForComponent = memoizeByFirstArg(
         `const ${config.exportName} = ${config.defineComponent}(%%options%%)`,
       )
 
-      const options = getExpressionOrReference(
-        findComponentOptions(ast),
-        config,
-      )
+      const options = findComponentOptions(ast)
 
-      return createExpr({ options })
+      return createExpr({
+        options:
+          options == null
+            ? findDefaultExportDeclaration(ast)
+            : getExpressionOrReference(options, config),
+      })
     }
   },
 )
@@ -276,15 +278,25 @@ export const createExportDeclarationForExpose = memoizeByFirstArg(
 )
 
 export const findDefinePropsStatement = memoizeByFirstArg((ast: T.File) => {
-  return (
-    findTopLevelCall(
-      ast,
-      findLocalName(ast, 'vue', 'withDefaults') ?? 'withDefaults',
-    ) ??
-    findTopLevelCall(
-      ast,
-      findLocalName(ast, 'vue', 'defineProps') ?? 'defineProps',
-    )
+  const withDefaults = findTopLevelCall(
+    ast,
+    findLocalName(ast, 'vue', 'withDefaults') ?? 'withDefaults',
+  )
+
+  if (withDefaults != null) {
+    const fn = T.isCallExpression(withDefaults)
+      ? withDefaults
+      : withDefaults.init
+    if (T.isCallExpression(fn)) {
+      const args = fn.arguments
+      if (T.isCallExpression(args[0])) return args[0]
+      return null
+    }
+  }
+
+  return findTopLevelCall(
+    ast,
+    findLocalName(ast, 'vue', 'defineProps') ?? 'defineProps',
   )
 })
 
@@ -428,6 +440,21 @@ export const findComponentOptions = memoizeByFirstArg(
           }
         }
       }
+    }
+
+    return null
+  },
+)
+
+const findDefaultExportDeclaration = memoizeByFirstArg(
+  (ast: T.File): T.Node | null => {
+    const node = ast.program.body.find(
+      (node): node is T.ExportDefaultDeclaration =>
+        T.isExportDefaultDeclaration(node),
+    )
+
+    if (node != null) {
+      return node.declaration
     }
 
     return null
