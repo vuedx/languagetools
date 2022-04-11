@@ -308,10 +308,15 @@ export const findDefineEmitsStatement = memoizeByFirstArg((ast: T.File) => {
 })
 
 export const findDefineExposeStatement = memoizeByFirstArg((ast: T.File) => {
-  return findTopLevelCall(
+  const result = findTopLevelCall(
     ast,
     findLocalName(ast, 'vue', 'defineExpose') ?? 'defineExpose',
   )
+  if (!T.isCallExpression(result)) return null
+  const node = result.arguments[0]
+  if (node == null) return null
+  if (T.isObjectExpression(node) || T.isIdentifier(node)) return node
+  return null
 })
 
 /**

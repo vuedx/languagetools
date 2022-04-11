@@ -339,15 +339,18 @@ export class VueSFCDocument extends ProxyDocument {
       }
     })
 
+    let hasExposeIdentifier = false
     const name = getComponentName(this.fileName)
     if (scriptSetup != null) {
       const id = this._getBlockTSId(scriptSetup, 0)
       if (id != null) {
         files.add(id)
         const idPath = createImportSource(id)
-
+        hasExposeIdentifier = true
         props.push(`InstanceType<typeof _Self>['$props']`)
-        code.push(`import { __VueDX_DefineComponent as _Self } from ${idPath}`)
+        code.push(
+          `import { __VueDX_DefineComponent as _Self, __VueDX_expose } from ${idPath}`,
+        )
         code.push(`export * from ${idPath}`) // TODO: Only type exports are supported.
         // TODO: detect useAttrs() decalration to find `attrsVarName`.
         if (script != null) {
@@ -364,11 +367,17 @@ export class VueSFCDocument extends ProxyDocument {
       if (id != null) {
         files.add(id)
         const idPath = createImportSource(id)
-
+        hasExposeIdentifier = true
         props.push(`InstanceType<typeof _Self>['$props']`)
-        code.push(`import { __VueDX_DefineComponent as _Self } from ${idPath}`)
+        code.push(
+          `import { __VueDX_DefineComponent as _Self, __VueDX_expose } from ${idPath}`,
+        )
         code.push(`export * from ${idPath}`)
       }
+    }
+
+    if (!hasExposeIdentifier) {
+      code.push('const __VueDX_expose = {}')
     }
 
     if (props.length === 0) {
@@ -384,9 +393,8 @@ export class VueSFCDocument extends ProxyDocument {
     if (props.length === 0) props.push('{}')
     if (slots.length === 0) slots.push('{}')
 
-    // TODO: do not generate default export for .vue.p
-    code.push('')
-    code.push(`class ${name} {`)
+    code.push('const Exposed: new () => typeof __VueDX_expose = null as any')
+    code.push(`class ${name} extends Exposed {`)
     code.push(`  $props!: ${props.join(' & ')}`)
     code.push(`  $slots!: ${slots.join(' & ')}`)
     code.push('}')
