@@ -155,8 +155,6 @@ export class DiagnosticsService
     if (this.fs.isVueSchemeFile(fileName)) return []
     // Do not send diagnostics for virtual files.
     if (this.fs.isVueVirtualFile(fileName)) return []
-    // TODO: Make this configurable
-    if (fileName.includes('/node_modules/')) return []
 
     this.ts.ensureUptoDate(fileName)
 
@@ -181,8 +179,6 @@ export class DiagnosticsService
 
     // Do not send diagnostics for virtual files.
     if (this.fs.isVueVirtualFile(fileName)) return []
-    // TODO: Make this configurable
-    if (fileName.includes('/node_modules/')) return []
 
     this.ts.ensureUptoDate(fileName)
 
@@ -196,8 +192,6 @@ export class DiagnosticsService
     if (this.fs.isVueSchemeFile(fileName)) return []
     // Do not send diagnostics for virtual files.
     if (this.fs.isVueVirtualFile(fileName)) return []
-    // TODO: Make this configurable
-    if (fileName.includes('/node_modules/')) return []
     this.ts.ensureUptoDate(fileName)
 
     return this.getSuggestionDiagnosticsOnly(fileName)
