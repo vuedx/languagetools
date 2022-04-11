@@ -352,3 +352,11 @@
   </component>
 </component>
 ```
+
+## \$attrs binding
+
+```vue-html
+<Foo>
+  <input v-bind="$attrs" />
+</Foo>
+```

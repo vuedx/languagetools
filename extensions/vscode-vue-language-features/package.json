@@ -250,6 +250,12 @@
           "default": true,
           "description": "Check if conflicting extension (volar, vetur etc.) are active.",
           "scope": "machine-overridable"
+        },
+        "vuedx.ignoreDiagnosticsPattrens": {
+          "type": "array",
+          "default": [],
+          "description": "Ignore diagnostics in these files.",
+          "scope": "machine-overridable"
         }
       }
     },
