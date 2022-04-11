@@ -36,6 +36,7 @@ Following are some examples of syntax highlight.
 
 Use `vue` as language on fenced code block
 for embedding Vue SFC in markdown.
+
 <div>
   <img width="480" src="https://raw.githubusercontent.com/znck/vue-developer-experience/main/extensions/vscode-vue/demo/FencedCodeBlock-Vue.png" />
 </div>
@@ -43,6 +44,7 @@ for embedding Vue SFC in markdown.
 
 Use `vue-html` as language on fenced code block
 for embedding Vue template DSL in markdown.
+
 <div>
   <img width="480" src="https://raw.githubusercontent.com/znck/vue-developer-experience/main/extensions/vscode-vue/demo/FencedCodeBlock-VueHTML.png" />
 </div>
@@ -52,6 +54,10 @@ for embedding Vue template DSL in markdown.
 
 This extension provides detailed token and scope information which can be
 used to create better VS Code themes. Find more details on [project wiki](https://github.com/znck/vue-developer-experience/wiki/Theme-Guide).
+
+## How to get help
+
+Have a question, or want to provide feedback? Use [repository discussions](https://github.com/vuedx/languagetools/discussions) to ask questions, share bugs or feedback, or chat with other users in the Preview. The VueDX team will respond as often as possible, but we also welcome you to share your experiences and help others in the community.
 
 ## Support
 
