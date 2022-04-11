@@ -7,10 +7,6 @@
   "updateInternalDependencies": "patch",
   "linked": [
     ["coc-vue", "vue", "vue-language-features"],
-    [
-      "@vuedx/typecheck",
-      "@vuedx/typescript-plugin-vue",
-      "@vuedx/typescript-vetur"
-    ]
+    ["@vuedx/typecheck", "@vuedx/typescript-plugin-vue"]
   ]
 }
