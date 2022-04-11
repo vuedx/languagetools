@@ -95,7 +95,7 @@ function createTemplateNode(
     hoists: [],
     tagLoc: undefined as any,
     startTagLoc: undefined as any,
-    endTagLoc: undefined as any,
+    endTagLoc: undefined,
     loc: undefined as any,
     scope: undefined as any,
   }

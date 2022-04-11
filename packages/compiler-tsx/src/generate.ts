@@ -611,15 +611,10 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
     //#endregion
     // > 5
     context.deindent().write('</')
-    const endLoc = createLoc(
-      node.loc,
-      node.loc.source.lastIndexOf('</') + 2,
-      node.tag.length,
-    )
     if (isComponentNode(node)) {
-      context.write(node.resolvedName ?? node.tag, endLoc)
+      context.write(node.resolvedName ?? node.tag, node.endTagLoc)
     } else if (node.tag !== 'template') {
-      context.write(node.tag, endLoc)
+      context.write(node.tag, node.endTagLoc)
     }
     context.write('>')
   }
@@ -846,7 +841,8 @@ function genModelGroupDirectiveNode(
     if (!options.useNewlines) context.write(' ')
     else context.newLine()
     if (directive.arg == null) {
-      context.write('modelValue={')
+      context.write('modelValue', createLoc(directive.loc, 0, 'v-model'.length))
+      context.write('={')
       genDirective(context, node, directive)
       context.write('}')
     } else if (isStaticExpression(directive.arg)) {

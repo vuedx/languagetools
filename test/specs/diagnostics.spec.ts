@@ -129,14 +129,26 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
+          "Type '{ modelValue: string | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
+          Property 'modelValue' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
           "Argument of type '\\"modelValue\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"foo\\" | \\"bar\\"'.",
           "Argument of type 'number | undefined' is not assignable to parameter of type 'string | undefined'.
           Type 'number' is not assignable to type 'string | undefined'.",
+          "Type '{ modelValue: number | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
+          Property 'modelValue' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
           "Argument of type '\\"modelValue\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"foo\\" | \\"bar\\"'.",
+          "Type '{ foo: string | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
+          Property 'foo' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
           "Argument of type '\\"foo\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
+          "Type '{ foo: number | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
+          Property 'foo' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
           "Argument of type '\\"foo\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
           "Argument of type 'number | undefined' is not assignable to parameter of type 'string | undefined'.",
+          "Type '{ bar: string | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
+          Property 'bar' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
           "Argument of type '\\"bar\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
+          "Type '{ bar: number | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
+          Property 'bar' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
           "Argument of type '\\"bar\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
         ]
       `)
