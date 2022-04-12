@@ -6,20 +6,17 @@ import {
   isString,
   isSVGTag,
   isVueFile,
-  last,
   lcfirst,
   ucfirst,
 } from '@vuedx/shared'
 import {
+  AttributeNode,
+  DirectiveNode,
+  ElementNode,
   findTemplateNodeAt,
   isAttributeNode,
-  isCommentNode,
   isDirectiveNode,
-  isElementNode,
-  isInterpolationNode,
   isSimpleExpressionNode,
-  isTextNode,
-  SourceLocation,
 } from '@vuedx/template-ast-types'
 import type {
   Position,
@@ -30,6 +27,10 @@ import type {
 import { inject, injectable } from 'inversify'
 import type { LanguageService } from '../contracts/LanguageService'
 import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
+import {
+  getTemplateContextAt,
+  TemplateContextType,
+} from '../helpers/templateContextAtPosition'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
@@ -40,7 +41,7 @@ type CompletionAdditionalInfo = {
   merged?: TypeScript.CompletionEntry[]
 } & (
   | {
-      type: TemplateCompletionItemKind
+      type: TemplateContextType
       fileName: string
       position: number
     }
@@ -52,23 +53,6 @@ type CompletionAdditionalInfo = {
 )
 
 const PROP_COMPLETION_HELPER = 'VueDX.internal.propCompletionHelper("'
-
-const enum TemplateCompletionItemKind {
-  OpenTag = 'open-tag',
-  CloseTag = 'close-tag',
-  Attribute = 'attribute',
-  Event = 'event',
-  AttributeValue = 'attribute-value',
-  DirectiveArgument = 'directive-argument',
-  DirectiveModifier = 'directive-modifier',
-  DirectiveValue = 'directive-value',
-  Interpolation = 'interpolation',
-
-  None = 'none',
-  Comment = 'comment',
-
-  Unknown = 'unknown',
-}
 
 @injectable()
 export class CompletionsService
@@ -484,86 +468,13 @@ export class CompletionsService
     )
       return
 
-    let completionKind: TemplateCompletionItemKind =
-      TemplateCompletionItemKind.Unknown
-
     const offset = block.toBlockOffset(position)
+    const info = getTemplateContextAt(file.templateAST, offset)
     const generatedOffset = block.findGeneratedOffetAt(offset)
-    let contextOffset = offset
-    let generatedContextOffset = generatedOffset
-    const { node, ancestors } = findTemplateNodeAt(file.templateAST, offset)
-
-    if (isElementNode(node)) {
-      contextOffset = node.loc.start.offset
-
-      if (
-        isOffsetInSourceLocation(offset, node.tagLoc) ||
-        node.tag.length === 0
-      ) {
-        completionKind = TemplateCompletionItemKind.OpenTag
-      } else if (isOffsetInSourceLocation(offset, node.startTagLoc)) {
-        completionKind = TemplateCompletionItemKind.Attribute
-      } else if (isOffsetInSourceLocation(offset, node.endTagLoc)) {
-        completionKind = TemplateCompletionItemKind.CloseTag
-      }
-    } else if (isAttributeNode(node)) {
-      contextOffset = node.loc.start.offset
-      completionKind = TemplateCompletionItemKind.Attribute
-    } else if (isDirectiveNode(node)) {
-      contextOffset = node.loc.start.offset
-      if (node.arg == null || offset <= node.arg.loc.end.offset) {
-        completionKind =
-          node.name === 'on'
-            ? TemplateCompletionItemKind.Event
-            : TemplateCompletionItemKind.DirectiveArgument
-      } else {
-        completionKind = TemplateCompletionItemKind.DirectiveModifier
-      }
-    } else if (isInterpolationNode(node)) {
-      contextOffset = node.loc.start.offset
-      completionKind = TemplateCompletionItemKind.Interpolation
-    } else if (isSimpleExpressionNode(node)) {
-      if (ancestors.length === 0) {
-        completionKind = TemplateCompletionItemKind.Unknown
-      } else {
-        const parent = last(ancestors).node
-
-        if (isInterpolationNode(parent)) {
-          completionKind = TemplateCompletionItemKind.Interpolation
-        } else if (isDirectiveNode(parent)) {
-          if (parent.arg === node) {
-            completionKind = TemplateCompletionItemKind.DirectiveArgument
-          } else {
-            completionKind = TemplateCompletionItemKind.DirectiveValue
-          }
-        }
-      }
-    } else if (isTextNode(node)) {
-      if (ancestors.length > 0) {
-        const parent = last(ancestors).node
-        if (isAttributeNode(parent)) {
-          completionKind = TemplateCompletionItemKind.AttributeValue
-        }
-      } else {
-        completionKind = TemplateCompletionItemKind.None
-      }
-    } else if (isCommentNode(node)) {
-      completionKind = TemplateCompletionItemKind.Comment
-    }
-
-    generatedContextOffset = block.findGeneratedOffetAt(contextOffset)
-
-    this.logger.debug(
-      'Detected type:',
-      completionKind,
-      'Node at position:',
-      node?.type,
-      node?.loc.source,
-    )
-
-    switch (completionKind) {
-      case TemplateCompletionItemKind.OpenTag:
-      case TemplateCompletionItemKind.CloseTag:
+    this.logger.debug(`Detected context: ${info.type}`)
+    switch (info.type) {
+      case TemplateContextType.OpenTag:
+      case TemplateContextType.CloseTag:
         completionsInGeneratedCode.push(
           this.#cleanup(
             this.ts.service.getCompletionsAtPosition(
@@ -574,7 +485,7 @@ export class CompletionsService
             {
               mode: 'tag',
               attachAdditionalInfo: {
-                type: completionKind,
+                type: info.type,
                 fileName: block.tsFileName,
                 position: generatedOffset,
               },
@@ -583,66 +494,77 @@ export class CompletionsService
         )
         break
 
-      case TemplateCompletionItemKind.DirectiveArgument:
+      case TemplateContextType.Attribute:
+        completionsInVueFile.push(
+          this.#cleanup(
+            this.#getAttributeCompletions(
+              block,
+              info.context,
+              info.node,
+              options,
+            ),
+            {
+              mode: 'attribute',
+              attachAdditionalInfo: {
+                type: info.type,
+                fileName: block.tsFileName,
+                position: generatedOffset,
+              },
+            },
+          ),
+        )
         break
-      case TemplateCompletionItemKind.Event:
-      case TemplateCompletionItemKind.Attribute:
-        {
-          const index = block.generated
-            .getText()
-            .indexOf(PROP_COMPLETION_HELPER, generatedContextOffset)
-
-          if (index > 0) {
-            const offset = index + PROP_COMPLETION_HELPER.length
-            const completions = this.#cleanup(
-              this.ts.service.getCompletionsAtPosition(
-                block.tsFileName,
-                offset,
+      case TemplateContextType.DirectiveArgument:
+        if (
+          info.context.name === 'bind' ||
+          info.context.name === 'model' ||
+          info.context.name === 'on'
+        ) {
+          completionsInVueFile.push(
+            this.#cleanup(
+              this.#getAttributeCompletions(
+                block,
+                info.element,
+                info.context,
                 options,
               ),
               {
                 mode: 'attribute',
                 attachAdditionalInfo: {
-                  type: completionKind,
+                  type: info.type,
                   fileName: block.tsFileName,
-                  position: offset,
+                  position: generatedOffset,
                 },
               },
-            )
-
-            if (completions?.entries != null) {
-              if (completionKind === TemplateCompletionItemKind.Event) {
-                completions.entries = completions.entries.filter((entry) =>
-                  /^on[A-Z]/.test(entry.name),
-                )
-              }
-
-              if (isAttributeNode(node) || isDirectiveNode(node)) {
-                completions.entries.forEach((entry) => {
-                  entry.replacementSpan = {
-                    start: block.toFileOffset(node.loc.start.offset),
-                    length: node.loc.source.length,
-                  }
-                })
-              } else {
-                completions.entries.forEach((entry) => {
-                  entry.replacementSpan = undefined
-                })
-              }
-            }
-
-            completionsInVueFile.push(completions)
-          }
+            ),
+          )
         }
+        if (info.context.arg != null) {
+          completionsInVueFile.push(
+            this._getDirectiveModifierCompletions(
+              block,
+              info.element,
+              info.context,
+              options,
+            ),
+          )
+        }
+        // others
+        break
+      case TemplateContextType.DirectiveModifier:
+        completionsInVueFile.push(
+          this._getDirectiveModifierCompletions(
+            block,
+            info.context,
+            info.node,
+            options,
+          ),
+        )
         break
 
-      case TemplateCompletionItemKind.DirectiveModifier:
-        // TODO: find directive modifier completion position
-        break
-
-      case TemplateCompletionItemKind.AttributeValue:
-      case TemplateCompletionItemKind.DirectiveValue:
-      case TemplateCompletionItemKind.Interpolation:
+      case TemplateContextType.AttributeValue:
+      case TemplateContextType.DirectiveValue:
+      case TemplateContextType.Interpolation:
         completionsInGeneratedCode.push(
           this.#cleanup(
             this.ts.service.getCompletionsAtPosition(
@@ -653,76 +575,44 @@ export class CompletionsService
             {
               mode: 'all',
               attachAdditionalInfo: {
-                type: completionKind,
+                type: info.type,
                 fileName: block.tsFileName,
                 position: generatedOffset,
               },
             },
           ),
         )
+        if (block.tsCompletionsOffset != null) {
+          completionsInGeneratedCode.push(
+            this.#cleanup(
+              this.ts.service.getCompletionsAtPosition(
+                block.tsFileName,
+                block.tsCompletionsOffset,
+                this.#getContextCompletionOptions(options),
+              ),
+              {
+                mode: 'all',
+                attachAdditionalInfo: {
+                  type: info.type,
+                  fileName: block.tsFileName,
+                  position: block.tsCompletionsOffset,
+                },
+              },
+            ),
+          )
+        }
         break
 
-      case TemplateCompletionItemKind.Comment:
+      case TemplateContextType.Comment:
         // Complete doc comments?
         break
     }
 
-    if (isSimpleExpressionNode(node)) {
-      if (block.tsCompletionsOffset != null) {
-        completionsInGeneratedCode.push(
-          this.#cleanup(
-            this.ts.service.getCompletionsAtPosition(
-              block.tsFileName,
-              block.tsCompletionsOffset,
-              this.#getContextCompletionOptions(options),
-            ),
-            {
-              mode: 'all',
-              attachAdditionalInfo: {
-                type: completionKind,
-                fileName: block.tsFileName,
-                position: block.tsCompletionsOffset,
-              },
-            },
-          ),
-        )
-      }
-
-      if (block.parent.descriptor.scriptSetup != null) {
-        const scriptSetup = file.getDoc(block.parent.descriptor.scriptSetup)
-        if (
-          scriptSetup?.tsFileName != null &&
-          scriptSetup.tsCompletionsOffset != null
-        ) {
-          completionsInVueFile.push(
-            this.#rebase(
-              scriptSetup,
-              this.#cleanup(
-                this.ts.service.getCompletionsAtPosition(
-                  scriptSetup.tsFileName,
-                  scriptSetup.tsCompletionsOffset,
-                  options,
-                ),
-                {
-                  mode: 'all',
-                  attachAdditionalInfo: {
-                    type: completionKind,
-                    fileName: scriptSetup.tsFileName,
-                    position: scriptSetup.tsCompletionsOffset,
-                  },
-                },
-              ),
-            ),
-          )
-        }
-      }
-    }
-
     if (
-      completionKind === TemplateCompletionItemKind.Attribute ||
-      completionKind === TemplateCompletionItemKind.AttributeValue ||
-      completionKind === TemplateCompletionItemKind.OpenTag ||
-      completionKind === TemplateCompletionItemKind.CloseTag
+      info.type === TemplateContextType.Attribute ||
+      info.type === TemplateContextType.AttributeValue ||
+      info.type === TemplateContextType.OpenTag ||
+      info.type === TemplateContextType.CloseTag
     ) {
       const service = this.langs.getLanguageService(block.fileName)
       if (service != null) {
@@ -742,14 +632,228 @@ export class CompletionsService
         this.#rebase(block, this.#combine(...completionsInGeneratedCode)),
         ...completionsInVueFile,
       ),
-      TemplateCompletionItemKind.Attribute === completionKind ||
-        TemplateCompletionItemKind.Event === completionKind
+      TemplateContextType.Attribute === info.type ||
+        TemplateContextType.DirectiveArgument === info.type
         ? 'attribute'
-        : TemplateCompletionItemKind.OpenTag === completionKind ||
-          TemplateCompletionItemKind.CloseTag === completionKind
+        : TemplateContextType.OpenTag === info.type ||
+          TemplateContextType.CloseTag === info.type
         ? 'tag'
         : undefined,
     )
+  }
+
+  /**
+   * NOTE: Completions include replacementSpan with text spans corresponding to .vue file
+   */
+  #getAttributeCompletions(
+    block: VueBlockDocument,
+    element: ElementNode,
+    attribute: AttributeNode | DirectiveNode | null,
+    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
+    if (block.generated == null) return
+    if (block.tsFileName == null) return
+    if (
+      isDirectiveNode(attribute) &&
+      attribute.name === 'model' &&
+      (isHTMLTag(element.tag) || isSVGTag(element.tag))
+    ) {
+      return // no model attribute for svg/html
+    }
+
+    const index = block.generated
+      .getText()
+      .indexOf(
+        PROP_COMPLETION_HELPER,
+        block.findGeneratedOffetAt(element.loc.start.offset),
+      )
+
+    if (index < 0) return
+    const offset = index + PROP_COMPLETION_HELPER.length
+    const completions = this.ts.service.getCompletionsAtPosition(
+      block.tsFileName,
+      offset,
+      options,
+    )
+    if (completions == null || completions.entries == null) return
+    if (attribute != null) {
+      const end = isDirectiveNode(attribute)
+        ? attribute.arg?.loc.end.offset ??
+          attribute.exp?.loc.start.offset ??
+          attribute.loc.end.offset
+        : attribute.loc.end.offset
+      const attributeSpan = {
+        start: block.toFileOffset(attribute.loc.start.offset),
+        length: end - attribute.loc.start.offset,
+      }
+      const argumentSpan = isDirectiveNode(attribute)
+        ? attribute.arg != null
+          ? {
+              start: block.toFileOffset(attribute.arg.loc.start.offset),
+              length: end - attribute.loc.start.offset,
+            }
+          : undefined
+        : {
+            start: block.toFileOffset(attribute.loc.start.offset),
+            length: end - attribute.loc.start.offset,
+          }
+      const kind = isDirectiveNode(attribute)
+        ? (attribute.name as 'bind' | 'on' | 'model')
+        : 'all'
+      const preferences = this.ts.getVuePrefrencesFor(block.parent.fileName)
+      const preferShorthand =
+        preferences.template.directiveSyntax === 'shorthand'
+      const hasExpression =
+        (isDirectiveNode(attribute) && attribute.exp != null) ||
+        (isAttributeNode(attribute) && attribute.value != null)
+      const makeSnippet = (
+        entry: TypeScript.CompletionEntry,
+      ): TypeScript.CompletionEntry => {
+        if (hasExpression || entry.isSnippet === true) return entry
+
+        entry.isSnippet = true
+        if (entry.insertText == null) {
+          entry.insertText = `${entry.name}="$0"`
+        } else {
+          entry.insertText += '="$0"'
+        }
+
+        return entry
+      }
+      completions.entries = completions.entries
+        .flatMap((entry) => {
+          if (/^on[A-Z]/.test(entry.name)) {
+            const arg = lcfirst(entry.name.slice(2))
+            if (kind === 'bind' || kind === 'model') return null
+            const name = preferShorthand ? `@${arg}` : `v-on:${arg}`
+
+            return makeSnippet({
+              ...entry,
+              name,
+              insertText: entry.insertText?.replace(entry.name, name),
+              replacementSpan: attributeSpan,
+            })
+          } else {
+            if (kind === 'on') return null
+            const arg = entry.name
+            const name =
+              kind === 'model'
+                ? `v-model:${arg}`
+                : preferShorthand
+                ? `:${arg}`
+                : `v-bind:${arg}`
+
+            return [
+              makeSnippet({
+                ...entry,
+                replacementSpan: argumentSpan,
+              }),
+              makeSnippet({
+                ...entry,
+                name,
+                insertText: entry.insertText?.replace(entry.name, name),
+                replacementSpan: attributeSpan,
+              }),
+            ]
+          }
+        })
+        .filter(isNotNull)
+    } else {
+      completions.entries.forEach((entry) => {
+        entry.replacementSpan = undefined
+      })
+    }
+
+    return completions
+  }
+
+  /**
+   * NOTE: Completions include replacementSpan with text spans corresponding to .vue file
+   */
+  @debug()
+  _getDirectiveModifierCompletions(
+    block: VueBlockDocument,
+    _element: ElementNode,
+    directive: DirectiveNode,
+    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
+    const start = directive.arg?.loc.end.offset ?? directive.loc.start.offset
+    const end = directive.exp?.loc.end.offset ?? directive.loc.end.offset
+    const text = directive.loc.source.slice(
+      start - directive.loc.start.offset,
+      end - directive.loc.start.offset,
+    )
+    const index = text.lastIndexOf('.')
+    const prefix = index >= 0 ? text.slice(index) : ''
+    const replacementSpan =
+      prefix.length > 0
+        ? {
+            start: block.toFileOffset(start + index),
+            length: prefix.length,
+          }
+        : undefined
+
+    if (directive.name === 'bind') {
+      if (!/^v-bind|:/.test(directive.loc.source)) return
+
+      const modifiers = ['camel', 'prop', 'attr'].filter(
+        (modifier) => !directive.modifiers.includes(modifier),
+      )
+
+      return this.#cleanup(
+        {
+          isGlobalCompletion: false,
+          isMemberCompletion: false,
+          isNewIdentifierLocation: false,
+          entries: modifiers.map((modifier) => ({
+            name: modifier,
+            kind: this.ts.lib.ScriptElementKind.jsxAttribute,
+            kindModifiers: 'modifier',
+            sortText: '16',
+            insertText: `.${modifier}`,
+            replacementSpan,
+          })),
+        },
+        {
+          mode: 'all',
+          attachAdditionalInfo: {
+            type: TemplateContextType.None,
+            fileName: block.fileName,
+            position: start,
+          },
+        },
+      )
+    }
+
+    if (block.generated == null || block.tsFileName == null) return
+    const offset = block.findGeneratedOffetAt(directive.loc.start.offset)
+    const position = block.generated
+      .getText()
+      .indexOf('"/*<VueDX:directiveCompletion/>*/', offset)
+    if (position < 0) return
+    const completions = this.ts.service.getCompletionsAtPosition(
+      block.tsFileName,
+      position,
+      { ...options, triggerCharacter: '"' },
+    )
+    if (completions == null || completions.entries == null) return
+
+    const kind = this.ts.lib.ScriptElementKind.jsxAttribute
+    completions.entries.forEach((entry) => {
+      entry.replacementSpan = replacementSpan
+      entry.kindModifiers = 'directive'
+      entry.kind = kind
+      entry.insertText = `.${entry.name}`
+    })
+
+    return this.#cleanup(completions, {
+      mode: 'all',
+      attachAdditionalInfo: {
+        type: TemplateContextType.DirectiveModifier,
+        fileName: block.tsFileName,
+        position: position,
+      },
+    })
   }
 
   #completionItemToEntry(
@@ -1403,14 +1507,6 @@ export class CompletionsService
   ): CompletionAdditionalInfo | null {
     return (entry.data as any)?.vuedx ?? null
   }
-}
-
-function isOffsetInSourceLocation(
-  offset: number,
-  loc?: SourceLocation,
-): boolean {
-  if (loc == null) return false
-  return loc.start.offset <= offset && offset <= loc.end.offset
 }
 
 function isVueBlockDocument(

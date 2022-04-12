@@ -35,7 +35,7 @@
   "dependencies": {
     "@babel/parser": "7.12.3",
     "@babel/types": "7.12.1",
-    "@vue/compiler-core": "^3.0.1",
+    "@vue/compiler-core": "^3.2.31",
     "@vuedx/shared": "workspace:*",
     "@vuedx/template-ast-types": "workspace:*",
     "source-map": "^0.6.1"

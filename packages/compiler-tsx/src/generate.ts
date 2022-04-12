@@ -39,7 +39,7 @@ import * as Path from 'path'
 import { RawSourceMap, SourceNode } from 'source-map'
 import * as builtins from './builtins'
 import type { CustomTransformContext } from './transforms/CustomTransformContext'
-import { createLoc } from './utils'
+import { createLoc, sliceLoc } from './utils'
 
 export interface GenerateResult {
   code: string
@@ -808,7 +808,7 @@ function genBindGroupDirectiveNode(
       if (node.exp != null) {
         genExpressionNode(context, node.exp, { wrapInParantheses: true })
       } else {
-        context.write('undefined')
+        context.write('undefined', sliceLoc(node.loc, -1))
       }
       context.write(',')
     } else if (node.exp != null) {
@@ -1275,7 +1275,10 @@ function genDirectiveAsParams(
       MappingKind.reverseOnly,
     )
   } else {
-    context.write('undefined')
+    context.write(
+      'undefined',
+      sliceLoc(directive.loc, 0, directive.exp?.loc.start.offset),
+    )
   }
   context.write(', ')
 
@@ -1287,7 +1290,10 @@ function genDirectiveAsParams(
       genExpressionNode(context, directive.exp)
     }
   } else {
-    context.write('undefined')
+    context.write(
+      'undefined',
+      sliceLoc(directive.loc, directive.arg?.loc.end.offset ?? -1),
+    )
   }
   context.write(', ')
 
@@ -1302,7 +1308,7 @@ function genDirectiveAsParams(
   } else {
     context.write('{')
   }
-  genList(directive.modifiers, (name, isLast) => {
+  genList(directive.modifiers, (name) => {
     context.write(
       JSON.stringify(name),
       createLoc(
@@ -1312,9 +1318,11 @@ function genDirectiveAsParams(
       ),
     )
     context.write(': true')
-    if (!isLast) context.write(', ')
+    context.write(', ')
   })
-
+  context.write(
+    `${annotations.diagnosticsIgnore.start}""/*<VueDX:directiveCompletion/>*/:true${annotations.diagnosticsIgnore.end}`,
+  )
   context.write('}')
 }
 
