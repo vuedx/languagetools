@@ -541,7 +541,7 @@ export class CompletionsService
         }
         if (info.context.arg != null) {
           completionsInVueFile.push(
-            this._getDirectiveModifierCompletions(
+            this.#getDirectiveModifierCompletions(
               block,
               info.element,
               info.context,
@@ -553,7 +553,7 @@ export class CompletionsService
         break
       case TemplateContextType.DirectiveModifier:
         completionsInVueFile.push(
-          this._getDirectiveModifierCompletions(
+          this.#getDirectiveModifierCompletions(
             block,
             info.context,
             info.node,
@@ -770,8 +770,7 @@ export class CompletionsService
   /**
    * NOTE: Completions include replacementSpan with text spans corresponding to .vue file
    */
-  @debug()
-  _getDirectiveModifierCompletions(
+  #getDirectiveModifierCompletions(
     block: VueBlockDocument,
     _element: ElementNode,
     directive: DirectiveNode,
