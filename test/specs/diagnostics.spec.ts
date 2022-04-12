@@ -221,15 +221,15 @@ describe('project', () => {
             Type 'MouseEvent' is missing the following properties from type 'KeyboardEvent': char, charCode, code, isComposing, and 9 more.",
           "Argument of type 'MouseEvent' is not assignable to parameter of type 'KeyboardEvent'.",
           "Argument of type 'MouseEvent' is not assignable to parameter of type 'KeyboardEvent'.",
-          "Argument of type '{ enter: boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          "Argument of type '{ enter: boolean; \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
           Object literal may only specify known properties, and '\\"enter\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
-          "Argument of type '{ up: boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          "Argument of type '{ up: boolean; \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
           Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
-          "Argument of type '{ shift: true; up: boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          "Argument of type '{ shift: true; up: boolean; \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
           Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
-          "Argument of type '{ shift: true; up: boolean; alt: true; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          "Argument of type '{ shift: true; up: boolean; alt: true; \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
           Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
-          "Argument of type '{ middle: boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"keypress\\">, boolean>>'.
+          "Argument of type '{ middle: boolean; \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"keypress\\">, boolean>>'.
           Object literal may only specify known properties, and '\\"middle\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"keypress\\">, boolean>>'.",
         ]
       `)
