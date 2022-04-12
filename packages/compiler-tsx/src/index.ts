@@ -9,7 +9,7 @@ import {
 import { getComponentName } from '@vuedx/shared'
 import * as Path from 'path'
 import { generate } from './generate'
-import { parseElementTagLoc } from './parseElementTagLoc'
+import { preprocess } from './preprocess'
 import { parserOptions } from './parserOptions'
 import { withScope } from './scope'
 import { ScopeManager } from './transforms/ScopeManager'
@@ -121,6 +121,6 @@ export function parse(template: string, options: ParserOptions): RootNode {
     ...parserOptions,
     ...options,
   })
-  transform(ast, { nodeTransforms: [parseElementTagLoc] })
+  transform(ast, { nodeTransforms: [preprocess] })
   return ast
 }

@@ -62,6 +62,31 @@ export function createLoc(
   return { source, start, end }
 }
 
+export function sliceLoc(
+  loc: SourceLocation,
+  start: number,
+  end?: number,
+): SourceLocation
+export function sliceLoc(loc: undefined, start: number, end?: number): undefined
+export function sliceLoc(
+  loc: SourceLocation | undefined,
+  start: number,
+  end?: number,
+): SourceLocation | undefined {
+  if (loc == null) return
+  if (end == null) {
+    end = loc.source.length
+  } else if (end < 0) {
+    end = loc.source.length + end
+  }
+
+  if (start < 0) {
+    start = loc.source.length + start
+  }
+
+  return createLoc(loc, start, Math.max(0, end - start))
+}
+
 export function transformText(content: string): string {
   return /[<{}>]/i.test(content) ? `{${JSON.stringify(content)}}` : content
 }

@@ -232,7 +232,7 @@ repository:
     name: meta.directive.bind.vue-html
     patterns:
       - name: meta.directive.bind.shorthand.vue-html
-        begin: (:)
+        begin: ([:.^])
         end: (?=[\s\/>])|(?<=["'])
         beginCaptures:
           0: { name: support.other.directive.builtin.vue-html }

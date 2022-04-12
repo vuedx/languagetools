@@ -3,62 +3,62 @@
 exports[`VueBlockDocument directives 1`] = `
     <B
       a=""
-      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
+      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
                                                             ^^^^^ > 5 at 718
-      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
       onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
 `;
 
 exports[`VueBlockDocument directives 2`] = `
     <B
       a=""
-      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
+      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
                                                                ^^ > 2 at 721
-      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
       onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
 `;
 
 exports[`VueBlockDocument directives 3`] = `
     <B
       a=""
-      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
+      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
                                                             ^^^^^ > 5 at 718
-      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
       onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
 `;
 
 exports[`VueBlockDocument directives 4`] = `
     <B
       a=""
-      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
+      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
                                                                ^^ > 2 at 721
-      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
       onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
 `;
 
 exports[`VueBlockDocument directives 5`] = `
       a=""
-      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {})}
-      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
-                                                                   ^ > 1 at 797
+      onA={VueDX.internal.checkOnDirective(B, "a" as const, onNum, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
+      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
+                                                                   ^ > 1 at 895
       onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
         call.a['func']($event)
 `;
 
 exports[`VueBlockDocument directives 6`] = `
-      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
       onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
         call.a['func']($event)
-              ^^^^^^^^ > 8 at 902
-      }, {})}
+              ^^^^^^^^ > 8 at 1100
+      }, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
      data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", B)/*</vuedx:diagnosticsIgnore>*/} />
 `;
 
 exports[`VueBlockDocument directives 7`] = `
-      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true})}
+      onB={VueDX.internal.checkOnDirective(B, "b" as const, onNum, {"once": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
       onC={VueDX.internal.checkOnDirective(B, "c" as const, ($event) => {
         call.a['func']($event)
-                       ^^^^^^ > 6 at 911
-      }, {})}
+                       ^^^^^^ > 6 at 1109
+      }, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
      data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", B)/*</vuedx:diagnosticsIgnore>*/} />
 `;

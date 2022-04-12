@@ -53,12 +53,12 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "devDependencies": {
-    "@vue/compiler-sfc": "^3.0.2",
+    "@vue/compiler-sfc": "^3.2.31",
     "quick-lru": "^5.1.1",
     "typescript": "^4.0.3"
   },
   "dependencies": {
-    "@vue/compiler-core": "^3.0.2",
+    "@vue/compiler-core": "^3.2.31",
     "lru-cache": "^6.0.0",
     "source-map": "^0.6.1"
   }

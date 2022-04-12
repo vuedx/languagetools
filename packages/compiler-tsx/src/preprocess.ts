@@ -5,13 +5,15 @@ import type {
 } from '@vue/compiler-core'
 import { last } from '@vuedx/shared'
 import {
+  createSimpleExpression,
+  isAttributeNode,
   isDirectiveNode,
   isElementNode,
   isTextNode,
 } from '@vuedx/template-ast-types'
-import { createLoc } from './utils'
+import { createLoc, sliceLoc } from './utils'
 
-export const parseElementTagLoc: NodeTransform = (node, context) => {
+export const preprocess: NodeTransform = (node, context) => {
   if (isTextNode(node) && node.content.trim().startsWith('<')) {
     // Incomplete element tag
     context.replaceNode(createPlainElementNode(node.content, node.loc))
@@ -22,10 +24,41 @@ export const parseElementTagLoc: NodeTransform = (node, context) => {
   if (!isElementNode(node)) return
   node.tagLoc = createLoc(node.loc, 1, node.tag.length)
 
-  node.props.forEach((node) => {
-    if (isDirectiveNode(node)) {
-      // remove empty modifiers
-      node.modifiers = node.modifiers.filter((modifier) => modifier !== '')
+  node.props.forEach((prop, index) => {
+    // remove empty modifiers
+    if (isDirectiveNode(prop)) {
+      prop.modifiers = prop.modifiers.filter((modifier) => modifier !== '')
+    }
+
+    // parse ^ shorthand for v-bind
+    if (isAttributeNode(prop) && prop.name.startsWith('^')) {
+      const isDynamic = prop.name.slice(1).startsWith('[')
+      node.props[index] = {
+        type: 7 /* DIRECTIVE */,
+        name: 'bind',
+        arg: isDynamic
+          ? createSimpleExpression(
+              prop.name.slice(2, -1),
+              false,
+              createLoc(prop.loc, 1, prop.name.length - 1),
+            )
+          : createSimpleExpression(
+              prop.name.slice(1),
+              true,
+              createLoc(prop.loc, 1, prop.name.length - 1),
+            ),
+        loc: prop.loc,
+        modifiers: [],
+        exp:
+          prop.value == null
+            ? undefined
+            : createSimpleExpression(
+                prop.value.content,
+                false,
+                sliceLoc(prop.value.loc, 1, -1),
+              ),
+        scope: undefined as any,
+      }
     }
   })
 
