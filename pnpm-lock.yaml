@@ -298,10 +298,9 @@ importers:
       '@vuedx/shared': workspace:*
       '@vuedx/vue-languageservice': workspace:*
       typescript: ^4.3.5
-    dependencies:
+    devDependencies:
       '@vuedx/shared': link:../shared
       '@vuedx/vue-languageservice': link:../vue-languageservice
-    devDependencies:
       typescript: 4.3.5
 
   packages/vue-languageservice:
