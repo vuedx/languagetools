@@ -7,6 +7,7 @@ import {
   isSVGTag,
   isVueFile,
   lcfirst,
+  nth,
   ucfirst,
 } from '@vuedx/shared'
 import {
@@ -15,10 +16,14 @@ import {
   ElementNode,
   findTemplateNodeAt,
   isAttributeNode,
+  isCommentNode,
   isDirectiveNode,
+  isElementNode,
   isSimpleExpressionNode,
+  RootNode,
 } from '@vuedx/template-ast-types'
-import type {
+import {
+  annotations,
   Position,
   TextSpan,
   VueBlockDocument,
@@ -28,6 +33,7 @@ import { inject, injectable } from 'inversify'
 import type { LanguageService } from '../contracts/LanguageService'
 import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
 import {
+  AttributeContext,
   getTemplateContextAt,
   TemplateContextType,
 } from '../helpers/templateContextAtPosition'
@@ -53,6 +59,7 @@ type CompletionAdditionalInfo = {
 )
 
 const PROP_COMPLETION_HELPER = 'VueDX.internal.propCompletionHelper("'
+const DIRECTIVE_MODIFIER_COMPLETION_HELPER = `"${annotations.directiveModifierCompletions}`
 
 @injectable()
 export class CompletionsService
@@ -496,22 +503,13 @@ export class CompletionsService
 
       case TemplateContextType.Attribute:
         completionsInVueFile.push(
-          this.#cleanup(
-            this.#getAttributeCompletions(
-              block,
-              info.context,
-              info.node,
-              options,
-            ),
-            {
-              mode: 'attribute',
-              attachAdditionalInfo: {
-                type: info.type,
-                fileName: block.tsFileName,
-                position: generatedOffset,
-              },
-            },
+          this.#getAttributeCompletions(
+            block,
+            info.context,
+            info.node,
+            options,
           ),
+          this.#getDirectiveNameCompletions(block, info),
         )
         break
       case TemplateContextType.DirectiveArgument:
@@ -521,21 +519,11 @@ export class CompletionsService
           info.context.name === 'on'
         ) {
           completionsInVueFile.push(
-            this.#cleanup(
-              this.#getAttributeCompletions(
-                block,
-                info.element,
-                info.context,
-                options,
-              ),
-              {
-                mode: 'attribute',
-                attachAdditionalInfo: {
-                  type: info.type,
-                  fileName: block.tsFileName,
-                  position: generatedOffset,
-                },
-              },
+            this.#getAttributeCompletions(
+              block,
+              info.element,
+              info.context,
+              options,
             ),
           )
         }
@@ -614,6 +602,7 @@ export class CompletionsService
       info.type === TemplateContextType.OpenTag ||
       info.type === TemplateContextType.CloseTag
     ) {
+      // TODO: Use this only for attribute details
       const service = this.langs.getLanguageService(block.fileName)
       if (service != null) {
         completionsInVueFile.push(
@@ -640,6 +629,109 @@ export class CompletionsService
         ? 'tag'
         : undefined,
     )
+  }
+
+  /**
+   * NOTE: Completions include replacementSpan with text spans corresponding to .vue file
+   */
+  #getDirectiveNameCompletions(
+    block: VueBlockDocument,
+    info: AttributeContext,
+  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
+    const attribute = info.node
+    const element = info.context
+
+    const replacementSpan =
+      attribute != null
+        ? {
+            start: block.toFileOffset(attribute.loc.start.offset),
+            length: attribute.loc.source.length,
+          }
+        : undefined
+    const conditionalDirectives = ['else-if', 'else', 'if']
+    const current = new Set(
+      element.props
+        .flatMap((prop) =>
+          isDirectiveNode(prop)
+            ? conditionalDirectives.includes(prop.name)
+              ? conditionalDirectives
+              : [prop.name]
+            : null,
+        )
+        .filter(isNotNull),
+    )
+    const conditions = checkConditions()
+    const directives = [
+      conditions == null
+        ? ['if']
+        : conditions.if || conditions.elseIf
+        ? conditionalDirectives
+        : ['if'],
+      'for',
+      'slot',
+      'show',
+      'pre',
+      'memo',
+      'model',
+      'text',
+      'html',
+      'cloak',
+    ]
+      .flat()
+      .filter(isNotNull)
+      .filter((name) => !current.has(name))
+
+    return this.#cleanup(
+      {
+        isGlobalCompletion: false,
+        isMemberCompletion: false,
+        isNewIdentifierLocation: false,
+        entries: directives.map((name, index) => ({
+          name: `v-${name}`,
+          kind: this.ts.lib.ScriptElementKind.jsxAttribute,
+          kindModifiers: 'directive',
+          sortText: `${20 + index}`,
+          insertText: `v-${name}="$0"`,
+          isSnippet: true,
+          replacementSpan,
+        })),
+      },
+      {
+        mode: 'all',
+        attachAdditionalInfo: {
+          type: TemplateContextType.None,
+          fileName: block.fileName,
+          position: element.startTagLoc.end.offset - 1,
+        },
+      },
+    )
+
+    function checkConditions(): { if: boolean; elseIf: boolean } | undefined {
+      const parentIndex =
+        info.ancestors.findIndex((item) => item.node === element) - 1
+      if (parentIndex < 0) return
+      const parent = nth(info.ancestors, parentIndex).node as
+        | ElementNode
+        | RootNode
+      const index = parent.children.indexOf(element)
+      for (let i = index - 1; i >= 0; i--) {
+        const child = parent.children[i]
+        if (isElementNode(child)) {
+          return {
+            if: child.props.some(
+              (prop) => isDirectiveNode(prop) && prop.name === 'if',
+            ),
+            elseIf: child.props.some(
+              (prop) => isDirectiveNode(prop) && prop.name === 'else-if',
+            ),
+          }
+        } else if (!isCommentNode(child)) {
+          break
+        }
+      }
+
+      return undefined
+    }
   }
 
   /**
@@ -702,7 +794,9 @@ export class CompletionsService
         : 'all'
       const preferences = this.ts.getVuePrefrencesFor(block.parent.fileName)
       const preferShorthand =
-        preferences.template.directiveSyntax === 'shorthand'
+        isDirectiveNode(attribute) && attribute.loc.source.startsWith('v-')
+          ? false
+          : preferences.template.directiveSyntax === 'shorthand'
       const hasExpression =
         (isDirectiveNode(attribute) && attribute.exp != null) ||
         (isAttributeNode(attribute) && attribute.value != null)
@@ -722,17 +816,28 @@ export class CompletionsService
       }
       completions.entries = completions.entries
         .flatMap((entry) => {
+          if (entry.name === '') return [] // additional prop added by VueDX
           if (/^on[A-Z]/.test(entry.name)) {
             const arg = lcfirst(entry.name.slice(2))
             if (kind === 'bind' || kind === 'model') return null
             const name = preferShorthand ? `@${arg}` : `v-on:${arg}`
 
-            return makeSnippet({
-              ...entry,
-              name,
-              insertText: entry.insertText?.replace(entry.name, name),
-              replacementSpan: attributeSpan,
-            })
+            return [
+              argumentSpan != null
+                ? makeSnippet({
+                    ...entry,
+                    name: arg,
+                    insertText: entry.insertText?.replace(entry.name, arg),
+                    replacementSpan: argumentSpan,
+                  })
+                : null,
+              makeSnippet({
+                ...entry,
+                name,
+                insertText: entry.insertText?.replace(entry.name, name),
+                replacementSpan: attributeSpan,
+              }),
+            ].filter(isNotNull)
           } else {
             if (kind === 'on') return null
             const arg = entry.name
@@ -764,7 +869,16 @@ export class CompletionsService
       })
     }
 
-    return completions
+    completions.optionalReplacementSpan = undefined
+
+    return this.#cleanup(completions, {
+      mode: 'all',
+      attachAdditionalInfo: {
+        type: TemplateContextType.DirectiveArgument,
+        fileName: block.tsFileName,
+        position: offset,
+      },
+    })
   }
 
   /**
@@ -783,7 +897,7 @@ export class CompletionsService
       end - directive.loc.start.offset,
     )
     const index = text.lastIndexOf('.')
-    const prefix = index >= 0 ? text.slice(index) : ''
+    const prefix = index >= 0 ? text.slice(index).replace(/=.*$/, '') : ''
     const replacementSpan =
       prefix.length > 0
         ? {
@@ -828,7 +942,7 @@ export class CompletionsService
     const offset = block.findGeneratedOffetAt(directive.loc.start.offset)
     const position = block.generated
       .getText()
-      .indexOf('"/*<VueDX:directiveCompletion/>*/', offset)
+      .indexOf(DIRECTIVE_MODIFIER_COMPLETION_HELPER, offset)
     if (position < 0) return
     const completions = this.ts.service.getCompletionsAtPosition(
       block.tsFileName,
@@ -838,12 +952,23 @@ export class CompletionsService
     if (completions == null || completions.entries == null) return
 
     const kind = this.ts.lib.ScriptElementKind.jsxAttribute
-    completions.entries.forEach((entry) => {
-      entry.replacementSpan = replacementSpan
-      entry.kindModifiers = 'directive'
-      entry.kind = kind
-      entry.insertText = `.${entry.name}`
-    })
+    completions.entries = completions.entries
+      .map((entry) => {
+        if (directive.modifiers.includes(entry.name) || entry.name === '') {
+          return null
+        }
+
+        return {
+          ...entry,
+          kind: kind,
+          kindModifiers: 'directive',
+          replacementSpan: replacementSpan,
+          insertText: `.${entry.name}`,
+        }
+      })
+      .filter(isNotNull)
+
+    completions.optionalReplacementSpan = undefined
 
     return this.#cleanup(completions, {
       mode: 'all',

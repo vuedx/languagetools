@@ -1,4 +1,4 @@
-import { Directive } from '@vue/runtime-core'
+import { Directive } from '@vue/runtime-core' // TODO: Move to v3 and remove this
 
 export function checkDirective<
   T,
@@ -14,7 +14,13 @@ export function checkDirective<
   A extends string | undefined,
   E extends GetExp<T, D>,
   M extends GetModifiers<D>
->(dir: D, tag: T, arg: A, exp: E, modifiers: Partial<Record<M, boolean>>): E
+>(
+  dir: D,
+  tag: T,
+  arg: A,
+  exp: E,
+  modifiers: Partial<Record<M | '', boolean>>,
+): E
 
 type GetExp<T, D> = D extends 'show'
   ? boolean | undefined

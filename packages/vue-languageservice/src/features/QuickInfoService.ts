@@ -2,6 +2,10 @@ import type { VueBlockDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type Typescript from 'typescript/lib/tsserverlibrary'
 import type { LanguageService } from '../contracts/LanguageService'
+import {
+  getTemplateContextAt,
+  TemplateContextType,
+} from '../helpers/templateContextAtPosition'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
 import { LoggerService } from '../services/LoggerService'
@@ -95,9 +99,56 @@ export class QuickInfoService {
   ): Typescript.QuickInfo | null {
     if (blockFile.tsFileName == null) return null
 
+    let offset = blockFile.findGeneratedOffetAt(
+      blockFile.toBlockOffset(position),
+    )
+    if (
+      blockFile.block.type === 'template' &&
+      blockFile.parent.templateAST != null
+    ) {
+      const context = getTemplateContextAt(
+        blockFile.parent.templateAST,
+        blockFile.toBlockOffset(position),
+      )
+
+      switch (context.type) {
+        case TemplateContextType.AttributeValue:
+        case TemplateContextType.Comment:
+        case TemplateContextType.None:
+          return null
+        case TemplateContextType.Attribute:
+          if (context.node == null) return null
+          offset = blockFile.findGeneratedOffetAt(context.node.loc.start.offset)
+          break
+        case TemplateContextType.OpenTag:
+        case TemplateContextType.CloseTag:
+          break
+        case TemplateContextType.DirectiveArgument:
+        case TemplateContextType.DirectiveValue:
+        case TemplateContextType.Interpolation:
+          if (context.node != null) {
+            if (
+              blockFile.toBlockOffset(position) < context.node.loc.start.offset
+            ) {
+              return null // TODO: Provide quick info for the directive
+            }
+
+            offset = blockFile.findGeneratedOffetAt(
+              Math.max(
+                context.node.loc.start.offset,
+                blockFile.toBlockOffset(position),
+              ),
+            )
+          }
+          break
+        case TemplateContextType.DirectiveModifier:
+          break
+      }
+    }
+
     const quickInfo = this.ts.service.getQuickInfoAtPosition(
       blockFile.tsFileName,
-      blockFile.generatedOffetAt(position),
+      offset,
     )
     if (quickInfo == null) return null
 

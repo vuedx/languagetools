@@ -1,4 +1,4 @@
-import type { PropsOf } from './Props'
+import type { PropsOf } from './props'
 import {
   EventName,
   Get,
@@ -21,7 +21,7 @@ export function checkOnDirective<
   A extends GetArg<T>,
   E extends GetExp<T, A>,
   M extends GetModifiers<T, A>
->(tag: T, arg: A, exp: E, modifiers: Partial<Record<M, boolean>>): E
+>(tag: T, arg: A, exp: E, modifiers: Partial<Record<M | '', boolean>>): E
 
 type MouseEventNames =
   | 'auxclick'

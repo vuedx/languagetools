@@ -1,21 +1,11 @@
-import {
-  debug,
-  first,
-  last,
-  parseFileName,
-  toFileName,
-  traceInDevMode,
-} from '@vuedx/shared'
-import {
-  DirectiveNode,
-  findTemplateNodeAt,
-  isDirectiveNode,
-  isElementNode,
-  isSimpleExpressionNode,
-} from '@vuedx/template-ast-types'
+import { debug, parseFileName, toFileName, traceInDevMode } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import type { LanguageService } from '../contracts/LanguageService'
 import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
+import {
+  getTemplateContextAt,
+  TemplateContextType,
+} from '../helpers/templateContextAtPosition'
 import { CacheService } from '../services/CacheService'
 import { FilesystemService } from '../services/FilesystemService'
 import { LanguageServiceProvider } from '../services/LanguageServiceProvider'
@@ -171,8 +161,12 @@ export class DefinitionService
         ),
     )
 
+    const fallback = this._createDefinitionInfoAndBoundSpan(
+      position,
+      definitions,
+    )
     if (block.tsFileName == null) {
-      return this._createDefinitionInfoAndBoundSpan(position, definitions)
+      return fallback
     }
 
     const inner = {
@@ -181,66 +175,45 @@ export class DefinitionService
     }
 
     if (block.block.type === 'template' && file.templateAST != null) {
-      const offset = block.toBlockOffset(position)
-      const { node, ancestors } = findTemplateNodeAt(file.templateAST, offset)
-      if (
-        isElementNode(node) &&
-        offset <= node.loc.start.offset + node.tag.length + 1
-      ) {
-        definitions.push(
-          ...this.virtualTypeDefintionAtPosition(
-            inner.fileName,
-            inner.position,
-          ),
-        )
-      }
+      const context = getTemplateContextAt(
+        file.templateAST,
+        block.toBlockOffset(position),
+      )
 
-      if (
-        ancestors.length > 0 &&
-        isSimpleExpressionNode(node) &&
-        isDirectiveNode(last(ancestors).node)
-      ) {
-        const directive = last(ancestors).node
-        const element = last(ancestors, 2).node
-        if (
-          isElementNode(element) &&
-          isDirectiveNode(directive) &&
-          isSimpleExpressionNode(directive.arg)
-        ) {
-          const attribute = directive.arg.content
-          const directives = element.props.filter(
-            (prop): prop is DirectiveNode =>
-              isDirectiveNode(prop) &&
-              isSimpleExpressionNode(prop.arg) &&
-              directive.name === prop.name &&
-              attribute === prop.arg.content,
+      this.logger.debug('Context:', context.type)
+
+      switch (context.type) {
+        case TemplateContextType.AttributeValue:
+        case TemplateContextType.Comment:
+        case TemplateContextType.None:
+          return fallback
+        case TemplateContextType.Attribute:
+          if (context.node == null) return fallback
+          inner.position = block.findGeneratedOffetAt(
+            context.node.loc.start.offset,
           )
-          if (directives.length > 1) {
-            // find for the first one
-            const firstDirective = first(directives)
-            if (firstDirective.arg != null) {
-              const info = this.virtualDefinitionAndBoundSpan(
-                inner.fileName,
-                block.findGeneratedOffetAt(firstDirective.arg.loc.start.offset),
-              )
-
-              if (info != null) {
-                info.textSpan = {
-                  start: block.toFileOffset(directive.arg.loc.start.offset),
-                  length:
-                    directive.arg.loc.end.offset -
-                    directive.arg.loc.start.offset,
-                }
-                info.definitions = dedupeDefinitionInfos([
-                  ...(info.definitions ?? []),
-                  ...definitions,
-                ])
-
-                return info
-              }
+          break
+        case TemplateContextType.OpenTag:
+        case TemplateContextType.CloseTag:
+          break
+        case TemplateContextType.DirectiveArgument:
+        case TemplateContextType.DirectiveValue:
+        case TemplateContextType.Interpolation:
+          if (context.node != null) {
+            if (block.toBlockOffset(position) < context.node.loc.start.offset) {
+              return fallback
             }
+
+            inner.position = block.findGeneratedOffetAt(
+              Math.max(
+                context.node.loc.start.offset,
+                block.toBlockOffset(position),
+              ),
+            )
           }
-        }
+          break
+        case TemplateContextType.DirectiveModifier:
+          break
       }
     }
 
@@ -251,7 +224,7 @@ export class DefinitionService
 
     if (info == null) {
       this.logger.debug(`[Vue] No results`)
-      return this._createDefinitionInfoAndBoundSpan(position, definitions)
+      return fallback
     }
 
     if (info.definitions != null) {

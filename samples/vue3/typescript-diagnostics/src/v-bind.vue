@@ -5,7 +5,7 @@ const value = 'value'
 </script>
 
 <template>
-  <input  v-on:change. />
+  <input  v-on:change.capture="" />
   <input ^value="bar" />
   <input .value="bar" />
   <input :value.once="bar" />

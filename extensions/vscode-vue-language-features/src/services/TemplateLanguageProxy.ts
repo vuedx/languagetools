@@ -1,4 +1,3 @@
-import type { VueBlockDocument } from '@vuedx/vue-virtual-textdocument'
 import { injectable } from 'inversify'
 import {
   CancellationToken,
@@ -62,29 +61,8 @@ export class TemplateLanguageProxy
       return undefined
     }
 
-    const document = await this.getDocumentAt(container, position)
-    if (this.isSupportDocumentType(document)) {
-      return await commands.executeCommand<
-        CompletionItem[] | CompletionList<CompletionItem>
-      >('vscode.executeCompletionItemProvider', container.uri, position)
-    }
-
-    return undefined
-  }
-
-  private readonly languages = new Set(['vue-html'])
-
-  private isSupportDocumentType(document: VueBlockDocument | null): boolean {
-    const result =
-      document != null && this.languages.has(document.source.languageId)
-
-    return result
-  }
-
-  private async getDocumentAt(
-    _container: TextDocument,
-    _position: Position,
-  ): Promise<VueBlockDocument | null> {
-    return null
+    return await commands.executeCommand<
+      CompletionItem[] | CompletionList<CompletionItem>
+    >('vscode.executeCompletionItemProvider', container.uri, position)
   }
 }

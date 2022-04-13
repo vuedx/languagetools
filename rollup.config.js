@@ -17,6 +17,10 @@ const configs = generateRollupOptions({
         }
       }
 
+      if (packageJson.name === '@vuedx/vue-languageservice') {
+        if (rollupOptions.input.includes('v2')) rollupOptions.external = ['vue']
+      }
+
       return rollupOptions
     }
 

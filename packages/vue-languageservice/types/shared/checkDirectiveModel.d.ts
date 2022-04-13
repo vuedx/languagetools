@@ -1,4 +1,4 @@
-import type { PropsOf } from './Props'
+import type { PropsOf } from './props'
 import type { Get, KnownKeys, TupleToUnion } from './utils'
 
 export function checkModelDirective<
@@ -11,7 +11,7 @@ export function checkModelDirective<
   tag: T,
   arg: A,
   exp: E,
-  modifiers: Partial<Record<M, boolean>>,
+  modifiers: Partial<Record<M | '', boolean>>,
   options?: O,
 ): E
 

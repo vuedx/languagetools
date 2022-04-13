@@ -1,4 +1,4 @@
-import type { Ref } from '@vue/runtime-core'
+import type { Ref } from '@vue/runtime-core'  // TODO: Move to v3 and remove this
 
 type RefValue<T> = T extends (value: infer V) => unknown ? V : T
 

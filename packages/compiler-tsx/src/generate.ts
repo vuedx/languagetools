@@ -191,6 +191,7 @@ export const annotations = {
   missingExpression: '/*<vuedx:missingExpression>*/',
   tsxCompletions: '/*<vuedx:tsx-competions-target/>*/',
   tsCompletions: '/*<vuedx:ts-competions-target/>*/',
+  directiveModifierCompletions: '/*<vuedx:directiveCompletion/>*/',
 }
 export function generate(
   ast: RootNode,
@@ -590,7 +591,7 @@ function genElementNode(context: GenerateContext, node: ElementNode): void {
       ? node.resolvedName ?? node.tag
       : `${JSON.stringify(node.tag)} as const`
     context.write(
-      ` data-vuedx-prop-completion-helper={${annotations.diagnosticsIgnore.start}VueDX.internal.propCompletionHelper("", ${tagName})${annotations.diagnosticsIgnore.end}}`,
+      ` data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", ${tagName})}`,
     )
   }
 
@@ -1320,9 +1321,7 @@ function genDirectiveAsParams(
     context.write(': true')
     context.write(', ')
   })
-  context.write(
-    `${annotations.diagnosticsIgnore.start}""/*<VueDX:directiveCompletion/>*/:true${annotations.diagnosticsIgnore.end}`,
-  )
+  context.write(`""${annotations.directiveModifierCompletions}:true`)
   context.write('}')
 }
 
@@ -1372,7 +1371,7 @@ function genExpressionNode(
   if (isSimpleExpressionNode(node)) {
     if (node.content.trim() === '') {
       context.write(
-        annotations.missingExpression,
+        annotations.missingExpression + 'undefined',
         node.loc,
         MappingKind.reverseOnly,
       )

@@ -1,4 +1,4 @@
-import type { EmitsOptions, ObjectEmitsOptions } from '@vue/runtime-core';
+import type { EmitsOptions, ObjectEmitsOptions } from '@vue/runtime-core';  // TODO: Move to v3 and remove this
 import type { EventName } from './utils';
 
 export type EmitsToProps<T extends EmitsOptions> = T extends string[] ? {

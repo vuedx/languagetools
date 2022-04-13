@@ -24,11 +24,11 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <Foo data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", Foo)/*</vuedx:diagnosticsIgnore>*/}>
+    <Foo data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", Foo)}>
       {VueDX.internal.checkSlots(Foo, {
         default: () => {
           return (
-            <input {...({ ...($attrs), })} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+            <input {...({ ...($attrs), })} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
           ) as any
         },
       })}
@@ -85,11 +85,11 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
           const _DynamicComponent1 = VueDX.internal.resolveComponent(__VueDX_components, bar);
           /*</vuedx:templateGlobals>*/
           return (
-            <_DynamicComponent0 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent0)/*</vuedx:diagnosticsIgnore>*/}>
+            <_DynamicComponent0 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", _DynamicComponent0)}>
               {VueDX.internal.checkSlots(_DynamicComponent0, {
                 default: () => {
                   return (
-                    <_DynamicComponent1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent1)/*</vuedx:diagnosticsIgnore>*/}>
+                    <_DynamicComponent1 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", _DynamicComponent1)}>
                       {VueDX.internal.checkSlots(_DynamicComponent1, {
                         "default": ({baz}) => {
                           /*<vuedx:templateGlobals>*/
@@ -103,11 +103,11 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
                                   const _DynamicComponent3 = VueDX.internal.resolveComponent(__VueDX_components, item);
                                   /*</vuedx:templateGlobals>*/
                                   return (
-                                    <_DynamicComponent2 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent2)/*</vuedx:diagnosticsIgnore>*/}>
+                                    <_DynamicComponent2 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", _DynamicComponent2)}>
                                       {VueDX.internal.checkSlots(_DynamicComponent2, {
                                         default: () => {
                                           return (
-                                            <_DynamicComponent3 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent3)/*</vuedx:diagnosticsIgnore>*/} />
+                                            <_DynamicComponent3 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", _DynamicComponent3)} />
                                           ) as any
                                         },
                                       })}
@@ -178,21 +178,21 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   const _DynamicComponent0 = VueDX.internal.resolveComponent(__VueDX_components, foo);
 
   return (
-    <_DynamicComponent0 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent0)/*</vuedx:diagnosticsIgnore>*/}>
+    <_DynamicComponent0 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", _DynamicComponent0)}>
       {VueDX.internal.checkSlots(_DynamicComponent0, {
         "default": ({bar}) => {
           /*<vuedx:templateGlobals>*/
           const _DynamicComponent1 = VueDX.internal.resolveComponent(__VueDX_components, bar);
           /*</vuedx:templateGlobals>*/
           return (
-            <_DynamicComponent1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent1)/*</vuedx:diagnosticsIgnore>*/}>
+            <_DynamicComponent1 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", _DynamicComponent1)}>
               {VueDX.internal.checkSlots(_DynamicComponent1, {
                 "default": ({baz}) => {
                   /*<vuedx:templateGlobals>*/
                   const _DynamicComponent2 = VueDX.internal.resolveComponent(__VueDX_components, baz);
                   /*</vuedx:templateGlobals>*/
                   return (
-                    <_DynamicComponent2 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent2)/*</vuedx:diagnosticsIgnore>*/}>
+                    <_DynamicComponent2 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", _DynamicComponent2)}>
                       {VueDX.internal.checkSlots(_DynamicComponent2, {
                         "other": ({ foo }) => {
                           /*<vuedx:templateGlobals>*/
@@ -201,7 +201,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
                           return (
                             <>
                               <>
-                                <_DynamicComponent3 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent3)/*</vuedx:diagnosticsIgnore>*/} />
+                                <_DynamicComponent3 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", _DynamicComponent3)} />
                               </>
                             </>
                           ) as any
@@ -213,7 +213,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
                           return (
                             <>
                               <>
-                                <_DynamicComponent4 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent4)/*</vuedx:diagnosticsIgnore>*/} />
+                                <_DynamicComponent4 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", _DynamicComponent4)} />
                               </>
                             </>
                           ) as any
@@ -274,7 +274,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
 
   return (
     <>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
+      <FooBar data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", FooBar)}>
         {VueDX.internal.checkSlots(FooBar, {
           default: () => {
             return (
@@ -285,7 +285,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
           },
         })}
       </FooBar>
-      <Foo.Bar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", Foo.Bar)/*</vuedx:diagnosticsIgnore>*/}>
+      <Foo.Bar data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", Foo.Bar)}>
         {VueDX.internal.checkSlots(Foo.Bar, {
           default: () => {
             return (
@@ -296,7 +296,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
           },
         })}
       </Foo.Bar>
-      <Foo.Bar.Baz data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", Foo.Bar.Baz)/*</vuedx:diagnosticsIgnore>*/}>
+      <Foo.Bar.Baz data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", Foo.Bar.Baz)}>
         {VueDX.internal.checkSlots(Foo.Bar.Baz, {
           default: () => {
             return (
@@ -307,7 +307,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
           },
         })}
       </Foo.Bar.Baz>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
+      <FooBar data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", FooBar)}>
         {VueDX.internal.checkSlots(FooBar, {
           default: () => {
             return (
@@ -318,7 +318,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
           },
         })}
       </FooBar>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
+      <FooBar data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", FooBar)}>
         {VueDX.internal.checkSlots(FooBar, {
           default: () => {
             return (
@@ -329,7 +329,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
           },
         })}
       </FooBar>
-      <UnknownElement data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", UnknownElement)/*</vuedx:diagnosticsIgnore>*/}>
+      <UnknownElement data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", UnknownElement)}>
         {VueDX.internal.checkSlots(UnknownElement, {
           default: () => {
             return (
@@ -383,16 +383,16 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
 
   return (
     <>
-      <HelloWorld n data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", HelloWorld)/*</vuedx:diagnosticsIgnore>*/} />
-      <span data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "span" as const)/*</vuedx:diagnosticsIgnore>*/}>
+      <HelloWorld n data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", HelloWorld)} />
+      <span data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "span" as const)}>
         Name: 
         {VueDX.internal.checkInterpolation(name +)}
       </span>
-      <p {...({  })} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "p" as const)/*</vuedx:diagnosticsIgnore>*/}>
+      <p {...({  })} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "p" as const)}>
       </p>
       {
         (/*<vuedx:missingExpression>*/)
-          ? <p data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "p" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          ? <p data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "p" as const)}>
             </p>
           : null
       }
@@ -434,7 +434,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+    <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
       foo
     </div>
   )
@@ -484,7 +484,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(list, (items) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.renderSlot(__VueDX_ctx.$slots, "default", { }) ?? <>
                 fallback content
               </>
@@ -492,7 +492,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
               {
                 VueDX.internal.renderList(items, (item) => {
                   return (
-                    <span data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "span" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                    <span data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "span" as const)}>
                       {VueDX.internal.renderSlot(__VueDX_ctx.$slots, "other", { ...(props), "myProp": item, }) ?? <>
                         fallback content
                       </>
@@ -563,12 +563,12 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+    <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
       {VueDX.internal.renderSlot(__VueDX_ctx.$slots, "default", { }) ?? <>
         fallback content
       </>
       }
-      <span data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "span" as const)/*</vuedx:diagnosticsIgnore>*/}>
+      <span data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "span" as const)}>
         {VueDX.internal.renderSlot(__VueDX_ctx.$slots, "other", { ...(props), "myProp": value, }) ?? <>
           fallback content
         </>
@@ -632,13 +632,13 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
         {...({
           [customName]: myInput,
           ...(rest),
-        })} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        })} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
       <Foo
         value={myInput}
         {...({
           [customName]: myInput,
           ...(rest),
-        })} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", Foo)/*</vuedx:diagnosticsIgnore>*/} />
+        })} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", Foo)} />
     </>
   )
 }
@@ -704,7 +704,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(num, (n) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(n)}
             </div>
           )
@@ -713,7 +713,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(num, (n, i) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(n)}
               :
               {VueDX.internal.checkInterpolation(i)}
@@ -724,7 +724,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(str, (s) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(s)}
             </div>
           )
@@ -733,7 +733,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(str, (s, i) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(s)}
               :
               {VueDX.internal.checkInterpolation(i)}
@@ -744,7 +744,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(arr, (a) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(a)}
             </div>
           )
@@ -753,7 +753,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(arr, ({ value }) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(value)}
             </div>
           )
@@ -762,7 +762,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(arr, ({ foo }) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(arr)}
             </div>
           )
@@ -771,7 +771,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(arr, (a, i) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(a)}
               :
               {VueDX.internal.checkInterpolation(i)}
@@ -782,7 +782,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(arr, ({ value }, i) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(value)}
               :
               {VueDX.internal.checkInterpolation(i)}
@@ -793,7 +793,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(obj, (o) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(o)}
             </div>
           )
@@ -802,7 +802,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(obj, (o, k) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(o)}
               :
               {VueDX.internal.checkInterpolation(k)}
@@ -813,7 +813,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(obj, (o, k, i) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(o)}
               :
               {VueDX.internal.checkInterpolation(k)}
@@ -826,7 +826,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(itr, (t) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(t)}
             </div>
           )
@@ -835,7 +835,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(boo, (b) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(b)}
             </div>
           )
@@ -844,7 +844,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         VueDX.internal.renderList(sym, (s) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {VueDX.internal.checkInterpolation(s)}
             </div>
           )
@@ -895,7 +895,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <div data-vuedx-directive-html={VueDX.internal.checkDirective("html" as const, "div" as const, undefined, html, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+    <div data-vuedx-directive-html={VueDX.internal.checkDirective("html" as const, "div" as const, undefined, html, {""/*<VueDX:directiveCompletion/>*/:true})} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
     </div>
   )
 }
@@ -937,10 +937,10 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
 
   return (
     <>
-      <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
+      <h1 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "h1" as const)}>
         Vue is awesome!
       </h1>
-      <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
+      <h1 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "h1" as const)}>
         Oh no 😢
       </h1>
     </>
@@ -982,7 +982,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
+    <h1 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "h1" as const)}>
       Vue is awesome!
     </h1>
   )
@@ -1024,7 +1024,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   return (
     <>
       {
-            <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
+            <h1 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "h1" as const)}>
               Vue is awesome!
             </h1>
       }
@@ -1074,13 +1074,13 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
       {
         (ok)
           ? <>
-              <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
+              <h1 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "h1" as const)}>
                 Title
               </h1>
-              <p data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "p" as const)/*</vuedx:diagnosticsIgnore>*/}>
+              <p data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "p" as const)}>
                 Paragraph 1
               </p>
-              <p data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "p" as const)/*</vuedx:diagnosticsIgnore>*/}>
+              <p data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "p" as const)}>
                 Paragraph 2
               </p>
             </>
@@ -1129,10 +1129,10 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
     <>
       {
         (awesome)
-          ? <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          ? <h1 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "h1" as const)}>
               Vue is awesome!
             </h1>
-          : <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          : <h1 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "h1" as const)}>
               Oh no 😢
             </h1>
       }
@@ -1189,18 +1189,18 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
     <>
       {
         (type === 'A')
-          ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                A 
             </div>
           : (type === 'B')
-          ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                B 
             </div>
           : (type === 'C')
-          ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                C 
             </div>
-          : <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          : <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                Not A/B/C 
             </div>
       }
@@ -1261,40 +1261,40 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
     <>
       {
         (foo)
-          ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {
                 (foo)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                     </div>
                   : (bar)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                     </div>
-                  : <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  : <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                     </div>
               }
             </div>
           : (bar)
-          ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {
                 (foo)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                     </div>
                   : (bar)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                     </div>
-                  : <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  : <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                     </div>
               }
             </div>
-          : <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          : <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
               {
                 (foo)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                     </div>
                   : (bar)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                     </div>
-                  : <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  : <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                     </div>
               }
             </div>
@@ -1338,7 +1338,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
+    <h1 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "h1" as const)}>
       Vue is awesome!
     </h1>
   )
@@ -1381,7 +1381,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
     <>
       {
         (awesome)
-          ? <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          ? <h1 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "h1" as const)}>
               Vue is awesome!
             </h1>
           : null
@@ -1430,9 +1430,9 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   const _DynamicComponent0 = VueDX.internal.resolveComponent(__VueDX_components, MyComponent);
 
   return (
-    <table data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "table" as const)/*</vuedx:diagnosticsIgnore>*/}>
-      <tbody data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "tbody" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        <_DynamicComponent0 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent0)/*</vuedx:diagnosticsIgnore>*/}>
+    <table data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "table" as const)}>
+      <tbody data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "tbody" as const)}>
+        <_DynamicComponent0 data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", _DynamicComponent0)}>
           {VueDX.internal.checkSlots(_DynamicComponent0, {
             default: () => {
               return (
@@ -1488,20 +1488,20 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
 
   return (
     <>
-      <input type="checkbox" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+      <input type="checkbox" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
       <input
         type="checkbox"
         true-value="yes"
-        data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},checkbox: ["yes"] as const,} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},checkbox: ["yes"] as const,} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
       <input
         type="checkbox"
         false-value="no"
-        data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},checkbox: ["no"] as const,} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},checkbox: ["no"] as const,} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
       <input
         type="checkbox"
         true-value={yes}
         false-value={no}
-        data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},checkbox: [yes, no] as const,} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},checkbox: [yes, no] as const,} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
     </>
   )
 }
@@ -1516,7 +1516,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjozOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MSxcImVcIjo2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjo3LFwiZVwiOjExfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6MTIsXCJlXCI6MjJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoyMyxcImVcIjozNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MjMsXCJlXCI6MzZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjMyLFwiZVwiOjM1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0MCxcImVcIjo5Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6NDEsXCJlXCI6NDZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjQ3LFwiZVwiOjUxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6NTIsXCJlXCI6NjJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MTB9LFwic1wiOntcInNcIjo3NyxcImVcIjo4N319IiwiOzs7VnVlRFg6e1wia1wiOlwidFwiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6ODgsXCJlXCI6OTN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjo2MyxcImVcIjo3Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjQxLFwiZVwiOjQ2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjo2MyxcImVcIjo3Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NzIsXCJlXCI6NzV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjk3LFwiZVwiOjE1M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6OTgsXCJlXCI6MTAzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjoxMDQsXCJlXCI6MTA4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6MTA5LFwiZVwiOjExOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxMX0sXCJzXCI6e1wic1wiOjEzNCxcImVcIjoxNDV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjE0NixcImVcIjoxNTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoxMjAsXCJlXCI6MTMzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE2fSxcInNcIjp7XCJzXCI6OTgsXCJlXCI6MTAzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoxMjAsXCJlXCI6MTMzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxMjksXCJlXCI6MTMyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoxNTQsXCJlXCI6MjI5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjoxNTUsXCJlXCI6MTYwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjoxNjEsXCJlXCI6MTY1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6MTY2LFwiZVwiOjE3Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxMH0sXCJzXCI6e1wic1wiOjE5MixcImVcIjoyMDJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjIwNCxcImVcIjoyMDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MTF9LFwic1wiOntcInNcIjoyMTAsXCJlXCI6MjIxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjJ9LFwic1wiOntcInNcIjoyMjMsXCJlXCI6MjI1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MTc3LFwiZVwiOjE5MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjE1NSxcImVcIjoxNjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjE3NyxcImVcIjoxOTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjE4NixcImVcIjoxODl9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7OztNQUFBQSxDQUFDQyxLLENBQU1DLEksQ0FBS0MsVSw2QkFBV0Msa0MsQ0FBdEJDLGdCLEVBQXNCQyxTLEVBQVNDLEcsK0dBQXBCSixVLCtCQUFvQkksRztNQUNoQ0MsQ0FBQ0MsSztRQUFNQyxJLENBQUtDLFU7UUFBeUJDLFUsQ0FBV0MsSztvQ0FBekJDLGtDLENBQXRCQyxnQixFQUFzQkMsUyxFQUFTQyxHLCtHQUFwQk4sVSwrQkFBb0JNLEc7TUFDaENDLENBQUNDLEs7UUFBTUMsSSxDQUFLQyxVO1FBQXlCQyxXLENBQVlDLEk7b0NBQTFCQyxrQyxDQUF0QkMsZ0IsRUFBc0JDLFMsRUFBU0MsRywrR0FBcEJOLFUsK0JBQW9CTSxHO01BQ2hDQyxDQUFDQyxLO1FBQU1DLEksQ0FBS0MsVTtRQUEwQkMsVSxFQUFZQyxHO1FBQU1DLFcsRUFBYUMsRTtvQ0FBOUNDLGtDLENBQXRCQyxnQixFQUFzQkMsUyxFQUFTQyxHLCtHQUFwQlIsVSwrQkFBb0JRLEcsMkJBQWtCTixHLEVBQW1CRSxFIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGlucHV0IHR5cGU9XCJjaGVja2JveFwiIHYtbW9kZWw9XCJmb29cIiAvPlxuPGlucHV0IHR5cGU9XCJjaGVja2JveFwiIHYtbW9kZWw9XCJmb29cIiB0cnVlLXZhbHVlPVwieWVzXCIgLz5cbjxpbnB1dCB0eXBlPVwiY2hlY2tib3hcIiB2LW1vZGVsPVwiZm9vXCIgZmFsc2UtdmFsdWU9XCJub1wiIC8+XG48aW5wdXQgdHlwZT1cImNoZWNrYm94XCIgdi1tb2RlbD1cImZvb1wiIDp0cnVlLXZhbHVlPVwieWVzXCIgOmZhbHNlLXZhbHVlPVwibm9cIiAvPlxuIl19
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjozOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MSxcImVcIjo2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjo3LFwiZVwiOjExfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6MTIsXCJlXCI6MjJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoyMyxcImVcIjozNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MjMsXCJlXCI6MzZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjMyLFwiZVwiOjM1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0MCxcImVcIjo5Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6NDEsXCJlXCI6NDZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjQ3LFwiZVwiOjUxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6NTIsXCJlXCI6NjJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MTB9LFwic1wiOntcInNcIjo3NyxcImVcIjo4N319IiwiOzs7VnVlRFg6e1wia1wiOlwidFwiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6ODgsXCJlXCI6OTN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjo2MyxcImVcIjo3Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjQxLFwiZVwiOjQ2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjo2MyxcImVcIjo3Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NzIsXCJlXCI6NzV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjk3LFwiZVwiOjE1M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6OTgsXCJlXCI6MTAzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjoxMDQsXCJlXCI6MTA4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6MTA5LFwiZVwiOjExOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxMX0sXCJzXCI6e1wic1wiOjEzNCxcImVcIjoxNDV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjE0NixcImVcIjoxNTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoxMjAsXCJlXCI6MTMzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE2fSxcInNcIjp7XCJzXCI6OTgsXCJlXCI6MTAzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoxMjAsXCJlXCI6MTMzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxMjksXCJlXCI6MTMyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoxNTQsXCJlXCI6MjI5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjoxNTUsXCJlXCI6MTYwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjoxNjEsXCJlXCI6MTY1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6MTY2LFwiZVwiOjE3Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxMH0sXCJzXCI6e1wic1wiOjE5MixcImVcIjoyMDJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjIwNCxcImVcIjoyMDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MTF9LFwic1wiOntcInNcIjoyMTAsXCJlXCI6MjIxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjJ9LFwic1wiOntcInNcIjoyMjMsXCJlXCI6MjI1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MTc3LFwiZVwiOjE5MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjE1NSxcImVcIjoxNjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjE3NyxcImVcIjoxOTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjE4NixcImVcIjoxODl9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7OztNQUFBQSxDQUFDQyxLLENBQU1DLEksQ0FBS0MsVSw2QkFBV0Msa0MsQ0FBdEJDLGdCLEVBQXNCQyxTLEVBQVNDLEcsb0RBQXBCSixVLCtCQUFvQkksRztNQUNoQ0MsQ0FBQ0MsSztRQUFNQyxJLENBQUtDLFU7UUFBeUJDLFUsQ0FBV0MsSztvQ0FBekJDLGtDLENBQXRCQyxnQixFQUFzQkMsUyxFQUFTQyxHLG9EQUFwQk4sVSwrQkFBb0JNLEc7TUFDaENDLENBQUNDLEs7UUFBTUMsSSxDQUFLQyxVO1FBQXlCQyxXLENBQVlDLEk7b0NBQTFCQyxrQyxDQUF0QkMsZ0IsRUFBc0JDLFMsRUFBU0MsRyxvREFBcEJOLFUsK0JBQW9CTSxHO01BQ2hDQyxDQUFDQyxLO1FBQU1DLEksQ0FBS0MsVTtRQUEwQkMsVSxFQUFZQyxHO1FBQU1DLFcsRUFBYUMsRTtvQ0FBOUNDLGtDLENBQXRCQyxnQixFQUFzQkMsUyxFQUFTQyxHLG9EQUFwQlIsVSwrQkFBb0JRLEcsMkJBQWtCTixHLEVBQW1CRSxFIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGlucHV0IHR5cGU9XCJjaGVja2JveFwiIHYtbW9kZWw9XCJmb29cIiAvPlxuPGlucHV0IHR5cGU9XCJjaGVja2JveFwiIHYtbW9kZWw9XCJmb29cIiB0cnVlLXZhbHVlPVwieWVzXCIgLz5cbjxpbnB1dCB0eXBlPVwiY2hlY2tib3hcIiB2LW1vZGVsPVwiZm9vXCIgZmFsc2UtdmFsdWU9XCJub1wiIC8+XG48aW5wdXQgdHlwZT1cImNoZWNrYm94XCIgdi1tb2RlbD1cImZvb1wiIDp0cnVlLXZhbHVlPVwieWVzXCIgOmZhbHNlLXZhbHVlPVwibm9cIiAvPlxuIl19
 \`\`\`
 
 
@@ -1548,11 +1548,11 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
 
   return (
     <>
-      <input data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
-      <input type="number" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "number" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
-      <input type="tel" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "tel" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
-      <input type="checkbox" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
-      <input type="radio" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "radio" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+      <input data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
+      <input type="number" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {type: "number" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
+      <input type="tel" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {type: "tel" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
+      <input type="checkbox" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
+      <input type="radio" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {type: "radio" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
     </>
   )
 }
@@ -1565,7 +1565,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoyM319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MSxcImVcIjo2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NyxcImVcIjoyMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6NyxcImVcIjoyMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTYsXCJlXCI6MTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjI0LFwiZVwiOjYxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjoyNSxcImVcIjozMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MzEsXCJlXCI6MzV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6OH0sXCJzXCI6e1wic1wiOjM2LFwiZVwiOjQ0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NDUsXCJlXCI6NTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTZ9LFwic1wiOntcInNcIjoyNSxcImVcIjozMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6NDUsXCJlXCI6NTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjU0LFwiZVwiOjU3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo2MixcImVcIjo5Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6NjMsXCJlXCI6Njh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjY5LFwiZVwiOjczfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjo3NCxcImVcIjo3OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjgwLFwiZVwiOjkzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE2fSxcInNcIjp7XCJzXCI6NjMsXCJlXCI6Njh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjgwLFwiZVwiOjkzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo4OSxcImVcIjo5Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6OTcsXCJlXCI6MTM2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjo5OCxcImVcIjoxMDN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjEwNCxcImVcIjoxMDh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6MTB9LFwic1wiOntcInNcIjoxMDksXCJlXCI6MTE5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MTIwLFwiZVwiOjEzM319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjk4LFwiZVwiOjEwM319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MTIwLFwiZVwiOjEzM319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTI5LFwiZVwiOjEzMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTM3LFwiZVwiOjE3M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MTM4LFwiZVwiOjE0M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MTQ0LFwiZVwiOjE0OH19IiwiOzs7VnVlRFg6e1wia1wiOlwidFwiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTQ5LFwiZVwiOjE1Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjE1NyxcImVcIjoxNzB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTZ9LFwic1wiOntcInNcIjoxMzgsXCJlXCI6MTQzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoxNTcsXCJlXCI6MTcwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxNjYsXCJlXCI6MTY5fX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7O01BQUFBLENBQUNDLEssNkJBQU1DLGtDLENBQU5DLGdCLEVBQU1DLFMsRUFBU0MsRyw4SEFBQUEsRztNQUNoQkMsQ0FBQ0MsSyxDQUFNQyxJLENBQUtDLFEsNkJBQVNDLGtDLENBQXBCQyxnQixFQUFvQkMsUyxFQUFTQyxHLCtHQUFsQkosUSwrQkFBa0JJLEc7TUFDOUJDLENBQUNDLEssQ0FBTUMsSSxDQUFLQyxLLDZCQUFNQyxrQyxDQUFqQkMsZ0IsRUFBaUJDLFMsRUFBU0MsRywrR0FBZkosSywrQkFBZUksRztNQUMzQkMsQ0FBQ0MsSyxDQUFNQyxJLENBQUtDLFUsNkJBQVdDLGtDLENBQXRCQyxnQixFQUFzQkMsUyxFQUFTQyxHLCtHQUFwQkosVSwrQkFBb0JJLEc7TUFDaENDLENBQUNDLEssQ0FBTUMsSSxDQUFLQyxPLDZCQUFRQyxrQyxDQUFuQkMsZ0IsRUFBbUJDLFMsRUFBU0MsRywrR0FBakJKLE8sK0JBQWlCSSxHIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGlucHV0IHYtbW9kZWw9XCJmb29cIiAvPlxuPGlucHV0IHR5cGU9XCJudW1iZXJcIiB2LW1vZGVsPVwiZm9vXCIgLz5cbjxpbnB1dCB0eXBlPVwidGVsXCIgdi1tb2RlbD1cImZvb1wiIC8+XG48aW5wdXQgdHlwZT1cImNoZWNrYm94XCIgdi1tb2RlbD1cImZvb1wiIC8+XG48aW5wdXQgdHlwZT1cInJhZGlvXCIgdi1tb2RlbD1cImZvb1wiIC8+XG4iXX0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoyM319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MSxcImVcIjo2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NyxcImVcIjoyMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6NyxcImVcIjoyMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTYsXCJlXCI6MTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjI0LFwiZVwiOjYxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjoyNSxcImVcIjozMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MzEsXCJlXCI6MzV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6OH0sXCJzXCI6e1wic1wiOjM2LFwiZVwiOjQ0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NDUsXCJlXCI6NTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTZ9LFwic1wiOntcInNcIjoyNSxcImVcIjozMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6NDUsXCJlXCI6NTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjU0LFwiZVwiOjU3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo2MixcImVcIjo5Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6NjMsXCJlXCI6Njh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjY5LFwiZVwiOjczfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjo3NCxcImVcIjo3OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjgwLFwiZVwiOjkzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE2fSxcInNcIjp7XCJzXCI6NjMsXCJlXCI6Njh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjgwLFwiZVwiOjkzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo4OSxcImVcIjo5Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6OTcsXCJlXCI6MTM2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjo5OCxcImVcIjoxMDN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjEwNCxcImVcIjoxMDh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6MTB9LFwic1wiOntcInNcIjoxMDksXCJlXCI6MTE5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MTIwLFwiZVwiOjEzM319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjk4LFwiZVwiOjEwM319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MTIwLFwiZVwiOjEzM319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTI5LFwiZVwiOjEzMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTM3LFwiZVwiOjE3M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MTM4LFwiZVwiOjE0M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MTQ0LFwiZVwiOjE0OH19IiwiOzs7VnVlRFg6e1wia1wiOlwidFwiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTQ5LFwiZVwiOjE1Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjE1NyxcImVcIjoxNzB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTZ9LFwic1wiOntcInNcIjoxMzgsXCJlXCI6MTQzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoxNTcsXCJlXCI6MTcwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxNjYsXCJlXCI6MTY5fX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7O01BQUFBLENBQUNDLEssNkJBQU1DLGtDLENBQU5DLGdCLEVBQU1DLFMsRUFBU0MsRyxtRUFBQUEsRztNQUNoQkMsQ0FBQ0MsSyxDQUFNQyxJLENBQUtDLFEsNkJBQVNDLGtDLENBQXBCQyxnQixFQUFvQkMsUyxFQUFTQyxHLG9EQUFsQkosUSwrQkFBa0JJLEc7TUFDOUJDLENBQUNDLEssQ0FBTUMsSSxDQUFLQyxLLDZCQUFNQyxrQyxDQUFqQkMsZ0IsRUFBaUJDLFMsRUFBU0MsRyxvREFBZkosSywrQkFBZUksRztNQUMzQkMsQ0FBQ0MsSyxDQUFNQyxJLENBQUtDLFUsNkJBQVdDLGtDLENBQXRCQyxnQixFQUFzQkMsUyxFQUFTQyxHLG9EQUFwQkosVSwrQkFBb0JJLEc7TUFDaENDLENBQUNDLEssQ0FBTUMsSSxDQUFLQyxPLDZCQUFRQyxrQyxDQUFuQkMsZ0IsRUFBbUJDLFMsRUFBU0MsRyxvREFBakJKLE8sK0JBQWlCSSxHIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGlucHV0IHYtbW9kZWw9XCJmb29cIiAvPlxuPGlucHV0IHR5cGU9XCJudW1iZXJcIiB2LW1vZGVsPVwiZm9vXCIgLz5cbjxpbnB1dCB0eXBlPVwidGVsXCIgdi1tb2RlbD1cImZvb1wiIC8+XG48aW5wdXQgdHlwZT1cImNoZWNrYm94XCIgdi1tb2RlbD1cImZvb1wiIC8+XG48aW5wdXQgdHlwZT1cInJhZGlvXCIgdi1tb2RlbD1cImZvb1wiIC8+XG4iXX0=
 \`\`\`
 
 
@@ -1605,31 +1605,31 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
 
   return (
     <>
-      <select data-vuedx-directive-model={VueDX.internal.checkModelDirective("select" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "select" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        <option value="foo" data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
+      <select data-vuedx-directive-model={VueDX.internal.checkModelDirective("select" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "select" as const)}>
+        <option value="foo" data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "option" as const)}>
           foo
         </option>
-        <option value="bar" data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
+        <option value="bar" data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "option" as const)}>
           bar
         </option>
-        <option value={baz} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
+        <option value={baz} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "option" as const)}>
           baz
         </option>
       </select>
-      <select data-vuedx-directive-model={VueDX.internal.checkModelDirective("select" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "select" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        <option value="foo" data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
+      <select data-vuedx-directive-model={VueDX.internal.checkModelDirective("select" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "select" as const)}>
+        <option value="foo" data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "option" as const)}>
           foo
         </option>
         {
           VueDX.internal.renderList(vals, (val) => {
             return (
-              <option value={val} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
+              <option value={val} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "option" as const)}>
                 {VueDX.internal.checkInterpolation(val)}
               </option>
             )
           })
         }
-        <option value="bar" data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
+        <option value="bar" data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "option" as const)}>
           bar
         </option>
       </select>
@@ -1647,7 +1647,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoxMzh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjgsXCJlXCI6MjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTd9LFwic1wiOntcInNcIjoxLFwiZVwiOjd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjgsXCJlXCI6MjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjE3LFwiZVwiOjIwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoyNSxcImVcIjo1N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MjYsXCJlXCI6MzJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjMzLFwiZVwiOjM4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjozOSxcImVcIjo0NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NDUsXCJlXCI6NDh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjYwLFwiZVwiOjkyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjo2MSxcImVcIjo2N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6NjgsXCJlXCI6NzN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjc0LFwiZVwiOjc5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo4MCxcImVcIjo4M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6OTUsXCJlXCI6MTI4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjo5NixcImVcIjoxMDJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjEwNCxcImVcIjoxMDl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjExMSxcImVcIjoxMTR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjExNixcImVcIjoxMTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjEyOSxcImVcIjoxMzh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjE0MCxcImVcIjozMDR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjE0MSxcImVcIjoxNDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoxNDgsXCJlXCI6MTYxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE3fSxcInNcIjp7XCJzXCI6MTQxLFwiZVwiOjE0N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MTQ4LFwiZVwiOjE2MX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTU3LFwiZVwiOjE2MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTY1LFwiZVwiOjE5N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MTY2LFwiZVwiOjE3Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MTczLFwiZVwiOjE3OH19IiwiOzs7VnVlRFg6e1wia1wiOlwidFwiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MTc5LFwiZVwiOjE4NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTg1LFwiZVwiOjE4OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MjIyLFwiZVwiOjIyNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MjE1LFwiZVwiOjIxOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjAwLFwiZVwiOjI1OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MjAxLFwiZVwiOjIwN319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MjI5LFwiZVwiOjIzNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MjM2LFwiZVwiOjIzOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjI0MSxcImVcIjoyNTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjI0NCxcImVcIjoyNDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjI2MixcImVcIjoyOTR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjI2MyxcImVcIjoyNjl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjI3MCxcImVcIjoyNzV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjI3NixcImVcIjoyODF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjI4MixcImVcIjoyODV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjMwNCxcImVcIjozMDR9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7OztNQUFBQSxDQUFDQyxNLDZCQUFPQyxrQyxDQUFQQyxpQixFQUFPQyxTLEVBQVNDLEcsOEhBQUFBLEc7UUFDZkMsQ0FBQ0MsTSxDQUFPQyxLLENBQU1DLEs7VUFBTUMsRzs7UUFDcEJDLENBQUNDLE0sQ0FBT0MsSyxDQUFNQyxLO1VBQU1DLEc7O1FBQ3BCQyxDQUFDQyxNLENBQVFDLEssRUFBT0MsRztVQUFLQyxHOztRQUN2QkMsTTtNQUVBQyxDQUFDQyxNLDZCQUFPQyxrQyxDQUFQQyxpQixFQUFPQyxTLEVBQVNDLEcsOEhBQUFBLEc7UUFDZkMsQ0FBQ0MsTSxDQUFPQyxLLENBQU1DLEs7VUFBTUMsRzs7O29DQUNFQyxJLEdBQVBDLEc7O2NBQWZDLENBQUNDLE0sQ0FBNEJDLEssRUFBT0MsRztpQkFBS0Msa0NBQUdDLEc7Ozs7O1FBQzVDQyxDQUFDQyxNLENBQU9DLEssQ0FBTUMsSztVQUFNQyxHOztRQUNiQyxNIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPHNlbGVjdCB2LW1vZGVsPVwiZm9vXCI+XG4gIDxvcHRpb24gdmFsdWU9XCJmb29cIj5mb288L29wdGlvbj5cbiAgPG9wdGlvbiB2YWx1ZT1cImJhclwiPmJhcjwvb3B0aW9uPlxuICA8b3B0aW9uIDp2YWx1ZT1cImJhelwiPmJhejwvb3B0aW9uPlxuPC9zZWxlY3Q+XG5cbjxzZWxlY3Qgdi1tb2RlbD1cImZvb1wiPlxuICA8b3B0aW9uIHZhbHVlPVwiZm9vXCI+Zm9vPC9vcHRpb24+XG4gIDxvcHRpb24gdi1mb3I9XCJ2YWwgb2YgdmFsc1wiIDp2YWx1ZT1cInZhbFwiPnt7IHZhbCB9fTwvb3B0aW9uPlxuICA8b3B0aW9uIHZhbHVlPVwiYmFyXCI+YmFyPC9vcHRpb24+XG48L3NlbGVjdD5cbiJdfQ==
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoxMzh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjgsXCJlXCI6MjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTd9LFwic1wiOntcInNcIjoxLFwiZVwiOjd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjgsXCJlXCI6MjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjE3LFwiZVwiOjIwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoyNSxcImVcIjo1N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MjYsXCJlXCI6MzJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjMzLFwiZVwiOjM4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjozOSxcImVcIjo0NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NDUsXCJlXCI6NDh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjYwLFwiZVwiOjkyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjo2MSxcImVcIjo2N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6NjgsXCJlXCI6NzN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjc0LFwiZVwiOjc5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo4MCxcImVcIjo4M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6OTUsXCJlXCI6MTI4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjo5NixcImVcIjoxMDJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjEwNCxcImVcIjoxMDl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjExMSxcImVcIjoxMTR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjExNixcImVcIjoxMTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjEyOSxcImVcIjoxMzh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjE0MCxcImVcIjozMDR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjE0MSxcImVcIjoxNDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoxNDgsXCJlXCI6MTYxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE3fSxcInNcIjp7XCJzXCI6MTQxLFwiZVwiOjE0N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MTQ4LFwiZVwiOjE2MX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTU3LFwiZVwiOjE2MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTY1LFwiZVwiOjE5N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MTY2LFwiZVwiOjE3Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MTczLFwiZVwiOjE3OH19IiwiOzs7VnVlRFg6e1wia1wiOlwidFwiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MTc5LFwiZVwiOjE4NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTg1LFwiZVwiOjE4OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MjIyLFwiZVwiOjIyNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MjE1LFwiZVwiOjIxOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjAwLFwiZVwiOjI1OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MjAxLFwiZVwiOjIwN319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MjI5LFwiZVwiOjIzNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MjM2LFwiZVwiOjIzOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjI0MSxcImVcIjoyNTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjI0NCxcImVcIjoyNDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjI2MixcImVcIjoyOTR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjI2MyxcImVcIjoyNjl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjI3MCxcImVcIjoyNzV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjI3NixcImVcIjoyODF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjI4MixcImVcIjoyODV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjMwNCxcImVcIjozMDR9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7OztNQUFBQSxDQUFDQyxNLDZCQUFPQyxrQyxDQUFQQyxpQixFQUFPQyxTLEVBQVNDLEcsbUVBQUFBLEc7UUFDZkMsQ0FBQ0MsTSxDQUFPQyxLLENBQU1DLEs7VUFBTUMsRzs7UUFDcEJDLENBQUNDLE0sQ0FBT0MsSyxDQUFNQyxLO1VBQU1DLEc7O1FBQ3BCQyxDQUFDQyxNLENBQVFDLEssRUFBT0MsRztVQUFLQyxHOztRQUN2QkMsTTtNQUVBQyxDQUFDQyxNLDZCQUFPQyxrQyxDQUFQQyxpQixFQUFPQyxTLEVBQVNDLEcsbUVBQUFBLEc7UUFDZkMsQ0FBQ0MsTSxDQUFPQyxLLENBQU1DLEs7VUFBTUMsRzs7O29DQUNFQyxJLEdBQVBDLEc7O2NBQWZDLENBQUNDLE0sQ0FBNEJDLEssRUFBT0MsRztpQkFBS0Msa0NBQUdDLEc7Ozs7O1FBQzVDQyxDQUFDQyxNLENBQU9DLEssQ0FBTUMsSztVQUFNQyxHOztRQUNiQyxNIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPHNlbGVjdCB2LW1vZGVsPVwiZm9vXCI+XG4gIDxvcHRpb24gdmFsdWU9XCJmb29cIj5mb288L29wdGlvbj5cbiAgPG9wdGlvbiB2YWx1ZT1cImJhclwiPmJhcjwvb3B0aW9uPlxuICA8b3B0aW9uIDp2YWx1ZT1cImJhelwiPmJhejwvb3B0aW9uPlxuPC9zZWxlY3Q+XG5cbjxzZWxlY3Qgdi1tb2RlbD1cImZvb1wiPlxuICA8b3B0aW9uIHZhbHVlPVwiZm9vXCI+Zm9vPC9vcHRpb24+XG4gIDxvcHRpb24gdi1mb3I9XCJ2YWwgb2YgdmFsc1wiIDp2YWx1ZT1cInZhbFwiPnt7IHZhbCB9fTwvb3B0aW9uPlxuICA8b3B0aW9uIHZhbHVlPVwiYmFyXCI+YmFyPC9vcHRpb24+XG48L3NlbGVjdD5cbiJdfQ==
 \`\`\`
 
 
@@ -1678,12 +1678,12 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
 
   return (
     <>
-      <select data-vuedx-directive-model={VueDX.internal.checkModelDirective("select" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "select" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        <option value={foo} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
+      <select data-vuedx-directive-model={VueDX.internal.checkModelDirective("select" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "select" as const)}>
+        <option value={foo} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "option" as const)}>
           {VueDX.internal.checkInterpolation(foo)}
         </option>
       </select>
-      <textarea data-vuedx-directive-model={VueDX.internal.checkModelDirective("textarea" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "textarea" as const)/*</vuedx:diagnosticsIgnore>*/} />
+      <textarea data-vuedx-directive-model={VueDX.internal.checkModelDirective("textarea" as const, undefined, foo, {""/*<VueDX:directiveCompletion/>*/:true}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "textarea" as const)} />
     </>
   )
 }
@@ -1696,7 +1696,7 @@ export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots
 export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjo3Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MSxcImVcIjo3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6OCxcImVcIjoyMX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxN30sXCJzXCI6e1wic1wiOjEsXCJlXCI6N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6OCxcImVcIjoyMX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTcsXCJlXCI6MjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjI1LFwiZVwiOjYyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjoyNixcImVcIjozMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MzQsXCJlXCI6Mzl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjQxLFwiZVwiOjQ0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NDYsXCJlXCI6NTN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjQ4LFwiZVwiOjUxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjo2MyxcImVcIjo3Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NzMsXCJlXCI6OTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6OH0sXCJzXCI6e1wic1wiOjc0LFwiZVwiOjgyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6ODMsXCJlXCI6OTZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTl9LFwic1wiOntcInNcIjo3NCxcImVcIjo4Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6ODMsXCJlXCI6OTZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjkyLFwiZVwiOjk1fX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7O01BQUFBLENBQUNDLE0sNkJBQU9DLGtDLENBQVBDLGlCLEVBQU9DLFMsRUFBU0MsRyw4SEFBQUEsRztRQUNmQyxDQUFDQyxNLENBQVFDLEssRUFBT0MsRztXQUFLQyxrQ0FBRUMsRzs7UUFDekJDLE07TUFDQUMsQ0FBQ0MsUSw2QkFBU0Msa0MsQ0FBVEMsbUIsRUFBU0MsUyxFQUFTQyxHLDhIQUFBQSxHIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPHNlbGVjdCB2LW1vZGVsPVwiZm9vXCI+XG4gIDxvcHRpb24gOnZhbHVlPVwiZm9vXCI+e3tmb299fTwvb3B0aW9uPlxuPC9zZWxlY3Q+XG48dGV4dGFyZWEgdi1tb2RlbD1cImZvb1wiIC8+XG4iXX0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjo3Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MSxcImVcIjo3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6OCxcImVcIjoyMX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxN30sXCJzXCI6e1wic1wiOjEsXCJlXCI6N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6OCxcImVcIjoyMX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTcsXCJlXCI6MjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjI1LFwiZVwiOjYyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjoyNixcImVcIjozMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MzQsXCJlXCI6Mzl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjQxLFwiZVwiOjQ0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NDYsXCJlXCI6NTN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjQ4LFwiZVwiOjUxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjo2MyxcImVcIjo3Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NzMsXCJlXCI6OTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6OH0sXCJzXCI6e1wic1wiOjc0LFwiZVwiOjgyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6ODMsXCJlXCI6OTZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTl9LFwic1wiOntcInNcIjo3NCxcImVcIjo4Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6ODMsXCJlXCI6OTZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjkyLFwiZVwiOjk1fX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7O01BQUFBLENBQUNDLE0sNkJBQU9DLGtDLENBQVBDLGlCLEVBQU9DLFMsRUFBU0MsRyxtRUFBQUEsRztRQUNmQyxDQUFDQyxNLENBQVFDLEssRUFBT0MsRztXQUFLQyxrQ0FBRUMsRzs7UUFDekJDLE07TUFDQUMsQ0FBQ0MsUSw2QkFBU0Msa0MsQ0FBVEMsbUIsRUFBU0MsUyxFQUFTQyxHLG1FQUFBQSxHIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPHNlbGVjdCB2LW1vZGVsPVwiZm9vXCI+XG4gIDxvcHRpb24gOnZhbHVlPVwiZm9vXCI+e3tmb299fTwvb3B0aW9uPlxuPC9zZWxlY3Q+XG48dGV4dGFyZWEgdi1tb2RlbD1cImZvb1wiIC8+XG4iXX0=
 \`\`\`
 
 
@@ -1744,35 +1744,35 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
 
   return (
     <>
-      <input onFocus={VueDX.internal.checkOnDirective("input" as const, "focus" as const, onFocus, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}  data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+      <input onFocus={VueDX.internal.checkOnDirective("input" as const, "focus" as const, onFocus, {""/*<VueDX:directiveCompletion/>*/:true})}  data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
       <input onUpdate:value={VueDX.internal.checkOnDirective("input" as const, "update:value" as const, ($event) => {if ($event.target == null || $event.currentTarget == null || !VueDX.internal.checkHTMLElementType("input", $event.currentTarget)) throw new Error("Guard: event.target, event.currentTarget")
           value = $event
-        }, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}  data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        }, {""/*<VueDX:directiveCompletion/>*/:true})}  data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
       <input
         onEventName={VueDX.internal.union(
-          VueDX.internal.checkOnDirective("input" as const, "event-name" as const, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-          VueDX.internal.checkOnDirective("input" as const, "eventName" as const, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
+          VueDX.internal.checkOnDirective("input" as const, "event-name" as const, undefined, {""/*<VueDX:directiveCompletion/>*/:true}),
+          VueDX.internal.checkOnDirective("input" as const, "eventName" as const, undefined, {""/*<VueDX:directiveCompletion/>*/:true}),
         )}
-        {...VueDX.internal.checkOnDirective("input" as const, eventName, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-        {...VueDX.internal.checkOnDirective("input" as const, undefined, events, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-       data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        {...VueDX.internal.checkOnDirective("input" as const, eventName, undefined, {""/*<VueDX:directiveCompletion/>*/:true})}
+        {...VueDX.internal.checkOnDirective("input" as const, undefined, events, {""/*<VueDX:directiveCompletion/>*/:true})}
+       data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
       <input
         onKeydown={VueDX.internal.union(
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, fnName, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
+          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, fnName, {""/*<VueDX:directiveCompletion/>*/:true}),
           VueDX.internal.checkOnDirective("input" as const, "keydown" as const, ($event) => {if ($event.target == null || $event.currentTarget == null || !VueDX.internal.checkHTMLElementType("input", $event.currentTarget)) throw new Error("Guard: event.target, event.currentTarget")
             callMyFn($event)
-          }, {"left": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, $event => callMyFn($event), {"shift": true, "left": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, ($event) => callMyFn($event), {"shift": true, "right": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, () => callMyFn($event), {"shift": true, "down": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
+          }, {"left": true, ""/*<VueDX:directiveCompletion/>*/:true}),
+          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, $event => callMyFn($event), {"shift": true, "left": true, ""/*<VueDX:directiveCompletion/>*/:true}),
+          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, ($event) => callMyFn($event), {"shift": true, "right": true, ""/*<VueDX:directiveCompletion/>*/:true}),
+          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, () => callMyFn($event), {"shift": true, "down": true, ""/*<VueDX:directiveCompletion/>*/:true}),
           VueDX.internal.checkOnDirective("input" as const, "keydown" as const, function myFunction($event) {
     callMyFn($event)
-  }, {"shift": true, "up": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
+  }, {"shift": true, "up": true, ""/*<VueDX:directiveCompletion/>*/:true}),
           VueDX.internal.checkOnDirective("input" as const, "keydown" as const, function myFunction() {
     callMyFn($event)
-  }, {"ctrl": true, "up": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
+  }, {"ctrl": true, "up": true, ""/*<VueDX:directiveCompletion/>*/:true}),
         )}
-       data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+       data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "input" as const)} />
     </>
   )
 }
@@ -1822,15 +1822,15 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   return (
     <>
       <div
-        onClick={VueDX.internal.checkOnDirective("div" as const, "click" as const, onClick, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-        onHover={VueDX.internal.checkOnDirective("div" as const, "hover" as const, onHover, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-        onPress={VueDX.internal.checkOnDirective("div" as const, "press" as const, onPress, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-       data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        onClick={VueDX.internal.checkOnDirective("div" as const, "click" as const, onClick, {""/*<VueDX:directiveCompletion/>*/:true})}
+        onHover={VueDX.internal.checkOnDirective("div" as const, "hover" as const, onHover, {""/*<VueDX:directiveCompletion/>*/:true})}
+        onPress={VueDX.internal.checkOnDirective("div" as const, "press" as const, onPress, {""/*<VueDX:directiveCompletion/>*/:true})}
+       data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)} />
       <div
-        onClick={VueDX.internal.checkOnDirective("div" as const, "click" as const, onClick, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-        onHover={VueDX.internal.checkOnDirective("div" as const, "hover" as const, onHover, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-        onPress={VueDX.internal.checkOnDirective("div" as const, "press" as const, onPress, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-       data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        onClick={VueDX.internal.checkOnDirective("div" as const, "click" as const, onClick, {""/*<VueDX:directiveCompletion/>*/:true})}
+        onHover={VueDX.internal.checkOnDirective("div" as const, "hover" as const, onHover, {""/*<VueDX:directiveCompletion/>*/:true})}
+        onPress={VueDX.internal.checkOnDirective("div" as const, "press" as const, onPress, {""/*<VueDX:directiveCompletion/>*/:true})}
+       data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)} />
     </>
   )
 }
@@ -1872,7 +1872,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <section data-vuedx-directive-once={VueDX.internal.checkDirective("once" as const, "section" as const, undefined, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "section" as const)/*</vuedx:diagnosticsIgnore>*/}>
+    <section data-vuedx-directive-once={VueDX.internal.checkDirective("once" as const, "section" as const, undefined, undefined, {""/*<VueDX:directiveCompletion/>*/:true})} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "section" as const)}>
       {VueDX.internal.checkInterpolation(largeText)}
     </section>
   )
@@ -1912,7 +1912,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <pre data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "pre" as const)/*</vuedx:diagnosticsIgnore>*/}>
+    <pre data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "pre" as const)}>
       {"{{ interpolation }}"}
     </pre>
   )
@@ -1952,7 +1952,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <h1 data-vuedx-directive-show={VueDX.internal.checkDirective("show" as const, "h1" as const, undefined, ok, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
+    <h1 data-vuedx-directive-show={VueDX.internal.checkDirective("show" as const, "h1" as const, undefined, ok, {""/*<VueDX:directiveCompletion/>*/:true})} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "h1" as const)}>
       Hello!
     </h1>
   )
@@ -1997,7 +1997,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <Foo data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", Foo)/*</vuedx:diagnosticsIgnore>*/}>
+    <Foo data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", Foo)}>
       {VueDX.internal.checkSlots(Foo, {
         "foo": () => {
           return (
@@ -2020,12 +2020,12 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
         [Symbol.for('VueDX:UnknownSlot')]: () => {
           return (
             <>
-              < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "foo" as const, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}>
+              < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "foo" as const, undefined, {""/*<VueDX:directiveCompletion/>*/:true})}>
                 <>
                   A
                 </>
               </>
-              < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "bar" as const, {bar}, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}>
+              < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "bar" as const, {bar}, {""/*<VueDX:directiveCompletion/>*/:true})}>
                 <>
                   {VueDX.internal.checkInterpolation(bar)}
                 </>
@@ -2086,7 +2086,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
 
   return (
     <>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
+      <FooBar data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", FooBar)}>
         {VueDX.internal.checkSlots(FooBar, {
           default: () => {
             return (
@@ -2097,7 +2097,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
           },
         })}
       </FooBar>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
+      <FooBar data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", FooBar)}>
         {VueDX.internal.checkSlots(FooBar, {
           "default": ({foo}) => {
             return (
@@ -2108,7 +2108,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
           },
         })}
       </FooBar>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
+      <FooBar data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", FooBar)}>
         {VueDX.internal.checkSlots(FooBar, {
           "other": ({foo}) => {
             return (
@@ -2119,7 +2119,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
           },
         })}
       </FooBar>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
+      <FooBar data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", FooBar)}>
         {VueDX.internal.checkSlots(FooBar, {
           "default": () => {
             return (
@@ -2145,7 +2145,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
                 <>
                   {
                     (foo)
-                      ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                      ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                           {VueDX.internal.checkInterpolation(foo.bar)}
                         </div>
                       : null
@@ -2157,28 +2157,28 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
           [Symbol.for('VueDX:UnknownSlot')]: () => {
             return (
               <>
-                < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "default" as const, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}>
+                < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "default" as const, undefined, {""/*<VueDX:directiveCompletion/>*/:true})}>
                   <>
                     content
                   </>
                 </>
-                < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "other" as const, {foo}, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}>
+                < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "other" as const, {foo}, {""/*<VueDX:directiveCompletion/>*/:true})}>
                   <>
                     {VueDX.internal.checkInterpolation(foo)}
                   </>
                 </>
-                < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "another" as const, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}>
+                < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "another" as const, foo, {""/*<VueDX:directiveCompletion/>*/:true})}>
                   <>
                     {
                       (foo)
-                        ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                        ? <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                             {VueDX.internal.checkInterpolation(foo.bar)}
                           </div>
                         : null
                     }
                   </>
                 </>
-                <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                <div data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "div" as const)}>
                   extranous
                 </div>
               </>
@@ -2224,7 +2224,7 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   /*</vuedx:diagnosticsIgnore>*/
 
   return (
-    <span data-vuedx-directive-text={VueDX.internal.checkDirective("text" as const, "span" as const, undefined, msg, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "span" as const)/*</vuedx:diagnosticsIgnore>*/}>
+    <span data-vuedx-directive-text={VueDX.internal.checkDirective("text" as const, "span" as const, undefined, msg, {""/*<VueDX:directiveCompletion/>*/:true})} data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper("", "span" as const)}>
     </span>
   )
 }

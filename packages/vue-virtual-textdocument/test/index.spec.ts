@@ -25,19 +25,19 @@ describe('VueSFCDocument', () => {
     expect(Array.from(doc.getActiveTSDocIDs())).toHaveLength(2)
 
     expect(doc.getTypeScriptText()).toMatchInlineSnapshot(`
-"import 'vuedx~runtime'
-import 'vuedx~project-runtime'
-import { __VueDX_Slots, __VueDX_Attrs } from \\"./Example.vue+vue&type=template&lang\\"
-import { __VueDX_DefineComponent as _Self, __VueDX_expose } from \\"./Example.vue+vue&type=script&setup&lang\\"
-export * from \\"./Example.vue+vue&type=script&setup&lang\\"
-const Exposed: new () => typeof __VueDX_expose = null as any
-class Example extends Exposed {
-  $props!: VueDX.internal.MergeAttrs<InstanceType<typeof _Self>['$props'], __VueDX_Attrs>
-  $slots!: __VueDX_Slots
-}
-export default Example
-"
-`)
+      "import 'vuedx~runtime'
+      import 'vuedx~project-runtime'
+      import { __VueDX_Slots, __VueDX_Attrs } from \\"./Example.vue+vue&type=template&lang\\"
+      import { __VueDX_DefineComponent as _Self, __VueDX_expose } from \\"./Example.vue+vue&type=script&setup&lang\\"
+      export * from \\"./Example.vue+vue&type=script&setup&lang\\"
+      const Exposed: new () => typeof __VueDX_expose = null as any
+      class Example extends Exposed {
+        $props!: VueDX.internal.MergeAttrs<InstanceType<typeof _Self>['$props'], __VueDX_Attrs>
+        $slots!: __VueDX_Slots
+      }
+      export default Example
+      "
+    `)
 
     expect(doc.getDoc(doc.descriptor.scriptSetup!)?.generated?.getText())
       .toMatchInlineSnapshot(`
@@ -84,7 +84,7 @@ export default Example
         /*</vuedx:diagnosticsIgnore>*/
 
         return (
-          <Foo.Bar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper(\\"\\", Foo.Bar)/*</vuedx:diagnosticsIgnore>*/}>
+          <Foo.Bar data-vuedx-prop-completion-helper={VueDX.internal.propCompletionHelper(\\"\\", Foo.Bar)}>
             {VueDX.internal.checkSlots(Foo.Bar, {
               default: () => {
                 return (

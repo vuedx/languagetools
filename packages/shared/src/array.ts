@@ -3,17 +3,18 @@ export function isArray<T>(value: any): value is T[] {
 }
 
 export function first<T>(items: T[] | readonly T[]): T {
-  if (items.length === 0) throw new Error('IndexOutOfBounds')
-
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  return items[0]!
+  return nth(items, 0)
 }
 
-export function last<T>(items: T[] | readonly T[], nth: number = 1): T {
-  const index = items.length - nth
-  if (index < 0 || index >= items.length) throw new Error('IndexOutOfBounds')
+export function nth<T>(items: T[] | readonly T[], nth: number = 0): T {
+  if (nth < 0 || items.length <= nth) throw new Error('IndexOutOfBounds')
+
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  return items[index]!
+  return items[nth]!
+}
+
+export function last<T>(items: T[] | readonly T[], count: number = 1): T {
+  return nth(items, items.length - count)
 }
 
 export function findPrevSibling<T>(

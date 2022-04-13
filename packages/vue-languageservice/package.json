@@ -12,7 +12,7 @@
   },
   "buildConfig": {
     "sources": {
-      "types/3.x.d.ts": [
+      "types/v3/index.d.ts": [
         {
           "format": "dts",
           "file": "lib/runtime/3.x.vuedx_runtime.d.ts"

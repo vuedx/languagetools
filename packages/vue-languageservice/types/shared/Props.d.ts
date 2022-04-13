@@ -4,7 +4,7 @@ import {
   VNodeProps,
   ExtractPropTypes,
   DefineComponent,
-} from '@vue/runtime-core'
+} from '@vue/runtime-core' // TODO: Move to v3 and remove this
 import type { KnownKeys } from './utils'
 
 type ComponentLike<T> = new (...args: unknown[]) => { $props: T }
@@ -26,6 +26,6 @@ export type AttrsOf<T> = T extends KnownKeys<keyof JSX.IntrinsicElements>
 export type MergeAttrs<P, A> = P & Omit<A, keyof KnownKeys<P>>
 
 export function propCompletionHelper<T>(
-  propName: keyof PropsOf<T>,
+  propName: '' | keyof PropsOf<T>,
   tagOrComponent: T,
 ): any

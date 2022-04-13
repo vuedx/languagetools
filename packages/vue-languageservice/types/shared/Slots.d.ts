@@ -1,4 +1,4 @@
-import type { VNodeChild } from '@vue/runtime-core'
+import type { VNodeChild } from '@vue/runtime-core'  // TODO: Move to v3 and remove this
 import type { UnionToIntersection, UnwrapArray } from './utils'
 
 type InternalSlots<T> = {

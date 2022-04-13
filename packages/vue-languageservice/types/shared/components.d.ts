@@ -8,7 +8,7 @@ import type {
   VNodeChild,
   GlobalComponents,
   Component,
-} from '@vue/runtime-core'
+} from '@vue/runtime-core' // TODO: Move to v3 and remove this
 import type { EmitsToProps } from './emits'
 import type {
   KnownKeys,
@@ -24,6 +24,7 @@ declare global {
   }
 }
 
+// TODO: Move to v3 and remove this
 declare module '@vue/runtime-core' {
   export interface GlobalComponents extends Record<string, Component> {}
 }

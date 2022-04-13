@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
-import type { GlobalDirectives } from '@vue/runtime-core'
+import type { GlobalDirectives } from '@vue/runtime-core' // TODO: Move to v3 and remove this
 import type { KnownKeys } from './utils'
 
+// TODO: Move to v3 and remove this
 declare module '@vue/runtime-core' {
   interface GlobalDirectives {}
 }

@@ -1,4 +1,4 @@
-import type { Slot } from '@vue/runtime-core'
+import type { Slot } from '@vue/runtime-core'  // TODO: Move to v3 and remove this
 
 type Fallback<T, F> = T extends undefined ? F : T
 type SlotProps<T extends Slot | undefined> = T extends (

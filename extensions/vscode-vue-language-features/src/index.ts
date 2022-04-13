@@ -7,7 +7,6 @@ import { OpenVirtualFileCommand } from './commands/openVirtualFile'
 import { SelectVirtualFileCommand } from './commands/selectVirtualFile'
 import { VueVirtualDocumentProvider } from './scheme/vue'
 import { PluginCommunicationService } from './services/PluginCommunicationService'
-import { StyleLanguageProxy } from './services/StyleLanguageProxy'
 import { TemplateLanguageProxy } from './services/TemplateLanguageProxy'
 import { VirtualFileSwitcher } from './services/VirtualFileSwitcher'
 
@@ -22,7 +21,6 @@ export async function activate(
   container.bind('context').toConstantValue(context)
   context.subscriptions.push(
     container.get(PluginCommunicationService).install(),
-    container.get(StyleLanguageProxy).install(),
     container.get(TemplateLanguageProxy).install(),
     container.get(VueVirtualDocumentProvider).install(),
     container.get(OpenVirtualFileCommand).install(),

@@ -162,7 +162,13 @@ describe('project', () => {
         Array [
           "Argument of type '\\"yes\\" | \\"no\\"' is not assignable to parameter of type 'boolean | null | undefined'.
           Type '\\"yes\\"' is not assignable to type 'boolean | null | undefined'.",
+          "Argument of type '{ \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.
+          Object literal may only specify known properties, and '\\"\\"' does not exist in type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.",
+          "Argument of type '{ \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.
+          Object literal may only specify known properties, and '\\"\\"' does not exist in type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.",
           "Argument of type 'boolean' is not assignable to parameter of type '\\"yes\\" | \\"no\\" | null | undefined'.",
+          "Argument of type '{ \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.
+          Object literal may only specify known properties, and '\\"\\"' does not exist in type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.",
           "Argument of type 'boolean' is not assignable to parameter of type 'string | null | undefined'.",
         ]
       `)
@@ -174,10 +180,18 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
+          "Argument of type '{ \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.
+          Object literal may only specify known properties, and '\\"\\"' does not exist in type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.",
           "Argument of type 'number | undefined' is not assignable to parameter of type 'string | null | undefined'.
           Type 'number' is not assignable to type 'string | null | undefined'.",
+          "Argument of type '{ \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.
+          Object literal may only specify known properties, and '\\"\\"' does not exist in type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.",
           "Argument of type 'Date | undefined' is not assignable to parameter of type 'string | null | undefined'.
           Type 'Date' is not assignable to type 'string'.",
+          "Argument of type '{ \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.
+          Object literal may only specify known properties, and '\\"\\"' does not exist in type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.",
+          "Argument of type '{ \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.
+          Object literal may only specify known properties, and '\\"\\"' does not exist in type 'Partial<Record<\\"number\\" | \\"lazy\\" | \\"trim\\", boolean>>'.",
           "Cannot assign to 'foo' because it is a read-only property.",
         ]
       `)
@@ -221,16 +235,16 @@ describe('project', () => {
             Type 'MouseEvent' is missing the following properties from type 'KeyboardEvent': char, charCode, code, isComposing, and 9 more.",
           "Argument of type 'MouseEvent' is not assignable to parameter of type 'KeyboardEvent'.",
           "Argument of type 'MouseEvent' is not assignable to parameter of type 'KeyboardEvent'.",
-          "Argument of type '{ enter: boolean; \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
-          Object literal may only specify known properties, and '\\"enter\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
-          "Argument of type '{ up: boolean; \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
-          Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
-          "Argument of type '{ shift: true; up: boolean; \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
-          Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
-          "Argument of type '{ shift: true; up: boolean; alt: true; \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
-          Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
-          "Argument of type '{ middle: boolean; \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"keypress\\">, boolean>>'.
-          Object literal may only specify known properties, and '\\"middle\\"' does not exist in type 'Partial<Record<ModifiersForNativeEvent<\\"keypress\\">, boolean>>'.",
+          "Argument of type '{ enter: boolean; \\"\\": true; }' is not assignable to parameter of type 'Partial<Record<\\"\\" | ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          Object literal may only specify known properties, and '\\"enter\\"' does not exist in type 'Partial<Record<\\"\\" | ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
+          "Argument of type '{ up: boolean; \\"\\": true; }' is not assignable to parameter of type 'Partial<Record<\\"\\" | ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<\\"\\" | ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
+          "Argument of type '{ shift: true; up: boolean; \\"\\": true; }' is not assignable to parameter of type 'Partial<Record<\\"\\" | ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<\\"\\" | ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
+          "Argument of type '{ shift: true; up: boolean; alt: true; \\"\\": true; }' is not assignable to parameter of type 'Partial<Record<\\"\\" | ModifiersForNativeEvent<\\"click\\">, boolean>>'.
+          Object literal may only specify known properties, and '\\"up\\"' does not exist in type 'Partial<Record<\\"\\" | ModifiersForNativeEvent<\\"click\\">, boolean>>'.",
+          "Argument of type '{ middle: boolean; \\"\\": true; }' is not assignable to parameter of type 'Partial<Record<\\"\\" | ModifiersForNativeEvent<\\"keypress\\">, boolean>>'.
+          Object literal may only specify known properties, and '\\"middle\\"' does not exist in type 'Partial<Record<\\"\\" | ModifiersForNativeEvent<\\"keypress\\">, boolean>>'.",
         ]
       `)
     })
@@ -247,12 +261,18 @@ describe('project', () => {
           "Argument of type '(payload?: number | undefined) => void' is not assignable to parameter of type '(_payload: string) => void'.
           Types of parameters 'payload' and '_payload' are incompatible.
             Type 'string' is not assignable to type 'number | undefined'.",
+          "Argument of type '{ once: boolean; \\"\\": true; }' is not assignable to parameter of type 'Partial<Record<\\"\\", boolean>>'.
+          Object literal may only specify known properties, and '\\"once\\"' does not exist in type 'Partial<Record<\\"\\", boolean>>'.",
           "Argument of type '(payload?: number | undefined) => void' is not assignable to parameter of type '(payload: string) => any'.
           Types of parameters 'payload' and 'payload' are incompatible.
             Type 'string' is not assignable to type 'number | undefined'.",
+          "Argument of type '{ once: boolean; \\"\\": true; }' is not assignable to parameter of type 'Partial<Record<\\"\\", boolean>>'.
+          Object literal may only specify known properties, and '\\"once\\"' does not exist in type 'Partial<Record<\\"\\", boolean>>'.",
           "Argument of type '(payload?: number | undefined) => void' is not assignable to parameter of type '(payload: string) => any'.
           Types of parameters 'payload' and 'payload' are incompatible.
             Type 'string' is not assignable to type 'number | undefined'.",
+          "Argument of type '{ once: boolean; \\"\\": true; }' is not assignable to parameter of type 'Partial<Record<\\"\\", boolean>>'.
+          Object literal may only specify known properties, and '\\"once\\"' does not exist in type 'Partial<Record<\\"\\", boolean>>'.",
         ]
       `)
     })
