@@ -36,7 +36,7 @@ describe('project', () => {
           [
             { text: `Type 'number' is not assignable to type 'string'.` },
             {
-              text: `Type 'string' is not assignable to type 'number | undefined'.`,
+              text: `Type 'string' is not assignable to type 'number'.`,
             },
             {
               text: expect.stringContaining(
@@ -45,7 +45,7 @@ describe('project', () => {
             },
             { text: `Type 'number' is not assignable to type 'string'.` },
             {
-              text: `Type 'string' is not assignable to type 'number | undefined'.`,
+              text: `Type 'string' is not assignable to type 'number'.`,
             },
             {
               text: expect.stringContaining(
@@ -54,7 +54,7 @@ describe('project', () => {
             },
             { text: `Type 'number' is not assignable to type 'string'.` },
             {
-              text: `Type 'string' is not assignable to type 'number | undefined'.`,
+              text: `Type 'string' is not assignable to type 'number'.`,
             },
             {
               text: expect.stringContaining(
@@ -102,8 +102,8 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Argument of type 'boolean' is not assignable to parameter of type 'string | undefined'.",
-          "Argument of type 'number' is not assignable to parameter of type 'string | undefined'.",
+          "Argument of type 'boolean' is not assignable to parameter of type 'string'.",
+          "Argument of type 'number' is not assignable to parameter of type 'string'.",
           "Argument of type '{ foo: string; } | undefined' is not assignable to parameter of type 'string | undefined'.
           Type '{ foo: string; }' is not assignable to type 'string'.",
         ]
@@ -129,26 +129,26 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Type '{ modelValue: string | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
-          Property 'modelValue' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
+          "Type '{ modelValue: string | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({ ...; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
+          Property 'modelValue' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({ ...; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.",
           "Argument of type '\\"modelValue\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"foo\\" | \\"bar\\"'.",
           "Argument of type 'number | undefined' is not assignable to parameter of type 'string | undefined'.
-          Type 'number' is not assignable to type 'string | undefined'.",
-          "Type '{ modelValue: number | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
-          Property 'modelValue' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
+          Type 'number' is not assignable to type 'string'.",
+          "Type '{ modelValue: number | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({ ...; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
+          Property 'modelValue' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & ({ ...; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.",
           "Argument of type '\\"modelValue\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"foo\\" | \\"bar\\"'.",
-          "Type '{ foo: string | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
-          Property 'foo' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
+          "Type '{ foo: string | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({ [x: string & \`on\${string}\`]: ((...args: any[]) => any) | undefined; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
+          Property 'foo' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({ [x: string & \`on\${string}\`]: ((...args: any[]) => any) | undefined; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.",
           "Argument of type '\\"foo\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
-          "Type '{ foo: number | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
-          Property 'foo' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
+          "Type '{ foo: number | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({ [x: string & \`on\${string}\`]: ((...args: any[]) => any) | undefined; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
+          Property 'foo' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({ [x: string & \`on\${string}\`]: ((...args: any[]) => any) | undefined; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.",
           "Argument of type '\\"foo\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
           "Argument of type 'number | undefined' is not assignable to parameter of type 'string | undefined'.",
-          "Type '{ bar: string | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
-          Property 'bar' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
+          "Type '{ bar: string | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({ [x: string & \`on\${string}\`]: ((...args: any[]) => any) | undefined; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
+          Property 'bar' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({ [x: string & \`on\${string}\`]: ((...args: any[]) => any) | undefined; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.",
           "Argument of type '\\"bar\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
-          "Type '{ bar: number | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.
-          Property 'bar' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({} | {}))) & (VNodeProps & ... 3 more ... & ({} | {})), never>'.",
+          "Type '{ bar: number | undefined; \\"data-vuedx-prop-completion-helper\\": any; }' is not assignable to type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({ [x: string & \`on\${string}\`]: ((...args: any[]) => any) | undefined; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
+          Property 'bar' does not exist on type 'IntrinsicAttributes & Partial<{}> & Omit<({} & (Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & ({ [x: string & \`on\${string}\`]: ((...args: any[]) => any) | undefined; } | { ...; }))) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.",
           "Argument of type '\\"bar\\"' is not assignable to parameter of type '(string & \`on\${string}\`) | keyof VNodeProps | keyof AllowedComponentProps | \\"modelValue\\"'.",
         ]
       `)
@@ -163,7 +163,7 @@ describe('project', () => {
           "Argument of type '\\"yes\\" | \\"no\\"' is not assignable to parameter of type 'boolean | null | undefined'.
           Type '\\"yes\\"' is not assignable to type 'boolean | null | undefined'.",
           "Argument of type 'boolean' is not assignable to parameter of type '\\"yes\\" | \\"no\\" | null | undefined'.",
-          "Argument of type 'boolean' is not assignable to parameter of type 'string | null | undefined'.",
+          "Argument of type 'boolean' is not assignable to parameter of type 'string'.",
         ]
       `)
     })
@@ -175,7 +175,7 @@ describe('project', () => {
         .toMatchInlineSnapshot(`
         Array [
           "Argument of type 'number | undefined' is not assignable to parameter of type 'string | null | undefined'.
-          Type 'number' is not assignable to type 'string | null | undefined'.",
+          Type 'number' is not assignable to type 'string'.",
           "Argument of type 'Date | undefined' is not assignable to parameter of type 'string | null | undefined'.
           Type 'Date' is not assignable to type 'string'.",
           "Cannot assign to 'foo' because it is a read-only property.",
@@ -218,7 +218,7 @@ describe('project', () => {
             Type 'MouseEvent' is missing the following properties from type 'PointerEvent': height, isPrimary, pointerId, pointerType, and 8 more.",
           "Argument of type '(event: KeyboardEvent) => void' is not assignable to parameter of type '(payload: MouseEvent) => void'.
           Types of parameters 'event' and 'payload' are incompatible.
-            Type 'MouseEvent' is missing the following properties from type 'KeyboardEvent': char, charCode, code, isComposing, and 9 more.",
+            Type 'MouseEvent' is missing the following properties from type 'KeyboardEvent': charCode, code, isComposing, key, and 8 more.",
           "Argument of type 'MouseEvent' is not assignable to parameter of type 'KeyboardEvent'.",
           "Argument of type 'MouseEvent' is not assignable to parameter of type 'KeyboardEvent'.",
           "Argument of type '{ enter: boolean; \\"\\": boolean; }' is not assignable to parameter of type 'Partial<Record<ModifiersForNativeEvent<\\"click\\">, boolean>>'.
@@ -246,13 +246,13 @@ describe('project', () => {
           "Argument of type '\\"a\\"' is not assignable to parameter of type '\\"input\\" | \\"progress\\" | \\"select\\" | \\"contextmenu\\" | \\"change\\" | \\"keydown\\" | \\"keypress\\" | \\"keyup\\" | \\"pointerdown\\" | \\"pointermove\\" | \\"pointerup\\" | \\"pointercancel\\" | \\"pointerenter\\" | ... 68 more ... | \\"transitionstart\\"'.",
           "Argument of type '(payload?: number | undefined) => void' is not assignable to parameter of type '(_payload: string) => void'.
           Types of parameters 'payload' and '_payload' are incompatible.
-            Type 'string' is not assignable to type 'number | undefined'.",
+            Type 'string' is not assignable to type 'number'.",
           "Argument of type '(payload?: number | undefined) => void' is not assignable to parameter of type '(payload: string) => any'.
           Types of parameters 'payload' and 'payload' are incompatible.
-            Type 'string' is not assignable to type 'number | undefined'.",
+            Type 'string' is not assignable to type 'number'.",
           "Argument of type '(payload?: number | undefined) => void' is not assignable to parameter of type '(payload: string) => any'.
           Types of parameters 'payload' and 'payload' are incompatible.
-            Type 'string' is not assignable to type 'number | undefined'.",
+            Type 'string' is not assignable to type 'number'.",
         ]
       `)
     })
@@ -289,8 +289,7 @@ describe('project', () => {
         Array [
           "Argument of type 'number' is not assignable to parameter of type 'boolean | undefined'.",
           "Argument of type '{ foo: string; } | undefined' is not assignable to parameter of type 'boolean | undefined'.
-          Type '{ foo: string; }' is not assignable to type 'boolean | undefined'.
-            Type '{ foo: string; }' is not assignable to type 'true'.",
+          Type '{ foo: string; }' is not assignable to type 'boolean | undefined'.",
         ]
       `)
     })
@@ -301,8 +300,8 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         Array [
-          "Argument of type 'boolean' is not assignable to parameter of type 'string | undefined'.",
-          "Argument of type 'number' is not assignable to parameter of type 'string | undefined'.",
+          "Argument of type 'boolean' is not assignable to parameter of type 'string'.",
+          "Argument of type 'number' is not assignable to parameter of type 'string'.",
           "Argument of type '{ foo: string; } | undefined' is not assignable to parameter of type 'string | undefined'.
           Type '{ foo: string; }' is not assignable to type 'string'.",
         ]
