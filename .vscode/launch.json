@@ -42,6 +42,23 @@
       ]
     },
     {
+      "name": "Web Extension: VS Code",
+      "type": "pwa-extensionHost",
+      "debugWebWorkerHost": true,
+      "request": "launch",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue",
+        "--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode-vue-language-features",
+        "--extensionDevelopmentKind=web",
+        "${workspaceRoot}/samples/vue3/typescript-diagnostics"
+      ],
+      "outFiles": [
+        "${workspaceRoot}/extensions/vscode-vue/lib/*.js",
+        "${workspaceRoot}/extensions/vscode-vue-language-features/dist/*.js"
+      ]
+    },
+    {
       "name": "Syntax: VS Code",
       "type": "extensionHost",
       "request": "launch",

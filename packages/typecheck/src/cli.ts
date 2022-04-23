@@ -37,7 +37,9 @@ function clearScreen(): void {
   readline.clearScreenDown(process.stdout)
 }
 async function createTextDocument(file: string): Promise<TextDocument> {
-  const content = await FSP.readFile(Path.resolve(directory, file), { encoding: 'utf-8' })
+  const content = await FSP.readFile(Path.resolve(directory, file), {
+    encoding: 'utf-8',
+  })
   const fileName = toNormalizedPath(file)
   const document = TextDocument.create(
     fileName,
@@ -75,9 +77,11 @@ function formatLocation(
 function getDiagnosticCategory(
   diagnostic: Pick<TS.server.protocol.Diagnostic, 'category'>,
 ): keyof typeof colors {
-  return (/^(warning|error|suggestion|message)$/i.test(diagnostic.category)
-    ? diagnostic.category.toLowerCase()
-    : 'error') as any
+  return (
+    /^(warning|error|suggestion|message)$/i.test(diagnostic.category)
+      ? diagnostic.category.toLowerCase()
+      : 'error'
+  ) as any
 }
 
 function toPosition(loc: TS.server.protocol.Location): Position {
@@ -165,14 +169,18 @@ function convertToRelativePath(fileName: string): string {
 }
 
 async function _cli(): Promise<void> {
-  const { pretty, vue, help, watch, format, _: argv } = parseArgs(
-    process.argv.slice(2),
-    {
-      boolean: ['json', 'rdjson', 'verbose', 'vue', 'help', 'pretty', 'watch'],
-      string: ['format'],
-      default: { pretty: true, format: 'raw' },
-    },
-  )
+  const {
+    pretty,
+    vue,
+    help,
+    watch,
+    format,
+    _: argv,
+  } = parseArgs(process.argv.slice(2), {
+    boolean: ['json', 'rdjson', 'verbose', 'vue', 'help', 'pretty', 'watch'],
+    string: ['format'],
+    default: { pretty: true, format: 'raw' },
+  })
 
   if (help === true) {
     console.error(
@@ -245,7 +253,7 @@ export async function cli(): Promise<void> {
   try {
     await _cli()
   } catch (error) {
-    collectError(error)
+    collectError(error as Error)
     throw error
   }
 }
@@ -266,8 +274,7 @@ function encodeRdJSON(result: Diagnostics, pretty: boolean): string {
     {
       source: {
         name: 'VueDX typecheck',
-        url:
-          'https://github.com/znck/vue-developer-experience/tree/main/packages/typecheck',
+        url: 'https://github.com/znck/vue-developer-experience/tree/main/packages/typecheck',
       },
       diagnostics: result.flatMap((sourceFile) => {
         return sourceFile.diagnostics.map((diagnostic) => ({

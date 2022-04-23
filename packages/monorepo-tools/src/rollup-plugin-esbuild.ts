@@ -1,3 +1,17 @@
+// @ts-expect-error
+import builtins from 'builtins'
+import {
+  build,
+  BuildOptions,
+  PartialMessage,
+  Plugin as ESBuildPlugin,
+  version,
+} from 'esbuild'
+// @ts-expect-error
+import polyfillNodeJS from 'esbuild-plugin-node-polyfills'
+import * as FS from 'fs'
+import * as Path from 'path'
+import resolveModule from 'resolve'
 import type {
   ExternalOption,
   ModuleFormat,
@@ -5,12 +19,6 @@ import type {
   OutputOptions,
   Plugin,
 } from 'rollup'
-// @ts-expect-error
-import builtins from 'builtins'
-import { build, BuildOptions, PartialMessage, version } from 'esbuild'
-import * as Path from 'path'
-import * as FS from 'fs'
-import resolveModule from 'resolve'
 
 export function esbuild(
   config: boolean | BuildOptions,
@@ -26,13 +34,9 @@ export function esbuild(
 
       if (options.format != null) {
         if (
-          new Set<ModuleFormat>([
-            'amd',
-            'iife',
-            'system',
-            'systemjs',
-            'umd',
-          ]).has(options.format)
+          new Set<ModuleFormat>(['amd', 'system', 'systemjs', 'umd']).has(
+            options.format,
+          )
         ) {
           throw new Error(`Rollup output format: ${options.format}`)
         } else if (
@@ -72,6 +76,87 @@ export function esbuild(
         builtins().forEach((value: string) => externals.add(value))
       }
 
+      const rollup: ESBuildPlugin = {
+        name: 'rollup',
+        setup: (build) => {
+          build.onResolve({ filter: /.+/ }, async ({ path, importer }) => {
+            if (path === options.file) {
+              return { path: options.file }
+            }
+
+            if (path === `${fileName}.map`) {
+              return { path: `${fileName}.map` }
+            }
+
+            if (externals.has(path)) {
+              return { path, external: true }
+            }
+
+            let external = isExternal(getExternal(), path, importer)
+            let resolved: string | undefined
+            const warnings: PartialMessage[] = []
+            let id = path
+            const fromRollup = await this.resolve(id, importer)
+
+            if (fromRollup != null) {
+              resolved = fromRollup.id
+              external =
+                fromRollup.external === 'absolute' ? false : fromRollup.external
+
+              if (!Path.isAbsolute(resolved)) {
+                id = resolved
+                external = true
+              }
+            }
+
+            if (fromRollup == null || external) {
+              resolved = await resolveExternalPackage(id, importer)
+              if (resolved == null) {
+                external = true
+                resolved = id
+              } else {
+                external = false
+              }
+            }
+
+            if (resolved != null && Path.isAbsolute(resolved)) {
+              resolved = FS.realpathSync(resolved)
+            }
+
+            if (external) {
+              warnings.push({
+                text: `Module "${path}" is treated as external dependency`,
+              })
+            }
+
+            return {
+              external,
+              path: resolved,
+              warnings,
+            }
+          })
+          build.onLoad({ filter: /.+/ }, async ({ path }) => {
+            if (path === fileName) {
+              return {
+                contents: file.code + getSourceMapString(file),
+                resolveDir: Path.basename(path),
+                loader: 'js',
+              }
+            }
+
+            if (path === `${fileName}.map` && file.map != null) {
+              return {
+                contents: file.map.toString(),
+                resolveDir: Path.basename(path),
+                loader: 'js',
+              }
+            }
+
+            return undefined
+          })
+        },
+      }
+
       const result = await build({
         bundle: true,
         splitting: false,
@@ -89,89 +174,9 @@ export function esbuild(
         sourcemap: 'external',
         entryPoints: [fileName],
         plugins: [
-          {
-            name: 'rollup',
-            setup: (build) => {
-              build.onResolve({ filter: /.+/ }, async ({ path, importer }) => {
-                if (path === options.file) {
-                  return { path: options.file }
-                }
-
-                if (path === `${fileName}.map`) {
-                  return { path: `${fileName}.map` }
-                }
-
-                if (externals.has(path)) {
-                  return { path, external: true }
-                }
-
-                let external = isExternal(getExternal(), path, importer)
-                let resolved: string | undefined
-                const warnings: PartialMessage[] = []
-                let id = path
-                const fromRollup = await this.resolve(id, importer)
-
-                if (fromRollup != null) {
-                  resolved = fromRollup.id
-                  external =
-                    fromRollup.external === 'absolute'
-                      ? false
-                      : fromRollup.external
-
-                  if (!Path.isAbsolute(resolved)) {
-                    id = resolved
-                    external = true
-                  }
-                }
-
-                if (fromRollup == null || external) {
-                  resolved = await resolveExternalPackage(id, importer)
-                  if (resolved == null) {
-                    external = true
-                    resolved = id
-                  } else {
-                    external = false
-                  }
-                }
-
-                if (resolved != null && Path.isAbsolute(resolved)) {
-                  resolved = FS.realpathSync(resolved)
-                }
-
-                if (external) {
-                  warnings.push({
-                    text: `Module "${path}" is treated as external dependency`,
-                  })
-                }
-
-                return {
-                  external,
-                  path: resolved,
-                  warnings,
-                }
-              })
-              build.onLoad({ filter: /.+/ }, async ({ path }) => {
-                if (path === fileName) {
-                  return {
-                    contents: file.code + getSourceMapString(file),
-                    resolveDir: Path.basename(path),
-                    loader: 'js',
-                  }
-                }
-
-                if (path === `${fileName}.map` && file.map != null) {
-                  return {
-                    contents: file.map.toString(),
-                    resolveDir: Path.basename(path),
-                    loader: 'js',
-                  }
-                }
-
-                return undefined
-              })
-            },
-          },
-        ],
+          defaults.platform === 'browser' ? polyfillNodeJS : null,
+          rollup,
+        ].filter((plugin): plugin is ESBuildPlugin => plugin != null),
         write: false,
         watch: false,
       })

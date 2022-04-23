@@ -1,4 +1,3 @@
-import * as FS from 'fs'
 import { inject, injectable } from 'inversify'
 import * as Path from 'path'
 import vscode from 'vscode'
@@ -115,6 +114,7 @@ export class GenerateGrammarCommand extends Installable {
   ): Promise<void> {
     try {
       this.isActive = true
+      const FS = await import('fs')
       const current = JSON.parse(
         FS.readFileSync(Path.resolve(this.rootDir, 'scripts', 'config.json'), {
           encoding: 'utf-8',

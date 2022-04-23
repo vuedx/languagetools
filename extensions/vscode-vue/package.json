@@ -8,6 +8,7 @@
   "description": "Syntax Highlight",
   "icon": "logo.png",
   "main": "dist/index.js",
+  "browser": "dist/index.web.js",
   "buildConfig": {
     "useMain": false,
     "sources": {
@@ -16,6 +17,16 @@
           "format": "commonjs",
           "file": "dist/index.js",
           "bundle": {
+            "external": [
+              "vscode"
+            ]
+          }
+        },
+        {
+          "format": "iife",
+          "file": "dist/index.web.js",
+          "bundle": {
+            "platform": "browser",
             "external": [
               "vscode"
             ]
@@ -182,7 +193,7 @@
   "devDependencies": {
     "@types/vscode": "^1.63.0",
     "fast-glob": "^3.2.4",
-    "typescript": "^4.0.3",
+    "typescript": "^4.6.3",
     "vsce": "2.6.7",
     "yaml": "^1.10.0"
   },
