@@ -1,5 +1,22 @@
 # vue
 
+## 0.8.1
+
+### Patch Changes
+
+- 4cca358: Support folding ranges and signature help
+- Updated dependencies [89c2a70]
+- Updated dependencies [73c5ff7]
+- Updated dependencies [302ba56]
+- Updated dependencies [47b3f73]
+- Updated dependencies [73c5ff7]
+- Updated dependencies [e1a2cf9]
+- Updated dependencies [125a76f]
+- Updated dependencies [8bb4220]
+- Updated dependencies [d15dd7d]
+- Updated dependencies [7d1d193]
+  - @vuedx/vue-virtual-textdocument@0.7.5
+
 ## 0.7.6
 
 ### Patch Changes

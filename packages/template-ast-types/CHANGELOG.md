@@ -1,5 +1,11 @@
 # @vuedx/template-ast-types
 
+## 0.7.3
+
+### Patch Changes
+
+- 7d1d193: Visit ForNode, IfNode and IfBranchNode in traverse()
+
 ## 0.7.2
 
 ### Patch Changes

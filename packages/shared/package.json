@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/shared",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "types": "src/index.ts",

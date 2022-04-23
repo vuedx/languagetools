@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/vue-virtual-textdocument",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "A virtual filesystem to access blocks in SFC as files",
   "main": "lib/index.js",
   "module": "lib/index.mjs",

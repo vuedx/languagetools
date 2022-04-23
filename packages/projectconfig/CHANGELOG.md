@@ -1,5 +1,16 @@
 # @vuedx/projectconfig
 
+## 0.7.2
+
+### Patch Changes
+
+- 302ba56: support global components
+- Updated dependencies [35ec24d]
+- Updated dependencies [28d00a4]
+- Updated dependencies [7c910a6]
+- Updated dependencies [8bb4220]
+  - @vuedx/shared@0.7.4
+
 ## 0.7.1
 
 ### Patch Changes
