@@ -185,7 +185,7 @@ jobs:
       - name: Publish Extension
         run: |
           pnpm recursive --filter ./extensions run build
-          pnpm recursive --filter ./extensions run release'
+          pnpm recursive --filter ./extensions run release
           pnpm -y ovsx publish -p ${OVSX_REGISTRY_TOKEN} ./extensions/vscode-vue/vue.vsix
           pnpm -y ovsx publish -p ${OVSX_REGISTRY_TOKEN} ./extensions/vscode-vue-language-features/vue-language-features.vsix
         env:
