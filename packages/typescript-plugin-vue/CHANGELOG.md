@@ -1,5 +1,11 @@
 # @vuedx/typescript-plugin-vue
 
+## 0.7.5
+
+### Patch Changes
+
+- 7c910a6: Support import path module rename and file rename
+
 ## 0.7.4
 
 ### Patch Changes

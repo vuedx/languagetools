@@ -2,7 +2,7 @@
   "name": "coc-vue",
   "publisher": "znck",
   "displayName": "Vue Language Features",
-  "version": "0.7.4",
+  "version": "0.8.1",
   "description": "Enhanced TypeScript/JavaScript Support",
   "main": "dist/index.js",
   "buildConfig": {

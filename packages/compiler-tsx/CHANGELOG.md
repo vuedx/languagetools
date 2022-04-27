@@ -1,5 +1,47 @@
 # @vuedx/compiler-tsx
 
+## 0.8.0
+
+### Minor Changes
+
+- 73c5ff7: Use single character keys for SourceMap metadata
+
+  See `MappingMetadata` in [packages/compiler-tsx/src/generate.ts](../packages/compiler-tsx/src/generate.ts#L64).
+
+  BREAKING CHANGE: Generated sourcemap is not compatible with older versions.
+
+- c35ebff: Generate typecheckable TSX from Vue template
+
+  BREAKING: Generated code is completely different from previous version
+
+- 73c5ff7: Add new mapping type to SourceMap metadata for tagging generated-to-original mapping (only one way)
+
+### Patch Changes
+
+- 382f971: Support rename at cursor
+- 8c90abe: Generate type guards for v-if expressions
+- e52111f: Assume \$event is always available in v-on expression
+- 89c2a70: Support go to references
+- 28d00a4: Generate type-checking helper for `v-bind:ref` prop
+- f4752aa: Do not render `$event` in v-on inline handler when expression does not include `$event` string
+- 35ec24d: Filter and merge tag and attribute completions in template block
+- 94505e8: Infer \$event.currentTarget type from element
+- 302ba56: Fix codegen for v-slot directive on component node
+- 4cca358: Support folding ranges and signature help
+- f4752aa: Generate correct source map location when codegen outputs VueDX.internal.checkSlots
+- cf397c6: Do not camelize data-_ and aria-_ attributes
+- e1a2cf9: Detect \$attrs forwarding target to merge props
+- 125a76f: Add location hints in geneated code
+- 8bb4220: Add support for completions
+- 7d1d193: Infer type of \$slots from template and typecheck v-slot
+- Updated dependencies [35ec24d]
+- Updated dependencies [7d1d193]
+- Updated dependencies [28d00a4]
+- Updated dependencies [7c910a6]
+- Updated dependencies [8bb4220]
+  - @vuedx/shared@0.7.4
+  - @vuedx/template-ast-types@0.7.3
+
 ## 0.7.4
 
 ### Patch Changes

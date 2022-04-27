@@ -1,5 +1,12 @@
 # coc-vue
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies [7c910a6]
+  - @vuedx/typescript-plugin-vue@0.7.5
+
 ## 0.7.4
 
 ### Patch Changes
