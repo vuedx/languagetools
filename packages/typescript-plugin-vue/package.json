@@ -2,13 +2,11 @@
   "name": "@vuedx/typescript-plugin-vue",
   "version": "0.7.5",
   "description": "TypeScript plugin for Vue",
-  "main": "lib/index.js",
-  "module": "lib/index.mjs",
+  "main": "index.js",
+  "module": "lib/standalone.mjs",
   "types": "src/index.ts",
   "publishConfig": {
-    "types": "lib/index.d.ts",
-    "main": "lib/standalone.js",
-    "module": "lib/standalone.mjs"
+    "types": "lib/index.d.ts"
   },
   "files": [
     "lib",
@@ -24,24 +22,12 @@
         },
         {
           "format": "commonjs",
-          "file": "lib/index.js",
-          "exports": "default"
-        },
-        {
-          "format": "module",
-          "file": "lib/index.mjs",
-          "exports": "named"
-        },
-        {
-          "format": "commonjs",
           "file": "lib/standalone.js",
-          "exports": "default",
           "bundle": true
         },
         {
           "format": "module",
           "file": "lib/standalone.mjs",
-          "exports": "named",
           "bundle": true
         }
       ]

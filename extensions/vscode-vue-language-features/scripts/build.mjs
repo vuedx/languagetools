@@ -12,8 +12,7 @@ const files = ['CHANGELOG.md']
 // Copy packages to vsix bundle.
 const packages = {
   '@vuedx/typescript-plugin-vue': {
-    main: 'lib/standalone.js',
-    files: ['runtime/*.d.ts', 'lib/standalone.js'],
+    files: ['runtime/*.d.ts', 'lib/standalone.js', 'index.js'],
   },
 }
 
@@ -48,7 +47,7 @@ prepareExtensionForPackaging(dir, () => {
 
         const packageJson = {
           ...originalPackageJson,
-          main: options.main,
+          main: options.main ?? originalPackageJson.main,
           dependencies: {},
           devDependencies: {},
           module: undefined,
