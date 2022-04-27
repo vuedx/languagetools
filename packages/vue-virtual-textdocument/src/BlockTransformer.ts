@@ -172,6 +172,9 @@ export const builtins: Record<'script' | 'template', BlockTransformer> = {
                 'export const __VueDX_directives = {};',
                 'export const __VueDX_expose = {};',
                 'export const __VueDX_DefineComponent = VueDX.internal.defineComponent({});',
+                `/* Error: ${(error as Error).message} ${
+                  (error as Error).stack ?? ''
+                } */`,
                 annotations.diagnosticsIgnore.end,
               )),
           errors: [],

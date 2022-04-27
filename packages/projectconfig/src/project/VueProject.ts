@@ -12,8 +12,8 @@ import {
 } from './FilesystemHost'
 import { resolveComponents } from './resolveComponents'
 import { resolveDirectives } from './resolveDirectives'
-import JSON5 from 'json5'
-import Path from 'path'
+import * as JSON5 from 'json5'
+import * as Path from 'path'
 
 export class VueProject {
   static create(fs: FilesystemHost, rootDir: string): VueProject {

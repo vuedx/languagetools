@@ -134,10 +134,14 @@ export function generateRollupOptions(
         ...packageJson.publishConfig,
       })
         .map(([key, value]) => ({ key, value }))
-        .filter((item): item is {
-          key: 'main' | 'module' | 'types' | 'unpkg'
-          value: string
-        } => /^(main|module|unpkg|types)$/.test(item.key))
+        .filter(
+          (
+            item,
+          ): item is {
+            key: 'main' | 'module' | 'types' | 'unpkg'
+            value: string
+          } => /^(main|module|unpkg|types)$/.test(item.key),
+        )
         .map<ExtendedOutputOptions>(({ key: type, value: file }) => ({
           file: file,
           format:

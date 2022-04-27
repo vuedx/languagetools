@@ -23,6 +23,7 @@ import type {
 export function esbuild(
   config: boolean | BuildOptions,
   getExternal: () => ExternalOption | undefined,
+  minify: boolean = process.env['CI'] != null,
 ): Plugin {
   let format: 'iife' | 'cjs' | 'esm' = 'esm'
   let outputOptions!: OutputOptions
@@ -170,6 +171,11 @@ export function esbuild(
         outfile: fileName,
         treeShaking: true,
         resolveExtensions: ['.mjs', '.js', '.cjs'],
+        minify: minify,
+        minifyIdentifiers: minify,
+        minifyWhitespace: minify,
+        minifySyntax: minify,
+        legalComments: 'none',
         ...defaults,
         sourcemap: 'external',
         entryPoints: [fileName],

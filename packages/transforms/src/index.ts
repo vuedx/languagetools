@@ -1,6 +1,10 @@
 import * as T from '@babel/types'
-import template from '@babel/template'
-import generator, { GeneratorResult, GeneratorOptions } from '@babel/generator'
+import * as template from '@babel/template'
+import {
+  GeneratorResult,
+  GeneratorOptions,
+  CodeGenerator,
+} from '@babel/generator'
 import { parse, ParserOptions } from '@babel/parser'
 import MagicString from 'magic-string'
 
@@ -69,10 +73,10 @@ export function toCode(
       ),
   )
 
-  const result = generator(statement as any, {
+  const result = new CodeGenerator(statement as any, {
     comments: true,
     ...options,
-  })
+  }).generate()
 
   if (sourceText == null) return result
 
@@ -218,7 +222,7 @@ export const createExportDeclarationForComponent = memoizeByFirstArg(
     return T.exportNamedDeclaration(statement)
 
     function createDeclarationForScriptSetup(): any {
-      const createExpr = template(
+      const createExpr = template.statement(
         `const ${config.exportName} = ${config.defineComponent}(
         %%props%%, 
         %%emits%%, 
@@ -249,7 +253,7 @@ export const createExportDeclarationForComponent = memoizeByFirstArg(
       return createExpr({ props, emits, bindings, extra })
     }
     function createDeclarationForScript(): any {
-      const createExpr = template(
+      const createExpr = template.statement(
         `const ${config.exportName} = ${config.defineComponent}(%%options%%)`,
       )
 
@@ -485,7 +489,9 @@ function createExportDeclarationFor(
     ...options,
   }
 
-  const createExpr = template(`const ${config.exportName} = %%value%%;`)
+  const createExpr = template.statement(
+    `const ${config.exportName} = %%value%%;`,
+  )
   const declaration = createExpr({
     value: getExpressionOrReference(findTargetExpression(), config),
   })

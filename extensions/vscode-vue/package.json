@@ -4,7 +4,7 @@
   "name": "vue",
   "publisher": "znck",
   "displayName": "Vue",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "Syntax Highlight",
   "icon": "logo.png",
   "main": "dist/index.js",
