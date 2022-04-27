@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - v*
 
 .checkout: &checkout
   - name: Checkout
@@ -161,12 +163,20 @@ jobs:
           pnpm recursive publish --tag next --access public --no-git-checks
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: 'marvinpinto/action-automatic-releases@latest'
+        with:
+          title: 'Development Build'
+          repo_token: '${{ secrets.GITHUB_TOKEN }}'
+          automatic_release_tag: 'latest'
+          prerelease: true
+          files: |
+            extensions/*/*.vsix
 
   check_release:
     name: Check Release
     runs-on: ubuntu-latest
     needs: unit
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'release:')
+    if: startsWith(github.event.ref, 'refs/tags/v')
     steps:
       - run: echo 'ok'
 
@@ -186,8 +196,8 @@ jobs:
         run: |
           pnpm recursive --filter ./extensions run build
           pnpm recursive --filter ./extensions run release
-          pnpm -y ovsx publish -p ${OVSX_REGISTRY_TOKEN} ./extensions/vscode-vue/vue.vsix
-          pnpm -y ovsx publish -p ${OVSX_REGISTRY_TOKEN} ./extensions/vscode-vue-language-features/vue-language-features.vsix
+          pnpx -y ovsx publish -p ${OVSX_REGISTRY_TOKEN} ./extensions/vscode-vue/vue.vsix
+          pnpx -y ovsx publish -p ${OVSX_REGISTRY_TOKEN} ./extensions/vscode-vue-language-features/vue-language-features.vsix
         env:
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
           OVSX_REGISTRY_TOKEN: ${{ secrets.OVSX_REGISTRY_TOKEN }}
@@ -201,7 +211,6 @@ jobs:
       - uses: 'marvinpinto/action-automatic-releases@latest'
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
-          automatic_release_tag: 'latest'
           prerelease: false
           files: |
             extensions/*/*.vsix
