@@ -12,7 +12,7 @@ const files = ['CHANGELOG.md']
 // Copy packages to vsix bundle.
 const packages = {
   '@vuedx/typescript-plugin-vue': {
-    main: 'index.js',
+    main: 'lib/standalone.js',
     files: ['runtime/*.d.ts', 'lib/standalone.js'],
   },
 }
@@ -22,9 +22,9 @@ const dir = Path.resolve(__dirname, '..')
 
 prepareExtensionForPackaging(dir, () => {
   const execArgs = { stdio: [0, 1, 2], cwd: dir }
-  const RELEASE_CHANNEL = /** @type {'release'|'pre-release'} */ (process.env[
-    'RELEASE_CHANNEL'
-  ] ?? 'release')
+  const RELEASE_CHANNEL = /** @type {'release'|'pre-release'} */ (
+    process.env['RELEASE_CHANNEL'] ?? 'release'
+  )
   const args = RELEASE_CHANNEL === 'pre-release' ? '--pre-release' : ''
 
   execSync(
