@@ -183,8 +183,6 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    environment:
-      name: Production
     needs: check_release
     concurrency:
       group: release
