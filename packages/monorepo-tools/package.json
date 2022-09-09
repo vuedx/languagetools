@@ -4,16 +4,9 @@
   "version": "0.2.1",
   "displayName": "Monorepo tools",
   "description": "Utility functions for monorepo management",
-  "main": "lib/index.js",
+  "main": "lib/index.cjs",
   "module": "lib/index.mjs",
-  "types": "src/index.ts",
-  "publishConfig": {
-    "types": "lib/index.d.ts"
-  },
-  "buildConfig": {
-    "sources": {},
-    "external": []
-  },
+  "types": "lib/index.d.ts",
   "files": [
     "lib/"
   ],
@@ -30,36 +23,22 @@
     "directory": "packages/monorepo-tools"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^13.0.0",
-    "@rollup/plugin-typescript": "^8.2.1",
-    "rollup": "^2.50.6",
-    "typescript": "^4.6.3"
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-typescript": "^8.5.0",
+    "rollup": "^2.79.0",
+    "typescript": "^4.8.2"
   },
   "peerDependencies": {
-    "rollup": "^2.50.6",
-    "typescript": "^4.6.3"
+    "rollup": "^2.79.0",
+    "typescript": "^4.8.2"
   },
   "dependencies": {
+    "rollup-plugin-dts": "^4.2.2",
     "@rollup/plugin-json": "^4.1.0",
-    "browserify-zlib": "^0.2.0",
-    "buffer": "^6.0.3",
-    "builtins": "^4.0.0",
-    "crypto-browserify": "^3.12.0",
-    "esbuild": "^0.14.38",
-    "esbuild-plugin-node-polyfills": "^1.0.2",
-    "events": "^3.3.0",
-    "fast-glob": "^3.2.5",
-    "https-browserify": "^1.0.0",
-    "os-browserify": "^0.3.0",
-    "path-browserify": "^1.0.1",
-    "process": "^0.11.10",
-    "resolve": "^1.20.0",
-    "rollup-plugin-dts": "^3.0.2",
-    "stream-browserify": "^3.0.0",
-    "stream-http": "^3.2.0",
-    "topological-sort": "^0.3.0",
-    "url": "^0.11.0",
-    "util": "^0.12.4"
+    "esbuild": "^0.15.7",
+    "@jspm/core": "^2.0.0-beta.26",
+    "fast-glob": "^3.2.11",
+    "topological-sort": "^0.3.0"
   },
   "scripts": {
     "build": "rollup -c"

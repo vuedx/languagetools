@@ -1,4 +1,5 @@
-import { injectable, inject } from 'inversify'
+import { first } from '@vuedx/shared'
+import { inject, injectable } from 'inversify'
 import vscode from 'vscode'
 import { PluginCommunicationService } from '../services/PluginCommunicationService'
 import { getVirtualFileUri } from '../utils/uri'
@@ -25,11 +26,9 @@ export class OpenVirtualFileCommand {
       return
     }
 
-    const position = editor.document.offsetAt(editor.selection.start)
     const fileName = await this.plugin.first(async (connection) => {
-      return await connection.getVirtualFileAt(
-        editor.document.fileName,
-        position,
+      return first(
+        await connection.getRelatedVirtualFiles(editor.document.fileName),
       )
     })
 

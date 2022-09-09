@@ -2,12 +2,9 @@
   "name": "@vuedx/transforms",
   "version": "0.7.5",
   "description": "AST Transforms",
-  "main": "lib/index.js",
+  "main": "lib/index.cjs",
   "module": "lib/index.mjs",
-  "types": "src/index.ts",
-  "publishConfig": {
-    "types": "lib/index.d.ts"
-  },
+  "types": "lib/index.d.ts",
   "files": [
     "lib"
   ],

@@ -1,5 +1,3 @@
-import { parse as parseQueryString } from 'querystring'
-
 interface ParsedFileName {
   type: string
   fileName: string
@@ -11,17 +9,12 @@ export interface FilesystemSchemeFileName extends ParsedFileName {
   fileName: string
 }
 
-export interface VueVirtualFileName extends ParsedFileName {
-  type: 'virtual'
+export interface VueTsxFileName extends ParsedFileName {
+  type: 'vue-tsx'
   fileName: string
-  blockType: string
-  blockLang: string
-  blockIndex?: number
-  query?: Record<string, string | true>
-  setup?: boolean
 }
-export interface VueTsFileName extends ParsedFileName {
-  type: 'vue-ts'
+export interface VueJsxFileName extends ParsedFileName {
+  type: 'vue-jsx'
   fileName: string
 }
 
@@ -41,15 +34,16 @@ export interface FileName extends ParsedFileName {
 }
 
 type FileNames =
-  | VueVirtualFileName
   | FilesystemSchemeFileName
-  | VueTsFileName
+  | VueTsxFileName
+  | VueJsxFileName
   | VueSFCDescriptorFileName
   | VueTemplateASTFileName
   | FileName
 
 const suffixes = {
-  vueTs: '.ts',
+  vueTsx: '.tsx',
+  vueJsx: '.jsx',
   vueSFCDescriptor: '+descriptor.jsonc',
   vueTemplateAST: '+template.jsonc',
   vueRuntime: '.vuedx_runtime.d.ts',
@@ -65,35 +59,15 @@ export function parseFileName(fileName: string): FileNames {
       fileName: fileName.substring(2 + scheme.length),
       scheme,
     }
-  } else if (isVueVirtualFile(fileName)) {
-    const offset = fileName.indexOf('.vue+vue')
-    const langOffset = fileName.lastIndexOf('&lang.')
-    const lang = fileName.substring(langOffset + '&lang.'.length)
-    const queryString = fileName.substring(offset + 5, langOffset)
-    const { type: blockType, index, setup, vue, ...rest } = parseQueryString(
-      queryString,
-    ) as Record<string, string>
-
-    const query = rest as Record<string, string | true>
-    for (const key in query) {
-      if (rest[key] === '') {
-        query[key] = true
-      }
-    }
-
+  } else if (isVueTsxFile(fileName)) {
     return {
-      type: 'virtual',
-      fileName: fileName.substring(0, offset + 4),
-      blockType: String(blockType),
-      blockLang: lang,
-      blockIndex: index != null ? parseInt(index, 10) : undefined,
-      setup: setup != null ? true : undefined,
-      query: Object.keys(query).length > 0 ? query : undefined,
+      type: 'vue-tsx',
+      fileName: fileName.substring(0, fileName.length - suffixes.vueTsx.length),
     }
-  } else if (isVueTsFile(fileName)) {
+  } else if (isVueJsxFile(fileName)) {
     return {
-      type: 'vue-ts',
-      fileName: fileName.substring(0, fileName.length - suffixes.vueTs.length),
+      type: 'vue-jsx',
+      fileName: fileName.substring(0, fileName.length - suffixes.vueJsx.length),
     }
   } else if (isVueSFCDescriptorFile(fileName)) {
     return {
@@ -123,19 +97,10 @@ export function toFileName(f: FileNames): string {
   switch (f.type) {
     case 'scheme':
       return `^/${f.scheme}${f.fileName}`
-
-    case 'virtual':
-      return `${f.fileName}+vue&type=${f.blockType}${
-        f.blockIndex != null ? `&index=${f.blockIndex}` : ''
-      }${f.setup === true ? '&setup' : ''}${
-        f.query != null
-          ? `&${Array.from(Object.entries(f.query))
-              .map(([key, value]) => (value === true ? key : `${key}=${value}`))
-              .join('&')}`
-          : ''
-      }&lang.${f.blockLang}`
-    case 'vue-ts':
-      return `${f.fileName}${suffixes.vueTs}`
+    case 'vue-tsx':
+      return `${f.fileName}${suffixes.vueTsx}`
+    case 'vue-jsx':
+      return `${f.fileName}${suffixes.vueJsx}`
     case 'vue-descriptor':
       return `${f.fileName}${suffixes.vueSFCDescriptor}`
     case 'vue-template-ast':
@@ -153,8 +118,11 @@ export function isVueFile(fileName: string): boolean {
   return fileName.endsWith('.vue')
 }
 
-export function isVueTsFile(fileName: string): boolean {
-  return fileName.endsWith('.vue' + suffixes.vueTs)
+export function isVueTsxFile(fileName: string): boolean {
+  return fileName.endsWith('.vue' + suffixes.vueTsx)
+}
+export function isVueJsxFile(fileName: string): boolean {
+  return fileName.endsWith('.vue' + suffixes.vueJsx)
 }
 
 export function isVueSFCDescriptorFile(fileName: string): boolean {

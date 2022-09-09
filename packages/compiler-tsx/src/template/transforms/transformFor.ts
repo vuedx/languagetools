@@ -3,11 +3,11 @@ import {
   NodeTransform,
   processFor,
 } from '@vue/compiler-core'
-import type { CustomTransformContext } from './CustomTransformContext'
+import type { NodeTransformContext } from '../types/NodeTransformContext'
 
 export const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
 export function createTransformFor(
-  customContext: CustomTransformContext,
+  customContext: NodeTransformContext,
 ): NodeTransform {
   return createStructuralDirectiveTransform(/^for$/, (node, dir, context) => {
     return processFor(node, dir, context, (forNode) => {

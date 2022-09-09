@@ -1,20 +1,20 @@
 import type { NodeTransform } from '@vue/compiler-core'
 import { findDir } from '@vue/compiler-core'
 import { isElementNode } from '@vuedx/template-ast-types'
-import type { CustomTransformContext } from './CustomTransformContext'
+import type { NodeTransformContext } from '../types/NodeTransformContext'
 
 export function createSlotHoistScopeTransform(
-  customContext: CustomTransformContext,
+  context: NodeTransformContext,
 ): NodeTransform {
   return (node) => {
     if (!isElementNode(node)) return
     const dir = findDir(node, 'slot', true)
     if (dir == null) return
 
-    node.hoists = customContext.scope.createNewHoistScope()
+    node.hoists = context.scope.createNewHoistScope()
 
     return () => {
-      node.hoists = customContext.scope.popHoistScope()
+      node.hoists = context.scope.popHoistScope()
     }
   }
 }

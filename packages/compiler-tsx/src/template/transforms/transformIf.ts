@@ -5,10 +5,10 @@ import {
 } from '@vue/compiler-core'
 import { createSimpleExpression } from '@vuedx/template-ast-types'
 
-import type { CustomTransformContext } from './CustomTransformContext'
+import type { NodeTransformContext } from '../types/NodeTransformContext'
 
 export function createTransformIf(
-  _customContext: CustomTransformContext,
+  _customContext: NodeTransformContext,
 ): NodeTransform {
   return createStructuralDirectiveTransform(
     /^(if|else-if|else)$/,

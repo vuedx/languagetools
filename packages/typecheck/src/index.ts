@@ -1,6 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/triple-slash-reference
-/// <reference types="../../../global" />
-
 import { collectError, Telemetry } from '@vuedx/shared'
 import { version } from '../package.json'
 import { Diagnostics, getDiagnostics2 } from './diagnostics'

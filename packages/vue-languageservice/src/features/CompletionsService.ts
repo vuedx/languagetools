@@ -1,27 +1,17 @@
 import {
   debug,
+  invarient,
   isHTMLTag,
   isNotNull,
   isPascalCase,
   isString,
   isSVGTag,
-  isVueFile,
   lcfirst,
   ucfirst,
 } from '@vuedx/shared'
-import {
-  AttributeNode,
-  DirectiveNode,
-  ElementNode,
-  findTemplateNodeAt,
-  isAttributeNode,
-  isDirectiveNode,
-  isSimpleExpressionNode,
-} from '@vuedx/template-ast-types'
 import type {
   Position,
   TextSpan,
-  VueBlockDocument,
   VueSFCDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
@@ -52,8 +42,6 @@ type CompletionAdditionalInfo = {
     }
 )
 
-const PROP_COMPLETION_HELPER = 'VueDX.internal.propCompletionHelper("'
-
 @injectable()
 export class CompletionsService
   implements
@@ -64,7 +52,8 @@ export class CompletionsService
       | 'getCompletionEntrySymbol'
       | 'getDocCommentTemplateAtPosition'
       | 'getJsxClosingTagAtPosition'
-    > {
+    >
+{
   private readonly logger = LoggerService.getLogger(
     CompletionsService.name,
     LogLevel.DEBUG,
@@ -83,7 +72,9 @@ export class CompletionsService
     private readonly ts: TypescriptContextService,
     @inject(LanguageServiceProvider)
     private readonly langs: LanguageServiceProvider,
-  ) {}
+  ) {
+    invarient(this.langs)
+  }
 
   @debug()
   public getCompletionsAtPosition(
@@ -219,12 +210,15 @@ export class CompletionsService
     }
 
     if (this.fs.isVueFile(fileName)) {
-      const block = this.fs.getVirtualFileAt(fileName, position)
-      if (block == null || block.tsFileName == null) return
+      const file = this.fs.getVueFile(fileName)
+      if (file == null) return
+
+      const generatedPosition = file.generatedOffsetAt(position)
+      if (generatedPosition == null) return
 
       return this.ts.service.getCompletionEntryDetails(
-        block.tsFileName,
-        block.findGeneratedOffetAt(block.toBlockOffset(position)),
+        file.geneartedFileName,
+        generatedPosition,
         entryName,
         formatOptions,
         source,
@@ -251,23 +245,15 @@ export class CompletionsService
   ): TypeScript.TextInsertion | undefined {
     if (this.fs.isVueSchemeFile(fileName)) return
     if (this.fs.isVueFile(fileName)) {
-      const [file, block] = this.fs.findFilesAt(fileName, position)
-      if (block == null || file == null || block.tsFileName == null) return
-      if (block.block.type === 'script') {
-        return this.ts.service.getDocCommentTemplateAtPosition(
-          block.tsFileName,
-          block.findGeneratedOffetAt(block.toBlockOffset(position)),
-          options,
-        )
-      }
+      const block = this.fs.getVueFile(fileName)
+      if (block == null) return
 
-      if (block.block.type !== 'template') return
-      if (file.templateAST == null) return
-      const result = findTemplateNodeAt(file.templateAST, position)
-      if (!isSimpleExpressionNode(result.node)) return
+      const generatedOffset = block.generatedOffsetAt(position)
+      if (generatedOffset == null) return
+
       return this.ts.service.getDocCommentTemplateAtPosition(
-        block.tsFileName,
-        block.findGeneratedOffetAt(block.toBlockOffset(position)),
+        block.geneartedFileName,
+        generatedOffset,
         options,
       )
     }
@@ -281,19 +267,16 @@ export class CompletionsService
   ): TypeScript.JsxClosingTagInfo | undefined {
     if (this.fs.isVueSchemeFile(fileName)) return
     if (this.fs.isVueFile(fileName)) {
-      const [file, block] = this.fs.findFilesAt(fileName, position)
-      if (block == null || file == null || block.tsFileName == null) return
-      if (
-        block.block.type === 'template' ||
-        (block.block.type === 'script' &&
-          (block.block.lang === 'tsx' || block.block.lang === 'jsx'))
-      ) {
-        return this.ts.service.getJsxClosingTagAtPosition(
-          block.tsFileName,
-          block.findGeneratedOffetAt(block.toBlockOffset(position)),
-        )
-      }
-      return undefined
+      const block = this.fs.getVueFile(fileName)
+      if (block == null) return
+
+      const generatedPosition = block.generatedOffsetAt(position)
+      if (generatedPosition == null) return
+
+      return this.ts.service.getJsxClosingTagAtPosition(
+        block.geneartedFileName,
+        generatedPosition,
+      )
     }
 
     return this.ts.service.getJsxClosingTagAtPosition(fileName, position)
@@ -332,10 +315,7 @@ export class CompletionsService
                   },
                 ].filter(isNotNull)
               : [],
-          codeActions: this.#getCodeActionsFromCompletionItem(
-            info.fileName,
-            info.data,
-          ),
+          codeActions: [],
         }
       default:
         if (entryName.startsWith('@')) {
@@ -374,6 +354,7 @@ export class CompletionsService
     }
   }
 
+  // @ts-expect-error
   #getContextCompletionOptions(
     options: TypeScript.GetCompletionsAtPositionOptions | undefined,
   ): TypeScript.GetCompletionsAtPositionOptions {
@@ -396,57 +377,20 @@ export class CompletionsService
   ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     const file = this.fs.getVueFile(fileName)
     if (file == null) return
-    const block = file.getDocAt(position)
-    if (block == null) {
-      const service = this.langs.getLanguageService('vue')
-      if (service == null) return
-      const result = service.getCompletionsAtPosition(
-        fileName,
-        file.positionAt(position),
-      )
 
-      const completions = this.#combine(
-        result.items.map((item) => {
-          return this.#completionItemToEntry(file, item)
-        }),
-      )
-      if (result.isIncomplete && completions != null)
-        completions.isIncomplete = true
-      return completions
-    }
+    const block = file.getBlockAt(position)
+    if (block == null) return
 
-    this.logger.debug(
-      `(Vue) Find completions at ${fileName}:${this.fs.getPositionString(
-        file,
-        position,
-      )}`,
-    )
-
-    switch (block.block.type) {
+    switch (block.type) {
       case 'template':
-        return this.#templateCompletionsAtPosition(
-          file,
-          block,
-          position,
-          options,
-        )
-      case 'script':
-        return this.#scriptCompletionsAtPosition(file, block, position, options)
-      case 'style':
-        return this.#styleCompletionsAtPosition(file, block, position, options)
-      default:
-        return this.#customBlockCompletionsAtPosition(
-          file,
-          block,
-          position,
-          options,
-        )
+        return this.#templateCompletionsAtPosition(file, position, options)
     }
+
+    return undefined
   }
 
   #templateCompletionsAtPosition(
     file: VueSFCDocument,
-    block: VueBlockDocument,
     position: number,
     options: TypeScript.GetCompletionsAtPositionOptions | undefined,
   ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
@@ -461,16 +405,14 @@ export class CompletionsService
       | undefined
     > = []
 
-    if (
-      file.templateAST == null ||
-      block.tsFileName == null ||
-      block.generated == null
-    )
-      return
+    if (file.templateAST == null) return
+    const block = file.descriptor.template
+    if (block == null) return
 
-    const offset = block.toBlockOffset(position)
+    const offset = position - block.loc.start.offset
     const info = getTemplateContextAt(file.templateAST, offset)
-    const generatedOffset = block.findGeneratedOffetAt(offset)
+    const generatedOffset = file.generatedOffsetAt(position)
+    if (generatedOffset == null) return
     this.logger.debug(`Detected context: ${info.type}`)
     switch (info.type) {
       case TemplateContextType.OpenTag:
@@ -478,7 +420,7 @@ export class CompletionsService
         completionsInGeneratedCode.push(
           this.#cleanup(
             this.ts.service.getCompletionsAtPosition(
-              block.tsFileName,
+              file.geneartedFileName,
               generatedOffset,
               this.#getTsxCompletionOptions(options),
             ),
@@ -486,7 +428,7 @@ export class CompletionsService
               mode: 'tag',
               attachAdditionalInfo: {
                 type: info.type,
-                fileName: block.tsFileName,
+                fileName: file.geneartedFileName,
                 position: generatedOffset,
               },
             },
@@ -495,71 +437,10 @@ export class CompletionsService
         break
 
       case TemplateContextType.Attribute:
-        completionsInVueFile.push(
-          this.#cleanup(
-            this.#getAttributeCompletions(
-              block,
-              info.context,
-              info.node,
-              options,
-            ),
-            {
-              mode: 'attribute',
-              attachAdditionalInfo: {
-                type: info.type,
-                fileName: block.tsFileName,
-                position: generatedOffset,
-              },
-            },
-          ),
-        )
         break
       case TemplateContextType.DirectiveArgument:
-        if (
-          info.context.name === 'bind' ||
-          info.context.name === 'model' ||
-          info.context.name === 'on'
-        ) {
-          completionsInVueFile.push(
-            this.#cleanup(
-              this.#getAttributeCompletions(
-                block,
-                info.element,
-                info.context,
-                options,
-              ),
-              {
-                mode: 'attribute',
-                attachAdditionalInfo: {
-                  type: info.type,
-                  fileName: block.tsFileName,
-                  position: generatedOffset,
-                },
-              },
-            ),
-          )
-        }
-        if (info.context.arg != null) {
-          completionsInVueFile.push(
-            this.#getDirectiveModifierCompletions(
-              block,
-              info.element,
-              info.context,
-              options,
-            ),
-          )
-        }
-        // others
         break
       case TemplateContextType.DirectiveModifier:
-        completionsInVueFile.push(
-          this.#getDirectiveModifierCompletions(
-            block,
-            info.context,
-            info.node,
-            options,
-          ),
-        )
         break
 
       case TemplateContextType.AttributeValue:
@@ -568,7 +449,7 @@ export class CompletionsService
         completionsInGeneratedCode.push(
           this.#cleanup(
             this.ts.service.getCompletionsAtPosition(
-              block.tsFileName,
+              file.geneartedFileName,
               generatedOffset,
               options,
             ),
@@ -576,31 +457,12 @@ export class CompletionsService
               mode: 'all',
               attachAdditionalInfo: {
                 type: info.type,
-                fileName: block.tsFileName,
+                fileName: file.geneartedFileName,
                 position: generatedOffset,
               },
             },
           ),
         )
-        if (block.tsCompletionsOffset != null) {
-          completionsInGeneratedCode.push(
-            this.#cleanup(
-              this.ts.service.getCompletionsAtPosition(
-                block.tsFileName,
-                block.tsCompletionsOffset,
-                this.#getContextCompletionOptions(options),
-              ),
-              {
-                mode: 'all',
-                attachAdditionalInfo: {
-                  type: info.type,
-                  fileName: block.tsFileName,
-                  position: block.tsCompletionsOffset,
-                },
-              },
-            ),
-          )
-        }
         break
 
       case TemplateContextType.Comment:
@@ -608,30 +470,8 @@ export class CompletionsService
         break
     }
 
-    if (
-      info.type === TemplateContextType.Attribute ||
-      info.type === TemplateContextType.AttributeValue ||
-      info.type === TemplateContextType.OpenTag ||
-      info.type === TemplateContextType.CloseTag
-    ) {
-      const service = this.langs.getLanguageService(block.fileName)
-      if (service != null) {
-        completionsInVueFile.push(
-          service
-            .getCompletionsAtPosition(
-              block.fileName,
-              block.source.positionAt(offset),
-            )
-            .items.map((item) => this.#completionItemToEntry(block, item)),
-        )
-      }
-    }
-
     return this.#dedupeAndTransform(
-      this.#combine(
-        this.#rebase(block, this.#combine(...completionsInGeneratedCode)),
-        ...completionsInVueFile,
-      ),
+      this.#combine(...completionsInVueFile),
       TemplateContextType.Attribute === info.type ||
         TemplateContextType.DirectiveArgument === info.type
         ? 'attribute'
@@ -642,221 +482,9 @@ export class CompletionsService
     )
   }
 
-  /**
-   * NOTE: Completions include replacementSpan with text spans corresponding to .vue file
-   */
-  #getAttributeCompletions(
-    block: VueBlockDocument,
-    element: ElementNode,
-    attribute: AttributeNode | DirectiveNode | null,
-    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
-  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
-    if (block.generated == null) return
-    if (block.tsFileName == null) return
-    if (
-      isDirectiveNode(attribute) &&
-      attribute.name === 'model' &&
-      (isHTMLTag(element.tag) || isSVGTag(element.tag))
-    ) {
-      return // no model attribute for svg/html
-    }
-
-    const index = block.generated
-      .getText()
-      .indexOf(
-        PROP_COMPLETION_HELPER,
-        block.findGeneratedOffetAt(element.loc.start.offset),
-      )
-
-    if (index < 0) return
-    const offset = index + PROP_COMPLETION_HELPER.length
-    const completions = this.ts.service.getCompletionsAtPosition(
-      block.tsFileName,
-      offset,
-      options,
-    )
-    if (completions == null || completions.entries == null) return
-    if (attribute != null) {
-      const end = isDirectiveNode(attribute)
-        ? attribute.arg?.loc.end.offset ??
-          attribute.exp?.loc.start.offset ??
-          attribute.loc.end.offset
-        : attribute.loc.end.offset
-      const attributeSpan = {
-        start: block.toFileOffset(attribute.loc.start.offset),
-        length: end - attribute.loc.start.offset,
-      }
-      const argumentSpan = isDirectiveNode(attribute)
-        ? attribute.arg != null
-          ? {
-              start: block.toFileOffset(attribute.arg.loc.start.offset),
-              length: end - attribute.loc.start.offset,
-            }
-          : undefined
-        : {
-            start: block.toFileOffset(attribute.loc.start.offset),
-            length: end - attribute.loc.start.offset,
-          }
-      const kind = isDirectiveNode(attribute)
-        ? (attribute.name as 'bind' | 'on' | 'model')
-        : 'all'
-      const preferences = this.ts.getVuePrefrencesFor(block.parent.fileName)
-      const preferShorthand =
-        preferences.template.directiveSyntax === 'shorthand'
-      const hasExpression =
-        (isDirectiveNode(attribute) && attribute.exp != null) ||
-        (isAttributeNode(attribute) && attribute.value != null)
-      const makeSnippet = (
-        entry: TypeScript.CompletionEntry,
-      ): TypeScript.CompletionEntry => {
-        if (hasExpression || entry.isSnippet === true) return entry
-
-        entry.isSnippet = true
-        if (entry.insertText == null) {
-          entry.insertText = `${entry.name}="$0"`
-        } else {
-          entry.insertText += '="$0"'
-        }
-
-        return entry
-      }
-      completions.entries = completions.entries
-        .flatMap((entry) => {
-          if (/^on[A-Z]/.test(entry.name)) {
-            const arg = lcfirst(entry.name.slice(2))
-            if (kind === 'bind' || kind === 'model') return null
-            const name = preferShorthand ? `@${arg}` : `v-on:${arg}`
-
-            return makeSnippet({
-              ...entry,
-              name,
-              insertText: entry.insertText?.replace(entry.name, name),
-              replacementSpan: attributeSpan,
-            })
-          } else {
-            if (kind === 'on') return null
-            const arg = entry.name
-            const name =
-              kind === 'model'
-                ? `v-model:${arg}`
-                : preferShorthand
-                ? `:${arg}`
-                : `v-bind:${arg}`
-
-            return [
-              makeSnippet({
-                ...entry,
-                replacementSpan: argumentSpan,
-              }),
-              makeSnippet({
-                ...entry,
-                name,
-                insertText: entry.insertText?.replace(entry.name, name),
-                replacementSpan: attributeSpan,
-              }),
-            ]
-          }
-        })
-        .filter(isNotNull)
-    } else {
-      completions.entries.forEach((entry) => {
-        entry.replacementSpan = undefined
-      })
-    }
-
-    return completions
-  }
-
-  /**
-   * NOTE: Completions include replacementSpan with text spans corresponding to .vue file
-   */
-  #getDirectiveModifierCompletions(
-    block: VueBlockDocument,
-    _element: ElementNode,
-    directive: DirectiveNode,
-    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
-  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
-    const start = directive.arg?.loc.end.offset ?? directive.loc.start.offset
-    const end = directive.exp?.loc.end.offset ?? directive.loc.end.offset
-    const text = directive.loc.source.slice(
-      start - directive.loc.start.offset,
-      end - directive.loc.start.offset,
-    )
-    const index = text.lastIndexOf('.')
-    const prefix = index >= 0 ? text.slice(index) : ''
-    const replacementSpan =
-      prefix.length > 0
-        ? {
-            start: block.toFileOffset(start + index),
-            length: prefix.length,
-          }
-        : undefined
-
-    if (directive.name === 'bind') {
-      if (!/^v-bind|:/.test(directive.loc.source)) return
-
-      const modifiers = ['camel', 'prop', 'attr'].filter(
-        (modifier) => !directive.modifiers.includes(modifier),
-      )
-
-      return this.#cleanup(
-        {
-          isGlobalCompletion: false,
-          isMemberCompletion: false,
-          isNewIdentifierLocation: false,
-          entries: modifiers.map((modifier) => ({
-            name: modifier,
-            kind: this.ts.lib.ScriptElementKind.jsxAttribute,
-            kindModifiers: 'modifier',
-            sortText: '16',
-            insertText: `.${modifier}`,
-            replacementSpan,
-          })),
-        },
-        {
-          mode: 'all',
-          attachAdditionalInfo: {
-            type: TemplateContextType.None,
-            fileName: block.fileName,
-            position: start,
-          },
-        },
-      )
-    }
-
-    if (block.generated == null || block.tsFileName == null) return
-    const offset = block.findGeneratedOffetAt(directive.loc.start.offset)
-    const position = block.generated
-      .getText()
-      .indexOf('"/*<VueDX:directiveCompletion/>*/', offset)
-    if (position < 0) return
-    const completions = this.ts.service.getCompletionsAtPosition(
-      block.tsFileName,
-      position,
-      { ...options, triggerCharacter: '"' },
-    )
-    if (completions == null || completions.entries == null) return
-
-    const kind = this.ts.lib.ScriptElementKind.jsxAttribute
-    completions.entries.forEach((entry) => {
-      entry.replacementSpan = replacementSpan
-      entry.kindModifiers = 'directive'
-      entry.kind = kind
-      entry.insertText = `.${entry.name}`
-    })
-
-    return this.#cleanup(completions, {
-      mode: 'all',
-      attachAdditionalInfo: {
-        type: TemplateContextType.DirectiveModifier,
-        fileName: block.tsFileName,
-        position: position,
-      },
-    })
-  }
-
+  // @ts-expect-error
   #completionItemToEntry(
-    file: VueBlockDocument | VueSFCDocument,
+    file: VueSFCDocument,
     item: LanguageService.CompletionItem,
   ): TypeScript.CompletionEntry {
     const kind = this.#toScriptElementKind(item.kind)
@@ -871,10 +499,6 @@ export class CompletionsService
       const range =
         'replace' in item.textEdit ? item.textEdit.replace : item.textEdit.range
       const offsetAt = (position: Position): number => {
-        if (isVueBlockDocument(file)) {
-          return file.toFileOffset(file.source.offsetAt(position))
-        }
-
         return file.offsetAt(position)
       }
 
@@ -917,9 +541,10 @@ export class CompletionsService
     )
   }
 
-  #toScriptElementKind(
-    kind?: LanguageService.CompletionItemKind,
-  ): { kind: TypeScript.ScriptElementKind; kindModifiers: string[] } {
+  #toScriptElementKind(kind?: LanguageService.CompletionItemKind): {
+    kind: TypeScript.ScriptElementKind
+    kindModifiers: string[]
+  } {
     switch (kind) {
       case 1 /* Text */:
         return {
@@ -1054,125 +679,6 @@ export class CompletionsService
     }
   }
 
-  #scriptCompletionsAtPosition(
-    _file: VueSFCDocument,
-    block: VueBlockDocument,
-    position: number,
-    options: TypeScript.GetCompletionsAtPositionOptions | undefined,
-  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
-    if (block.tsFileName == null) return undefined
-    return this.#rebase(
-      block,
-      this.ts.service.getCompletionsAtPosition(
-        block.tsFileName,
-        block.toBlockOffset(position),
-        options,
-      ),
-    )
-  }
-
-  #styleCompletionsAtPosition(
-    _file: VueSFCDocument,
-    block: VueBlockDocument,
-    position: number,
-    _options: TypeScript.GetCompletionsAtPositionOptions | undefined,
-  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
-    const service = this.langs.getLanguageService(block.source.languageId)
-
-    this.logger.debug(
-      `(${block.source.languageId}) Find completions at ${
-        block.fileName
-      }:${this.fs.getPositionString(_file, position)}`,
-    )
-
-    if (service == null) return
-
-    const result = service.getCompletionsAtPosition(
-      block.fileName,
-      block.source.positionAt(block.toBlockOffset(position)),
-    )
-
-    return this.#rebase(
-      block,
-      this.#combine(
-        result.items.map((item) => {
-          return this.#completionItemToEntry(block, item)
-        }),
-      ),
-    )
-  }
-
-  #customBlockCompletionsAtPosition(
-    _file: VueSFCDocument,
-    block: VueBlockDocument,
-    position: number,
-    _options: TypeScript.GetCompletionsAtPositionOptions | undefined,
-  ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
-    const service = this.langs.getLanguageService(block.source.languageId)
-    if (service == null) return
-
-    const result = service.getCompletionsAtPosition(
-      block.fileName,
-      block.source.positionAt(block.toBlockOffset(position)),
-    )
-
-    return this.#rebase(
-      block,
-      this.#combine(
-        result.items.map((item) => {
-          return this.#completionItemToEntry(block, item)
-        }),
-      ),
-    )
-  }
-
-  #getCodeActionsFromCompletionItem(
-    fileName: string,
-    item: LanguageService.CompletionItem,
-  ): TypeScript.CodeAction[] | undefined {
-    if (item.additionalTextEdits == null) return
-    const isVueFile = this.fs.isVueFile(fileName)
-    const file = isVueFile
-      ? this.fs.getVueFile(fileName)
-      : this.fs.getVueFile(fileName)?.getDocById(fileName)
-    if (file == null) return
-    const offsetAt: (pos: Position) => number = isVueFile
-      ? (pos) => file.offsetAt(pos)
-      : (pos) =>
-          (file as VueBlockDocument).toFileOffset(
-            (file as VueBlockDocument).source.offsetAt(pos),
-          )
-
-    return [
-      {
-        description: item.detail ?? '',
-        changes: [
-          {
-            fileName: this.fs.getRealFileName(fileName),
-            textChanges: item.additionalTextEdits.map((item) => {
-              const start = offsetAt(item.range.start)
-              const end = offsetAt(item.range.start)
-              return {
-                newText: item.newText,
-                span: { start, length: end - start },
-              }
-            }),
-          },
-        ],
-
-        commands:
-          item.command != null
-            ? [
-                {
-                  command: item.command.command,
-                  arguments: item.command.arguments,
-                },
-              ]
-            : undefined,
-      },
-    ]
-  }
-
   #omitCompletionAdditionalInfo(
     entry: TypeScript.CompletionEntry,
   ): TypeScript.CompletionEntry {
@@ -1244,8 +750,9 @@ export class CompletionsService
       )
   }
 
+  // @ts-expect-error
   #rebase(
-    doc: VueBlockDocument,
+    doc: VueSFCDocument,
     completions: TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined,
   ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
     if (completions == null) return completions
@@ -1325,7 +832,6 @@ export class CompletionsService
         return null
       }
       if (entry.source != null) {
-        if (this.fs.isVueVirtualFile(entry.source)) return 'Not a valid import'
         // todo handle component imports??
       }
       return null
@@ -1506,10 +1012,4 @@ export class CompletionsService
   ): CompletionAdditionalInfo | null {
     return (entry.data as any)?.vuedx ?? null
   }
-}
-
-function isVueBlockDocument(
-  file: VueBlockDocument | VueSFCDocument,
-): file is VueBlockDocument {
-  return !isVueFile(file.fileName)
 }

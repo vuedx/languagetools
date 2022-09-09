@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-// eslint-disable-next-line @typescript-eslint/triple-slash-reference
-/// <reference path="./augment-node.d.ts" />
-
 import { parse, parseExpression } from '@babel/parser'
 import {
   Expression,
@@ -38,14 +34,14 @@ import {
   traverse as traverseBabel,
 } from '@babel/types'
 import { isSimpleIdentifier, Node, RootNode } from '@vue/compiler-core'
-import { flatten, isCamelCase, isPascalCase } from '@vuedx/shared'
+import { flatten, invarient, isCamelCase, isPascalCase } from '@vuedx/shared'
 import {
   isDirectiveNode,
   isElementNode,
   isSimpleExpressionNode,
   traverse,
 } from '@vuedx/template-ast-types'
-import { forAliasRE } from './transforms/transformFor'
+import { forAliasRE } from '../transforms/transformFor'
 
 export class Scope {
   public readonly bindings: Record<string, Node | null> = {}
@@ -121,9 +117,8 @@ export function withScope(ast: RootNode): RootNode {
               const localScope = (prop.exp.scope = new Scope(directiveScope))
               const match = forAliasRE.exec(prop.exp.content)
               if (match != null) {
-                const LHS = match[1]!
-                const RHS = match[2]!
-
+                const [, LHS, RHS] = match
+                invarient(LHS != null && RHS != null)
                 getIdentifiers(RHS).forEach((identifier) => {
                   localScope.getBinding(identifier)
                 })

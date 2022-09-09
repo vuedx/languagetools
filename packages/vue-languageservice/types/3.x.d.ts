@@ -11,7 +11,7 @@ import {
 import { checkInterpolation } from './shared/checkInterpolation'
 import { checkRef } from './shared/checkRef'
 import { checkSlots, SlotsFrom } from './shared/checkSlots'
-import { defineSetupComponent, resolveComponent } from './shared/components'
+import { resolveComponent } from './shared/components'
 import { resolveDirective } from './shared/directives'
 import { getElementType } from './shared/element'
 import {
@@ -27,24 +27,20 @@ import { flat, union } from './shared/utils'
 
 export type version = '3.x'
 
-declare global {
-  namespace VueDX {
-    namespace internal {
-      export { flat, union }
-      export { resolveComponent, resolveDirective, getElementType }
-      export { renderList, renderSlot, Slots }
-      export { defineComponent, defineSetupComponent }
-      export {
-        checkInterpolation,
-        checkRef,
-        checkSlots,
-        checkDirective,
-        checkOnDirective,
-        checkHTMLElementType,
-        checkModelDirective,
-      }
-      export { propCompletionHelper }
-      export { PropsOf, AttrsOf, SlotsFrom, MergeAttrs }
-    }
+export namespace internal {
+  export { flat, union }
+  export { resolveComponent, resolveDirective, getElementType }
+  export { renderList, renderSlot, Slots }
+  export { defineComponent }
+  export {
+    checkInterpolation,
+    checkRef,
+    checkSlots,
+    checkDirective,
+    checkOnDirective,
+    checkHTMLElementType,
+    checkModelDirective,
   }
+  export { propCompletionHelper }
+  export { PropsOf, AttrsOf, SlotsFrom, MergeAttrs }
 }

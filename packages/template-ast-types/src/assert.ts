@@ -4,6 +4,7 @@ import {
   ComponentNode,
   DirectiveNode,
   ElementNode,
+  ExpressionNode,
   InterpolationNode,
   isSimpleIdentifier as _isSimpleIdentifier,
   Node,
@@ -14,6 +15,7 @@ import {
   TemplateNode,
   TextNode,
 } from '@vue/compiler-core'
+import { NodeTypes } from './node'
 
 /**
  * Checks if it is a valid JavaScript identifers.
@@ -39,7 +41,7 @@ export function isNode(node: unknown): node is Node {
  * @public
  */
 export function isRootNode(node: unknown): node is RootNode {
-  return isNode(node) && node.type === 0
+  return isNode(node) && node.type === NodeTypes.ROOT
 }
 
 /**
@@ -48,7 +50,7 @@ export function isRootNode(node: unknown): node is RootNode {
  * @public
  */
 export function isElementNode(node: unknown): node is ElementNode {
-  return isNode(node) && node.type === 1
+  return isNode(node) && node.type === NodeTypes.ELEMENT
 }
 
 /**
@@ -75,7 +77,7 @@ export function isComponentNode(node: unknown): node is ComponentNode {
  * @public
  */
 export function isSlotNode(node: unknown): node is SlotOutletNode {
-  return isElementNode(node) && node.tag === 'slot'
+  return isElementNode(node) && node.tagType === 2
 }
 
 /**
@@ -91,7 +93,7 @@ export function isTemplateNode(node: unknown): node is TemplateNode {
  * @public
  */
 export function isTextNode(node: unknown): node is TextNode {
-  return isNode(node) && node.type === 2
+  return isNode(node) && node.type === NodeTypes.TEXT
 }
 
 /**
@@ -99,7 +101,19 @@ export function isTextNode(node: unknown): node is TextNode {
  * @public
  */
 export function isCommentNode(node: unknown): node is CommentNode {
-  return isNode(node) && node.type === 3
+  return isNode(node) && node.type === NodeTypes.COMMENT
+}
+
+/**
+ * Checks if it is an AST ExpressionNode.
+ * @public
+ */
+export function isExpressionNode(node: unknown): node is ExpressionNode {
+  return (
+    isNode(node) &&
+    (node.type === NodeTypes.SIMPLE_EXPRESSION ||
+      node.type === NodeTypes.COMPOUND_EXPRESSION)
+  )
 }
 
 /**
@@ -109,7 +123,17 @@ export function isCommentNode(node: unknown): node is CommentNode {
 export function isSimpleExpressionNode(
   node: unknown,
 ): node is SimpleExpressionNode {
-  return isNode(node) && node.type === 4
+  return isNode(node) && node.type === NodeTypes.SIMPLE_EXPRESSION
+}
+
+/**
+ * Checks if it is an AST ExpressionNode.
+ * @public
+ */
+export function isCompoundExpressionNode(
+  node: unknown,
+): node is SimpleExpressionNode {
+  return isNode(node) && node.type === NodeTypes.COMPOUND_EXPRESSION
 }
 
 /**
@@ -117,7 +141,7 @@ export function isSimpleExpressionNode(
  * @public
  */
 export function isInterpolationNode(node: unknown): node is InterpolationNode {
-  return isNode(node) && node.type === 5
+  return isNode(node) && node.type === NodeTypes.INTERPOLATION
 }
 
 /**
@@ -125,7 +149,7 @@ export function isInterpolationNode(node: unknown): node is InterpolationNode {
  * @public
  */
 export function isAttributeNode(node: unknown): node is AttributeNode {
-  return isNode(node) && node.type === 6
+  return isNode(node) && node.type === NodeTypes.ATTRIBUTE
 }
 
 /**
@@ -133,5 +157,5 @@ export function isAttributeNode(node: unknown): node is AttributeNode {
  * @public
  */
 export function isDirectiveNode(node: unknown): node is DirectiveNode {
-  return isNode(node) && node.type === 7
+  return isNode(node) && node.type === NodeTypes.DIRECTIVE
 }

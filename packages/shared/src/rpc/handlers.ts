@@ -93,7 +93,7 @@ export function createExposed<T>(
   value: T,
   endpoint: Endpoint,
 ): ExposedObject<T> {
-  const target = Object.assign(value, {
+  const target = Object.assign(value as unknown as object, {
     [Symbols.exposed]: endpoint.id,
   }) as ExposedObject<T>
 
@@ -353,7 +353,7 @@ export function createEndpointProxy<T>(
     },
   })
 
-  return (proxy as unknown) as Remote<T>
+  return proxy as unknown as Remote<T>
 }
 
 async function sendRequest(

@@ -21,7 +21,8 @@ export function processVueSFC() {
       const RE_POSTCSS_PLUGINS = /^var ([^\s]+) = postcss/gm
       const RE_DOM = /\bcompiler = CompilerDOM__namespace\b/g
       const RE_LRU = /require\('lru-cache'\)/g
-      const RE_MODULE = /Object\.defineProperty\(exports, '__esModule', \{ value: true \}\);/g
+      const RE_MODULE =
+        /Object\.defineProperty\(exports, '__esModule', \{ value: true \}\);/g
 
       let match
 
@@ -121,12 +122,18 @@ export function processVueSFC() {
     },
   }
 }
-export function define() {
-  const BUILD = process.env.BUILD || 'production'
+
+/**
+ * @param {string} version
+ * @returns
+ */
+export function define(version) {
+  const BUILD = process.env['BUILD'] || 'production'
   const isProd = BUILD === 'production'
   return replace({
     preventAssignment: true,
     values: {
+      VERSION: JSON.stringify(version),
       __DEV__: JSON.stringify(!isProd),
       __PROD__: JSON.stringify(isProd),
     },

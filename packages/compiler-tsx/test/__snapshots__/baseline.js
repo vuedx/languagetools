@@ -10,45 +10,60 @@ exports[`Baseline Spec \\$attrs binding default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-const Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let $attrs = __VueDX_ctx.$attrs;
+  let $attrs = __VueDX__ctx.$attrs;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
-    <Foo data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", Foo)/*</vuedx:diagnosticsIgnore>*/}>
-      {VueDX.internal.checkSlots(Foo, {
-        default: () => {
-          return (
-            <input {...({ ...($attrs), })} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
-          ) as any
-        },
-      })}
-    </Foo>
+    <>
+      <Foo
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {{
+          default: () => {
+            return (
+              <>
+                <input
+                  {...($attrs)}
+                  /*<vuedx:tsx-competions-target/>*/
+                />
+              </>
+            )
+          },
+        }}
+      </Foo>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let $attrs = __VueDX_ctx.$attrs;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let $attrs = __VueDX__ctx.$attrs;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"input">;
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjo0MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MSxcImVcIjo0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI2fSxcInNcIjp7XCJzXCI6MCxcImVcIjo0MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MSxcImVcIjo0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo4LFwiZVwiOjMzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjo5LFwiZVwiOjE0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjoyMyxcImVcIjoyOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MzQsXCJlXCI6NDB9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7SUFBQUEsQ0FBQ0MsRztPQUFEQywwQkFBQ0QsRztRQUFBRSxTOztZQUNDQyxDQUFDQyxLLFlBQWNDLE07Ozs7TUFDakJDLEciLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8Rm9vPlxuICA8aW5wdXQgdi1iaW5kPVwiJGF0dHJzXCIgLz5cbjwvRm9vPlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTE4MAAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0ICRhdHRycyA9IF9fVnVlRFhfX2N0eC4kYXR0cnM7CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiAoCiAgICA8PgogICAgICA8Rm9vCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAge3sKICAgICAgICAgIGRlZmF1bHQ6ICgpID0+IHsKICAgICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgICA8PgogICAgICAgICAgICAgICAgPGlucHV0CiAgICAgICAgICAgICAgICAgIHsuLi4oJGF0dHJzKX0KICAgICAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICAgICAgLz4KICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgKQogICAgICAgICAgfSwKICAgICAgICB9fQogICAgICA8L0Zvbz4KICAgIDwvPgogICkKfQovKjx2dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwpmdW5jdGlvbiBfX1Z1ZURYX19zbG90cygpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgJGF0dHJzID0gX19WdWVEWF9fY3R4LiRhdHRyczsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KNTEwAHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsMkI7QSxFLGlDO0EsRSw0QjtBLEUsUTtBLEksRTtBLE1BQ0EsQ0FBQyxHO0EsUUFBRyxrQztBLE0sQztBLFEsRTtBLFUsTyxHLE07QSxZLFE7QSxjLEU7QSxnQkFDRixDQUFDQSxLO0Esa0IsS0FBY0MsTSxFO0Esa0JBQVQsa0M7QSxnQixFO0EsYyxHO0EsWSxDO0EsVSxFO0EsUSxFO0EsTUFDUixFLEcsQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUsaUM7QSxFLDRCO0EsRSx5QztBLEUsRTtBLEEsQztBLEEsOEI7Ozs7OzsiLCJuYW1lcyI6WyI8PFA+PjUiLCI8PFA+PjYiXSwic291cmNlcyI6WyIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSJdLCJzb3VyY2VzQ29udGVudCI6WyI8dGVtcGxhdGU+XG48Rm9vPlxuICA8aW5wdXQgdi1iaW5kPVwiJGF0dHJzXCIgLz5cbjwvRm9vPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec Dynamic component with v-for default 1`] = `
 ## 16.1. Dynamic component with v-for 
@@ -64,66 +79,80 @@ exports[`Baseline Spec Dynamic component with v-for default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let bars = __VueDX_ctx.bars;
+  let bars = __VueDX__ctx.bars;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-  const _DynamicComponent0 = VueDX.internal.resolveComponent(__VueDX_components, bar);
-
+  /*<vuedx:templateGlobals>*/
+  const __VueDX___Component0 = __VueDX__TypeCheck.internal.resolveComponent(__VueDX__ctx, bar);
+  /*</vuedx:templateGlobals>*/
   return (
     <>
       {
-        VueDX.internal.renderList(bars, (bar) => {
+        __VueDX__TypeCheck.internal.renderList(bars, (bar) => {
           /*<vuedx:templateGlobals>*/
-          const _DynamicComponent1 = VueDX.internal.resolveComponent(__VueDX_components, bar);
+          const __VueDX___Component1 = __VueDX__TypeCheck.internal.resolveComponent(__VueDX__ctx, bar);
           /*</vuedx:templateGlobals>*/
           return (
-            <_DynamicComponent0 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent0)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkSlots(_DynamicComponent0, {
+            <__VueDX___Component0
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {{
                 default: () => {
                   return (
-                    <_DynamicComponent1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent1)/*</vuedx:diagnosticsIgnore>*/}>
-                      {VueDX.internal.checkSlots(_DynamicComponent1, {
-                        "default": ({baz}) => {
-                          /*<vuedx:templateGlobals>*/
-                          const _DynamicComponent2 = VueDX.internal.resolveComponent(__VueDX_components, baz[bar]);
-                          /*</vuedx:templateGlobals>*/
-                          return (
-                            <>
-                              {
-                                VueDX.internal.renderList(baz, (item) => {
-                                  /*<vuedx:templateGlobals>*/
-                                  const _DynamicComponent3 = VueDX.internal.resolveComponent(__VueDX_components, item);
-                                  /*</vuedx:templateGlobals>*/
-                                  return (
-                                    <_DynamicComponent2 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent2)/*</vuedx:diagnosticsIgnore>*/}>
-                                      {VueDX.internal.checkSlots(_DynamicComponent2, {
-                                        default: () => {
-                                          return (
-                                            <_DynamicComponent3 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent3)/*</vuedx:diagnosticsIgnore>*/} />
-                                          ) as any
-                                        },
-                                      })}
-                                    </_DynamicComponent2>
-                                  )
-                                })
-                              }
-                            </>
-                          ) as any
-                        },
-                      })}
-                    </_DynamicComponent1>
-                  ) as any
+                    <>
+                      <__VueDX___Component1
+                        /*<vuedx:tsx-competions-target/>*/
+                      >
+                        {{
+                          "default": ({baz}) => {
+                            /*<vuedx:templateGlobals>*/
+                            const __VueDX___Component2 = __VueDX__TypeCheck.internal.resolveComponent(__VueDX__ctx, baz[bar]);
+                            /*</vuedx:templateGlobals>*/
+                            return (
+                              <>
+                                {
+                                  __VueDX__TypeCheck.internal.renderList(baz, (item) => {
+                                    /*<vuedx:templateGlobals>*/
+                                    const __VueDX___Component3 = __VueDX__TypeCheck.internal.resolveComponent(__VueDX__ctx, item);
+                                    /*</vuedx:templateGlobals>*/
+                                    return (
+                                      <__VueDX___Component2
+                                        /*<vuedx:tsx-competions-target/>*/
+                                      >
+                                        {{
+                                          default: () => {
+                                            return (
+                                              <>
+                                                <__VueDX___Component3
+                                                  /*<vuedx:tsx-competions-target/>*/
+                                                />
+
+                                              </>
+                                            )
+                                          },
+                                        }}
+                                      </__VueDX___Component2>
+                                    )
+                                  })
+                                }
+                              </>
+                            )
+                          },
+                        }}
+                      </__VueDX___Component1>
+                    </>
+                  )
                 },
-              })}
-            </_DynamicComponent0>
+              }}
+            </__VueDX___Component0>
           )
         })
       }
@@ -131,19 +160,27 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let bars = __VueDX_ctx.bars;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let bars = __VueDX__ctx.bars;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTYsXCJlXCI6MTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjM1LFwiZVwiOjM5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoyOCxcImVcIjozMX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NjAsXCJlXCI6NjN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjAsXCJlXCI6MjEwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE4fSxcInNcIjp7XCJzXCI6MSxcImVcIjoxMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjAsXCJlXCI6MjEwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoxLFwiZVwiOjEwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0NCxcImVcIjoxOTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTh9LFwic1wiOntcInNcIjo0NSxcImVcIjo1NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjQ0LFwiZVwiOjE5N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6NjYsXCJlXCI6NzN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjc1LFwiZVwiOjgwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjh9LFwic1wiOntcInNcIjoxMDMsXCJlXCI6MTExfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxMjgsXCJlXCI6MTMxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjoxMjAsXCJlXCI6MTI0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjoxNTcsXCJlXCI6MTYxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo4NyxcImVcIjoxODJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTh9LFwic1wiOntcInNcIjo4OCxcImVcIjo5N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjg3LFwiZVwiOjE4Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6ODgsXCJlXCI6OTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjE0MSxcImVcIjoxNjV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTh9LFwic1wiOntcInNcIjoxNDIsXCJlXCI6MTUxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE4fSxcInNcIjp7XCJzXCI6MTk3LFwiZVwiOjE5N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxOH0sXCJzXCI6e1wic1wiOjE5OCxcImVcIjoyMTB9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7aUZBQWdCQSxHOzs7OztrQ0FBbUJDLEksR0FBUEMsRzs7eUZBQ1ZDLEc7OztZQURsQkMsQ0FBQ0Msa0I7ZUFBREMsMEJBQUNELGtCO2dCQUFBRSxTOztvQkFDQ0MsQ0FBQ0Msa0I7dUJBQURDLDBCQUFDRCxrQjt3QkFBcUJFLFMsR0FBU0MsSzs7eUdBQ2JDLFE7Ozs7OzBEQUF5QkMsRyxHQUFSQyxJOztpSEFDZkMsSTs7O29DQURsQkMsQ0FBQ0Msa0I7dUNBQURDLDBCQUFDRCxrQjt3Q0FBQUUsUzs7NENBQ0NDLENBQUNDLGtCOzs7Ozs7Ozs7Ozs7c0JBRU9DLGtCOzs7O2NBQ2RDLGtCIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGNvbXBvbmVudCA6aXM9XCJiYXJcIiB2LWZvcj1cImJhciBvZiBiYXJzXCI+XG4gIDxjb21wb25lbnQgOmlzPVwiYmFyXCIgI2RlZmF1bHQ9XCJ7YmF6fVwiPlxuICAgIDxjb21wb25lbnQgOmlzPVwiYmF6W2Jhcl1cIiB2LWZvcj1cIml0ZW0gb2YgYmF6XCIgPlxuICAgICAgPGNvbXBvbmVudCA6aXM9XCJpdGVtXCIgLz5cbiAgICA8L2NvbXBvbmVudD5cbiAgPC9jb21wb25lbnQ+XG48L2NvbXBvbmVudD5cbiJdfQ==
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MzY2MQAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGJhcnMgPSBfX1Z1ZURYX19jdHguYmFyczsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgY29uc3QgX19WdWVEWF9fX0NvbXBvbmVudDAgPSBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwucmVzb2x2ZUNvbXBvbmVudChfX1Z1ZURYX19jdHgsIGJhcik7CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiAoCiAgICA8PgogICAgICB7CiAgICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlbmRlckxpc3QoYmFycywgKGJhcikgPT4gewogICAgICAgICAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgICAgICAgICBjb25zdCBfX1Z1ZURYX19fQ29tcG9uZW50MSA9IF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5yZXNvbHZlQ29tcG9uZW50KF9fVnVlRFhfX2N0eCwgYmFyKTsKICAgICAgICAgIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgIDxfX1Z1ZURYX19fQ29tcG9uZW50MAogICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgPgogICAgICAgICAgICAgIHt7CiAgICAgICAgICAgICAgICBkZWZhdWx0OiAoKSA9PiB7CiAgICAgICAgICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgICAgICAgICAgPD4KICAgICAgICAgICAgICAgICAgICAgIDxfX1Z1ZURYX19fQ29tcG9uZW50MQogICAgICAgICAgICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgICAgICAgIHt7CiAgICAgICAgICAgICAgICAgICAgICAgICAgImRlZmF1bHQiOiAoe2Jhen0pID0+IHsKICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogICAgICAgICAgICAgICAgICAgICAgICAgICAgY29uc3QgX19WdWVEWF9fX0NvbXBvbmVudDIgPSBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwucmVzb2x2ZUNvbXBvbmVudChfX1Z1ZURYX19jdHgsIGJheltiYXJdKTsKICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlbmRlckxpc3QoYmF6LCAoaXRlbSkgPT4gewogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY29uc3QgX19WdWVEWF9fX0NvbXBvbmVudDMgPSBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwucmVzb2x2ZUNvbXBvbmVudChfX1Z1ZURYX19jdHgsIGl0ZW0pOwogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPF9fVnVlRFhfX19Db21wb25lbnQyCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAge3sKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZGVmYXVsdDogKCkgPT4gewogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8PgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8X19WdWVEWF9fX0NvbXBvbmVudDMKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8+CgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfX0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L19fVnVlRFhfX19Db21wb25lbnQyPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICApCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9KQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICApCiAgICAgICAgICAgICAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAgICAgICAgICAgfX0KICAgICAgICAgICAgICAgICAgICAgIDwvX19WdWVEWF9fX0NvbXBvbmVudDE+CiAgICAgICAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgfX0KICAgICAgICAgICAgPC9fX1Z1ZURYX19fQ29tcG9uZW50MD4KICAgICAgICAgICkKICAgICAgICB9KQogICAgICB9CiAgICA8Lz4KICApCn0KLyo8dnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KZnVuY3Rpb24gX19WdWVEWF9fc2xvdHMoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGJhcnMgPSBfX1Z1ZURYX19jdHguYmFyczsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KMTIwNwB7InZlcnNpb24iOjMsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnRzeCIsIm1hcHBpbmdzIjoiOzs7Ozs7QSxxRDtBLEEsbUM7QSxFLDJCO0EsRSw2QjtBLEUsNEI7QSxFLDJCO0EsRSxNLG9CLDhEQUNnQkEsRyxFO0EsRSw0QjtBLEUsUTtBLEksRTtBLE0sQztBLFEsdUNBQW1CQyxJLEUsQ0FBUEQsRyxDLEs7QSxVLDJCO0EsVSxNLG9CLDhEQUNWQSxHLEU7QSxVLDRCO0EsVSxRO0EsWUFEbEIsQ0FBQyxvQjtBLGNBQVMsa0M7QSxZLEM7QSxjLEU7QSxnQixPLEcsTTtBLGtCLFE7QSxvQixFO0Esc0JBQ1IsQ0FBQyxvQjtBLHdCQUFTLGtDO0Esc0IsQztBLHdCLEU7QSwwQkFBWSxTLEdBQVNFLEssTTtBLDRCLDJCO0EsNEIsTSxvQiw4REFDYkMsUSxFO0EsNEIsNEI7QSw0QixRO0EsOEIsRTtBLGdDLEM7QSxrQyx1Q0FBeUJILEcsRSxDQUFSQyxJLEMsSztBLG9DLDJCO0Esb0MsTSxvQiw4REFDZkEsSSxFO0Esb0MsNEI7QSxvQyxRO0Esc0NBRGxCLENBQUMsb0I7QSx3Q0FBUyxrQztBLHNDLEM7QSx3QyxFO0EsMEMsTyxHLE07QSw0QyxRO0EsOEMsRTtBLGdEQUNSLENBQUMsb0I7QSxrREFBUyxrQztBLGdELEU7QTtBLDhDLEc7QSw0QyxDO0EsMEMsRTtBLHdDLEU7QSxzQ0FDWixFLG9CLEM7QSxvQyxDO0Esa0MsQyxDO0EsZ0MsQztBLDhCLEc7QSw0QixDO0EsMEIsRTtBLHdCLEU7QSxzQkFDRixFLG9CLEM7QSxvQixHO0Esa0IsQztBLGdCLEU7QSxjLEU7QSxZQUNGLEUsb0IsQztBLFUsQztBLFEsQyxDO0EsTSxDO0EsSSxHO0EsRSxDO0EsQSxDO0EsQSw2QjtBLEEsMkI7QSxFLDJCO0EsRSw2QjtBLEUsNEI7QSxFLHlDO0EsRSxFO0EsQSxDO0EsQSw4Qjs7Ozs7OyIsIm5hbWVzIjpbIjw8UD4+MyIsIjw8UD4+NCIsIjw8UD4+NSIsIjw8UD4+OCJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxjb21wb25lbnQgOmlzPVwiYmFyXCIgdi1mb3I9XCJiYXIgb2YgYmFyc1wiPlxuICA8Y29tcG9uZW50IDppcz1cImJhclwiICNkZWZhdWx0PVwie2Jhen1cIj5cbiAgICA8Y29tcG9uZW50IDppcz1cImJheltiYXJdXCIgdi1mb3I9XCJpdGVtIG9mIGJhelwiID5cbiAgICAgIDxjb21wb25lbnQgOmlzPVwiaXRlbVwiIC8+XG4gICAgPC9jb21wb25lbnQ+XG4gIDwvY29tcG9uZW50PlxuPC9jb21wb25lbnQ+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec Nested Dynamic components default 1`] = `
 ## 15.1. Nested Dynamic components 
@@ -164,86 +201,113 @@ exports[`Baseline Spec Nested Dynamic components default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let foo = __VueDX_ctx.foo;
+  let foo = __VueDX__ctx.foo;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-  const _DynamicComponent0 = VueDX.internal.resolveComponent(__VueDX_components, foo);
-
+  /*<vuedx:templateGlobals>*/
+  const __VueDX___Component0 = __VueDX__TypeCheck.internal.resolveComponent(__VueDX__ctx, foo);
+  /*</vuedx:templateGlobals>*/
   return (
-    <_DynamicComponent0 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent0)/*</vuedx:diagnosticsIgnore>*/}>
-      {VueDX.internal.checkSlots(_DynamicComponent0, {
-        "default": ({bar}) => {
-          /*<vuedx:templateGlobals>*/
-          const _DynamicComponent1 = VueDX.internal.resolveComponent(__VueDX_components, bar);
-          /*</vuedx:templateGlobals>*/
-          return (
-            <_DynamicComponent1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent1)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkSlots(_DynamicComponent1, {
-                "default": ({baz}) => {
-                  /*<vuedx:templateGlobals>*/
-                  const _DynamicComponent2 = VueDX.internal.resolveComponent(__VueDX_components, baz);
-                  /*</vuedx:templateGlobals>*/
-                  return (
-                    <_DynamicComponent2 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent2)/*</vuedx:diagnosticsIgnore>*/}>
-                      {VueDX.internal.checkSlots(_DynamicComponent2, {
-                        "other": ({ foo }) => {
-                          /*<vuedx:templateGlobals>*/
-                          const _DynamicComponent3 = VueDX.internal.resolveComponent(__VueDX_components, foo);
-                          /*</vuedx:templateGlobals>*/
-                          return (
-                            <>
-                              <>
-                                <_DynamicComponent3 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent3)/*</vuedx:diagnosticsIgnore>*/} />
-                              </>
-                            </>
-                          ) as any
-                        },
-                        "default": ({ bar }) => {
-                          /*<vuedx:templateGlobals>*/
-                          const _DynamicComponent4 = VueDX.internal.resolveComponent(__VueDX_components, bar);
-                          /*</vuedx:templateGlobals>*/
-                          return (
-                            <>
-                              <>
-                                <_DynamicComponent4 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent4)/*</vuedx:diagnosticsIgnore>*/} />
-                              </>
-                            </>
-                          ) as any
-                        },
-                      })}
-                    </_DynamicComponent2>
-                  ) as any
-                },
-              })}
-            </_DynamicComponent1>
-          ) as any
-        },
-      })}
-    </_DynamicComponent0>
+    <>
+      <__VueDX___Component0
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {{
+          "default": ({bar}) => {
+            /*<vuedx:templateGlobals>*/
+            const __VueDX___Component1 = __VueDX__TypeCheck.internal.resolveComponent(__VueDX__ctx, bar);
+            /*</vuedx:templateGlobals>*/
+            return (
+              <>
+                <__VueDX___Component1
+                  /*<vuedx:tsx-competions-target/>*/
+                >
+                  {{
+                    "default": ({baz}) => {
+                      /*<vuedx:templateGlobals>*/
+                      const __VueDX___Component2 = __VueDX__TypeCheck.internal.resolveComponent(__VueDX__ctx, baz);
+                      /*</vuedx:templateGlobals>*/
+                      return (
+                        <>
+                          <__VueDX___Component2
+                            /*<vuedx:tsx-competions-target/>*/
+                          >
+                            {{
+                              "other": ({ foo }) => {
+                                /*<vuedx:templateGlobals>*/
+                                const __VueDX___Component3 = __VueDX__TypeCheck.internal.resolveComponent(__VueDX__ctx, foo);
+                                /*</vuedx:templateGlobals>*/
+                                return (
+                                  <>
+                                    <>
+                                      <__VueDX___Component3
+                                        /*<vuedx:tsx-competions-target/>*/
+                                      />
+
+                                    </>
+                                  </>
+                                )
+                              },
+                              "default": ({ bar }) => {
+                                /*<vuedx:templateGlobals>*/
+                                const __VueDX___Component4 = __VueDX__TypeCheck.internal.resolveComponent(__VueDX__ctx, bar);
+                                /*</vuedx:templateGlobals>*/
+                                return (
+                                  <>
+                                    <>
+                                      <__VueDX___Component4
+                                        /*<vuedx:tsx-competions-target/>*/
+                                      />
+
+                                    </>
+                                  </>
+                                )
+                              },
+                            }}
+                          </__VueDX___Component2>
+                        </>
+                      )
+                    },
+                  }}
+                </__VueDX___Component1>
+              </>
+            )
+          },
+        }}
+      </__VueDX___Component0>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let foo = __VueDX_ctx.foo;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let foo = __VueDX__ctx.foo;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTYsXCJlXCI6MTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjAsXCJlXCI6MzIwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE4fSxcInNcIjp7XCJzXCI6MSxcImVcIjoxMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjAsXCJlXCI6MzIwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoyMixcImVcIjoyOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MzEsXCJlXCI6MzZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjU3LFwiZVwiOjYwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0MSxcImVcIjozMDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTh9LFwic1wiOntcInNcIjo0MixcImVcIjo1MX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjQxLFwiZVwiOjMwN319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6NjMsXCJlXCI6NzB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjcyLFwiZVwiOjc3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxMDAsXCJlXCI6MTAzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo4NCxcImVcIjoyOTJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTh9LFwic1wiOntcInNcIjo4NSxcImVcIjo5NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjg0LFwiZVwiOjI5Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTIzLFwiZVwiOjEyOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTMwLFwiZVwiOjEzN319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTY0LFwiZVwiOjE2N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTEyLFwiZVwiOjE4OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTQ4LFwiZVwiOjE3MX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxOH0sXCJzXCI6e1wic1wiOjE0OSxcImVcIjoxNTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjIwNyxcImVcIjoyMTR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6N30sXCJzXCI6e1wic1wiOjIxNixcImVcIjoyMjN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjI1MCxcImVcIjoyNTN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjE5NixcImVcIjoyNzV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjIzNCxcImVcIjoyNTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTh9LFwic1wiOntcInNcIjoyMzUsXCJlXCI6MjQ0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE4fSxcInNcIjp7XCJzXCI6MjkyLFwiZVwiOjI5Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxOH0sXCJzXCI6e1wic1wiOjMwNyxcImVcIjozMDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTh9LFwic1wiOntcInNcIjozMDgsXCJlXCI6MzIwfX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7O2lGQUFnQkEsRzs7O0lBQWhCQyxDQUFDQyxrQjtPQUFEQywwQkFBQ0Qsa0I7UUFBcUJFLFMsR0FBU0MsSzs7eUZBQ2JDLEc7OztZQUFoQkMsQ0FBQ0Msa0I7ZUFBREMsMEJBQUNELGtCO2dCQUFxQkUsUyxHQUFTQyxLOztpR0FDYkMsRzs7O29CQUFoQkMsQ0FBQ0Msa0I7dUJBQURDLDBCQUFDRCxrQjt3QkFDWUUsTyxHQUFPQyxPOzt5R0FDQUMsRzs7Ozs4QkFEbEJDLEM7Z0NBQ0VDLENBQUNDLGtCOzs7Ozt3QkFFUUMsUyxHQUFTQyxPOzt5R0FDRkMsRzs7Ozs4QkFEbEJDLEM7Z0NBQ0VDLENBQUNDLGtCOzs7Ozs7c0JBRU9DLGtCOzs7O2NBQ0ZDLGtCOzs7O01BQ2RDLGtCIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGNvbXBvbmVudCA6aXM9XCJmb29cIiAjZGVmYXVsdD1cIntiYXJ9XCI+XG4gIDxjb21wb25lbnQgOmlzPVwiYmFyXCIgI2RlZmF1bHQ9XCJ7YmF6fVwiPlxuICAgIDxjb21wb25lbnQgOmlzPVwiYmF6XCI+XG4gICAgICA8dGVtcGxhdGUgI290aGVyPVwieyBmb28gfVwiPlxuICAgICAgICA8Y29tcG9uZW50IDppcz1cImZvb1wiIC8+XG4gICAgICA8L3RlbXBsYXRlPlxuICAgICAgPHRlbXBsYXRlICNkZWZhdWx0PVwieyBiYXIgfVwiPlxuICAgICAgICA8Y29tcG9uZW50IDppcz1cImJhclwiIC8+XG4gICAgICA8L3RlbXBsYXRlPlxuICAgIDwvY29tcG9uZW50PlxuICA8L2NvbXBvbmVudD5cbjwvY29tcG9uZW50PlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#Mzc0NAAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGZvbyA9IF9fVnVlRFhfX2N0eC5mb287CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGNvbnN0IF9fVnVlRFhfX19Db21wb25lbnQwID0gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlc29sdmVDb21wb25lbnQoX19WdWVEWF9fY3R4LCBmb28pOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gKAogICAgPD4KICAgICAgPF9fVnVlRFhfX19Db21wb25lbnQwCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAge3sKICAgICAgICAgICJkZWZhdWx0IjogKHtiYXJ9KSA9PiB7CiAgICAgICAgICAgIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogICAgICAgICAgICBjb25zdCBfX1Z1ZURYX19fQ29tcG9uZW50MSA9IF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5yZXNvbHZlQ29tcG9uZW50KF9fVnVlRFhfX2N0eCwgYmFyKTsKICAgICAgICAgICAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogICAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICA8X19WdWVEWF9fX0NvbXBvbmVudDEKICAgICAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICAgICAgPgogICAgICAgICAgICAgICAgICB7ewogICAgICAgICAgICAgICAgICAgICJkZWZhdWx0IjogKHtiYXp9KSA9PiB7CiAgICAgICAgICAgICAgICAgICAgICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICAgICAgICAgICAgICAgICAgICAgIGNvbnN0IF9fVnVlRFhfX19Db21wb25lbnQyID0gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlc29sdmVDb21wb25lbnQoX19WdWVEWF9fY3R4LCBiYXopOwogICAgICAgICAgICAgICAgICAgICAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogICAgICAgICAgICAgICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgICAgICAgICAgICAgPD4KICAgICAgICAgICAgICAgICAgICAgICAgICA8X19WdWVEWF9fX0NvbXBvbmVudDIKICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICB7ewogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAib3RoZXIiOiAoeyBmb28gfSkgPT4gewogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnN0IF9fVnVlRFhfX19Db21wb25lbnQzID0gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlc29sdmVDb21wb25lbnQoX19WdWVEWF9fY3R4LCBmb28pOwogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPD4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPD4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8X19WdWVEWF9fX0NvbXBvbmVudDMKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvPgoKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICApCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJkZWZhdWx0IjogKHsgYmFyIH0pID0+IHsKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb25zdCBfX1Z1ZURYX19fQ29tcG9uZW50NCA9IF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5yZXNvbHZlQ29tcG9uZW50KF9fVnVlRFhfX2N0eCwgYmFyKTsKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPF9fVnVlRFhfX19Db21wb25lbnQ0CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLz4KCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAgICAgICAgICAgfX0KICAgICAgICAgICAgICAgICAgICAgICAgICA8L19fVnVlRFhfX19Db21wb25lbnQyPgogICAgICAgICAgICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICB9fQogICAgICAgICAgICAgICAgPC9fX1Z1ZURYX19fQ29tcG9uZW50MT4KICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgKQogICAgICAgICAgfSwKICAgICAgICB9fQogICAgICA8L19fVnVlRFhfX19Db21wb25lbnQwPgogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBmb28gPSBfX1Z1ZURYX19jdHguZm9vOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgoxMzYyAHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsMkI7QSxFLDJCO0EsRSw0QjtBLEUsMkI7QSxFLE0sb0IsOERBQ2dCQSxHLEU7QSxFLDRCO0EsRSxRO0EsSSxFO0EsTUFBaEIsQ0FBQyxvQjtBLFFBQVMsa0M7QSxNLEM7QSxRLEU7QSxVQUFZLFMsR0FBU0MsSyxNO0EsWSwyQjtBLFksTSxvQiw4REFDYkQsRyxFO0EsWSw0QjtBLFksUTtBLGMsRTtBLGdCQUFoQixDQUFDLG9CO0Esa0JBQVMsa0M7QSxnQixDO0Esa0IsRTtBLG9CQUFZLFMsR0FBU0MsSyxNO0Esc0IsMkI7QSxzQixNLG9CLDhEQUNiRCxHLEU7QSxzQiw0QjtBLHNCLFE7QSx3QixFO0EsMEJBQWhCLENBQUMsb0I7QSw0QkFBUyxrQztBLDBCLEM7QSw0QixFO0EsOEJBQ0csTyxHQUFPRSxPLE07QSxnQywyQjtBLGdDLE0sb0IsOERBQ0FGLEcsRTtBLGdDLDRCO0EsZ0MsUTtBLGtDLEU7QSxvQyxFO0Esc0NBQWhCLENBQUMsb0I7QSx3Q0FBUyxrQztBLHNDLEU7QTtBLG9DLEc7QSxrQyxHO0EsZ0MsQztBLDhCLEU7QSw4QkFFRCxTLEdBQVNFLE8sTTtBLGdDLDJCO0EsZ0MsTSxvQiw4REFDRkYsRyxFO0EsZ0MsNEI7QSxnQyxRO0Esa0MsRTtBLG9DLEU7QSxzQ0FBaEIsQ0FBQyxvQjtBLHdDQUFTLGtDO0Esc0MsRTtBO0Esb0MsRztBLGtDLEc7QSxnQyxDO0EsOEIsRTtBLDRCLEU7QSwwQkFFZCxFLG9CLEM7QSx3QixHO0Esc0IsQztBLG9CLEU7QSxrQixFO0EsZ0JBQ0YsRSxvQixDO0EsYyxHO0EsWSxDO0EsVSxFO0EsUSxFO0EsTUFDRixFLG9CLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUsMkI7QSxFLDJCO0EsRSw0QjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj4zIiwiPDxQPj41IiwiPDxQPj43Il0sInNvdXJjZXMiOlsiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiPHRlbXBsYXRlPlxuPGNvbXBvbmVudCA6aXM9XCJmb29cIiAjZGVmYXVsdD1cIntiYXJ9XCI+XG4gIDxjb21wb25lbnQgOmlzPVwiYmFyXCIgI2RlZmF1bHQ9XCJ7YmF6fVwiPlxuICAgIDxjb21wb25lbnQgOmlzPVwiYmF6XCI+XG4gICAgICA8dGVtcGxhdGUgI290aGVyPVwieyBmb28gfVwiPlxuICAgICAgICA8Y29tcG9uZW50IDppcz1cImZvb1wiIC8+XG4gICAgICA8L3RlbXBsYXRlPlxuICAgICAgPHRlbXBsYXRlICNkZWZhdWx0PVwieyBiYXIgfVwiPlxuICAgICAgICA8Y29tcG9uZW50IDppcz1cImJhclwiIC8+XG4gICAgICA8L3RlbXBsYXRlPlxuICAgIDwvY29tcG9uZW50PlxuICA8L2NvbXBvbmVudD5cbjwvY29tcG9uZW50PlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec element  components 1`] = `
 ## 1.3. element > components
@@ -258,104 +322,100 @@ exports[`Baseline Spec element  components 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-const FooBar = VueDX.internal.resolveComponent(__VueDX_components, "FooBar" as const, "FooBar" as const);
-const Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
-const UnknownElement = VueDX.internal.resolveComponent(__VueDX_components, "unknown-element" as const, "UnknownElement" as const);
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
-  /*<vuedx:templateGlobals>*/
-  /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   return (
     <>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
-        {VueDX.internal.checkSlots(FooBar, {
+      <FooBar
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {{
           default: () => {
             return (
               <>
-                foo
+                {"foo"}
               </>
-            ) as any
+            )
           },
-        })}
+        }}
       </FooBar>
-      <Foo.Bar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", Foo.Bar)/*</vuedx:diagnosticsIgnore>*/}>
-        {VueDX.internal.checkSlots(Foo.Bar, {
+      <Foo.Bar
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {{
           default: () => {
             return (
               <>
-                foo
+                {"foo"}
               </>
-            ) as any
+            )
           },
-        })}
+        }}
       </Foo.Bar>
-      <Foo.Bar.Baz data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", Foo.Bar.Baz)/*</vuedx:diagnosticsIgnore>*/}>
-        {VueDX.internal.checkSlots(Foo.Bar.Baz, {
+      <Foo.Bar.Baz
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {{
           default: () => {
             return (
               <>
-                foo
+                {"foo"}
               </>
-            ) as any
+            )
           },
-        })}
+        }}
       </Foo.Bar.Baz>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
-        {VueDX.internal.checkSlots(FooBar, {
+      <FooBar
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {{
           default: () => {
             return (
               <>
-                foo
+                {"foo"}
               </>
-            ) as any
+            )
           },
-        })}
+        }}
       </FooBar>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
-        {VueDX.internal.checkSlots(FooBar, {
-          default: () => {
-            return (
-              <>
-                foo
-              </>
-            ) as any
-          },
-        })}
-      </FooBar>
-      <UnknownElement data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", UnknownElement)/*</vuedx:diagnosticsIgnore>*/}>
-        {VueDX.internal.checkSlots(UnknownElement, {
-          default: () => {
-            return (
-              <>
-                foo
-              </>
-            ) as any
-          },
-        })}
-      </UnknownElement>
+      <foo-bar
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {"foo"}
+      </foo-bar>
+      <unknown-element
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {"foo"}
+      </unknown-element>
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoyMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MSxcImVcIjo3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI2fSxcInNcIjp7XCJzXCI6MCxcImVcIjoyMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MSxcImVcIjo3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo4LFwiZVwiOjExfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjoxMSxcImVcIjoyMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjEsXCJlXCI6NDN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6N30sXCJzXCI6e1wic1wiOjIyLFwiZVwiOjI5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI2fSxcInNcIjp7XCJzXCI6MjEsXCJlXCI6NDN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjIyLFwiZVwiOjI5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjozMCxcImVcIjozM319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NDQsXCJlXCI6NzR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MTF9LFwic1wiOntcInNcIjo0NSxcImVcIjo1Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjQ0LFwiZVwiOjc0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjo0NSxcImVcIjo1Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NTcsXCJlXCI6NjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjc1LFwiZVwiOjk1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjo3NixcImVcIjo4Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjc1LFwiZVwiOjk1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjo3NixcImVcIjo4Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6ODMsXCJlXCI6ODZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjk2LFwiZVwiOjExOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6OTcsXCJlXCI6MTA0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI2fSxcInNcIjp7XCJzXCI6OTYsXCJlXCI6MTE4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjo5NyxcImVcIjoxMDR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjEwNSxcImVcIjoxMDh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjExOSxcImVcIjoxNTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTR9LFwic1wiOntcInNcIjoxMjAsXCJlXCI6MTM1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI2fSxcInNcIjp7XCJzXCI6MTE5LFwiZVwiOjE1N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MTIwLFwiZVwiOjEzNX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTM2LFwiZVwiOjEzOX19Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7O01BQUFBLENBQUNDLE07U0FBREMsMEJBQUNELE07VUFBQUUsUzs7O2dCQUFPQyxHOzs7OztRQUFHQyxNO01BQ1hDLENBQUNDLE87U0FBREMsMEJBQUNELE87VUFBQUUsUzs7O2dCQUFRQyxHOzs7Ozs7TUFDVEMsQ0FBQ0MsVztTQUFEQywwQkFBQ0QsVztVQUFBRSxTOzs7Z0JBQVlDLEc7Ozs7OztNQUNiQyxDQUFDQyxNO1NBQURDLDBCQUFDRCxNO1VBQUFFLFM7OztnQkFBT0MsRzs7Ozs7O01BQ1JDLENBQUNDLE07U0FBREMsMEJBQUNELE07VUFBQUUsUzs7O2dCQUFRQyxHOzs7Ozs7TUFDVEMsQ0FBQ0MsYztTQUFEQywwQkFBQ0QsYztVQUFBRSxTOzs7Z0JBQWdCQyxHIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPEZvb0Jhcj5mb288L0Zvb0Jhcj5cbjxGb28uQmFyPmZvbzwvRm9vLkJhcj5cbjxGb28uQmFyLkJhej5mb288L0Zvby5CYXIuQmF6PlxuPGZvb0Jhcj5mb288L2Zvb0Jhcj5cbjxmb28tYmFyPmZvbzwvZm9vLWJhcj5cbjx1bmtub3duLWVsZW1lbnQ+Zm9vPC91bmtub3duLWVsZW1lbnQ+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTgyNgAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgcmV0dXJuICgKICAgIDw+CiAgICAgIDxGb29CYXIKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgICB7ewogICAgICAgICAgZGVmYXVsdDogKCkgPT4gewogICAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICB7ImZvbyJ9CiAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICkKICAgICAgICAgIH0sCiAgICAgICAgfX0KICAgICAgPC9Gb29CYXI+CiAgICAgIDxGb28uQmFyCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAge3sKICAgICAgICAgIGRlZmF1bHQ6ICgpID0+IHsKICAgICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgICA8PgogICAgICAgICAgICAgICAgeyJmb28ifQogICAgICAgICAgICAgIDwvPgogICAgICAgICAgICApCiAgICAgICAgICB9LAogICAgICAgIH19CiAgICAgIDwvRm9vLkJhcj4KICAgICAgPEZvby5CYXIuQmF6CiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAge3sKICAgICAgICAgIGRlZmF1bHQ6ICgpID0+IHsKICAgICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgICA8PgogICAgICAgICAgICAgICAgeyJmb28ifQogICAgICAgICAgICAgIDwvPgogICAgICAgICAgICApCiAgICAgICAgICB9LAogICAgICAgIH19CiAgICAgIDwvRm9vLkJhci5CYXo+CiAgICAgIDxGb29CYXIKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgICB7ewogICAgICAgICAgZGVmYXVsdDogKCkgPT4gewogICAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICB7ImZvbyJ9CiAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICkKICAgICAgICAgIH0sCiAgICAgICAgfX0KICAgICAgPC9Gb29CYXI+CiAgICAgIDxmb28tYmFyCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAgeyJmb28ifQogICAgICA8L2Zvby1iYXI+CiAgICAgIDx1bmtub3duLWVsZW1lbnQKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgICB7ImZvbyJ9CiAgICAgIDwvdW5rbm93bi1lbGVtZW50PgogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIHJldHVybiBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwuZmxhdChbCiAgXSkKfQovKjwvdnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KLy8jZW5kcmVnaW9uCi8vI3JlZ2lvbiBwdWJsaWMgY29tcG9uZW50IGRlZmluaXRpb24KZXhwb3J0IGRlZmF1bHQgY2xhc3MgZXh0ZW5kcyBfX1Z1ZURYX19Db21wb25lbnQgewogICRzbG90czogUmV0dXJuVHlwZTx0eXBlb2YgX19WdWVEWF9fc2xvdHM+Cn0KLy8jZW5kcmVnaW9uCjEwMTEAeyJ2ZXJzaW9uIjozLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS50c3giLCJtYXBwaW5ncyI6Ijs7Ozs7O0EscUQ7QSxBLG1DO0EsRSxRO0EsSSxFO0EsTUFDQSxDQUFDLE07QSxRQUFNLGtDO0EsTSxDO0EsUSxFO0EsVSxPLEcsTTtBLFksUTtBLGMsRTtBLGdCLENBQUNBLEssQztBLGMsRztBLFksQztBLFUsRTtBLFEsRTtBLE1BQUcsRSxNLEM7QSxNQUNYLENBQUMsTztBLFFBQU8sa0M7QSxNLEM7QSxRLEU7QSxVLE8sRyxNO0EsWSxRO0EsYyxFO0EsZ0IsQ0FBQ0EsSyxDO0EsYyxHO0EsWSxDO0EsVSxFO0EsUSxFO0EsTUFBRyxFLE8sQztBLE1BQ1osQ0FBQyxXO0EsUUFBVyxrQztBLE0sQztBLFEsRTtBLFUsTyxHLE07QSxZLFE7QSxjLEU7QSxnQixDQUFDQSxLLEM7QSxjLEc7QSxZLEM7QSxVLEU7QSxRLEU7QSxNQUFHLEUsVyxDO0EsTUFDaEIsQ0FBQyxNO0EsUUFBTSxrQztBLE0sQztBLFEsRTtBLFUsTyxHLE07QSxZLFE7QSxjLEU7QSxnQixDQUFDQSxLLEM7QSxjLEc7QSxZLEM7QSxVLEU7QSxRLEU7QSxNQUFHLEUsTSxDO0EsTUFDWCxDQUFDQyxPO0EsUUFBTyxrQztBLE0sQztBLFEsQ0FBQ0QsSyxDO0EsTUFBRyxFLE8sQztBLE1BQ1osQ0FBQ0UsZTtBLFFBQWUsa0M7QSxNLEM7QSxRLENBQUNGLEssQztBLE1BQUcsRSxlLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxUPj4zfDUiLCI8PFA+PjciLCI8PFA+PjE1Il0sInNvdXJjZXMiOlsiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiPHRlbXBsYXRlPlxuPEZvb0Jhcj5mb288L0Zvb0Jhcj5cbjxGb28uQmFyPmZvbzwvRm9vLkJhcj5cbjxGb28uQmFyLkJhej5mb288L0Zvby5CYXIuQmF6PlxuPGZvb0Jhcj5mb288L2Zvb0Jhcj5cbjxmb28tYmFyPmZvbzwvZm9vLWJhcj5cbjx1bmtub3duLWVsZW1lbnQ+Zm9vPC91bmtub3duLWVsZW1lbnQ+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec element  fragment with errors 1`] = `
 ## 1.2. element > fragment with errors
@@ -368,51 +428,69 @@ exports[`Baseline Spec element  fragment with errors 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-const HelloWorld = VueDX.internal.resolveComponent(__VueDX_components, "HelloWorld" as const, "HelloWorld" as const);
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let name = __VueDX_ctx.name;
+  let name = __VueDX__ctx.name;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      <HelloWorld n data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", HelloWorld)/*</vuedx:diagnosticsIgnore>*/} />
-      <span data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "span" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        Name: 
-        {VueDX.internal.checkInterpolation(name +)}
+      <HelloWorld
+        n
+        /*<vuedx:tsx-competions-target/>*/
+      />
+
+      <span
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {"Name: "}
+        {name +}
       </span>
-      <p {...({  })} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "p" as const)/*</vuedx:diagnosticsIgnore>*/}>
+      <p
+        {...(/*<vuedx:missingExpression>*/)}
+        /*<vuedx:tsx-competions-target/>*/
+      >
       </p>
       {
-        (/*<vuedx:missingExpression>*/)
-          ? <p data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "p" as const)/*</vuedx:diagnosticsIgnore>*/}>
+        ? <>
+            <p
+              /*<vuedx:tsx-competions-target/>*/
+            >
             </p>
-          : null
+          </>
+        : null
       }
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let name = __VueDX_ctx.name;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let name = __VueDX__ctx.name;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoxNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxMH0sXCJzXCI6e1wic1wiOjEsXCJlXCI6MTF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjEyLFwiZVwiOjEzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoxNyxcImVcIjo0OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MTgsXCJlXCI6MjJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjIzLFwiZVwiOjI5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MjksXCJlXCI6NDF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjMyLFwiZVwiOjM4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjo0OCxcImVcIjo0OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NDksXCJlXCI6NjR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjUwLFwiZVwiOjUxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI5fSxcInNcIjp7XCJzXCI6NzQsXCJlXCI6NzR9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjY1LFwiZVwiOjgwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo2NixcImVcIjo2N319Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7TUFBQUEsQ0FBQ0MsVSxDQUFXQyxDO01BQ1pDLENBQUNDLEk7UUFBS0MsTTtTQUFNQyxrQ0FBR0MsTTtRQUFnQkMsSTtNQUMvQkMsQ0FBQ0MsQzs7O1NBQ1FDLDZCO1lBQVRDLENBQUNDLEMiLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8SGVsbG9Xb3JsZCBuIC8+XG48c3Bhbj5OYW1lOiB7eyBuYW1lICsgfX08L3NwYW4+XG48cCB2LWJpbmQ6PjwvcD5cbjxwIHYtaWY9XCJcIj48L3A+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTMwMQAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IG5hbWUgPSBfX1Z1ZURYX19jdHgubmFtZTsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuICgKICAgIDw+CiAgICAgIDxIZWxsb1dvcmxkCiAgICAgICAgbgogICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgLz4KCiAgICAgIDxzcGFuCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAgeyJOYW1lOiAifQogICAgICAgIHtuYW1lICt9CiAgICAgIDwvc3Bhbj4KICAgICAgPHAKICAgICAgICB7Li4uKC8qPHZ1ZWR4Om1pc3NpbmdFeHByZXNzaW9uPiovKX0KICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgPC9wPgogICAgICB7CiAgICAgICAgPyA8PgogICAgICAgICAgICA8cAogICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgPgogICAgICAgICAgICA8L3A+CiAgICAgICAgICA8Lz4KICAgICAgICA6IG51bGwKICAgICAgfQogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBuYW1lID0gX19WdWVEWF9fY3R4Lm5hbWU7CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwuZmxhdChbCiAgXSkKfQovKjwvdnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KLy8jZW5kcmVnaW9uCi8vI3JlZ2lvbiBwdWJsaWMgY29tcG9uZW50IGRlZmluaXRpb24KZXhwb3J0IGRlZmF1bHQgY2xhc3MgZXh0ZW5kcyBfX1Z1ZURYX19Db21wb25lbnQgewogICRzbG90czogUmV0dXJuVHlwZTx0eXBlb2YgX19WdWVEWF9fc2xvdHM+Cn0KLy8jZW5kcmVnaW9uCjY5NwB7InZlcnNpb24iOjMsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnRzeCIsIm1hcHBpbmdzIjoiOzs7Ozs7QSxxRDtBLEEsbUM7QSxFLDJCO0EsRSw2QjtBLEUsNEI7QSxFLFE7QSxJLEU7QSxNQUNBLENBQUMsVTtBLFFBQVdBLEM7QSxRQUFELGtDO0EsTSxFO0E7QSxNQUNYLENBQUNDLEk7QSxRQUFJLGtDO0EsTSxDO0EsUSxDQUFDQyxRLEM7QSxRQUFNLENBQUdDLE1BQU0sQztBLE1BQUcsRSxJLEM7QSxNQUN4QixDQUFDSCxDO0EsUSxLQUFTLDZCLEU7QSxRQUFSLGtDO0EsTSxDO0EsTUFBUyxFLEMsQztBLE0sQ0FDRkksQTtBLFEsRSxFO0EsWUFBVCxDQUFDSixDO0EsY0FBQyxrQztBLFksQztBLFlBQVMsRSxDLEM7QSxVLEc7QSxNLFE7QSxNLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUsMkI7QSxFLDZCO0EsRSw0QjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj4xIiwiPDxQPj40IiwiPDxUPj42fDgiLCI8PFA+PjYiLCI8PFA+PjAiXSwic291cmNlcyI6WyIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSJdLCJzb3VyY2VzQ29udGVudCI6WyI8dGVtcGxhdGU+XG48SGVsbG9Xb3JsZCBuIC8+XG48c3Bhbj5OYW1lOiB7eyBuYW1lICsgfX08L3NwYW4+XG48cCB2LWJpbmQ6PjwvcD5cbjxwIHYtaWY9XCJcIj48L3A+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec element  single 1`] = `
 ## 1.1. element > single
@@ -422,36 +500,43 @@ exports[`Baseline Spec element  single 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
-  /*<vuedx:templateGlobals>*/
-  /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   return (
-    <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-      foo
-    </div>
+    <>
+      <div
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {"foo"}
+      </div>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"div">;
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoxNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MSxcImVcIjo0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo1LFwiZVwiOjh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjgsXCJlXCI6MTR9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7O0lBQUFBLENBQUNDLEc7TUFBSUMsRztNQUFHQyxHIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGRpdj5mb288L2Rpdj5cbiJdfQ==
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#NzQzAC8vI3JlZ2lvbiA8c2NyaXB0PgppbXBvcnQgeyBkZWZpbmVDb21wb25lbnQgYXMgX19WdWVEWF9fZGVmaW5lQ29tcG9uZW50IH0gZnJvbSAndnVlJzsKZXhwb3J0IGNvbnN0IF9fVnVlRFhfX0NvbXBvbmVudCA9IF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCh7fSk7Ci8vI2VuZHJlZ2lvbgpjb25zdCBfX1Z1ZURYX19jdHggPSBuZXcgX19WdWVEWF9fQ29tcG9uZW50KCkKLy8jcmVnaW9uIDx0ZW1wbGF0ZT4KaW1wb3J0ICogYXMgX19WdWVEWF9fVHlwZUNoZWNrICBmcm9tICd2dWVkeH5ydW50aW1lJzsKZXhwb3J0IGZ1bmN0aW9uIF9fVnVlRFhfX3JlbmRlcigpIHsKICByZXR1cm4gKAogICAgPD4KICAgICAgPGRpdgogICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgPgogICAgICAgIHsiZm9vIn0KICAgICAgPC9kaXY+CiAgICA8Lz4KICApCn0KLyo8dnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KZnVuY3Rpb24gX19WdWVEWF9fc2xvdHMoKSB7CiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KMzU0AHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsUTtBLEksRTtBLE1BQ0EsQ0FBQ0EsRztBLFFBQUcsa0M7QSxNLEM7QSxRLENBQUNDLEssQztBLE1BQUcsRSxHLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj4zIiwiPDxUPj4zfDUiXSwic291cmNlcyI6WyIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSJdLCJzb3VyY2VzQ29udGVudCI6WyI8dGVtcGxhdGU+XG48ZGl2PmZvbzwvZGl2PlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec element  slots + v-for 1`] = `
 ## 1.5. element > slots + v-for
@@ -466,36 +551,49 @@ exports[`Baseline Spec element  slots + v-for 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let list = __VueDX_ctx.list;
-  let props = __VueDX_ctx.props;
+  let list = __VueDX__ctx.list;
+  let props = __VueDX__ctx.props;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
       {
-        VueDX.internal.renderList(list, (items) => {
+        __VueDX__TypeCheck.internal.renderList(list, (items) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.renderSlot(__VueDX_ctx.$slots, "default", { }) ?? <>
-                fallback content
-              </>
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {
+                __VueDX__ctx.$slots['default']({
+                }) ?? (
+                  <>
+                    {"fallback content"}
+                  </>
+                )
               }
               {
-                VueDX.internal.renderList(items, (item) => {
+                __VueDX__TypeCheck.internal.renderList(items, (item) => {
                   return (
-                    <span data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "span" as const)/*</vuedx:diagnosticsIgnore>*/}>
-                      {VueDX.internal.renderSlot(__VueDX_ctx.$slots, "other", { ...(props), "myProp": item, }) ?? <>
-                        fallback content
-                      </>
+                    <span
+                      /*<vuedx:tsx-competions-target/>*/
+                    >
+                      {
+                        __VueDX__ctx.$slots["other"]({
+                          ...(props),
+                          myProp: : item,
+                        }) ?? (
+                          <>
+                            {"fallback content"}
+                          </>
+                        )
                       }
                     </span>
                   )
@@ -509,29 +607,50 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let list = __VueDX_ctx.list;
-  let props = __VueDX_ctx.props;
-  return VueDX.internal.flat([
-    VueDX.internal.flat(VueDX.internal.renderList(list, (items) => VueDX.internal.flat([
-      VueDX.internal.flat([{ "default": { } }])
-    ]))),
-    VueDX.internal.flat(VueDX.internal.renderList(items, (item) => VueDX.internal.flat([
-      VueDX.internal.flat(VueDX.internal.renderList(list, (items) => VueDX.internal.flat([
-        VueDX.internal.flat([{ "other": { ...(props), "myProp": item, } }])
-      ])))
-    ]))),
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let list = __VueDX__ctx.list;
+  let props = __VueDX__ctx.props;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+    __VueDX__TypeCheck.internal.flat(
+      __VueDX__TypeCheck.internal.renderList(list, (items) => (
+        {
+          default: {
+          },
+        }
+      ))
+    ),
+    __VueDX__TypeCheck.internal.flat(
+      __VueDX__TypeCheck.internal.renderList(list, (items) => (
+        __VueDX__TypeCheck.internal.flat(
+          __VueDX__TypeCheck.internal.renderList(items, (item) => (
+            {
+              "other": {
+                ...(props),
+                myProp: : item,
+              },
+            }
+          ))
+        )
+      ))
+    ),
   ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MjEsXCJlXCI6MjV9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjEyLFwiZVwiOjE3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjowLFwiZVwiOjE4NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MSxcImVcIjo0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjE2fSxcInNcIjp7XCJzXCI6MzYsXCJlXCI6NTJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjgzLFwiZVwiOjg4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjo3NSxcImVcIjo3OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NjIsXCJlXCI6MTc3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjo2MyxcImVcIjo2N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTA2LFwiZVwiOjExM319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MTIyLFwiZVwiOjEyN319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo4fSxcInNcIjp7XCJzXCI6MTMwLFwiZVwiOjEzNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MTM4LFwiZVwiOjE0Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjE0NCxcImVcIjoxNjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjE3NyxcImVcIjoxNzd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjE3OCxcImVcIjoxODR9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7OztrQ0FBcUJBLEksR0FBVEMsSzs7WUFBWkMsQ0FBQ0MsRzs7Z0JBQ09DLGdCOzs7OzBDQUNlQyxLLEdBQVJDLEk7O29CQUFiQyxDQUFDQyxJO3FFQUNZQyxPLFFBQWdCQyxLLEdBQVFDLFEsRUFBUUMsSTt3QkFBTUMsZ0I7OztzQkFDNUNDLEk7Ozs7Y0FDVEMsRzs7Ozs7Ozs7Ozs7O2tEQUxxQmYsSSxHQUFUQyxLOzs7a0RBRVdJLEssR0FBUkMsSTtvREFGTU4sSSxHQUFUQyxLOzhDQUdtQlMsSyxHQUFRQyxRLEVBQVFDLEkiLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8ZGl2IHYtZm9yPVwiaXRlbXMgb2YgbGlzdFwiPlxuICA8c2xvdD5mYWxsYmFjayBjb250ZW50PC9zbG90PlxuICA8c3BhbiB2LWZvcj1cIml0ZW0gb2YgaXRlbXNcIj5cbiAgICA8c2xvdCBuYW1lPVwib3RoZXJcIiB2LWJpbmQ9XCJwcm9wc1wiIDpteVByb3A9XCJpdGVtXCI+ZmFsbGJhY2sgY29udGVudDwvc2xvdD5cbiAgPC9zcGFuPlxuPC9kaXY+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MjU0MwAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGxpc3QgPSBfX1Z1ZURYX19jdHgubGlzdDsKICBsZXQgcHJvcHMgPSBfX1Z1ZURYX19jdHgucHJvcHM7CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiAoCiAgICA8PgogICAgICB7CiAgICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlbmRlckxpc3QobGlzdCwgKGl0ZW1zKSA9PiB7CiAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICA8ZGl2CiAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICA+CiAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgX19WdWVEWF9fY3R4LiRzbG90c1snZGVmYXVsdCddKHsKICAgICAgICAgICAgICAgIH0pID8/ICgKICAgICAgICAgICAgICAgICAgPD4KICAgICAgICAgICAgICAgICAgICB7ImZhbGxiYWNrIGNvbnRlbnQifQogICAgICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlbmRlckxpc3QoaXRlbXMsIChpdGVtKSA9PiB7CiAgICAgICAgICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgICAgICAgICAgPHNwYW4KICAgICAgICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgICAgIF9fVnVlRFhfX2N0eC4kc2xvdHNbIm90aGVyIl0oewogICAgICAgICAgICAgICAgICAgICAgICAgIC4uLihwcm9wcyksCiAgICAgICAgICAgICAgICAgICAgICAgICAgbXlQcm9wOiA6IGl0ZW0sCiAgICAgICAgICAgICAgICAgICAgICAgIH0pID8/ICgKICAgICAgICAgICAgICAgICAgICAgICAgICA8PgogICAgICAgICAgICAgICAgICAgICAgICAgICAgeyJmYWxsYmFjayBjb250ZW50In0KICAgICAgICAgICAgICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgICAgICAgICAgICAgKQogICAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgIDwvc3Bhbj4KICAgICAgICAgICAgICAgICAgKQogICAgICAgICAgICAgICAgfSkKICAgICAgICAgICAgICB9CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgKQogICAgICAgIH0pCiAgICAgIH0KICAgIDwvPgogICkKfQovKjx2dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwpmdW5jdGlvbiBfX1Z1ZURYX19zbG90cygpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgbGlzdCA9IF9fVnVlRFhfX2N0eC5saXN0OwogIGxldCBwcm9wcyA9IF9fVnVlRFhfX2N0eC5wcm9wczsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICAgIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KAogICAgICBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwucmVuZGVyTGlzdChsaXN0LCAoaXRlbXMpID0+ICgKICAgICAgICB7CiAgICAgICAgICBkZWZhdWx0OiB7CiAgICAgICAgICB9LAogICAgICAgIH0KICAgICAgKSkKICAgICksCiAgICBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwuZmxhdCgKICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlbmRlckxpc3QobGlzdCwgKGl0ZW1zKSA9PiAoCiAgICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoCiAgICAgICAgICBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwucmVuZGVyTGlzdChpdGVtcywgKGl0ZW0pID0+ICgKICAgICAgICAgICAgewogICAgICAgICAgICAgICJvdGhlciI6IHsKICAgICAgICAgICAgICAgIC4uLihwcm9wcyksCiAgICAgICAgICAgICAgICBteVByb3A6IDogaXRlbSwKICAgICAgICAgICAgICB9LAogICAgICAgICAgICB9CiAgICAgICAgICApKQogICAgICAgICkKICAgICAgKSkKICAgICksCiAgXSkKfQovKjwvdnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KLy8jZW5kcmVnaW9uCi8vI3JlZ2lvbiBwdWJsaWMgY29tcG9uZW50IGRlZmluaXRpb24KZXhwb3J0IGRlZmF1bHQgY2xhc3MgZXh0ZW5kcyBfX1Z1ZURYX19Db21wb25lbnQgewogICRzbG90czogUmV0dXJuVHlwZTx0eXBlb2YgX19WdWVEWF9fc2xvdHM+Cn0KLy8jZW5kcmVnaW9uCjEyNDcAeyJ2ZXJzaW9uIjozLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS50c3giLCJtYXBwaW5ncyI6Ijs7Ozs7O0EscUQ7QSxBLG1DO0EsRSwyQjtBLEUsNkI7QSxFLCtCO0EsRSw0QjtBLEUsUTtBLEksRTtBLE0sQztBLFEsdUNBQ3FCQSxJLEUsQ0FBVEMsSyxDLEs7QSxVLFE7QSxZQUFaLENBQUNDLEc7QSxjQUFHLGtDO0EsWSxDO0EsYyxDO0EsZ0Isb0IsUyxHO0EsZ0IsRSxJLEM7QSxrQixFO0Esb0IsQ0FDSUMsa0IsQztBLGtCLEc7QSxnQixDO0EsYyxDO0EsYyxDO0EsZ0IsdUNBQ2VGLEssRSxDQUFSRCxJLEMsSztBLGtCLFE7QSxvQkFBYixDQUFDQSxJO0Esc0JBQUksa0M7QSxvQixDO0Esc0IsQztBLHdCLG9CQUNRSSxPLEc7QSwwQkFBUSxJQUFRSCxLLEMsQztBLHdCQUFPLEVBQUNJLE0sRSxFQUFRTCxJLEM7QSx3QixFLEksQztBLDBCLEU7QSw0QixDQUFNRyxrQixDO0EsMEIsRztBLHdCLEM7QSxzQixDO0Esb0JBQ25ELEUsSSxDO0Esa0IsQztBLGdCLEMsQztBLGMsQztBLFlBQ0YsRSxHLEM7QSxVLEM7QSxRLEMsQztBLE0sQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUsNkI7QSxFLCtCO0EsRSw0QjtBLEUseUM7QSxJLGdDLEM7QSxNLHNDLENBTHFCSCxJLEUsQ0FBVEMsSyxDLEs7QSxRLEM7QSxVLE8sRSxDO0EsVSxFO0EsUSxDO0EsTSxFO0EsSSxDLEM7QSxJLGdDLEM7QSxNLHNDLENBQVNELEksRSxDQUFUQyxLLEMsSztBLFEsZ0MsQztBLFUsc0MsQ0FFV0EsSyxFLENBQVJELEksQyxLO0EsWSxDO0EsYyxPLEUsQztBLGdCQUNRLElBQVFDLEssQyxDO0EsY0FBTyxFQUFDSSxNLEUsRUFBUUwsSSxDO0EsYyxFO0EsWSxDO0EsVSxFO0EsUSxDO0EsTSxFO0EsSSxDLEM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj40IiwiPDxQPj41IiwiPDxQPj4zIiwiPDxUPj4xNnwxOCIsIjw8UD4+NyIsIjw8UD4+NiJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxkaXYgdi1mb3I9XCJpdGVtcyBvZiBsaXN0XCI+XG4gIDxzbG90PmZhbGxiYWNrIGNvbnRlbnQ8L3Nsb3Q+XG4gIDxzcGFuIHYtZm9yPVwiaXRlbSBvZiBpdGVtc1wiPlxuICAgIDxzbG90IG5hbWU9XCJvdGhlclwiIHYtYmluZD1cInByb3BzXCIgOm15UHJvcD1cIml0ZW1cIj5mYWxsYmFjayBjb250ZW50PC9zbG90PlxuICA8L3NwYW4+XG48L2Rpdj5cblxuPC90ZW1wbGF0ZT4iXX0=)
 
-`
+
+`;
 
 exports[`Baseline Spec element  slots 1`] = `
 ## 1.4. element > slots
@@ -548,58 +667,106 @@ exports[`Baseline Spec element  slots 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let props = __VueDX_ctx.props;
-  let value = __VueDX_ctx.value;
-  let dynamic = __VueDX_ctx.dynamic;
+  let props = __VueDX__ctx.props;
+  let value = __VueDX__ctx.value;
+  let dynamic = __VueDX__ctx.dynamic;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
-    <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-      {VueDX.internal.renderSlot(__VueDX_ctx.$slots, "default", { }) ?? <>
-        fallback content
-      </>
-      }
-      <span data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "span" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        {VueDX.internal.renderSlot(__VueDX_ctx.$slots, "other", { ...(props), "myProp": value, }) ?? <>
-          fallback content
-        </>
+    <>
+      <div
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {
+          __VueDX__ctx.$slots['default']({
+          }) ?? (
+            <>
+              {"fallback content"}
+            </>
+          )
         }
-      </span>
-      {VueDX.internal.renderSlot(__VueDX_ctx.$slots, "another", { ...(props), "myProp": value, })}
-      {VueDX.internal.renderSlot(__VueDX_ctx.$slots, dynamic, { ...(props), "myProp": value, })}
-    </div>
+        <span
+          /*<vuedx:tsx-competions-target/>*/
+        >
+          {
+            __VueDX__ctx.$slots["other"]({
+              ...(props),
+              myProp: : value,
+            }) ?? (
+              <>
+                {"fallback content"}
+              </>
+            )
+          }
+        </span>
+        {
+          __VueDX__ctx.$slots["another"]({
+            ...(props),
+            myProp: : value,
+          })}
+        {
+          __VueDX__ctx.$slots[name]({
+            ...(props),
+            myProp: : value,
+          })}
+      </div>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let props = __VueDX_ctx.props;
-  let value = __VueDX_ctx.value;
-  let dynamic = __VueDX_ctx.dynamic;
-  return VueDX.internal.flat([
-    VueDX.internal.flat([{ "default": { } }]),
-    VueDX.internal.flat([{ "other": { ...(props), "myProp": value, } }]),
-    VueDX.internal.flat([{ "another": { ...(props), "myProp": value, } }]),
-    VueDX.internal.flat([{ [dynamic]: { ...(props), "myProp": value, } }]),
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let props = __VueDX__ctx.props;
+  let value = __VueDX__ctx.value;
+  let dynamic = __VueDX__ctx.dynamic;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+    {
+      default: {
+      },
+    },
+    {
+      "other": {
+        ...(props),
+        myProp: : value,
+      },
+    },
+    {
+      "another": {
+        ...(props),
+        myProp: : value,
+      },
+    },
+    {
+      [dynamic]: {
+        ...(props),
+        myProp: : value,
+      },
+    },
   ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"div">;
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoyNjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjEsXCJlXCI6NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjE0LFwiZVwiOjMwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0MCxcImVcIjoxMzR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjQxLFwiZVwiOjQ1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjo2MixcImVcIjo2OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6NzgsXCJlXCI6ODN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OH0sXCJzXCI6e1wic1wiOjg2LFwiZVwiOjkyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjo5NCxcImVcIjo5OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjEwMSxcImVcIjoxMTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjEzNCxcImVcIjoxMzR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjE0OCxcImVcIjoxNTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjE2NixcImVcIjoxNzF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OH0sXCJzXCI6e1wic1wiOjE3NCxcImVcIjoxODB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjE4MixcImVcIjoxODd9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6N30sXCJzXCI6e1wic1wiOjIxMixcImVcIjoyMTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjIyOSxcImVcIjoyMzR9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OH0sXCJzXCI6e1wic1wiOjIzNyxcImVcIjoyNDN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjI0NSxcImVcIjoyNTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjI1NSxcImVcIjoyNjF9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7O0lBQUFBLENBQUNDLEc7O1FBQ09DLGdCOzs7TUFDTkMsQ0FBQ0MsSTt1REFDWUMsTyxRQUFnQkMsSyxHQUFRQyxRLEVBQVFDLEs7VUFBT0MsZ0I7OztRQUM3Q0MsSTtxREFDSUMsUyxRQUFrQkMsSyxHQUFRQyxRLEVBQVFDLEs7cURBQ2hDQyxPLFFBQWlCQyxLLEdBQVFDLFEsRUFBUUMsSztNQUNoREMsRzs7Ozs7Ozs7OzswQ0FKK0JiLEssR0FBUUMsUSxFQUFRQyxLOzRDQUVoQkksSyxHQUFRQyxRLEVBQVFDLEs7NEJBQ2hDQyxPLFNBQWlCQyxLLEdBQVFDLFEsRUFBUUMsSyIsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSIsInNvdXJjZVJvb3QiOiIvdG1wL2NvbXBpbGVyLXRzeCIsInNvdXJjZXNDb250ZW50IjpbIjxkaXY+XG4gIDxzbG90PmZhbGxiYWNrIGNvbnRlbnQ8L3Nsb3Q+XG4gIDxzcGFuPlxuICAgIDxzbG90IG5hbWU9XCJvdGhlclwiIHYtYmluZD1cInByb3BzXCIgOm15UHJvcD1cInZhbHVlXCI+ZmFsbGJhY2sgY29udGVudDwvc2xvdD5cbiAgPC9zcGFuPlxuICA8c2xvdCBuYW1lPVwiYW5vdGhlclwiIHYtYmluZD1cInByb3BzXCIgOm15UHJvcD1cInZhbHVlXCI+PC9zbG90PlxuICA8c2xvdCA6bmFtZT1cImR5bmFtaWNcIiB2LWJpbmQ9XCJwcm9wc1wiIDpteVByb3A9XCJ2YWx1ZVwiIC8+XG48L2Rpdj5cbiJdfQ==
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MjA2NQAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IHByb3BzID0gX19WdWVEWF9fY3R4LnByb3BzOwogIGxldCB2YWx1ZSA9IF9fVnVlRFhfX2N0eC52YWx1ZTsKICBsZXQgZHluYW1pYyA9IF9fVnVlRFhfX2N0eC5keW5hbWljOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gKAogICAgPD4KICAgICAgPGRpdgogICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgPgogICAgICAgIHsKICAgICAgICAgIF9fVnVlRFhfX2N0eC4kc2xvdHNbJ2RlZmF1bHQnXSh7CiAgICAgICAgICB9KSA/PyAoCiAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgeyJmYWxsYmFjayBjb250ZW50In0KICAgICAgICAgICAgPC8+CiAgICAgICAgICApCiAgICAgICAgfQogICAgICAgIDxzcGFuCiAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgPgogICAgICAgICAgewogICAgICAgICAgICBfX1Z1ZURYX19jdHguJHNsb3RzWyJvdGhlciJdKHsKICAgICAgICAgICAgICAuLi4ocHJvcHMpLAogICAgICAgICAgICAgIG15UHJvcDogOiB2YWx1ZSwKICAgICAgICAgICAgfSkgPz8gKAogICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICB7ImZhbGxiYWNrIGNvbnRlbnQifQogICAgICAgICAgICAgIDwvPgogICAgICAgICAgICApCiAgICAgICAgICB9CiAgICAgICAgPC9zcGFuPgogICAgICAgIHsKICAgICAgICAgIF9fVnVlRFhfX2N0eC4kc2xvdHNbImFub3RoZXIiXSh7CiAgICAgICAgICAgIC4uLihwcm9wcyksCiAgICAgICAgICAgIG15UHJvcDogOiB2YWx1ZSwKICAgICAgICAgIH0pfQogICAgICAgIHsKICAgICAgICAgIF9fVnVlRFhfX2N0eC4kc2xvdHNbbmFtZV0oewogICAgICAgICAgICAuLi4ocHJvcHMpLAogICAgICAgICAgICBteVByb3A6IDogdmFsdWUsCiAgICAgICAgICB9KX0KICAgICAgPC9kaXY+CiAgICA8Lz4KICApCn0KLyo8dnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KZnVuY3Rpb24gX19WdWVEWF9fc2xvdHMoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IHByb3BzID0gX19WdWVEWF9fY3R4LnByb3BzOwogIGxldCB2YWx1ZSA9IF9fVnVlRFhfX2N0eC52YWx1ZTsKICBsZXQgZHluYW1pYyA9IF9fVnVlRFhfX2N0eC5keW5hbWljOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogICAgewogICAgICBkZWZhdWx0OiB7CiAgICAgIH0sCiAgICB9LAogICAgewogICAgICAib3RoZXIiOiB7CiAgICAgICAgLi4uKHByb3BzKSwKICAgICAgICBteVByb3A6IDogdmFsdWUsCiAgICAgIH0sCiAgICB9LAogICAgewogICAgICAiYW5vdGhlciI6IHsKICAgICAgICAuLi4ocHJvcHMpLAogICAgICAgIG15UHJvcDogOiB2YWx1ZSwKICAgICAgfSwKICAgIH0sCiAgICB7CiAgICAgIFtkeW5hbWljXTogewogICAgICAgIC4uLihwcm9wcyksCiAgICAgICAgbXlQcm9wOiA6IHZhbHVlLAogICAgICB9LAogICAgfSwKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KMTM3OAB7InZlcnNpb24iOjMsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnRzeCIsIm1hcHBpbmdzIjoiOzs7Ozs7QSxxRDtBLEEsbUM7QSxFLDJCO0EsRSwrQjtBLEUsK0I7QSxFLG1DO0EsRSw0QjtBLEUsUTtBLEksRTtBLE1BQ0EsQ0FBQ0EsRztBLFFBQUcsa0M7QSxNLEM7QSxRLEM7QSxVLG9CLFMsRztBLFUsRSxJLEM7QSxZLEU7QSxjLENBQ0lDLGtCLEM7QSxZLEc7QSxVLEM7QSxRLEM7QSxRQUNOLENBQUNDLEk7QSxVQUFJLGtDO0EsUSxDO0EsVSxDO0EsWSxvQkFDUUMsTyxHO0EsY0FBUSxJQUFRQyxLLEMsQztBLFlBQU8sRUFBQ0MsTSxFLEVBQVFELEssQztBLFksRSxJLEM7QSxjLEU7QSxnQixDQUFPSCxrQixDO0EsYyxHO0EsWSxDO0EsVSxDO0EsUUFDcEQsRSxJLEM7QSxRLEM7QSxVLG9CQUNXSyxTLEc7QSxZQUFVLElBQVFGLEssQyxDO0EsVUFBTyxFQUFDQyxNLEUsRUFBUUQsSyxDO0EsVSxFLEM7QSxRLEM7QSxVLG9CQUN0Q0YsSSxHO0EsWUFBZSxJQUFRRSxLLEMsQztBLFVBQU8sRUFBQ0MsTSxFLEVBQVFELEssQztBLFUsRSxDO0EsTUFDaEQsRSxHLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUsMkI7QSxFLCtCO0EsRSwrQjtBLEUsbUM7QSxFLDRCO0EsRSx5QztBLEksQztBLE0sTyxFLEM7QSxNLEU7QSxJLEMsQztBLEksQztBLE0sTyxFLEM7QSxRQUp1QixJQUFRQSxLLEMsQztBLE1BQU8sRUFBQ0MsTSxFLEVBQVFELEssQztBLE0sRTtBLEksQyxDO0EsSSxDO0EsTSxTLEUsQztBLFFBRXhCLElBQVFBLEssQyxDO0EsTUFBTyxFQUFDQyxNLEUsRUFBUUQsSyxDO0EsTSxFO0EsSSxDLEM7QSxJLEM7QSxNLENBQ2hDRCxPLEMsRSxDO0EsUUFBUyxJQUFRQyxLLEMsQztBLE1BQU8sRUFBQ0MsTSxFLEVBQVFELEssQztBLE0sRTtBLEksQyxDO0EsRSxFO0EsQSxDO0EsQSw4Qjs7Ozs7OyIsIm5hbWVzIjpbIjw8UD4+MyIsIjw8VD4+MTZ8MTgiLCI8PFA+PjQiLCI8PFA+PjciLCI8PFA+PjUiLCI8PFA+PjYiLCI8PFA+PjkiXSwic291cmNlcyI6WyIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSJdLCJzb3VyY2VzQ29udGVudCI6WyI8dGVtcGxhdGU+XG48ZGl2PlxuICA8c2xvdD5mYWxsYmFjayBjb250ZW50PC9zbG90PlxuICA8c3Bhbj5cbiAgICA8c2xvdCBuYW1lPVwib3RoZXJcIiB2LWJpbmQ9XCJwcm9wc1wiIDpteVByb3A9XCJ2YWx1ZVwiPmZhbGxiYWNrIGNvbnRlbnQ8L3Nsb3Q+XG4gIDwvc3Bhbj5cbiAgPHNsb3QgbmFtZT1cImFub3RoZXJcIiB2LWJpbmQ9XCJwcm9wc1wiIDpteVByb3A9XCJ2YWx1ZVwiPjwvc2xvdD5cbiAgPHNsb3QgOm5hbWU9XCJkeW5hbWljXCIgdi1iaW5kPVwicHJvcHNcIiA6bXlQcm9wPVwidmFsdWVcIiAvPlxuPC9kaXY+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-bind default 1`] = `
 ## 2.1. v-bind 
@@ -610,54 +777,61 @@ exports[`Baseline Spec v-bind default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-const Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let myInput = __VueDX_ctx.myInput;
-  let customName = __VueDX_ctx.customName;
-  let rest = __VueDX_ctx.rest;
+  let myInput = __VueDX__ctx.myInput;
+  let customName = __VueDX__ctx.customName;
+  let rest = __VueDX__ctx.rest;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
       <input
         value={myInput}
-        {...({
-          [customName]: myInput,
-          ...(rest),
-        })} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        {...({[customName]: myInput})}
+        {...(rest)}
+        /*<vuedx:tsx-competions-target/>*/
+      />
       <Foo
         value={myInput}
-        {...({
-          [customName]: myInput,
-          ...(rest),
-        })} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", Foo)/*</vuedx:diagnosticsIgnore>*/} />
+        {...({[customName]: myInput})}
+        {...(rest)}
+        /*<vuedx:tsx-competions-target/>*/
+      />
+
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let myInput = __VueDX_ctx.myInput;
-  let customName = __VueDX_ctx.customName;
-  let rest = __VueDX_ctx.rest;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let myInput = __VueDX__ctx.myInput;
+  let customName = __VueDX__ctx.customName;
+  let rest = __VueDX__ctx.rest;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjo2NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MSxcImVcIjo2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjo4LFwiZVwiOjEzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjoxNSxcImVcIjoyMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxMH0sXCJzXCI6e1wic1wiOjI1LFwiZVwiOjM3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjozOSxcImVcIjo0Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6NTYsXCJlXCI6NjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjY1LFwiZVwiOjEyN319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NjYsXCJlXCI6Njl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjcxLFwiZVwiOjc2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjo3OCxcImVcIjo4NX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxMH0sXCJzXCI6e1wic1wiOjg4LFwiZVwiOjEwMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTAyLFwiZVwiOjEwOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MTE5LFwiZVwiOjEyM319Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7OztNQUFBQSxDQUFDQyxLO1FBQU9DLEssRUFBT0MsTzs7V0FBVUMsVSxHQUFjQyxPO2NBQWlCQyxJOztNQUN4REMsQ0FBQ0MsRztRQUFLQyxLLEVBQU9DLE87O1dBQVVDLFUsR0FBY0MsTztjQUFpQkMsSSIsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSIsInNvdXJjZVJvb3QiOiIvdG1wL2NvbXBpbGVyLXRzeCIsInNvdXJjZXNDb250ZW50IjpbIjxpbnB1dCA6dmFsdWU9XCJteUlucHV0XCIgOltjdXN0b21OYW1lXT1cIm15SW5wdXRcIiB2LWJpbmQ9XCJyZXN0XCIgLz5cbjxGb28gOnZhbHVlPVwibXlJbnB1dFwiIDpbY3VzdG9tTmFtZV09XCJteUlucHV0XCIgdi1iaW5kPVwicmVzdFwiIC8+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTI5NwAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IG15SW5wdXQgPSBfX1Z1ZURYX19jdHgubXlJbnB1dDsKICBsZXQgY3VzdG9tTmFtZSA9IF9fVnVlRFhfX2N0eC5jdXN0b21OYW1lOwogIGxldCByZXN0ID0gX19WdWVEWF9fY3R4LnJlc3Q7CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiAoCiAgICA8PgogICAgICA8aW5wdXQKICAgICAgICB2YWx1ZT17bXlJbnB1dH0KICAgICAgICB7Li4uKHtbY3VzdG9tTmFtZV06IG15SW5wdXR9KX0KICAgICAgICB7Li4uKHJlc3QpfQogICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgLz4KICAgICAgPEZvbwogICAgICAgIHZhbHVlPXtteUlucHV0fQogICAgICAgIHsuLi4oe1tjdXN0b21OYW1lXTogbXlJbnB1dH0pfQogICAgICAgIHsuLi4ocmVzdCl9CiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAvPgoKICAgIDwvPgogICkKfQovKjx2dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwpmdW5jdGlvbiBfX1Z1ZURYX19zbG90cygpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgbXlJbnB1dCA9IF9fVnVlRFhfX2N0eC5teUlucHV0OwogIGxldCBjdXN0b21OYW1lID0gX19WdWVEWF9fY3R4LmN1c3RvbU5hbWU7CiAgbGV0IHJlc3QgPSBfX1Z1ZURYX19jdHgucmVzdDsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KNjk2AHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsMkI7QSxFLG1DO0EsRSx5QztBLEUsNkI7QSxFLDRCO0EsRSxRO0EsSSxFO0EsTUFDQSxDQUFDQSxLO0EsUUFBT0EsSyxDLENBQU9DLE8sQztBLFEsT0FBV0MsVSxDLEVBQWFELE8sRztBLFEsS0FBaUJFLEksRTtBLFFBQWxELGtDO0EsTSxFO0EsTUFDTixDQUFDLEc7QSxRQUFLSCxLLEMsQ0FBT0MsTyxDO0EsUSxPQUFXQyxVLEMsRUFBYUQsTyxHO0EsUSxLQUFpQkUsSSxFO0EsUUFBbEQsa0M7QSxNLEU7QTtBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUsbUM7QSxFLHlDO0EsRSw2QjtBLEUsNEI7QSxFLHlDO0EsRSxFO0EsQSxDO0EsQSw4Qjs7Ozs7OyIsIm5hbWVzIjpbIjw8UD4+NSIsIjw8UD4+NyIsIjw8UD4+MTAiLCI8PFA+PjQiXSwic291cmNlcyI6WyIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSJdLCJzb3VyY2VzQ29udGVudCI6WyI8dGVtcGxhdGU+XG48aW5wdXQgOnZhbHVlPVwibXlJbnB1dFwiIDpbY3VzdG9tTmFtZV09XCJteUlucHV0XCIgdi1iaW5kPVwicmVzdFwiIC8+XG48Rm9vIDp2YWx1ZT1cIm15SW5wdXRcIiA6W2N1c3RvbU5hbWVdPVwibXlJbnB1dFwiIHYtYmluZD1cInJlc3RcIiAvPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-for default 1`] = `
 ## 14.1. v-for 
@@ -681,171 +855,200 @@ exports[`Baseline Spec v-for default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let num = __VueDX_ctx.num;
-  let str = __VueDX_ctx.str;
-  let arr = __VueDX_ctx.arr;
-  let obj = __VueDX_ctx.obj;
-  let itr = __VueDX_ctx.itr;
-  let boo = __VueDX_ctx.boo;
-  let sym = __VueDX_ctx.sym;
+  let num = __VueDX__ctx.num;
+  let str = __VueDX__ctx.str;
+  let arr = __VueDX__ctx.arr;
+  let obj = __VueDX__ctx.obj;
+  let itr = __VueDX__ctx.itr;
+  let boo = __VueDX__ctx.boo;
+  let sym = __VueDX__ctx.sym;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
       {
-        VueDX.internal.renderList(num, (n) => {
+        __VueDX__TypeCheck.internal.renderList(num, (n) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(n)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {n}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(num, (n, i) => {
+        __VueDX__TypeCheck.internal.renderList(num, (n, i) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(n)}
-              :
-              {VueDX.internal.checkInterpolation(i)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {n}
+              {":"}
+              {i}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(str, (s) => {
+        __VueDX__TypeCheck.internal.renderList(str, (s) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(s)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {s}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(str, (s, i) => {
+        __VueDX__TypeCheck.internal.renderList(str, (s, i) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(s)}
-              :
-              {VueDX.internal.checkInterpolation(i)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {s}
+              {":"}
+              {i}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(arr, (a) => {
+        __VueDX__TypeCheck.internal.renderList(arr, (a) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(a)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {a}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(arr, ({ value }) => {
+        __VueDX__TypeCheck.internal.renderList(arr, ({ value }) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(value)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {value}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(arr, ({ foo }) => {
+        __VueDX__TypeCheck.internal.renderList(arr, ({ foo }) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(arr)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {arr}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(arr, (a, i) => {
+        __VueDX__TypeCheck.internal.renderList(arr, (a, i) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(a)}
-              :
-              {VueDX.internal.checkInterpolation(i)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {a}
+              {":"}
+              {i}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(arr, ({ value }, i) => {
+        __VueDX__TypeCheck.internal.renderList(arr, ({ value }, i) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(value)}
-              :
-              {VueDX.internal.checkInterpolation(i)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {value}
+              {":"}
+              {i}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(obj, (o) => {
+        __VueDX__TypeCheck.internal.renderList(obj, (o) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(o)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {o}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(obj, (o, k) => {
+        __VueDX__TypeCheck.internal.renderList(obj, (o, k) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(o)}
-              :
-              {VueDX.internal.checkInterpolation(k)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {o}
+              {":"}
+              {k}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(obj, (o, k, i) => {
+        __VueDX__TypeCheck.internal.renderList(obj, (o, k, i) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(o)}
-              :
-              {VueDX.internal.checkInterpolation(k)}
-              :
-              {VueDX.internal.checkInterpolation(i)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {o}
+              {":"}
+              {k}
+              {":"}
+              {i}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(itr, (t) => {
+        __VueDX__TypeCheck.internal.renderList(itr, (t) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(t)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {t}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(boo, (b) => {
+        __VueDX__TypeCheck.internal.renderList(boo, (b) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(b)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {b}
             </div>
           )
         })
       }
       {
-        VueDX.internal.renderList(sym, (s) => {
+        __VueDX__TypeCheck.internal.renderList(sym, (s) => {
           return (
-            <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {VueDX.internal.checkInterpolation(s)}
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {s}
             </div>
           )
         })
@@ -854,25 +1057,33 @@ export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let num = __VueDX_ctx.num;
-  let str = __VueDX_ctx.str;
-  let arr = __VueDX_ctx.arr;
-  let obj = __VueDX_ctx.obj;
-  let itr = __VueDX_ctx.itr;
-  let boo = __VueDX_ctx.boo;
-  let sym = __VueDX_ctx.sym;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let num = __VueDX__ctx.num;
+  let str = __VueDX__ctx.str;
+  let arr = __VueDX__ctx.arr;
+  let obj = __VueDX__ctx.obj;
+  let itr = __VueDX__ctx.itr;
+  let boo = __VueDX__ctx.boo;
+  let sym = __VueDX__ctx.sym;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTcsXCJlXCI6MjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjEyLFwiZVwiOjEzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjowLFwiZVwiOjM1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxLFwiZVwiOjR9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoyMixcImVcIjoyOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjUsXCJlXCI6MjZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjI5LFwiZVwiOjM1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo1OCxcImVcIjo2MX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NDksXCJlXCI6NTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjUyLFwiZVwiOjUzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjozNixcImVcIjo4NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MzcsXCJlXCI6NDB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjo2MyxcImVcIjo3MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NjYsXCJlXCI6Njd9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjcwLFwiZVwiOjcxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NzEsXCJlXCI6Nzh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjc0LFwiZVwiOjc1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxMDIsXCJlXCI6MTA1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo5NyxcImVcIjo5OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6ODUsXCJlXCI6MTIwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo4NixcImVcIjo4OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjEwNyxcImVcIjoxMTR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjExMCxcImVcIjoxMTF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjE0MyxcImVcIjoxNDZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjEzNCxcImVcIjoxMzV9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjEzNyxcImVcIjoxMzh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjEyMSxcImVcIjoxNjl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjEyMixcImVcIjoxMjV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoxNDgsXCJlXCI6MTU1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoxNTEsXCJlXCI6MTUyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoxNTUsXCJlXCI6MTU2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MTU2LFwiZVwiOjE2M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTU5LFwiZVwiOjE2MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTg3LFwiZVwiOjE5MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTgyLFwiZVwiOjE4M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTcwLFwiZVwiOjIwNX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTcxLFwiZVwiOjE3NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjE5MixcImVcIjoxOTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjE5NSxcImVcIjoxOTZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjIzMSxcImVcIjoyMzR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjIxOCxcImVcIjoyMjd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjIwNixcImVcIjoyNTN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjIwNyxcImVcIjoyMTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoyMzYsXCJlXCI6MjQ3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjoyMzksXCJlXCI6MjQ0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoyNzcsXCJlXCI6MjgwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjoyNjYsXCJlXCI6MjczfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoyNTQsXCJlXCI6Mjk3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoyNTUsXCJlXCI6MjU4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MjgyLFwiZVwiOjI5MX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6Mjg1LFwiZVwiOjI4OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MzIwLFwiZVwiOjMyM319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MzExLFwiZVwiOjMxMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MzE0LFwiZVwiOjMxNX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6Mjk4LFwiZVwiOjM0Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6Mjk5LFwiZVwiOjMwMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjMyNSxcImVcIjozMzJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjMyOCxcImVcIjozMjl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjMzMixcImVcIjozMzN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjozMzMsXCJlXCI6MzQwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjozMzYsXCJlXCI6MzM3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjozNzcsXCJlXCI6MzgwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjozNjAsXCJlXCI6MzY5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjozNzEsXCJlXCI6MzcyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjozNDcsXCJlXCI6NDA3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjozNDgsXCJlXCI6MzUxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MzgyLFwiZVwiOjM5M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6Mzg1LFwiZVwiOjM5MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MzkzLFwiZVwiOjM5NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjM5NCxcImVcIjo0MDF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjM5NyxcImVcIjozOTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjQyNSxcImVcIjo0Mjh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjQyMCxcImVcIjo0MjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjQwOCxcImVcIjo0NDN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjQwOSxcImVcIjo0MTJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjo0MzAsXCJlXCI6NDM3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0MzMsXCJlXCI6NDM0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo0NjYsXCJlXCI6NDY5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0NTcsXCJlXCI6NDU4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0NjAsXCJlXCI6NDYxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0NDQsXCJlXCI6NDkyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo0NDUsXCJlXCI6NDQ4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NDcxLFwiZVwiOjQ3OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NDc0LFwiZVwiOjQ3NX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NDc4LFwiZVwiOjQ3OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjQ3OSxcImVcIjo0ODZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjQ4MixcImVcIjo0ODN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjUxOCxcImVcIjo1MjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjUwNixcImVcIjo1MDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjUwOSxcImVcIjo1MTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjUxMixcImVcIjo1MTN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjQ5MyxcImVcIjo1NTJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjQ5NCxcImVcIjo0OTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjo1MjMsXCJlXCI6NTMwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo1MjYsXCJlXCI6NTI3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo1MzAsXCJlXCI6NTMxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NTMxLFwiZVwiOjUzOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NTM0LFwiZVwiOjUzNX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NTM4LFwiZVwiOjUzOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjUzOSxcImVcIjo1NDZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjU0MixcImVcIjo1NDN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjU3MCxcImVcIjo1NzN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjU2NSxcImVcIjo1NjZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjU1MyxcImVcIjo1ODh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjU1NCxcImVcIjo1NTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjo1NzUsXCJlXCI6NTgyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo1NzgsXCJlXCI6NTc5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo2MDYsXCJlXCI6NjA5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo2MDEsXCJlXCI6NjAyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo1ODksXCJlXCI6NjI0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo1OTAsXCJlXCI6NTkzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NjExLFwiZVwiOjYxOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NjE0LFwiZVwiOjYxNX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NjQyLFwiZVwiOjY0NX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NjM3LFwiZVwiOjYzOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NjI1LFwiZVwiOjY2MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NjI2LFwiZVwiOjYyOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjY0NyxcImVcIjo2NTR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjY1MCxcImVcIjo2NTF9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O2tDQUFpQkEsRyxHQUFMQyxDOztZQUFaQyxDQUFDQyxHO2VBQXFCQyxrQ0FBR0MsQztjQUFJQyxHOzs7OztrQ0FDUEMsRyxHQUFUQyxDLEVBQUdDLEM7O1lBQWhCQyxDQUFDQyxHO2VBQTBCQyxrQ0FBR0MsQztjQUFJQyxDO2VBQUNDLGtDQUFHQyxDOzs7Ozs7a0NBQ3JCQyxHLEdBQUxDLEM7O1lBQVpDLENBQUNDLEc7ZUFBcUJDLGtDQUFHQyxDOzs7Ozs7a0NBQ0hDLEcsR0FBVEMsQyxFQUFHQyxDOztZQUFoQkMsQ0FBQ0MsRztlQUEwQkMsa0NBQUdDLEM7Y0FBSUMsQztlQUFDQyxrQ0FBR0MsQzs7Ozs7O2tDQUNyQkMsRyxHQUFMQyxDOztZQUFaQyxDQUFDQyxHO2VBQXFCQyxrQ0FBR0MsQzs7Ozs7O2tDQUNBQyxHLEdBQWJDLFM7O1lBQVpDLENBQUNDLEc7ZUFBNkJDLGtDQUFHQyxLOzs7Ozs7a0NBQ1ZDLEcsR0FBWEMsTzs7WUFBWkMsQ0FBQ0MsRztlQUEyQkMsa0NBQUdDLEc7Ozs7OztrQ0FDVEMsRyxHQUFUQyxDLEVBQUdDLEM7O1lBQWhCQyxDQUFDQyxHO2VBQTBCQyxrQ0FBR0MsQztjQUFJQyxDO2VBQUNDLGtDQUFHQyxDOzs7Ozs7a0NBQ1JDLEcsR0FBakJDLFMsRUFBV0MsQzs7WUFBeEJDLENBQUNDLEc7ZUFBa0NDLGtDQUFHQyxLO2NBQVFDLEM7ZUFBQ0Msa0NBQUdDLEM7Ozs7OztrQ0FDakNDLEcsR0FBTEMsQzs7WUFBWkMsQ0FBQ0MsRztlQUFxQkMsa0NBQUdDLEM7Ozs7OztrQ0FDSEMsRyxHQUFUQyxDLEVBQUdDLEM7O1lBQWhCQyxDQUFDQyxHO2VBQTBCQyxrQ0FBR0MsQztjQUFJQyxDO2VBQUNDLGtDQUFHQyxDOzs7Ozs7a0NBQ2JDLEcsR0FBWkMsQyxFQUFHQyxDLEVBQUdDLEM7O1lBQW5CQyxDQUFDQyxHO2VBQTZCQyxrQ0FBR0MsQztjQUFJQyxDO2VBQUNDLGtDQUFHQyxDO2NBQUlDLEM7ZUFBQ0Msa0NBQUdDLEM7Ozs7OztrQ0FDaENDLEcsR0FBTEMsQzs7WUFBWkMsQ0FBQ0MsRztlQUFxQkMsa0NBQUdDLEM7Ozs7OztrQ0FDUkMsRyxHQUFMQyxDOztZQUFaQyxDQUFDQyxHO2VBQXFCQyxrQ0FBR0MsQzs7Ozs7O2tDQUNSQyxHLEdBQUxDLEM7O1lBQVpDLENBQUNDLEc7ZUFBcUJDLGtDQUFHQyxDIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGRpdiB2LWZvcj1cIm4gb2YgbnVtXCI+e3sgbiB9fTwvZGl2PlxuPGRpdiB2LWZvcj1cIihuLCBpKSBvZiBudW1cIj57eyBuIH19Ont7IGkgfX08L2Rpdj5cbjxkaXYgdi1mb3I9XCJzIG9mIHN0clwiPnt7IHMgfX08L2Rpdj5cbjxkaXYgdi1mb3I9XCIocywgaSkgb2Ygc3RyXCI+e3sgcyB9fTp7eyBpIH19PC9kaXY+XG48ZGl2IHYtZm9yPVwiYSBvZiBhcnJcIj57eyBhIH19PC9kaXY+XG48ZGl2IHYtZm9yPVwieyB2YWx1ZSB9IG9mIGFyclwiPnt7IHZhbHVlIH19PC9kaXY+XG48ZGl2IHYtZm9yPVwieyBmb28gfSBvZiBhcnJcIj57eyBhcnIgfX08L2Rpdj5cbjxkaXYgdi1mb3I9XCIoYSwgaSkgb2YgYXJyXCI+e3sgYSB9fTp7eyBpIH19PC9kaXY+XG48ZGl2IHYtZm9yPVwiKHsgdmFsdWUgfSwgaSkgb2YgYXJyXCI+e3sgdmFsdWUgfX06e3sgaSB9fTwvZGl2PlxuPGRpdiB2LWZvcj1cIm8gb2Ygb2JqXCI+e3sgbyB9fTwvZGl2PlxuPGRpdiB2LWZvcj1cIihvLCBrKSBvZiBvYmpcIj57eyBvIH19Ont7IGsgfX08L2Rpdj5cbjxkaXYgdi1mb3I9XCIobywgaywgaSkgb2Ygb2JqXCI+e3sgbyB9fTp7eyBrIH19Ont7IGkgfX08L2Rpdj5cbjxkaXYgdi1mb3I9XCJ0IG9mIGl0clwiPnt7IHQgfX08L2Rpdj5cbjxkaXYgdi1mb3I9XCJiIG9mIGJvb1wiPnt7IGIgfX08L2Rpdj5cbjxkaXYgdi1mb3I9XCJzIG9mIHN5bVwiPnt7IHMgfX08L2Rpdj5cbiJdfQ==
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#NTA1MwAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IG51bSA9IF9fVnVlRFhfX2N0eC5udW07CiAgbGV0IHN0ciA9IF9fVnVlRFhfX2N0eC5zdHI7CiAgbGV0IGFyciA9IF9fVnVlRFhfX2N0eC5hcnI7CiAgbGV0IG9iaiA9IF9fVnVlRFhfX2N0eC5vYmo7CiAgbGV0IGl0ciA9IF9fVnVlRFhfX2N0eC5pdHI7CiAgbGV0IGJvbyA9IF9fVnVlRFhfX2N0eC5ib287CiAgbGV0IHN5bSA9IF9fVnVlRFhfX2N0eC5zeW07CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiAoCiAgICA8PgogICAgICB7CiAgICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlbmRlckxpc3QobnVtLCAobikgPT4gewogICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgPGRpdgogICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgPgogICAgICAgICAgICAgIHtufQogICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICkKICAgICAgICB9KQogICAgICB9CiAgICAgIHsKICAgICAgICBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwucmVuZGVyTGlzdChudW0sIChuLCBpKSA9PiB7CiAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICA8ZGl2CiAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICA+CiAgICAgICAgICAgICAge259CiAgICAgICAgICAgICAgeyI6In0KICAgICAgICAgICAgICB7aX0KICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICApCiAgICAgICAgfSkKICAgICAgfQogICAgICB7CiAgICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlbmRlckxpc3Qoc3RyLCAocykgPT4gewogICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgPGRpdgogICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgPgogICAgICAgICAgICAgIHtzfQogICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICkKICAgICAgICB9KQogICAgICB9CiAgICAgIHsKICAgICAgICBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwucmVuZGVyTGlzdChzdHIsIChzLCBpKSA9PiB7CiAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICA8ZGl2CiAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICA+CiAgICAgICAgICAgICAge3N9CiAgICAgICAgICAgICAgeyI6In0KICAgICAgICAgICAgICB7aX0KICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICApCiAgICAgICAgfSkKICAgICAgfQogICAgICB7CiAgICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlbmRlckxpc3QoYXJyLCAoYSkgPT4gewogICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgPGRpdgogICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgPgogICAgICAgICAgICAgIHthfQogICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICkKICAgICAgICB9KQogICAgICB9CiAgICAgIHsKICAgICAgICBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwucmVuZGVyTGlzdChhcnIsICh7IHZhbHVlIH0pID0+IHsKICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7dmFsdWV9CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgKQogICAgICAgIH0pCiAgICAgIH0KICAgICAgewogICAgICAgIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5yZW5kZXJMaXN0KGFyciwgKHsgZm9vIH0pID0+IHsKICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7YXJyfQogICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICkKICAgICAgICB9KQogICAgICB9CiAgICAgIHsKICAgICAgICBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwucmVuZGVyTGlzdChhcnIsIChhLCBpKSA9PiB7CiAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICA8ZGl2CiAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICA+CiAgICAgICAgICAgICAge2F9CiAgICAgICAgICAgICAgeyI6In0KICAgICAgICAgICAgICB7aX0KICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICApCiAgICAgICAgfSkKICAgICAgfQogICAgICB7CiAgICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlbmRlckxpc3QoYXJyLCAoeyB2YWx1ZSB9LCBpKSA9PiB7CiAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICA8ZGl2CiAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICA+CiAgICAgICAgICAgICAge3ZhbHVlfQogICAgICAgICAgICAgIHsiOiJ9CiAgICAgICAgICAgICAge2l9CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgKQogICAgICAgIH0pCiAgICAgIH0KICAgICAgewogICAgICAgIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5yZW5kZXJMaXN0KG9iaiwgKG8pID0+IHsKICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7b30KICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICApCiAgICAgICAgfSkKICAgICAgfQogICAgICB7CiAgICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlbmRlckxpc3Qob2JqLCAobywgaykgPT4gewogICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgPGRpdgogICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgPgogICAgICAgICAgICAgIHtvfQogICAgICAgICAgICAgIHsiOiJ9CiAgICAgICAgICAgICAge2t9CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgKQogICAgICAgIH0pCiAgICAgIH0KICAgICAgewogICAgICAgIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5yZW5kZXJMaXN0KG9iaiwgKG8sIGssIGkpID0+IHsKICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7b30KICAgICAgICAgICAgICB7IjoifQogICAgICAgICAgICAgIHtrfQogICAgICAgICAgICAgIHsiOiJ9CiAgICAgICAgICAgICAge2l9CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgKQogICAgICAgIH0pCiAgICAgIH0KICAgICAgewogICAgICAgIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5yZW5kZXJMaXN0KGl0ciwgKHQpID0+IHsKICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7dH0KICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICApCiAgICAgICAgfSkKICAgICAgfQogICAgICB7CiAgICAgICAgX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLnJlbmRlckxpc3QoYm9vLCAoYikgPT4gewogICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgPGRpdgogICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgPgogICAgICAgICAgICAgIHtifQogICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICkKICAgICAgICB9KQogICAgICB9CiAgICAgIHsKICAgICAgICBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwucmVuZGVyTGlzdChzeW0sIChzKSA9PiB7CiAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICA8ZGl2CiAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICA+CiAgICAgICAgICAgICAge3N9CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgKQogICAgICAgIH0pCiAgICAgIH0KICAgIDwvPgogICkKfQovKjx2dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwpmdW5jdGlvbiBfX1Z1ZURYX19zbG90cygpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgbnVtID0gX19WdWVEWF9fY3R4Lm51bTsKICBsZXQgc3RyID0gX19WdWVEWF9fY3R4LnN0cjsKICBsZXQgYXJyID0gX19WdWVEWF9fY3R4LmFycjsKICBsZXQgb2JqID0gX19WdWVEWF9fY3R4Lm9iajsKICBsZXQgaXRyID0gX19WdWVEWF9fY3R4Lml0cjsKICBsZXQgYm9vID0gX19WdWVEWF9fY3R4LmJvbzsKICBsZXQgc3ltID0gX19WdWVEWF9fY3R4LnN5bTsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KMzMxNgB7InZlcnNpb24iOjMsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnRzeCIsIm1hcHBpbmdzIjoiOzs7Ozs7QSxxRDtBLEEsbUM7QSxFLDJCO0EsRSwyQjtBLEUsMkI7QSxFLDJCO0EsRSwyQjtBLEUsMkI7QSxFLDJCO0EsRSwyQjtBLEUsNEI7QSxFLFE7QSxJLEU7QSxNLEM7QSxRLHVDQUNpQkEsRyxFLENBQUxDLEMsQyxLO0EsVSxRO0EsWUFBWixDQUFDRCxHO0EsY0FBRyxrQztBLFksQztBLGNBQWtCLENBQUdDLENBQUMsQztBLFlBQUcsRSxHLEM7QSxVLEM7QSxRLEMsQztBLE0sQztBLE0sQztBLFEsdUNBQ1BELEcsRSxDQUFUQyxDLEVBQUdBLEMsQyxLO0EsVSxRO0EsWUFBaEIsQ0FBQ0QsRztBLGNBQUcsa0M7QSxZLEM7QSxjQUF1QixDQUFHQyxDQUFDLEM7QSxjLENBQUdDLEcsQztBLGNBQUMsQ0FBR0QsQ0FBQyxDO0EsWUFBRyxFLEcsQztBLFUsQztBLFEsQyxDO0EsTSxDO0EsTSxDO0EsUSx1Q0FDekJELEcsRSxDQUFMQyxDLEMsSztBLFUsUTtBLFlBQVosQ0FBQ0QsRztBLGNBQUcsa0M7QSxZLEM7QSxjQUFrQixDQUFHQyxDQUFDLEM7QSxZQUFHLEUsRyxDO0EsVSxDO0EsUSxDLEM7QSxNLEM7QSxNLEM7QSxRLHVDQUNQRCxHLEUsQ0FBVEMsQyxFQUFHQSxDLEMsSztBLFUsUTtBLFlBQWhCLENBQUNELEc7QSxjQUFHLGtDO0EsWSxDO0EsY0FBdUIsQ0FBR0MsQ0FBQyxDO0EsYyxDQUFHQyxHLEM7QSxjQUFDLENBQUdELENBQUMsQztBLFlBQUcsRSxHLEM7QSxVLEM7QSxRLEMsQztBLE0sQztBLE0sQztBLFEsdUNBQ3pCRCxHLEUsQ0FBTEMsQyxDLEs7QSxVLFE7QSxZQUFaLENBQUNELEc7QSxjQUFHLGtDO0EsWSxDO0EsY0FBa0IsQ0FBR0MsQ0FBQyxDO0EsWUFBRyxFLEcsQztBLFUsQztBLFEsQyxDO0EsTSxDO0EsTSxDO0EsUSx1Q0FDSkQsRyxFLENBQWJHLFMsQyxLO0EsVSxRO0EsWUFBWixDQUFDSCxHO0EsY0FBRyxrQztBLFksQztBLGNBQTBCLENBQUdJLEtBQUssQztBLFlBQUcsRSxHLEM7QSxVLEM7QSxRLEMsQztBLE0sQztBLE0sQztBLFEsdUNBQ2xCSixHLEUsQ0FBWEssTyxDLEs7QSxVLFE7QSxZQUFaLENBQUNMLEc7QSxjQUFHLGtDO0EsWSxDO0EsY0FBd0IsQ0FBR0EsR0FBRyxDO0EsWUFBRyxFLEcsQztBLFUsQztBLFEsQyxDO0EsTSxDO0EsTSxDO0EsUSx1Q0FDZkEsRyxFLENBQVRDLEMsRUFBR0EsQyxDLEs7QSxVLFE7QSxZQUFoQixDQUFDRCxHO0EsY0FBRyxrQztBLFksQztBLGNBQXVCLENBQUdDLENBQUMsQztBLGMsQ0FBR0MsRyxDO0EsY0FBQyxDQUFHRCxDQUFDLEM7QSxZQUFHLEUsRyxDO0EsVSxDO0EsUSxDLEM7QSxNLEM7QSxNLEM7QSxRLHVDQUNaRCxHLEUsQ0FBakJHLFMsRUFBV0YsQyxDLEs7QSxVLFE7QSxZQUF4QixDQUFDRCxHO0EsY0FBRyxrQztBLFksQztBLGNBQStCLENBQUdJLEtBQUssQztBLGMsQ0FBR0YsRyxDO0EsY0FBQyxDQUFHRCxDQUFDLEM7QSxZQUFHLEUsRyxDO0EsVSxDO0EsUSxDLEM7QSxNLEM7QSxNLEM7QSxRLHVDQUNyQ0QsRyxFLENBQUxDLEMsQyxLO0EsVSxRO0EsWUFBWixDQUFDRCxHO0EsY0FBRyxrQztBLFksQztBLGNBQWtCLENBQUdDLENBQUMsQztBLFlBQUcsRSxHLEM7QSxVLEM7QSxRLEMsQztBLE0sQztBLE0sQztBLFEsdUNBQ1BELEcsRSxDQUFUQyxDLEVBQUdBLEMsQyxLO0EsVSxRO0EsWUFBaEIsQ0FBQ0QsRztBLGNBQUcsa0M7QSxZLEM7QSxjQUF1QixDQUFHQyxDQUFDLEM7QSxjLENBQUdDLEcsQztBLGNBQUMsQ0FBR0QsQ0FBQyxDO0EsWUFBRyxFLEcsQztBLFUsQztBLFEsQyxDO0EsTSxDO0EsTSxDO0EsUSx1Q0FDakJELEcsRSxDQUFaQyxDLEVBQUdBLEMsRUFBR0EsQyxDLEs7QSxVLFE7QSxZQUFuQixDQUFDRCxHO0EsY0FBRyxrQztBLFksQztBLGNBQTBCLENBQUdDLENBQUMsQztBLGMsQ0FBR0MsRyxDO0EsY0FBQyxDQUFHRCxDQUFDLEM7QSxjLENBQUdDLEcsQztBLGNBQUMsQ0FBR0QsQ0FBQyxDO0EsWUFBRyxFLEcsQztBLFUsQztBLFEsQyxDO0EsTSxDO0EsTSxDO0EsUSx1Q0FDcENELEcsRSxDQUFMQyxDLEMsSztBLFUsUTtBLFlBQVosQ0FBQ0QsRztBLGNBQUcsa0M7QSxZLEM7QSxjQUFrQixDQUFHQyxDQUFDLEM7QSxZQUFHLEUsRyxDO0EsVSxDO0EsUSxDLEM7QSxNLEM7QSxNLEM7QSxRLHVDQUNaRCxHLEUsQ0FBTEMsQyxDLEs7QSxVLFE7QSxZQUFaLENBQUNELEc7QSxjQUFHLGtDO0EsWSxDO0EsY0FBa0IsQ0FBR0MsQ0FBQyxDO0EsWUFBRyxFLEcsQztBLFUsQztBLFEsQyxDO0EsTSxDO0EsTSxDO0EsUSx1Q0FDWkQsRyxFLENBQUxDLEMsQyxLO0EsVSxRO0EsWUFBWixDQUFDRCxHO0EsY0FBRyxrQztBLFksQztBLGNBQWtCLENBQUdDLENBQUMsQztBLFlBQUcsRSxHLEM7QSxVLEM7QSxRLEMsQztBLE0sQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUsMkI7QSxFLDJCO0EsRSwyQjtBLEUsMkI7QSxFLDJCO0EsRSwyQjtBLEUsMkI7QSxFLDRCO0EsRSx5QztBLEUsRTtBLEEsQztBLEEsOEI7Ozs7OzsiLCJuYW1lcyI6WyI8PFA+PjMiLCI8PFA+PjEiLCI8PFQ+PjF8MyIsIjw8UD4+OSIsIjw8UD4+NSIsIjw8UD4+NyJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxkaXYgdi1mb3I9XCJuIG9mIG51bVwiPnt7IG4gfX08L2Rpdj5cbjxkaXYgdi1mb3I9XCIobiwgaSkgb2YgbnVtXCI+e3sgbiB9fTp7eyBpIH19PC9kaXY+XG48ZGl2IHYtZm9yPVwicyBvZiBzdHJcIj57eyBzIH19PC9kaXY+XG48ZGl2IHYtZm9yPVwiKHMsIGkpIG9mIHN0clwiPnt7IHMgfX06e3sgaSB9fTwvZGl2PlxuPGRpdiB2LWZvcj1cImEgb2YgYXJyXCI+e3sgYSB9fTwvZGl2PlxuPGRpdiB2LWZvcj1cInsgdmFsdWUgfSBvZiBhcnJcIj57eyB2YWx1ZSB9fTwvZGl2PlxuPGRpdiB2LWZvcj1cInsgZm9vIH0gb2YgYXJyXCI+e3sgYXJyIH19PC9kaXY+XG48ZGl2IHYtZm9yPVwiKGEsIGkpIG9mIGFyclwiPnt7IGEgfX06e3sgaSB9fTwvZGl2PlxuPGRpdiB2LWZvcj1cIih7IHZhbHVlIH0sIGkpIG9mIGFyclwiPnt7IHZhbHVlIH19Ont7IGkgfX08L2Rpdj5cbjxkaXYgdi1mb3I9XCJvIG9mIG9ialwiPnt7IG8gfX08L2Rpdj5cbjxkaXYgdi1mb3I9XCIobywgaykgb2Ygb2JqXCI+e3sgbyB9fTp7eyBrIH19PC9kaXY+XG48ZGl2IHYtZm9yPVwiKG8sIGssIGkpIG9mIG9ialwiPnt7IG8gfX06e3sgayB9fTp7eyBpIH19PC9kaXY+XG48ZGl2IHYtZm9yPVwidCBvZiBpdHJcIj57eyB0IH19PC9kaXY+XG48ZGl2IHYtZm9yPVwiYiBvZiBib29cIj57eyBiIH19PC9kaXY+XG48ZGl2IHYtZm9yPVwicyBvZiBzeW1cIj57eyBzIH19PC9kaXY+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-html default 1`] = `
 ## 7.1. v-html 
@@ -882,37 +1093,49 @@ exports[`Baseline Spec v-html default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let html = __VueDX_ctx.html;
+  let html = __VueDX__ctx.html;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
-    <div data-vuedx-directive-html={VueDX.internal.checkDirective("html" as const, "div" as const, undefined, html, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-    </div>
+    <>
+      <div
+        innerHTML={html}
+        /*<vuedx:tsx-competions-target/>*/
+      >
+      </div>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let html = __VueDX_ctx.html;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let html = __VueDX__ctx.html;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"div">;
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoyNX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MSxcImVcIjo0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI5fSxcInNcIjp7XCJzXCI6NSxcImVcIjoxOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNX0sXCJzXCI6e1wic1wiOjUsXCJlXCI6MTF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTR9LFwic1wiOntcInNcIjoxLFwiZVwiOjR9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjUsXCJlXCI6MTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjEzLFwiZVwiOjE3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxOSxcImVcIjoyNX19Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7O0lBQUFBLENBQUNDLEcsNEJBQUlDLDZCLENBQUFDLGUsRUFBSkMsYyxFQUFJQyxTLEVBQVFDLEk7TUFBTUMsRyIsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSIsInNvdXJjZVJvb3QiOiIvdG1wL2NvbXBpbGVyLXRzeCIsInNvdXJjZXNDb250ZW50IjpbIjxkaXYgdi1odG1sPVwiaHRtbFwiPjwvZGl2PlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#OTM4AC8vI3JlZ2lvbiA8c2NyaXB0PgppbXBvcnQgeyBkZWZpbmVDb21wb25lbnQgYXMgX19WdWVEWF9fZGVmaW5lQ29tcG9uZW50IH0gZnJvbSAndnVlJzsKZXhwb3J0IGNvbnN0IF9fVnVlRFhfX0NvbXBvbmVudCA9IF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCh7fSk7Ci8vI2VuZHJlZ2lvbgpjb25zdCBfX1Z1ZURYX19jdHggPSBuZXcgX19WdWVEWF9fQ29tcG9uZW50KCkKLy8jcmVnaW9uIDx0ZW1wbGF0ZT4KaW1wb3J0ICogYXMgX19WdWVEWF9fVHlwZUNoZWNrICBmcm9tICd2dWVkeH5ydW50aW1lJzsKZXhwb3J0IGZ1bmN0aW9uIF9fVnVlRFhfX3JlbmRlcigpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgaHRtbCA9IF9fVnVlRFhfX2N0eC5odG1sOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gKAogICAgPD4KICAgICAgPGRpdgogICAgICAgIGlubmVySFRNTD17aHRtbH0KICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgPC9kaXY+CiAgICA8Lz4KICApCn0KLyo8dnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KZnVuY3Rpb24gX19WdWVEWF9fc2xvdHMoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGh0bWwgPSBfX1Z1ZURYX19jdHguaHRtbDsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KNDE0AHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsMkI7QSxFLDZCO0EsRSw0QjtBLEUsUTtBLEksRTtBLE1BQ0EsQ0FBQ0EsRztBLFFBQUksUyxDLENBQVFDLEksQztBLFFBQVQsa0M7QSxNLEM7QSxNQUFlLEUsRyxDO0EsSSxHO0EsRSxDO0EsQSxDO0EsQSw2QjtBLEEsMkI7QSxFLDJCO0EsRSw2QjtBLEUsNEI7QSxFLHlDO0EsRSxFO0EsQSxDO0EsQSw4Qjs7Ozs7OyIsIm5hbWVzIjpbIjw8UD4+MyIsIjw8UD4+NCJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxkaXYgdi1odG1sPVwiaHRtbFwiPjwvZGl2PlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-if/v-else/v-else-if  elif no if 1`] = `
 ## 5.8. v-if/v-else/v-else-if > elif no if
@@ -923,43 +1146,54 @@ exports[`Baseline Spec v-if/v-else/v-else-if  elif no if 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let awesome = __VueDX_ctx.awesome;
+  let awesome = __VueDX__ctx.awesome;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        Vue is awesome!
+      <h1
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {"Vue is awesome!"}
       </h1>
-      <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        Oh no 😢
+      <h1
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {"Oh no 😢"}
       </h1>
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let awesome = __VueDX_ctx.awesome;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let awesome = __VueDX__ctx.awesome;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjo0NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoyfSxcInNcIjp7XCJzXCI6MSxcImVcIjozfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjE1fSxcInNcIjp7XCJzXCI6MjQsXCJlXCI6Mzl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Mn0sXCJzXCI6e1wic1wiOjM5LFwiZVwiOjQ0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0NSxcImVcIjo2OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoyfSxcInNcIjp7XCJzXCI6NDYsXCJlXCI6NDh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6OH0sXCJzXCI6e1wic1wiOjU2LFwiZVwiOjY0fX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7O01BQUFBLENBQUNDLEU7UUFBdUJDLGU7UUFBZUMsRTtNQUN2Q0MsQ0FBQ0MsRTtRQUFVQyxRIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGgxIHYtZWxzZS1pZj1cImF3ZXNvbWVcIj5WdWUgaXMgYXdlc29tZSE8L2gxPlxuPGgxIHYtZWxzZT5PaCBubyDwn5iiPC9oMT5cbiJdfQ==
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTA0NQAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGF3ZXNvbWUgPSBfX1Z1ZURYX19jdHguYXdlc29tZTsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuICgKICAgIDw+CiAgICAgIDxoMQogICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgPgogICAgICAgIHsiVnVlIGlzIGF3ZXNvbWUhIn0KICAgICAgPC9oMT4KICAgICAgPGgxCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAgeyJPaCBubyDwn5iiIn0KICAgICAgPC9oMT4KICAgIDwvPgogICkKfQovKjx2dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwpmdW5jdGlvbiBfX1Z1ZURYX19zbG90cygpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgYXdlc29tZSA9IF9fVnVlRFhfX2N0eC5hd2Vzb21lOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgo1MjkAeyJ2ZXJzaW9uIjozLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS50c3giLCJtYXBwaW5ncyI6Ijs7Ozs7O0EscUQ7QSxBLG1DO0EsRSwyQjtBLEUsbUM7QSxFLDRCO0EsRSxRO0EsSSxFO0EsTUFDQSxDQUFDQSxFO0EsUUFBRSxrQztBLE0sQztBLFEsQ0FBcUJDLGlCLEM7QSxNQUFlLEUsRSxDO0EsTUFDdkMsQ0FBQ0QsRTtBLFFBQUUsa0M7QSxNLEM7QSxRLENBQVFFLFUsQztBLE1BQVEsRSxFLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUsMkI7QSxFLG1DO0EsRSw0QjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj4yIiwiPDxUPj4xNXwxNyIsIjw8VD4+OHwxMCJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxoMSB2LWVsc2UtaWY9XCJhd2Vzb21lXCI+VnVlIGlzIGF3ZXNvbWUhPC9oMT5cbjxoMSB2LWVsc2U+T2ggbm8g8J+YojwvaDE+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-if/v-else/v-else-if  else condition 1`] = `
 ## 5.7. v-if/v-else/v-else-if > else condition
@@ -969,38 +1203,49 @@ exports[`Baseline Spec v-if/v-else/v-else-if  else condition 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let ok = __VueDX_ctx.ok;
+  let ok = __VueDX__ctx.ok;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
-    <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
-      Vue is awesome!
-    </h1>
+    <>
+      <h1
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {"Vue is awesome!"}
+      </h1>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let ok = __VueDX_ctx.ok;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let ok = __VueDX__ctx.ok;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"h1">;
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjozNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoyfSxcInNcIjp7XCJzXCI6MSxcImVcIjozfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjE1fSxcInNcIjp7XCJzXCI6MTYsXCJlXCI6MzF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Mn0sXCJzXCI6e1wic1wiOjMxLFwiZVwiOjM2fX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7SUFBQUEsQ0FBQ0MsRTtNQUFlQyxlO01BQWVDLEUiLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8aDEgdi1lbHNlPVwib2tcIj5WdWUgaXMgYXdlc29tZSE8L2gxPlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#OTMxAC8vI3JlZ2lvbiA8c2NyaXB0PgppbXBvcnQgeyBkZWZpbmVDb21wb25lbnQgYXMgX19WdWVEWF9fZGVmaW5lQ29tcG9uZW50IH0gZnJvbSAndnVlJzsKZXhwb3J0IGNvbnN0IF9fVnVlRFhfX0NvbXBvbmVudCA9IF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCh7fSk7Ci8vI2VuZHJlZ2lvbgpjb25zdCBfX1Z1ZURYX19jdHggPSBuZXcgX19WdWVEWF9fQ29tcG9uZW50KCkKLy8jcmVnaW9uIDx0ZW1wbGF0ZT4KaW1wb3J0ICogYXMgX19WdWVEWF9fVHlwZUNoZWNrICBmcm9tICd2dWVkeH5ydW50aW1lJzsKZXhwb3J0IGZ1bmN0aW9uIF9fVnVlRFhfX3JlbmRlcigpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgb2sgPSBfX1Z1ZURYX19jdHgub2s7CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiAoCiAgICA8PgogICAgICA8aDEKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgICB7IlZ1ZSBpcyBhd2Vzb21lISJ9CiAgICAgIDwvaDE+CiAgICA8Lz4KICApCn0KLyo8dnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KZnVuY3Rpb24gX19WdWVEWF9fc2xvdHMoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IG9rID0gX19WdWVEWF9fY3R4Lm9rOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgo0MjMAeyJ2ZXJzaW9uIjozLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS50c3giLCJtYXBwaW5ncyI6Ijs7Ozs7O0EscUQ7QSxBLG1DO0EsRSwyQjtBLEUseUI7QSxFLDRCO0EsRSxRO0EsSSxFO0EsTUFDQSxDQUFDQSxFO0EsUUFBRSxrQztBLE0sQztBLFEsQ0FBYUMsaUIsQztBLE1BQWUsRSxFLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUsMkI7QSxFLHlCO0EsRSw0QjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj4yIiwiPDxUPj4xNXwxNyJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxoMSB2LWVsc2U9XCJva1wiPlZ1ZSBpcyBhd2Vzb21lITwvaDE+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-if/v-else/v-else-if  if condition 1`] = `
 ## 5.6. v-if/v-else/v-else-if > if condition
@@ -1010,40 +1255,46 @@ exports[`Baseline Spec v-if/v-else/v-else-if  if condition 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
-  /*<vuedx:templateGlobals>*/
-  /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   return (
     <>
-      {
-            <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              Vue is awesome!
+      {<>
+            <h1
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {"Vue is awesome!"}
             </h1>
+          </>
       }
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoyOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoyfSxcInNcIjp7XCJzXCI6MSxcImVcIjozfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjE1fSxcInNcIjp7XCJzXCI6OSxcImVcIjoyNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyfSxcInNcIjp7XCJzXCI6MjQsXCJlXCI6Mjl9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7WUFBQUEsQ0FBQ0MsRTtjQUFRQyxlO2NBQWVDLEUiLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8aDEgdi1pZj5WdWUgaXMgYXdlc29tZSE8L2gxPlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#ODE1AC8vI3JlZ2lvbiA8c2NyaXB0PgppbXBvcnQgeyBkZWZpbmVDb21wb25lbnQgYXMgX19WdWVEWF9fZGVmaW5lQ29tcG9uZW50IH0gZnJvbSAndnVlJzsKZXhwb3J0IGNvbnN0IF9fVnVlRFhfX0NvbXBvbmVudCA9IF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCh7fSk7Ci8vI2VuZHJlZ2lvbgpjb25zdCBfX1Z1ZURYX19jdHggPSBuZXcgX19WdWVEWF9fQ29tcG9uZW50KCkKLy8jcmVnaW9uIDx0ZW1wbGF0ZT4KaW1wb3J0ICogYXMgX19WdWVEWF9fVHlwZUNoZWNrICBmcm9tICd2dWVkeH5ydW50aW1lJzsKZXhwb3J0IGZ1bmN0aW9uIF9fVnVlRFhfX3JlbmRlcigpIHsKICByZXR1cm4gKAogICAgPD4KICAgICAgezw+CiAgICAgICAgICAgIDxoMQogICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgPgogICAgICAgICAgICAgIHsiVnVlIGlzIGF3ZXNvbWUhIn0KICAgICAgICAgICAgPC9oMT4KICAgICAgICAgIDwvPgogICAgICB9CiAgICA8Lz4KICApCn0KLyo8dnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KZnVuY3Rpb24gX19WdWVEWF9fc2xvdHMoKSB7CiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KMzkyAHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsUTtBLEksRTtBLE0sQyxFO0EsWUFDQSxDQUFDQSxFO0EsY0FBRSxrQztBLFksQztBLGMsQ0FBTUMsaUIsQztBLFlBQWUsRSxFLEM7QSxVLEc7QSxNLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj4yIiwiPDxUPj4xNXwxNyJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxoMSB2LWlmPlZ1ZSBpcyBhd2Vzb21lITwvaDE+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-if/v-else/v-else-if  if on fragment 1`] = `
 ## 5.3. v-if/v-else/v-else-if > if on fragment
@@ -1057,52 +1308,64 @@ exports[`Baseline Spec v-if/v-else/v-else-if  if on fragment 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let ok = __VueDX_ctx.ok;
+  let ok = __VueDX__ctx.ok;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      {
-        (ok)
-          ? <>
-              <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
-                Title
-              </h1>
-              <p data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "p" as const)/*</vuedx:diagnosticsIgnore>*/}>
-                Paragraph 1
-              </p>
-              <p data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "p" as const)/*</vuedx:diagnosticsIgnore>*/}>
-                Paragraph 2
-              </p>
-            </>
-          : null
+      {ok
+        ? <>
+            <h1
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {"Title"}
+            </h1>
+            <p
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {"Paragraph 1"}
+            </p>
+            <p
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {"Paragraph 2"}
+            </p>
+          </>
+        : null
       }
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let ok = __VueDX_ctx.ok;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let ok = __VueDX__ctx.ok;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoyfSxcInNcIjp7XCJzXCI6MTYsXCJlXCI6MTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjIzLFwiZVwiOjM3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjJ9LFwic1wiOntcInNcIjoyNCxcImVcIjoyNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MjcsXCJlXCI6MzJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjQwLFwiZVwiOjU4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0MSxcImVcIjo0Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxMX0sXCJzXCI6e1wic1wiOjQzLFwiZVwiOjU0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo2MSxcImVcIjo3OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NjIsXCJlXCI6NjN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MTF9LFwic1wiOntcInNcIjo2NCxcImVcIjo3NX19Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7U0FBZ0JBLEU7O2NBQ2RDLENBQUNDLEU7Z0JBQUdDLEs7O2NBQ0pDLENBQUNDLEM7Z0JBQUVDLFc7O2NBQ0hDLENBQUNDLEM7Z0JBQUVDLFciLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8dGVtcGxhdGUgdi1pZj1cIm9rXCI+XG4gIDxoMT5UaXRsZTwvaDE+XG4gIDxwPlBhcmFncmFwaCAxPC9wPlxuICA8cD5QYXJhZ3JhcGggMjwvcD5cbjwvdGVtcGxhdGU+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTI2MQAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IG9rID0gX19WdWVEWF9fY3R4Lm9rOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gKAogICAgPD4KICAgICAge29rCiAgICAgICAgPyA8PgogICAgICAgICAgICA8aDEKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7IlRpdGxlIn0KICAgICAgICAgICAgPC9oMT4KICAgICAgICAgICAgPHAKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7IlBhcmFncmFwaCAxIn0KICAgICAgICAgICAgPC9wPgogICAgICAgICAgICA8cAogICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgPgogICAgICAgICAgICAgIHsiUGFyYWdyYXBoIDIifQogICAgICAgICAgICA8L3A+CiAgICAgICAgICA8Lz4KICAgICAgICA6IG51bGwKICAgICAgfQogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBvayA9IF9fVnVlRFhfX2N0eC5vazsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KNjU2AHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsMkI7QSxFLHlCO0EsRSw0QjtBLEUsUTtBLEksRTtBLE0sQ0FDZ0JBLEU7QSxRLEUsRTtBLFlBQ2QsQ0FBQ0EsRTtBLGNBQUUsa0M7QSxZLEM7QSxjLENBQUNDLE8sQztBLFlBQUssRSxFLEM7QSxZQUNULENBQUNDLEM7QSxjQUFDLGtDO0EsWSxDO0EsYyxDQUFDQyxhLEM7QSxZQUFXLEUsQyxDO0EsWUFDZCxDQUFDRCxDO0EsY0FBQyxrQztBLFksQztBLGMsQ0FBQ0MsYSxDO0EsWUFBVyxFLEMsQztBLFUsRztBLE0sUTtBLE0sQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUseUI7QSxFLDRCO0EsRSx5QztBLEUsRTtBLEEsQztBLEEsOEI7Ozs7OzsiLCJuYW1lcyI6WyI8PFA+PjIiLCI8PFQ+PjV8NyIsIjw8UD4+MSIsIjw8VD4+MTF8MTMiXSwic291cmNlcyI6WyIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSJdLCJzb3VyY2VzQ29udGVudCI6WyI8dGVtcGxhdGU+XG48dGVtcGxhdGUgdi1pZj1cIm9rXCI+XG4gIDxoMT5UaXRsZTwvaDE+XG4gIDxwPlBhcmFncmFwaCAxPC9wPlxuICA8cD5QYXJhZ3JhcGggMjwvcD5cbjwvdGVtcGxhdGU+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-if/v-else/v-else-if  if/else 1`] = `
 ## 5.2. v-if/v-else/v-else-if > if/else
@@ -1113,46 +1376,60 @@ exports[`Baseline Spec v-if/v-else/v-else-if  if/else 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let awesome = __VueDX_ctx.awesome;
+  let awesome = __VueDX__ctx.awesome;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      {
-        (awesome)
-          ? <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              Vue is awesome!
+      {awesome
+        ? <>
+            <h1
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {"Vue is awesome!"}
             </h1>
-          : <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              Oh no 😢
+          </>
+        : <>
+            <h1
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {"Oh no 😢"}
             </h1>
+          </>
       }
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let awesome = __VueDX_ctx.awesome;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let awesome = __VueDX__ctx.awesome;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTAsXCJlXCI6MTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjAsXCJlXCI6Mzl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Mn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxNX0sXCJzXCI6e1wic1wiOjE5LFwiZVwiOjM0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjJ9LFwic1wiOntcInNcIjozNCxcImVcIjozOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NDAsXCJlXCI6NjR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Mn0sXCJzXCI6e1wic1wiOjQxLFwiZVwiOjQzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjh9LFwic1wiOntcInNcIjo1MSxcImVcIjo1OX19Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7U0FBVUEsTztZQUFWQyxDQUFDQyxFO2NBQWtCQyxlO2NBQWVDLEU7WUFDbENDLENBQUNDLEU7Y0FBVUMsUSIsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSIsInNvdXJjZVJvb3QiOiIvdG1wL2NvbXBpbGVyLXRzeCIsInNvdXJjZXNDb250ZW50IjpbIjxoMSB2LWlmPVwiYXdlc29tZVwiPlZ1ZSBpcyBhd2Vzb21lITwvaDE+XG48aDEgdi1lbHNlPk9oIG5vIPCfmKI8L2gxPlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTE4MgAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGF3ZXNvbWUgPSBfX1Z1ZURYX19jdHguYXdlc29tZTsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuICgKICAgIDw+CiAgICAgIHthd2Vzb21lCiAgICAgICAgPyA8PgogICAgICAgICAgICA8aDEKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7IlZ1ZSBpcyBhd2Vzb21lISJ9CiAgICAgICAgICAgIDwvaDE+CiAgICAgICAgICA8Lz4KICAgICAgICA6IDw+CiAgICAgICAgICAgIDxoMQogICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgPgogICAgICAgICAgICAgIHsiT2ggbm8g8J+YoiJ9CiAgICAgICAgICAgIDwvaDE+CiAgICAgICAgICA8Lz4KICAgICAgfQogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBhd2Vzb21lID0gX19WdWVEWF9fY3R4LmF3ZXNvbWU7CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwuZmxhdChbCiAgXSkKfQovKjwvdnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KLy8jZW5kcmVnaW9uCi8vI3JlZ2lvbiBwdWJsaWMgY29tcG9uZW50IGRlZmluaXRpb24KZXhwb3J0IGRlZmF1bHQgY2xhc3MgZXh0ZW5kcyBfX1Z1ZURYX19Db21wb25lbnQgewogICRzbG90czogUmV0dXJuVHlwZTx0eXBlb2YgX19WdWVEWF9fc2xvdHM+Cn0KLy8jZW5kcmVnaW9uCjU3OQB7InZlcnNpb24iOjMsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnRzeCIsIm1hcHBpbmdzIjoiOzs7Ozs7QSxxRDtBLEEsbUM7QSxFLDJCO0EsRSxtQztBLEUsNEI7QSxFLFE7QSxJLEU7QSxNLENBQ1VBLE87QSxRLEUsRTtBLFlBQVYsQ0FBQ0MsRTtBLGNBQUUsa0M7QSxZLEM7QSxjLENBQWdCQyxpQixDO0EsWUFBZSxFLEUsQztBLFUsRztBLFEsRSxFO0EsWUFDbEMsQ0FBQ0QsRTtBLGNBQUUsa0M7QSxZLEM7QSxjLENBQVFFLFUsQztBLFlBQVEsRSxFLEM7QSxVLEc7QSxNLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUsMkI7QSxFLG1DO0EsRSw0QjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj43IiwiPDxQPj4yIiwiPDxUPj4xNXwxNyIsIjw8VD4+OHwxMCJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxoMSB2LWlmPVwiYXdlc29tZVwiPlZ1ZSBpcyBhd2Vzb21lITwvaDE+XG48aDEgdi1lbHNlPk9oIG5vIPCfmKI8L2gxPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-if/v-else/v-else-if  if/else/if chain 1`] = `
 ## 5.4. v-if/v-else/v-else-if > if/else/if chain
@@ -1173,54 +1450,76 @@ exports[`Baseline Spec v-if/v-else/v-else-if  if/else/if chain 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let type = __VueDX_ctx.type;
+  let type = __VueDX__ctx.type;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      {
-        (type === 'A')
-          ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-               A 
+      {type === 'A'
+        ? <>
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {" A "}
             </div>
-          : (type === 'B')
-          ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-               B 
+          </>
+        : type === 'B'
+        ? <>
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {" B "}
             </div>
-          : (type === 'C')
-          ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-               C 
+          </>
+        : type === 'C'
+        ? <>
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {" C "}
             </div>
-          : <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-               Not A/B/C 
+          </>
+        : <>
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {" Not A/B/C "}
             </div>
+          </>
       }
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let type = __VueDX_ctx.type;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let type = __VueDX__ctx.type;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxMn0sXCJzXCI6e1wic1wiOjExLFwiZVwiOjIzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjowLFwiZVwiOjM2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxLFwiZVwiOjR9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjI1LFwiZVwiOjMwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjozMCxcImVcIjozNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxMn0sXCJzXCI6e1wic1wiOjUzLFwiZVwiOjY1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjozNyxcImVcIjo3OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MzgsXCJlXCI6NDF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjY3LFwiZVwiOjcyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjEyfSxcInNcIjp7XCJzXCI6OTUsXCJlXCI6MTA3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo3OSxcImVcIjoxMjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjgwLFwiZVwiOjgzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxMDksXCJlXCI6MTE0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoxMjEsXCJlXCI6MTUyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxMjIsXCJlXCI6MTI1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjExfSxcInNcIjp7XCJzXCI6MTMzLFwiZVwiOjE0Nn19Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7U0FBV0EsWTtZQUFYQyxDQUFDQyxHO2NBQXdCQyxHO2NBRXpCQyxHO2FBQ2dCQyxZO1lBQWhCQyxDQUFDQyxHO2NBQTZCQyxHOzthQUdkQyxZO1lBQWhCQyxDQUFDQyxHO2NBQTZCQyxHOztZQUc5QkMsQ0FBQ0MsRztjQUFXQyxXIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGRpdiB2LWlmPVwidHlwZSA9PT0gJ0EnXCI+XG4gIEFcbjwvZGl2PlxuPGRpdiB2LWVsc2UtaWY9XCJ0eXBlID09PSAnQidcIj5cbiAgQlxuPC9kaXY+XG48ZGl2IHYtZWxzZS1pZj1cInR5cGUgPT09ICdDJ1wiPlxuICBDXG48L2Rpdj5cbjxkaXYgdi1lbHNlPlxuICBOb3QgQS9CL0NcbjwvZGl2PlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTUxMgAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IHR5cGUgPSBfX1Z1ZURYX19jdHgudHlwZTsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuICgKICAgIDw+CiAgICAgIHt0eXBlID09PSAnQScKICAgICAgICA/IDw+CiAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7IiBBICJ9CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgPC8+CiAgICAgICAgOiB0eXBlID09PSAnQicKICAgICAgICA/IDw+CiAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7IiBCICJ9CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgPC8+CiAgICAgICAgOiB0eXBlID09PSAnQycKICAgICAgICA/IDw+CiAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7IiBDICJ9CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgPC8+CiAgICAgICAgOiA8PgogICAgICAgICAgICA8ZGl2CiAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICA+CiAgICAgICAgICAgICAgeyIgTm90IEEvQi9DICJ9CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgPC8+CiAgICAgIH0KICAgIDwvPgogICkKfQovKjx2dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwpmdW5jdGlvbiBfX1Z1ZURYX19zbG90cygpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgdHlwZSA9IF9fVnVlRFhfX2N0eC50eXBlOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgo4NTYAeyJ2ZXJzaW9uIjozLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS50c3giLCJtYXBwaW5ncyI6Ijs7Ozs7O0EscUQ7QSxBLG1DO0EsRSwyQjtBLEUsNkI7QSxFLDRCO0EsRSxRO0EsSSxFO0EsTSxDQUNXQSxZO0EsUSxFLEU7QSxZQUFYLENBQUNDLEc7QSxjQUFHLGtDO0EsWSxDO0EsYyxDQUFxQkMsSyxDO0EsWUFFekIsRSxHLEM7QSxVLEc7QSxRLEVBQ2dCRixZO0EsUSxFLEU7QSxZQUFoQixDQUFDQyxHO0EsY0FBRyxrQztBLFksQztBLGMsQ0FBMEJDLEssQztBLFlBRTlCLEUsRyxDO0EsVSxHO0EsUSxFQUNnQkYsWTtBLFEsRSxFO0EsWUFBaEIsQ0FBQ0MsRztBLGNBQUcsa0M7QSxZLEM7QSxjLENBQTBCQyxLLEM7QSxZQUU5QixFLEcsQztBLFUsRztBLFEsRSxFO0EsWUFDQSxDQUFDRCxHO0EsY0FBRyxrQztBLFksQztBLGMsQ0FBUUUsYSxDO0EsWUFFWixFLEcsQztBLFUsRztBLE0sQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUsNkI7QSxFLDRCO0EsRSx5QztBLEUsRTtBLEEsQztBLEEsOEI7Ozs7OzsiLCJuYW1lcyI6WyI8PFA+PjEyIiwiPDxQPj4zIiwiPDxUPj41fDUiLCI8PFQ+PjEzfDEzIl0sInNvdXJjZXMiOlsiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiPHRlbXBsYXRlPlxuPGRpdiB2LWlmPVwidHlwZSA9PT0gJ0EnXCI+XG4gIEFcbjwvZGl2PlxuPGRpdiB2LWVsc2UtaWY9XCJ0eXBlID09PSAnQidcIj5cbiAgQlxuPC9kaXY+XG48ZGl2IHYtZWxzZS1pZj1cInR5cGUgPT09ICdDJ1wiPlxuICBDXG48L2Rpdj5cbjxkaXYgdi1lbHNlPlxuICBOb3QgQS9CL0NcbjwvZGl2PlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-if/v-else/v-else-if  nested if/else chains 1`] = `
 ## 5.9. v-if/v-else/v-else-if > nested if/else chains
@@ -1244,79 +1543,130 @@ exports[`Baseline Spec v-if/v-else/v-else-if  nested if/else chains 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let foo = __VueDX_ctx.foo;
-  let bar = __VueDX_ctx.bar;
+  let foo = __VueDX__ctx.foo;
+  let bar = __VueDX__ctx.bar;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      {
-        (foo)
-          ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {
-                (foo)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+      {foo
+        ? <>
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {foo
+                ? <>
+                    <div
+                      /*<vuedx:tsx-competions-target/>*/
+                    >
                     </div>
-                  : (bar)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  </>
+                : bar
+                ? <>
+                    <div
+                      /*<vuedx:tsx-competions-target/>*/
+                    >
                     </div>
-                  : <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  </>
+                : <>
+                    <div
+                      /*<vuedx:tsx-competions-target/>*/
+                    >
                     </div>
+                  </>
               }
             </div>
-          : (bar)
-          ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {
-                (foo)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          </>
+        : bar
+        ? <>
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {foo
+                ? <>
+                    <div
+                      /*<vuedx:tsx-competions-target/>*/
+                    >
                     </div>
-                  : (bar)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  </>
+                : bar
+                ? <>
+                    <div
+                      /*<vuedx:tsx-competions-target/>*/
+                    >
                     </div>
-                  : <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  </>
+                : <>
+                    <div
+                      /*<vuedx:tsx-competions-target/>*/
+                    >
                     </div>
+                  </>
               }
             </div>
-          : <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              {
-                (foo)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+          </>
+        : <>
+            <div
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {foo
+                ? <>
+                    <div
+                      /*<vuedx:tsx-competions-target/>*/
+                    >
                     </div>
-                  : (bar)
-                  ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  </>
+                : bar
+                ? <>
+                    <div
+                      /*<vuedx:tsx-competions-target/>*/
+                    >
                     </div>
-                  : <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
+                  </>
+                : <>
+                    <div
+                      /*<vuedx:tsx-competions-target/>*/
+                    >
                     </div>
+                  </>
               }
             </div>
+          </>
       }
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let foo = __VueDX_ctx.foo;
-  let bar = __VueDX_ctx.bar;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let foo = __VueDX__ctx.foo;
+  let bar = __VueDX__ctx.bar;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTEsXCJlXCI6MTR9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjAsXCJlXCI6OTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjEsXCJlXCI6NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MzAsXCJlXCI6MzN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjE5LFwiZVwiOjQxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoyMCxcImVcIjoyM319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NjAsXCJlXCI6NjN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjQ0LFwiZVwiOjcxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo0NSxcImVcIjo0OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NzQsXCJlXCI6OTJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjc1LFwiZVwiOjc4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo5MyxcImVcIjo5OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTE2LFwiZVwiOjExOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTAwLFwiZVwiOjIwNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTAxLFwiZVwiOjEwNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTM1LFwiZVwiOjEzOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTI0LFwiZVwiOjE0Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTI1LFwiZVwiOjEyOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTY1LFwiZVwiOjE2OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTQ5LFwiZVwiOjE3Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTUwLFwiZVwiOjE1M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTc5LFwiZVwiOjE5N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTgwLFwiZVwiOjE4M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjA1LFwiZVwiOjMwMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MjA2LFwiZVwiOjIwOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MjMxLFwiZVwiOjIzNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjIwLFwiZVwiOjI0Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MjIxLFwiZVwiOjIyNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MjYxLFwiZVwiOjI2NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjQ1LFwiZVwiOjI3Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MjQ2LFwiZVwiOjI0OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6Mjc1LFwiZVwiOjI5M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6Mjc2LFwiZVwiOjI3OX19Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7O1NBQVdBLEc7WUFBWEMsQ0FBQ0MsRzs7aUJBQ1lDLEc7b0JBQVhDLENBQUNDLEc7O3FCQUNlQyxHO29CQUFoQkMsQ0FBQ0MsRzs7b0JBQ0RDLENBQUNDLEc7OztjQUNIQyxHO2FBQ2dCQyxHO1lBQWhCQyxDQUFDQyxHOztpQkFDWUMsRztvQkFBWEMsQ0FBQ0MsRzs7cUJBQ2VDLEc7b0JBQWhCQyxDQUFDQyxHOztvQkFDREMsQ0FBQ0MsRzs7OztZQUVIQyxDQUFDQyxHOztpQkFDWUMsRztvQkFBWEMsQ0FBQ0MsRzs7cUJBQ2VDLEc7b0JBQWhCQyxDQUFDQyxHOztvQkFDREMsQ0FBQ0MsRyIsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSIsInNvdXJjZVJvb3QiOiIvdG1wL2NvbXBpbGVyLXRzeCIsInNvdXJjZXNDb250ZW50IjpbIjxkaXYgdi1pZj1cImZvb1wiPlxuICA8ZGl2IHYtaWY9XCJmb29cIj48L2Rpdj5cbiAgPGRpdiB2LWVsc2UtaWY9XCJiYXJcIj48L2Rpdj5cbiAgPGRpdiB2LWVsc2U+PC9kaXY+XG48L2Rpdj5cbjxkaXYgdi1lbHNlLWlmPVwiYmFyXCI+XG4gIDxkaXYgdi1pZj1cImZvb1wiPjwvZGl2PlxuICA8ZGl2IHYtZWxzZS1pZj1cImJhclwiPjwvZGl2PlxuICA8ZGl2IHYtZWxzZT48L2Rpdj5cbjwvZGl2PlxuPGRpdiB2LWVsc2U+XG4gIDxkaXYgdi1pZj1cImZvb1wiPjwvZGl2PlxuICA8ZGl2IHYtZWxzZS1pZj1cImJhclwiPjwvZGl2PlxuICA8ZGl2IHYtZWxzZT48L2Rpdj5cbjwvZGl2PlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MzA0MgAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGZvbyA9IF9fVnVlRFhfX2N0eC5mb287CiAgbGV0IGJhciA9IF9fVnVlRFhfX2N0eC5iYXI7CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiAoCiAgICA8PgogICAgICB7Zm9vCiAgICAgICAgPyA8PgogICAgICAgICAgICA8ZGl2CiAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICA+CiAgICAgICAgICAgICAge2ZvbwogICAgICAgICAgICAgICAgPyA8PgogICAgICAgICAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICAgIDwvPgogICAgICAgICAgICAgICAgOiBiYXIKICAgICAgICAgICAgICAgID8gPD4KICAgICAgICAgICAgICAgICAgICA8ZGl2CiAgICAgICAgICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgICAgICAgICAgPgogICAgICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgICAgIDogPD4KICAgICAgICAgICAgICAgICAgICA8ZGl2CiAgICAgICAgICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgICAgICAgICAgPgogICAgICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgICB9CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgPC8+CiAgICAgICAgOiBiYXIKICAgICAgICA/IDw+CiAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7Zm9vCiAgICAgICAgICAgICAgICA/IDw+CiAgICAgICAgICAgICAgICAgICAgPGRpdgogICAgICAgICAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICAgICAgICAgID4KICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICAgICA6IGJhcgogICAgICAgICAgICAgICAgPyA8PgogICAgICAgICAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICAgIDwvPgogICAgICAgICAgICAgICAgOiA8PgogICAgICAgICAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICAgIDwvPgogICAgICAgICAgICAgIH0KICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICA8Lz4KICAgICAgICA6IDw+CiAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7Zm9vCiAgICAgICAgICAgICAgICA/IDw+CiAgICAgICAgICAgICAgICAgICAgPGRpdgogICAgICAgICAgICAgICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgICAgICAgICAgICAgID4KICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICAgICA6IGJhcgogICAgICAgICAgICAgICAgPyA8PgogICAgICAgICAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICAgIDwvPgogICAgICAgICAgICAgICAgOiA8PgogICAgICAgICAgICAgICAgICAgIDxkaXYKICAgICAgICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICAgIDwvPgogICAgICAgICAgICAgIH0KICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICA8Lz4KICAgICAgfQogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBmb28gPSBfX1Z1ZURYX19jdHguZm9vOwogIGxldCBiYXIgPSBfX1Z1ZURYX19jdHguYmFyOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgoxNTQxAHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsMkI7QSxFLDJCO0EsRSwyQjtBLEUsNEI7QSxFLFE7QSxJLEU7QSxNLENBQ1dBLEc7QSxRLEUsRTtBLFlBQVgsQ0FBQ0EsRztBLGNBQUcsa0M7QSxZLEM7QSxjLENBQ1NBLEc7QSxnQixFLEU7QSxvQkFBWCxDQUFDQSxHO0Esc0JBQUcsa0M7QSxvQixDO0Esb0JBQVksRSxHLEM7QSxrQixHO0EsZ0IsRUFDQUEsRztBLGdCLEUsRTtBLG9CQUFoQixDQUFDQSxHO0Esc0JBQUcsa0M7QSxvQixDO0Esb0JBQWlCLEUsRyxDO0Esa0IsRztBLGdCLEUsRTtBLG9CQUNyQixDQUFDQSxHO0Esc0JBQUcsa0M7QSxvQixDO0Esb0JBQVEsRSxHLEM7QSxrQixHO0EsYyxDO0EsWUFDZCxFLEcsQztBLFUsRztBLFEsRUFDZ0JBLEc7QSxRLEUsRTtBLFlBQWhCLENBQUNBLEc7QSxjQUFHLGtDO0EsWSxDO0EsYyxDQUNTQSxHO0EsZ0IsRSxFO0Esb0JBQVgsQ0FBQ0EsRztBLHNCQUFHLGtDO0Esb0IsQztBLG9CQUFZLEUsRyxDO0Esa0IsRztBLGdCLEVBQ0FBLEc7QSxnQixFLEU7QSxvQkFBaEIsQ0FBQ0EsRztBLHNCQUFHLGtDO0Esb0IsQztBLG9CQUFpQixFLEcsQztBLGtCLEc7QSxnQixFLEU7QSxvQkFDckIsQ0FBQ0EsRztBLHNCQUFHLGtDO0Esb0IsQztBLG9CQUFRLEUsRyxDO0Esa0IsRztBLGMsQztBLFlBQ2QsRSxHLEM7QSxVLEc7QSxRLEUsRTtBLFlBQ0EsQ0FBQ0EsRztBLGNBQUcsa0M7QSxZLEM7QSxjLENBQ1NBLEc7QSxnQixFLEU7QSxvQkFBWCxDQUFDQSxHO0Esc0JBQUcsa0M7QSxvQixDO0Esb0JBQVksRSxHLEM7QSxrQixHO0EsZ0IsRUFDQUEsRztBLGdCLEUsRTtBLG9CQUFoQixDQUFDQSxHO0Esc0JBQUcsa0M7QSxvQixDO0Esb0JBQWlCLEUsRyxDO0Esa0IsRztBLGdCLEUsRTtBLG9CQUNyQixDQUFDQSxHO0Esc0JBQUcsa0M7QSxvQixDO0Esb0JBQVEsRSxHLEM7QSxrQixHO0EsYyxDO0EsWUFDZCxFLEcsQztBLFUsRztBLE0sQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUsMkI7QSxFLDJCO0EsRSw0QjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj4zIl0sInNvdXJjZXMiOlsiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiPHRlbXBsYXRlPlxuPGRpdiB2LWlmPVwiZm9vXCI+XG4gIDxkaXYgdi1pZj1cImZvb1wiPjwvZGl2PlxuICA8ZGl2IHYtZWxzZS1pZj1cImJhclwiPjwvZGl2PlxuICA8ZGl2IHYtZWxzZT48L2Rpdj5cbjwvZGl2PlxuPGRpdiB2LWVsc2UtaWY9XCJiYXJcIj5cbiAgPGRpdiB2LWlmPVwiZm9vXCI+PC9kaXY+XG4gIDxkaXYgdi1lbHNlLWlmPVwiYmFyXCI+PC9kaXY+XG4gIDxkaXYgdi1lbHNlPjwvZGl2PlxuPC9kaXY+XG48ZGl2IHYtZWxzZT5cbiAgPGRpdiB2LWlmPVwiZm9vXCI+PC9kaXY+XG4gIDxkaXYgdi1lbHNlLWlmPVwiYmFyXCI+PC9kaXY+XG4gIDxkaXYgdi1lbHNlPjwvZGl2PlxuPC9kaXY+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-if/v-else/v-else-if  no if 1`] = `
 ## 5.5. v-if/v-else/v-else-if > no if
@@ -1326,36 +1676,43 @@ exports[`Baseline Spec v-if/v-else/v-else-if  no if 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
-  /*<vuedx:templateGlobals>*/
-  /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   return (
-    <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
-      Vue is awesome!
-    </h1>
+    <>
+      <h1
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {"Vue is awesome!"}
+      </h1>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"h1">;
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjozMX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoyfSxcInNcIjp7XCJzXCI6MSxcImVcIjozfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjE1fSxcInNcIjp7XCJzXCI6MTEsXCJlXCI6MjZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Mn0sXCJzXCI6e1wic1wiOjI2LFwiZVwiOjMxfX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7OztJQUFBQSxDQUFDQyxFO01BQVVDLGU7TUFBZUMsRSIsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSIsInNvdXJjZVJvb3QiOiIvdG1wL2NvbXBpbGVyLXRzeCIsInNvdXJjZXNDb250ZW50IjpbIjxoMSB2LWVsc2U+VnVlIGlzIGF3ZXNvbWUhPC9oMT5cbiJdfQ==
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#NzUzAC8vI3JlZ2lvbiA8c2NyaXB0PgppbXBvcnQgeyBkZWZpbmVDb21wb25lbnQgYXMgX19WdWVEWF9fZGVmaW5lQ29tcG9uZW50IH0gZnJvbSAndnVlJzsKZXhwb3J0IGNvbnN0IF9fVnVlRFhfX0NvbXBvbmVudCA9IF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCh7fSk7Ci8vI2VuZHJlZ2lvbgpjb25zdCBfX1Z1ZURYX19jdHggPSBuZXcgX19WdWVEWF9fQ29tcG9uZW50KCkKLy8jcmVnaW9uIDx0ZW1wbGF0ZT4KaW1wb3J0ICogYXMgX19WdWVEWF9fVHlwZUNoZWNrICBmcm9tICd2dWVkeH5ydW50aW1lJzsKZXhwb3J0IGZ1bmN0aW9uIF9fVnVlRFhfX3JlbmRlcigpIHsKICByZXR1cm4gKAogICAgPD4KICAgICAgPGgxCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAgeyJWdWUgaXMgYXdlc29tZSEifQogICAgICA8L2gxPgogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIHJldHVybiBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwuZmxhdChbCiAgXSkKfQovKjwvdnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KLy8jZW5kcmVnaW9uCi8vI3JlZ2lvbiBwdWJsaWMgY29tcG9uZW50IGRlZmluaXRpb24KZXhwb3J0IGRlZmF1bHQgY2xhc3MgZXh0ZW5kcyBfX1Z1ZURYX19Db21wb25lbnQgewogICRzbG90czogUmV0dXJuVHlwZTx0eXBlb2YgX19WdWVEWF9fc2xvdHM+Cn0KLy8jZW5kcmVnaW9uCjM3NAB7InZlcnNpb24iOjMsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnRzeCIsIm1hcHBpbmdzIjoiOzs7Ozs7QSxxRDtBLEEsbUM7QSxFLFE7QSxJLEU7QSxNQUNBLENBQUNBLEU7QSxRQUFFLGtDO0EsTSxDO0EsUSxDQUFRQyxpQixDO0EsTUFBZSxFLEUsQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSx5QztBLEUsRTtBLEEsQztBLEEsOEI7Ozs7OzsiLCJuYW1lcyI6WyI8PFA+PjIiLCI8PFQ+PjE1fDE3Il0sInNvdXJjZXMiOlsiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiPHRlbXBsYXRlPlxuPGgxIHYtZWxzZT5WdWUgaXMgYXdlc29tZSE8L2gxPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-if/v-else/v-else-if  single if statement 1`] = `
 ## 5.1. v-if/v-else/v-else-if > single if statement
@@ -1365,44 +1722,54 @@ exports[`Baseline Spec v-if/v-else/v-else-if  single if statement 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let awesome = __VueDX_ctx.awesome;
+  let awesome = __VueDX__ctx.awesome;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      {
-        (awesome)
-          ? <h1 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
-              Vue is awesome!
+      {awesome
+        ? <>
+            <h1
+              /*<vuedx:tsx-competions-target/>*/
+            >
+              {"Vue is awesome!"}
             </h1>
-          : null
+          </>
+        : null
       }
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let awesome = __VueDX_ctx.awesome;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let awesome = __VueDX__ctx.awesome;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTAsXCJlXCI6MTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjAsXCJlXCI6Mzl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Mn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxNX0sXCJzXCI6e1wic1wiOjE5LFwiZVwiOjM0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjJ9LFwic1wiOntcInNcIjozNCxcImVcIjozOX19Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7U0FBVUEsTztZQUFWQyxDQUFDQyxFO2NBQWtCQyxlO2NBQWVDLEUiLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8aDEgdi1pZj1cImF3ZXNvbWVcIj5WdWUgaXMgYXdlc29tZSE8L2gxPlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTA0NgAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGF3ZXNvbWUgPSBfX1Z1ZURYX19jdHguYXdlc29tZTsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuICgKICAgIDw+CiAgICAgIHthd2Vzb21lCiAgICAgICAgPyA8PgogICAgICAgICAgICA8aDEKICAgICAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgICAgID4KICAgICAgICAgICAgICB7IlZ1ZSBpcyBhd2Vzb21lISJ9CiAgICAgICAgICAgIDwvaDE+CiAgICAgICAgICA8Lz4KICAgICAgICA6IG51bGwKICAgICAgfQogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBhd2Vzb21lID0gX19WdWVEWF9fY3R4LmF3ZXNvbWU7CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwuZmxhdChbCiAgXSkKfQovKjwvdnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KLy8jZW5kcmVnaW9uCi8vI3JlZ2lvbiBwdWJsaWMgY29tcG9uZW50IGRlZmluaXRpb24KZXhwb3J0IGRlZmF1bHQgY2xhc3MgZXh0ZW5kcyBfX1Z1ZURYX19Db21wb25lbnQgewogICRzbG90czogUmV0dXJuVHlwZTx0eXBlb2YgX19WdWVEWF9fc2xvdHM+Cn0KLy8jZW5kcmVnaW9uCjQ3NAB7InZlcnNpb24iOjMsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnRzeCIsIm1hcHBpbmdzIjoiOzs7Ozs7QSxxRDtBLEEsbUM7QSxFLDJCO0EsRSxtQztBLEUsNEI7QSxFLFE7QSxJLEU7QSxNLENBQ1VBLE87QSxRLEUsRTtBLFlBQVYsQ0FBQ0MsRTtBLGNBQUUsa0M7QSxZLEM7QSxjLENBQWdCQyxpQixDO0EsWUFBZSxFLEUsQztBLFUsRztBLE0sUTtBLE0sQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUsbUM7QSxFLDRCO0EsRSx5QztBLEUsRTtBLEEsQztBLEEsOEI7Ozs7OzsiLCJuYW1lcyI6WyI8PFA+PjciLCI8PFA+PjIiLCI8PFQ+PjE1fDE3Il0sInNvdXJjZXMiOlsiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiPHRlbXBsYXRlPlxuPGgxIHYtaWY9XCJhd2Vzb21lXCI+VnVlIGlzIGF3ZXNvbWUhPC9oMT5cblxuPC90ZW1wbGF0ZT4iXX0=)
 
-`
+
+`;
 
 exports[`Baseline Spec v-is default 1`] = `
 ## 13.1. v-is 
@@ -1416,50 +1783,67 @@ exports[`Baseline Spec v-is default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let MyComponent = __VueDX_ctx.MyComponent;
+  let MyComponent = __VueDX__ctx.MyComponent;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-  const _DynamicComponent0 = VueDX.internal.resolveComponent(__VueDX_components, MyComponent);
-
+  /*<vuedx:templateGlobals>*/
+  const __VueDX___Component0 = __VueDX__TypeCheck.internal.resolveComponent(__VueDX__ctx, MyComponent);
+  /*</vuedx:templateGlobals>*/
   return (
-    <table data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "table" as const)/*</vuedx:diagnosticsIgnore>*/}>
-      <tbody data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "tbody" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        <_DynamicComponent0 data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", _DynamicComponent0)/*</vuedx:diagnosticsIgnore>*/}>
-          {VueDX.internal.checkSlots(_DynamicComponent0, {
-            default: () => {
-              return (
-                <>
-                </>
-              ) as any
-            },
-          })}
-        </_DynamicComponent0>
-      </tbody>
-    </table>
+    <>
+      <table
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        <tbody
+          /*<vuedx:tsx-competions-target/>*/
+        >
+          <__VueDX___Component0
+            /*<vuedx:tsx-competions-target/>*/
+          >
+            {{
+              default: () => {
+                return (
+                  <>
+                  </>
+                )
+              },
+            }}
+          </__VueDX___Component0>
+        </tbody>
+      </table>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let MyComponent = __VueDX_ctx.MyComponent;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let MyComponent = __VueDX__ctx.MyComponent;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"table">;
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxMX0sXCJzXCI6e1wic1wiOjMyLFwiZVwiOjQzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjowLFwiZVwiOjcwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjoxLFwiZVwiOjZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjEwLFwiZVwiOjYxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjoxMSxcImVcIjoxNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjIsXCJlXCI6NTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTh9LFwic1wiOntcInNcIjoyMyxcImVcIjozMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjIyLFwiZVwiOjUwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoyMyxcImVcIjozMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6NjAsXCJlXCI6NjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjYyLFwiZVwiOjcwfX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7O2lGQUVjQSxXOzs7SUFGZEMsQ0FBQ0MsSztNQUNDQyxDQUFDQyxLO1FBQ0NDLENBQUNDLGtCO1dBQURDLDBCQUFDRCxrQjtZQUFBRSxTOzs7Ozs7OztRQUNJQyxLO01BQ1RDLEsiLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8dGFibGU+XG4gIDx0Ym9keT5cbiAgICA8dHIgdi1pcz1cIk15Q29tcG9uZW50XCI+PC90cj5cbiAgPC90Ym9keT5cbjwvdGFibGU+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTQ4NgAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IE15Q29tcG9uZW50ID0gX19WdWVEWF9fY3R4Lk15Q29tcG9uZW50OwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBjb25zdCBfX1Z1ZURYX19fQ29tcG9uZW50MCA9IF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5yZXNvbHZlQ29tcG9uZW50KF9fVnVlRFhfX2N0eCwgTXlDb21wb25lbnQpOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gKAogICAgPD4KICAgICAgPHRhYmxlCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAgPHRib2R5CiAgICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgICAgPgogICAgICAgICAgPF9fVnVlRFhfX19Db21wb25lbnQwCiAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgID4KICAgICAgICAgICAge3sKICAgICAgICAgICAgICBkZWZhdWx0OiAoKSA9PiB7CiAgICAgICAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICAgICAgICA8PgogICAgICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgICB9LAogICAgICAgICAgICB9fQogICAgICAgICAgPC9fX1Z1ZURYX19fQ29tcG9uZW50MD4KICAgICAgICA8L3Rib2R5PgogICAgICA8L3RhYmxlPgogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBNeUNvbXBvbmVudCA9IF9fVnVlRFhfX2N0eC5NeUNvbXBvbmVudDsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KNjI0AHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsMkI7QSxFLDJDO0EsRSw0QjtBLEUsMkI7QSxFLE0sb0IsOERBR2NBLFcsRTtBLEUsNEI7QSxFLFE7QSxJLEU7QSxNQUZkLENBQUNDLEs7QSxRQUFLLGtDO0EsTSxDO0EsUUFDSixDQUFDQSxLO0EsVUFBSyxrQztBLFEsQztBLFVBQ0osQ0FBQyxvQjtBLFlBQUUsa0M7QSxVLEM7QSxZLEU7QSxjLE8sRyxNO0EsZ0IsUTtBLGtCLEU7QSxrQixHO0EsZ0IsQztBLGMsRTtBLFksRTtBLFVBQW9CLEUsb0IsQztBLFFBQ3pCLEUsSyxDO0EsTUFDRixFLEssQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUsMkM7QSxFLDRCO0EsRSx5QztBLEUsRTtBLEEsQztBLEEsOEI7Ozs7OzsiLCJuYW1lcyI6WyI8PFA+PjExIiwiPDxQPj41Il0sInNvdXJjZXMiOlsiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiPHRlbXBsYXRlPlxuPHRhYmxlPlxuICA8dGJvZHk+XG4gICAgPHRyIHYtaXM9XCJNeUNvbXBvbmVudFwiPjwvdHI+XG4gIDwvdGJvZHk+XG48L3RhYmxlPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-model  checkbox 1`] = `
 ## 9.3. v-model > checkbox
@@ -1472,55 +1856,68 @@ exports[`Baseline Spec v-model  checkbox 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let foo = __VueDX_ctx.foo;
-  let yes = __VueDX_ctx.yes;
-  let no = __VueDX_ctx.no;
+  let foo = __VueDX__ctx.foo;
+  let yes = __VueDX__ctx.yes;
+  let no = __VueDX__ctx.no;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      <input type="checkbox" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+      <input
+        type="checkbox"
+        /*<vuedx:tsx-competions-target/>*/
+      />
       <input
         type="checkbox"
         true-value="yes"
-        data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},checkbox: ["yes"] as const,} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        /*<vuedx:tsx-competions-target/>*/
+      />
       <input
         type="checkbox"
         false-value="no"
-        data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},checkbox: ["no"] as const,} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        /*<vuedx:tsx-competions-target/>*/
+      />
       <input
         type="checkbox"
         true-value={yes}
         false-value={no}
-        data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},checkbox: [yes, no] as const,} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        /*<vuedx:tsx-competions-target/>*/
+      />
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let foo = __VueDX_ctx.foo;
-  let yes = __VueDX_ctx.yes;
-  let no = __VueDX_ctx.no;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let foo = __VueDX__ctx.foo;
+  let yes = __VueDX__ctx.yes;
+  let no = __VueDX__ctx.no;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjozOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MSxcImVcIjo2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjo3LFwiZVwiOjExfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6MTIsXCJlXCI6MjJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoyMyxcImVcIjozNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MjMsXCJlXCI6MzZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjMyLFwiZVwiOjM1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo0MCxcImVcIjo5Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6NDEsXCJlXCI6NDZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjQ3LFwiZVwiOjUxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6NTIsXCJlXCI6NjJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MTB9LFwic1wiOntcInNcIjo3NyxcImVcIjo4N319IiwiOzs7VnVlRFg6e1wia1wiOlwidFwiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6ODgsXCJlXCI6OTN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjo2MyxcImVcIjo3Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjQxLFwiZVwiOjQ2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjo2MyxcImVcIjo3Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NzIsXCJlXCI6NzV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjk3LFwiZVwiOjE1M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6OTgsXCJlXCI6MTAzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjoxMDQsXCJlXCI6MTA4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6MTA5LFwiZVwiOjExOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxMX0sXCJzXCI6e1wic1wiOjEzNCxcImVcIjoxNDV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjE0NixcImVcIjoxNTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoxMjAsXCJlXCI6MTMzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE2fSxcInNcIjp7XCJzXCI6OTgsXCJlXCI6MTAzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoxMjAsXCJlXCI6MTMzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxMjksXCJlXCI6MTMyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoxNTQsXCJlXCI6MjI5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjoxNTUsXCJlXCI6MTYwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjoxNjEsXCJlXCI6MTY1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjEwfSxcInNcIjp7XCJzXCI6MTY2LFwiZVwiOjE3Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxMH0sXCJzXCI6e1wic1wiOjE5MixcImVcIjoyMDJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjIwNCxcImVcIjoyMDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MTF9LFwic1wiOntcInNcIjoyMTAsXCJlXCI6MjIxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjJ9LFwic1wiOntcInNcIjoyMjMsXCJlXCI6MjI1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MTc3LFwiZVwiOjE5MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjE1NSxcImVcIjoxNjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjE3NyxcImVcIjoxOTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjE4NixcImVcIjoxODl9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7OztNQUFBQSxDQUFDQyxLLENBQU1DLEksQ0FBS0MsVSw2QkFBV0Msa0MsQ0FBdEJDLGdCLEVBQXNCQyxTLEVBQVNDLEcsK0dBQXBCSixVLCtCQUFvQkksRztNQUNoQ0MsQ0FBQ0MsSztRQUFNQyxJLENBQUtDLFU7UUFBeUJDLFUsQ0FBV0MsSztvQ0FBekJDLGtDLENBQXRCQyxnQixFQUFzQkMsUyxFQUFTQyxHLCtHQUFwQk4sVSwrQkFBb0JNLEc7TUFDaENDLENBQUNDLEs7UUFBTUMsSSxDQUFLQyxVO1FBQXlCQyxXLENBQVlDLEk7b0NBQTFCQyxrQyxDQUF0QkMsZ0IsRUFBc0JDLFMsRUFBU0MsRywrR0FBcEJOLFUsK0JBQW9CTSxHO01BQ2hDQyxDQUFDQyxLO1FBQU1DLEksQ0FBS0MsVTtRQUEwQkMsVSxFQUFZQyxHO1FBQU1DLFcsRUFBYUMsRTtvQ0FBOUNDLGtDLENBQXRCQyxnQixFQUFzQkMsUyxFQUFTQyxHLCtHQUFwQlIsVSwrQkFBb0JRLEcsMkJBQWtCTixHLEVBQW1CRSxFIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGlucHV0IHR5cGU9XCJjaGVja2JveFwiIHYtbW9kZWw9XCJmb29cIiAvPlxuPGlucHV0IHR5cGU9XCJjaGVja2JveFwiIHYtbW9kZWw9XCJmb29cIiB0cnVlLXZhbHVlPVwieWVzXCIgLz5cbjxpbnB1dCB0eXBlPVwiY2hlY2tib3hcIiB2LW1vZGVsPVwiZm9vXCIgZmFsc2UtdmFsdWU9XCJub1wiIC8+XG48aW5wdXQgdHlwZT1cImNoZWNrYm94XCIgdi1tb2RlbD1cImZvb1wiIDp0cnVlLXZhbHVlPVwieWVzXCIgOmZhbHNlLXZhbHVlPVwibm9cIiAvPlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTQwNgAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGZvbyA9IF9fVnVlRFhfX2N0eC5mb287CiAgbGV0IHllcyA9IF9fVnVlRFhfX2N0eC55ZXM7CiAgbGV0IG5vID0gX19WdWVEWF9fY3R4Lm5vOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gKAogICAgPD4KICAgICAgPGlucHV0CiAgICAgICAgdHlwZT0iY2hlY2tib3giCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAvPgogICAgICA8aW5wdXQKICAgICAgICB0eXBlPSJjaGVja2JveCIKICAgICAgICB0cnVlLXZhbHVlPSJ5ZXMiCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAvPgogICAgICA8aW5wdXQKICAgICAgICB0eXBlPSJjaGVja2JveCIKICAgICAgICBmYWxzZS12YWx1ZT0ibm8iCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAvPgogICAgICA8aW5wdXQKICAgICAgICB0eXBlPSJjaGVja2JveCIKICAgICAgICB0cnVlLXZhbHVlPXt5ZXN9CiAgICAgICAgZmFsc2UtdmFsdWU9e25vfQogICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgLz4KICAgIDwvPgogICkKfQovKjx2dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwpmdW5jdGlvbiBfX1Z1ZURYX19zbG90cygpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgZm9vID0gX19WdWVEWF9fY3R4LmZvbzsKICBsZXQgeWVzID0gX19WdWVEWF9fY3R4LnllczsKICBsZXQgbm8gPSBfX1Z1ZURYX19jdHgubm87CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwuZmxhdChbCiAgXSkKfQovKjwvdnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KLy8jZW5kcmVnaW9uCi8vI3JlZ2lvbiBwdWJsaWMgY29tcG9uZW50IGRlZmluaXRpb24KZXhwb3J0IGRlZmF1bHQgY2xhc3MgZXh0ZW5kcyBfX1Z1ZURYX19Db21wb25lbnQgewogICRzbG90czogUmV0dXJuVHlwZTx0eXBlb2YgX19WdWVEWF9fc2xvdHM+Cn0KLy8jZW5kcmVnaW9uCjkyNgB7InZlcnNpb24iOjMsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnRzeCIsIm1hcHBpbmdzIjoiOzs7Ozs7QSxxRDtBLEEsbUM7QSxFLDJCO0EsRSwyQjtBLEUsMkI7QSxFLHlCO0EsRSw0QjtBLEUsUTtBLEksRTtBLE1BQ0EsQ0FBQ0EsSztBLFFBQU1DLEksQ0FBS0MsVTtBLFFBQU4sa0M7QSxNLEU7QSxNQUNOLENBQUNGLEs7QSxRQUFNQyxJLENBQUtDLFU7QSxRQUF5QkEsVSxDQUFXRixLO0EsUUFBMUMsa0M7QSxNLEU7QSxNQUNOLENBQUNBLEs7QSxRQUFNQyxJLENBQUtDLFU7QSxRQUF5QkMsVyxDQUFZRixJO0EsUUFBM0Msa0M7QSxNLEU7QSxNQUNOLENBQUNELEs7QSxRQUFNQyxJLENBQUtDLFU7QSxRQUEwQkEsVSxDLENBQVlFLEcsQztBLFFBQU1ELFcsQyxDQUFhRSxFLEM7QSxRQUEvRCxrQztBLE0sRTtBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUsMkI7QSxFLDJCO0EsRSx5QjtBLEUsNEI7QSxFLHlDO0EsRSxFO0EsQSxDO0EsQSw4Qjs7Ozs7OyIsIm5hbWVzIjpbIjw8UD4+NSIsIjw8UD4+NCIsIjw8UD4+MTAiLCI8PFA+PjExIiwiPDxQPj4zIiwiPDxQPj4yIl0sInNvdXJjZXMiOlsiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiPHRlbXBsYXRlPlxuPGlucHV0IHR5cGU9XCJjaGVja2JveFwiIHYtbW9kZWw9XCJmb29cIiAvPlxuPGlucHV0IHR5cGU9XCJjaGVja2JveFwiIHYtbW9kZWw9XCJmb29cIiB0cnVlLXZhbHVlPVwieWVzXCIgLz5cbjxpbnB1dCB0eXBlPVwiY2hlY2tib3hcIiB2LW1vZGVsPVwiZm9vXCIgZmFsc2UtdmFsdWU9XCJub1wiIC8+XG48aW5wdXQgdHlwZT1cImNoZWNrYm94XCIgdi1tb2RlbD1cImZvb1wiIDp0cnVlLXZhbHVlPVwieWVzXCIgOmZhbHNlLXZhbHVlPVwibm9cIiAvPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-model  input 1`] = `
 ## 9.1. v-model > input
@@ -1534,42 +1931,63 @@ exports[`Baseline Spec v-model  input 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let foo = __VueDX_ctx.foo;
+  let foo = __VueDX__ctx.foo;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      <input data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
-      <input type="number" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "number" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
-      <input type="tel" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "tel" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
-      <input type="checkbox" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "checkbox" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
-      <input type="radio" data-vuedx-directive-model={VueDX.internal.checkModelDirective("input" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {type: "radio" as const,isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+      <input
+        /*<vuedx:tsx-competions-target/>*/
+      />
+      <input
+        type="number"
+        /*<vuedx:tsx-competions-target/>*/
+      />
+      <input
+        type="tel"
+        /*<vuedx:tsx-competions-target/>*/
+      />
+      <input
+        type="checkbox"
+        /*<vuedx:tsx-competions-target/>*/
+      />
+      <input
+        type="radio"
+        /*<vuedx:tsx-competions-target/>*/
+      />
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let foo = __VueDX_ctx.foo;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let foo = __VueDX__ctx.foo;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoyM319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MSxcImVcIjo2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NyxcImVcIjoyMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6NyxcImVcIjoyMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTYsXCJlXCI6MTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjI0LFwiZVwiOjYxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjoyNSxcImVcIjozMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MzEsXCJlXCI6MzV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6OH0sXCJzXCI6e1wic1wiOjM2LFwiZVwiOjQ0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NDUsXCJlXCI6NTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTZ9LFwic1wiOntcInNcIjoyNSxcImVcIjozMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6NDUsXCJlXCI6NTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjU0LFwiZVwiOjU3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo2MixcImVcIjo5Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6NjMsXCJlXCI6Njh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjY5LFwiZVwiOjczfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjo3NCxcImVcIjo3OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjgwLFwiZVwiOjkzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE2fSxcInNcIjp7XCJzXCI6NjMsXCJlXCI6Njh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjgwLFwiZVwiOjkzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo4OSxcImVcIjo5Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6OTcsXCJlXCI6MTM2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjo5OCxcImVcIjoxMDN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjEwNCxcImVcIjoxMDh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6MTB9LFwic1wiOntcInNcIjoxMDksXCJlXCI6MTE5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MTIwLFwiZVwiOjEzM319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjk4LFwiZVwiOjEwM319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MTIwLFwiZVwiOjEzM319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTI5LFwiZVwiOjEzMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTM3LFwiZVwiOjE3M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MTM4LFwiZVwiOjE0M319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MTQ0LFwiZVwiOjE0OH19IiwiOzs7VnVlRFg6e1wia1wiOlwidFwiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTQ5LFwiZVwiOjE1Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjE1NyxcImVcIjoxNzB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTZ9LFwic1wiOntcInNcIjoxMzgsXCJlXCI6MTQzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoxNTcsXCJlXCI6MTcwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxNjYsXCJlXCI6MTY5fX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7O01BQUFBLENBQUNDLEssNkJBQU1DLGtDLENBQU5DLGdCLEVBQU1DLFMsRUFBU0MsRyw4SEFBQUEsRztNQUNoQkMsQ0FBQ0MsSyxDQUFNQyxJLENBQUtDLFEsNkJBQVNDLGtDLENBQXBCQyxnQixFQUFvQkMsUyxFQUFTQyxHLCtHQUFsQkosUSwrQkFBa0JJLEc7TUFDOUJDLENBQUNDLEssQ0FBTUMsSSxDQUFLQyxLLDZCQUFNQyxrQyxDQUFqQkMsZ0IsRUFBaUJDLFMsRUFBU0MsRywrR0FBZkosSywrQkFBZUksRztNQUMzQkMsQ0FBQ0MsSyxDQUFNQyxJLENBQUtDLFUsNkJBQVdDLGtDLENBQXRCQyxnQixFQUFzQkMsUyxFQUFTQyxHLCtHQUFwQkosVSwrQkFBb0JJLEc7TUFDaENDLENBQUNDLEssQ0FBTUMsSSxDQUFLQyxPLDZCQUFRQyxrQyxDQUFuQkMsZ0IsRUFBbUJDLFMsRUFBU0MsRywrR0FBakJKLE8sK0JBQWlCSSxHIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPGlucHV0IHYtbW9kZWw9XCJmb29cIiAvPlxuPGlucHV0IHR5cGU9XCJudW1iZXJcIiB2LW1vZGVsPVwiZm9vXCIgLz5cbjxpbnB1dCB0eXBlPVwidGVsXCIgdi1tb2RlbD1cImZvb1wiIC8+XG48aW5wdXQgdHlwZT1cImNoZWNrYm94XCIgdi1tb2RlbD1cImZvb1wiIC8+XG48aW5wdXQgdHlwZT1cInJhZGlvXCIgdi1tb2RlbD1cImZvb1wiIC8+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTI0NQAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGZvbyA9IF9fVnVlRFhfX2N0eC5mb287CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiAoCiAgICA8PgogICAgICA8aW5wdXQKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgIC8+CiAgICAgIDxpbnB1dAogICAgICAgIHR5cGU9Im51bWJlciIKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgIC8+CiAgICAgIDxpbnB1dAogICAgICAgIHR5cGU9InRlbCIKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgIC8+CiAgICAgIDxpbnB1dAogICAgICAgIHR5cGU9ImNoZWNrYm94IgogICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgLz4KICAgICAgPGlucHV0CiAgICAgICAgdHlwZT0icmFkaW8iCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAvPgogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBmb28gPSBfX1Z1ZURYX19jdHguZm9vOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgo3NzIAeyJ2ZXJzaW9uIjozLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS50c3giLCJtYXBwaW5ncyI6Ijs7Ozs7O0EscUQ7QSxBLG1DO0EsRSwyQjtBLEUsMkI7QSxFLDRCO0EsRSxRO0EsSSxFO0EsTUFDQSxDQUFDQSxLO0EsUUFBSyxrQztBLE0sRTtBLE1BQ04sQ0FBQ0EsSztBLFFBQU1DLEksQ0FBS0MsUTtBLFFBQU4sa0M7QSxNLEU7QSxNQUNOLENBQUNGLEs7QSxRQUFNQyxJLENBQUtELEs7QSxRQUFOLGtDO0EsTSxFO0EsTUFDTixDQUFDQSxLO0EsUUFBTUMsSSxDQUFLRSxVO0EsUUFBTixrQztBLE0sRTtBLE1BQ04sQ0FBQ0gsSztBLFFBQU1DLEksQ0FBS0csTztBLFFBQU4sa0M7QSxNLEU7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUsMkI7QSxFLDJCO0EsRSw0QjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj41IiwiPDxQPj40IiwiPDxQPj44IiwiPDxQPj4xMCIsIjw8UD4+NyJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxpbnB1dCB2LW1vZGVsPVwiZm9vXCIgLz5cbjxpbnB1dCB0eXBlPVwibnVtYmVyXCIgdi1tb2RlbD1cImZvb1wiIC8+XG48aW5wdXQgdHlwZT1cInRlbFwiIHYtbW9kZWw9XCJmb29cIiAvPlxuPGlucHV0IHR5cGU9XCJjaGVja2JveFwiIHYtbW9kZWw9XCJmb29cIiAvPlxuPGlucHV0IHR5cGU9XCJyYWRpb1wiIHYtbW9kZWw9XCJmb29cIiAvPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-model  select 1`] = `
 ## 9.4. v-model > select
@@ -1589,69 +2007,98 @@ exports[`Baseline Spec v-model  select 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let foo = __VueDX_ctx.foo;
-  let baz = __VueDX_ctx.baz;
-  let vals = __VueDX_ctx.vals;
+  let foo = __VueDX__ctx.foo;
+  let baz = __VueDX__ctx.baz;
+  let vals = __VueDX__ctx.vals;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      <select data-vuedx-directive-model={VueDX.internal.checkModelDirective("select" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "select" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        <option value="foo" data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
-          foo
+      <select
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        <option
+          value="foo"
+          /*<vuedx:tsx-competions-target/>*/
+        >
+          {"foo"}
         </option>
-        <option value="bar" data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
-          bar
+        <option
+          value="bar"
+          /*<vuedx:tsx-competions-target/>*/
+        >
+          {"bar"}
         </option>
-        <option value={baz} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
-          baz
+        <option
+          value={baz}
+          /*<vuedx:tsx-competions-target/>*/
+        >
+          {"baz"}
         </option>
       </select>
-      <select data-vuedx-directive-model={VueDX.internal.checkModelDirective("select" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "select" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        <option value="foo" data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
-          foo
+      <select
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        <option
+          value="foo"
+          /*<vuedx:tsx-competions-target/>*/
+        >
+          {"foo"}
         </option>
         {
-          VueDX.internal.renderList(vals, (val) => {
+          __VueDX__TypeCheck.internal.renderList(vals, (val) => {
             return (
-              <option value={val} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
-                {VueDX.internal.checkInterpolation(val)}
+              <option
+                value={val}
+                /*<vuedx:tsx-competions-target/>*/
+              >
+                {val}
               </option>
             )
           })
         }
-        <option value="bar" data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
-          bar
+        <option
+          value="bar"
+          /*<vuedx:tsx-competions-target/>*/
+        >
+          {"bar"}
         </option>
       </select>
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let foo = __VueDX_ctx.foo;
-  let baz = __VueDX_ctx.baz;
-  let vals = __VueDX_ctx.vals;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let foo = __VueDX__ctx.foo;
+  let baz = __VueDX__ctx.baz;
+  let vals = __VueDX__ctx.vals;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoxMzh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjgsXCJlXCI6MjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTd9LFwic1wiOntcInNcIjoxLFwiZVwiOjd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjgsXCJlXCI6MjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjE3LFwiZVwiOjIwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoyNSxcImVcIjo1N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MjYsXCJlXCI6MzJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjMzLFwiZVwiOjM4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJ0XCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjozOSxcImVcIjo0NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NDUsXCJlXCI6NDh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjYwLFwiZVwiOjkyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjo2MSxcImVcIjo2N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6NjgsXCJlXCI6NzN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjc0LFwiZVwiOjc5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo4MCxcImVcIjo4M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6OTUsXCJlXCI6MTI4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjo5NixcImVcIjoxMDJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjEwNCxcImVcIjoxMDl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjExMSxcImVcIjoxMTR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjExNixcImVcIjoxMTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjEyOSxcImVcIjoxMzh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjE0MCxcImVcIjozMDR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjE0MSxcImVcIjoxNDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoxNDgsXCJlXCI6MTYxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE3fSxcInNcIjp7XCJzXCI6MTQxLFwiZVwiOjE0N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MTQ4LFwiZVwiOjE2MX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTU3LFwiZVwiOjE2MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTY1LFwiZVwiOjE5N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MTY2LFwiZVwiOjE3Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MTczLFwiZVwiOjE3OH19IiwiOzs7VnVlRFg6e1wia1wiOlwidFwiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MTc5LFwiZVwiOjE4NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTg1LFwiZVwiOjE4OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MjIyLFwiZVwiOjIyNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MjE1LFwiZVwiOjIxOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjAwLFwiZVwiOjI1OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MjAxLFwiZVwiOjIwN319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MjI5LFwiZVwiOjIzNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MjM2LFwiZVwiOjIzOX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjI0MSxcImVcIjoyNTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjI0NCxcImVcIjoyNDd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjI2MixcImVcIjoyOTR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjI2MyxcImVcIjoyNjl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjI3MCxcImVcIjoyNzV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInRcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjI3NixcImVcIjoyODF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjI4MixcImVcIjoyODV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjMwNCxcImVcIjozMDR9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7OztNQUFBQSxDQUFDQyxNLDZCQUFPQyxrQyxDQUFQQyxpQixFQUFPQyxTLEVBQVNDLEcsOEhBQUFBLEc7UUFDZkMsQ0FBQ0MsTSxDQUFPQyxLLENBQU1DLEs7VUFBTUMsRzs7UUFDcEJDLENBQUNDLE0sQ0FBT0MsSyxDQUFNQyxLO1VBQU1DLEc7O1FBQ3BCQyxDQUFDQyxNLENBQVFDLEssRUFBT0MsRztVQUFLQyxHOztRQUN2QkMsTTtNQUVBQyxDQUFDQyxNLDZCQUFPQyxrQyxDQUFQQyxpQixFQUFPQyxTLEVBQVNDLEcsOEhBQUFBLEc7UUFDZkMsQ0FBQ0MsTSxDQUFPQyxLLENBQU1DLEs7VUFBTUMsRzs7O29DQUNFQyxJLEdBQVBDLEc7O2NBQWZDLENBQUNDLE0sQ0FBNEJDLEssRUFBT0MsRztpQkFBS0Msa0NBQUdDLEc7Ozs7O1FBQzVDQyxDQUFDQyxNLENBQU9DLEssQ0FBTUMsSztVQUFNQyxHOztRQUNiQyxNIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPHNlbGVjdCB2LW1vZGVsPVwiZm9vXCI+XG4gIDxvcHRpb24gdmFsdWU9XCJmb29cIj5mb288L29wdGlvbj5cbiAgPG9wdGlvbiB2YWx1ZT1cImJhclwiPmJhcjwvb3B0aW9uPlxuICA8b3B0aW9uIDp2YWx1ZT1cImJhelwiPmJhejwvb3B0aW9uPlxuPC9zZWxlY3Q+XG5cbjxzZWxlY3Qgdi1tb2RlbD1cImZvb1wiPlxuICA8b3B0aW9uIHZhbHVlPVwiZm9vXCI+Zm9vPC9vcHRpb24+XG4gIDxvcHRpb24gdi1mb3I9XCJ2YWwgb2YgdmFsc1wiIDp2YWx1ZT1cInZhbFwiPnt7IHZhbCB9fTwvb3B0aW9uPlxuICA8b3B0aW9uIHZhbHVlPVwiYmFyXCI+YmFyPC9vcHRpb24+XG48L3NlbGVjdD5cbiJdfQ==
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MjA2MgAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGZvbyA9IF9fVnVlRFhfX2N0eC5mb287CiAgbGV0IGJheiA9IF9fVnVlRFhfX2N0eC5iYXo7CiAgbGV0IHZhbHMgPSBfX1Z1ZURYX19jdHgudmFsczsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuICgKICAgIDw+CiAgICAgIDxzZWxlY3QKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgICA8b3B0aW9uCiAgICAgICAgICB2YWx1ZT0iZm9vIgogICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgID4KICAgICAgICAgIHsiZm9vIn0KICAgICAgICA8L29wdGlvbj4KICAgICAgICA8b3B0aW9uCiAgICAgICAgICB2YWx1ZT0iYmFyIgogICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgID4KICAgICAgICAgIHsiYmFyIn0KICAgICAgICA8L29wdGlvbj4KICAgICAgICA8b3B0aW9uCiAgICAgICAgICB2YWx1ZT17YmF6fQogICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgID4KICAgICAgICAgIHsiYmF6In0KICAgICAgICA8L29wdGlvbj4KICAgICAgPC9zZWxlY3Q+CiAgICAgIDxzZWxlY3QKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgICA8b3B0aW9uCiAgICAgICAgICB2YWx1ZT0iZm9vIgogICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgID4KICAgICAgICAgIHsiZm9vIn0KICAgICAgICA8L29wdGlvbj4KICAgICAgICB7CiAgICAgICAgICBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwucmVuZGVyTGlzdCh2YWxzLCAodmFsKSA9PiB7CiAgICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgICAgPG9wdGlvbgogICAgICAgICAgICAgICAgdmFsdWU9e3ZhbH0KICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICB7dmFsfQogICAgICAgICAgICAgIDwvb3B0aW9uPgogICAgICAgICAgICApCiAgICAgICAgICB9KQogICAgICAgIH0KICAgICAgICA8b3B0aW9uCiAgICAgICAgICB2YWx1ZT0iYmFyIgogICAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAgID4KICAgICAgICAgIHsiYmFyIn0KICAgICAgICA8L29wdGlvbj4KICAgICAgPC9zZWxlY3Q+CiAgICA8Lz4KICApCn0KLyo8dnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KZnVuY3Rpb24gX19WdWVEWF9fc2xvdHMoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGZvbyA9IF9fVnVlRFhfX2N0eC5mb287CiAgbGV0IGJheiA9IF9fVnVlRFhfX2N0eC5iYXo7CiAgbGV0IHZhbHMgPSBfX1Z1ZURYX19jdHgudmFsczsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KMTMzOQB7InZlcnNpb24iOjMsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnRzeCIsIm1hcHBpbmdzIjoiOzs7Ozs7QSxxRDtBLEEsbUM7QSxFLDJCO0EsRSwyQjtBLEUsMkI7QSxFLDZCO0EsRSw0QjtBLEUsUTtBLEksRTtBLE1BQ0EsQ0FBQ0EsTTtBLFFBQU0sa0M7QSxNLEM7QSxRQUNMLENBQUNBLE07QSxVQUFPQyxLLENBQU1BLEs7QSxVQUFQLGtDO0EsUSxDO0EsVSxDQUFhQyxLLEM7QSxRQUFHLEUsTSxDO0EsUUFDdkIsQ0FBQ0YsTTtBLFVBQU9DLEssQ0FBTUEsSztBLFVBQVAsa0M7QSxRLEM7QSxVLENBQWFDLEssQztBLFFBQUcsRSxNLEM7QSxRQUN2QixDQUFDRixNO0EsVUFBUUMsSyxDLENBQU9FLEcsQztBLFVBQVQsa0M7QSxRLEM7QSxVLENBQWNELEssQztBLFFBQUcsRSxNLEM7QSxNQUMxQixFLE0sQztBLE1BRUEsQ0FBQ0YsTTtBLFFBQU0sa0M7QSxNLEM7QSxRQUNMLENBQUNBLE07QSxVQUFPQyxLLENBQU1BLEs7QSxVQUFQLGtDO0EsUSxDO0EsVSxDQUFhQyxLLEM7QSxRQUFHLEUsTSxDO0EsUSxDO0EsVSx1Q0FDREUsSSxFLENBQVBELEcsQyxLO0EsWSxRO0EsY0FBZixDQUFDSCxNO0EsZ0JBQTRCQyxLLEMsQ0FBT0UsRyxDO0EsZ0JBQTdCLGtDO0EsYyxDO0EsZ0JBQWtDLENBQUdBLEdBQUcsQztBLGNBQUcsRSxNLEM7QSxZLEM7QSxVLEMsQztBLFEsQztBLFFBQ2xELENBQUNILE07QSxVQUFPQyxLLENBQU1BLEs7QSxVQUFQLGtDO0EsUSxDO0EsVSxDQUFhQyxLLEM7QSxRQUFHLEUsTSxDO0EsTUFDekIsRSxNLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUsMkI7QSxFLDJCO0EsRSwyQjtBLEUsNkI7QSxFLDRCO0EsRSx5QztBLEUsRTtBLEEsQztBLEEsOEI7Ozs7OzsiLCJuYW1lcyI6WyI8PFA+PjYiLCI8PFA+PjUiLCI8PFQ+PjN8NSIsIjw8UD4+MyIsIjw8UD4+NCJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxzZWxlY3Qgdi1tb2RlbD1cImZvb1wiPlxuICA8b3B0aW9uIHZhbHVlPVwiZm9vXCI+Zm9vPC9vcHRpb24+XG4gIDxvcHRpb24gdmFsdWU9XCJiYXJcIj5iYXI8L29wdGlvbj5cbiAgPG9wdGlvbiA6dmFsdWU9XCJiYXpcIj5iYXo8L29wdGlvbj5cbjwvc2VsZWN0PlxuXG48c2VsZWN0IHYtbW9kZWw9XCJmb29cIj5cbiAgPG9wdGlvbiB2YWx1ZT1cImZvb1wiPmZvbzwvb3B0aW9uPlxuICA8b3B0aW9uIHYtZm9yPVwidmFsIG9mIHZhbHNcIiA6dmFsdWU9XCJ2YWxcIj57eyB2YWwgfX08L29wdGlvbj5cbiAgPG9wdGlvbiB2YWx1ZT1cImJhclwiPmJhcjwvb3B0aW9uPlxuPC9zZWxlY3Q+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-model  select/textarea 1`] = `
 ## 9.2. v-model > select/textarea
@@ -1664,43 +2111,57 @@ exports[`Baseline Spec v-model  select/textarea 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let foo = __VueDX_ctx.foo;
+  let foo = __VueDX__ctx.foo;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      <select data-vuedx-directive-model={VueDX.internal.checkModelDirective("select" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "select" as const)/*</vuedx:diagnosticsIgnore>*/}>
-        <option value={foo} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "option" as const)/*</vuedx:diagnosticsIgnore>*/}>
-          {VueDX.internal.checkInterpolation(foo)}
+      <select
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        <option
+          value={foo}
+          /*<vuedx:tsx-competions-target/>*/
+        >
+          {foo}
         </option>
       </select>
-      <textarea data-vuedx-directive-model={VueDX.internal.checkModelDirective("textarea" as const, undefined, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}, {isAssignable: () => {foo=(null as any)},} as const)} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "textarea" as const)/*</vuedx:diagnosticsIgnore>*/} />
+      <textarea
+        /*<vuedx:tsx-competions-target/>*/
+      />
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let foo = __VueDX_ctx.foo;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let foo = __VueDX__ctx.foo;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjo3Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MSxcImVcIjo3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6OCxcImVcIjoyMX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxN30sXCJzXCI6e1wic1wiOjEsXCJlXCI6N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6OCxcImVcIjoyMX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MTcsXCJlXCI6MjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjI1LFwiZVwiOjYyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjoyNixcImVcIjozMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MzQsXCJlXCI6Mzl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjQxLFwiZVwiOjQ0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6NDYsXCJlXCI6NTN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjQ4LFwiZVwiOjUxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjo2MyxcImVcIjo3Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NzMsXCJlXCI6OTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6OH0sXCJzXCI6e1wic1wiOjc0LFwiZVwiOjgyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6ODMsXCJlXCI6OTZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTl9LFwic1wiOntcInNcIjo3NCxcImVcIjo4Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6ODMsXCJlXCI6OTZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjkyLFwiZVwiOjk1fX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7O01BQUFBLENBQUNDLE0sNkJBQU9DLGtDLENBQVBDLGlCLEVBQU9DLFMsRUFBU0MsRyw4SEFBQUEsRztRQUNmQyxDQUFDQyxNLENBQVFDLEssRUFBT0MsRztXQUFLQyxrQ0FBRUMsRzs7UUFDekJDLE07TUFDQUMsQ0FBQ0MsUSw2QkFBU0Msa0MsQ0FBVEMsbUIsRUFBU0MsUyxFQUFTQyxHLDhIQUFBQSxHIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPHNlbGVjdCB2LW1vZGVsPVwiZm9vXCI+XG4gIDxvcHRpb24gOnZhbHVlPVwiZm9vXCI+e3tmb299fTwvb3B0aW9uPlxuPC9zZWxlY3Q+XG48dGV4dGFyZWEgdi1tb2RlbD1cImZvb1wiIC8+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTExMAAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IGZvbyA9IF9fVnVlRFhfX2N0eC5mb287CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiAoCiAgICA8PgogICAgICA8c2VsZWN0CiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAgPG9wdGlvbgogICAgICAgICAgdmFsdWU9e2Zvb30KICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICA+CiAgICAgICAgICB7Zm9vfQogICAgICAgIDwvb3B0aW9uPgogICAgICA8L3NlbGVjdD4KICAgICAgPHRleHRhcmVhCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAvPgogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBmb28gPSBfX1Z1ZURYX19jdHguZm9vOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgo2MTAAeyJ2ZXJzaW9uIjozLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS50c3giLCJtYXBwaW5ncyI6Ijs7Ozs7O0EscUQ7QSxBLG1DO0EsRSwyQjtBLEUsMkI7QSxFLDRCO0EsRSxRO0EsSSxFO0EsTUFDQSxDQUFDQSxNO0EsUUFBTSxrQztBLE0sQztBLFFBQ0wsQ0FBQ0EsTTtBLFVBQVFDLEssQyxDQUFPQyxHLEM7QSxVQUFULGtDO0EsUSxDO0EsVUFBYyxDQUFFQSxHQUFHLEM7QSxRQUFFLEUsTSxDO0EsTUFDOUIsRSxNLEM7QSxNQUNBLENBQUNDLFE7QSxRQUFRLGtDO0EsTSxFO0EsSSxHO0EsRSxDO0EsQSxDO0EsQSw2QjtBLEEsMkI7QSxFLDJCO0EsRSwyQjtBLEUsNEI7QSxFLHlDO0EsRSxFO0EsQSxDO0EsQSw4Qjs7Ozs7OyIsIm5hbWVzIjpbIjw8UD4+NiIsIjw8UD4+NSIsIjw8UD4+MyIsIjw8UD4+OCJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxzZWxlY3Qgdi1tb2RlbD1cImZvb1wiPlxuICA8b3B0aW9uIDp2YWx1ZT1cImZvb1wiPnt7Zm9vfX08L29wdGlvbj5cbjwvc2VsZWN0PlxuPHRleHRhcmVhIHYtbW9kZWw9XCJmb29cIiAvPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-on default 1`] = `
 ## 3.1. v-on 
@@ -1725,76 +2186,94 @@ exports[`Baseline Spec v-on default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let onFocus = __VueDX_ctx.onFocus;
-  let value = __VueDX_ctx.value;
-  let eventName = __VueDX_ctx.eventName;
-  let events = __VueDX_ctx.events;
-  let fnName = __VueDX_ctx.fnName;
-  let callMyFn = __VueDX_ctx.callMyFn;
+  let onFocus = __VueDX__ctx.onFocus;
+  let value = __VueDX__ctx.value;
+  let eventName = __VueDX__ctx.eventName;
+  let events = __VueDX__ctx.events;
+  let fnName = __VueDX__ctx.fnName;
+  let callMyFn = __VueDX__ctx.callMyFn;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
-      <input onFocus={VueDX.internal.checkOnDirective("input" as const, "focus" as const, onFocus, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}  data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
-      <input onUpdate:value={VueDX.internal.checkOnDirective("input" as const, "update:value" as const, ($event) => {if ($event.target == null || $event.currentTarget == null || !VueDX.internal.checkHTMLElementType("input", $event.currentTarget)) throw new Error("Guard: event.target, event.currentTarget")
+      <input
+        onFocus={$event => {
+          (onFocus)($event);
+        }}
+        /*<vuedx:tsx-competions-target/>*/
+      />
+      <input
+        onUpdate:value={$event => {
+          (($event) => {
           value = $event
-        }, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}  data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+          })($event);
+        }}
+        /*<vuedx:tsx-competions-target/>*/
+      />
       <input
-        onEventName={VueDX.internal.union(
-          VueDX.internal.checkOnDirective("input" as const, "event-name" as const, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-          VueDX.internal.checkOnDirective("input" as const, "eventName" as const, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-        )}
-        {...VueDX.internal.checkOnDirective("input" as const, eventName, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-        {...VueDX.internal.checkOnDirective("input" as const, undefined, events, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-       data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        onEvent-name={$event => {
+        }}
+        onEventName={$event => {
+        }}
+        {...(events)}
+        /*<vuedx:tsx-competions-target/>*/
+      />
       <input
-        onKeydown={VueDX.internal.union(
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, fnName, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, ($event) => {if ($event.target == null || $event.currentTarget == null || !VueDX.internal.checkHTMLElementType("input", $event.currentTarget)) throw new Error("Guard: event.target, event.currentTarget")
-            callMyFn($event)
-          }, {"left": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, $event => callMyFn($event), {"shift": true, "left": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, ($event) => callMyFn($event), {"shift": true, "right": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, () => callMyFn($event), {"shift": true, "down": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, function myFunction($event) {
+        onKeydown={$event => {
+          (fnName)($event);
+          (($event) => {
+          callMyFn($event)
+          })($event);
+          ($event => callMyFn($event))($event);
+          (($event) => callMyFn($event))($event);
+          (() => callMyFn($event))($event);
+          (function myFunction($event) {
     callMyFn($event)
-  }, {"shift": true, "up": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-          VueDX.internal.checkOnDirective("input" as const, "keydown" as const, function myFunction() {
+  })($event);
+          (function myFunction() {
     callMyFn($event)
-  }, {"ctrl": true, "up": true, /*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/}),
-        )}
-       data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "input" as const)/*</vuedx:diagnosticsIgnore>*/} />
+  })($event);
+        }}
+        /*<vuedx:tsx-competions-target/>*/
+      />
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let onFocus = __VueDX_ctx.onFocus;
-  let value = __VueDX_ctx.value;
-  let eventName = __VueDX_ctx.eventName;
-  let events = __VueDX_ctx.events;
-  let fnName = __VueDX_ctx.fnName;
-  let callMyFn = __VueDX_ctx.callMyFn;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let onFocus = __VueDX__ctx.onFocus;
+  let value = __VueDX__ctx.value;
+  let eventName = __VueDX__ctx.eventName;
+  let events = __VueDX__ctx.events;
+  let fnName = __VueDX__ctx.fnName;
+  let callMyFn = __VueDX__ctx.callMyFn;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoyNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1fSxcInNcIjp7XCJzXCI6MSxcImVcIjo2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjo4LFwiZVwiOjEzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjMxfSxcInNcIjp7XCJzXCI6NyxcImVcIjoyM319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjEsXCJlXCI6Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTUsXCJlXCI6MjJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjI3LFwiZVwiOjY3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjoyOCxcImVcIjozM319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNH0sXCJzXCI6e1wic1wiOjM1LFwiZVwiOjQ3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjMxfSxcInNcIjp7XCJzXCI6MzQsXCJlXCI6NjR9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTZ9LFwic1wiOntcInNcIjoyOCxcImVcIjozM319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxNH0sXCJzXCI6e1wic1wiOjQ5LFwiZVwiOjYzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjo2OCxcImVcIjoxMjd9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjY5LFwiZVwiOjc0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjExfSxcInNcIjp7XCJzXCI6NzYsXCJlXCI6ODZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzF9LFwic1wiOntcInNcIjo3NSxcImVcIjo4Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNn0sXCJzXCI6e1wic1wiOjY5LFwiZVwiOjc0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjEyfSxcInNcIjp7XCJzXCI6NzYsXCJlXCI6ODZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjg2LFwiZVwiOjg2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjMxfSxcInNcIjp7XCJzXCI6ODcsXCJlXCI6OTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTF9LFwic1wiOntcInNcIjo4OCxcImVcIjo5N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6OTcsXCJlXCI6OTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzF9LFwic1wiOntcInNcIjo5OCxcImVcIjoxMTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjk5LFwiZVwiOjExMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MTEwLFwiZVwiOjExMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozMX0sXCJzXCI6e1wic1wiOjExMSxcImVcIjoxMjR9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjExMSxcImVcIjoxMjR9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjExNyxcImVcIjoxMjN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjEyOCxcImVcIjo0OTF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjEyOSxcImVcIjoxMzR9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjEzOCxcImVcIjoxNDV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzF9LFwic1wiOntcInNcIjoxMzcsXCJlXCI6MTU0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE2fSxcInNcIjp7XCJzXCI6MTI5LFwiZVwiOjEzNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MTQ3LFwiZVwiOjE1M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozMX0sXCJzXCI6e1wic1wiOjE1NyxcImVcIjoxODl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjE1OCxcImVcIjoxNjV9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MTZ9LFwic1wiOntcInNcIjoxNzIsXCJlXCI6MTg4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoxNjYsXCJlXCI6MTcwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjoxNjYsXCJlXCI6MTcwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjMxfSxcInNcIjp7XCJzXCI6MTkyLFwiZVwiOjI0MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MTkzLFwiZVwiOjIwMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjIxMyxcImVcIjoyMzl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjIwMSxcImVcIjoyMTF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6N30sXCJzXCI6e1wic1wiOjIwMSxcImVcIjoyMDZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjIwNyxcImVcIjoyMTF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzF9LFwic1wiOntcInNcIjoyNDMsXCJlXCI6Mjk0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoyNDQsXCJlXCI6MjUxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjI4fSxcInNcIjp7XCJzXCI6MjY1LFwiZVwiOjI5M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjUyLFwiZVwiOjI2M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MjUyLFwiZVwiOjI1N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MjU4LFwiZVwiOjI2M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozMX0sXCJzXCI6e1wic1wiOjI5NyxcImVcIjozNDF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjI5OCxcImVcIjozMDV9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6MjJ9LFwic1wiOntcInNcIjozMTgsXCJlXCI6MzQwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjozMDYsXCJlXCI6MzE2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjozMDYsXCJlXCI6MzExfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjozMTIsXCJlXCI6MzE2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjMxfSxcInNcIjp7XCJzXCI6MzQ0LFwiZVwiOjQxOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MzQ1LFwiZVwiOjM1Mn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo1NH0sXCJzXCI6e1wic1wiOjM2MyxcImVcIjo0MTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjM1MyxcImVcIjozNjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6N30sXCJzXCI6e1wic1wiOjM1MyxcImVcIjozNTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6NH0sXCJzXCI6e1wic1wiOjM1OSxcImVcIjozNjF9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzF9LFwic1wiOntcInNcIjo0MjEsXCJlXCI6NDg4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjo0MjIsXCJlXCI6NDI5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjQ4fSxcInNcIjp7XCJzXCI6NDM5LFwiZVwiOjQ4N319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NDMwLFwiZVwiOjQzN319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6NDMwLFwiZVwiOjQzNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6NDM1LFwiZVwiOjQzN319Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7O01BQUFBLENBQUNDLEssQ0FBT0MsTyxFQUFEQywrQixDQUFOQyxnQixFQUFPRixPLFdBQU9HLE87TUFDZkMsQ0FBQ0MsSyxDQUFPQyxjLEVBQURDLCtCLENBQU5DLGdCLEVBQU9GLGM7VUFBY0csYzs7TUFDdEJDLENBQUNDLEs7UUFBT0MsVztVQUFEQywrQixDQUFOQyxnQixFQUFPQyxZLFdBQVVDLFM7VUFBQ0MsK0IsQ0FBbEJILGdCLEVBQW1CSSxXLFdBQVNDLFM7O1lBQUNDLCtCLENBQTdCTixnQixFQUE4Qk8sUyxFQUFXQyxTO1lBQUNDLCtCLENBQTFDVCxnQixFQUEwQ1UsUyxFQUFNQyxNOztNQUNqREMsQ0FBQ0MsSztRQUNFQyxTO1VBQURDLCtCLENBRERDLGdCLEVBQ0VGLFMsV0FBU0csTTtVQUNWQywrQixDQUZERixnQixFQUVFRyxTO1lBQWNDLGdCO2FBQU5DLENBQUFDLE07VUFDVEMsK0IsQ0FIRFAsZ0IsRUFHRVEsUyxXQUFvQkMsMEIsRUFBWkMsQ0FBQUMsTyxRQUFNQyxNO1VBQ2ZDLCtCLENBSkRiLGdCLEVBSUVjLFMsV0FBcUJDLDRCLEVBQWJDLENBQUFDLE8sUUFBTUMsTztVQUNmQywrQixDQUxEbkIsZ0IsRUFLRW9CLFMsV0FBb0JDLHNCLEVBQVpDLENBQUFDLE8sUUFBTUMsTTtVQUNmQywrQixDQU5EekIsZ0IsRUFNRTBCLFMsV0FBa0JDO0FBQUFBO0FBQUFBLEcsRUFBVkMsQ0FBQUMsTyxRQUFNQyxJO1VBR2ZDLCtCLENBVEQvQixnQixFQVNFZ0MsUyxXQUFpQkM7QUFBQUE7QUFBQUEsRyxFQUFUQyxDQUFBQyxNLFFBQUtDLEkiLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8aW5wdXQgQGZvY3VzPVwib25Gb2N1c1wiIC8+XG48aW5wdXQgQHVwZGF0ZTp2YWx1ZT1cInZhbHVlID0gJGV2ZW50XCIgLz5cbjxpbnB1dCBAZXZlbnQtbmFtZSBAZXZlbnROYW1lIEBbZXZlbnROYW1lXSB2LW9uPVwiZXZlbnRzXCIgLz5cbjxpbnB1dFxuICBAa2V5ZG93bj1cImZuTmFtZVwiXG4gIEBrZXlkb3duLmxlZnQ9XCJjYWxsTXlGbigkZXZlbnQpXCJcbiAgQGtleWRvd24uc2hpZnQubGVmdD1cIiRldmVudCA9PiBjYWxsTXlGbigkZXZlbnQpXCJcbiAgQGtleWRvd24uc2hpZnQucmlnaHQ9XCIoJGV2ZW50KSA9PiBjYWxsTXlGbigkZXZlbnQpXCJcbiAgQGtleWRvd24uc2hpZnQuZG93bj1cIigpID0+IGNhbGxNeUZuKCRldmVudClcIlxuICBAa2V5ZG93bi5zaGlmdC51cD1cImZ1bmN0aW9uIG15RnVuY3Rpb24oJGV2ZW50KSB7XG4gICAgY2FsbE15Rm4oJGV2ZW50KVxuICB9XCJcbiAgQGtleWRvd24uY3RybC51cD1cImZ1bmN0aW9uIG15RnVuY3Rpb24oKSB7XG4gICAgY2FsbE15Rm4oJGV2ZW50KVxuICB9XCJcbi8+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MjIxNwAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IG9uRm9jdXMgPSBfX1Z1ZURYX19jdHgub25Gb2N1czsKICBsZXQgdmFsdWUgPSBfX1Z1ZURYX19jdHgudmFsdWU7CiAgbGV0IGV2ZW50TmFtZSA9IF9fVnVlRFhfX2N0eC5ldmVudE5hbWU7CiAgbGV0IGV2ZW50cyA9IF9fVnVlRFhfX2N0eC5ldmVudHM7CiAgbGV0IGZuTmFtZSA9IF9fVnVlRFhfX2N0eC5mbk5hbWU7CiAgbGV0IGNhbGxNeUZuID0gX19WdWVEWF9fY3R4LmNhbGxNeUZuOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gKAogICAgPD4KICAgICAgPGlucHV0CiAgICAgICAgb25Gb2N1cz17JGV2ZW50ID0+IHsKICAgICAgICAgIChvbkZvY3VzKSgkZXZlbnQpOwogICAgICAgIH19CiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAvPgogICAgICA8aW5wdXQKICAgICAgICBvblVwZGF0ZTp2YWx1ZT17JGV2ZW50ID0+IHsKICAgICAgICAgICgoJGV2ZW50KSA9PiB7CiAgICAgICAgICB2YWx1ZSA9ICRldmVudAogICAgICAgICAgfSkoJGV2ZW50KTsKICAgICAgICB9fQogICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgLz4KICAgICAgPGlucHV0CiAgICAgICAgb25FdmVudC1uYW1lPXskZXZlbnQgPT4gewogICAgICAgIH19CiAgICAgICAgb25FdmVudE5hbWU9eyRldmVudCA9PiB7CiAgICAgICAgfX0KICAgICAgICB7Li4uKGV2ZW50cyl9CiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAvPgogICAgICA8aW5wdXQKICAgICAgICBvbktleWRvd249eyRldmVudCA9PiB7CiAgICAgICAgICAoZm5OYW1lKSgkZXZlbnQpOwogICAgICAgICAgKCgkZXZlbnQpID0+IHsKICAgICAgICAgIGNhbGxNeUZuKCRldmVudCkKICAgICAgICAgIH0pKCRldmVudCk7CiAgICAgICAgICAoJGV2ZW50ID0+IGNhbGxNeUZuKCRldmVudCkpKCRldmVudCk7CiAgICAgICAgICAoKCRldmVudCkgPT4gY2FsbE15Rm4oJGV2ZW50KSkoJGV2ZW50KTsKICAgICAgICAgICgoKSA9PiBjYWxsTXlGbigkZXZlbnQpKSgkZXZlbnQpOwogICAgICAgICAgKGZ1bmN0aW9uIG15RnVuY3Rpb24oJGV2ZW50KSB7CiAgICBjYWxsTXlGbigkZXZlbnQpCiAgfSkoJGV2ZW50KTsKICAgICAgICAgIChmdW5jdGlvbiBteUZ1bmN0aW9uKCkgewogICAgY2FsbE15Rm4oJGV2ZW50KQogIH0pKCRldmVudCk7CiAgICAgICAgfX0KICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgIC8+CiAgICA8Lz4KICApCn0KLyo8dnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KZnVuY3Rpb24gX19WdWVEWF9fc2xvdHMoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IG9uRm9jdXMgPSBfX1Z1ZURYX19jdHgub25Gb2N1czsKICBsZXQgdmFsdWUgPSBfX1Z1ZURYX19jdHgudmFsdWU7CiAgbGV0IGV2ZW50TmFtZSA9IF9fVnVlRFhfX2N0eC5ldmVudE5hbWU7CiAgbGV0IGV2ZW50cyA9IF9fVnVlRFhfX2N0eC5ldmVudHM7CiAgbGV0IGZuTmFtZSA9IF9fVnVlRFhfX2N0eC5mbk5hbWU7CiAgbGV0IGNhbGxNeUZuID0gX19WdWVEWF9fY3R4LmNhbGxNeUZuOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgoxNDU0AHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsMkI7QSxFLG1DO0EsRSwrQjtBLEUsdUM7QSxFLGlDO0EsRSxpQztBLEUscUM7QSxFLDRCO0EsRSxRO0EsSSxFO0EsTUFDQSxDQUFDQSxLO0EsUUFBTSxBLE8sQyxDLFc7QSxVLENBQVFDLE8sVTtBLFEsQyxDO0EsUUFBVCxrQztBLE0sRTtBLE1BQ04sQ0FBQ0QsSztBLFFBQU0sQSxjLEMsQyxXO0EsVSxDLGE7QSxVQUFlRSxjO0EsVSxDLFU7QSxRLEMsQztBLFFBQWhCLGtDO0EsTSxFO0EsTUFDTixDQUFDRixLO0EsUUFBTSxBLFksQyxDLFc7QSxRLEMsQztBLFFBQVksQUFBVyxBLFcsQyxDLFc7QSxRLEMsQztBLFEsS0FBbUJHLE0sRTtBLFFBQTNDLGtDO0EsTSxFO0EsTUFDTixDQUFDSCxLO0EsUUFDQyxBQUNBLEFBQ0EsQUFDQSxBQUNBLEFBQ0EsQUFHQSxBLFMsQyxDLFc7QSxVLENBUlVHLE0sVTtBLFUsQyxhO0EsVUFDS0MsZ0I7QSxVLEMsVTtBLFUsQ0FDTUMsMEIsVTtBLFUsQ0FDQ0MsNEIsVTtBLFUsQ0FDREMsc0IsVTtBLFUsQ0FDRkM7O0csVTtBLFUsQ0FHREM7O0csVTtBLFEsQyxDO0EsUUFUZCxrQztBLE0sRTtBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUsbUM7QSxFLCtCO0EsRSx1QztBLEUsaUM7QSxFLGlDO0EsRSxxQztBLEUsNEI7QSxFLHlDO0EsRSxFO0EsQSxDO0EsQSw4Qjs7Ozs7OyIsIm5hbWVzIjpbIjw8UD4+NSIsIjw8UD4+NyIsIjw8UD4+MTQiLCI8PFA+PjYiLCI8PFA+PjE2IiwiPDxQPj4yNiIsIjw8UD4+MjgiLCI8PFA+PjIyIiwiPDxQPj41NCIsIjw8UD4+NDgiXSwic291cmNlcyI6WyIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSJdLCJzb3VyY2VzQ29udGVudCI6WyI8dGVtcGxhdGU+XG48aW5wdXQgQGZvY3VzPVwib25Gb2N1c1wiIC8+XG48aW5wdXQgQHVwZGF0ZTp2YWx1ZT1cInZhbHVlID0gJGV2ZW50XCIgLz5cbjxpbnB1dCBAZXZlbnQtbmFtZSBAZXZlbnROYW1lIEBbZXZlbnROYW1lXSB2LW9uPVwiZXZlbnRzXCIgLz5cbjxpbnB1dFxuICBAa2V5ZG93bj1cImZuTmFtZVwiXG4gIEBrZXlkb3duLmxlZnQ9XCJjYWxsTXlGbigkZXZlbnQpXCJcbiAgQGtleWRvd24uc2hpZnQubGVmdD1cIiRldmVudCA9PiBjYWxsTXlGbigkZXZlbnQpXCJcbiAgQGtleWRvd24uc2hpZnQucmlnaHQ9XCIoJGV2ZW50KSA9PiBjYWxsTXlGbigkZXZlbnQpXCJcbiAgQGtleWRvd24uc2hpZnQuZG93bj1cIigpID0+IGNhbGxNeUZuKCRldmVudClcIlxuICBAa2V5ZG93bi5zaGlmdC51cD1cImZ1bmN0aW9uIG15RnVuY3Rpb24oJGV2ZW50KSB7XG4gICAgY2FsbE15Rm4oJGV2ZW50KVxuICB9XCJcbiAgQGtleWRvd24uY3RybC51cD1cImZ1bmN0aW9uIG15RnVuY3Rpb24oKSB7XG4gICAgY2FsbE15Rm4oJGV2ZW50KVxuICB9XCJcbi8+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-on multiple events default 1`] = `
 ## 4.1. v-on multiple events 
@@ -1805,51 +2284,72 @@ exports[`Baseline Spec v-on multiple events default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let onClick = __VueDX_ctx.onClick;
-  let onHover = __VueDX_ctx.onHover;
-  let onPress = __VueDX_ctx.onPress;
+  let onClick = __VueDX__ctx.onClick;
+  let onHover = __VueDX__ctx.onHover;
+  let onPress = __VueDX__ctx.onPress;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
     <>
       <div
-        onClick={VueDX.internal.checkOnDirective("div" as const, "click" as const, onClick, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-        onHover={VueDX.internal.checkOnDirective("div" as const, "hover" as const, onHover, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-        onPress={VueDX.internal.checkOnDirective("div" as const, "press" as const, onPress, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-       data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        onClick={$event => {
+          (onClick)($event);
+        }}
+        onHover={$event => {
+          (onHover)($event);
+        }}
+        onPress={$event => {
+          (onPress)($event);
+        }}
+        /*<vuedx:tsx-competions-target/>*/
+      />
       <div
-        onClick={VueDX.internal.checkOnDirective("div" as const, "click" as const, onClick, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-        onHover={VueDX.internal.checkOnDirective("div" as const, "hover" as const, onHover, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-        onPress={VueDX.internal.checkOnDirective("div" as const, "press" as const, onPress, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}
-       data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/} />
+        onClick={$event => {
+          (onClick)($event);
+        }}
+        onHover={$event => {
+          (onHover)($event);
+        }}
+        onPress={$event => {
+          (onPress)($event);
+        }}
+        /*<vuedx:tsx-competions-target/>*/
+      />
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let onClick = __VueDX_ctx.onClick;
-  let onHover = __VueDX_ctx.onHover;
-  let onPress = __VueDX_ctx.onPress;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let onClick = __VueDX__ctx.onClick;
+  let onHover = __VueDX__ctx.onHover;
+  let onPress = __VueDX__ctx.onPress;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjo1OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MSxcImVcIjo0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjo2LFwiZVwiOjExfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjMxfSxcInNcIjp7XCJzXCI6NSxcImVcIjoyMX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNH0sXCJzXCI6e1wic1wiOjEsXCJlXCI6NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTMsXCJlXCI6MjB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6N30sXCJzXCI6e1wic1wiOjIzLFwiZVwiOjI4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjMxfSxcInNcIjp7XCJzXCI6MjIsXCJlXCI6Mzh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6N30sXCJzXCI6e1wic1wiOjMwLFwiZVwiOjM3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjo0MCxcImVcIjo0NX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozMX0sXCJzXCI6e1wic1wiOjM5LFwiZVwiOjU1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjo0NyxcImVcIjo1NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NTksXCJlXCI6MTE3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo2MCxcImVcIjo2M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6NjUsXCJlXCI6NzB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzF9LFwic1wiOntcInNcIjo2NCxcImVcIjo4MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNH0sXCJzXCI6e1wic1wiOjYwLFwiZVwiOjYzfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjo3MixcImVcIjo3OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6ODIsXCJlXCI6ODd9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzF9LFwic1wiOntcInNcIjo4MSxcImVcIjo5N319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6ODksXCJlXCI6OTZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6N30sXCJzXCI6e1wic1wiOjk5LFwiZVwiOjEwNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozMX0sXCJzXCI6e1wic1wiOjk4LFwiZVwiOjExNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MTA2LFwiZVwiOjExM319Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7O01BQUFBLENBQUNDLEc7UUFBS0MsTyxFQUFEQywrQixDQUFKQyxjLEVBQUtGLE8sV0FBT0csTztRQUFVQyxPLEVBQURDLCtCLENBQXJCSCxjLEVBQXNCRSxPLFdBQU9FLE87UUFBVUMsTyxFQUFEQywrQixDQUF0Q04sYyxFQUF1Q0ssTyxXQUFPRSxPOztNQUMvQ0MsQ0FBQ0MsRztRQUFLQyxPLEVBQURDLCtCLENBQUpDLGMsRUFBS0YsTyxXQUFPRyxPO1FBQVVDLE8sRUFBREMsK0IsQ0FBckJILGMsRUFBc0JFLE8sV0FBT0UsTztRQUFVQyxPLEVBQURDLCtCLENBQXRDTixjLEVBQXVDSyxPLFdBQU9FLE8iLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8ZGl2IEBjbGljaz1cIm9uQ2xpY2tcIiBAaG92ZXI9XCJvbkhvdmVyXCIgQHByZXNzPVwib25QcmVzc1wiIC8+XG48ZGl2IEBjbGljaz1cIm9uQ2xpY2tcIiBAaG92ZXI9XCJvbkhvdmVyXCIgQHByZXNzPVwib25QcmVzc1wiIC8+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTU0MgAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IG9uQ2xpY2sgPSBfX1Z1ZURYX19jdHgub25DbGljazsKICBsZXQgb25Ib3ZlciA9IF9fVnVlRFhfX2N0eC5vbkhvdmVyOwogIGxldCBvblByZXNzID0gX19WdWVEWF9fY3R4Lm9uUHJlc3M7CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiAoCiAgICA8PgogICAgICA8ZGl2CiAgICAgICAgb25DbGljaz17JGV2ZW50ID0+IHsKICAgICAgICAgIChvbkNsaWNrKSgkZXZlbnQpOwogICAgICAgIH19CiAgICAgICAgb25Ib3Zlcj17JGV2ZW50ID0+IHsKICAgICAgICAgIChvbkhvdmVyKSgkZXZlbnQpOwogICAgICAgIH19CiAgICAgICAgb25QcmVzcz17JGV2ZW50ID0+IHsKICAgICAgICAgIChvblByZXNzKSgkZXZlbnQpOwogICAgICAgIH19CiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAvPgogICAgICA8ZGl2CiAgICAgICAgb25DbGljaz17JGV2ZW50ID0+IHsKICAgICAgICAgIChvbkNsaWNrKSgkZXZlbnQpOwogICAgICAgIH19CiAgICAgICAgb25Ib3Zlcj17JGV2ZW50ID0+IHsKICAgICAgICAgIChvbkhvdmVyKSgkZXZlbnQpOwogICAgICAgIH19CiAgICAgICAgb25QcmVzcz17JGV2ZW50ID0+IHsKICAgICAgICAgIChvblByZXNzKSgkZXZlbnQpOwogICAgICAgIH19CiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICAvPgogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBvbkNsaWNrID0gX19WdWVEWF9fY3R4Lm9uQ2xpY2s7CiAgbGV0IG9uSG92ZXIgPSBfX1Z1ZURYX19jdHgub25Ib3ZlcjsKICBsZXQgb25QcmVzcyA9IF9fVnVlRFhfX2N0eC5vblByZXNzOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgo3NzgAeyJ2ZXJzaW9uIjozLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS50c3giLCJtYXBwaW5ncyI6Ijs7Ozs7O0EscUQ7QSxBLG1DO0EsRSwyQjtBLEUsbUM7QSxFLG1DO0EsRSxtQztBLEUsNEI7QSxFLFE7QSxJLEU7QSxNQUNBLENBQUNBLEc7QSxRQUFJLEEsTyxDLEMsVztBLFUsQ0FBUUMsTyxVO0EsUSxDLEM7QSxRQUFTLEEsTyxDLEMsVztBLFUsQ0FBUUEsTyxVO0EsUSxDLEM7QSxRQUFTLEEsTyxDLEMsVztBLFUsQ0FBUUEsTyxVO0EsUSxDLEM7QSxRQUEzQyxrQztBLE0sRTtBLE1BQ0osQ0FBQ0QsRztBLFFBQUksQSxPLEMsQyxXO0EsVSxDQUFRQyxPLFU7QSxRLEMsQztBLFFBQVMsQSxPLEMsQyxXO0EsVSxDQUFRQSxPLFU7QSxRLEMsQztBLFFBQVMsQSxPLEMsQyxXO0EsVSxDQUFRQSxPLFU7QSxRLEMsQztBLFFBQTNDLGtDO0EsTSxFO0EsSSxHO0EsRSxDO0EsQSxDO0EsQSw2QjtBLEEsMkI7QSxFLDJCO0EsRSxtQztBLEUsbUM7QSxFLG1DO0EsRSw0QjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj4zIiwiPDxQPj43Il0sInNvdXJjZXMiOlsiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiPHRlbXBsYXRlPlxuPGRpdiBAY2xpY2s9XCJvbkNsaWNrXCIgQGhvdmVyPVwib25Ib3ZlclwiIEBwcmVzcz1cIm9uUHJlc3NcIiAvPlxuPGRpdiBAY2xpY2s9XCJvbkNsaWNrXCIgQGhvdmVyPVwib25Ib3ZlclwiIEBwcmVzcz1cIm9uUHJlc3NcIiAvPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-once default 1`] = `
 ## 12.1. v-once 
@@ -1859,38 +2359,49 @@ exports[`Baseline Spec v-once default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let largeText = __VueDX_ctx.largeText;
+  let largeText = __VueDX__ctx.largeText;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
-    <section data-vuedx-directive-once={VueDX.internal.checkDirective("once" as const, "section" as const, undefined, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "section" as const)/*</vuedx:diagnosticsIgnore>*/}>
-      {VueDX.internal.checkInterpolation(largeText)}
-    </section>
+    <>
+      <section
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {largeText}
+      </section>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let largeText = __VueDX_ctx.largeText;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let largeText = __VueDX__ctx.largeText;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"section">;
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjo0MX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MSxcImVcIjo4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI5fSxcInNcIjp7XCJzXCI6OSxcImVcIjoxNX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNX0sXCJzXCI6e1wic1wiOjksXCJlXCI6MTV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTh9LFwic1wiOntcInNcIjoxLFwiZVwiOjh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjksXCJlXCI6MTV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjE0LFwiZVwiOjE1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MTYsXCJlXCI6MzF9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjE5LFwiZVwiOjI4fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjozMSxcImVcIjo0MX19Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7O0lBQUFBLENBQUNDLE8sNEJBQVFDLDZCLENBQUFDLGUsRUFBUkMsa0IsRUFBUUMsUyxFQUFLQyxTO09BQUVDLGtDQUFHQyxTO01BQVlDLE8iLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8c2VjdGlvbiB2LW9uY2U+e3sgbGFyZ2VUZXh0IH19PC9zZWN0aW9uPlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#OTYxAC8vI3JlZ2lvbiA8c2NyaXB0PgppbXBvcnQgeyBkZWZpbmVDb21wb25lbnQgYXMgX19WdWVEWF9fZGVmaW5lQ29tcG9uZW50IH0gZnJvbSAndnVlJzsKZXhwb3J0IGNvbnN0IF9fVnVlRFhfX0NvbXBvbmVudCA9IF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCh7fSk7Ci8vI2VuZHJlZ2lvbgpjb25zdCBfX1Z1ZURYX19jdHggPSBuZXcgX19WdWVEWF9fQ29tcG9uZW50KCkKLy8jcmVnaW9uIDx0ZW1wbGF0ZT4KaW1wb3J0ICogYXMgX19WdWVEWF9fVHlwZUNoZWNrICBmcm9tICd2dWVkeH5ydW50aW1lJzsKZXhwb3J0IGZ1bmN0aW9uIF9fVnVlRFhfX3JlbmRlcigpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgbGFyZ2VUZXh0ID0gX19WdWVEWF9fY3R4LmxhcmdlVGV4dDsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuICgKICAgIDw+CiAgICAgIDxzZWN0aW9uCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAge2xhcmdlVGV4dH0KICAgICAgPC9zZWN0aW9uPgogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBsYXJnZVRleHQgPSBfX1Z1ZURYX19jdHgubGFyZ2VUZXh0OwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgo0MjcAeyJ2ZXJzaW9uIjozLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS50c3giLCJtYXBwaW5ncyI6Ijs7Ozs7O0EscUQ7QSxBLG1DO0EsRSwyQjtBLEUsdUM7QSxFLDRCO0EsRSxRO0EsSSxFO0EsTUFDQSxDQUFDQSxPO0EsUUFBTyxrQztBLE0sQztBLFFBQVEsQ0FBR0MsU0FBUyxDO0EsTUFBRyxFLE8sQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUsdUM7QSxFLDRCO0EsRSx5QztBLEUsRTtBLEEsQztBLEEsOEI7Ozs7OzsiLCJuYW1lcyI6WyI8PFA+PjciLCI8PFA+PjkiXSwic291cmNlcyI6WyIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSJdLCJzb3VyY2VzQ29udGVudCI6WyI8dGVtcGxhdGU+XG48c2VjdGlvbiB2LW9uY2U+e3sgbGFyZ2VUZXh0IH19PC9zZWN0aW9uPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-pre default 1`] = `
 ## 11.1. v-pre 
@@ -1900,36 +2411,43 @@ exports[`Baseline Spec v-pre default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
-  /*<vuedx:templateGlobals>*/
-  /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   return (
-    <pre data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "pre" as const)/*</vuedx:diagnosticsIgnore>*/}>
-      {"{{ interpolation }}"}
-    </pre>
+    <>
+      <pre
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {"{{ interpolation }}"}
+      </pre>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"pre">;
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjozNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6MSxcImVcIjo0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjIzfSxcInNcIjp7XCJzXCI6MTEsXCJlXCI6MzB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjMwLFwiZVwiOjM2fX0iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7OztJQUFBQSxDQUFDQyxHO01BQVVDLHVCO01BQW1CQyxHIiwiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIiwic291cmNlUm9vdCI6Ii90bXAvY29tcGlsZXItdHN4Iiwic291cmNlc0NvbnRlbnQiOlsiPHByZSB2LXByZT57eyBpbnRlcnBvbGF0aW9uIH19PC9wcmU+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#NzU5AC8vI3JlZ2lvbiA8c2NyaXB0PgppbXBvcnQgeyBkZWZpbmVDb21wb25lbnQgYXMgX19WdWVEWF9fZGVmaW5lQ29tcG9uZW50IH0gZnJvbSAndnVlJzsKZXhwb3J0IGNvbnN0IF9fVnVlRFhfX0NvbXBvbmVudCA9IF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCh7fSk7Ci8vI2VuZHJlZ2lvbgpjb25zdCBfX1Z1ZURYX19jdHggPSBuZXcgX19WdWVEWF9fQ29tcG9uZW50KCkKLy8jcmVnaW9uIDx0ZW1wbGF0ZT4KaW1wb3J0ICogYXMgX19WdWVEWF9fVHlwZUNoZWNrICBmcm9tICd2dWVkeH5ydW50aW1lJzsKZXhwb3J0IGZ1bmN0aW9uIF9fVnVlRFhfX3JlbmRlcigpIHsKICByZXR1cm4gKAogICAgPD4KICAgICAgPHByZQogICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgPgogICAgICAgIHsie3sgaW50ZXJwb2xhdGlvbiB9fSJ9CiAgICAgIDwvcHJlPgogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIHJldHVybiBfX1Z1ZURYX19UeXBlQ2hlY2suaW50ZXJuYWwuZmxhdChbCiAgXSkKfQovKjwvdnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KLy8jZW5kcmVnaW9uCi8vI3JlZ2lvbiBwdWJsaWMgY29tcG9uZW50IGRlZmluaXRpb24KZXhwb3J0IGRlZmF1bHQgY2xhc3MgZXh0ZW5kcyBfX1Z1ZURYX19Db21wb25lbnQgewogICRzbG90czogUmV0dXJuVHlwZTx0eXBlb2YgX19WdWVEWF9fc2xvdHM+Cn0KLy8jZW5kcmVnaW9uCjM4MAB7InZlcnNpb24iOjMsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnRzeCIsIm1hcHBpbmdzIjoiOzs7Ozs7QSxxRDtBLEEsbUM7QSxFLFE7QSxJLEU7QSxNQUNBLENBQUNBLEc7QSxRQUFHLGtDO0EsTSxDO0EsUSxDQUFPQyxxQixDO0EsTUFBbUIsRSxHLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj4zIiwiPDxUPj4xOXwyMSJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxwcmUgdi1wcmU+e3sgaW50ZXJwb2xhdGlvbiB9fTwvcHJlPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;
 
 exports[`Baseline Spec v-show default 1`] = `
 ## 8.1. v-show 
@@ -1939,38 +2457,49 @@ exports[`Baseline Spec v-show default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let ok = __VueDX_ctx.ok;
+  let ok = __VueDX__ctx.ok;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
-    <h1 data-vuedx-directive-show={VueDX.internal.checkDirective("show" as const, "h1" as const, undefined, ok, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "h1" as const)/*</vuedx:diagnosticsIgnore>*/}>
-      Hello!
-    </h1>
+    <>
+      <h1
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {"Hello!"}
+      </h1>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let ok = __VueDX_ctx.ok;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let ok = __VueDX__ctx.ok;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"h1">;
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoyN319IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoyfSxcInNcIjp7XCJzXCI6MSxcImVcIjozfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI5fSxcInNcIjp7XCJzXCI6NCxcImVcIjoxNX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNX0sXCJzXCI6e1wic1wiOjQsXCJlXCI6MTB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTN9LFwic1wiOntcInNcIjoxLFwiZVwiOjN9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjQsXCJlXCI6MTV9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Mn0sXCJzXCI6e1wic1wiOjEyLFwiZVwiOjE0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjoxNixcImVcIjoyMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyfSxcInNcIjp7XCJzXCI6MjIsXCJlXCI6Mjd9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7OztJQUFBQSxDQUFDQyxFLDRCQUFHQyw2QixDQUFBQyxlLEVBQUhDLGEsRUFBR0MsUyxFQUFRQyxFO01BQUlDLE07TUFBTUMsRSIsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSIsInNvdXJjZVJvb3QiOiIvdG1wL2NvbXBpbGVyLXRzeCIsInNvdXJjZXNDb250ZW50IjpbIjxoMSB2LXNob3c9XCJva1wiPkhlbGxvITwvaDE+XG4iXX0=
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#OTIyAC8vI3JlZ2lvbiA8c2NyaXB0PgppbXBvcnQgeyBkZWZpbmVDb21wb25lbnQgYXMgX19WdWVEWF9fZGVmaW5lQ29tcG9uZW50IH0gZnJvbSAndnVlJzsKZXhwb3J0IGNvbnN0IF9fVnVlRFhfX0NvbXBvbmVudCA9IF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCh7fSk7Ci8vI2VuZHJlZ2lvbgpjb25zdCBfX1Z1ZURYX19jdHggPSBuZXcgX19WdWVEWF9fQ29tcG9uZW50KCkKLy8jcmVnaW9uIDx0ZW1wbGF0ZT4KaW1wb3J0ICogYXMgX19WdWVEWF9fVHlwZUNoZWNrICBmcm9tICd2dWVkeH5ydW50aW1lJzsKZXhwb3J0IGZ1bmN0aW9uIF9fVnVlRFhfX3JlbmRlcigpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgb2sgPSBfX1Z1ZURYX19jdHgub2s7CiAgLyo8L3Z1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIHJldHVybiAoCiAgICA8PgogICAgICA8aDEKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgICB7IkhlbGxvISJ9CiAgICAgIDwvaDE+CiAgICA8Lz4KICApCn0KLyo8dnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KZnVuY3Rpb24gX19WdWVEWF9fc2xvdHMoKSB7CiAgLyo8dnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgbGV0IG9rID0gX19WdWVEWF9fY3R4Lm9rOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgo0MTEAeyJ2ZXJzaW9uIjozLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS50c3giLCJtYXBwaW5ncyI6Ijs7Ozs7O0EscUQ7QSxBLG1DO0EsRSwyQjtBLEUseUI7QSxFLDRCO0EsRSxRO0EsSSxFO0EsTUFDQSxDQUFDQSxFO0EsUUFBRSxrQztBLE0sQztBLFEsQ0FBYUMsUSxDO0EsTUFBTSxFLEUsQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSwyQjtBLEUseUI7QSxFLDRCO0EsRSx5QztBLEUsRTtBLEEsQztBLEEsOEI7Ozs7OzsiLCJuYW1lcyI6WyI8PFA+PjIiLCI8PFQ+PjZ8OCJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxoMSB2LXNob3c9XCJva1wiPkhlbGxvITwvaDE+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-slot  Invalid 1`] = `
 ## 10.1. v-slot > Invalid
@@ -1984,75 +2513,62 @@ exports[`Baseline Spec v-slot  Invalid 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-const Foo = VueDX.internal.resolveComponent(__VueDX_components, "Foo" as const, "Foo" as const);
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
-  /*<vuedx:templateGlobals>*/
-  /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   return (
-    <Foo data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", Foo)/*</vuedx:diagnosticsIgnore>*/}>
-      {VueDX.internal.checkSlots(Foo, {
-        "foo": () => {
-          return (
-            <>
+    <>
+      <Foo
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {{
+          "foo": () => {
+            return (
               <>
-                A
-              </>
-            </>
-          ) as any
-        },
-        "bar": ({bar}) => {
-          return (
-            <>
-              <>
-                {VueDX.internal.checkInterpolation(bar)}
-              </>
-            </>
-          ) as any
-        },
-        [Symbol.for('VueDX:UnknownSlot')]: () => {
-          return (
-            <>
-              < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "foo" as const, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}>
                 <>
-                  A
+                  {"A"}
                 </>
               </>
-              < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "bar" as const, {bar}, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}>
+            )
+          },
+          "bar": ({bar}) => {
+            return (
+              <>
                 <>
-                  {VueDX.internal.checkInterpolation(bar)}
+                  {bar}
                 </>
               </>
-              <>
-                Invalid
-              </>
-            </>
-          )
-        },
-      })}
-    </Foo>
+            )
+          },
+        }}
+      </Foo>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoxMTd9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjEsXCJlXCI6NH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjAsXCJlXCI6MTE3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjoxOSxcImVcIjoyMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6OCxcImVcIjozNX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjMsXCJlXCI6MjR9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjQ5LFwiZVwiOjUyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjo1NCxcImVcIjo1OX19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MzgsXCJlXCI6Nzl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjo2MSxcImVcIjo2OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjozfSxcInNcIjp7XCJzXCI6NjMsXCJlXCI6NjZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6NDJ9LFwic1wiOntcInNcIjoxLFwiZVwiOjR9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Mjl9LFwic1wiOntcInNcIjoxOCxcImVcIjoyMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNX0sXCJzXCI6e1wic1wiOjE4LFwiZVwiOjE5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoyMixcImVcIjoyMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyOX0sXCJzXCI6e1wic1wiOjQ4LFwiZVwiOjYwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE1fSxcInNcIjp7XCJzXCI6NDgsXCJlXCI6NDl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjgyLFwiZVwiOjExMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6OTIsXCJlXCI6OTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjExMSxcImVcIjoxMTd9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7OztJQUFBQSxDQUFDQyxHO09BQURDLDBCQUFDRCxHO1FBQ1lFLEs7OztjQUFYQyxDO2dCQUFlQyxDOzs7OztRQUNKQyxLLEdBQUtDLEs7OztjQUFoQkMsQztpQkFBdUJDLGtDQUFFQyxHOzs7OztRQUYxQkMsMEM7OzsyQ0FDV0MsNkIsQ0FBQUMsZSx1QkFBQ1YsSyxXQUFHVyxTO2dCQUFkVixDO2tCQUFlQyxDOzs7MkNBQ0xVLDZCLENBQUFDLGUsdUJBQUNWLEssV0FBS0MsSztnQkFBaEJDLEM7bUJBQXVCQyxrQ0FBRUMsRzs7O2NBQ3pCTyxDO2dCQUFVQyxPOzs7Ozs7TUFDWkMsRyIsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSIsInNvdXJjZVJvb3QiOiIvdG1wL2NvbXBpbGVyLXRzeCIsInNvdXJjZXNDb250ZW50IjpbIjxGb28+XG4gIDx0ZW1wbGF0ZSAjZm9vPkE8L3RlbXBsYXRlPlxuICA8dGVtcGxhdGUgI2Jhcj1cIntiYXJ9XCI+e3tiYXJ9fTwvdGVtcGxhdGU+XG4gIDx0ZW1wbGF0ZT5JbnZhbGlkPC90ZW1wbGF0ZT5cbjwvRm9vPlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MTA5NgAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgcmV0dXJuICgKICAgIDw+CiAgICAgIDxGb28KICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgICB7ewogICAgICAgICAgImZvbyI6ICgpID0+IHsKICAgICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgICA8PgogICAgICAgICAgICAgICAgPD4KICAgICAgICAgICAgICAgICAgeyJBIn0KICAgICAgICAgICAgICAgIDwvPgogICAgICAgICAgICAgIDwvPgogICAgICAgICAgICApCiAgICAgICAgICB9LAogICAgICAgICAgImJhciI6ICh7YmFyfSkgPT4gewogICAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICA8PgogICAgICAgICAgICAgICAgICB7YmFyfQogICAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICkKICAgICAgICAgIH0sCiAgICAgICAgfX0KICAgICAgPC9Gb28+CiAgICA8Lz4KICApCn0KLyo8dnVlZHg6ZGlhZ25vc3RpY3NJZ25vcmU+Ki8KZnVuY3Rpb24gX19WdWVEWF9fc2xvdHMoKSB7CiAgcmV0dXJuIF9fVnVlRFhfX1R5cGVDaGVjay5pbnRlcm5hbC5mbGF0KFsKICBdKQp9Ci8qPC92dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwovLyNlbmRyZWdpb24KLy8jcmVnaW9uIHB1YmxpYyBjb21wb25lbnQgZGVmaW5pdGlvbgpleHBvcnQgZGVmYXVsdCBjbGFzcyBleHRlbmRzIF9fVnVlRFhfX0NvbXBvbmVudCB7CiAgJHNsb3RzOiBSZXR1cm5UeXBlPHR5cGVvZiBfX1Z1ZURYX19zbG90cz4KfQovLyNlbmRyZWdpb24KNjI2AHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsUTtBLEksRTtBLE1BQ0EsQ0FBQyxHO0EsUUFBRyxrQztBLE0sQztBLFEsRTtBLFVBQ1MsSyxHLE07QSxZLFE7QSxjLEU7QSxnQixFO0Esa0IsQ0FBSUEsRyxDO0EsZ0IsRztBLGMsRztBLFksQztBLFUsRTtBLFVBQ0osSyxHQUFLQyxLLE07QSxZLFE7QSxjLEU7QSxnQixFO0Esa0JBQU8sQ0FBRUMsR0FBRyxDO0EsZ0IsRztBLGMsRztBLFksQztBLFUsRTtBLFEsRTtBLE1BRTlCLEUsRyxDO0EsSSxHO0EsRSxDO0EsQSxDO0EsQSw2QjtBLEEsMkI7QSxFLHlDO0EsRSxFO0EsQSxDO0EsQSw4Qjs7Ozs7OyIsIm5hbWVzIjpbIjw8VD4+MXwzIiwiPDxQPj41IiwiPDxQPj4zIl0sInNvdXJjZXMiOlsiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiPHRlbXBsYXRlPlxuPEZvbz5cbiAgPHRlbXBsYXRlICNmb28+QTwvdGVtcGxhdGU+XG4gIDx0ZW1wbGF0ZSAjYmFyPVwie2Jhcn1cIj57e2Jhcn19PC90ZW1wbGF0ZT5cbiAgPHRlbXBsYXRlPkludmFsaWQ8L3RlbXBsYXRlPlxuPC9Gb28+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-slot  use slots 1`] = `
 ## 10.2. v-slot > use slots
@@ -2072,136 +2588,119 @@ exports[`Baseline Spec v-slot  use slots 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-const FooBar = VueDX.internal.resolveComponent(__VueDX_components, "FooBar" as const, "FooBar" as const);
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
-  /*<vuedx:templateGlobals>*/
-  /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   return (
     <>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
-        {VueDX.internal.checkSlots(FooBar, {
+      <FooBar
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {{
           default: () => {
             return (
               <>
-                content
+                {"content"}
               </>
-            ) as any
+            )
           },
-        })}
+        }}
       </FooBar>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
-        {VueDX.internal.checkSlots(FooBar, {
+      <FooBar
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {{
           "default": ({foo}) => {
             return (
               <>
-                {VueDX.internal.checkInterpolation(foo)}
+                {foo}
               </>
-            ) as any
+            )
           },
-        })}
+        }}
       </FooBar>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
-        {VueDX.internal.checkSlots(FooBar, {
+      <FooBar
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {{
           "other": ({foo}) => {
             return (
               <>
-                {VueDX.internal.checkInterpolation(foo)}
+                {foo}
               </>
-            ) as any
+            )
           },
-        })}
+        }}
       </FooBar>
-      <FooBar data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", FooBar)/*</vuedx:diagnosticsIgnore>*/}>
-        {VueDX.internal.checkSlots(FooBar, {
+      <FooBar
+        /*<vuedx:tsx-competions-target/>*/
+      >
+        {{
           "default": () => {
             return (
               <>
                 <>
-                  content
+                  {"content"}
                 </>
               </>
-            ) as any
+            )
           },
           "other": ({foo}) => {
             return (
               <>
                 <>
-                  {VueDX.internal.checkInterpolation(foo)}
+                  {foo}
                 </>
               </>
-            ) as any
+            )
           },
           "another": (foo) => {
             return (
               <>
                 <>
-                  {
-                    (foo)
-                      ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-                          {VueDX.internal.checkInterpolation(foo.bar)}
+                  {foo
+                    ? <>
+                        <div
+                          /*<vuedx:tsx-competions-target/>*/
+                        >
+                          {foo.bar}
                         </div>
-                      : null
+                      </>
+                    : null
                   }
                 </>
               </>
-            ) as any
-          },
-          [Symbol.for('VueDX:UnknownSlot')]: () => {
-            return (
-              <>
-                < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "default" as const, undefined, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}>
-                  <>
-                    content
-                  </>
-                </>
-                < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "other" as const, {foo}, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}>
-                  <>
-                    {VueDX.internal.checkInterpolation(foo)}
-                  </>
-                </>
-                < data-vuedx-directive-slot={VueDX.internal.checkDirective("slot" as const, "template" as const, "another" as const, foo, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})}>
-                  <>
-                    {
-                      (foo)
-                        ? <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-                            {VueDX.internal.checkInterpolation(foo.bar)}
-                          </div>
-                        : null
-                    }
-                  </>
-                </>
-                <div data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "div" as const)/*</vuedx:diagnosticsIgnore>*/}>
-                  extranous
-                </div>
-              </>
             )
           },
-        })}
+        }}
       </FooBar>
     </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = {};
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoyNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MSxcImVcIjo3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI2fSxcInNcIjp7XCJzXCI6MCxcImVcIjoyNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MSxcImVcIjo3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjd9LFwic1wiOntcInNcIjo4LFwiZVwiOjE1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjoxNSxcImVcIjoyNH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MjUsXCJlXCI6Njh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjI2LFwiZVwiOjMyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI2fSxcInNcIjp7XCJzXCI6MjUsXCJlXCI6Njh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjM0LFwiZVwiOjQxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjV9LFwic1wiOntcInNcIjo0MyxcImVcIjo0OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjozNH0sXCJzXCI6e1wic1wiOjUwLFwiZVwiOjU5fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo1MyxcImVcIjo1Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6NjksXCJlXCI6MTEwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjZ9LFwic1wiOntcInNcIjo3MCxcImVcIjo3Nn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjY5LFwiZVwiOjExMH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6NzgsXCJlXCI6ODN9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjg1LFwiZVwiOjkwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6OTIsXCJlXCI6MTAxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjo5NSxcImVcIjo5OH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MTExLFwiZVwiOjMxOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo2fSxcInNcIjp7XCJzXCI6MTEyLFwiZVwiOjExOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyNn0sXCJzXCI6e1wic1wiOjExMSxcImVcIjozMTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjEzMyxcImVcIjoxNDB9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjEyMixcImVcIjoxNTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6N30sXCJzXCI6e1wic1wiOjE0MSxcImVcIjoxNDh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6N30sXCJzXCI6e1wic1wiOjE3MyxcImVcIjoxNzh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6NX0sXCJzXCI6e1wic1wiOjE4MCxcImVcIjoxODV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjE2MixcImVcIjoyMDV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MzR9LFwic1wiOntcInNcIjoxODcsXCJlXCI6MTk0fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoxODksXCJlXCI6MTkyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjl9LFwic1wiOntcInNcIjoyMTksXCJlXCI6MjI2fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoyMjgsXCJlXCI6MjMxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoyMDgsXCJlXCI6Mjg1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoyNDksXCJlXCI6MjUyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjF9LFwic1wiOntcInNcIjoyMzgsXCJlXCI6MjcxfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJjXCIsXCJnXCI6e1wibFwiOjN9LFwic1wiOntcInNcIjoyMzksXCJlXCI6MjQyfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjM0fSxcInNcIjp7XCJzXCI6MjU0LFwiZVwiOjI2NX19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo3fSxcInNcIjp7XCJzXCI6MjU2LFwiZVwiOjI2M319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo0Mn0sXCJzXCI6e1wic1wiOjExMixcImVcIjoxMTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Mjl9LFwic1wiOntcInNcIjoxMzIsXCJlXCI6MTQwfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjE1fSxcInNcIjp7XCJzXCI6MTMyLFwiZVwiOjEzM319IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjo5fSxcInNcIjp7XCJzXCI6MTQwLFwiZVwiOjE0MH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoyOX0sXCJzXCI6e1wic1wiOjE3MixcImVcIjoxODZ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTV9LFwic1wiOntcInNcIjoxNzIsXCJlXCI6MTczfX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI5fSxcInNcIjp7XCJzXCI6MjE4LFwiZVwiOjIzMn19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNX0sXCJzXCI6e1wic1wiOjIxOCxcImVcIjoyMTl9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MX0sXCJzXCI6e1wic1wiOjI4OCxcImVcIjozMDh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjI4OSxcImVcIjoyOTJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjI5MyxcImVcIjozMDJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6Nn0sXCJzXCI6e1wic1wiOjMxOCxcImVcIjozMTh9fSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7TUFBQUEsQ0FBQ0MsTTtTQUFEQywwQkFBQ0QsTTtVQUFBRSxTOzs7Z0JBQU9DLE87Ozs7O1FBQU9DLE07TUFDZkMsQ0FBQ0MsTTtTQUFEQywwQkFBQ0QsTTtVQUFRRSxTLEdBQVNDLEs7OztpQkFBT0Msa0NBQUdDLEc7Ozs7OztNQUM1QkMsQ0FBQ0MsTTtTQUFEQywwQkFBQ0QsTTtVQUFRRSxPLEdBQU9DLEs7OztpQkFBT0Msa0NBQUdDLEc7Ozs7OztNQUMxQkMsQ0FBQ0MsTTtTQUFEQywwQkFBQ0QsTTtVQUNZRSxTOzs7Z0JBQVhDLEM7a0JBQW1CQyxPOzs7OztVQUNSQyxPLEdBQU9DLEs7OztnQkFBbEJDLEM7bUJBQXlCQyxrQ0FBRUMsRzs7Ozs7VUFDaEJDLFMsR0FBU0MsRzs7O2dCQUFwQkMsQzs7cUJBQ2FDLEc7d0JBQVhDLENBQUNDLEc7MkJBQWVDLGtDQUFFQyxPOzs7Ozs7OztVQUpyQkMsMEM7Ozs2Q0FDV0MsNkIsQ0FBQUMsZSx1QkFBQ2xCLFMsV0FBT21CLFM7a0JBQWxCbEIsQztvQkFBbUJDLE87Ozs2Q0FDVGtCLDZCLENBQUFDLGUsdUJBQUNsQixPLFdBQU9DLEs7a0JBQWxCQyxDO3FCQUF5QkMsa0NBQUVDLEc7Ozs2Q0FDakJlLDZCLENBQUFDLGUsdUJBQUNmLFMsV0FBU0MsRztrQkFBcEJDLEM7O3VCQUNhQyxHOzBCQUFYQyxDQUFDQyxHOzZCQUFlQyxrQ0FBRUMsTzs7Ozs7O2dCQUVwQlMsQ0FBQ0MsRztrQkFBSUMsUzs7Ozs7O1FBQ0VDLE0iLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiLCJzb3VyY2VSb290IjoiL3RtcC9jb21waWxlci10c3giLCJzb3VyY2VzQ29udGVudCI6WyI8Rm9vQmFyPmNvbnRlbnQ8L0Zvb0Jhcj5cbjxGb29CYXIgI2RlZmF1bHQ9XCJ7Zm9vfVwiPnt7IGZvbyB9fTwvRm9vQmFyPlxuPEZvb0JhciAjb3RoZXI9XCJ7Zm9vfVwiPnt7IGZvbyB9fTwvRm9vQmFyPlxuPEZvb0Jhcj5cbiAgPHRlbXBsYXRlICNkZWZhdWx0PmNvbnRlbnQ8L3RlbXBsYXRlPlxuICA8dGVtcGxhdGUgI290aGVyPVwie2Zvb31cIj57e2Zvb319PC90ZW1wbGF0ZT5cbiAgPHRlbXBsYXRlICNhbm90aGVyPVwiZm9vXCI+XG4gICAgPGRpdiB2LWlmPVwiZm9vXCI+e3tmb28uYmFyfX08L2Rpdj5cbiAgPC90ZW1wbGF0ZT5cbiAgPGRpdj5leHRyYW5vdXM8L2Rpdj5cbjwvRm9vQmFyPlxuIl19
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#MjI5NQAvLyNyZWdpb24gPHNjcmlwdD4KaW1wb3J0IHsgZGVmaW5lQ29tcG9uZW50IGFzIF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCB9IGZyb20gJ3Z1ZSc7CmV4cG9ydCBjb25zdCBfX1Z1ZURYX19Db21wb25lbnQgPSBfX1Z1ZURYX19kZWZpbmVDb21wb25lbnQoe30pOwovLyNlbmRyZWdpb24KY29uc3QgX19WdWVEWF9fY3R4ID0gbmV3IF9fVnVlRFhfX0NvbXBvbmVudCgpCi8vI3JlZ2lvbiA8dGVtcGxhdGU+CmltcG9ydCAqIGFzIF9fVnVlRFhfX1R5cGVDaGVjayAgZnJvbSAndnVlZHh+cnVudGltZSc7CmV4cG9ydCBmdW5jdGlvbiBfX1Z1ZURYX19yZW5kZXIoKSB7CiAgcmV0dXJuICgKICAgIDw+CiAgICAgIDxGb29CYXIKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgICB7ewogICAgICAgICAgZGVmYXVsdDogKCkgPT4gewogICAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICB7ImNvbnRlbnQifQogICAgICAgICAgICAgIDwvPgogICAgICAgICAgICApCiAgICAgICAgICB9LAogICAgICAgIH19CiAgICAgIDwvRm9vQmFyPgogICAgICA8Rm9vQmFyCiAgICAgICAgLyo8dnVlZHg6dHN4LWNvbXBldGlvbnMtdGFyZ2V0Lz4qLwogICAgICA+CiAgICAgICAge3sKICAgICAgICAgICJkZWZhdWx0IjogKHtmb299KSA9PiB7CiAgICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgICAgPD4KICAgICAgICAgICAgICAgIHtmb299CiAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICkKICAgICAgICAgIH0sCiAgICAgICAgfX0KICAgICAgPC9Gb29CYXI+CiAgICAgIDxGb29CYXIKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgICB7ewogICAgICAgICAgIm90aGVyIjogKHtmb299KSA9PiB7CiAgICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgICAgPD4KICAgICAgICAgICAgICAgIHtmb299CiAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICkKICAgICAgICAgIH0sCiAgICAgICAgfX0KICAgICAgPC9Gb29CYXI+CiAgICAgIDxGb29CYXIKICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgICB7ewogICAgICAgICAgImRlZmF1bHQiOiAoKSA9PiB7CiAgICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgICAgPD4KICAgICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICAgIHsiY29udGVudCJ9CiAgICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgKQogICAgICAgICAgfSwKICAgICAgICAgICJvdGhlciI6ICh7Zm9vfSkgPT4gewogICAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICA8PgogICAgICAgICAgICAgICAgICB7Zm9vfQogICAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICAgPC8+CiAgICAgICAgICAgICkKICAgICAgICAgIH0sCiAgICAgICAgICAiYW5vdGhlciI6IChmb28pID0+IHsKICAgICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgICA8PgogICAgICAgICAgICAgICAgPD4KICAgICAgICAgICAgICAgICAge2ZvbwogICAgICAgICAgICAgICAgICAgID8gPD4KICAgICAgICAgICAgICAgICAgICAgICAgPGRpdgogICAgICAgICAgICAgICAgICAgICAgICAgIC8qPHZ1ZWR4OnRzeC1jb21wZXRpb25zLXRhcmdldC8+Ki8KICAgICAgICAgICAgICAgICAgICAgICAgPgogICAgICAgICAgICAgICAgICAgICAgICAgIHtmb28uYmFyfQogICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgICAgICAgIDwvPgogICAgICAgICAgICAgICAgICAgIDogbnVsbAogICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgKQogICAgICAgICAgfSwKICAgICAgICB9fQogICAgICA8L0Zvb0Jhcj4KICAgIDwvPgogICkKfQovKjx2dWVkeDpkaWFnbm9zdGljc0lnbm9yZT4qLwpmdW5jdGlvbiBfX1Z1ZURYX19zbG90cygpIHsKICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgoxMzg4AHsidmVyc2lvbiI6MywiZmlsZSI6Ii90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudHN4IiwibWFwcGluZ3MiOiI7Ozs7OztBLHFEO0EsQSxtQztBLEUsUTtBLEksRTtBLE1BQ0EsQ0FBQyxNO0EsUUFBTSxrQztBLE0sQztBLFEsRTtBLFUsTyxHLE07QSxZLFE7QSxjLEU7QSxnQixDQUFDQSxTLEM7QSxjLEc7QSxZLEM7QSxVLEU7QSxRLEU7QSxNQUFPLEUsTSxDO0EsTUFDZixDQUFDLE07QSxRQUFNLGtDO0EsTSxDO0EsUSxFO0EsVUFBRSxTLEdBQVNDLEssTTtBLFksUTtBLGMsRTtBLGdCQUFPLENBQUdDLEdBQUcsQztBLGMsRztBLFksQztBLFUsRTtBLFEsRTtBLE1BQUcsRSxNLEM7QSxNQUNsQyxDQUFDLE07QSxRQUFNLGtDO0EsTSxDO0EsUSxFO0EsVUFBRSxPLEdBQU9ELEssTTtBLFksUTtBLGMsRTtBLGdCQUFPLENBQUdDLEdBQUcsQztBLGMsRztBLFksQztBLFUsRTtBLFEsRTtBLE1BQUcsRSxNLEM7QSxNQUNoQyxDQUFDLE07QSxRQUFNLGtDO0EsTSxDO0EsUSxFO0EsVUFDTSxTLEcsTTtBLFksUTtBLGMsRTtBLGdCLEU7QSxrQixDQUFRRixTLEM7QSxnQixHO0EsYyxHO0EsWSxDO0EsVSxFO0EsVUFDUixPLEdBQU9DLEssTTtBLFksUTtBLGMsRTtBLGdCLEU7QSxrQkFBTyxDQUFFQyxHQUFHLEM7QSxnQixHO0EsYyxHO0EsWSxDO0EsVSxFO0EsVUFDbkIsUyxHQUFTQSxHLE07QSxZLFE7QSxjLEU7QSxnQixFO0Esa0IsQ0FDUEEsRztBLG9CLEUsRTtBLHdCQUFYLENBQUNBLEc7QSwwQkFBRyxrQztBLHdCLEM7QSwwQkFBWSxDQUFFQyxPQUFPLEM7QSx3QkFBRSxFLEcsQztBLHNCLEc7QSxrQixRO0Esa0IsQztBLGdCLEc7QSxjLEc7QSxZLEM7QSxVLEU7QSxRLEU7QSxNQUcvQixFLE0sQztBLEksRztBLEUsQztBLEEsQztBLEEsNkI7QSxBLDJCO0EsRSx5QztBLEUsRTtBLEEsQztBLEEsOEI7Ozs7OzsiLCJuYW1lcyI6WyI8PFQ+Pjd8OSIsIjw8UD4+NSIsIjw8UD4+MyIsIjw8UD4+NyJdLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlIl0sInNvdXJjZXNDb250ZW50IjpbIjx0ZW1wbGF0ZT5cbjxGb29CYXI+Y29udGVudDwvRm9vQmFyPlxuPEZvb0JhciAjZGVmYXVsdD1cIntmb299XCI+e3sgZm9vIH19PC9Gb29CYXI+XG48Rm9vQmFyICNvdGhlcj1cIntmb299XCI+e3sgZm9vIH19PC9Gb29CYXI+XG48Rm9vQmFyPlxuICA8dGVtcGxhdGUgI2RlZmF1bHQ+Y29udGVudDwvdGVtcGxhdGU+XG4gIDx0ZW1wbGF0ZSAjb3RoZXI9XCJ7Zm9vfVwiPnt7Zm9vfX08L3RlbXBsYXRlPlxuICA8dGVtcGxhdGUgI2Fub3RoZXI9XCJmb29cIj5cbiAgICA8ZGl2IHYtaWY9XCJmb29cIj57e2Zvby5iYXJ9fTwvZGl2PlxuICA8L3RlbXBsYXRlPlxuICA8ZGl2PmV4dHJhbm91czwvZGl2PlxuPC9Gb29CYXI+XG5cbjwvdGVtcGxhdGU+Il19)
 
-`
+
+`;
 
 exports[`Baseline Spec v-text default 1`] = `
 ## 6.1. v-text 
@@ -2211,34 +2710,46 @@ exports[`Baseline Spec v-text default 1`] = `
 \`\`\`
 
 \`\`\`tsx
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Example, __VueDX_components, __VueDX_directives } from '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts'
-type __VueDX_Self = InstanceType<typeof Example>
-/*<vuedx:templateGlobals>*/
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
+//#region <script>
+import { defineComponent as __VueDX__defineComponent } from 'vue';
+export const __VueDX__Component = __VueDX__defineComponent({});
+//#endregion
+const __VueDX__ctx = new __VueDX__Component()
+//#region <template>
+import * as __VueDX__TypeCheck  from 'vuedx~runtime';
+export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let msg = __VueDX_ctx.msg;
+  let msg = __VueDX__ctx.msg;
   /*</vuedx:templateGlobals>*/
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
-
   return (
-    <span data-vuedx-directive-text={VueDX.internal.checkDirective("text" as const, "span" as const, undefined, msg, {/*<vuedx:diagnosticsIgnore>*/""/*<VueDX:directiveCompletion/>*/:true/*</vuedx:diagnosticsIgnore>*/})} data-vuedx-prop-completion-helper={/*<vuedx:diagnosticsIgnore>*/VueDX.internal.propCompletionHelper("", "span" as const)/*</vuedx:diagnosticsIgnore>*/}>
-    </span>
+    <>
+      <span
+        textContent={msg}
+        /*<vuedx:tsx-competions-target/>*/
+      >
+      </span>
+    </>
   )
 }
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let msg = __VueDX_ctx.msg;
-  return VueDX.internal.flat([])
+function __VueDX__slots() {
+  /*<vuedx:templateGlobals>*/
+  let msg = __VueDX__ctx.msg;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX__TypeCheck.internal.flat([
+  ])
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"span">;
 /*</vuedx:diagnosticsIgnore>*/
+//#endregion
+//#region public component definition
+export default class extends __VueDX__Component {
+  $slots: ReturnType<typeof __VueDX__slots>
+}
+//#endregion
 
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi90bXAvY29tcGlsZXItdHN4L0V4YW1wbGUudnVlK3Z1ZSZ0eXBlPXRlbXBsYXRlJmxhbmcudnVlLWh0bWwiXSwibmFtZXMiOlsiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxfSxcInNcIjp7XCJzXCI6MCxcImVcIjoyNn19IiwiOzs7VnVlRFg6e1wia1wiOlwiY1wiLFwiZ1wiOntcImxcIjo0fSxcInNcIjp7XCJzXCI6MSxcImVcIjo1fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjI5fSxcInNcIjp7XCJzXCI6NixcImVcIjoxOH19IiwiOzs7VnVlRFg6e1wia1wiOlwiclwiLFwiZ1wiOntcImxcIjoxNX0sXCJzXCI6e1wic1wiOjYsXCJlXCI6MTJ9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6MTV9LFwic1wiOntcInNcIjoxLFwiZVwiOjV9fSIsIjs7O1Z1ZURYOntcImtcIjpcInJcIixcImdcIjp7XCJsXCI6OX0sXCJzXCI6e1wic1wiOjYsXCJlXCI6MTh9fSIsIjs7O1Z1ZURYOntcImtcIjpcImNcIixcImdcIjp7XCJsXCI6M30sXCJzXCI6e1wic1wiOjE0LFwiZVwiOjE3fX0iLCI7OztWdWVEWDp7XCJrXCI6XCJyXCIsXCJnXCI6e1wibFwiOjR9LFwic1wiOntcInNcIjoxOSxcImVcIjoyNn19Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7O0lBQUFBLENBQUNDLEksNEJBQUtDLDZCLENBQUFDLGUsRUFBTEMsZSxFQUFLQyxTLEVBQVFDLEc7TUFBS0MsSSIsImZpbGUiOiIvdG1wL2NvbXBpbGVyLXRzeC9FeGFtcGxlLnZ1ZSIsInNvdXJjZVJvb3QiOiIvdG1wL2NvbXBpbGVyLXRzeCIsInNvdXJjZXNDb250ZW50IjpbIjxzcGFuIHYtdGV4dD1cIm1zZ1wiPjwvc3Bhbj5cbiJdfQ==
 \`\`\`
 
+[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#OTM3AC8vI3JlZ2lvbiA8c2NyaXB0PgppbXBvcnQgeyBkZWZpbmVDb21wb25lbnQgYXMgX19WdWVEWF9fZGVmaW5lQ29tcG9uZW50IH0gZnJvbSAndnVlJzsKZXhwb3J0IGNvbnN0IF9fVnVlRFhfX0NvbXBvbmVudCA9IF9fVnVlRFhfX2RlZmluZUNvbXBvbmVudCh7fSk7Ci8vI2VuZHJlZ2lvbgpjb25zdCBfX1Z1ZURYX19jdHggPSBuZXcgX19WdWVEWF9fQ29tcG9uZW50KCkKLy8jcmVnaW9uIDx0ZW1wbGF0ZT4KaW1wb3J0ICogYXMgX19WdWVEWF9fVHlwZUNoZWNrICBmcm9tICd2dWVkeH5ydW50aW1lJzsKZXhwb3J0IGZ1bmN0aW9uIF9fVnVlRFhfX3JlbmRlcigpIHsKICAvKjx2dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICBsZXQgbXNnID0gX19WdWVEWF9fY3R4Lm1zZzsKICAvKjwvdnVlZHg6dGVtcGxhdGVHbG9iYWxzPiovCiAgcmV0dXJuICgKICAgIDw+CiAgICAgIDxzcGFuCiAgICAgICAgdGV4dENvbnRlbnQ9e21zZ30KICAgICAgICAvKjx2dWVkeDp0c3gtY29tcGV0aW9ucy10YXJnZXQvPiovCiAgICAgID4KICAgICAgPC9zcGFuPgogICAgPC8+CiAgKQp9Ci8qPHZ1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCmZ1bmN0aW9uIF9fVnVlRFhfX3Nsb3RzKCkgewogIC8qPHZ1ZWR4OnRlbXBsYXRlR2xvYmFscz4qLwogIGxldCBtc2cgPSBfX1Z1ZURYX19jdHgubXNnOwogIC8qPC92dWVkeDp0ZW1wbGF0ZUdsb2JhbHM+Ki8KICByZXR1cm4gX19WdWVEWF9fVHlwZUNoZWNrLmludGVybmFsLmZsYXQoWwogIF0pCn0KLyo8L3Z1ZWR4OmRpYWdub3N0aWNzSWdub3JlPiovCi8vI2VuZHJlZ2lvbgovLyNyZWdpb24gcHVibGljIGNvbXBvbmVudCBkZWZpbml0aW9uCmV4cG9ydCBkZWZhdWx0IGNsYXNzIGV4dGVuZHMgX19WdWVEWF9fQ29tcG9uZW50IHsKICAkc2xvdHM6IFJldHVyblR5cGU8dHlwZW9mIF9fVnVlRFhfX3Nsb3RzPgp9Ci8vI2VuZHJlZ2lvbgo0MTUAeyJ2ZXJzaW9uIjozLCJmaWxlIjoiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS50c3giLCJtYXBwaW5ncyI6Ijs7Ozs7O0EscUQ7QSxBLG1DO0EsRSwyQjtBLEUsMkI7QSxFLDRCO0EsRSxRO0EsSSxFO0EsTUFDQSxDQUFDQSxJO0EsUUFBSyxXLEMsQ0FBUUMsRyxDO0EsUUFBVCxrQztBLE0sQztBLE1BQWMsRSxJLEM7QSxJLEc7QSxFLEM7QSxBLEM7QSxBLDZCO0EsQSwyQjtBLEUsMkI7QSxFLDJCO0EsRSw0QjtBLEUseUM7QSxFLEU7QSxBLEM7QSxBLDhCOzs7Ozs7IiwibmFtZXMiOlsiPDxQPj40IiwiPDxQPj4zIl0sInNvdXJjZXMiOlsiL3RtcC9jb21waWxlci10c3gvRXhhbXBsZS52dWUiXSwic291cmNlc0NvbnRlbnQiOlsiPHRlbXBsYXRlPlxuPHNwYW4gdi10ZXh0PVwibXNnXCI+PC9zcGFuPlxuXG48L3RlbXBsYXRlPiJdfQ==)
 
-`
+
+`;

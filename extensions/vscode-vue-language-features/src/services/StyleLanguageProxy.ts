@@ -1,4 +1,4 @@
-import type { VueBlockDocument } from '@vuedx/vue-virtual-textdocument'
+import type {} from '@vuedx/vue-virtual-textdocument'
 import { injectable } from 'inversify'
 import {
   CancellationToken,
@@ -19,7 +19,8 @@ import { Installable } from '../utils/installable'
 @injectable()
 export class StyleLanguageProxy
   extends Installable
-  implements CompletionItemProvider {
+  implements CompletionItemProvider
+{
   private readonly selector: DocumentSelector = {
     language: 'vue',
     scheme: 'file',
@@ -64,21 +65,20 @@ export class StyleLanguageProxy
   ])
 
   private isSupportDocumentType(
-    document: VueBlockDocument | null,
-  ): document is VueBlockDocument {
+    document: TextDocument | null,
+  ): document is TextDocument {
     if (document == null) return false
-
-    return this.languages.has(document.source.languageId)
+    return this.languages.has(document.languageId)
   }
 
   private async getDocumentAt(
     _container: TextDocument,
     _position: Position,
-  ): Promise<VueBlockDocument | null> {
+  ): Promise<null> {
     return null
   }
 
-  private getUri(document: VueBlockDocument): Uri {
-    return Uri.parse(document.source.uri)
+  private getUri(document: TextDocument): Uri {
+    return document.uri
   }
 }

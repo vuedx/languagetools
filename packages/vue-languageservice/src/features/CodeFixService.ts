@@ -2,15 +2,13 @@ import { debug } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
 import { FilesystemService } from '../services/FilesystemService'
-import { LoggerService } from '../services/LoggerService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
 
 @injectable()
 export class CodeFixService
   implements
-    Pick<TSLanguageService, 'getCodeFixesAtPosition' | 'getCombinedCodeFix'> {
-  private readonly logger = LoggerService.getLogger(CodeFixService.name)
-
+    Pick<TSLanguageService, 'getCodeFixesAtPosition' | 'getCombinedCodeFix'>
+{
   constructor(
     @inject(TypescriptContextService)
     private readonly ts: TypescriptContextService,
@@ -60,25 +58,17 @@ export class CodeFixService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences,
   ): readonly TypeScript.CodeFixAction[] {
-    const [file, block] = this.fs.findFilesAt(fileName, start)
-    if (
-      file == null ||
-      block == null ||
-      block.generated == null ||
-      block.tsFileName == null
-    ) {
-      return []
-    }
+    const block = this.fs.getVueFile(fileName)
+    if (block == null) return []
 
-    if (end > block.block.loc.end.offset) {
-      this.logger.debug('end is greater than block end')
-      return []
-    }
+    const genreatedStart = block.generatedOffsetAt(start)
+    const generatedEnd = block.generatedOffsetAt(end)
+    if (genreatedStart == null || generatedEnd == null) return []
 
     return this.ts.service.getCodeFixesAtPosition(
-      block.tsFileName,
-      block.toBlockOffset(start),
-      block.toBlockOffset(end),
+      block.geneartedFileName,
+      genreatedStart,
+      generatedEnd,
       errorCodes,
       formatOptions,
       preferences,
@@ -129,23 +119,11 @@ export class CodeFixService
     const file = this.fs.getVueFile(scope.fileName)
     if (file == null) return { changes: [] }
 
-    return Array.from(file.getActiveTSDocIDs()).reduce<
-      TypeScript.CombinedCodeActions
-    >(
-      (all, fileName) => {
-        const result = this.ts.service.getCombinedCodeFix(
-          { type: 'file', fileName },
-          fixId,
-          formatOptions,
-          preferences,
-        )
-
-        return {
-          changes: [...all.changes, ...result.changes],
-          commands: [...(all.commands ?? []), ...(result.commands ?? [])],
-        }
-      },
-      { changes: [], commands: [] },
+    return this.ts.service.getCombinedCodeFix(
+      { type: 'file', fileName: file.geneartedFileName },
+      fixId,
+      formatOptions,
+      preferences,
     )
   }
 }

@@ -4,12 +4,12 @@ import {
   DirectiveNode,
   isComponentNode,
   isTemplateNode,
-  TemplateNode,
+  TemplateNode
 } from '@vuedx/template-ast-types'
-import type { CustomTransformContext } from './CustomTransformContext'
+import type { NodeTransformContext } from '../types/NodeTransformContext'
 
 export function createComponentChildrenTransform(
-  _customContext: CustomTransformContext,
+  _customContext: NodeTransformContext,
 ): NodeTransform {
   return (node) => {
     if (!isComponentNode(node)) return
@@ -87,13 +87,13 @@ function createTemplateNode(
     type: 1,
     ns: 0,
     tag: 'template',
+    tagLoc: undefined as any,
     tagType: 3,
     codegenNode: undefined,
     isSelfClosing: false,
     props,
     children,
     hoists: [],
-    tagLoc: undefined as any,
     startTagLoc: undefined as any,
     endTagLoc: undefined,
     loc: undefined as any,

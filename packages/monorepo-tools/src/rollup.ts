@@ -1,28 +1,23 @@
-import json from '@rollup/plugin-json'
 import type { BuildOptions as ESBuildOptions } from 'esbuild'
+import glob from 'fast-glob'
 import * as FS from 'fs'
 import * as Path from 'path'
 import type { OutputOptions, Plugin, RollupOptions } from 'rollup'
-import dts from 'rollup-plugin-dts'
 import { TopologicalSort } from 'topological-sort'
 import type {
   CompilerOptions,
   ModuleKind,
   parseJsonSourceFileConfigFileContent,
   readJsonConfigFile,
-  sys,
+  sys
 } from 'typescript'
 import { inspect } from 'util'
 import { esbuild } from './rollup-plugin-esbuild'
-import glob from 'fast-glob'
+import { types } from './rollup-plugin-types'
 
-export type BuildKind = 'dts' | 'bundle'
-export type ExtendedOutputOptions = (
-  | OutputOptions
-  | ({
-      format: 'dts'
-    } & Omit<OutputOptions, 'format'>)
-) & { bundle?: boolean | ESBuildOptions }
+export type ExtendedOutputOptions = OutputOptions & {
+  bundle?: boolean | ESBuildOptions
+}
 export interface BuildConfig {
   useMain: boolean
   sources: Record<string, ExtendedOutputOptions[]>
@@ -63,7 +58,7 @@ export interface PackageInfo {
 export interface GenerateOptions {
   rootDir?: string
   dirPatterns?: string[]
-  extend(kind: BuildKind, info: PackageInfo): RollupOptions | RollupOptions[]
+  extend(info: PackageInfo): RollupOptions | RollupOptions[]
 }
 
 export function generateRollupOptions(
@@ -138,21 +133,32 @@ export function generateRollupOptions(
           (
             item,
           ): item is {
-            key: 'main' | 'module' | 'types' | 'unpkg'
+            key: 'main' | 'module' | 'unpkg' | 'exports'
             value: string
-          } => /^(main|module|unpkg|types)$/.test(item.key),
+          } => /^(main|module|unpkg)$/.test(item.key),
         )
-        .map<ExtendedOutputOptions>(({ key: type, value: file }) => ({
-          file: file,
-          format:
-            type === 'main'
-              ? 'commonjs'
-              : type === 'unpkg'
-              ? 'iife'
-              : type === 'types'
-              ? 'dts'
-              : 'module',
-        }))
+        .flatMap<ExtendedOutputOptions>(({ key: type, value: file }) => {
+          if (type !== 'exports') {
+            return {
+              file,
+              format:
+                type === 'main' ? 'cjs' : type === 'unpkg' ? 'iife' : 'esm',
+            }
+          }
+
+          return Object.entries(flatten(file))
+            .filter(([key]) => key.startsWith('.|'))
+            .map(([key, value]) => ({
+              file: value,
+              format: key.endsWith('|require')
+                ? 'cjs'
+                : key.endsWith('|import')
+                ? 'esm'
+                : key.includes('|node|')
+                ? 'cjs'
+                : 'esm',
+            }))
+        })
 
       if (key in sources) {
         sources[key] = [...outputs, ...(sources[key] ?? [])]
@@ -173,25 +179,8 @@ export function generateRollupOptions(
     Object.entries(sources)
       .filter(([input]) => filterBySource(input))
       .forEach(([input, outputs]) => {
-        const types = Array.from(outputs)
-          .filter(filterByFormat)
-          .filter((output) => output.format === 'dts')
-          .map<OutputOptions>(({ bundle, ...output }) => ({
-            sourcemap: false,
-            ...output,
-            file: output.file != null ? project(output.file) : output.file,
-            format: 'module',
-          }))
-
         const bundles = Array.from(outputs)
           .filter(filterByFormat)
-          .filter(
-            (
-              output,
-            ): output is OutputOptions & {
-              bundle?: boolean | ESBuildOptions
-            } => output.format !== 'dts',
-          )
           .map<OutputOptions>(({ bundle, ...output }) => ({
             sourcemap: true,
             preferConst: true,
@@ -199,43 +188,14 @@ export function generateRollupOptions(
             ...output,
             file: output.file != null ? project(output.file) : output.file,
             plugins:
-              bundle != null && bundle !== false
-                ? [
-                    esbuild(bundle, () => {
-                      // TODO: Get final external option.
-                      return external
-                    }),
-                  ]
-                : [],
+              bundle != null && bundle !== false ? [esbuild(bundle)] : [],
           }))
 
         const relInput = Path.relative(process.cwd(), project(input))
         const packageRoot = project('.')
 
-        if (types.length > 0) {
-          const config = options.extend('dts', {
-            packageRoot,
-            packageJson,
-            tsconfig,
-            rollupOptions: {
-              input: relInput,
-              output: types,
-              external: external.slice(),
-              plugins: [
-                json(),
-                dts({
-                  respectExternal: true,
-                  compilerOptions: tsconfig?.configOptions,
-                }),
-              ],
-            },
-          })
-
-          typeConfigs.push(...(Array.isArray(config) ? config : [config]))
-        }
-
         if (bundles.length > 0) {
-          const config = options.extend('bundle', {
+          const config = options.extend({
             packageRoot,
             packageJson,
             tsconfig,
@@ -243,7 +203,7 @@ export function generateRollupOptions(
               input: relInput,
               output: bundles,
               external: external.slice(),
-              plugins: [],
+              plugins: [types()],
             },
           })
 
@@ -368,4 +328,18 @@ function createFilter<T>(
     getter(value)
       .filter((id): id is string => id != null)
       .some((id) => RE.test(id))
+}
+
+function flatten(exports: any, prefix = ''): Record<string, string> {
+  const result: Record<string, string> = {}
+
+  for (const [key, value] of Object.entries(exports)) {
+    if (typeof value === 'string') {
+      result[prefix + key] = value
+    } else {
+      Object.assign(result, flatten(value, prefix + key + '|'))
+    }
+  }
+
+  return result
 }

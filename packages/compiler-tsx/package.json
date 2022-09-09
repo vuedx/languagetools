@@ -2,12 +2,9 @@
   "name": "@vuedx/compiler-tsx",
   "version": "0.8.0",
   "description": "Converts .vue file to .tsx for typechecking and intellisense",
-  "main": "lib/index.js",
+  "main": "lib/index.cjs",
   "module": "lib/index.mjs",
-  "types": "src/index.ts",
-  "publishConfig": {
-    "types": "lib/index.d.ts"
-  },
+  "types": "lib/index.d.ts",
   "files": [
     "lib"
   ],
@@ -37,8 +34,11 @@
     "@babel/types": "7.12.1",
     "@vue/compiler-core": "^3.2.31",
     "@vuedx/shared": "workspace:*",
+    "@vuedx/compiler-sfc": "workspace:*",
     "@vuedx/template-ast-types": "workspace:*",
-    "source-map": "^0.6.1"
+    "source-map": "^0.6.1",
+    "magic-string": "^0.26.2",
+    "sourcemap-codec": "^1.4.8"
   },
   "devDependencies": {
     "@types/jest-specific-snapshot": "^0.5.5",

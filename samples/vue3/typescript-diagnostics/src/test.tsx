@@ -1,28 +1,33 @@
-/*<vuedx:diagnosticsIgnore>*/
-import { __VueDX_DefineComponent as Attrs, __VueDX_components, __VueDX_directives } from './attrs.vue+vue&type=script&setup&lang'
-type __VueDX_Self = InstanceType<typeof Attrs>
-/*<vuedx:templateGlobals>*/
-const A = VueDX.internal.resolveComponent(__VueDX_components, "A" as const, "A" as const);
-/*</vuedx:templateGlobals>*/
-export function __VueDX_render(__VueDX_ctx: __VueDX_Self): any {
-  /*<vuedx:templateGlobals>*/
-  let console = __VueDX_ctx.console;
-  /*</vuedx:templateGlobals>*/
-  /*<vuedx:tsx-competions-target/>*/<></>;
-  __VueDX_ctx./*<vuedx:ts-competions-target/>*/$;
-  /*</vuedx:diagnosticsIgnore>*/
+import { defineComponent } from 'vue'
+import { PropType, defineProps } from 'vue'
 
-  return (
-    <A type="submit" onClick={VueDX.internal.checkOnDirective(A, "click" as const, ($event) => {
-        console.log($event)
-      }, {})}  />
-  )
+const props = defineProps({
+  a: { type: String, required: true },
+  b: Number,
+  c: null as unknown as PropType<{ foo?: string }>
+})
+
+type __VueDX__props = typeof props
+const __VueDX__FixtureScriptSetup = defineComponent((props: __VueDX__props) => {
+  return {}
+})
+
+function __VueDX__render() {
+  const _ctx = new __VueDX__FixtureScriptSetup()
+
+  return <div onAbort={($event) => {
+    $event.composedPath()
+    _ctx.c?.foo?.toString()
+  }}>{_ctx.a}</div>
 }
-/*<vuedx:diagnosticsIgnore>*/
-function __VueDX_slots(__VueDX_ctx: __VueDX_Self) {
-  let console = __VueDX_ctx.console;
-  return VueDX.internal.flat([])
+
+function __VueDX__slots() {
+  return <div
+        /*foo*/
+        ></div> 
 }
-export type __VueDX_Slots = VueDX.internal.Slots<ReturnType<typeof __VueDX_slots>>
-export type __VueDX_Attrs = VueDX.internal.AttrsOf<"A">;
-/*</vuedx:diagnosticsIgnore>*/
+
+
+export default class extends __VueDX__FixtureScriptSetup {
+ 
+}

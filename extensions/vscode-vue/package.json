@@ -14,18 +14,21 @@
     "sources": {
       "src/index.ts": [
         {
-          "format": "commonjs",
+          "format": "cjs",
           "file": "dist/index.js",
           "bundle": {
+            "format": "cjs",
+            "platform": "node",
             "external": [
               "vscode"
             ]
           }
         },
         {
-          "format": "iife",
+          "format": "cjs",
           "file": "dist/index.web.js",
           "bundle": {
+            "format": "iife",
             "platform": "browser",
             "external": [
               "vscode"

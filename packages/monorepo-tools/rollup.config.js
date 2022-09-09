@@ -1,6 +1,5 @@
-import typescript from '@rollup/plugin-typescript'
 import node from '@rollup/plugin-node-resolve'
-import dts from 'rollup-plugin-dts'
+import typescript from '@rollup/plugin-typescript'
 import { dependencies } from './package.json'
 
 /** @type {Array<import('rollup').RollupOptions>} */
@@ -9,18 +8,8 @@ const configs = [
     input: 'src/index.ts',
     output: [
       {
-        format: 'module',
-        file: 'lib/index.d.ts',
-      },
-    ],
-    plugins: [dts()],
-  },
-  {
-    input: 'src/index.ts',
-    output: [
-      {
         format: 'commonjs',
-        file: 'lib/index.js',
+        file: 'lib/index.cjs',
         sourcemap: true,
         preferConst: true,
       },
@@ -36,8 +25,10 @@ const configs = [
       typescript({
         tsconfig: 'tsconfig.json',
         sourceMap: true,
-        declaration: false,
-        composite: false,
+        declaration: true,
+        declarationDir: 'lib/types',
+        declarationMap: true,
+        rootDir: 'src',
       }),
     ],
     external: Array.from(Object.keys(dependencies)),

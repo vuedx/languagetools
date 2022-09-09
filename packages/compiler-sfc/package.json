@@ -1,12 +1,9 @@
 {
   "name": "@vuedx/compiler-sfc",
   "version": "0.7.1",
-  "main": "lib/index.js",
+  "main": "lib/index.cjs",
   "module": "lib/index.mjs",
-  "types": "src/index.ts",
-  "publishConfig": {
-    "types": "lib/index.d.ts"
-  },
+  "types": "lib/index.d.ts",
   "files": [
     "lib"
   ],
@@ -54,10 +51,13 @@
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "devDependencies": {
     "@vue/compiler-sfc": "^3.2.31",
+    "@vue/compiler-dom": "^3.2.31",
     "quick-lru": "^5.1.1",
     "typescript": "^4.6.3"
   },
   "dependencies": {
+    "@vuedx/shared": "workspace:*",
+    "@vuedx/template-ast-types": "workspace:*",
     "@vue/compiler-core": "^3.2.31",
     "lru-cache": "^6.0.0",
     "source-map": "^0.6.1"

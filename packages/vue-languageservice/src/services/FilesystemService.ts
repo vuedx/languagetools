@@ -3,20 +3,17 @@ import {
   isNotNull,
   isProjectRuntimeFile,
   isVueFile,
+  isVueJsxFile,
   isVueRuntimeFile,
-  isVueTsFile,
+  isVueTsxFile,
   isVueVirtualFile,
   parseFileName,
-  SetOps,
 } from '@vuedx/shared'
-import type { TextSpan } from '@vuedx/vue-virtual-textdocument'
+
 import {
-  annotations,
-  Position,
   Range,
   TextDocument,
-  transformers,
-  VueBlockDocument,
+  TextSpan,
   VueSFCDocument,
 } from '@vuedx/vue-virtual-textdocument'
 import * as Path from 'path'
@@ -70,27 +67,11 @@ export class FilesystemService implements Disposable {
    * Returns source file for virtual files.
    */
   public getSourceFile(fileName: string): TextDocument | null {
-    if (this.isVueVirtualFile(fileName)) {
-      const file = this.getVirtualFile(fileName)
-      if (file == null) return file
-      if (file.fileName !== fileName) {
-        throw new Error(
-          `Unexpected file: ${file.fileName}, expecting ${fileName}`,
-        )
-      }
-
-      return file.source
-    }
-
     return this.getFile(fileName)
   }
 
   public getFile(fileName: string): TextDocument | null {
     if (this.isVueFile(fileName)) return this.getVueFile(fileName)
-    if (this.isVueVirtualFile(fileName)) {
-      return this.getGeneratedVirtualFile(fileName)
-    }
-
     if (!this.provider.exists(fileName)) return null
 
     return this.textDocumentCache.withCache(fileName, (prevFile) => {
@@ -103,14 +84,6 @@ export class FilesystemService implements Disposable {
         this.provider.read(fileName),
       )
     })
-  }
-
-  public getGeneratedVirtualFile(fileName: string): TextDocument | null {
-    return this.getVirtualFile(fileName)?.generated ?? null
-  }
-
-  public getVirtualFile(fileName: string): VueBlockDocument | null {
-    return this.getVueFile(fileName)?.getDocById(fileName) ?? null
   }
 
   public getLanguageId(fileName: string): string {
@@ -134,26 +107,6 @@ export class FilesystemService implements Disposable {
     }
   }
 
-  public getVirtualFileAt(
-    fileName: string,
-    offset: number,
-  ): VueBlockDocument | null {
-    return this.findFilesAt(fileName, offset)[1]
-  }
-
-  /**
-   * Find block file and containing vue file.
-   */
-  public findFilesAt(
-    fileName: string,
-    offset: number,
-  ): [VueSFCDocument, VueBlockDocument] | [null, null] {
-    const file = this.getVueFile(fileName)
-    const block = file?.getDocAt(offset)
-
-    return file != null && block != null ? [file, block] : [null, null]
-  }
-
   /**
    * Get Vue SFC File
    * TODO: Create a shared cache for closed files.
@@ -167,9 +120,11 @@ export class FilesystemService implements Disposable {
     if (cachedFile != null) return cachedFile
     if (!this.provider.exists(fileName)) return null
 
-    const file = VueSFCDocument.create(fileName, this.provider.read(fileName), {
-      transformers,
-    })
+    const file = VueSFCDocument.create(
+      fileName,
+      this.provider.read(fileName),
+      {}, // TODO: provide isTypescript value
+    )
 
     const registerFileUpdate = (
       fileName: string,
@@ -183,47 +138,43 @@ export class FilesystemService implements Disposable {
       return info
     }
 
-    const stopWatching = this.provider.watch(fileName, (changes, version) => {
-      const previousTsFiles = file.getActiveTSDocIDs()
-      file.update(changes, version)
-      // TODO: Optimize. This triggers parse on every keystroke.
-      const currentTsFiles = file.getActiveTSDocIDs()
-      const deletedTsFiles = SetOps.difference(previousTsFiles, currentTsFiles)
-      const scriptInfo = registerFileUpdate(fileName)
-      deletedTsFiles.forEach((fileName) => {
-        const info = this.ts.project.getScriptInfo(fileName)
-        if (info == null) return
-        this.ts.project.removeFile(info, false, true)
-      })
-      currentTsFiles.forEach((fileName) => registerFileUpdate(fileName))
-      if (scriptInfo == null) return
-      scriptInfo.containingProjects.forEach((project) => {
-        project.refreshDiagnostics()
-      })
-    })
+    const stopWatching = this.provider.watch(
+      file.originalFileName,
+      (changes, version) => {
+        file.update(changes, version)
+        registerFileUpdate(file.geneartedFileName)
+        const scriptInfo = registerFileUpdate(file.originalFileName)
+        if (scriptInfo == null) return
+        scriptInfo.containingProjects.forEach((project) => {
+          project.refreshDiagnostics()
+        })
+      },
+    )
 
     this.watchers.add(stopWatching)
     this.vueFiles.set(fileName, file)
 
     const fsWatcher = this.ts.serverHost.watchFile(
-      fileName,
+      file.originalFileName,
       (fileName, eventKind) => {
         this.logger.info(`File changed: ${eventKind} - ${fileName}`)
         if (eventKind === this.ts.lib.FileWatcherEventKind.Deleted) {
-          file.getActiveTSDocIDs().forEach((fileName) => {
-            const scriptInfo = this.ts.project.getScriptInfo(fileName)
-            if (scriptInfo != null) {
-              this.ts.project.removeFile(scriptInfo, false, true)
-            }
-          })
+          const generatedScriptInfo = this.ts.project.getScriptInfo(
+            file.geneartedFileName,
+          )
+          if (generatedScriptInfo != null) {
+            this.ts.project.removeFile(generatedScriptInfo, false, true)
+          }
 
-          const scriptInfo = this.ts.project.getScriptInfo(fileName)
-          if (scriptInfo != null) {
-            this.ts.project.removeFile(scriptInfo, false, true)
+          const originalScriptInfo = this.ts.project.getScriptInfo(
+            file.originalFileName,
+          )
+          if (originalScriptInfo != null) {
+            this.ts.project.removeFile(originalScriptInfo, false, true)
           }
 
           stopWatching()
-          this.vueFiles.delete(fileName)
+          this.vueFiles.delete(file.originalFileName)
           this.watchers.delete(stopWatching)
           fsWatcher.close()
         }
@@ -259,11 +210,7 @@ export class FilesystemService implements Disposable {
   }
 
   public isVueTsFile(fileName: string): boolean {
-    return isVueTsFile(fileName)
-  }
-
-  public isVueVirtualFile(fileName: string): boolean {
-    return isVueVirtualFile(fileName)
+    return isVueTsxFile(fileName) || isVueJsxFile(fileName)
   }
 
   public isVueRuntimeFile(fileName: string): boolean {
@@ -272,73 +219,6 @@ export class FilesystemService implements Disposable {
 
   public isProjectRuntimeFile(fileName: string): boolean {
     return isProjectRuntimeFile(fileName)
-  }
-
-  /**
-   * @deprecated
-   */
-  public getAbsolutePosition(
-    vueDoc: VueSFCDocument,
-    blockDoc: VueBlockDocument,
-    position: Position,
-  ): Position {
-    return vueDoc.positionAt(
-      blockDoc.toFileOffset(blockDoc.source.offsetAt(position)),
-    )
-  }
-
-  /**
-   * @deprecated
-   */
-  public getAbsoluteRange(
-    vueDoc: VueSFCDocument,
-    blockDoc: VueBlockDocument,
-    range: Range,
-  ): Range {
-    return {
-      start: this.getAbsolutePosition(vueDoc, blockDoc, range.start),
-      end: this.getAbsolutePosition(vueDoc, blockDoc, range.end),
-    }
-  }
-
-  /**
-   * @deprecated
-   */
-  public getAbsoluteOffsets<T extends OffsetRangeLike>(
-    file: VueBlockDocument | undefined,
-    range: T,
-  ): OffsetRangeLike {
-    if (file == null || range.start == null) {
-      return { start: undefined, length: undefined }
-    }
-
-    const result = file.originalOffsetAndLengthAt(
-      range.start,
-      range.length ?? 1,
-    )
-
-    if (result == null) {
-      const text = file.generated?.getText().substring(0, range.start)
-      if (text?.trim().endsWith(annotations.missingExpression) === true) {
-        return this.getAbsoluteOffsets(file, {
-          start: range.start - 10, // anywhere in comment
-          length: range.length,
-        })
-      }
-
-      return { start: file.block.loc.start.offset, length: 1 }
-    }
-
-    return {
-      start: Math.min(
-        result.offset,
-        Math.max(
-          file.block.loc.start.offset,
-          file.block.loc.end.offset - result.length,
-        ),
-      ),
-      length: result.length,
-    }
   }
 
   private readonly NULL_RANGE: Range = {
@@ -419,34 +299,26 @@ export class FilesystemService implements Disposable {
   public resolveFileTextChanges<T extends TypeScript.FileTextChanges>(
     fileTextChanges: T,
   ): T | null {
-    const asFileTextChanges = (changes: T): T => {
-      if (fileTextChanges.isNewFile !== true) return changes
-      return { ...changes, isNewFile: fileTextChanges.isNewFile }
-    }
-
-    if (this.isVueVirtualFile(fileTextChanges.fileName)) {
-      const block = this.getVirtualFile(fileTextChanges.fileName)
-      if (block == null) {
-        return null
+    if (this.isVueTsFile(fileTextChanges.fileName)) {
+      const asFileTextChanges = (changes: T): T => {
+        if (fileTextChanges.isNewFile !== true) return changes
+        return { ...changes, isNewFile: fileTextChanges.isNewFile }
       }
 
+      const file = this.getVueFile(fileTextChanges.fileName)
+      if (file == null) return null
       return asFileTextChanges({
         ...fileTextChanges,
         fileName: this.getRealFileName(fileTextChanges.fileName),
         textChanges: fileTextChanges.textChanges
           .map((textChange) => {
-            const span = block.findOriginalTextSpan(textChange.span)
+            const span = file.findOriginalTextSpan(textChange.span)
 
             if (span == null) return null
-
-            return { span: block.toFileSpan(span), newText: textChange.newText }
+            return { span: span, newText: textChange.newText }
           })
           .filter(isNotNull),
       })
-    }
-
-    if (this.isVueTsFile(fileTextChanges.fileName)) {
-      return null
     }
 
     return fileTextChanges

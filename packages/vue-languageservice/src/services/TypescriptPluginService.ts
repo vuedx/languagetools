@@ -33,7 +33,8 @@ import { TypescriptContextService } from './TypescriptContextService'
 
 @injectable()
 export class TypescriptPluginService
-  implements Partial<ExtendedTSLanguageService> {
+  implements Partial<ExtendedTSLanguageService>
+{
   //#region setup
   private readonly logger = LoggerService.getLogger(
     TypescriptPluginService.name,
@@ -127,10 +128,7 @@ export class TypescriptPluginService
         hasVirtualSchemeFiles = realProject !== this.ts.project
       } else if (this.fs.isVueFile(fileName)) {
         vueFileNames.add(this.fs.getRealFileName(fileName))
-      } else if (
-        this.fs.isVueTsFile(fileName) ||
-        this.fs.isVueVirtualFile(fileName)
-      ) {
+      } else if (this.fs.isVueTsFile(fileName)) {
         vueFileNames.add(this.fs.getRealFileName(fileName))
         // virtualFileNames.add(fileName)
       } else if (this.fs.isProjectRuntimeFile(fileName)) {
@@ -145,15 +143,10 @@ export class TypescriptPluginService
 
     vueFileNames.forEach((fileName) => {
       if (!this.ts.serverHost.fileExists(fileName)) return
-      const tsFileName = toFileName({ type: 'vue-ts', fileName })
+      const tsFileName = toFileName({ type: 'vue-tsx', fileName })
 
       this.ts.ensureProject(fileName)
       this.ts.ensureProject(tsFileName)
-
-      this.fs
-        .getVueFile(fileName)
-        ?.getActiveTSDocIDs()
-        .forEach((fileName) => virtualFileNames.add(fileName))
 
       virtualFileNames.add(tsFileName)
       virtualFileNames.add(this.ts.getProjectRuntimeFileName(fileName))
@@ -661,8 +654,7 @@ export class TypescriptPluginService
       this.fs.isVueFile(fileName) ||
       this.fs.isVueSchemeFile(fileName) ||
       this.fs.isVueRuntimeFile(fileName) ||
-      this.fs.isProjectRuntimeFile(fileName) ||
-      this.fs.isVueVirtualFile(fileName)
+      this.fs.isProjectRuntimeFile(fileName)
     ) {
       return { outputFiles: [], emitSkipped: true }
     }

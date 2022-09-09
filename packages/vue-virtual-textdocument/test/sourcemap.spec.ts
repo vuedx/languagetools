@@ -1,4 +1,4 @@
-import { VueBlockDocument, VueSFCDocument } from '../src'
+import { TextSpan, VueSFCDocument } from '../src'
 
 expect.addSnapshotSerializer({
   serialize(val) {
@@ -9,7 +9,7 @@ expect.addSnapshotSerializer({
   },
 })
 
-describe('VueBlockDocument', () => {
+describe('sourcemaps', () => {
   beforeEach(() => {
     jest.spyOn(console, 'debug').mockImplementation(() => {})
   })
@@ -27,76 +27,71 @@ describe('VueBlockDocument', () => {
     const call = code.indexOf('call.a')
     const event = code.indexOf('$event')
 
-    expect(
-      file.snapshot(file.doc.generatedOffetAndLengthAt(first, 5)),
-    ).toMatchSnapshot()
-    expect(
-      file.snapshot(file.doc.generatedOffetAndLengthAt(first + 3, 2)),
-    ).toMatchSnapshot()
+    const spans: TextSpan[] = [
+      { start: first, length: 5 },
+      { start: first + 3, length: 2 },
+      { start: second, length: 5 },
+      { start: second + 3, length: 2 },
+      { start: once, length: 4 },
+      { start: call + 6, length: 8 },
+      { start: event, length: 6 },
+    ]
 
-    expect(
-      file.snapshot(file.doc.generatedOffetAndLengthAt(second, 5)),
-    ).toMatchSnapshot()
-
-    expect(
-      file.snapshot(file.doc.generatedOffetAndLengthAt(second + 3, 2)),
-    ).toMatchSnapshot()
-
-    expect(
-      file.snapshot(file.doc.generatedOffetAndLengthAt(once, 4)),
-    ).toMatchSnapshot()
-    expect(
-      file.snapshot(file.doc.generatedOffetAndLengthAt(call + 6, 8)),
-    ).toMatchSnapshot()
-    expect(
-      file.snapshot(file.doc.generatedOffetAndLengthAt(event, 6)),
-    ).toMatchSnapshot()
+    spans.forEach((span) => {
+      expect(
+        file.snapshot(span, 2, 'original') +
+          '\n----\n' +
+          file.snapshot(file.doc.findGeneratedTextSpan(span)),
+      ).toMatchSnapshot()
+    })
   })
 })
 
 function getTemplateFile(code: string) {
-  const doc = VueSFCDocument.create('/foo/bar/Example.vue', code)
-  const file = doc.getDoc(doc.descriptor.template!)!
+  const file = VueSFCDocument.create('/foo/bar/Example.vue', code)
 
-  function original(
-    range: ReturnType<VueBlockDocument['generatedOffetAndLengthAt']>,
-  ) {
-    return file.source.getText().substr(range.offset, range.length)
+  function original(range: TextSpan) {
+    return file.original
+      .getText()
+      .slice(range.start, range.start + range.length)
   }
 
-  function generated(
-    range: ReturnType<VueBlockDocument['generatedOffetAndLengthAt']>,
-  ) {
-    return file.generated!.getText().substr(range.offset, range.length)
+  function generated(range: TextSpan) {
+    return file.generated
+      .getText()
+      .slice(range.start, range.start + range.length)
   }
 
   function snapshot(
-    range: ReturnType<VueBlockDocument['generatedOffetAndLengthAt']>,
+    range: TextSpan | null,
     size = 2,
+    kind: 'generated' | 'original' = 'generated',
   ) {
-    const text = file.generated!.getText()
+    if (range == null) throw new Error('Range is null')
+    const source = kind === 'generated' ? file.generated : file.original
+    const text = source.getText()
     const line = (start: number) => {
       const index = text.indexOf('\n', start)
       if (index >= 0) return text.substring(start, index)
       return text.substring(start)
     }
-    const { line: L, character: C } = file.generated!.positionAt(range.offset)
+    const { line: L, character: C } = source.positionAt(range.start)
     const lines: string[] = []
     for (let i = 1; i <= size && L - i >= 0; ++i) {
-      const start = file.generated!.offsetAt({ line: L - i, character: 0 })
+      const start = source.offsetAt({ line: L - i, character: 0 })
       lines.unshift(line(start))
     }
 
-    const start = file.generated!.offsetAt({ line: L, character: 0 })
+    const start = source.offsetAt({ line: L, character: 0 })
     lines.push(line(start))
     lines.push(
       ' '.repeat(C) +
         '^'.repeat(range.length) +
-        ` > ${range.length} at ${range.offset}`,
+        ` > ${range.length} at ${range.start}`,
     )
 
-    for (let i = 1; i <= size && L + i < file.generated!.lineCount; ++i) {
-      const start = file.generated!.offsetAt({ line: L + i, character: 0 })
+    for (let i = 1; i <= size && L + i < source.lineCount; ++i) {
+      const start = source.offsetAt({ line: L + i, character: 0 })
       lines.push(line(start))
     }
 

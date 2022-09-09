@@ -1,11 +1,9 @@
-export { parse } from '@vue/compiler-sfc'
 export type {
+  CompilerError,
   SFCBlock,
-  SFCDescriptor,
-  SFCParseOptions,
   SFCScriptBlock,
   SFCStyleBlock,
   SFCTemplateBlock,
-  CompilerError,
 } from '@vue/compiler-sfc'
-export type { RawSourceMap } from 'source-map'
+export { parse } from './parse'
+export type { Parser, SFCDescriptor, SFCParseResult } from './parse'

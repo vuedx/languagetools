@@ -260,9 +260,8 @@ export class TypescriptContextService implements Disposable {
   }
 
   public ensureProjectFor(fileName: string): void {
-    const scriptInfo = this.projectService.getScriptInfoEnsuringProjectsUptoDate(
-      fileName,
-    )
+    const scriptInfo =
+      this.projectService.getScriptInfoEnsuringProjectsUptoDate(fileName)
 
     if (scriptInfo == null) {
       this.logger.debug(`No ScriptInfo for ${fileName}`)
@@ -310,7 +309,7 @@ export class TypescriptContextService implements Disposable {
   public ensureUptoDate(fileName: string): void {
     this.project.getLanguageService(true) // forces update
     if (isVueFile(fileName)) {
-      fileName = toFileName({ type: 'vue-ts', fileName })
+      fileName = toFileName({ type: 'vue-tsx', fileName }) // TODO: Check if TSX is enabled
     }
 
     if (
@@ -331,10 +330,11 @@ export class TypescriptContextService implements Disposable {
       return // already in project
     }
 
-    const scriptInfo = this.projectService.getOrCreateScriptInfoForNormalizedPath(
-      filePath,
-      false,
-    )
+    const scriptInfo =
+      this.projectService.getOrCreateScriptInfoForNormalizedPath(
+        filePath,
+        false,
+      )
 
     if (scriptInfo == null) {
       this.logger.debug('No ScriptInfo for project file:', fileName)

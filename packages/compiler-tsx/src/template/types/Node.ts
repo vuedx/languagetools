@@ -1,4 +1,26 @@
-import { Scope } from './scope'
+import type {
+  AttributeNode,
+  BaseElementNode,
+  CompoundExpressionNode,
+  Node,
+  SourceLocation,
+} from '@vue/compiler-core'
+import type { Scope } from '../scope/Scope'
+
+export interface CustomNode extends Node {
+  scope: Scope
+}
+
+export interface CustomBaseElementNode extends BaseElementNode {
+  hoists?: CompoundExpressionNode[]
+  tagLoc: SourceLocation
+  startTagLoc: SourceLocation
+  endTagLoc?: SourceLocation
+}
+
+export interface CustomAttributeNode extends AttributeNode {
+  nameLoc: SourceLocation
+}
 
 declare module '@vue/compiler-core' {
   export interface Node {
@@ -14,6 +36,10 @@ declare module '@vue/compiler-core' {
     tagLoc: SourceLocation
     startTagLoc: SourceLocation
     endTagLoc?: SourceLocation
+  }
+
+  export interface AttributeNode {
+    nameLoc: SourceLocation
   }
 
   export interface DirectiveNode {

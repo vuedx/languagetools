@@ -1,4 +1,4 @@
-export { version } from '../package.json'
+export const version = VERSION
 export type {
   ProjectConfig,
   ResolvedProjectConfig,

@@ -1,5 +1,5 @@
 import { baseParse } from '@vue/compiler-core'
-import { withScope } from './scope'
+import { withScope } from './Scope'
 
 describe('scope', () => {
   test('should set scope', () => {

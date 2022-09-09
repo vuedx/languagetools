@@ -1,282 +1,229 @@
-// @ts-expect-error
-import builtins from 'builtins'
-import {
-  build,
-  BuildOptions,
-  PartialMessage,
-  Plugin as ESBuildPlugin,
-  version,
-} from 'esbuild'
-// @ts-expect-error
-import polyfillNodeJS from 'esbuild-plugin-node-polyfills'
-import * as FS from 'fs'
-import * as Path from 'path'
-import resolveModule from 'resolve'
-import type {
-  ExternalOption,
-  ModuleFormat,
-  OutputChunk,
-  OutputOptions,
-  Plugin,
-} from 'rollup'
+import { readFile } from 'node:fs/promises'
+import { builtinModules, createRequire } from 'node:module'
+import Path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import type { OutputChunk, OutputOptions, Plugin, SourceMap } from 'rollup'
 
 export function esbuild(
-  config: boolean | BuildOptions,
-  getExternal: () => ExternalOption | undefined,
+  config: boolean | import('esbuild').BuildOptions,
   minify: boolean = process.env['CI'] != null,
 ): Plugin {
-  let format: 'iife' | 'cjs' | 'esm' = 'esm'
-  let outputOptions!: OutputOptions
-
   return {
     name: 'esbuild',
-    outputOptions(options) {
-      outputOptions = options
-
-      if (options.format != null) {
-        if (
-          new Set<ModuleFormat>(['amd', 'system', 'systemjs', 'umd']).has(
-            options.format,
-          )
-        ) {
-          throw new Error(`Rollup output format: ${options.format}`)
-        } else if (
-          new Set<ModuleFormat>(['commonjs', 'cjs']).has(options.format)
-        ) {
-          format = 'cjs'
-        } else if (options.format === 'iife') {
-          format = 'iife'
-        }
-      }
-
-      return {
-        ...options,
-        format: 'esm',
-      }
-    },
     async generateBundle(options, bundle) {
-      const defaults: BuildOptions = typeof config === 'boolean' ? {} : config
-
-      options.sourcemap = outputOptions.sourcemap ?? false
-
-      if (options.file == null) {
-        throw new Error(`'bundle' is supported only for 'file' output`)
-      }
-
-      const fileName = options.file
-      const key = Path.basename(options.file)
-      const file = bundle[key]
-
-      if (fileName == null || file == null || file.type === 'asset') {
-        throw new Error(`'${key}' is not found in bundle`)
-      }
-
-      const externals = new Set(defaults.external)
-
-      if (defaults.platform == null || defaults.platform === 'node') {
-        builtins().forEach((value: string) => externals.add(value))
-      }
-
-      const rollup: ESBuildPlugin = {
-        name: 'rollup',
-        setup: (build) => {
-          build.onResolve({ filter: /.+/ }, async ({ path, importer }) => {
-            if (path === options.file) {
-              return { path: options.file }
-            }
-
-            if (path === `${fileName}.map`) {
-              return { path: `${fileName}.map` }
-            }
-
-            if (externals.has(path)) {
-              return { path, external: true }
-            }
-
-            let external = isExternal(getExternal(), path, importer)
-            let resolved: string | undefined
-            const warnings: PartialMessage[] = []
-            let id = path
-            const fromRollup = await this.resolve(id, importer)
-
-            if (fromRollup != null) {
-              resolved = fromRollup.id
-              external =
-                fromRollup.external === 'absolute' ? false : fromRollup.external
-
-              if (!Path.isAbsolute(resolved)) {
-                id = resolved
-                external = true
-              }
-            }
-
-            if (fromRollup == null || external) {
-              resolved = await resolveExternalPackage(id, importer)
-              if (resolved == null) {
-                external = true
-                resolved = id
-              } else {
-                external = false
-              }
-            }
-
-            if (resolved != null && Path.isAbsolute(resolved)) {
-              resolved = FS.realpathSync(resolved)
-            }
-
-            if (external) {
-              warnings.push({
-                text: `Module "${path}" is treated as external dependency`,
-              })
-            }
-
-            return {
-              external,
-              path: resolved,
-              warnings,
-            }
-          })
-          build.onLoad({ filter: /.+/ }, async ({ path }) => {
-            if (path === fileName) {
-              return {
-                contents: file.code + getSourceMapString(file),
-                resolveDir: Path.basename(path),
-                loader: 'js',
-              }
-            }
-
-            if (path === `${fileName}.map` && file.map != null) {
-              return {
-                contents: file.map.toString(),
-                resolveDir: Path.basename(path),
-                loader: 'js',
-              }
-            }
-
-            return undefined
-          })
-        },
-      }
-
-      const result = await build({
+      invariant(options.file, 'esbuild requires a single output file')
+      const entry = Path.basename(options.file)
+      const dir = Path.dirname(options.file)
+      const chunk = bundle[entry] as OutputChunk
+      invariant(chunk, 'entry chunk not found')
+      const esbuild = await import('esbuild')
+      config = config === true ? {} : config
+      invariant(config)
+      const format = config.format ?? getFormat(options)
+      const { errors, warnings, outputFiles } = await esbuild.build({
+        platform: 'neutral',
+        format,
+        ...config,
+        absWorkingDir: dir,
+        entryPoints: [options.file],
+        mainFields: ['module', 'main'],
+        plugins: [
+          BundleLoaderPlugin(),
+          NativeNodePackageResolver(config.platform),
+          NodeModulesPackageResolver(),
+        ],
+        minify,
+        write: false,
         bundle: true,
         splitting: false,
-        preserveSymlinks: true,
-        format: format,
-        platform: 'node',
-        external: [],
-        mainFields: ['module', 'main'],
-        allowOverwrite: true,
-        banner: { js: `/* Bundled with ESBuild v${version} */` },
-        outfile: fileName,
-        treeShaking: true,
-        resolveExtensions: ['.mjs', '.js', '.cjs'],
-        minify: minify,
-        minifyIdentifiers: minify,
-        minifyWhitespace: minify,
-        minifySyntax: minify,
-        legalComments: 'none',
-        ...defaults,
         sourcemap: 'external',
-        entryPoints: [fileName],
-        plugins: [
-          defaults.platform === 'browser' ? polyfillNodeJS : null,
-          rollup,
-        ].filter((plugin): plugin is ESBuildPlugin => plugin != null),
-        write: false,
-        watch: false,
+        outfile: `out/${entry}`,
       })
 
-      result.errors.forEach((error) => {
+      errors.forEach((error) => {
         this.error({
           message: error.text,
           loc:
             error.location != null
               ? {
                   file: error.location.file,
-                  column: error.location.column,
                   line: error.location.line,
+                  column: error.location.column,
                 }
               : undefined,
         })
       })
-
-      result.warnings.forEach((warning) => {
+      warnings.forEach((warning) => {
         this.warn({
           message: warning.text,
           loc:
             warning.location != null
               ? {
                   file: warning.location.file,
-                  column: warning.location.column,
                   line: warning.location.line,
+                  column: warning.location.column,
                 }
               : undefined,
         })
       })
-
-      result.outputFiles.forEach((outFile) => {
-        if (outFile.path === options.file) {
-          file.code = outFile.text
-        } else if (outFile.path === `${fileName}.map`) {
-          file.map = {
-            ...JSON.parse(outFile.text),
-            toString() {
-              return outFile.text
-            },
-            toUrl() {
-              throw new Error(`Internal source map not supported`)
-            },
-          }
+      invariant(outputFiles)
+      const outDir = Path.join(dir, 'out')
+      outputFiles.forEach((outputFile) => {
+        const id = Path.relative(outDir, outputFile.path)
+        if (id.endsWith('.map')) {
+          const chunk = bundle[id.slice(0, -4)] as OutputChunk
+          invariant(chunk)
+          chunk.map = createSourceMap(outputFile.text)
         } else {
-          throw new Error(`Code splitting is not supported in bundle mode.`)
+          bundle[id] = {
+            ...chunk,
+            type: 'chunk',
+            fileName: Path.resolve(dir, id),
+            code: outputFile.text,
+          }
         }
+      })
+
+      function BundleLoaderPlugin(): import('esbuild').Plugin {
+        return {
+          name: 'bundle-loader',
+          setup(build) {
+            build.onResolve({ filter: /./ }, ({ path }) => {
+              if (!path.startsWith(dir)) return null
+              const id = Path.relative(dir, path)
+              const chunk = bundle[id] as OutputChunk | undefined
+              if (chunk == null) return null
+              return { namespace: 'bundle', path: id }
+            })
+            build.onLoad(
+              { namespace: 'bundle', filter: /./ },
+              ({ path: id }) => {
+                const chunk = bundle[id] as OutputChunk | undefined
+                if (chunk == null) return null
+                const sourcemap = chunk.map?.toUrl()
+                const code =
+                  chunk.code +
+                  (sourcemap != null
+                    ? `\n//# sourceMappingURL=${sourcemap}`
+                    : '')
+
+                return { contents: code, resolveDir: dir }
+              },
+            )
+          },
+        }
+      }
+    },
+  }
+}
+
+function NativeNodePackageResolver(
+  platform?: import('esbuild').Platform,
+): import('esbuild').Plugin {
+  return {
+    name: 'node-package-loader',
+    setup(build) {
+      if (platform === 'node') return
+      build.onResolve({ filter: /./ }, async ({ path }) => {
+        const name = path.startsWith('node:') ? path.slice(5) : path
+        if (builtinModules.includes(name)) {
+          const dir = Path.dirname(getCurrentFileName())
+          const absPackagePath = Path.resolve(
+            dir,
+            '../node_modules/',
+            '@jspm/core',
+            'nodelibs/browser',
+            `${name}.js`,
+          )
+
+          return {
+            path: absPackagePath,
+          }
+        }
+
+        return null
       })
     },
   }
 }
-function isExternal(
-  external: ExternalOption | undefined,
-  id: string,
-  importer: string,
-): boolean {
-  if (typeof external === 'function') {
-    return external(id, importer, false) === true
-  } else if (Array.isArray(external)) {
-    return external.some((external) => isExternal(external, id, importer))
-  } else if (typeof external === 'string') {
-    return external === id
-  } else if (external instanceof RegExp) {
-    return external.test(id)
-  } else {
-    return false
+
+function NodeModulesPackageResolver(): import('esbuild').Plugin {
+  return {
+    name: 'node-modules-loader',
+    setup(build) {
+      build.onResolve(
+        { filter: /^[^.\\/]/ },
+        async ({ path, kind, namespace, resolveDir }) => {
+          if (build.initialOptions.external?.includes(path) === true) {
+            return null
+          }
+          if (resolveDir == null || namespace !== 'bundle') return null
+          if (path.startsWith('node:') || builtinModules.includes(path)) {
+            return null
+          }
+
+          const require = createRequire(Path.resolve(resolveDir, 'index.js'))
+          try {
+            const absPackagePath = require.resolve(`${path}/package.json`)
+            if (absPackagePath == null) return null
+            const pkg = JSON.parse(await readFile(absPackagePath, 'utf-8'))
+            const main =
+              kind === 'require-call' ? pkg.main : pkg.module ?? pkg.main
+            if (main == null) return null
+            return { path: Path.resolve(Path.dirname(absPackagePath), main) }
+          } catch {
+            const absPackagePath = require.resolve(path)
+            if (absPackagePath == null) return null
+            return { path: absPackagePath }
+          }
+        },
+      )
+    },
   }
 }
 
-function resolveExternalPackage(
-  path: string,
-  importer: string,
-): string | PromiseLike<string | undefined> | undefined {
-  return new Promise<string | undefined>((resolve) => {
-    resolveModule(
-      path,
-      {
-        extensions: ['.mjs', '.js', '.cjs'],
-        packageFilter: (pkg) => ({
-          ...pkg,
-          main: pkg.module ?? pkg.main,
-        }),
-        basedir: Path.dirname(importer),
-      },
-      (_, resolved?: string) => {
-        resolve(resolved)
-      },
-    )
-  })
+function getFormat(options: OutputOptions): import('esbuild').Format {
+  switch (options.format) {
+    case 'es':
+    case 'esm':
+    case 'module':
+      return 'esm'
+    case 'cjs':
+    case 'commonjs':
+      return 'cjs'
+    case 'iife':
+      return 'iife'
+    default:
+      throw new Error(`Unsupported format ${String(options.format)}`)
+  }
 }
 
-function getSourceMapString(file: OutputChunk): string {
-  if (file.map == null) return ''
+function invariant(
+  value: unknown,
+  message: string = 'invariant failed',
+): asserts value {
+  if (value == null || value === false) {
+    throw new Error(message)
+  }
+}
 
-  return `\n//# sourceMappingURL=${file.fileName}.map`
+function getCurrentFileName(): string {
+  try {
+    return fileURLToPath(import.meta.url)
+  } catch {
+    return __filename
+  }
+}
+
+function createSourceMap(contents: string): SourceMap {
+  const map = JSON.parse(contents)
+
+  return {
+    ...map,
+    toString: () => contents,
+    toUrl: () =>
+      `data:application/json;charset=utf-8;base64,${Buffer.from(
+        contents,
+      ).toString('base64')}`,
+  }
 }
