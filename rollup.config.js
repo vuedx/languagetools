@@ -65,6 +65,7 @@ const configs = ['packages/*', 'extensions/*'].flatMap((pattern) => {
             warning.source === 'lru-cache'
           )
             return
+
           defaultHandler(warning)
         }
       }

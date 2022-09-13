@@ -61,9 +61,9 @@ export function parse(
               p.value.content !== 'html',
           ))
       ) {
-        return 2 /* RAWTEXT */
-      } else {
         return 0 /* DATA */
+      } else {
+        return 2 /* RAWTEXT */
       }
     },
     onError: (e) => {
@@ -92,15 +92,19 @@ export function parse(
         {
           const scriptBlock = createBlock(node, source) as SFCScriptBlock
           const isSetup = scriptBlock.attrs['setup'] != null
-          if (isSetup && descriptor.scriptSetup != null) {
-            descriptor.scriptSetup = scriptBlock
-            break
+          if (isSetup) {
+            if (descriptor.scriptSetup == null) {
+              descriptor.scriptSetup = scriptBlock
+            } else {
+              errors.push(createDuplicateBlockError(node, isSetup))
+            }
+          } else {
+            if (descriptor.script == null) {
+              descriptor.script = scriptBlock
+            } else {
+              errors.push(createDuplicateBlockError(node, isSetup))
+            }
           }
-          if (!isSetup && descriptor.script != null) {
-            descriptor.script = scriptBlock
-            break
-          }
-          errors.push(createDuplicateBlockError(node, isSetup))
         }
         break
       case 'style':

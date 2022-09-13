@@ -34,7 +34,7 @@ import {
   traverse as traverseBabel,
 } from '@babel/types'
 import { isSimpleIdentifier, Node, RootNode } from '@vue/compiler-core'
-import { flatten, invarient, isCamelCase, isPascalCase } from '@vuedx/shared'
+import { flatten, invariant, isCamelCase, isPascalCase } from '@vuedx/shared'
 import {
   isDirectiveNode,
   isElementNode,
@@ -118,7 +118,7 @@ export function withScope(ast: RootNode): RootNode {
               const match = forAliasRE.exec(prop.exp.content)
               if (match != null) {
                 const [, LHS, RHS] = match
-                invarient(LHS != null && RHS != null)
+                invariant(LHS != null && RHS != null)
                 getIdentifiers(RHS).forEach((identifier) => {
                   localScope.getBinding(identifier)
                 })

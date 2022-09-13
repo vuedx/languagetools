@@ -30,7 +30,6 @@ export class SignatureHelpService
     position: number,
     options: TypeScript.SignatureHelpItemsOptions | undefined,
   ): SignatureHelpItems | undefined {
-    if (this.fs.isVueSchemeFile(fileName)) return undefined
     return this.ts.service.getSignatureHelpItems(fileName, position, options)
   }
 
@@ -38,7 +37,6 @@ export class SignatureHelpService
     fileName: string,
     position: number,
   ): TypeScript.CallHierarchyItem | TypeScript.CallHierarchyItem[] | undefined {
-    if (this.fs.isVueSchemeFile(fileName)) return undefined
     return this.ts.service.prepareCallHierarchy(fileName, position)
   }
 
@@ -62,7 +60,6 @@ export class SignatureHelpService
     fileName: string,
     position: number,
   ): TypeScript.TextSpan[] {
-    if (this.fs.isVueSchemeFile(fileName)) return []
     return this.ts.service.getBraceMatchingAtPosition(fileName, position)
   }
 
@@ -71,7 +68,6 @@ export class SignatureHelpService
     position: number,
     openingBrace: number,
   ): boolean {
-    if (this.fs.isVueSchemeFile(fileName)) return false
     return this.ts.service.isValidBraceCompletionAtPosition(
       fileName,
       position,
@@ -84,7 +80,6 @@ export class SignatureHelpService
     startPos: number,
     endPos: number,
   ): TypeScript.TextSpan | undefined {
-    if (this.fs.isVueSchemeFile(fileName)) return
     return this.ts.service.getNameOrDottedNameSpan(fileName, startPos, endPos)
   }
 }

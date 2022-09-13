@@ -1,3 +1,5 @@
+import { invariant } from './assert'
+
 interface ParsedFileName {
   type: string
   fileName: string
@@ -52,12 +54,17 @@ const suffixes = {
 
 export function parseFileName(fileName: string): FileNames {
   if (isFilesystemSchemeFile(fileName)) {
-    const scheme = fileName.substring(2, fileName.indexOf('/', 2))
+    const RE = /^\^\/(?<scheme>[^/]+)(\/ts-nul-authority)?(?<fileName>.*)$/
+    const result = RE.exec(fileName)
+
+    invariant(result?.groups != null)
+    invariant(result.groups['fileName'] != null)
+    invariant(result.groups['scheme'] != null)
 
     return {
       type: 'scheme',
-      fileName: fileName.substring(2 + scheme.length),
-      scheme,
+      fileName: result.groups['fileName'],
+      scheme: result.groups['scheme'],
     }
   } else if (isVueTsxFile(fileName)) {
     return {

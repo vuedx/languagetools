@@ -38,14 +38,79 @@ describe('sourcemaps', () => {
     ]
 
     spans.forEach((span) => {
-      expect(
-        file.snapshot(span, 2, 'original') +
-          '\n----\n' +
-          file.snapshot(file.doc.findGeneratedTextSpan(span)),
-      ).toMatchSnapshot()
+      checkGeneratedSpan(file, span)
     })
   })
+
+  test(`v-text`, () => {
+    const code = `
+    <template>
+      <div v-text="a" />
+    </template>
+    `
+
+    const file = getTemplateFile(code)
+    const offset = code.indexOf('"a"') + 1
+
+    checkGeneratedSpan(file, { start: offset, length: 1 })
+  })
+  test.only(`v-on shorthand`, () => {
+    const code = `
+    <template>
+      <B a="" @a="onStr" />
+    </template>
+    `
+
+    const file = getTemplateFile(code)
+    const offset = code.indexOf('@a') + 1
+
+    checkGeneratedSpan(file, { start: offset, length: 1 })
+  })
+
+  test(`component`, () => {
+    const code = `
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const a = ref(false)
+let b  = 5
+let c: { foo: string} | undefined
+</script>
+
+<template>
+  <div v-text="a" />
+  <div v-text="b" />
+  <div v-text="c" />
+  <div v-text="c?.foo" />
+</template>
+    `
+    const file = getTemplateFile(code)
+
+    expect(file.doc.generated.getText()).toMatchSnapshot()
+  })
 })
+
+function checkGeneratedSpan(
+  file: ReturnType<typeof getTemplateFile>,
+  original: TextSpan,
+) {
+  const generated = file.doc.findGeneratedTextSpan(original)
+  if (generated == null) throw new Error('Generated span is null')
+  checkSnapshot(file, original, generated)
+  const original2 = file.doc.findOriginalTextSpan(generated)
+  if (original2 == null) throw new Error('Original span is null')
+  checkSnapshot(file, original2, generated)
+}
+
+function checkSnapshot(
+  file: ReturnType<typeof getTemplateFile>,
+  original: TextSpan,
+  generated: TextSpan,
+) {
+  const first = file.snapshot(original, 2, 'original')
+  const second = file.snapshot(generated, 2, 'generated')
+  expect(`${first}\n----\n${second}`).toMatchSnapshot()
+}
 
 function getTemplateFile(code: string) {
   const file = VueSFCDocument.create('/foo/bar/Example.vue', code)
@@ -87,7 +152,7 @@ function getTemplateFile(code: string) {
     lines.push(
       ' '.repeat(C) +
         '^'.repeat(range.length) +
-        ` > ${range.length} at ${range.start}`,
+        ` > ${range.length} at ${range.start} (${L}:${C})`,
     )
 
     for (let i = 1; i <= size && L + i < source.lineCount; ++i) {

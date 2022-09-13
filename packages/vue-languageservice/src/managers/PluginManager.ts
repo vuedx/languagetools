@@ -7,7 +7,7 @@ import type {
   TSLanguageServiceHost,
   TSProject,
   TSServerHost,
-  TypeScript
+  TypeScript,
 } from '../contracts/TypeScript'
 import { overrideMethod } from '../helpers/overrideMethod'
 import { FilesystemService } from '../services/FilesystemService'
@@ -192,7 +192,7 @@ export class PluginManager {
     overrideMethod(serverHost, 'fileExists', (fileExists) => (fileName) => {
       return (
         fs.isProjectRuntimeFile(fileName) ||
-        fileExists(fs.getRealFileName(fileName))
+        fileExists(fs.getRealFileNameIfAny(fileName))
       )
     })
 
@@ -201,11 +201,16 @@ export class PluginManager {
       serverHost,
       'watchFile',
       (watchFile) => (fileName, callback) => {
-        if (fs.isVueTsFile(fileName)) {
-          return watchFile(fs.getRealFileName(fileName), (id, eventKind) => {
-            logger.info(`Patched watchFile: ${fileName} - ${id} - ${eventKind}`)
-            callback(fileName, eventKind)
-          })
+        if (fs.isGeneratedVueFile(fileName)) {
+          return watchFile(
+            fs.getRealFileNameIfAny(fileName),
+            (id, eventKind) => {
+              logger.info(
+                `Patched watchFile: ${fileName} - ${id} - ${eventKind}`,
+              )
+              callback(fileName, eventKind)
+            },
+          )
         }
 
         if (fs.isProjectRuntimeFile(fileName)) {
@@ -221,9 +226,7 @@ export class PluginManager {
       serverHost,
       'readFile',
       (readFile) => (fileName, encoding) => {
-        if (fs.isVueSchemeFile(fileName))
-          fileName = fs.getRealFileName(fileName)
-        if (fs.isVueTsFile(fileName)) {
+        if (fs.isGeneratedVueFile(fileName)) {
           return fs.getVueFile(fileName)?.getText()
         } else if (fs.isProjectRuntimeFile(fileName)) {
           return ts.getProjectRuntimeFile(fileName)
@@ -251,9 +254,9 @@ export class PluginManager {
             return `${ts.getVueProjectFor(fileName).projectVersion}`
           }
 
-          const version = getScriptVersion(fs.getRealFileName(fileName))
+          const version = getScriptVersion(fs.getRealFileNameIfAny(fileName))
 
-          if (fs.isVueFile(fileName) || fs.isVueTsFile(fileName)) {
+          if (fs.isVueFile(fileName) || fs.isGeneratedVueFile(fileName)) {
             logger.debug(`getScriptVersion(${fileName}): ${version}`)
           }
 
@@ -287,36 +290,34 @@ export class PluginManager {
         },
     )
 
-    // Patch: Add .vue.ts file for every .vue file
-    overrideMethod(
-      languageServiceHost,
-      'getScriptFileNames',
-      (getScriptFileNames) => () => {
-        const vueFiles = new Set<string>()
-        const fileNames = new Set<string>()
+    // Patch: Add .vue.{tsx, file for every .vue file
+    // overrideMethod(
+    //   languageServiceHost,
+    //   'getScriptFileNames',
+    //   (getScriptFileNames) => () => {
+    //     const vueFiles = new Set<string>()
+    //     const fileNames = new Set<string>()
 
-        getScriptFileNames().forEach((fileName) => {
-          if (fs.isVueSchemeFile(fileName)) {
-            // ignore
-          } else if (fs.isVueFile(fileName)) {
-            vueFiles.add(fileName)
-            fileNames.add(`${fileName}.tsx`) // TODO: add .vue.tsx or .vue.jsx file depending on project type
-          } else if (fs.isVueTsFile(fileName)) {
-            vueFiles.add(fs.getRealFileName(fileName))
-            fileNames.add(fileName)
-          } else {
-            fileNames.add(fileName)
-          }
-        })
+    //     getScriptFileNames().forEach((fileName) => {
+    //       if (fs.isVueFile(fileName)) {
+    //         vueFiles.add(fileName)
+    //         fileNames.add(`${fileName}.tsx`) // TODO: check if .tsx is correct
+    //       } else if (fs.isVueTsFile(fileName)) {
+    //         vueFiles.add(fs.getRealFileName(fileName))
+    //         fileNames.add(fileName)
+    //       } else {
+    //         fileNames.add(fileName)
+    //       }
+    //     })
 
-        logger.debug(
-          'getScriptFileNames()',
-          JSON.stringify([...fileNames], null, 2),
-        )
+    //     logger.debug(
+    //       'getScriptFileNames()',
+    //       JSON.stringify([...fileNames], null, 2),
+    //     )
 
-        return Array.from(fileNames)
-      },
-    )
+    //     return Array.from(fileNames)
+    //   },
+    // )
 
     overrideMethod(
       languageServiceHost,
@@ -361,18 +362,6 @@ export class PluginManager {
             )
           }
 
-          const isVueEntry = fs.isVueTsFile(containingFile)
-          if (isVueEntry) {
-            if (moduleNames[0] !== 'vuedx~runtime') {
-              throw new Error('Expected vuedx~runtime import in .vue.ts file')
-            }
-            if (moduleNames[1] !== 'vuedx~project-runtime') {
-              throw new Error(
-                'Expected vuedx~project-runtime import in .vue.ts file',
-              )
-            }
-          }
-
           const result =
             resolveModuleNames != null // Very unlikely to be undefined
               ? resolveModuleNames(
@@ -388,16 +377,27 @@ export class PluginManager {
                   reusedNames,
                   redirectedReference,
                 )
-          if (isVueEntry) {
-            result[0] = result[0] ?? {
-              resolvedFileName: ts.getVueRuntimeFileNameFor(containingFile),
-              isExternalLibraryImport: true,
+
+          if (fs.isVueTsFile(containingFile)) {
+            const known = {
+              'vuedx~runtime': () => ({
+                resolvedFileName: ts.getVueRuntimeFileNameFor(containingFile),
+                isExternalLibraryImport: true,
+              }),
+              'vuedx~runtime~project': () => ({
+                resolvedFileName:
+                  ts.getProjectRuntimeFileNameFor(containingFile),
+                isExternalLibraryImport: false,
+              }),
             }
-            result[1] = result[1] ?? {
-              resolvedFileName: ts.getProjectRuntimeFileName(containingFile),
-              isExternalLibraryImport: false,
-            }
+            moduleNames.forEach((name, index) => {
+              const handler = known[name as keyof typeof known]
+              if (handler != null && result[index] == null) {
+                result[index] = handler()
+              }
+            })
           }
+
           return result
         },
     )
@@ -410,7 +410,7 @@ export class PluginManager {
     this.logger.debug('Active projects:', Array.from(this.#containers.keys()))
 
     const ts = new TypescriptContextService(options)
-    const fs = FilesystemService.createInstnace(ts)
+    const fs = FilesystemService.createInstance(ts)
     const container = new Container({
       autoBindInjectable: true,
       defaultScope: 'Singleton',
@@ -481,6 +481,7 @@ export class PluginManager {
       has: (target, prop) => {
         return prop === TS_LANGUAGE_SERVICE || prop in target
       },
+      // TODO: Implement set?
     })
   }
 }

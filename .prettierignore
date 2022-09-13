@@ -1,1 +1,3 @@
 samples/**/*
+packages/compiler-tsx/test/fixtures/**/*
+pnpm-lock.yaml

@@ -1,5 +1,6 @@
 import {
   AttributeNode,
+  BaseElementNode,
   CommentNode,
   ComponentNode,
   CompoundExpressionNode,
@@ -18,10 +19,11 @@ import {
   TemplateNode,
   TextNode,
 } from '@vue/compiler-core'
-import { capitalize, invarient, last } from '@vuedx/shared'
+import { capitalize, invariant, last } from '@vuedx/shared'
 import {
   ElementTypes,
   isAttributeNode,
+  isComponentNode,
   isDirectiveNode,
   isSimpleExpressionNode,
   isSimpleIdentifier,
@@ -48,24 +50,48 @@ interface GenerateContext extends NodeTransformContext {
   indent(): GenerateContext
   deindent(): GenerateContext
   getOutput(): TransformedCode
+  typeGuards: Array<SimpleExpressionNode | CompoundExpressionNode | undefined>
 }
 
 export const annotations = {
+  /**
+   * Mark range to ignore diagnostics.
+   */
   diagnosticsIgnore: {
     start: '/*<vuedx:diagnosticsIgnore>*/',
     end: '/*</vuedx:diagnosticsIgnore>*/',
   },
-  copiedSource: {
-    start: '/*<vuedx:copiedSource>*/',
-    end: '/*</vuedx:copiedSource>*/',
-  },
+
+  /**
+   * Used to define range for hoists or defining global variables.
+   */
   templateGlobals: {
     start: '/*<vuedx:templateGlobals>*/',
     end: '/*</vuedx:templateGlobals>*/',
   },
+
+  /**
+   * Used to define range for return from setup() function, generated from <script setup>
+   */
+  setupGlobals: {
+    start: '/*<vuedx:setupGlobals>*/',
+    end: '/*</vuedx:setupGlobals>*/',
+  },
+
+  /**
+   * Missing expression in v-if or v-else-if.
+   */
   missingExpression: '/*<vuedx:missingExpression>*/',
-  tsxCompletions: '/*<vuedx:tsx-competions-target/>*/',
-  tsCompletions: '/*<vuedx:ts-competions-target/>*/',
+
+  /**
+   * Used in every JSX element to provide position for attribute completion.
+   */
+  tsxCompletions: '/*<vuedx:tsx-completions-target/>*/',
+
+  /**
+   * Used once in render function to get completions from context.
+   */
+  tsCompletions: '/*<vuedx:ts-completions-target/>*/',
 }
 
 let ctx: GenerateContext
@@ -75,9 +101,6 @@ export function generate(
 ): TransformedCode {
   ctx = createGenerateContext(options)
 
-  writeLine(
-    `import * as ${ctx.internalIdentifierPrefix}TypeCheck  from '${ctx.typeCheckModuleName}';`,
-  )
   genRootNode(root)
   genSlotTypes(root)
 
@@ -133,8 +156,8 @@ function writeLine(code: string): void {
 function genRootNode(node: RootNode): void {
   writeLine(`export function ${ctx.internalIdentifierPrefix}render() {`)
   indent(() => {
-    genGlobalDeclartions(node)
-    genNodeHoists({ hoists: ctx.scope.popHoistScope() })
+    genGlobalDeclarations(node)
+    genNodeHoists({ hoists: ctx.scope.getTopLevelNodes() })
     writeLine('return (')
     indent(() => {
       writeLine('<>')
@@ -146,7 +169,62 @@ function genRootNode(node: RootNode): void {
   writeLine('}')
 }
 
-function genGlobalDeclartions(node: Node): void {
+function genDirectiveChecks(el: BaseElementNode): void {
+  const directives = el.props.filter(isDirectiveNode).filter((directive) => {
+    return !['on', 'bind', 'text', 'html', 'model'].includes(directive.name)
+  })
+
+  if (directives.length === 0) return
+
+  wrap('{(() => {', '})()}', () =>
+    indent(() => {
+      ctx.newLine()
+      directives.forEach((directive) => {
+        ctx.write(`${getRuntimeFn(ctx.typeIdentifier, 'checkDirective')}(`)
+        ctx.write(
+          directive.resolvedName ?? asConst(JSON.stringify(directive.name)),
+          createLoc(directive.loc, 0, 2 + directive.name.length),
+          true,
+        )
+        ctx.write(', ')
+
+        if (isComponentNode(el)) {
+          ctx.write(
+            el.resolvedName ?? asConst(JSON.stringify(el.tag)),
+            el.tagLoc,
+          )
+        } else {
+          ctx.write(asConst(JSON.stringify(el.tag)), el.tagLoc)
+        }
+        ctx.write(', ')
+
+        if (directive.arg != null) genExpressionNode(directive.arg)
+        else ctx.write('undefined')
+        ctx.write(', ')
+        if (directive.exp != null) genExpressionNode(directive.exp)
+        else ctx.write('undefined')
+        ctx.write(', ')
+        wrap('{ ', ' }', () => {
+          directive.modifiers.forEach((modifier, index) => {
+            if (modifier.trim() === '') return
+            ctx.write(
+              `${JSON.stringify(modifier)}`,
+              directive.modifierLocs[index],
+              true,
+            )
+            ctx.write(': true, ')
+          })
+        })
+        ctx.write(');')
+        ctx.newLine()
+      })
+    }),
+  )
+
+  ctx.newLine() // rendered before element or component, so add a new line
+}
+
+function genGlobalDeclarations(node: Node): void {
   if (node.scope.globals.length === 0) return
   writeLine(annotations.templateGlobals.start)
   node.scope.globals.forEach((id) => {
@@ -165,6 +243,7 @@ function genNodeHoists(node: { hoists: CompoundExpressionNode[] }): void {
 }
 
 function genElementNode(node: ElementNode): void {
+  genDirectiveChecks(node)
   ctx.write('<', node.startTagLoc)
   ctx.write(node.tag, node.tagLoc, true).newLine()
   indent(() => {
@@ -193,6 +272,7 @@ function genElementNode(node: ElementNode): void {
 function genComponentNode(node: ComponentNode): void {
   if (node.tag.includes('-')) return genElementNode(node) // assume custom element
 
+  genDirectiveChecks(node)
   ctx.write('<', node.loc)
   ctx.write(node.resolvedName ?? node.tag, node.tagLoc).newLine()
   indent(() => {
@@ -214,30 +294,41 @@ function genComponentNode(node: ComponentNode): void {
   writeLine('>')
 
   indent(() => {
-    wrap('{{', '}}', () => {
+    wrap('{', '}', () => {
+      ctx.write(
+        `${getRuntimeFn(ctx.typeIdentifier, 'checkSlots')}(${
+          node.resolvedName ?? node.tag
+        }, {`,
+      )
       ctx.newLine()
       indent(() => {
-        node.slots.forEach((slot) => {
-          if (slot.name == null) {
+        node.slots.forEach((slotNode) => {
+          if (slotNode.name == null) {
             ctx.write(`default`)
-          } else if (isStaticExpression(slot.name)) {
-            ctx.write(JSON.stringify(slot.name.content), slot.name.loc)
+          } else if (isStaticExpression(slotNode.name)) {
+            ctx.write(JSON.stringify(slotNode.name.content), slotNode.name.loc)
           } else {
             ctx.write('[')
-            genExpressionNode(slot.name)
+            genExpressionNode(slotNode.name)
             ctx.write(']')
           }
           ctx.write(': (')
-          if (slot.args != null) {
-            genExpressionNode(slot.args)
+          if (slotNode.args != null) {
+            genExpressionNode(slotNode.args)
           }
           ctx.write(') => {').newLine()
           indent(() => {
-            genNodeHoists(slot)
+            ctx.typeGuards.forEach((guard) => {
+              if (guard == null) return
+              ctx.write(`if(!(`)
+              genExpressionNode(guard)
+              ctx.write(')) throw new Error;').newLine()
+            })
+            genNodeHoists(slotNode)
             writeLine('return (')
             indent(() => {
               writeLine('<>')
-              indent(() => genChildren(slot))
+              indent(() => genChildren(slotNode))
               writeLine('</>')
             })
             writeLine(')')
@@ -245,6 +336,7 @@ function genComponentNode(node: ComponentNode): void {
           ctx.write('},').newLine()
         })
       })
+      ctx.write('})')
     })
   })
   ctx.newLine()
@@ -258,7 +350,7 @@ function genSlotOutletNode(node: SlotOutletNode): void {
     ctx.newLine()
     const name = findProp(node, 'name', false, true)
     indent(() => {
-      wrap(`${ctx.contextIdentifier}.$slots[`, ']({', () => {
+      wrap(`${ctx.contextIdentifier}.$slots[`, ']?.({', () => {
         if (isAttributeNode(name) && name.value != null) {
           genTextNode(name.value)
         } else if (isDirectiveNode(name) && name.arg != null) {
@@ -313,16 +405,16 @@ const aliasedAttrs: Record<string, string> = {
   class: 'staticClass',
   style: 'staticStyle',
 }
-function genProps(node: ElementNode | ComponentNode): void {
-  if (node.props.length === 0) return
+function genProps(el: ElementNode | ComponentNode): void {
+  if (el.props.length === 0) return
 
-  const renderd = new Set<DirectiveNode>()
-  const directives = node.props.filter(isDirectiveNode)
-  node.props.forEach((prop) => {
+  const rendered = new Set<DirectiveNode>()
+  const directives = el.props.filter(isDirectiveNode)
+  el.props.forEach((prop) => {
     if (isAttributeNode(prop)) {
       genAttribute(prop)
       ctx.newLine()
-    } else if (renderd.has(prop)) {
+    } else if (rendered.has(prop)) {
       // already rendered
     } else if (prop.name === 'bind') {
       genVBindDirective(prop)
@@ -340,7 +432,7 @@ function genProps(node: ElementNode | ComponentNode): void {
         }
         ctx.write(')}')
       } else {
-        invarient(isSimpleExpressionNode(prop.arg))
+        invariant(isSimpleExpressionNode(prop.arg))
         const id = prop.arg.content
         const all = directives.filter(
           (directive) =>
@@ -349,30 +441,75 @@ function genProps(node: ElementNode | ComponentNode): void {
             directive.arg.content === id,
         )
 
-        all.forEach((dir) => ctx.write('', dir.loc))
         const genHandler = (): void => {
-          ctx.write('$event => {').newLine()
+          const args = typeCastAs(
+            typeCastAs('{}', `unknown`),
+            `${ctx.jsxIdentifier}.JSX.IntrinsicElements`,
+          )
+          ctx.write('() => {').newLine()
           indent(() => {
             all.forEach((directive) => {
-              renderd.add(directive)
-              if (directive.exp == null) return
-              // TODO: generate checks for modifiers
-              ctx.write('(')
-              genExpressionNodeAsFunction(directive.exp)
-              ctx.write(')($event);').newLine()
+              rendered.add(directive)
+              ctx.write(
+                `${getRuntimeFn(
+                  ctx.typeIdentifier,
+                  'checkOnDirective',
+                )}(${args}, `,
+              )
+
+              if (isComponentNode(el)) {
+                ctx.write(
+                  el.resolvedName ?? asConst(JSON.stringify(el.tag)),
+                  el.tagLoc,
+                )
+              } else {
+                ctx.write(asConst(JSON.stringify(el.tag)), el.tagLoc)
+              }
+              ctx.write(', ')
+
+              if (directive.arg != null) {
+                if (isStaticExpression(directive.arg)) {
+                  ctx.write(
+                    asConst(JSON.stringify(directive.arg.content)),
+                    directive.arg.loc,
+                  )
+                } else {
+                  genExpressionNode(directive.arg)
+                }
+              } else ctx.write('undefined')
+              ctx.write(', ')
+              if (directive.exp != null)
+                genExpressionNodeAsFunction(directive.exp)
+              else ctx.write('() => {}')
+              ctx.write(', ')
+              wrap('{ ', ' }', () => {
+                directive.modifiers.forEach((modifier, index) => {
+                  if (modifier.trim() === '') return
+                  ctx.write(
+                    `${JSON.stringify(modifier)}`,
+                    directive.modifierLocs[index],
+                    true,
+                  )
+                  ctx.write(': ')
+                  ctx.write(asConst('true'))
+                  ctx.write(', ')
+                })
+              })
+              ctx.write(');')
+              ctx.newLine()
             })
           })
           ctx.write('}')
         }
 
         if (isStaticExpression(prop.arg)) {
-          ctx.write(`on${capitalize(prop.arg.content)}`)
+          ctx.write(`on${capitalize(prop.arg.content)}`, prop.arg.loc, true)
           ctx.write('=')
           wrap('{', '}', genHandler)
         } else {
           ctx.write('{...({')
           ctx.write('[')
-          genExpressionNode(prop.arg)
+          genExpressionNode(prop.arg) // TODO: Capitalize
           ctx.write(']: ')
           genHandler()
           ctx.write('})}')
@@ -380,8 +517,7 @@ function genProps(node: ElementNode | ComponentNode): void {
       }
       ctx.newLine()
     } else if (prop.name === 'text' || prop.name === 'html') {
-      const key = prop.name === 'text' ? 'textContent' : 'innerHTML'
-      ctx.write(key, prop.loc).write('=')
+      ctx.write('innerHTML', createLoc(prop.loc, 2, 4), true).write('=')
       wrap('{', '}', () => {
         if (prop.exp != null) {
           genExpressionNode(prop.exp)
@@ -451,14 +587,18 @@ function genInterpolationNode(node: InterpolationNode): void {
 
 function genExpressionNode(node: ExpressionNode): void {
   if (isSimpleExpressionNode(node)) {
-    genSimpleExpressionNode(node)
+    if (isStaticExpression(node)) {
+      ctx.write(JSON.stringify(node.content), node.loc, true)
+    } else {
+      genSimpleExpressionNode(node)
+    }
   } else {
     genCompoundExpressionNode(node)
   }
 }
 
 function genExpressionNodeAsFunction(node: ExpressionNode): void {
-  invarient(
+  invariant(
     isSimpleExpressionNode(node),
     'v-on directive expression must be simple.',
   )
@@ -542,6 +682,7 @@ function createGenerateContext(options: NodeTransformContext): GenerateContext {
     } else {
       column += chunk.length
     }
+
     for (let i = mappings.length; i <= line; i++) {
       mappings.push([])
     }
@@ -549,6 +690,7 @@ function createGenerateContext(options: NodeTransformContext): GenerateContext {
 
   const context: GenerateContext = {
     ...options,
+    typeGuards: [],
     write(code, loc, addMappingType) {
       if (shouldIndent) {
         shouldIndent = false
@@ -606,9 +748,14 @@ function genSlotTypes(root: RootNode): void {
   writeLine(annotations.diagnosticsIgnore.start)
   ctx.write(`function ${ctx.internalIdentifierPrefix}slots() {`).newLine()
   indent(() => {
-    genGlobalDeclartions(root)
+    genGlobalDeclarations(root)
     ctx
-      .write(`return ${getRuntimeFn(ctx.internalIdentifierPrefix, 'flat')}([`)
+      .write(
+        `return ${getRuntimeFn(ctx.typeIdentifier, 'union')}(${getRuntimeFn(
+          ctx.typeIdentifier,
+          'flat',
+        )}([`,
+      )
       .newLine()
     indent(() => {
       for (const [slot, ancestors] of slots) {
@@ -620,12 +767,10 @@ function genSlotTypes(root: RootNode): void {
             .map((path) => path.node as ForNode),
           {
             enter(node) {
-              ctx.write(getRuntimeFn(ctx.internalIdentifierPrefix, 'flat'))
+              ctx.write(getRuntimeFn(ctx.typeIdentifier, 'flat'))
               ctx.write('(')
               ctx.newLine().indent()
-              ctx.write(
-                getRuntimeFn(ctx.internalIdentifierPrefix, 'renderList'),
-              )
+              ctx.write(getRuntimeFn(ctx.typeIdentifier, 'renderList'))
               ctx.write('(')
               genForNodeArgs(node)
               ctx.write(' => (')
@@ -675,7 +820,7 @@ function genSlotTypes(root: RootNode): void {
         ctx.write(',').newLine()
       }
     })
-    ctx.write('])').newLine()
+    ctx.write(']))').newLine()
   })
   ctx.write('}').newLine()
   writeLine(annotations.diagnosticsIgnore.end)
@@ -701,7 +846,7 @@ function genObjectProperty(
     breakMapping(prop.loc)
     if (isStaticExpression(prop.arg)) {
       if (/^[a-zA-Z_$0-9]+$/.test(prop.arg.content)) {
-        ctx.write(prop.arg.content, prop.arg.loc, true).write(': ')
+        ctx.write(prop.arg.content, prop.arg.loc, true)
       } else {
         ctx.write(JSON.stringify(prop.arg.content), prop.arg.loc, true)
       }
@@ -791,23 +936,23 @@ function genCommentNode(node: CommentNode): void {
   ctx.write('/*').write(node.content, node.loc).write('*/')
 }
 
-function genForNode(node: ForNode): void {
+function genForNode(forNode: ForNode): void {
   wrap('{', '}', () => {
     ctx.newLine()
     indent(() => {
-      genFn(getRuntimeFn(ctx.internalIdentifierPrefix, 'renderList'), () => {
-        genForNodeArgs(node)
+      genFn(getRuntimeFn(ctx.typeIdentifier, 'renderList'), () => {
+        genForNodeArgs(forNode)
         ctx.write(' => {').newLine()
         indent(() => {
-          genNodeHoists(node)
+          genNodeHoists(forNode)
           wrap('return (', ')', () => {
-            if (node.children.length === 1) {
+            if (forNode.children.length === 1) {
               ctx.newLine()
-              indent(() => genChildren(node))
+              indent(() => genChildren(forNode))
             } else {
               wrap('<>', '</>', () => {
                 ctx.newLine()
-                indent(() => genChildren(node))
+                indent(() => genChildren(forNode))
               })
             }
           })
@@ -836,6 +981,7 @@ function genIfNode(node: IfNode): void {
     const n = node.branches.length - 1
     recurse(node.branches, {
       enter(branch) {
+        ctx.typeGuards.push(branch.condition)
         if (i > 0) indent(() => ctx.write(': '))
         if (branch.condition != null) {
           genExpressionNode(branch.condition)
@@ -859,6 +1005,9 @@ function genIfNode(node: IfNode): void {
         })
         ctx.newLine()
       },
+      exit() {
+        ctx.typeGuards.pop()
+      },
       fn() {
         if (!hasElse) {
           ctx.write('  : null').newLine()
@@ -880,4 +1029,16 @@ function breakMapping(loc: SourceLocation): void {
   ctx.deindent()
   ctx.write('  ', loc)
   ctx.indent()
+}
+
+function asConst(value: string): string {
+  return ctx.isTypeScript
+    ? `${value} as const`
+    : `/** @type {${value}} */ (${value})`
+}
+
+function typeCastAs(value: string, type: string): string {
+  return ctx.isTypeScript
+    ? `${value} as ${type}`
+    : `/** @type {${type}} */ (${value})`
 }

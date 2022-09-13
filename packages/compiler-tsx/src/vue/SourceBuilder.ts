@@ -1,3 +1,4 @@
+import { invariant } from '@vuedx/shared'
 import type { DecodedSourceMap } from 'magic-string'
 import type { SourceMapLike } from '../types/SourceMapLike'
 import type { TransformedCode } from '../types/TransformedCode'
@@ -7,6 +8,8 @@ import { getMappings } from './sourceMapHelpers'
 export class SourceBuilder {
   private isConsumed: boolean = false
   private code: string = ''
+  private lines: number = 0
+
   private readonly sourceMap: DecodedSourceMap
 
   constructor(fileName: string, content: string) {
@@ -23,12 +26,13 @@ export class SourceBuilder {
   append(code: string, sourceMap: SourceMapLike): void
   append(code: string, sourceMap?: SourceMapLike): void {
     if (this.isConsumed) throw new Error('SourceBuilder is consumed')
-
-    this.code += code
-    const lines = getLineCount(code)
-
+    const chunk = code + '\n'
+    this.code += chunk
+    const lines = code.split('\n').length
+    this.lines += lines
     if (sourceMap != null) {
-      const mappings = getMappings(sourceMap).slice(0, lines)
+      const mappings = getMappings(sourceMap)
+      invariant(mappings.length <= lines, 'Invalid source map.')
       const nameOffset = this.sourceMap.names.length
       if (sourceMap.names != null) this.sourceMap.names.push(...sourceMap.names)
       this.sourceMap.mappings.push(
@@ -54,15 +58,11 @@ export class SourceBuilder {
           }),
         ),
       )
-
-      this.sourceMap.mappings.push(
-        ...new Array(lines - mappings.length).fill([]),
-      )
-    } else {
-      this.sourceMap.mappings.push(...new Array(lines).fill([]))
     }
 
-    if (!this.code.endsWith('\n')) this.code += '\n'
+    for (let i = this.sourceMap.mappings.length; i < this.lines; i++) {
+      this.sourceMap.mappings.push(sourceMap == null ? [[0]] : [])
+    }
   }
 
   end(): TransformedCode {
@@ -72,8 +72,4 @@ export class SourceBuilder {
       map: this.sourceMap,
     }
   }
-}
-
-function getLineCount(source: string): number {
-  return source.split('\n').length + (source.endsWith('\n') ? -1 : 0)
 }

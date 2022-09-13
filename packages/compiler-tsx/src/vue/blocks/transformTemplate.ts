@@ -17,7 +17,7 @@ export function transformTemplate(
   const slotsIdentifier = `${options.internalIdentifierPrefix}slots`
   if (template == null) {
     return {
-      code: '',
+      code: `export function ${slotsIdentifier}() { return {} }`,
       map: {
         file: '',
         mappings: [],

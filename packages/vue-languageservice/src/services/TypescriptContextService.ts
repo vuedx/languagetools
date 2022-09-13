@@ -1,5 +1,12 @@
+/* eslint-disable no-labels */
 import { ProjectPreferences, VueProject } from '@vuedx/projectconfig'
-import { cache, isVueFile, toFileName, toPosixPath } from '@vuedx/shared'
+import {
+  binarySearchKey,
+  cache,
+  invariant,
+  isVueFile,
+  toPosixPath,
+} from '@vuedx/shared'
 import * as Path from 'path'
 import { TS_LANGUAGE_SERVICE } from '../constants'
 import type { Disposable } from '../contracts/Disposable'
@@ -55,7 +62,7 @@ export class TypescriptContextService implements Disposable {
     return this.options.project
   }
 
-  public isConfugeredProject(
+  public isConfiguredProject(
     project: TSProject,
   ): project is TypeScript.server.ConfiguredProject & TSProject {
     return project.projectKind === this.lib.server.ProjectKind.Configured
@@ -97,7 +104,7 @@ export class TypescriptContextService implements Disposable {
   }
 
   public getProjectRuntimeFile(fileName: string): string {
-    const runtimeFileName = this.getProjectRuntimeFileName(fileName)
+    const runtimeFileName = this.getProjectRuntimeFileNameFor(fileName)
 
     return this.#projectRuntimeFileCache.withCache(
       runtimeFileName,
@@ -167,7 +174,7 @@ export class TypescriptContextService implements Disposable {
     )
   }
 
-  public getProjectRuntimeFileName(fileName: string): string {
+  public getProjectRuntimeFileNameFor(fileName: string): string {
     const project = this.getVueProjectFor(fileName)
     return toPosixPath(project.runtimeFile)
   }
@@ -285,6 +292,10 @@ export class TypescriptContextService implements Disposable {
     }
   }
 
+  public getTypeChecker(): TypeScript.TypeChecker | null {
+    return this.service.getProgram()?.getTypeChecker() ?? null
+  }
+
   public dispose(): void {
     this.#projects.forEach((project) => project.dispose())
     this.#projects.clear()
@@ -309,7 +320,9 @@ export class TypescriptContextService implements Disposable {
   public ensureUptoDate(fileName: string): void {
     this.project.getLanguageService(true) // forces update
     if (isVueFile(fileName)) {
-      fileName = toFileName({ type: 'vue-tsx', fileName }) // TODO: Check if TSX is enabled
+      fileName = this.project.isJsOnlyProject()
+        ? `${fileName}.jsx`
+        : `${fileName}.tsx`
     }
 
     if (
@@ -342,5 +355,100 @@ export class TypescriptContextService implements Disposable {
     }
 
     scriptInfo.attachToProject(this.project)
+  }
+
+  public getTokenAtPosition(
+    sourceFile: TypeScript.SourceFile,
+    position: number,
+  ): TypeScript.Node {
+    return this.#getTokenAtPositionWorker(sourceFile, position)
+  }
+
+  #getTokenAtPositionWorker(
+    sourceFile: TypeScript.SourceFile,
+    position: number,
+  ): TypeScript.Node {
+    let current: TypeScript.Node = sourceFile
+    let foundToken: TypeScript.Node | undefined
+    const { SyntaxKind } = this.lib
+    outer: while (true) {
+      // find the child that contains 'position'
+
+      const children = current.getChildren(sourceFile)
+      const i = binarySearchKey(
+        children,
+        position,
+        (_, index) => index,
+        (middle, _) => {
+          const child = children[middle]
+          invariant(child != null)
+          const end = child.getEnd()
+          if (end < position) return -1
+
+          const start = child.getStart(sourceFile, /*includeJsDoc*/ true)
+          if (start > position) return 1
+
+          // First element whose start position is before the input and
+          // whose end position is after or equal to the input.
+          if (nodeContainsPosition(child, start, end)) {
+            const previous = children[middle - 1]
+            if (previous != null) {
+              // We want the _first_ element that contains the position,
+              // so left-recur if the prior node also contains the position.
+              if (nodeContainsPosition(previous)) {
+                return 1
+              }
+            }
+
+            return 0
+          }
+
+          const previous = children[middle - 1]
+          // This complex condition makes us left-recur around a zero-length
+          // node when includePrecedingTokenAtEndPosition is set, rather than
+          // right-recur on it.
+          if (
+            start === position &&
+            previous != null &&
+            previous.getEnd() === position &&
+            nodeContainsPosition(previous)
+          ) {
+            return 1
+          }
+          return -1
+        },
+      )
+
+      if (foundToken != null) {
+        return foundToken
+      }
+      if (i >= 0 && children[i] != null) {
+        current = children[i] as TypeScript.Node
+        continue outer
+      }
+
+      return current
+    }
+
+    function nodeContainsPosition(
+      node: TypeScript.Node,
+      start?: number,
+      end?: number,
+    ): boolean {
+      end ??= node.getEnd()
+      if (end < position) return false
+
+      start ??= node.getFullStart()
+      // If this child begins after position, then all subsequent children will as well.
+      if (start > position) {
+        return false
+      } else if (position < end) {
+        return true
+      } else if (position === end && node.kind === SyntaxKind.EndOfFileToken) {
+        return true
+      } else {
+        return false
+      }
+    }
   }
 }

@@ -25,10 +25,6 @@ export class CodeFixService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences,
   ): readonly TypeScript.CodeFixAction[] {
-    if (this.fs.isVueSchemeFile(fileName)) {
-      return [] // scheme files are read-only
-    }
-
     return this.#resolveCodeFixActions(
       this.fs.isVueFile(fileName)
         ? this.#getVueCodeFixesAtPosition(
@@ -66,7 +62,7 @@ export class CodeFixService
     if (genreatedStart == null || generatedEnd == null) return []
 
     return this.ts.service.getCodeFixesAtPosition(
-      block.geneartedFileName,
+      block.generatedFileName,
       genreatedStart,
       generatedEnd,
       errorCodes,
@@ -91,10 +87,6 @@ export class CodeFixService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences,
   ): TypeScript.CombinedCodeActions {
-    if (this.fs.isVueSchemeFile(scope.fileName)) {
-      return { changes: [] } // scheme files are read-only
-    }
-
     const result = this.fs.isVueFile(scope.fileName)
       ? this.#getVueCombinedCodeFix(scope, fixId, formatOptions, preferences)
       : this.ts.service.getCombinedCodeFix(
@@ -120,7 +112,7 @@ export class CodeFixService
     if (file == null) return { changes: [] }
 
     return this.ts.service.getCombinedCodeFix(
-      { type: 'file', fileName: file.geneartedFileName },
+      { type: 'file', fileName: file.generatedFileName },
       fixId,
       formatOptions,
       preferences,

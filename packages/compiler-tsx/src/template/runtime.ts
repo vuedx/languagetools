@@ -1,6 +1,15 @@
 export function getRuntimeFn(
   prefix: string,
-  name: 'renderList' | 'flat' | 'resolveComponent' | 'resolveDirective',
+  name:
+    | 'checkDirective'
+    | 'checkOnDirective'
+    | 'checkSlots'
+    | 'flat'
+    | 'guard'
+    | 'renderList'
+    | 'resolveComponent'
+    | 'resolveDirective'
+    | 'union',
 ): string {
-  return `${prefix}TypeCheck.internal.${name}`
+  return `${prefix}.internal.${name}`
 }

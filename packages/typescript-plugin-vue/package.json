@@ -17,6 +17,7 @@
           "format": "module",
           "file": "lib/standalone.cjs",
           "bundle": {
+            "platform": "node",
             "format": "cjs",
             "external": [
               "typescript",
@@ -28,6 +29,7 @@
           "format": "module",
           "file": "lib/standalone.mjs",
           "bundle": {
+            "platform": "node",
             "format": "esm",
             "external": [
               "typescript",

@@ -14,21 +14,18 @@ import { checkSlots, SlotsFrom } from './shared/checkSlots'
 import { resolveComponent } from './shared/components'
 import { resolveDirective } from './shared/directives'
 import { getElementType } from './shared/element'
-import {
-  AttrsOf,
-  MergeAttrs,
-  propCompletionHelper,
-  PropsOf,
-} from './shared/Props'
+import { AttrsOf, MergeAttrs, PropsOf } from './shared/Props'
 import { renderList } from './shared/renderList'
 import { renderSlot } from './shared/renderSlot'
 import { Slots } from './shared/Slots'
-import { flat, union } from './shared/utils'
+import { flat, union, merge, getNameOption } from './shared/utils'
+import { EmitsToProps, EmitTypeToEmits } from './shared/emits'
+import {} from './shared/jsx'
 
 export type version = '3.x'
 
 export namespace internal {
-  export { flat, union }
+  export { flat, union, merge, getNameOption }
   export { resolveComponent, resolveDirective, getElementType }
   export { renderList, renderSlot, Slots }
   export { defineComponent }
@@ -41,6 +38,13 @@ export namespace internal {
     checkHTMLElementType,
     checkModelDirective,
   }
-  export { propCompletionHelper }
-  export { PropsOf, AttrsOf, SlotsFrom, MergeAttrs }
+
+  export {
+    PropsOf,
+    AttrsOf,
+    SlotsFrom,
+    MergeAttrs,
+    EmitsToProps,
+    EmitTypeToEmits,
+  }
 }

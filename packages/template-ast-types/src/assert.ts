@@ -18,7 +18,7 @@ import {
 import { NodeTypes } from './node'
 
 /**
- * Checks if it is a valid JavaScript identifers.
+ * Checks if it is a valid JavaScript identifiers.
  *
  * @public
  */
@@ -159,3 +159,21 @@ export function isAttributeNode(node: unknown): node is AttributeNode {
 export function isDirectiveNode(node: unknown): node is DirectiveNode {
   return isNode(node) && node.type === NodeTypes.DIRECTIVE
 }
+
+export const builtInDirectives = [
+  'bind',
+  'cloak',
+  'else-if',
+  'else',
+  'for',
+  'html',
+  'if',
+  'model',
+  'on',
+  'on',
+  'once',
+  'pre',
+  'show',
+  'slot',
+  'text',
+] as const

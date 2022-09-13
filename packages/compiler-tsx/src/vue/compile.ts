@@ -4,8 +4,7 @@ import {
   SFCBlock,
   SFCDescriptor,
 } from '@vuedx/compiler-sfc'
-import type { Cache } from '@vuedx/shared'
-import { createCache } from '@vuedx/shared'
+import { Cache, createCache, getComponentName } from '@vuedx/shared'
 import type {
   TransformOptions,
   TransformOptionsResolved,
@@ -14,6 +13,7 @@ import { transformCustomBlock } from './blocks/transformCustomBlock'
 import { SourceBuilder } from './SourceBuilder'
 import { rebaseSourceMap } from './sourceMapHelpers'
 
+import type { RootNode } from '@vue/compiler-core'
 import type { RawSourceMap } from 'source-map'
 import { encode } from 'sourcemap-codec'
 import type { TransformedCode } from '../types/TransformedCode'
@@ -21,7 +21,6 @@ import { transformScript } from './blocks/transformScript'
 import { transformScriptSetup } from './blocks/transformScriptSetup'
 import { transformStyle } from './blocks/transformStyle'
 import { transformTemplate } from './blocks/transformTemplate'
-import type { RootNode } from '@vue/compiler-core'
 
 export interface CompileOptions extends TransformOptions {}
 
@@ -29,6 +28,7 @@ export interface CompileOutput extends TransformedCode {
   template?: RootNode
   descriptor: SFCDescriptor
   errors: Array<CompilerError | SyntaxError>
+  unusedIdentifiers: string[]
 }
 
 export function compile(
@@ -51,7 +51,7 @@ export function compileWithDecodedSourceMap(
   source: string,
   options: CompileOptions,
 ): CompileOutput {
-  performance.mark('beforeTransform')
+  // performance.mark('beforeTransform')
   const cache = options.cache ?? createCache(100)
   const key = (name: string): string => `${options.fileName}::${name}`
   const previous = cache.get(key('descriptor')) as SFCDescriptor | undefined
@@ -61,13 +61,16 @@ export function compileWithDecodedSourceMap(
   const internalIdentifierPrefix =
     options.internalIdentifierPrefix ?? '__VueDX__'
   const contextIdentifier = `${internalIdentifierPrefix}ctx`
+  const typeIdentifier = `${internalIdentifierPrefix}TypeCheck`
+  const jsxIdentifier = `${internalIdentifierPrefix}JSX`
   const resolvedOptions: TransformOptionsResolved = {
     ...options,
     runtimeModuleName: 'vue',
     typeCheckModuleName: 'vuedx~runtime',
+    typeIdentifier,
+    jsxIdentifier,
     contextIdentifier,
     internalIdentifierPrefix,
-    componentName: options.fileName,
     isTypeScript: options.isTypeScript ?? (lang === 'ts' || lang === 'tsx'),
     cache,
     descriptor,
@@ -93,12 +96,7 @@ export function compileWithDecodedSourceMap(
     previous?.scriptSetup,
     descriptor.scriptSetup,
     cache,
-    () =>
-      transformScriptSetup(
-        descriptor.scriptSetup,
-        resolvedOptions,
-        template.ast,
-      ),
+    () => transformScriptSetup(descriptor.scriptSetup, resolvedOptions),
   )
 
   function region(name: string, fn: () => void): void {
@@ -107,6 +105,13 @@ export function compileWithDecodedSourceMap(
     builder.append(`//#endregion`)
   }
 
+  builder.append(`/** @jsx ${jsxIdentifier}.createElement */`)
+  builder.append(
+    `import * as ${jsxIdentifier} from '${resolvedOptions.runtimeModuleName}';`,
+  )
+  builder.append(
+    `import * as ${resolvedOptions.typeIdentifier} from '${resolvedOptions.typeCheckModuleName}';`,
+  )
   region('<script>', () => {
     builder.append(
       script.code,
@@ -143,7 +148,7 @@ export function compileWithDecodedSourceMap(
     scriptSetup != null ? scriptSetup.exportIdentifier : script.exportIdentifier
 
   builder.append(
-    `const ${contextIdentifier} = ${customBlocksResults.reduce(
+    `const ${contextIdentifier} = ${[...customBlocksResults, script].reduce(
       (code, result) => {
         if (result.decoratorIdentifier != null) {
           return `${result.decoratorIdentifier}(${code})`
@@ -176,20 +181,34 @@ export function compileWithDecodedSourceMap(
     })
   })
 
-  const slotsType = `ReturnType<typeof ${template.slotsIdentifier}>`
   region('public component definition', () => {
     builder.append(
-      `export default class extends ${defaultExportIdentifier} {\n${
-        resolvedOptions.isTypeScript
-          ? `  $slots: ${slotsType}`
-          : `  /** @type {${slotsType}} */ $slots`
-      }\n}`,
+      [
+        `export default class ${getComponentName(options.fileName)} {`,
+        defineProperty(
+          '$props',
+          scriptSetup?.emitIdentifier != null
+            ? `(typeof ${resolvedOptions.contextIdentifier}.$props & ${resolvedOptions.typeIdentifier}.internal.EmitsToProps<typeof ${scriptSetup.emitIdentifier}>)`
+            : `typeof ${resolvedOptions.contextIdentifier}.$props`,
+        ),
+        defineProperty(
+          '$slots',
+          `${resolvedOptions.typeIdentifier}.internal.Slots<ReturnType<typeof ${template.slotsIdentifier}>>`,
+        ),
+        `}`,
+      ].join('\n'),
     )
   })
 
   const output = builder.end()
-  performance.mark('afterTransform')
-  performance.measure('transform', 'beforeTransform', 'afterTransform')
+  // performance.mark('afterTransform')
+  // performance.measure('transform', 'beforeTransform', 'afterTransform')
+
+  const usedIdentifiers = new Set(
+    template.ast != null ? template.ast.scope.globals : [],
+  )
+  const identifiers =
+    scriptSetup?.identifiers.filter((id) => !usedIdentifiers.has(id)) ?? []
 
   return {
     code: output.code,
@@ -203,6 +222,13 @@ export function compileWithDecodedSourceMap(
     descriptor,
     errors,
     template: template.ast,
+    unusedIdentifiers: identifiers,
+  }
+
+  function defineProperty(name: string, type: string): string {
+    return resolvedOptions.isTypeScript
+      ? `  ${name} = null as unknown as ${type};`
+      : `  ${name}= /** @type {${type}} */ (/** @type {unknown} */ (null));`
   }
 }
 

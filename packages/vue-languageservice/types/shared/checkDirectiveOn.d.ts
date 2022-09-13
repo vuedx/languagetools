@@ -10,18 +10,23 @@ import {
 export function checkHTMLElementType<K extends string>(
   tag: K,
   instance: unknown,
-): instance is K extends keyof HTMLElementTagNameMap
+): instance is K extends keyof KnownKeys<HTMLElementTagNameMap>
   ? HTMLElementTagNameMap[K]
-  : K extends keyof SVGElementTagNameMap
+  : K extends keyof KnownKeys<SVGElementTagNameMap>
   ? SVGElementTagNameMap[K]
   : EventTarget
 
 export function checkOnDirective<
+  IntrinsicElements,
   T,
-  A extends GetArg<T>,
-  E extends GetExp<T, A>,
-  M extends GetModifiers<T, A>
->(tag: T, arg: A, exp: E, modifiers: Partial<Record<M, boolean>>): E
+  A extends GetArg<IntrinsicElements, T>,
+>(
+  intrinsicElements: IntrinsicElements,
+  tag: T,
+  arg: A & GetArg<IntrinsicElements, T>,
+  exp: GetExp<IntrinsicElements, T, A>,
+  modifiers: Partial<Record<GetModifiers<IntrinsicElements, T, A>, boolean>>,
+): void
 
 type MouseEventNames =
   | 'auxclick'
@@ -93,12 +98,22 @@ type ModifiersForNativeEvent<EventName> =
           | 'exact'
       : never)
 
-type GetArg<T> = RemoveOnPrefix<OnlyEventNames<keyof PropsOf<T>>>
+type GetArg<IntrinsicElements, T> = RemoveOnPrefix<
+  OnlyEventNames<keyof PropsOf<IntrinsicElements, T>>
+>
 
-type GetExp<T, A extends GetArg<T>> = Get<PropsOf<T>, EventName<A>>
+type GetExp<IntrinsicElements, T, A extends GetArg<IntrinsicElements, T>> = Get<
+  PropsOf<IntrinsicElements, T>,
+  EventName<A>
+>
 
-type GetModifiers<T, A> = T extends keyof KnownKeys<JSX.IntrinsicElements>
-  ? A extends GetArg<T>
-    ? ModifiersForNativeEvent<A>
+type GetModifiers<IntrinsicElements, T, A> =
+  T extends keyof KnownKeys<JSX.IntrinsicElements>
+    ? A extends GetArg<IntrinsicElements, T>
+      ? ModifiersForNativeEvent<A>
+      : never
     : never
-  : never
+
+// Quick Test:
+type P = PropsOf<JSX.IntrinsicElements, 'div'>
+type A = GetArg<JSX.IntrinsicElements, 'div'>

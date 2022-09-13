@@ -34,11 +34,28 @@ const preprocess: NodeTransform = (node, context) => {
   node.props.forEach((prop, index) => {
     // remove empty modifiers
     if (isDirectiveNode(prop)) {
+      const isShorthand = /^[:@.^]/.test(prop.loc.source)
+      const nameEndOffset = isShorthand ? 1 : 2 + prop.name.length
+      let offset =
+        prop.arg != null
+          ? prop.arg.loc.end.offset - prop.loc.start.offset
+          : nameEndOffset
+
+      prop.nameLoc = sliceLoc(prop.loc, 0, nameEndOffset)
+      prop.modifierLocs = prop.modifiers.map((modifier) => {
+        try {
+          offset += 1
+          return sliceLoc(prop.loc, offset, modifier.length)
+        } finally {
+          offset += modifier.length
+        }
+      })
+
+      // remove braces from arg loc
       if (prop.arg?.loc.source.startsWith('[') === true) {
         prop.arg.loc = sliceLoc(prop.arg.loc, 1, -1)
       }
-
-      prop.modifiers = prop.modifiers.filter((modifier) => modifier !== '')
+      // prop.modifierLocs =
     } else {
       // parse ^ shorthand for v-bind
       if (prop.name.startsWith('^')) {
@@ -46,6 +63,7 @@ const preprocess: NodeTransform = (node, context) => {
         node.props[index] = {
           type: 7 /* DIRECTIVE */,
           name: 'bind',
+          nameLoc: createLoc(prop.loc, 0, 1),
           arg: isDynamic
             ? createSimpleExpression(
                 prop.name.slice(2, -1),
@@ -59,6 +77,7 @@ const preprocess: NodeTransform = (node, context) => {
               ),
           loc: prop.loc,
           modifiers: [],
+          modifierLocs: [],
           exp:
             prop.value == null
               ? undefined

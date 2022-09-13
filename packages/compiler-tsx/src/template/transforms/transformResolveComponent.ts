@@ -26,9 +26,19 @@ export function createResolveComponentTransform(
 ): NodeTransform {
   let dynamicComponentCounter = 0
 
-  const h = getRuntimeFn.bind(null, ctx.internalIdentifierPrefix)
+  const h = getRuntimeFn.bind(null, ctx.typeIdentifier)
 
-  const hoist = (exp: SimpleExpressionNode): string => {
+  const resolveComponentArgs = `${
+    ctx.isTypeScript
+      ? `{} as unknown as ${ctx.jsxIdentifier}.GlobalComponents`
+      : `/** @type {${ctx.jsxIdentifier}.GlobalComponents} */ (/** @type {unknown} */ ({}))`
+  }, ${
+    ctx.isTypeScript
+      ? `{} as unknown as ${ctx.jsxIdentifier}.JSX.IntrinsicElements`
+      : `/** @type {${ctx.jsxIdentifier}.JSX.IntrinsicElements} */ (/** @type {unknown} */ ({}))`
+  }, ${ctx.contextIdentifier}, `
+
+  const hoistExpressionAsComponent = (exp: SimpleExpressionNode): string => {
     const name = `${
       ctx.internalIdentifierPrefix
     }_Component${dynamicComponentCounter++}`
@@ -36,7 +46,9 @@ export function createResolveComponentTransform(
       createCompoundExpression([
         `const `,
         name,
-        ` = ${h('resolveComponent')}(${ctx.contextIdentifier}, `,
+        ` = ${h('resolveComponent')}(${resolveComponentArgs}`,
+        exp,
+        ', ',
         exp,
         ');',
       ]),
@@ -81,21 +93,23 @@ export function createResolveComponentTransform(
     if (node.tag !== 'component') {
       if (/[A-Z.-]/.test(node.tag)) {
         ctx.used.components.add(node.tag)
-        const prefix = node.tag.split('.')[0] ?? node.tag
-        const id = `${pascalCase(prefix)}`
+        const name = node.tag.split('.')[0] ?? node.tag
+        const id = `${pascalCase(name)}`
         node.resolvedName = node.tag.includes('.')
-          ? id + node.tag.substring(prefix.length)
+          ? id + node.tag.slice(name.length)
           : id
         if (!ctx.scope.hasIdentifier(id)) {
           ctx.scope.addIdentifier(id)
           ctx.scope.hoist(
             createCompoundExpression([
               'const ',
-              id,
-              ` = ${h('resolveComponent')}(${ctx.contextIdentifier}, `,
-              s(prefix),
+              node.resolvedName,
+              ` = ${h('resolveComponent')}(${resolveComponentArgs}`,
+              'null',
               ', ',
-              s(pascalCase(prefix)),
+              s(name),
+              ', ',
+              s(pascalCase(name)),
               ');',
             ]),
           )
@@ -104,8 +118,9 @@ export function createResolveComponentTransform(
       return undefined
     } else {
       isProp = isProp ?? findProp(node, 'is')
+
       if (isAttributeNode(isProp) && isProp.value != null) {
-        node.resolvedName = hoist(
+        node.resolvedName = hoistExpressionAsComponent(
           createSimpleExpression(
             `${JSON.stringify(isProp.value.content)} as const`,
             false,
@@ -116,7 +131,7 @@ export function createResolveComponentTransform(
         isDirectiveNode(isProp) &&
         isSimpleExpressionNode(isProp.exp)
       ) {
-        node.resolvedName = hoist(isProp.exp)
+        node.resolvedName = hoistExpressionAsComponent(isProp.exp)
       }
       node.props = node.props.filter((prop) => prop !== isProp)
       return () => {

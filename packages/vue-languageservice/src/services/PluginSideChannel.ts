@@ -1,7 +1,4 @@
-import {
-  isVueSFCDescriptorFile,
-  isVueTemplateASTFile
-} from '@vuedx/shared'
+import { isVueSFCDescriptorFile, isVueTemplateASTFile } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import { FilesystemService } from './FilesystemService'
 import { TypescriptContextService } from './TypescriptContextService'
@@ -23,7 +20,14 @@ export class PluginSideChannel {
     fileName: string,
   ): Promise<string | undefined> {
     if (this.fs.isVueTsFile(fileName)) {
-      return this.fs.getVueFile(fileName)?.getText()
+      const file = this.fs.getVueFile(fileName)
+      if (file == null) return undefined
+
+      return (
+        file.getText() +
+        '\n//#sourceMappingURL=data:application/json;base64,' +
+        Buffer.from(file.map).toString('base64')
+      )
     } else if (this.fs.isProjectRuntimeFile(fileName)) {
       return this.ts.getProjectRuntimeFile(fileName)
     } else if (isVueSFCDescriptorFile(fileName)) {
@@ -42,7 +46,7 @@ export class PluginSideChannel {
   public async getRelatedVirtualFiles(fileName: string): Promise<string[]> {
     const file = this.fs.getVueFile(fileName)
     if (file == null) return []
-    return [file.geneartedFileName]
+    return [file.generatedFileName]
   }
 }
 

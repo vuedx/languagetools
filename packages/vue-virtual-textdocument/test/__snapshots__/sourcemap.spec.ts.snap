@@ -1,17 +1,100 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`sourcemaps component 1`] = `
+/** @jsx __VueDX_JSX.createElement */
+import * as __VueDX_JSX from 'vue';
+import * as __VueDX_TypeCheck from 'vuedx~runtime';
+//#region <script>
+
+function __VueDX_RegisterSelf<T extends {}>(arg0: T) {
+  const key = "Example" as const;
+  return { ...arg0, [key]: Example };
+}
+//#endregion
+//#region <script setup>
+import { defineComponent as __VueDX_defineComponent } from "vue";
+import { ref } from 'vue';
+
+const __VueDX_SetupComponent = __VueDX_defineComponent(__VueDX_arg0 => {
+  const a = ref(false);
+  let b = 5;
+  let c: {
+    foo: string;
+  } | undefined;
+
+  /*<vuedx:setupGlobals>*/
+  return {
+    ref,
+    a,
+    b,
+    c
+  };
+  /*</vuedx:setupGlobals>*/
+});
+//#endregion
+const __VueDX_ctx = __VueDX_RegisterSelf(new __VueDX_SetupComponent())
+//#region <template>
+export function __VueDX_render() {
+  /*<vuedx:templateGlobals>*/
+  let a = __VueDX_ctx.a;
+  let b = __VueDX_ctx.b;
+  let c = __VueDX_ctx.c;
+  /*</vuedx:templateGlobals>*/
+  return (
+    <>
+      <div
+        innerHTML={a}
+        /*<vuedx:tsx-completions-target/>*/
+      />
+      <div
+        innerHTML={b}
+        /*<vuedx:tsx-completions-target/>*/
+      />
+      <div
+        innerHTML={c}
+        /*<vuedx:tsx-completions-target/>*/
+      />
+      <div
+        innerHTML={c?.foo}
+        /*<vuedx:tsx-completions-target/>*/
+      />
+    </>
+  )
+}
+/*<vuedx:diagnosticsIgnore>*/
+function __VueDX_slots() {
+  /*<vuedx:templateGlobals>*/
+  let a = __VueDX_ctx.a;
+  let b = __VueDX_ctx.b;
+  let c = __VueDX_ctx.c;
+  /*</vuedx:templateGlobals>*/
+  return __VueDX_TypeCheck.internal.union(__VueDX_TypeCheck.internal.flat([
+  ]))
+}
+/*</vuedx:diagnosticsIgnore>*/
+
+//#endregion
+//#region public component definition
+export default class Example {
+  $props = null as unknown as typeof __VueDX_ctx.$props;
+  $slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX_slots>>;
+}
+//#endregion
+
+`;
+
 exports[`sourcemaps directives 1`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                  ^^^^^ > 5 at 34
+                  ^^^^^ > 5 at 34 (2:18)
     </template>
     
 ----
         a=""
         onA={$event => {
           (onNum)($event);
-           ^^^^^ > 5 at 514
+           ^^^^^ > 5 at 951 (27:11)
         }}
         onB={$event => {
 `;
@@ -20,14 +103,14 @@ exports[`sourcemaps directives 2`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                     ^^ > 2 at 37
+                  ^^^^^ > 5 at 34 (2:18)
     </template>
     
 ----
         a=""
         onA={$event => {
           (onNum)($event);
-              ^^ > 2 at 517
+           ^^^^^ > 5 at 951 (27:11)
         }}
         onB={$event => {
 `;
@@ -36,14 +119,14 @@ exports[`sourcemaps directives 3`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                  ^^^^^ > 5 at 34
+                     ^^ > 2 at 37 (2:21)
     </template>
     
 ----
         a=""
         onA={$event => {
           (onNum)($event);
-           ^^^^^ > 5 at 514
+              ^^ > 2 at 954 (27:14)
         }}
         onB={$event => {
 `;
@@ -52,14 +135,14 @@ exports[`sourcemaps directives 4`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                     ^^ > 2 at 37
+                     ^^ > 2 at 37 (2:21)
     </template>
     
 ----
         a=""
         onA={$event => {
           (onNum)($event);
-              ^^ > 2 at 517
+              ^^ > 2 at 954 (27:14)
         }}
         onB={$event => {
 `;
@@ -68,46 +151,222 @@ exports[`sourcemaps directives 5`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                            ^^^^ > 4 at 44
+                  ^^^^^ > 5 at 34 (2:18)
     </template>
     
 ----
+        a=""
+        onA={$event => {
           (onNum)($event);
+           ^^^^^ > 5 at 951 (27:11)
         }}
         onB={$event => {
-        ^^^^ > 4 at 549
-          (onNum)($event);
-        }}
 `;
 
 exports[`sourcemaps directives 6`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                                                   ^^^^^^^^ > 8 at 67
+                  ^^^^^ > 5 at 34 (2:18)
     </template>
     
 ----
-        onC={$event => {
-          (($event) => {
-          call.a['func']($event)
-                ^^^^^^^^ > 8 at 670
-          })($event);
+        a=""
+        onA={$event => {
+          (onNum)($event);
+           ^^^^^ > 5 at 951 (27:11)
         }}
+        onB={$event => {
 `;
 
 exports[`sourcemaps directives 7`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                                                            ^^^^^^ > 6 at 76
+                     ^^ > 2 at 37 (2:21)
+    </template>
+    
+----
+        a=""
+        onA={$event => {
+          (onNum)($event);
+              ^^ > 2 at 954 (27:14)
+        }}
+        onB={$event => {
+`;
+
+exports[`sourcemaps directives 8`] = `
+
+    <template>
+      <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
+                     ^^ > 2 at 37 (2:21)
+    </template>
+    
+----
+        a=""
+        onA={$event => {
+          (onNum)($event);
+              ^^ > 2 at 954 (27:14)
+        }}
+        onB={$event => {
+`;
+
+exports[`sourcemaps directives 9`] = `
+
+    <template>
+      <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
+                            ^^^^ > 4 at 44 (2:28)
+    </template>
+    
+----
+          (onNum)($event);
+        }}
+        onB={$event => {
+           ^^^^ > 4 at 989 (29:11)
+          (onNum)($event);
+        }}
+`;
+
+exports[`sourcemaps directives 10`] = `
+
+    <template>
+      <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
+                          > 0 at 41 (2:25)
+    </template>
+    
+----
+          (onNum)($event);
+        }}
+        onB={$event => {
+        ^^^^ > 4 at 577 (20:8)
+          (onNum)($event);
+        }}
+`;
+
+exports[`sourcemaps directives 11`] = `
+
+    <template>
+      <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
+                                                   ^^^^^^^^ > 8 at 67 (2:51)
     </template>
     
 ----
         onC={$event => {
           (($event) => {
           call.a['func']($event)
-                         ^^^^^^ > 6 at 679
+                ^^^^^^^^ > 8 at 698 (25:16)
           })($event);
         }}
+`;
+
+exports[`sourcemaps directives 12`] = `
+
+    <template>
+      <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
+                                                   ^^^^^^^^ > 8 at 67 (2:51)
+    </template>
+    
+----
+        onC={$event => {
+          (($event) => {
+          call.a['func']($event)
+                ^^^^^^^^ > 8 at 698 (25:16)
+          })($event);
+        }}
+`;
+
+exports[`sourcemaps directives 13`] = `
+
+    <template>
+      <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
+                                                            ^^^^^^ > 6 at 76 (2:60)
+    </template>
+    
+----
+        onC={$event => {
+          (($event) => {
+          call.a['func']($event)
+                         ^^^^^^ > 6 at 707 (25:25)
+          })($event);
+        }}
+`;
+
+exports[`sourcemaps directives 14`] = `
+
+    <template>
+      <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
+                                                            ^^^^^^ > 6 at 76 (2:60)
+    </template>
+    
+----
+        onC={$event => {
+          (($event) => {
+          call.a['func']($event)
+                         ^^^^^^ > 6 at 707 (25:25)
+          })($event);
+        }}
+`;
+
+exports[`sourcemaps v-on shorthand 1`] = `
+
+    <template>
+      <B a="" @a="onStr" />
+               ^ > 1 at 31 (2:15)
+    </template>
+    
+----
+      <B
+        a=""
+        onA={$event => {
+         > 0 at 944 (25:8)
+          (onStr)($event);
+        }}
+`;
+
+exports[`sourcemaps v-on shorthand 2`] = `
+
+    <template>
+      <B a="" @a="onStr" />
+               > 0 at 30 (2:14)
+    </template>
+    
+----
+      <B
+        a=""
+        onA={$event => {
+         > 0 at 944 (25:8)
+          (onStr)($event);
+        }}
+`;
+
+exports[`sourcemaps v-text 1`] = `
+
+    <template>
+      <div v-text="a" />
+                   ^ > 1 at 35 (2:19)
+    </template>
+    
+----
+    <>
+      <div
+        innerHTML={a}
+                   ^ > 1 at 672 (21:19)
+        /*<vuedx:tsx-completions-target/>*/
+      />
+`;
+
+exports[`sourcemaps v-text 2`] = `
+
+    <template>
+      <div v-text="a" />
+                   ^ > 1 at 35 (2:19)
+    </template>
+    
+----
+    <>
+      <div
+        innerHTML={a}
+                   ^ > 1 at 672 (21:19)
+        /*<vuedx:tsx-completions-target/>*/
+      />
 `;

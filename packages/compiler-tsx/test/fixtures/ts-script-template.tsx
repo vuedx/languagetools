@@ -1,6 +1,12 @@
+/** @jsxImportSource vue */
 //#region <script>
-import { defineComponent as __VueDX__defineComponent } from 'vue';
-export const __VueDX__Component = __VueDX__defineComponent({});
+
+import { defineComponent } from 'vue'
+
+export const __VueDX__Component = defineComponent({
+  data: () => ({ foo: 'string' }),
+})
+
 //#endregion
 const __VueDX__ctx = new __VueDX__Component()
 //#region <template>
@@ -46,9 +52,10 @@ function __VueDX__slots() {
   ])
 }
 /*</vuedx:diagnosticsIgnore>*/
+
 //#endregion
 //#region public component definition
 export default class extends __VueDX__Component {
-  $slots: ReturnType<typeof __VueDX__slots>
+  children = {} as unknown as ReturnType<typeof __VueDX__slots>
 }
 //#endregion

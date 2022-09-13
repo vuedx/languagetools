@@ -2,6 +2,7 @@ import type {
   AttributeNode,
   BaseElementNode,
   CompoundExpressionNode,
+  DirectiveNode,
   Node,
   SourceLocation,
 } from '@vue/compiler-core'
@@ -16,6 +17,11 @@ export interface CustomBaseElementNode extends BaseElementNode {
   tagLoc: SourceLocation
   startTagLoc: SourceLocation
   endTagLoc?: SourceLocation
+}
+
+export interface CustomDirectiveNode extends DirectiveNode {
+  nameLoc?: SourceLocation
+  modifierLocs: SourceLocation[]
 }
 
 export interface CustomAttributeNode extends AttributeNode {
@@ -43,8 +49,11 @@ declare module '@vue/compiler-core' {
   }
 
   export interface DirectiveNode {
+    nameLoc?: SourceLocation
+    modifierLocs: SourceLocation[]
     resolvedName?: string
   }
+
   export interface ComponentNode {
     resolvedName?: string
     slots: Array<{

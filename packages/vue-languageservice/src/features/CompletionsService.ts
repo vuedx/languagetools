@@ -1,6 +1,6 @@
 import {
   debug,
-  invarient,
+  invariant,
   isHTMLTag,
   isNotNull,
   isPascalCase,
@@ -73,7 +73,7 @@ export class CompletionsService
     @inject(LanguageServiceProvider)
     private readonly langs: LanguageServiceProvider,
   ) {
-    invarient(this.langs)
+    invariant(this.langs)
   }
 
   @debug()
@@ -217,7 +217,7 @@ export class CompletionsService
       if (generatedPosition == null) return
 
       return this.ts.service.getCompletionEntryDetails(
-        file.geneartedFileName,
+        file.generatedFileName,
         generatedPosition,
         entryName,
         formatOptions,
@@ -243,7 +243,6 @@ export class CompletionsService
     position: number,
     options?: TypeScript.DocCommentTemplateOptions,
   ): TypeScript.TextInsertion | undefined {
-    if (this.fs.isVueSchemeFile(fileName)) return
     if (this.fs.isVueFile(fileName)) {
       const block = this.fs.getVueFile(fileName)
       if (block == null) return
@@ -252,7 +251,7 @@ export class CompletionsService
       if (generatedOffset == null) return
 
       return this.ts.service.getDocCommentTemplateAtPosition(
-        block.geneartedFileName,
+        block.generatedFileName,
         generatedOffset,
         options,
       )
@@ -265,7 +264,6 @@ export class CompletionsService
     fileName: string,
     position: number,
   ): TypeScript.JsxClosingTagInfo | undefined {
-    if (this.fs.isVueSchemeFile(fileName)) return
     if (this.fs.isVueFile(fileName)) {
       const block = this.fs.getVueFile(fileName)
       if (block == null) return
@@ -274,7 +272,7 @@ export class CompletionsService
       if (generatedPosition == null) return
 
       return this.ts.service.getJsxClosingTagAtPosition(
-        block.geneartedFileName,
+        block.generatedFileName,
         generatedPosition,
       )
     }
@@ -420,7 +418,7 @@ export class CompletionsService
         completionsInGeneratedCode.push(
           this.#cleanup(
             this.ts.service.getCompletionsAtPosition(
-              file.geneartedFileName,
+              file.generatedFileName,
               generatedOffset,
               this.#getTsxCompletionOptions(options),
             ),
@@ -428,7 +426,7 @@ export class CompletionsService
               mode: 'tag',
               attachAdditionalInfo: {
                 type: info.type,
-                fileName: file.geneartedFileName,
+                fileName: file.generatedFileName,
                 position: generatedOffset,
               },
             },
@@ -449,7 +447,7 @@ export class CompletionsService
         completionsInGeneratedCode.push(
           this.#cleanup(
             this.ts.service.getCompletionsAtPosition(
-              file.geneartedFileName,
+              file.generatedFileName,
               generatedOffset,
               options,
             ),
@@ -457,7 +455,7 @@ export class CompletionsService
               mode: 'all',
               attachAdditionalInfo: {
                 type: info.type,
-                fileName: file.geneartedFileName,
+                fileName: file.generatedFileName,
                 position: generatedOffset,
               },
             },
@@ -507,7 +505,7 @@ export class CompletionsService
 
       if (end > start) {
         replacementSpan = {
-          start: start,
+          start,
           length: end - start,
         }
       }
@@ -869,8 +867,8 @@ export class CompletionsService
     },
   ): TypeScript.CompletionEntry {
     if (entry.source != null) {
-      if (this.fs.isVueTsFile(entry.source)) {
-        entry.source = this.fs.getRealFileName(entry.source)
+      if (this.fs.isVueFile(entry.source)) {
+        entry.source = entry.source.slice(0, -4)
       }
     }
 

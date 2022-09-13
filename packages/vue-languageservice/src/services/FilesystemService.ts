@@ -1,15 +1,8 @@
 import {
-  isFilesystemSchemeFile,
   isNotNull,
   isProjectRuntimeFile,
-  isVueFile,
-  isVueJsxFile,
   isVueRuntimeFile,
-  isVueTsxFile,
-  isVueVirtualFile,
-  parseFileName,
 } from '@vuedx/shared'
-
 import {
   Range,
   TextDocument,
@@ -28,7 +21,7 @@ import { LoggerService } from './LoggerService'
 import type { TypescriptContextService } from './TypescriptContextService'
 
 export class FilesystemService implements Disposable {
-  public static createInstnace(
+  public static createInstance(
     ts: TypescriptContextService,
   ): FilesystemService {
     return new FilesystemService(
@@ -47,9 +40,7 @@ export class FilesystemService implements Disposable {
   ) {}
 
   public getVersion(fileName: string): string {
-    if (isVueVirtualFile(fileName)) {
-      fileName = this.getRealFileName(fileName)
-    }
+    fileName = this.getRealFileNameIfAny(fileName)
 
     return (
       this.ts
@@ -113,18 +104,16 @@ export class FilesystemService implements Disposable {
    * @returns null for non-vue files and when file does not exist
    */
   public getVueFile(fileName: string): VueSFCDocument | null {
-    fileName = this.getRealFileName(fileName)
-    this.logger.debug(`Get ${fileName}`)
+    fileName = this.getRealFileNameIfAny(fileName)
+
     if (!this.isVueFile(fileName)) return null
     const cachedFile = this.vueFiles.get(fileName)
     if (cachedFile != null) return cachedFile
     if (!this.provider.exists(fileName)) return null
 
-    const file = VueSFCDocument.create(
-      fileName,
-      this.provider.read(fileName),
-      {}, // TODO: provide isTypescript value
-    )
+    const file = VueSFCDocument.create(fileName, this.provider.read(fileName), {
+      isTypeScript: !this.ts.project.isJsOnlyProject(),
+    })
 
     const registerFileUpdate = (
       fileName: string,
@@ -142,7 +131,7 @@ export class FilesystemService implements Disposable {
       file.originalFileName,
       (changes, version) => {
         file.update(changes, version)
-        registerFileUpdate(file.geneartedFileName)
+        registerFileUpdate(file.generatedFileName)
         const scriptInfo = registerFileUpdate(file.originalFileName)
         if (scriptInfo == null) return
         scriptInfo.containingProjects.forEach((project) => {
@@ -160,7 +149,7 @@ export class FilesystemService implements Disposable {
         this.logger.info(`File changed: ${eventKind} - ${fileName}`)
         if (eventKind === this.ts.lib.FileWatcherEventKind.Deleted) {
           const generatedScriptInfo = this.ts.project.getScriptInfo(
-            file.geneartedFileName,
+            file.generatedFileName,
           )
           if (generatedScriptInfo != null) {
             this.ts.project.removeFile(generatedScriptInfo, false, true)
@@ -191,26 +180,25 @@ export class FilesystemService implements Disposable {
     return doc.getText().slice(span.start, span.start + span.length)
   }
 
-  public getRealFileName(fileName: string): string {
-    return parseFileName(fileName).fileName
-  }
-
-  public isFilesystemSchemeFile(fileName: string): boolean {
-    return isFilesystemSchemeFile(fileName)
-  }
-
-  public isVueSchemeFile(fileName: string): boolean {
-    if (!isFilesystemSchemeFile(fileName)) return false
-    const parsed = parseFileName(fileName)
-    return parsed.type === 'scheme' && parsed.scheme === 'vue'
-  }
-
   public isVueFile(fileName: string): boolean {
-    return isVueFile(fileName)
+    return fileName.endsWith('.vue')
   }
 
+  /**
+   * @deprecated Use {@link isGeneratedVueFile} instead
+   */
   public isVueTsFile(fileName: string): boolean {
-    return isVueTsxFile(fileName) || isVueJsxFile(fileName)
+    return fileName.endsWith('.vue.tsx') || fileName.endsWith('.vue.jsx')
+  }
+
+  public isGeneratedVueFile(fileName: string): boolean {
+    return fileName.endsWith('.vue.tsx') || fileName.endsWith('.vue.jsx')
+  }
+
+  public getRealFileNameIfAny(fileName: string): string {
+    if (this.isGeneratedVueFile(fileName)) return fileName.slice(0, -4)
+
+    return fileName
   }
 
   public isVueRuntimeFile(fileName: string): boolean {
@@ -275,12 +263,12 @@ export class FilesystemService implements Disposable {
     const changesByFileName = new Map<string, T>()
 
     for (const textChanges of changes) {
-      const tranformedChanges = this.resolveFileTextChanges(textChanges)
-      if (tranformedChanges == null) continue
-      const current = changesByFileName.get(tranformedChanges.fileName)
+      const transformedChanges = this.resolveFileTextChanges(textChanges)
+      if (transformedChanges == null) continue
+      const current = changesByFileName.get(transformedChanges.fileName)
       if (current != null) {
         const changes = [...current.textChanges]
-        tranformedChanges.textChanges.forEach((change) => {
+        transformedChanges.textChanges.forEach((change) => {
           const duplicate = current.textChanges.find((c) =>
             areOverlappingTextSpans(c.span, change.span),
           )
@@ -289,7 +277,7 @@ export class FilesystemService implements Disposable {
         })
         current.textChanges = changes
       } else {
-        changesByFileName.set(tranformedChanges.fileName, tranformedChanges)
+        changesByFileName.set(transformedChanges.fileName, transformedChanges)
       }
     }
 
@@ -309,13 +297,13 @@ export class FilesystemService implements Disposable {
       if (file == null) return null
       return asFileTextChanges({
         ...fileTextChanges,
-        fileName: this.getRealFileName(fileTextChanges.fileName),
+        fileName: file.originalFileName,
         textChanges: fileTextChanges.textChanges
           .map((textChange) => {
             const span = file.findOriginalTextSpan(textChange.span)
 
             if (span == null) return null
-            return { span: span, newText: textChange.newText }
+            return { span, newText: textChange.newText }
           })
           .filter(isNotNull),
       })

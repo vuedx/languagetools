@@ -1,1 +1,1 @@
-module.exports = require('./lib/standalone').default
+module.exports = require('./lib/standalone.cjs').default

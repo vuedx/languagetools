@@ -18,9 +18,12 @@ export class LoggerService {
   readonly #context: string
   #level: LogLevel
 
-  constructor(context: string, level: LogLevel = LogLevel.DEBUG) {
+  constructor(
+    context: string | { name: string },
+    level: LogLevel = LogLevel.DEBUG,
+  ) {
     this.#id = LoggerService.currentId ?? ''
-    this.#context = context
+    this.#context = typeof context === 'string' ? context : context.name
     this.#level = level
   }
 

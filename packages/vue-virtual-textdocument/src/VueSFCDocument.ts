@@ -12,7 +12,7 @@ import {
   binarySearch,
   BinarySearchBias,
   createCache,
-  invarient,
+  invariant,
   isNotNull,
 } from '@vuedx/shared'
 import type { RootNode } from '@vuedx/template-ast-types'
@@ -22,6 +22,7 @@ import {
   TextDocument,
   TextDocumentContentChangeEvent,
 } from 'vscode-languageserver-textdocument'
+import { encode } from 'sourcemap-codec'
 
 export type Mapping = [
   GeneratedLine: number,
@@ -51,7 +52,7 @@ const MappingNameRE = /^<<(P|S|T)>>(\d+)(?:|\d+)$/
 
 export class VueSFCDocument implements TextDocument {
   public readonly originalFileName: string
-  public readonly geneartedFileName: string
+  public readonly generatedFileName: string
   public readonly options: Required<CompileOptions>
 
   private _original: TextDocument
@@ -70,20 +71,47 @@ export class VueSFCDocument implements TextDocument {
       cache: createCache(15), // More than 15 blocks in SFC is not common.
     }
     this.originalFileName = this.options.fileName
-    this.geneartedFileName = `${this.options.fileName}${
+    this.generatedFileName = `${this.options.fileName}${
       this.options.isTypeScript ? '.tsx' : '.jsx'
     }`
   }
 
-  // Used by tsserver
+  /** @deprecated used by tsserver */
   public lineMap: unknown | undefined
-  // Used by tsserver
+
+  /** @deprecated used by tsserver */
   public get text(): string {
-    return this.getText()
+    return this.original.getText()
+  }
+
+  /** @deprecated used by tsserver */
+  public getLineAndCharacterOfPosition(position: number): Position {
+    return this.original.positionAt(position)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  public getSourceFile(fileName: string = this.fileName) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const ctx = this
+
+    return {
+      fileName,
+      get text(): string {
+        return ctx.text
+      },
+      get lineMap(): unknown | undefined {
+        return ctx.lineMap
+      },
+      set lineMap(value: unknown | undefined) {
+        ctx.lineMap = value
+      },
+      getLineAndCharacterOfPosition: (position: number) =>
+        ctx.getLineAndCharacterOfPosition(position),
+    }
   }
 
   public get fileName(): string {
-    return this.geneartedFileName
+    return this.originalFileName
   }
 
   public get descriptor(): SFCDescriptor {
@@ -108,6 +136,19 @@ export class VueSFCDocument implements TextDocument {
 
   public get blocks(): SFCBlock[] {
     return this._compile().blocks
+  }
+
+  public get snapshot(): VueToTsxSnapshot {
+    return this._compile()
+  }
+
+  public get map(): string {
+    const map = this._compile().map
+    return JSON.stringify({
+      ...map,
+      version: 3,
+      mappings: encode(map.mappings),
+    })
   }
 
   public getText(range?: Range): string {
@@ -198,7 +239,7 @@ export class VueSFCDocument implements TextDocument {
           return blocks()
         },
         document: TextDocument.create(
-          `file://${this.geneartedFileName}`,
+          `file://${this.generatedFileName}`,
           this.options.isTypeScript ? 'typescript' : 'javascript',
           this.original.version,
           result.code,
@@ -233,33 +274,24 @@ export class VueSFCDocument implements TextDocument {
     )
     if (index < 0) return null
 
-    return snapshot.mappingsByOriginalOrder[index] ?? null
-  }
-
-  public originalPositionFor(
-    position: Position,
-    searchBias?: SourceMapBiasType,
-  ): Position | null {
-    const mapping = this.findMapping('generated', position, searchBias)
-
-    if (mapping == null) return null
-
-    return {
-      line: mapping[MappingKey.OriginalLine],
-      character: mapping[MappingKey.OriginalColumn],
-    }
-  }
-
-  public originalOffsetAt(
-    offset: number,
-    searchBias?: SourceMapBiasType,
-  ): number | null {
-    const position = this.originalPositionFor(
-      this.generated.positionAt(offset),
-      searchBias,
+    return (
+      (positionType === 'original'
+        ? snapshot.mappingsByOriginalOrder[index]
+        : snapshot.mappingsByGeneratedOrder[index]) ?? null
     )
-    if (position == null) return null
-    return this.original.offsetAt(position)
+  }
+
+  public originalPositionFor(position: Position): Position | null {
+    const offset = this.generated.offsetAt(position)
+    const originalOffset = this.originalOffsetAt(offset)
+    if (originalOffset == null) return null
+    return this.original.positionAt(originalOffset)
+  }
+
+  public originalOffsetAt(offset: number): number | null {
+    const span = this.findOriginalTextSpan({ start: offset, length: 1 })
+    if (span == null) return null
+    return span.start
   }
 
   public findOriginalTextSpan(spanInGeneratedText: TextSpan): TextSpan | null {
@@ -269,41 +301,47 @@ export class VueSFCDocument implements TextDocument {
       position,
       BinarySearchBias.GREATEST_LOWER_BOUND,
     )
-    if (low != null) {
-      const result = this._processMappingUsingMeta(
-        'generated',
-        spanInGeneratedText,
-        low,
-      )
-      if (result != null) return result
-    }
+
+    if (low == null || low[MappingKey.OriginalLine] < 0) return null
+    const result = this._processMappingUsingMeta(
+      'generated',
+      spanInGeneratedText,
+      low,
+    )
+    if (result != null) return result
+
+    const generatedStart = this.generated.offsetAt({
+      line: low[MappingKey.GeneratedLine],
+      character: low[MappingKey.GeneratedColumn],
+    })
+
+    const start =
+      this.original.offsetAt({
+        line: low[MappingKey.OriginalLine],
+        character: low[MappingKey.OriginalColumn],
+      }) +
+      // source mappings are prefix based, so we assume the original
+      // and generated text have the same prefix.
+      Math.abs(generatedStart - spanInGeneratedText.start)
 
     const high = this.findMapping(
       'generated',
       position,
       BinarySearchBias.LEAST_UPPER_BOUND,
     )
+    if (high != null && high[MappingKey.OriginalLine] >= 0) {
+      const end = this.original.offsetAt({
+        line: high[MappingKey.OriginalLine],
+        character: high[MappingKey.OriginalColumn],
+      })
 
-    if (high != null) {
-      const result = this._processMappingUsingMeta(
-        'generated',
-        spanInGeneratedText,
-        high,
-      )
-      if (result != null) return result
-    }
-
-    if (low != null) {
       return {
-        start: this.original.offsetAt({
-          line: low[MappingKey.OriginalLine],
-          character: low[MappingKey.OriginalColumn],
-        }),
-        length: spanInGeneratedText.length,
+        start,
+        length: Math.min(end - start, spanInGeneratedText.length),
       }
     }
 
-    return null
+    return { start, length: spanInGeneratedText.length }
   }
 
   public findGeneratedTextSpan(spanInOriginalText: TextSpan): TextSpan | null {
@@ -314,41 +352,48 @@ export class VueSFCDocument implements TextDocument {
       BinarySearchBias.GREATEST_LOWER_BOUND,
     )
 
-    if (low != null) {
-      const result = this._processMappingUsingMeta(
-        'original',
-        spanInOriginalText,
-        low,
-      )
-      if (result != null) return result
-    }
+    if (low == null) return null
+    const result = this._processMappingUsingMeta(
+      'original',
+      spanInOriginalText,
+      low,
+    )
+    if (result != null) return result
+
+    const originalStart = this.original.offsetAt({
+      line: low[MappingKey.OriginalLine],
+      character: low[MappingKey.OriginalColumn],
+    })
+    const start =
+      this.generated.offsetAt({
+        line: low[MappingKey.GeneratedLine],
+        character: low[MappingKey.GeneratedColumn],
+      }) +
+      // source mappings are prefix based, so we assume the original
+      // and generated text have the same prefix.
+      Math.abs(originalStart - spanInOriginalText.start)
 
     const high = this.findMapping(
       'original',
       position,
       BinarySearchBias.LEAST_UPPER_BOUND,
     )
-
     if (high != null) {
-      const result = this._processMappingUsingMeta(
-        'original',
-        spanInOriginalText,
-        high,
-      )
-      if (result != null) return result
-    }
+      const end = this.generated.offsetAt({
+        line: high[MappingKey.GeneratedLine],
+        character: high[MappingKey.GeneratedColumn],
+      })
 
-    if (low != null) {
       return {
-        start: this.generated.offsetAt({
-          line: low[MappingKey.GeneratedLine],
-          character: low[MappingKey.GeneratedColumn],
-        }),
-        length: spanInOriginalText.length,
+        start,
+        length: Math.min(end - start, spanInOriginalText.length),
       }
     }
 
-    return null
+    return {
+      start,
+      length: spanInOriginalText.length,
+    }
   }
 
   private _processMappingUsingMeta(
@@ -363,24 +408,24 @@ export class VueSFCDocument implements TextDocument {
       switch (result[1]) {
         case 'P':
           {
-            invarient(result[2])
+            invariant(result[2])
             const generatedLength = parseInt(result[2], 10)
-            invarient(Number.isInteger(generatedLength))
+            invariant(Number.isInteger(generatedLength))
             const original = this.original.offsetAt({
               line: mapping[MappingKey.OriginalLine],
               character: mapping[MappingKey.OriginalColumn],
             })
-            const genreated = this.generated.offsetAt({
+            const generated = this.generated.offsetAt({
               line: mapping[MappingKey.GeneratedLine],
               character: mapping[MappingKey.GeneratedColumn],
             })
 
             if (kind === 'generated') {
-              // if span is in genreated range
+              // if span is in generated range
               if (
-                contains({ start: genreated, length: generatedLength }, span)
+                contains({ start: generated, length: generatedLength }, span)
               ) {
-                const skipLength = Math.abs(span.start - genreated)
+                const skipLength = Math.abs(span.start - generated)
                 const length = Math.min(
                   generatedLength - skipLength,
                   span.length,
@@ -402,7 +447,7 @@ export class VueSFCDocument implements TextDocument {
                 )
 
                 return {
-                  start: genreated + skipLength,
+                  start: generated + skipLength,
                   length,
                 }
               }
@@ -411,27 +456,27 @@ export class VueSFCDocument implements TextDocument {
           break
         case 'S':
           {
-            invarient(result[2] != null && result[3] != null)
+            invariant(result[2] != null && result[3] != null)
             const originalLength = parseInt(result[2], 10)
             const generatedLength = parseInt(result[3], 10)
-            invarient(Number.isInteger(originalLength))
-            invarient(Number.isInteger(generatedLength))
-            invarient(originalLength >= generatedLength)
+            invariant(Number.isInteger(originalLength))
+            invariant(Number.isInteger(generatedLength))
+            invariant(originalLength >= generatedLength)
             const diffLength = Math.abs(generatedLength - originalLength)
             const original = this.original.offsetAt({
               line: mapping[MappingKey.OriginalLine],
               character: mapping[MappingKey.OriginalColumn],
             })
-            const genreated = this.generated.offsetAt({
+            const generated = this.generated.offsetAt({
               line: mapping[MappingKey.GeneratedLine],
               character: mapping[MappingKey.GeneratedColumn],
             })
 
             if (kind === 'generated') {
               if (
-                contains({ start: genreated, length: generatedLength }, span)
+                contains({ start: generated, length: generatedLength }, span)
               ) {
-                const skipLength = Math.abs(span.start - genreated)
+                const skipLength = Math.abs(span.start - generated)
                 if (skipLength <= diffLength) {
                   return { start: original, length: originalLength }
                 }
@@ -456,7 +501,7 @@ export class VueSFCDocument implements TextDocument {
                   )
 
                   return {
-                    start: genreated + diffLength + skipLength,
+                    start: generated + diffLength + skipLength,
                     length,
                   }
                 }
@@ -466,12 +511,12 @@ export class VueSFCDocument implements TextDocument {
           break
         case 'T':
           {
-            invarient(result[2] != null && result[3] != null)
+            invariant(result[2] != null && result[3] != null)
             const originalLength = parseInt(result[2], 10)
             const generatedLength = parseInt(result[3], 10)
-            invarient(Number.isInteger(originalLength))
-            invarient(Number.isInteger(generatedLength))
-            invarient(originalLength >= generatedLength)
+            invariant(Number.isInteger(originalLength))
+            invariant(Number.isInteger(generatedLength))
+            invariant(originalLength >= generatedLength)
             const original = this.original.offsetAt({
               line: mapping[MappingKey.OriginalLine],
               character: mapping[MappingKey.OriginalColumn],
@@ -506,29 +551,17 @@ export class VueSFCDocument implements TextDocument {
     return null
   }
 
-  public generatedPositionFor(
-    position: Position,
-    searchBias?: SourceMapBiasType,
-  ): Position | null {
-    const mapping = this.findMapping('original', position, searchBias)
-    if (mapping == null) return null
-    return {
-      line: mapping[MappingKey.GeneratedLine],
-      character: mapping[MappingKey.GeneratedColumn],
-    }
+  public generatedPositionFor(position: Position): Position | null {
+    const offset = this.original.offsetAt(position)
+    const generatedOffset = this.generatedOffsetAt(offset)
+    if (generatedOffset == null) return null
+    return this.generated.positionAt(generatedOffset)
   }
 
-  public generatedOffsetAt(
-    offset: number,
-    searchBias?: SourceMapBiasType,
-  ): number | null {
-    const position = this.generatedPositionFor(
-      this.original.positionAt(offset),
-      searchBias,
-    )
-    if (position == null) return null
-
-    return this.generated.offsetAt(position)
+  public generatedOffsetAt(offset: number): number | null {
+    const span = this.findGeneratedTextSpan({ start: offset, length: 1 })
+    if (span == null) return null
+    return span.start
   }
 
   static create(

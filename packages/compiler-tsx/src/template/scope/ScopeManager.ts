@@ -7,7 +7,7 @@ export class ScopeManager {
   private readonly imports: Record<string, Record<string, string>> = {}
   private readonly rootScope: CompoundExpressionNode[] = []
 
-  private currentScope: CompoundExpressionNode[] = []
+  private currentScope: CompoundExpressionNode[] = this.rootScope
 
   getTopLevelNodes(): CompoundExpressionNode[] {
     const getSpecifiers = (specifiers: Record<string, string>): string => {

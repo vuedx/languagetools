@@ -1,3 +1,5 @@
+import { invariant } from './assert'
+
 export function isArray<T>(value: any): value is T[] {
   return Array.isArray(value)
 }
@@ -160,9 +162,20 @@ function recursiveSearch<T>(
   compare: (a: T, b: T) => number,
   bias: BinarySearchBiasType,
 ): number {
+  if (haystack.length === 0) return -1
   const mid = Math.floor((low + high) / 2)
   const value = haystack[mid] as T
-  const comparison = compare(needle, value)
+  const comparison = ((): number => {
+    try {
+      return compare(needle, value)
+    } catch (e) {
+      throw new Error(
+        `ComparisonError: ${
+          (e as Error).message
+        }. low: ${low}, high: ${high}, mid: ${mid}`,
+      )
+    }
+  })()
 
   if (comparison === 0) return mid
   else if (comparison > 0) {
@@ -205,13 +218,37 @@ export function binarySearch<T>(
 
   if (index < 0) return -1
 
-  while (index - 1 > 0) {
-    if (compare(haystack[index] as T, haystack[index - 1] as T) !== 0) {
-      break
-    }
-
+  while (
+    index > 0 &&
+    compare(haystack[index] as T, haystack[index - 1] as T) === 0
+  ) {
     --index
   }
 
   return index
+}
+
+export function binarySearchKey<T, U>(
+  array: readonly T[],
+  key: U,
+  keySelector: (value: T, index: number) => U,
+  keyComparer: (a: U, b: U) => number,
+  offset: number = 0,
+): number {
+  if (array.length === 0) return -1
+
+  let low = offset
+  let high = array.length - 1
+  while (low <= high) {
+    const middle = low + ((high - low) >> 1)
+    const middleValue = array[middle]
+    invariant(middleValue != null)
+    const midKey = keySelector(middleValue, middle)
+    const comparison = keyComparer(midKey, key)
+    if (comparison === 0) return middle
+    else if (comparison < 0) low = middle + 1
+    else high = middle - 1
+  }
+
+  return ~low
 }

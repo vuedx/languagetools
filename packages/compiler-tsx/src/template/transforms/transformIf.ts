@@ -14,11 +14,13 @@ export function createTransformIf(
     /^(if|else-if|else)$/,
     (node, dir, context) => {
       const condition = dir.exp
-      dir.exp = (condition != null
-        ? { ...condition }
-        : createSimpleExpression('undefined', false)) as any // Prevent condition normalization
-      return processIf(node, dir, context, (_ifNode, brnach) => () => {
-        brnach.condition = condition
+      dir.exp = (
+        condition != null
+          ? { ...condition }
+          : createSimpleExpression('undefined', false)
+      ) as any // Prevent condition normalization
+      return processIf(node, dir, context, (_ifNode, branch) => () => {
+        branch.condition = condition
       })
     },
   )

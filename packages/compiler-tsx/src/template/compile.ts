@@ -49,10 +49,12 @@ export function compile(
 }
 
 export function compileFromAST(
-  root: RootNode,
+  source: RootNode,
   options: Options & TransformOptionsResolved,
 ): Output {
-  const ast = withScope(clone(root))
+  const root = withScope(clone(source))
+  const ast = clone(source)
+  ast.scope = root.scope
   const context: NodeTransformContext = {
     ...options,
     scope: new ScopeManager(),
@@ -60,7 +62,7 @@ export function compileFromAST(
   }
   const errors: CompilerError[] = []
 
-  transform(ast, {
+  transform(root, {
     ...options,
     prefixIdentifiers: false,
     hoistStatic: false,
@@ -80,7 +82,7 @@ export function compileFromAST(
     },
   })
 
-  const result = generate(ast, context)
+  const result = generate(root, context)
 
   return { ...result, ast, errors }
 }
