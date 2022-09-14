@@ -378,25 +378,22 @@ export class PluginManager {
                   redirectedReference,
                 )
 
-          if (fs.isVueTsFile(containingFile)) {
-            const known = {
-              'vuedx~runtime': () => ({
-                resolvedFileName: ts.getVueRuntimeFileNameFor(containingFile),
-                isExternalLibraryImport: true,
-              }),
-              'vuedx~runtime~project': () => ({
-                resolvedFileName:
-                  ts.getProjectRuntimeFileNameFor(containingFile),
-                isExternalLibraryImport: false,
-              }),
-            }
-            moduleNames.forEach((name, index) => {
-              const handler = known[name as keyof typeof known]
-              if (handler != null && result[index] == null) {
-                result[index] = handler()
-              }
-            })
+          const known = {
+            'vuedx~runtime': () => ({
+              resolvedFileName: ts.getVueRuntimeFileNameFor(containingFile),
+              isExternalLibraryImport: true,
+            }),
+            'vuedx~runtime~project': () => ({
+              resolvedFileName: ts.getProjectRuntimeFileNameFor(containingFile),
+              isExternalLibraryImport: false,
+            }),
           }
+          moduleNames.forEach((name, index) => {
+            const handler = known[name as keyof typeof known]
+            if (handler != null && result[index] == null) {
+              result[index] = handler()
+            }
+          })
 
           return result
         },

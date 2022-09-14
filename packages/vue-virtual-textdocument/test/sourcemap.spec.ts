@@ -54,7 +54,7 @@ describe('sourcemaps', () => {
 
     checkGeneratedSpan(file, { start: offset, length: 1 })
   })
-  test.only(`v-on shorthand`, () => {
+  test(`v-on shorthand`, () => {
     const code = `
     <template>
       <B a="" @a="onStr" />

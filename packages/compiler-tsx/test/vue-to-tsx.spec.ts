@@ -1,7 +1,7 @@
 import FS from 'fs'
-import { encode } from 'sourcemap-codec'
 import Path from 'path'
-import { compile, compileWithDecodedSourceMap } from '../src/vue/compile'
+import { encode } from 'sourcemap-codec'
+import { compileWithDecodedSourceMap } from '../src/vue/compile'
 
 describe('Vue to TSX compiler', () => {
   const dir = Path.join(__dirname, 'fixtures')
@@ -24,12 +24,6 @@ describe('Vue to TSX compiler', () => {
         ...result.map,
         mappings: encode(result.map.mappings),
       }),
-    )
-    await writeIfChanged(
-      fileName.replace(/\.vue$/, '.mappings.json'),
-      `[${result.map.mappings
-        .map((mapping) => JSON.stringify(mapping))
-        .join(',\n')}]`,
     )
   })
 })

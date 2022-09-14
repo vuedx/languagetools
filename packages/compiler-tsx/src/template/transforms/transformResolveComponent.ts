@@ -1,31 +1,25 @@
 import {
   AttributeNode,
   createCompoundExpression,
-  createSimpleExpression,
   DirectiveNode,
   findDir,
   findProp,
   NodeTransform,
-  SimpleExpressionNode,
 } from '@vue/compiler-core'
 import { camelCase, pascalCase } from '@vuedx/shared'
 import {
-  isAttributeNode,
   isComponentNode,
   isDirectiveNode,
   isElementNode,
-  isSimpleExpressionNode,
 } from '@vuedx/template-ast-types'
 import { directives } from '../builtins'
-import type { NodeTransformContext } from '../types/NodeTransformContext'
 import { getRuntimeFn } from '../runtime'
+import type { NodeTransformContext } from '../types/NodeTransformContext'
 
 const s = (text: string): string => JSON.stringify(text) + ' as const'
 export function createResolveComponentTransform(
   ctx: NodeTransformContext,
 ): NodeTransform {
-  let dynamicComponentCounter = 0
-
   const h = getRuntimeFn.bind(null, ctx.typeIdentifier)
 
   const resolveComponentArgs = `${
@@ -37,26 +31,6 @@ export function createResolveComponentTransform(
       ? `{} as unknown as ${ctx.jsxIdentifier}.JSX.IntrinsicElements`
       : `/** @type {${ctx.jsxIdentifier}.JSX.IntrinsicElements} */ (/** @type {unknown} */ ({}))`
   }, ${ctx.contextIdentifier}, `
-
-  const hoistExpressionAsComponent = (exp: SimpleExpressionNode): string => {
-    const name = `${
-      ctx.internalIdentifierPrefix
-    }_Component${dynamicComponentCounter++}`
-    ctx.scope.scopeHoist(
-      createCompoundExpression([
-        `const `,
-        name,
-        ` = ${h('resolveComponent')}(${resolveComponentArgs}`,
-        exp,
-        ', ',
-        exp,
-        ');',
-      ]),
-    )
-    ctx.scope.addIdentifier(name)
-
-    return name
-  }
 
   return (node) => {
     if (!isElementNode(node)) return
@@ -119,26 +93,9 @@ export function createResolveComponentTransform(
     } else {
       isProp = isProp ?? findProp(node, 'is')
 
-      if (isAttributeNode(isProp) && isProp.value != null) {
-        node.resolvedName = hoistExpressionAsComponent(
-          createSimpleExpression(
-            `${JSON.stringify(isProp.value.content)} as const`,
-            false,
-            isProp.value.loc,
-          ),
-        )
-      } else if (
-        isDirectiveNode(isProp) &&
-        isSimpleExpressionNode(isProp.exp)
-      ) {
-        node.resolvedName = hoistExpressionAsComponent(isProp.exp)
-      }
+      if (isProp != null) node.is = isProp
       node.props = node.props.filter((prop) => prop !== isProp)
-      return () => {
-        if (node.resolvedName != null) {
-          ctx.scope.removeIdentifier(node.resolvedName)
-        }
-      }
     }
+    return undefined
   }
 }

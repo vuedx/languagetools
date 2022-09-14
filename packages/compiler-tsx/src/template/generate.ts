@@ -19,12 +19,21 @@ import {
   TemplateNode,
   TextNode,
 } from '@vue/compiler-core'
-import { capitalize, invariant, last } from '@vuedx/shared'
+import {
+  camelize,
+  capitalize,
+  first,
+  invariant,
+  last,
+  pascalCase,
+} from '@vuedx/shared'
 import {
   ElementTypes,
   isAttributeNode,
   isComponentNode,
   isDirectiveNode,
+  isExpressionNode,
+  isPlainElementNode,
   isSimpleExpressionNode,
   isSimpleIdentifier,
   isSlotNode,
@@ -36,7 +45,7 @@ import {
 import type { DecodedSourceMap } from 'magic-string'
 import type { TransformedCode } from '../types/TransformedCode'
 
-import { createLoc } from '../utils'
+import { createLoc, sliceLoc } from '../utils'
 import { getRuntimeFn } from './runtime'
 import type { NodeTransformContext } from './types/NodeTransformContext'
 
@@ -103,6 +112,7 @@ export function generate(
 
   genRootNode(root)
   genSlotTypes(root)
+  genAttrTypes(root)
 
   return ctx.getOutput()
 }
@@ -154,7 +164,7 @@ function writeLine(code: string): void {
 }
 
 function genRootNode(node: RootNode): void {
-  writeLine(`export function ${ctx.internalIdentifierPrefix}render() {`)
+  writeLine(`function ${ctx.internalIdentifierPrefix}render() {`)
   indent(() => {
     genGlobalDeclarations(node)
     genNodeHoists({ hoists: ctx.scope.getTopLevelNodes() })
@@ -167,6 +177,7 @@ function genRootNode(node: RootNode): void {
     writeLine(')')
   })
   writeLine('}')
+  writeLine(`${ctx.internalIdentifierPrefix}render();`)
 }
 
 function genDirectiveChecks(el: BaseElementNode): void {
@@ -270,7 +281,61 @@ function genElementNode(node: ElementNode): void {
 }
 
 function genComponentNode(node: ComponentNode): void {
-  if (node.tag.includes('-')) return genElementNode(node) // assume custom element
+  // if (node.tag.includes('-')) return genElementNode(node) // assume custom element
+  if (node.resolvedName == null) {
+    ctx.write('{(() => {').newLine()
+    indent(() => {
+      const name = `${ctx.internalIdentifierPrefix}component`
+
+      genTypeGuards()
+
+      ctx.newLine()
+
+      ctx.write(
+        `const ${name} = ${getRuntimeFn(
+          ctx.typeIdentifier,
+          'resolveComponent',
+        )}(${
+          ctx.isTypeScript
+            ? `{} as unknown as ${ctx.jsxIdentifier}.GlobalComponents`
+            : `/** @type {${ctx.jsxIdentifier}.GlobalComponents} */ (/** @type {unknown} */ ({}))`
+        }, ${
+          ctx.isTypeScript
+            ? `{} as unknown as ${ctx.jsxIdentifier}.JSX.IntrinsicElements`
+            : `/** @type {${ctx.jsxIdentifier}.JSX.IntrinsicElements} */ (/** @type {unknown} */ ({}))`
+        }, ${ctx.contextIdentifier}, `,
+      )
+
+      if (isAttributeNode(node.is)) {
+        const name = node.is.value?.content ?? ''
+        ctx.write(JSON.stringify(name), node.is.value?.loc, true)
+        ctx.write(', ')
+        ctx.write(JSON.stringify(name), node.is.value?.loc, true)
+        ctx.write(', ')
+        ctx.write(JSON.stringify(pascalCase(name)), node.is.value?.loc, true)
+      } else if (node.is != null && isExpressionNode(node.is.exp)) {
+        genExpressionNode(node.is.exp)
+        ctx.write(', ')
+        genExpressionNode(node.is.exp)
+        ctx.write(', ')
+        genExpressionNode(node.is.exp)
+      } else {
+        ctx.write('undefined, undefined, undefined')
+      }
+      ctx.write(');').newLine()
+
+      ctx.write('return (').newLine()
+      indent(() => {
+        node.resolvedName = name
+        genComponentNode(node)
+        node.resolvedName = undefined
+      })
+      ctx.newLine().write(');').newLine()
+    })
+    ctx.write('})()}')
+
+    return // - done
+  }
 
   genDirectiveChecks(node)
   ctx.write('<', node.loc)
@@ -318,12 +383,7 @@ function genComponentNode(node: ComponentNode): void {
           }
           ctx.write(') => {').newLine()
           indent(() => {
-            ctx.typeGuards.forEach((guard) => {
-              if (guard == null) return
-              ctx.write(`if(!(`)
-              genExpressionNode(guard)
-              ctx.write(')) throw new Error;').newLine()
-            })
+            genTypeGuards()
             genNodeHoists(slotNode)
             writeLine('return (')
             indent(() => {
@@ -343,6 +403,34 @@ function genComponentNode(node: ComponentNode): void {
   ctx.write('</', node.endTagLoc)
   ctx.write(node.resolvedName ?? node.tag)
   ctx.write('>')
+}
+
+function genTypeGuards(): void {
+  ctx.typeGuards.forEach((guard) => {
+    if (guard == null) return
+    ctx.write(`if(!(`)
+    const queue = [guard]
+    const invert = (text: string): string =>
+      text.replace(/(&&|\|\|)/g, (m) => (m === '&&' ? '||' : '&&'))
+    while (queue.length > 0) {
+      const guard = queue.shift()
+      if (guard == null) continue
+      if (isSimpleExpressionNode(guard)) {
+        ctx.write(invert(guard.content))
+      } else {
+        guard.children.forEach((child) => {
+          if (typeof child === 'string') {
+            ctx.write(invert(child))
+          } else if (isExpressionNode(child)) {
+            queue.push(child)
+          } else if (isTextNode(child)) {
+            ctx.write(JSON.stringify(child.content), child.loc)
+          }
+        })
+      }
+    }
+    ctx.write(')) throw new Error;').newLine()
+  })
 }
 
 function genSlotOutletNode(node: SlotOutletNode): void {
@@ -384,6 +472,7 @@ function genSlotOutletNode(node: SlotOutletNode): void {
         ctx.newLine()
       })
     }
+    ctx.newLine()
   })
 }
 
@@ -401,10 +490,6 @@ function genChildren(node: { children: Node[] }): void {
   })
 }
 
-const aliasedAttrs: Record<string, string> = {
-  class: 'staticClass',
-  style: 'staticStyle',
-}
 function genProps(el: ElementNode | ComponentNode): void {
   if (el.props.length === 0) return
 
@@ -526,12 +611,48 @@ function genProps(el: ElementNode | ComponentNode): void {
         }
       })
       ctx.newLine()
+    } else if (prop.name === 'model') {
+      const genExp = (): void => {
+        if (prop.exp != null) {
+          genExpressionNode(prop.exp)
+        } else {
+          ctx.write(annotations.missingExpression, sliceLoc(prop.loc, -1))
+        }
+      }
+      if (prop.arg == null) {
+        // TODO: get attribute name at runtime
+        if (isComponentNode(el)) {
+          ctx.write('modelValue', prop.nameLoc)
+        } else {
+          ctx.write('value', prop.nameLoc)
+        }
+
+        ctx.write('={')
+        genExp()
+        ctx.write('}')
+      } else if (isStaticExpression(prop.arg)) {
+        genExpressionNode(prop.arg)
+        ctx.write('={')
+        genExp()
+        ctx.write('}')
+      } else {
+        ctx.write('{...({')
+        genExpressionNode(prop.arg)
+        ctx.write(': ')
+        genExp()
+        ctx.write('})}')
+      }
     }
   })
 }
 
 function genAttribute(prop: AttributeNode): void {
-  ctx.write(aliasedAttrs[prop.name] ?? prop.name, prop.nameLoc, true)
+  if (prop.name === 'class' || prop.name === 'style') return // TODO: handle class and style eventually
+  const name =
+    prop.name.startsWith('data-') || prop.name.startsWith('aria-')
+      ? prop.name
+      : camelize(prop.name)
+  ctx.write(name, prop.nameLoc, true)
   if (prop.value != null) {
     ctx.write('=')
     genTextNode(prop.value)
@@ -540,7 +661,12 @@ function genAttribute(prop: AttributeNode): void {
 
 function genVBindDirective(prop: DirectiveNode): void {
   if (isStaticExpression(prop.arg)) {
-    genNode(prop.arg)
+    const name =
+      prop.arg.content.startsWith('data-') ||
+      prop.arg.content.startsWith('aria-')
+        ? prop.arg.content
+        : camelize(prop.arg.content)
+    ctx.write(name, prop.arg.loc, true)
     if (prop.exp != null) {
       ctx.write('=')
       ctx.write('{')
@@ -933,7 +1059,7 @@ function genForNodeArgs(node: ForNode): void {
 }
 
 function genCommentNode(node: CommentNode): void {
-  ctx.write('/*').write(node.content, node.loc).write('*/')
+  ctx.write('{/*').write(node.content, node.loc).write('*/}')
 }
 
 function genForNode(forNode: ForNode): void {
@@ -1041,4 +1167,33 @@ function typeCastAs(value: string, type: string): string {
   return ctx.isTypeScript
     ? `${value} as ${type}`
     : `/** @type {${type}} */ (${value})`
+}
+
+function genAttrTypes(root: RootNode): void {
+  const elements = root.children.filter(isPlainElementNode)
+  ctx.write(`const ${ctx.internalIdentifierPrefix}attrs = (() => {`).newLine()
+  indent(() => {
+    const value = typeCastAs('{}', 'unknown')
+    // TODO: find $attrs target
+    // TODO: check inheritAttrs
+
+    if (elements.length !== 1) {
+      ctx.write('return ')
+      ctx.write(typeCastAs(value, '{}'))
+    } else {
+      const element = first(elements)
+      const type = JSON.stringify(element.tag)
+      ctx.write('return ')
+      ctx.write(
+        typeCastAs(
+          value,
+          `${ctx.typeIdentifier}.internal.PropsOf<${ctx.jsxIdentifier}.JSX.IntrinsicElements, ${type}>`,
+        ),
+      )
+    }
+
+    ctx.newLine()
+  })
+
+  ctx.write('})();').newLine()
 }

@@ -24,31 +24,26 @@ export function transformScript(
   const builder = new MagicString(content)
   const exportIdentifier = `${prefix}Component`
 
-  if (descriptor.scriptSetup == null) {
-    const match = DEFAULT_EXPORT_RE.exec(content)
+  const match = DEFAULT_EXPORT_RE.exec(content)
 
-    if (match != null) {
-      builder.overwrite(
-        match.index,
-        match.index + first(match).length,
-        `export const ${exportIdentifier} =`,
+  if (match != null) {
+    builder.overwrite(
+      match.index,
+      match.index + first(match).length,
+      `const ${exportIdentifier} =`,
+    )
+  } else if (descriptor.scriptSetup == null) {
+    if (content.length > 0) builder.append('\n')
+    builder
+      .append(
+        `import { defineComponent as ${prefix}defineComponent } from '${runtimeModuleName}';\n`,
       )
-    } else {
-      if (content.length > 0) builder.append('\n')
-      builder
-
-        .append(
-          `import { defineComponent as ${prefix}defineComponent } from '${runtimeModuleName}';\n`,
-        )
-        .append(
-          `export const ${exportIdentifier} = ${prefix}defineComponent({});\n`,
-        )
-    }
+      .append(`const ${exportIdentifier} = ${prefix}defineComponent({});\n`)
   }
 
   const decoratorIdentifier: string = `${prefix}RegisterSelf`
   const name = getComponentName(fileName)
-  const detected = descriptor.scriptSetup == null ? '' : ''
+  const detected = descriptor.scriptSetup == null ? '' : '' // TODO: detect name from inline options.
   if (isTypeScript) {
     builder.append(
       `\nfunction ${decoratorIdentifier}<T extends {}>(arg0: T) {

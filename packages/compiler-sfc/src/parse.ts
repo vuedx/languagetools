@@ -43,13 +43,14 @@ export function parse(
   const ast = compiler.parse(source, {
     // there are no components at SFC parsing level
     isNativeTag: () => true,
-    // preserve all whitespaces
+    decodeEntities: string => string,
+    // preserve all whitespace
     isPreTag: () => true,
     getTextMode: ({ tag, props }, parent) => {
       // all top level elements except <template> are parsed as raw text
       // containers
       if (
-        (parent != null && tag !== 'template') ||
+        (parent == null && tag !== 'template') ||
         // <template lang="xxx"> should also be treated as raw text
         (tag === 'template' &&
           props.some(
@@ -61,9 +62,9 @@ export function parse(
               p.value.content !== 'html',
           ))
       ) {
-        return 0 /* DATA */
-      } else {
         return 2 /* RAWTEXT */
+      } else {
+        return 0 /* DATA */
       }
     },
     onError: (e) => {
@@ -118,6 +119,27 @@ export function parse(
         break
     }
   })
+
+  if (descriptor.scriptSetup != null) {
+    if (descriptor.scriptSetup.src != null) {
+      errors.push(
+        new SyntaxError(
+          `<script setup> cannot use the "src" attribute because ` +
+            `its syntax will be ambiguous outside of the component.`,
+        ),
+      )
+      descriptor.scriptSetup = null
+    }
+    if (descriptor.script?.src != null) {
+      errors.push(
+        new SyntaxError(
+          `<script> cannot use the "src" attribute when <script setup> is ` +
+            `also present because they must be processed together.`,
+        ),
+      )
+      descriptor.script = null
+    }
+  }
 
   return { descriptor, errors }
 }

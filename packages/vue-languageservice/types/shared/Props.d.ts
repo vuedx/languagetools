@@ -12,8 +12,5 @@ export type PropsOf<IntrinsicElements, T> = T extends KnownKeys<
   ? Props
   : never
 
-export type AttrsOf<T> = T extends KnownKeys<keyof JSX.IntrinsicElements>
-  ? JSX.IntrinsicElements[T]
-  : {}
-
-export type MergeAttrs<P, A> = P & Omit<A, keyof KnownKeys<P>>
+export type MergeAttrs<Props, Attrs> = Props &
+  Omit<Attrs, keyof KnownKeys<Props>>

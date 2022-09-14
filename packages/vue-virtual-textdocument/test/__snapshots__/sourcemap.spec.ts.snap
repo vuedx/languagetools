@@ -92,11 +92,11 @@ exports[`sourcemaps directives 1`] = `
     
 ----
         a=""
-        onA={$event => {
-          (onNum)($event);
-           ^^^^^ > 5 at 951 (27:11)
+        onA={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
+                                                                                                                           ^^^^^ > 5 at 1111 (27:123)
         }}
-        onB={$event => {
+        onB={() => {
 `;
 
 exports[`sourcemaps directives 2`] = `
@@ -108,11 +108,11 @@ exports[`sourcemaps directives 2`] = `
     
 ----
         a=""
-        onA={$event => {
-          (onNum)($event);
-           ^^^^^ > 5 at 951 (27:11)
+        onA={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
+                                                                                                                           ^^^^^ > 5 at 1111 (27:123)
         }}
-        onB={$event => {
+        onB={() => {
 `;
 
 exports[`sourcemaps directives 3`] = `
@@ -124,11 +124,11 @@ exports[`sourcemaps directives 3`] = `
     
 ----
         a=""
-        onA={$event => {
-          (onNum)($event);
-              ^^ > 2 at 954 (27:14)
+        onA={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
+                                                                                                                              ^^ > 2 at 1114 (27:126)
         }}
-        onB={$event => {
+        onB={() => {
 `;
 
 exports[`sourcemaps directives 4`] = `
@@ -140,11 +140,11 @@ exports[`sourcemaps directives 4`] = `
     
 ----
         a=""
-        onA={$event => {
-          (onNum)($event);
-              ^^ > 2 at 954 (27:14)
+        onA={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
+                                                                                                                              ^^ > 2 at 1114 (27:126)
         }}
-        onB={$event => {
+        onB={() => {
 `;
 
 exports[`sourcemaps directives 5`] = `
@@ -156,11 +156,11 @@ exports[`sourcemaps directives 5`] = `
     
 ----
         a=""
-        onA={$event => {
-          (onNum)($event);
-           ^^^^^ > 5 at 951 (27:11)
+        onA={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
+                                                                                                                           ^^^^^ > 5 at 1111 (27:123)
         }}
-        onB={$event => {
+        onB={() => {
 `;
 
 exports[`sourcemaps directives 6`] = `
@@ -172,11 +172,11 @@ exports[`sourcemaps directives 6`] = `
     
 ----
         a=""
-        onA={$event => {
-          (onNum)($event);
-           ^^^^^ > 5 at 951 (27:11)
+        onA={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
+                                                                                                                           ^^^^^ > 5 at 1111 (27:123)
         }}
-        onB={$event => {
+        onB={() => {
 `;
 
 exports[`sourcemaps directives 7`] = `
@@ -188,11 +188,11 @@ exports[`sourcemaps directives 7`] = `
     
 ----
         a=""
-        onA={$event => {
-          (onNum)($event);
-              ^^ > 2 at 954 (27:14)
+        onA={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
+                                                                                                                              ^^ > 2 at 1114 (27:126)
         }}
-        onB={$event => {
+        onB={() => {
 `;
 
 exports[`sourcemaps directives 8`] = `
@@ -204,11 +204,11 @@ exports[`sourcemaps directives 8`] = `
     
 ----
         a=""
-        onA={$event => {
-          (onNum)($event);
-              ^^ > 2 at 954 (27:14)
+        onA={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
+                                                                                                                              ^^ > 2 at 1114 (27:126)
         }}
-        onB={$event => {
+        onB={() => {
 `;
 
 exports[`sourcemaps directives 9`] = `
@@ -219,28 +219,28 @@ exports[`sourcemaps directives 9`] = `
     </template>
     
 ----
-          (onNum)($event);
         }}
-        onB={$event => {
-           ^^^^ > 4 at 989 (29:11)
-          (onNum)($event);
+        onB={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "b" as const, onNum, { "once": true as const,  });
+                                                                                                                                     > 0 at 1289 (30:132)
         }}
+        onC={() => {
 `;
 
 exports[`sourcemaps directives 10`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                          > 0 at 41 (2:25)
+                             > 0 at 44 (2:28)
     </template>
     
 ----
-          (onNum)($event);
         }}
-        onB={$event => {
-        ^^^^ > 4 at 577 (20:8)
-          (onNum)($event);
+        onB={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "b" as const, onNum, { "once": true as const,  });
+                                                                                                                                     > 0 at 1289 (30:132)
         }}
+        onC={() => {
 `;
 
 exports[`sourcemaps directives 11`] = `
@@ -251,11 +251,11 @@ exports[`sourcemaps directives 11`] = `
     </template>
     
 ----
-        onC={$event => {
-          (($event) => {
+        onC={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "c" as const, ($event) => {
           call.a['func']($event)
-                ^^^^^^^^ > 8 at 698 (25:16)
-          })($event);
+                ^^^^^^^^ > 8 at 1502 (34:16)
+          }, {  });
         }}
 `;
 
@@ -267,11 +267,11 @@ exports[`sourcemaps directives 12`] = `
     </template>
     
 ----
-        onC={$event => {
-          (($event) => {
+        onC={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "c" as const, ($event) => {
           call.a['func']($event)
-                ^^^^^^^^ > 8 at 698 (25:16)
-          })($event);
+                ^^^^^^^^ > 8 at 1502 (34:16)
+          }, {  });
         }}
 `;
 
@@ -283,11 +283,11 @@ exports[`sourcemaps directives 13`] = `
     </template>
     
 ----
-        onC={$event => {
-          (($event) => {
+        onC={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "c" as const, ($event) => {
           call.a['func']($event)
-                         ^^^^^^ > 6 at 707 (25:25)
-          })($event);
+                         ^^^^^^ > 6 at 1511 (34:25)
+          }, {  });
         }}
 `;
 
@@ -299,11 +299,11 @@ exports[`sourcemaps directives 14`] = `
     </template>
     
 ----
-        onC={$event => {
-          (($event) => {
+        onC={() => {
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "c" as const, ($event) => {
           call.a['func']($event)
-                         ^^^^^^ > 6 at 707 (25:25)
-          })($event);
+                         ^^^^^^ > 6 at 1511 (34:25)
+          }, {  });
         }}
 `;
 
@@ -317,9 +317,9 @@ exports[`sourcemaps v-on shorthand 1`] = `
 ----
       <B
         a=""
-        onA={$event => {
+        onA={() => {
          > 0 at 944 (25:8)
-          (onStr)($event);
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onStr, {  });
         }}
 `;
 
@@ -327,15 +327,15 @@ exports[`sourcemaps v-on shorthand 2`] = `
 
     <template>
       <B a="" @a="onStr" />
-               > 0 at 30 (2:14)
+                > 0 at 31 (2:15)
     </template>
     
 ----
       <B
         a=""
-        onA={$event => {
+        onA={() => {
          > 0 at 944 (25:8)
-          (onStr)($event);
+          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onStr, {  });
         }}
 `;
 

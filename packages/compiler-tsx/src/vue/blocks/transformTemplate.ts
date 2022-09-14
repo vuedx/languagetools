@@ -6,6 +6,7 @@ import type { TransformOptionsResolved } from '../../types/TransformOptions'
 
 export interface TemplateBlockTransformResult extends TransformedCode {
   slotsIdentifier: string
+  attrsIdentifier: string
   ast?: RootNode
   errors: CompilerError[]
 }
@@ -15,9 +16,10 @@ export function transformTemplate(
   options: TransformOptionsResolved,
 ): TemplateBlockTransformResult {
   const slotsIdentifier = `${options.internalIdentifierPrefix}slots`
+  const attrsIdentifier = `${options.internalIdentifierPrefix}attrs`
   if (template == null) {
     return {
-      code: `export function ${slotsIdentifier}() { return {} }`,
+      code: `function ${slotsIdentifier}() { return {} }; const ${attrsIdentifier} = {};`,
       map: {
         file: '',
         mappings: [],
@@ -26,15 +28,28 @@ export function transformTemplate(
         sourcesContent: [],
       },
       slotsIdentifier,
+      attrsIdentifier,
       errors: [],
     }
   }
 
   const result = compile(template?.content, options)
+  const offset = template.loc.start.offset
+  const line = template.loc.start.line
 
   return {
     ...result,
     slotsIdentifier,
-    errors: result.errors,
+    attrsIdentifier,
+    errors: result.errors.map((error) => {
+      if ('loc' in error && error.loc != null) {
+        error.loc.start.offset += offset
+        error.loc.end.offset += offset
+        error.loc.start.line += line
+        error.loc.end.line += line
+      }
+
+      return error
+    }),
   }
 }

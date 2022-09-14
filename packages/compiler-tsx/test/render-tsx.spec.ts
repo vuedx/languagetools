@@ -1,4 +1,4 @@
-import { invarient } from '@vuedx/shared'
+import { invariant } from '@vuedx/shared'
 import * as FS from 'fs'
 import { addSerializer } from 'jest-specific-snapshot'
 import * as Path from 'path'
@@ -83,7 +83,7 @@ function parseFixtures(content: string) {
           try {
             fixture.options = JSON.parse(content)
           } catch (error) {
-            invarient(error instanceof Error)
+            invariant(error instanceof Error)
             error.message = `${String(error.message)} on line ${i}`
 
             throw error
@@ -133,11 +133,14 @@ function parseFixtures(content: string) {
               '```tsx\n' +
               `${result.code}\n` +
               '```\n\n' +
-              `[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#${btoa(
-                `${result.code.length}\0${utf16ToUTF8(result.code)}${
-                  map.length
-                }\0${utf16ToUTF8(map)}`,
-              )})` +
+              `[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#${
+                // @ts-ignore
+                btoa(
+                  `${result.code.length}\0${utf16ToUTF8(result.code)}${
+                    map.length
+                  }\0${utf16ToUTF8(map)}`,
+                )
+              })` +
               '\n\n'
 
             expect(output).toMatchSpecificSnapshot(snapshotFile)

@@ -14,7 +14,7 @@ import { checkSlots, SlotsFrom } from './shared/checkSlots'
 import { resolveComponent } from './shared/components'
 import { resolveDirective } from './shared/directives'
 import { getElementType } from './shared/element'
-import { AttrsOf, MergeAttrs, PropsOf } from './shared/Props'
+import { MergeAttrs, PropsOf } from './shared/Props'
 import { renderList } from './shared/renderList'
 import { renderSlot } from './shared/renderSlot'
 import { Slots } from './shared/Slots'
@@ -39,12 +39,5 @@ export namespace internal {
     checkModelDirective,
   }
 
-  export {
-    PropsOf,
-    AttrsOf,
-    SlotsFrom,
-    MergeAttrs,
-    EmitsToProps,
-    EmitTypeToEmits,
-  }
+  export { PropsOf, SlotsFrom, MergeAttrs, EmitsToProps, EmitTypeToEmits }
 }

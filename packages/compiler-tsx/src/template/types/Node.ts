@@ -56,6 +56,7 @@ declare module '@vue/compiler-core' {
 
   export interface ComponentNode {
     resolvedName?: string
+    is?: AttributeNode | DirectiveNode
     slots: Array<{
       name?: ExpressionNode
       args?: ExpressionNode

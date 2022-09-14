@@ -108,12 +108,12 @@ type GetExp<IntrinsicElements, T, A extends GetArg<IntrinsicElements, T>> = Get<
 >
 
 type GetModifiers<IntrinsicElements, T, A> =
-  T extends keyof KnownKeys<JSX.IntrinsicElements>
+  T extends keyof KnownKeys<IntrinsicElements>
     ? A extends GetArg<IntrinsicElements, T>
       ? ModifiersForNativeEvent<A>
       : never
     : never
 
 // Quick Test:
-type P = PropsOf<JSX.IntrinsicElements, 'div'>
-type A = GetArg<JSX.IntrinsicElements, 'div'>
+// type P = PropsOf<IntrinsicElements, 'div'>
+// type A = GetArg<IntrinsicElements, 'div'>

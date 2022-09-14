@@ -40,7 +40,7 @@ export function resolveComponent<
     ? IntrinsicElements[B]
     : C extends keyof KnownKeys<IntrinsicElements>
     ? IntrinsicElements[C]
-    : unknown
+    : A
   : A
 
 type IsNotComponent<T> = true extends IsStrictlyAny<T>

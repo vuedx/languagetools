@@ -18,9 +18,9 @@ declare module '@vue/runtime-core' {
       $props: {}
     }
 
-    interface ElementChildrenAttribute {
-      $slots: {}
-    }
+    // interface ElementChildrenAttribute {
+    //   $slots?: {}
+    // }
 
     interface IntrinsicElements extends VueIntrinsicElements {
       [name: string]: any

@@ -61,18 +61,44 @@ export class DiagnosticsService
     const diagnostics: TypeScript.DiagnosticWithLocation[] = []
 
     const category = this.ts.lib.DiagnosticCategory.Error
+    const fakeSourceFile =
+      file.getSourceFile() as unknown as TypeScript.SourceFile
+    const syntax: SyntaxError[] = []
     for (const error of file.errors) {
       if ('loc' in error && error.loc != null) {
+        this.logger.error('Vue Compiler Error', error.message, error.loc)
         diagnostics.push({
           category,
           code: Number(error.code),
-          file: file as unknown as TypeScript.SourceFile,
+          file: fakeSourceFile,
           start: error.loc.start.offset,
           length: error.loc.end.offset - error.loc.start.offset,
           messageText: error.message,
           source: 'VueDX/Compiler',
         })
+      } else {
+        syntax.push(error)
       }
+    }
+
+    if (syntax.length > 0) {
+      diagnostics.push({
+        category,
+        code: 0,
+        file: fakeSourceFile,
+        start: 0,
+        length: 1,
+        messageText: 'Vue Compiler Syntax Error',
+        source: 'VueDX/Compiler',
+        relatedInformation: syntax.map((error) => ({
+          category,
+          code: 0,
+          messageText: error.message,
+          file: fakeSourceFile,
+          start: 0,
+          length: 1,
+        })),
+      })
     }
 
     const setupVariables = new Map(
@@ -92,7 +118,7 @@ export class DiagnosticsService
         category: this.ts.lib.DiagnosticCategory.Suggestion,
         code: 6133,
         source: 'VueDX/Compiler',
-        file: file.getSourceFile() as unknown as TypeScript.SourceFile,
+        file: fakeSourceFile,
         ...span,
         messageText: `'${declaration.id}' is declared but its value is never read.`, // TODO: localize.
         reportsUnnecessary: true,
@@ -113,7 +139,7 @@ export class DiagnosticsService
                   category: this.ts.lib.DiagnosticCategory.Error,
                   code: 2322,
                   source: 'VueDX/Compiler',
-                  file: file.getSourceFile() as unknown as TypeScript.SourceFile,
+                  file: fakeSourceFile,
                   ...span,
                   messageText: `Cannot find name '${declaration.id}'.`,
                 },

@@ -1,4 +1,6 @@
-/** @jsxImportSource vue */
+/** @jsx __VueDX__JSX.createElement */
+import * as __VueDX__JSX from 'vue';
+import * as __VueDX__TypeCheck from 'vuedx~runtime';
 //#region <script>
 
 import { defineComponent } from 'vue'
@@ -7,10 +9,13 @@ export const __VueDX__Component = defineComponent({
   data: () => ({ foo: 'string' }),
 })
 
+function __VueDX__RegisterSelf<T extends {}>(arg0: T) {
+  const key = "TsScriptTemplate" as const;
+  return { ...arg0, [key]: TsScriptTemplate };
+}
 //#endregion
-const __VueDX__ctx = new __VueDX__Component()
+const __VueDX__ctx = __VueDX__RegisterSelf(new __VueDX__Component())
 //#region <template>
-import * as __VueDX__TypeCheck  from 'vuedx~runtime';
 export function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
   let foo = __VueDX__ctx.foo;
@@ -20,22 +25,22 @@ export function __VueDX__render() {
     <>
       <div
         staticClass="foo bar"
-        class={{ foo: foo }}
-        innerHTML={foo}
+        "class"={{ foo: foo }}
+        "innerHTML"={foo}
         {...({[foo]: true})}
         {...(foo)}
-        onClick={$event => {
-          (() => {
+        onClick={() => {
+          __VueDX__TypeCheck.internal.checkOnDirective({} as unknown as __VueDX__JSX.JSX.IntrinsicElements, "div" as const, "click" as const, () => {
           console.log
-          })($event);
-          (() => {
+          }, {  });
+          __VueDX__TypeCheck.internal.checkOnDirective({} as unknown as __VueDX__JSX.JSX.IntrinsicElements, "div" as const, "click" as const, () => {
           console.log
-          })($event);
-          (() => {
+          }, { "left": true as const,  });
+          __VueDX__TypeCheck.internal.checkOnDirective({} as unknown as __VueDX__JSX.JSX.IntrinsicElements, "div" as const, "click" as const, () => {
           console.log
-          })($event);
+          }, { "right": true as const,  });
         }}
-        /*<vuedx:tsx-competions-target/>*/
+        /*<vuedx:tsx-completions-target/>*/
       >
         {foo}
       </div>
@@ -48,14 +53,15 @@ function __VueDX__slots() {
   let foo = __VueDX__ctx.foo;
   let console = __VueDX__ctx.console;
   /*</vuedx:templateGlobals>*/
-  return __VueDX__TypeCheck.internal.flat([
-  ])
+  return __VueDX__TypeCheck.internal.union(__VueDX__TypeCheck.internal.flat([
+  ]))
 }
 /*</vuedx:diagnosticsIgnore>*/
 
 //#endregion
 //#region public component definition
-export default class extends __VueDX__Component {
-  children = {} as unknown as ReturnType<typeof __VueDX__slots>
+export default class TsScriptTemplate {
+  $props = null as unknown as typeof __VueDX__ctx.$props;
+  $slots = null as unknown as __VueDX__TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>;
 }
 //#endregion

@@ -1,5 +1,4 @@
 // @ts-check
-import alias from '@rollup/plugin-alias'
 import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
@@ -25,10 +24,6 @@ const configs = ['packages/*', 'extensions/*'].flatMap((pattern) => {
 
       const config = {
         ...options,
-        external: [
-          ...options.external.filter((id) => id !== '@vue/compiler-core'),
-          '@vue/compiler-core/dist/compiler-core.cjs.js',
-        ],
         plugins: [
           resolve(),
           commonjs(),
@@ -43,14 +38,7 @@ const configs = ['packages/*', 'extensions/*'].flatMap((pattern) => {
           ...options.plugins,
           json(),
           define(packageJson.version ?? ''),
-          alias({
-            entries: [
-              {
-                find: /^@vue\/compiler-core$/,
-                replacement: '@vue/compiler-core/dist/compiler-core.cjs.js',
-              },
-            ],
-          }),
+          compiler()
         ],
       }
 
@@ -78,3 +66,25 @@ const configs = ['packages/*', 'extensions/*'].flatMap((pattern) => {
 // console.log(require('util').inspect(configs, false, 6))
 
 export default configs
+
+/**
+ *
+ * @returns {import('rollup').Plugin}
+ */
+function compiler() {
+  return {
+    name: 'vue/compiler',
+    generateBundle(options, bundle) {
+      Object.values(bundle).forEach((chunk) => {
+        if (chunk.type === 'chunk') {
+          if (chunk.code.includes('@vue/compiler-core')) {
+            chunk.code = chunk.code.replace(
+              /@vue\/compiler-core/g,
+              '@vue/compiler-core/dist/compiler-core.cjs.js',
+            )
+          }
+        }
+      })
+    },
+  }
+}

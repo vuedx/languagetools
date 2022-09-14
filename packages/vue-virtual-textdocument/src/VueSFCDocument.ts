@@ -191,59 +191,104 @@ export class VueSFCDocument implements TextDocument {
   private _snapshot: VueToTsxSnapshot | null = null
   private _compile(): VueToTsxSnapshot {
     if (this._snapshot?.document.version !== this.original.version) {
-      const result = compileWithDecodedSourceMap(
-        this.original.getText(),
-        this.options,
-      )
-      const mappings = memoize(() =>
-        result.map.mappings.flatMap((mappings, line) =>
-          mappings.map((mapping) => {
-            const m: Mapping = [
-              line,
-              mapping[0],
-              mapping[2] ?? -1,
-              mapping[3] ?? -1,
-              result.map.names[mapping[4] ?? -1],
-            ]
-            return m
-          }),
-        ),
-      )
-      const descriptor = result.descriptor
-      const mappingsByOriginalOrder = memoize(() =>
-        mappings().slice().sort(compareOriginal),
-      )
-      const mappingsByGeneratedOrder = memoize(() =>
-        mappings().slice().sort(compareGenerated),
-      )
-      const blocks = memoize(() => {
-        return [
-          descriptor.scriptSetup,
-          descriptor.script,
-          descriptor.template,
-          ...descriptor.styles,
-          ...descriptor.customBlocks,
-        ]
-          .filter(isNotNull)
-          .sort((a, b) => a.loc.start.offset - b.loc.start.offset)
-      })
-      this._snapshot = {
-        ...result,
-        get mappingsByOriginalOrder() {
-          return mappingsByOriginalOrder()
-        },
-        get mappingsByGeneratedOrder() {
-          return mappingsByGeneratedOrder()
-        },
-        get blocks() {
-          return blocks()
-        },
-        document: TextDocument.create(
-          `file://${this.generatedFileName}`,
-          this.options.isTypeScript ? 'typescript' : 'javascript',
-          this.original.version,
-          result.code,
-        ),
+      const previous = this._snapshot
+      try {
+        const result = compileWithDecodedSourceMap(
+          this.original.getText(),
+          this.options,
+        )
+        const mappings = memoize(() =>
+          result.map.mappings.flatMap((mappings, line) =>
+            mappings.map((mapping) => {
+              const m: Mapping = [
+                line,
+                mapping[0],
+                mapping[2] ?? -1,
+                mapping[3] ?? -1,
+                result.map.names[mapping[4] ?? -1],
+              ]
+              return m
+            }),
+          ),
+        )
+        const descriptor = result.descriptor
+        const mappingsByOriginalOrder = memoize(() =>
+          mappings().slice().sort(compareOriginal),
+        )
+        const mappingsByGeneratedOrder = memoize(() =>
+          mappings().slice().sort(compareGenerated),
+        )
+        const blocks = memoize(() => {
+          return [
+            descriptor.scriptSetup,
+            descriptor.script,
+            descriptor.template,
+            ...descriptor.styles,
+            ...descriptor.customBlocks,
+          ]
+            .filter(isNotNull)
+            .sort((a, b) => a.loc.start.offset - b.loc.start.offset)
+        })
+        this._snapshot = {
+          ...result,
+          get mappingsByOriginalOrder() {
+            return mappingsByOriginalOrder()
+          },
+          get mappingsByGeneratedOrder() {
+            return mappingsByGeneratedOrder()
+          },
+          get blocks() {
+            return blocks()
+          },
+          document: TextDocument.create(
+            `file://${this.generatedFileName}`,
+            this.options.isTypeScript ? 'typescript' : 'javascript',
+            this.original.version,
+            result.code,
+          ),
+        }
+      } catch (e) {
+        console.error('Failed to compile', e)
+        if (previous != null) {
+          this._snapshot = {
+            ...previous,
+            errors: [...previous.errors, e as SyntaxError],
+            document: TextDocument.update(
+              previous.document,
+              [],
+              this.original.version,
+            ),
+          }
+        } else {
+          this._snapshot = {
+            descriptor: {
+              script: null,
+              scriptSetup: null,
+              template: null,
+              styles: [],
+              customBlocks: [],
+            },
+            errors: [e as SyntaxError],
+            blocks: [],
+            code: '',
+            map: {
+              file: '',
+              mappings: [],
+              names: [],
+              sources: [],
+              sourcesContent: [],
+            },
+            document: TextDocument.create(
+              `file://${this.generatedFileName}`,
+              this.options.isTypeScript ? 'typescript' : 'javascript',
+              this.original.version,
+              '',
+            ),
+            mappingsByGeneratedOrder: [],
+            mappingsByOriginalOrder: [],
+            unusedIdentifiers: [],
+          }
+        }
       }
     }
 

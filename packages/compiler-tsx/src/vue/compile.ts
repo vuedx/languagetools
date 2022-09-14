@@ -117,6 +117,7 @@ export function compileWithDecodedSourceMap(
       script.code,
       rebaseSourceMap(script.map, descriptor.script?.loc.start),
     )
+    builder.append(`console.log(${script.exportIdentifier});`)
   })
 
   if (scriptSetup != null) {
@@ -187,9 +188,11 @@ export function compileWithDecodedSourceMap(
         `export default class ${getComponentName(options.fileName)} {`,
         defineProperty(
           '$props',
-          scriptSetup?.emitIdentifier != null
-            ? `(typeof ${resolvedOptions.contextIdentifier}.$props & ${resolvedOptions.typeIdentifier}.internal.EmitsToProps<typeof ${scriptSetup.emitIdentifier}>)`
-            : `typeof ${resolvedOptions.contextIdentifier}.$props`,
+          `${resolvedOptions.typeIdentifier}.internal.MergeAttrs<${
+            scriptSetup?.emitIdentifier != null
+              ? `(typeof ${resolvedOptions.contextIdentifier}.$props & ${resolvedOptions.typeIdentifier}.internal.EmitsToProps<typeof ${scriptSetup.emitIdentifier}>)`
+              : `typeof ${resolvedOptions.contextIdentifier}.$props`
+          }, typeof ${template.attrsIdentifier}>`,
         ),
         defineProperty(
           '$slots',
@@ -208,7 +211,10 @@ export function compileWithDecodedSourceMap(
     template.ast != null ? template.ast.scope.globals : [],
   )
   const identifiers =
-    scriptSetup?.identifiers.filter((id) => !usedIdentifiers.has(id)) ?? []
+    scriptSetup?.identifiers.filter((id) => {
+      if (usedIdentifiers.has(id)) return false
+      return true
+    }) ?? []
 
   return {
     code: output.code,
@@ -220,7 +226,7 @@ export function compileWithDecodedSourceMap(
       ),
     },
     descriptor,
-    errors,
+    errors: [...errors, ...template.errors],
     template: template.ast,
     unusedIdentifiers: identifiers,
   }
@@ -228,7 +234,7 @@ export function compileWithDecodedSourceMap(
   function defineProperty(name: string, type: string): string {
     return resolvedOptions.isTypeScript
       ? `  ${name} = null as unknown as ${type};`
-      : `  ${name}= /** @type {${type}} */ (/** @type {unknown} */ (null));`
+      : `  ${name} = /** @type {${type}} */ (/** @type {unknown} */ (null));`
   }
 }
 

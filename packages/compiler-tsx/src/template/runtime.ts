@@ -9,7 +9,9 @@ export function getRuntimeFn(
     | 'renderList'
     | 'resolveComponent'
     | 'resolveDirective'
-    | 'union',
+    | 'union'
+    | 'getAttrs'
+    | 'getProps',
 ): string {
   return `${prefix}.internal.${name}`
 }
