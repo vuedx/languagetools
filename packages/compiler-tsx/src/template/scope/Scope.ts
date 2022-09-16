@@ -69,8 +69,8 @@ export class Scope {
     return null
   }
 
-  public setBinding(identifer: string, node: Node): void {
-    this.bindings[identifer] = node
+  public setBinding(identifier: string, node: Node): void {
+    this.bindings[identifier] = node
   }
 }
 

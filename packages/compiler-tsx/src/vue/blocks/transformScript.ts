@@ -32,6 +32,7 @@ export function transformScript(
       match.index + first(match).length,
       `const ${exportIdentifier} =`,
     )
+    builder.append(`console.log(${exportIdentifier})`)
   } else if (descriptor.scriptSetup == null) {
     if (content.length > 0) builder.append('\n')
     builder
@@ -39,6 +40,7 @@ export function transformScript(
         `import { defineComponent as ${prefix}defineComponent } from '${runtimeModuleName}';\n`,
       )
       .append(`const ${exportIdentifier} = ${prefix}defineComponent({});\n`)
+    builder.append(`console.log(${exportIdentifier})`)
   }
 
   const decoratorIdentifier: string = `${prefix}RegisterSelf`

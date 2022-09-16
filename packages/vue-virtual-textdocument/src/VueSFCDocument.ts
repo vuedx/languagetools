@@ -14,6 +14,7 @@ import {
   createCache,
   invariant,
   isNotNull,
+  startMeasure,
 } from '@vuedx/shared'
 import type { RootNode } from '@vuedx/template-ast-types'
 import {
@@ -193,6 +194,7 @@ export class VueSFCDocument implements TextDocument {
     if (this._snapshot?.document.version !== this.original.version) {
       const previous = this._snapshot
       try {
+        const endCompileMeasure = startMeasure('VueSFCDocument.compile')
         const result = compileWithDecodedSourceMap(
           this.original.getText(),
           this.options,
@@ -247,6 +249,8 @@ export class VueSFCDocument implements TextDocument {
             result.code,
           ),
         }
+
+        endCompileMeasure()
       } catch (e) {
         console.error('Failed to compile', e)
         if (previous != null) {

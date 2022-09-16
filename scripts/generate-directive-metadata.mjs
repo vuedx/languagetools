@@ -31,8 +31,8 @@ const directives = Object.fromEntries(
         [
           {
             kind: 'text',
-            text: `### ${name} directive\n\n${directive
-              .slice(index, directive.indexOf('- **Example'))
+            text: `${name} directive — ${directive
+              .slice(index, directive.indexOf('- **'))
               .trim()}\n\n`,
           },
           {

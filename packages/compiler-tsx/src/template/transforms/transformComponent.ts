@@ -1,11 +1,5 @@
-import { findDir, NodeTransform, TemplateChildNode } from '@vue/compiler-core'
-import {
-  AttributeNode,
-  DirectiveNode,
-  isComponentNode,
-  isTemplateNode,
-  TemplateNode
-} from '@vuedx/template-ast-types'
+import { findDir, NodeTransform } from '@vue/compiler-core'
+import { isComponentNode, isTemplateNode } from '@vuedx/template-ast-types'
 import type { NodeTransformContext } from '../types/NodeTransformContext'
 
 export function createComponentChildrenTransform(
@@ -22,17 +16,6 @@ export function createComponentChildrenTransform(
       )
     ) {
       hasSlotsAsChildren = true
-      node.children = node.children.map((node) => {
-        if (isTemplateNode(node)) {
-          const dir = findDir(node, 'slot', true)
-          if (dir != null) {
-            node.props = node.props.filter((prop) => prop !== dir)
-            return createTemplateNode([dir], [node])
-          }
-        }
-
-        return node
-      })
     }
 
     return () => {
@@ -49,7 +32,6 @@ export function createComponentChildrenTransform(
       } else if (hasSlotsAsChildren) {
         node.slots = []
         const slots = node.slots
-
         node.unassignedSlots = node.children.filter((node) => {
           if (isTemplateNode(node)) {
             const dir = findDir(node, 'slot', true)
@@ -59,6 +41,7 @@ export function createComponentChildrenTransform(
                 args: dir.exp,
                 hoists: node.hoists ?? [],
                 children: node.children,
+                template: node,
               })
 
               return false
@@ -76,27 +59,5 @@ export function createComponentChildrenTransform(
         ]
       }
     }
-  }
-}
-
-function createTemplateNode(
-  props: Array<AttributeNode | DirectiveNode>,
-  children: TemplateChildNode[],
-): TemplateNode {
-  return {
-    type: 1,
-    ns: 0,
-    tag: 'template',
-    tagLoc: undefined as any,
-    tagType: 3,
-    codegenNode: undefined,
-    isSelfClosing: false,
-    props,
-    children,
-    hoists: [],
-    startTagLoc: undefined as any,
-    endTagLoc: undefined,
-    loc: undefined as any,
-    scope: undefined as any,
   }
 }

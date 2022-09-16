@@ -4,6 +4,8 @@ import {
   CommentNode,
   ComponentNode,
   CompoundExpressionNode,
+  createCompoundExpression,
+  createSimpleExpression,
   DirectiveNode,
   ElementNode,
   ExpressionNode,
@@ -110,6 +112,15 @@ export function generate(
 ): TransformedCode {
   ctx = createGenerateContext(options)
 
+  writeLine(
+    `import type { GlobalComponents as ${ctx.internalIdentifierPrefix}GlobalComponents } from '${ctx.runtimeModuleName}';`,
+  )
+  ctx.used.components.forEach((component) => {
+    writeLine(
+      `const ${ctx.internalIdentifierPrefix}_get_identifier_${component} = () => ${component};`,
+    )
+  })
+
   genRootNode(root)
   genSlotTypes(root)
   genAttrTypes(root)
@@ -166,8 +177,9 @@ function writeLine(code: string): void {
 function genRootNode(node: RootNode): void {
   writeLine(`function ${ctx.internalIdentifierPrefix}render() {`)
   indent(() => {
+    node.scope.getBinding('$slots') // forces to declare $slots
     genGlobalDeclarations(node)
-    genNodeHoists({ hoists: ctx.scope.getTopLevelNodes() })
+    genNodeHoists({ hoists: ctx.scope.getRootScope() })
     writeLine('return (')
     indent(() => {
       writeLine('<>')
@@ -239,7 +251,7 @@ function genGlobalDeclarations(node: Node): void {
   if (node.scope.globals.length === 0) return
   writeLine(annotations.templateGlobals.start)
   node.scope.globals.forEach((id) => {
-    writeLine(`let ${id} = ${ctx.contextIdentifier}.${id};`)
+    writeLine(`let ${id} = ${ctx.contextIdentifier}.${id}`)
   })
   writeLine(annotations.templateGlobals.end)
 }
@@ -297,12 +309,12 @@ function genComponentNode(node: ComponentNode): void {
           'resolveComponent',
         )}(${
           ctx.isTypeScript
-            ? `{} as unknown as ${ctx.jsxIdentifier}.GlobalComponents`
-            : `/** @type {${ctx.jsxIdentifier}.GlobalComponents} */ (/** @type {unknown} */ ({}))`
+            ? `{} as unknown as ${ctx.internalIdentifierPrefix}GlobalComponents`
+            : `/** @type {${ctx.internalIdentifierPrefix}GlobalComponents} */ (/** @type {unknown} */ ({}))`
         }, ${
           ctx.isTypeScript
-            ? `{} as unknown as ${ctx.jsxIdentifier}.JSX.IntrinsicElements`
-            : `/** @type {${ctx.jsxIdentifier}.JSX.IntrinsicElements} */ (/** @type {unknown} */ ({}))`
+            ? `{} as unknown as JSX.IntrinsicElements`
+            : `/** @type {JSX.IntrinsicElements} */ (/** @type {unknown} */ ({}))`
         }, ${ctx.contextIdentifier}, `,
       )
 
@@ -323,6 +335,8 @@ function genComponentNode(node: ComponentNode): void {
         ctx.write('undefined, undefined, undefined')
       }
       ctx.write(');').newLine()
+
+      writeLine(`if (${name} == null) throw new Error`)
 
       ctx.write('return (').newLine()
       indent(() => {
@@ -409,55 +423,62 @@ function genTypeGuards(): void {
   ctx.typeGuards.forEach((guard) => {
     if (guard == null) return
     ctx.write(`if(!(`)
-    const queue = [guard]
-    const invert = (text: string): string =>
-      text.replace(/(&&|\|\|)/g, (m) => (m === '&&' ? '||' : '&&'))
-    while (queue.length > 0) {
-      const guard = queue.shift()
-      if (guard == null) continue
-      if (isSimpleExpressionNode(guard)) {
-        ctx.write(invert(guard.content))
-      } else {
-        guard.children.forEach((child) => {
-          if (typeof child === 'string') {
-            ctx.write(invert(child))
-          } else if (isExpressionNode(child)) {
-            queue.push(child)
-          } else if (isTextNode(child)) {
-            ctx.write(JSON.stringify(child.content), child.loc)
-          }
-        })
-      }
-    }
+    genExpressionNode(guard)
     ctx.write(')) throw new Error;').newLine()
   })
 }
 
 function genSlotOutletNode(node: SlotOutletNode): void {
+  const name = findProp(node, 'name', false, true)
+  const accessor: Array<string | ExpressionNode | TextNode> = ['$slots']
+
+  if (isAttributeNode(name) && name.value != null) {
+    if (isSimpleIdentifier(name.value.content)) {
+      accessor.push(
+        '.',
+        createSimpleExpression(name.value.content, false, name.value.loc),
+      )
+    } else {
+      accessor.push('[', name.value, ']')
+    }
+  } else if (isDirectiveNode(name) && name.arg != null) {
+    if (
+      isSimpleExpressionNode(name.arg) &&
+      isSimpleIdentifier(name.arg.content)
+    ) {
+      accessor.push('.', name.arg)
+    } else {
+      accessor.push('[', name.arg, ']')
+    }
+  } else {
+    accessor.push(`.default`)
+  }
+
+  const genSlotAccessor = (): void => {
+    genExpressionNode(createCompoundExpression(accessor))
+  }
+
   wrap('{', '}', () => {
     ctx.newLine()
-    const name = findProp(node, 'name', false, true)
     indent(() => {
-      wrap(`${ctx.contextIdentifier}.$slots[`, ']?.({', () => {
-        if (isAttributeNode(name) && name.value != null) {
-          genTextNode(name.value)
-        } else if (isDirectiveNode(name) && name.arg != null) {
-          genExpressionNode(name.arg)
-        } else {
-          ctx.write(`'default'`)
-        }
-      })
-      ctx.newLine()
-      indent(() => {
-        node.props.forEach((prop) => {
-          if (prop === name) return
-          genObjectProperty(prop)
+      genSlotAccessor()
+      ctx.write(' != null ? ')
+      genSlotAccessor()
+      ctx.write('({')
+      const props = node.props.filter((node) => node !== name)
+      if (props.length > 0) {
+        indent(() => {
+          ctx.newLine()
+          props.forEach((prop) => {
+            genObjectProperty(prop)
+          })
         })
-      })
+      }
       ctx.write('})')
     })
+    ctx.write(' : ')
     if (node.children.length > 0) {
-      ctx.write(' ?? ')
+      ctx.typeGuards.push(createCompoundExpression([...accessor, ' == null']))
       indent(() => {
         wrap('(', ')', () => {
           ctx.newLine()
@@ -471,6 +492,9 @@ function genSlotOutletNode(node: SlotOutletNode): void {
         })
         ctx.newLine()
       })
+      ctx.typeGuards.pop()
+    } else {
+      ctx.write('null')
     }
     ctx.newLine()
   })
@@ -529,7 +553,7 @@ function genProps(el: ElementNode | ComponentNode): void {
         const genHandler = (): void => {
           const args = typeCastAs(
             typeCastAs('{}', `unknown`),
-            `${ctx.jsxIdentifier}.JSX.IntrinsicElements`,
+            `JSX.IntrinsicElements`,
           )
           ctx.write('() => {').newLine()
           indent(() => {
@@ -886,27 +910,80 @@ function genSlotTypes(root: RootNode): void {
     indent(() => {
       for (const [slot, ancestors] of slots) {
         recurse(
-          ancestors
-            .slice()
-
-            .filter((path) => isForNode(path.node))
-            .map((path) => path.node as ForNode),
+          ancestors.slice().map((path) => path.node),
           {
-            enter(node) {
-              ctx.write(getRuntimeFn(ctx.typeIdentifier, 'flat'))
-              ctx.write('(')
-              ctx.newLine().indent()
-              ctx.write(getRuntimeFn(ctx.typeIdentifier, 'renderList'))
-              ctx.write('(')
-              genForNodeArgs(node)
-              ctx.write(' => (')
-              ctx.newLine().indent()
+            enter(node, index, nodes) {
+              if (isForNode(node)) {
+                ctx.write(getRuntimeFn(ctx.typeIdentifier, 'flat'))
+                ctx.write('(')
+                ctx.newLine().indent()
+                ctx.write(getRuntimeFn(ctx.typeIdentifier, 'renderList'))
+                ctx.write('(')
+                genForNodeArgs(node)
+                ctx.write(' => (')
+                ctx.newLine().indent()
+              } else if (isComponentNode(node)) {
+                ctx.write(getRuntimeFn(ctx.typeIdentifier, 'flat'))
+                const next = nodes[index + 1]
+                const currentSlot =
+                  next != null
+                    ? node.slots.find((slot) => slot.template === next)
+                    : null
+
+                ctx.write('(((')
+                if (currentSlot?.args != null) {
+                  genExpressionNode(currentSlot.args)
+                } else {
+                  ctx.write('_')
+                }
+
+                if (ctx.isTypeScript) {
+                  ctx.write(`: ${ctx.typeIdentifier}.internal.GetSlotProps<`)
+                  if (node.resolvedName != null) {
+                    ctx.write('typeof ')
+                    ctx.write(node.resolvedName)
+                  } else if (node.is != null) {
+                    if (isDirectiveNode(node.is) && node.is.exp != null) {
+                      ctx.write('typeof ')
+                      genExpressionNode(node.is.exp)
+                    } else {
+                      ctx.write('{}')
+                    }
+                  } else {
+                    ctx.write('{}')
+                  }
+
+                  ctx.write(', ')
+
+                  if (currentSlot?.name != null) {
+                    if (!isStaticExpression(currentSlot.name)) {
+                      ctx.write('typeof ')
+                    }
+                    genExpressionNode(currentSlot.name)
+                  } else {
+                    ctx.write('"default"')
+                  }
+                  ctx.write('>')
+                }
+
+                ctx.write(') => {')
+                ctx.newLine().indent()
+                ctx.write('return [')
+                ctx.newLine().indent()
+              }
             },
-            exit() {
-              ctx.deindent().newLine()
-              ctx.write('))')
-              ctx.deindent().newLine()
-              ctx.write(')')
+            exit(node) {
+              if (isComponentNode(node)) {
+                ctx.deindent().newLine()
+                ctx.write(']')
+                ctx.deindent().newLine()
+                ctx.write(`})(${typeCastAs('null', 'any')}))`)
+              } else if (isForNode(node)) {
+                ctx.deindent().newLine()
+                ctx.write('))')
+                ctx.deindent().newLine()
+                ctx.write(')')
+              }
             },
             fn() {
               const name = findProp(slot, 'name', false, true)
@@ -930,8 +1007,11 @@ function genSlotTypes(root: RootNode): void {
                   ctx.write('default')
                 }
                 ctx.write(': ')
-                ctx.write('{').newLine()
+                ctx.write('{')
                 indent(() => {
+                  const props = slot.props.filter((prop) => prop !== name)
+                  if (props.length === 0) return
+                  ctx.newLine()
                   slot.props.forEach((prop) => {
                     if (prop === name) return
                     genObjectProperty(prop)
@@ -1001,14 +1081,22 @@ function genObjectProperty(
 
 function recurse<T>(
   items: T[],
-  options: { enter?(node: T): void; exit?(node: T): void; fn(): void },
+  options: {
+    enter?(node: T, index: number, nodes: T[]): void
+    exit?(node: T, index: number, nodes: T[]): void
+    fn(): void
+  },
 ): void {
-  for (const item of items) {
-    if (options.enter != null) options.enter(item)
+  if (options.enter != null) {
+    for (let i = 0; i < items.length; i++) {
+      options.enter(items[i] as T, i, items)
+    }
   }
   options.fn()
-  for (const item of items) {
-    if (options.exit != null) options.exit(item)
+  if (options.exit != null) {
+    for (let i = items.length - 1; i >= 0; i--) {
+      options.exit(items[i] as T, i, items)
+    }
   }
 }
 
@@ -1158,9 +1246,7 @@ function breakMapping(loc: SourceLocation): void {
 }
 
 function asConst(value: string): string {
-  return ctx.isTypeScript
-    ? `${value} as const`
-    : `/** @type {${value}} */ (${value})`
+  return typeCastAs(value, 'const')
 }
 
 function typeCastAs(value: string, type: string): string {
@@ -1187,7 +1273,7 @@ function genAttrTypes(root: RootNode): void {
       ctx.write(
         typeCastAs(
           value,
-          `${ctx.typeIdentifier}.internal.PropsOf<${ctx.jsxIdentifier}.JSX.IntrinsicElements, ${type}>`,
+          `${ctx.typeIdentifier}.internal.PropsOf<JSX.IntrinsicElements, ${type}>`,
         ),
       )
     }

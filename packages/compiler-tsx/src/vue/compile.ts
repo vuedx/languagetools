@@ -62,13 +62,11 @@ export function compileWithDecodedSourceMap(
     options.internalIdentifierPrefix ?? '__VueDX__'
   const contextIdentifier = `${internalIdentifierPrefix}ctx`
   const typeIdentifier = `${internalIdentifierPrefix}TypeCheck`
-  const jsxIdentifier = `${internalIdentifierPrefix}JSX`
   const resolvedOptions: TransformOptionsResolved = {
     ...options,
     runtimeModuleName: 'vue',
     typeCheckModuleName: 'vuedx~runtime',
     typeIdentifier,
-    jsxIdentifier,
     contextIdentifier,
     internalIdentifierPrefix,
     isTypeScript: options.isTypeScript ?? (lang === 'ts' || lang === 'tsx'),
@@ -105,10 +103,6 @@ export function compileWithDecodedSourceMap(
     builder.append(`//#endregion`)
   }
 
-  builder.append(`/** @jsx ${jsxIdentifier}.createElement */`)
-  builder.append(
-    `import * as ${jsxIdentifier} from '${resolvedOptions.runtimeModuleName}';`,
-  )
   builder.append(
     `import * as ${resolvedOptions.typeIdentifier} from '${resolvedOptions.typeCheckModuleName}';`,
   )
@@ -117,7 +111,6 @@ export function compileWithDecodedSourceMap(
       script.code,
       rebaseSourceMap(script.map, descriptor.script?.loc.start),
     )
-    builder.append(`console.log(${script.exportIdentifier});`)
   })
 
   if (scriptSetup != null) {

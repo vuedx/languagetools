@@ -158,9 +158,17 @@ export class DiagnosticsService
     const file = this.fs.getVueFile(fileName)
     if (file == null) return []
 
-    return fn(file.generatedFileName).flatMap((diagnostic) =>
-      this.processDiagnostic(diagnostic),
-    )
+    const duplicate = new Set<string>()
+
+    return fn(file.generatedFileName)
+      .flatMap((diagnostic) => this.processDiagnostic(diagnostic))
+      .filter((diagnostic) => {
+        if (diagnostic.start == null) return true
+        const key = `${diagnostic.start}:${diagnostic.code}`
+        if (duplicate.has(key)) return false
+        duplicate.add(key)
+        return true
+      })
   }
 
   /**

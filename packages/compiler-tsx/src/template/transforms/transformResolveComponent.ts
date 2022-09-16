@@ -24,12 +24,12 @@ export function createResolveComponentTransform(
 
   const resolveComponentArgs = `${
     ctx.isTypeScript
-      ? `{} as unknown as ${ctx.jsxIdentifier}.GlobalComponents`
-      : `/** @type {${ctx.jsxIdentifier}.GlobalComponents} */ (/** @type {unknown} */ ({}))`
+      ? `{} as unknown as ${ctx.internalIdentifierPrefix}GlobalComponents`
+      : `/** @type {${ctx.internalIdentifierPrefix}GlobalComponents} */ (/** @type {unknown} */ ({}))`
   }, ${
     ctx.isTypeScript
-      ? `{} as unknown as ${ctx.jsxIdentifier}.JSX.IntrinsicElements`
-      : `/** @type {${ctx.jsxIdentifier}.JSX.IntrinsicElements} */ (/** @type {unknown} */ ({}))`
+      ? `{} as unknown as JSX.IntrinsicElements`
+      : `/** @type JSX.IntrinsicElements} */ (/** @type {unknown} */ ({}))`
   }, ${ctx.contextIdentifier}, `
 
   return (node) => {
@@ -73,13 +73,14 @@ export function createResolveComponentTransform(
           ? id + node.tag.slice(name.length)
           : id
         if (!ctx.scope.hasIdentifier(id)) {
+          ctx.used.components.add(id)
           ctx.scope.addIdentifier(id)
           ctx.scope.hoist(
             createCompoundExpression([
               'const ',
-              node.resolvedName,
+              id,
               ` = ${h('resolveComponent')}(${resolveComponentArgs}`,
-              'null',
+              `${ctx.internalIdentifierPrefix}_get_identifier_${id}()`,
               ', ',
               s(name),
               ', ',

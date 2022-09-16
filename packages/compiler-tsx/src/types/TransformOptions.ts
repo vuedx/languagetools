@@ -37,12 +37,6 @@ export interface TransformOptionsResolved extends TransformOptions {
   typeIdentifier: string
 
   /**
-   * Namespace import from `runtimeModuleName`.
-   * @default '__VueDX_JSX'
-   */
-  jsxIdentifier: string
-
-  /**
    * Prefix for internal identifiers.
    * @default '__VueDX_'
    */

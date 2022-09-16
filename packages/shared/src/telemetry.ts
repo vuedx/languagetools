@@ -61,7 +61,9 @@ export class Telemetry {
     }
   }
 
-  measure(_name: string, _duration: number): void {}
+  measure(name: string, duration: number): void {
+    console.log(`[measure] ${name}: ${Math.trunc(duration)}ms`)
+  }
 
   trace(name: string, description?: string): () => void {
     if (!this.isTelemetryEnabled) return () => {}

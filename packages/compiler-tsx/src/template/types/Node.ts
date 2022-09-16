@@ -62,6 +62,7 @@ declare module '@vue/compiler-core' {
       args?: ExpressionNode
       hoists: CompoundExpressionNode[]
       children: Node[]
+      template?: TemplateNode
     }>
     unassignedSlots?: Node[]
   }
