@@ -62,6 +62,24 @@ export class TypescriptContextService implements Disposable {
     return this.options.project
   }
 
+  public get isTypeScriptProject(): boolean {
+    try {
+      switch (this.project.projectKind) {
+        case this.lib.server.ProjectKind.Configured:
+          try {
+            return !this.project.isJsOnlyProject()
+          } catch {
+            return true
+          }
+
+        default:
+          return true
+      }
+    } catch {
+      return true
+    }
+  }
+
   public isConfiguredProject(
     project: TSProject,
   ): project is TypeScript.server.ConfiguredProject & TSProject {
@@ -191,7 +209,7 @@ export class TypescriptContextService implements Disposable {
     )
   }
 
-  public getVuePrefrencesFor(fileName: string): ProjectPreferences {
+  public getVuePreferencesFor(fileName: string): ProjectPreferences {
     const project = this.getVueProjectFor(fileName)
     const preferences = ConfigManager.instance.state.preferences
 
@@ -320,9 +338,9 @@ export class TypescriptContextService implements Disposable {
   public ensureUptoDate(fileName: string): void {
     this.project.getLanguageService(true) // forces update
     if (isVueFile(fileName)) {
-      fileName = this.project.isJsOnlyProject()
-        ? `${fileName}.jsx`
-        : `${fileName}.tsx`
+      fileName = this.isTypeScriptProject
+        ? `${fileName}.tsx`
+        : `${fileName}.jsx`
     }
 
     if (
@@ -337,6 +355,7 @@ export class TypescriptContextService implements Disposable {
     }
   }
 
+  /** @deprecated */
   public ensureProject(fileName: string): void {
     const filePath = this.toNormalizedPath(fileName)
     if (this.project.containsFile(filePath)) {

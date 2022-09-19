@@ -18,8 +18,6 @@ export function transformScriptSetup(
   options: TransformOptionsResolved,
 ): ScriptSetupBlockTransformResult | null {
   if (script == null) return null
-  // TODO: return cached result on error.
-
   const ast = parse(script.content, { isScriptSetup: true, lang: script.lang })
   const result = transform(ast, {
     internalIdentifierPrefix: options.internalIdentifierPrefix,

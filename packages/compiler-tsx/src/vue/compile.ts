@@ -74,13 +74,6 @@ export function compileWithDecodedSourceMap(
     descriptor,
   }
   const builder = new SourceBuilder(options.fileName, source)
-  const template = runIfNeeded(
-    key('template'),
-    previous?.template,
-    descriptor.template,
-    cache,
-    () => transformTemplate(descriptor.template, resolvedOptions),
-  )
 
   const script = runIfNeeded(
     key('script'),
@@ -89,12 +82,21 @@ export function compileWithDecodedSourceMap(
     cache,
     () => transformScript(descriptor.script, resolvedOptions),
   )
+
   const scriptSetup = runIfNeeded(
     key('scriptSetup'),
     previous?.scriptSetup,
     descriptor.scriptSetup,
     cache,
     () => transformScriptSetup(descriptor.scriptSetup, resolvedOptions),
+  )
+
+  const template = runIfNeeded(
+    key('template'),
+    previous?.template,
+    descriptor.template,
+    cache,
+    () => transformTemplate(descriptor.template, resolvedOptions),
   )
 
   function region(name: string, fn: () => void): void {
@@ -176,16 +178,44 @@ export function compileWithDecodedSourceMap(
   })
 
   region('public component definition', () => {
+    const name = script.selfName ?? getComponentName(options.fileName)
+    const props =
+      scriptSetup?.propsIdentifier != null
+        ? scriptSetup.propsIdentifier
+        : `${resolvedOptions.contextIdentifier}.$props`
+
+    let parentClassIfAny = ''
+    if (scriptSetup?.exposeIdentifier != null) {
+      const type = `new () => typeof ${resolvedOptions.contextIdentifier}.${scriptSetup.exposeIdentifier}`
+      if (resolvedOptions.isTypeScript) {
+        builder.append(`const ${name}Public = null as unknown as ${type};`)
+      } else {
+        builder.append(
+          `const ${name}Public = /** @type {${type}} */ (/** @type {unknown} */ (null));`,
+        )
+      }
+
+      parentClassIfAny = ` extends ${name}Public`
+    }
+
+    const inheritAttrs =
+      descriptor.template?.content.includes('@vue-attrs-target') === true ||
+      (script.inheritAttrs ?? true)
+
+    const propsType =
+      scriptSetup?.emitIdentifier != null
+        ? `typeof ${props} & ${resolvedOptions.typeIdentifier}.internal.EmitsToProps<typeof ${scriptSetup.emitIdentifier}>`
+        : `typeof ${props}`
+    const attrsType = `typeof ${template.attrsIdentifier}`
+
     builder.append(
       [
-        `export default class ${getComponentName(options.fileName)} {`,
+        `export default class ${name}${parentClassIfAny} {`,
         defineProperty(
           '$props',
-          `${resolvedOptions.typeIdentifier}.internal.MergeAttrs<${
-            scriptSetup?.emitIdentifier != null
-              ? `(typeof ${resolvedOptions.contextIdentifier}.$props & ${resolvedOptions.typeIdentifier}.internal.EmitsToProps<typeof ${scriptSetup.emitIdentifier}>)`
-              : `typeof ${resolvedOptions.contextIdentifier}.$props`
-          }, typeof ${template.attrsIdentifier}>`,
+          inheritAttrs
+            ? `${resolvedOptions.typeIdentifier}.internal.MergeAttrs<${propsType}, ${attrsType}>`
+            : propsType,
         ),
         defineProperty(
           '$slots',

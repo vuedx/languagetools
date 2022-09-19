@@ -1,4 +1,4 @@
-import { first } from '@vuedx/shared'
+import { first, setDebugging } from '@vuedx/shared'
 import { createHash } from 'crypto'
 import { Container } from 'inversify'
 import { TS_LANGUAGE_SERVICE } from '../constants'
@@ -53,10 +53,8 @@ export class PluginManager {
     this.#patchLanguageServerHost(container, options.languageServiceHost)
 
     try {
-      return this.#createLanguageService(
-        options.languageService,
-        container.get(TypescriptPluginService),
-      )
+      const plugin = container.get(TypescriptPluginService)
+      return this.#createLanguageService(options.languageService, plugin)
     } finally {
       const current = (
         (options.project.projectService as any)
@@ -243,6 +241,7 @@ export class PluginManager {
   ): void {
     const fs = container.get(FilesystemService)
     const ts = container.get(TypescriptContextService)
+    const plugin = container.get(TypescriptPluginService)
     const logger = LoggerService.getLogger('LanguageServiceHost')
 
     overrideMethod(
@@ -254,13 +253,7 @@ export class PluginManager {
             return `${ts.getVueProjectFor(fileName).projectVersion}`
           }
 
-          const version = getScriptVersion(fs.getRealFileNameIfAny(fileName))
-
-          if (fs.isVueFile(fileName) || fs.isGeneratedVueFile(fileName)) {
-            logger.debug(`getScriptVersion(${fileName}): ${version}`)
-          }
-
-          return version
+          return getScriptVersion(fs.getRealFileNameIfAny(fileName))
         },
     )
 
@@ -270,7 +263,7 @@ export class PluginManager {
       'getScriptSnapshot',
       (getScriptSnapshot) =>
         (fileName: string): TypeScript.IScriptSnapshot | undefined => {
-          if (fs.isVueTsFile(fileName)) {
+          if (fs.isGeneratedVueFile(fileName)) {
             const file = fs.getVueFile(fileName)
 
             if (file != null) {
@@ -290,34 +283,25 @@ export class PluginManager {
         },
     )
 
-    // Patch: Add .vue.{tsx, file for every .vue file
-    // overrideMethod(
-    //   languageServiceHost,
-    //   'getScriptFileNames',
-    //   (getScriptFileNames) => () => {
-    //     const vueFiles = new Set<string>()
-    //     const fileNames = new Set<string>()
+    // Patch: Add .vue.tsx, file for every .vue file
+    // This is used to create program.
+    overrideMethod(
+      languageServiceHost,
+      'getScriptFileNames',
+      (getScriptFileNames) => () => {
+        const original = getScriptFileNames()
 
-    //     getScriptFileNames().forEach((fileName) => {
-    //       if (fs.isVueFile(fileName)) {
-    //         vueFiles.add(fileName)
-    //         fileNames.add(`${fileName}.tsx`) // TODO: check if .tsx is correct
-    //       } else if (fs.isVueTsFile(fileName)) {
-    //         vueFiles.add(fs.getRealFileName(fileName))
-    //         fileNames.add(fileName)
-    //       } else {
-    //         fileNames.add(fileName)
-    //       }
-    //     })
+        try {
+          const fileNames = plugin.getScriptFileNames(original)
 
-    //     logger.debug(
-    //       'getScriptFileNames()',
-    //       JSON.stringify([...fileNames], null, 2),
-    //     )
-
-    //     return Array.from(fileNames)
-    //   },
-    // )
+          logger.debug('@@@ getScriptFileNames:', fileNames)
+          return fileNames
+        } catch (e) {
+          logger.error('@@@ Error in getScriptFileNames:', e)
+          return original
+        }
+      },
+    )
 
     overrideMethod(
       languageServiceHost,
@@ -401,6 +385,9 @@ export class PluginManager {
   }
 
   #createContainer(options: Options): Container {
+    if (!options.project.projectService.logger.loggingEnabled()) {
+      setDebugging(false)
+    }
     this.logger.debug('New project:', options.project.getProjectName(), {
       rootDir: options.project.getCurrentDirectory(),
     })

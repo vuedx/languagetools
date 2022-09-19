@@ -1,7 +1,7 @@
+import { collect, collectError, invariant } from '@vuedx/shared'
 import chalk from 'chalk'
 import FS, { promises as FSP } from 'fs'
 import parseArgs from 'minimist'
-import { collect, collectError } from '@vuedx/shared'
 import * as Path from 'path'
 import readline from 'readline'
 import TS from 'typescript/lib/tsserverlibrary'
@@ -9,8 +9,7 @@ import { Position, TextDocument } from 'vscode-languageserver-textdocument'
 import {
   AbortController,
   Diagnostics,
-  getDiagnostics,
-  getDiagnostics2,
+  getDiagnosticsStream,
 } from './diagnostics'
 import { generateCodeFrame } from './generateCodeFrame'
 
@@ -36,6 +35,7 @@ function clearScreen(): void {
   readline.cursorTo(process.stdout, 0, 0)
   readline.clearScreenDown(process.stdout)
 }
+
 async function createTextDocument(file: string): Promise<TextDocument> {
   const content = await FSP.readFile(Path.resolve(directory, file), {
     encoding: 'utf-8',
@@ -230,23 +230,27 @@ Options
     pretty,
   })
 
-  if (watch === true) {
-    const controller = new AbortController()
-    for await (const result of getDiagnostics(
-      directory,
-      controller.signal,
-      true,
-    )) {
-      clearScreen()
-      await handleResults(result, { format, pretty, vue })
-    }
-  } else {
-    const result = await getDiagnostics2(directory)
-    await handleResults(result, { format, pretty, vue })
+  const controller = new AbortController()
+  const cursor = getDiagnosticsStream(
+    directory,
+    watch === true ? controller.signal : null,
+    process.env['DEBUG'] != null,
+    vue === true ? (fileName) => fileName.endsWith('.vue') : undefined,
+  )
 
-    if (getErrorCount(result) > 0 && format === 'raw') process.exit(2)
-    else process.exit(0)
+  let result: IteratorResult<Diagnostics[0], Diagnostics>
+  while ((result = await cursor.next()).done !== true) {
+    if (format === 'raw') {
+      await handleResults([result.value], { format, pretty, vue })
+    }
   }
+
+  invariant(result.done, 'Expected done to be true')
+  if (format === 'raw') {
+    clearScreen()
+  }
+
+  await handleResults(result.value, { format, pretty, vue })
 }
 
 export async function cli(): Promise<void> {
@@ -376,7 +380,7 @@ async function handleResults(
 
         const count = getErrorCount(result)
 
-        print(`\nFound ${count} ${count === 1 ? 'error' : 'errors'}.`)
+        print(`\nFound ${count} ${count === 1 ? 'error' : 'errors'}.\n`)
       }
       break
     default:

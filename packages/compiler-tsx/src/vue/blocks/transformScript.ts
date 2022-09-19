@@ -1,74 +1,67 @@
 import type { SFCScriptBlock } from '@vuedx/compiler-sfc'
-import { first, getComponentName } from '@vuedx/shared'
-import MagicString from 'magic-string'
+import { getComponentName, invariant } from '@vuedx/shared'
+import { parse, transformScript as transform } from '@vuedx/transforms'
+import { decode } from 'sourcemap-codec'
 import type { TransformedCode } from '../../types/TransformedCode'
 import type { TransformOptionsResolved } from '../../types/TransformOptions'
 
-const DEFAULT_EXPORT_RE = /(^|\b)export[\s\r\n]+default\b/
 export interface ScriptBlockTransformResult extends TransformedCode {
   exportIdentifier: string
   decoratorIdentifier?: string
+  identifiers: string[]
+  selfName?: string | undefined
+  inheritAttrs?: boolean | undefined
 }
 export function transformScript(
   script: SFCScriptBlock | null,
-  {
-    internalIdentifierPrefix: prefix,
-    runtimeModuleName,
-    descriptor,
-    isTypeScript,
-
-    fileName,
-  }: TransformOptionsResolved,
+  options: TransformOptionsResolved,
 ): ScriptBlockTransformResult {
   const content = script?.content ?? ''
-  const builder = new MagicString(content)
-  const exportIdentifier = `${prefix}Component`
 
-  const match = DEFAULT_EXPORT_RE.exec(content)
+  const ast = parse(content, {
+    isScriptSetup: true,
+    lang: script?.lang,
+  })
 
-  if (match != null) {
-    builder.overwrite(
-      match.index,
-      match.index + first(match).length,
-      `const ${exportIdentifier} =`,
-    )
-    builder.append(`console.log(${exportIdentifier})`)
-  } else if (descriptor.scriptSetup == null) {
-    if (content.length > 0) builder.append('\n')
-    builder
-      .append(
-        `import { defineComponent as ${prefix}defineComponent } from '${runtimeModuleName}';\n`,
-      )
-      .append(`const ${exportIdentifier} = ${prefix}defineComponent({});\n`)
-    builder.append(`console.log(${exportIdentifier})`)
-  }
+  const result = transform(ast, {
+    internalIdentifierPrefix: options.internalIdentifierPrefix,
+    runtimeModuleName: options.runtimeModuleName,
+    typeIdentifier: options.typeIdentifier,
+    isTypeScript:
+      script?.lang === 'ts' || script?.lang === 'tsx' || options.isTypeScript,
+  })
 
-  const decoratorIdentifier: string = `${prefix}RegisterSelf`
-  const name = getComponentName(fileName)
-  const detected = descriptor.scriptSetup == null ? '' : '' // TODO: detect name from inline options.
-  if (isTypeScript) {
-    builder.append(
-      `\nfunction ${decoratorIdentifier}<T extends {}>(arg0: T) {
-      const key = ${detected}"${name}" as const;
-      return { ...arg0, [key]: ${name} };\n}`.replace(/^[ ]+/gm, '  '),
-    )
+  invariant(result.map != null)
+
+  const decoratorIdentifier: string = `${options.internalIdentifierPrefix}RegisterSelf`
+  const name = result.selfName ?? getComponentName(options.fileName)
+  let code: string = result.code
+  if (options.isTypeScript) {
+    code += `\nfunction ${decoratorIdentifier}<T extends {}>(arg0: T) {
+      const key = "${name}" as const;
+      return { ...arg0, [key]: ${name} };\n}`.replace(/^[ ]+/gm, '  ')
   } else {
-    builder.append(
-      `\n
+    code += `\n
     /**
      * @template T
      * @param {T} arg0
      */
     function ${decoratorIdentifier}(arg0) {
-      const key = ${detected} /** @type {"${name}"} */ ("${name}");
-      return { ...arg0, [key]: ${name} };\n}`.replace(/^[ ]+/gm, '  '),
-    )
+      const key = /** @type {"${name}"} */ ("${name}");
+      return { ...arg0, [key]: ${name} };\n}`.replace(/^[ ]+/gm, '  ')
   }
 
   return {
-    code: builder.toString(),
-    map: builder.generateDecodedMap({ hires: false }),
-    exportIdentifier,
+    code,
+    map: {
+      ...result.map,
+      sourcesContent: result.map.sourcesContent ?? [],
+      mappings: decode(result.map.mappings),
+    },
+    exportIdentifier: result.exportIdentifier,
     decoratorIdentifier,
+    identifiers: result.identifiers,
+    selfName: result.selfName,
+    inheritAttrs: result.inheritAttrs,
   }
 }

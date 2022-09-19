@@ -1,11 +1,91 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`sourcemaps component 1`] = `
-/** @jsx __VueDX_JSX.createElement */
-import * as __VueDX_JSX from 'vue';
+exports[`sourcemaps attrs types 1`] = `
 import * as __VueDX_TypeCheck from 'vuedx~runtime';
 //#region <script>
+import { defineComponent as __VueDX_Script_defineComponent } from "vue";
 
+const __VueDX_Script_Component = __VueDX_Script_defineComponent({});
+function __VueDX_RegisterSelf<T extends {}>(arg0: T) {
+  const key = "Example" as const;
+  return { ...arg0, [key]: Example };
+}
+//#endregion
+const __VueDX_ctx = __VueDX_RegisterSelf(new __VueDX_Script_Component())
+//#region <template>
+import type { GlobalComponents as __VueDX_GlobalComponents } from 'vue';
+function __VueDX_render() {
+  /*<vuedx:templateGlobals>*/
+  let a = __VueDX_ctx.a
+  let b = __VueDX_ctx.b
+  let c = __VueDX_ctx.c
+  let $slots = __VueDX_ctx.$slots
+  /*</vuedx:templateGlobals>*/
+  return (
+    <>
+      {a
+        ? <>
+            <div
+              /*<vuedx:tsx-completions-target/>*/
+            />
+          </>
+        : b
+        ? <>
+            <span
+              /*<vuedx:tsx-completions-target/>*/
+            />
+          </>
+        : <>
+            {c
+              ? <>
+                  <p
+                    /*<vuedx:tsx-completions-target/>*/
+                  />
+                </>
+              : null
+            }
+          </>
+      }
+    </>
+  )
+}
+__VueDX_render();
+/*<vuedx:diagnosticsIgnore>*/
+function __VueDX_slots() {
+  /*<vuedx:templateGlobals>*/
+  let a = __VueDX_ctx.a
+  let b = __VueDX_ctx.b
+  let c = __VueDX_ctx.c
+  let $slots = __VueDX_ctx.$slots
+  /*</vuedx:templateGlobals>*/
+  return __VueDX_TypeCheck.internal.union(__VueDX_TypeCheck.internal.flat([
+  ]))
+}
+/*</vuedx:diagnosticsIgnore>*/
+const __VueDX_attrs = (() => {
+  return __VueDX_TypeCheck.internal.first(__VueDX_TypeCheck.internal.flat([
+    {} as unknown as __VueDX_TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
+    {} as unknown as __VueDX_TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "span">,
+    {} as unknown as __VueDX_TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "p">,
+  ]))
+})();
+
+//#endregion
+//#region public component definition
+export default class Example {
+  $props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ctx.$props, typeof __VueDX_attrs>;
+  $slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX_slots>>;
+}
+//#endregion
+
+`;
+
+exports[`sourcemaps component 1`] = `
+import * as __VueDX_TypeCheck from 'vuedx~runtime';
+//#region <script>
+import { defineComponent as __VueDX_Script_defineComponent } from "vue";
+
+const __VueDX_Script_Component = __VueDX_Script_defineComponent({});
 function __VueDX_RegisterSelf<T extends {}>(arg0: T) {
   const key = "Example" as const;
   return { ...arg0, [key]: Example };
@@ -34,11 +114,13 @@ const __VueDX_SetupComponent = __VueDX_defineComponent(__VueDX_arg0 => {
 //#endregion
 const __VueDX_ctx = __VueDX_RegisterSelf(new __VueDX_SetupComponent())
 //#region <template>
-export function __VueDX_render() {
+import type { GlobalComponents as __VueDX_GlobalComponents } from 'vue';
+function __VueDX_render() {
   /*<vuedx:templateGlobals>*/
-  let a = __VueDX_ctx.a;
-  let b = __VueDX_ctx.b;
-  let c = __VueDX_ctx.c;
+  let a = __VueDX_ctx.a
+  let b = __VueDX_ctx.b
+  let c = __VueDX_ctx.c
+  let $slots = __VueDX_ctx.$slots
   /*</vuedx:templateGlobals>*/
   return (
     <>
@@ -61,22 +143,27 @@ export function __VueDX_render() {
     </>
   )
 }
+__VueDX_render();
 /*<vuedx:diagnosticsIgnore>*/
 function __VueDX_slots() {
   /*<vuedx:templateGlobals>*/
-  let a = __VueDX_ctx.a;
-  let b = __VueDX_ctx.b;
-  let c = __VueDX_ctx.c;
+  let a = __VueDX_ctx.a
+  let b = __VueDX_ctx.b
+  let c = __VueDX_ctx.c
+  let $slots = __VueDX_ctx.$slots
   /*</vuedx:templateGlobals>*/
   return __VueDX_TypeCheck.internal.union(__VueDX_TypeCheck.internal.flat([
   ]))
 }
 /*</vuedx:diagnosticsIgnore>*/
+const __VueDX_attrs = (() => {
+  return __VueDX_TypeCheck.internal.first(__VueDX_TypeCheck.internal.flat([{}]))
+})();
 
 //#endregion
 //#region public component definition
 export default class Example {
-  $props = null as unknown as typeof __VueDX_ctx.$props;
+  $props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ctx.$props, typeof __VueDX_attrs>;
   $slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX_slots>>;
 }
 //#endregion
@@ -92,11 +179,11 @@ exports[`sourcemaps directives 1`] = `
     
 ----
         a=""
-        onA={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
-                                                                                                                           ^^^^^ > 5 at 1111 (27:123)
-        }}
-        onB={() => {
+        onA={__VueDX_TypeCheck.internal.first([
+          onNum, 
+          ^^^^^ > 5 at 1177 (30:10)
+        ])}
+        onB={__VueDX_TypeCheck.internal.first([
 `;
 
 exports[`sourcemaps directives 2`] = `
@@ -108,11 +195,11 @@ exports[`sourcemaps directives 2`] = `
     
 ----
         a=""
-        onA={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
-                                                                                                                           ^^^^^ > 5 at 1111 (27:123)
-        }}
-        onB={() => {
+        onA={__VueDX_TypeCheck.internal.first([
+          onNum, 
+          ^^^^^ > 5 at 1177 (30:10)
+        ])}
+        onB={__VueDX_TypeCheck.internal.first([
 `;
 
 exports[`sourcemaps directives 3`] = `
@@ -124,11 +211,11 @@ exports[`sourcemaps directives 3`] = `
     
 ----
         a=""
-        onA={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
-                                                                                                                              ^^ > 2 at 1114 (27:126)
-        }}
-        onB={() => {
+        onA={__VueDX_TypeCheck.internal.first([
+          onNum, 
+             ^^ > 2 at 1180 (30:13)
+        ])}
+        onB={__VueDX_TypeCheck.internal.first([
 `;
 
 exports[`sourcemaps directives 4`] = `
@@ -140,11 +227,11 @@ exports[`sourcemaps directives 4`] = `
     
 ----
         a=""
-        onA={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
-                                                                                                                              ^^ > 2 at 1114 (27:126)
-        }}
-        onB={() => {
+        onA={__VueDX_TypeCheck.internal.first([
+          onNum, 
+             ^^ > 2 at 1180 (30:13)
+        ])}
+        onB={__VueDX_TypeCheck.internal.first([
 `;
 
 exports[`sourcemaps directives 5`] = `
@@ -156,11 +243,11 @@ exports[`sourcemaps directives 5`] = `
     
 ----
         a=""
-        onA={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
-                                                                                                                           ^^^^^ > 5 at 1111 (27:123)
-        }}
-        onB={() => {
+        onA={__VueDX_TypeCheck.internal.first([
+          onNum, 
+          ^^^^^ > 5 at 1177 (30:10)
+        ])}
+        onB={__VueDX_TypeCheck.internal.first([
 `;
 
 exports[`sourcemaps directives 6`] = `
@@ -172,11 +259,11 @@ exports[`sourcemaps directives 6`] = `
     
 ----
         a=""
-        onA={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
-                                                                                                                           ^^^^^ > 5 at 1111 (27:123)
-        }}
-        onB={() => {
+        onA={__VueDX_TypeCheck.internal.first([
+          onNum, 
+          ^^^^^ > 5 at 1177 (30:10)
+        ])}
+        onB={__VueDX_TypeCheck.internal.first([
 `;
 
 exports[`sourcemaps directives 7`] = `
@@ -188,11 +275,11 @@ exports[`sourcemaps directives 7`] = `
     
 ----
         a=""
-        onA={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
-                                                                                                                              ^^ > 2 at 1114 (27:126)
-        }}
-        onB={() => {
+        onA={__VueDX_TypeCheck.internal.first([
+          onNum, 
+             ^^ > 2 at 1180 (30:13)
+        ])}
+        onB={__VueDX_TypeCheck.internal.first([
 `;
 
 exports[`sourcemaps directives 8`] = `
@@ -204,107 +291,148 @@ exports[`sourcemaps directives 8`] = `
     
 ----
         a=""
-        onA={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onNum, {  });
-                                                                                                                              ^^ > 2 at 1114 (27:126)
-        }}
-        onB={() => {
+        onA={__VueDX_TypeCheck.internal.first([
+          onNum, 
+             ^^ > 2 at 1180 (30:13)
+        ])}
+        onB={__VueDX_TypeCheck.internal.first([
 `;
 
 exports[`sourcemaps directives 9`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                            ^^^^ > 4 at 44 (2:28)
+                                                   ^^^^^^^^ > 8 at 67 (2:51)
     </template>
     
 ----
-        }}
-        onB={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "b" as const, onNum, { "once": true as const,  });
-                                                                                                                                     > 0 at 1289 (30:132)
-        }}
-        onC={() => {
+        onC={__VueDX_TypeCheck.internal.first([
+          ($event) => {
+          call.a['func']($event)
+                ^^^^^^^^ > 8 at 1363 (37:16)
+          }, 
+        ])}
 `;
 
 exports[`sourcemaps directives 10`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                             > 0 at 44 (2:28)
+                                                   ^^^^^^^^ > 8 at 67 (2:51)
     </template>
     
 ----
-        }}
-        onB={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "b" as const, onNum, { "once": true as const,  });
-                                                                                                                                     > 0 at 1289 (30:132)
-        }}
-        onC={() => {
+        onC={__VueDX_TypeCheck.internal.first([
+          ($event) => {
+          call.a['func']($event)
+                ^^^^^^^^ > 8 at 1363 (37:16)
+          }, 
+        ])}
 `;
 
 exports[`sourcemaps directives 11`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                                                   ^^^^^^^^ > 8 at 67 (2:51)
+                                                            ^^^^^^ > 6 at 76 (2:60)
     </template>
     
 ----
-        onC={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "c" as const, ($event) => {
+        onC={__VueDX_TypeCheck.internal.first([
+          ($event) => {
           call.a['func']($event)
-                ^^^^^^^^ > 8 at 1502 (34:16)
-          }, {  });
-        }}
+                         ^^^^^^ > 6 at 1372 (37:25)
+          }, 
+        ])}
 `;
 
 exports[`sourcemaps directives 12`] = `
 
     <template>
       <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                                                   ^^^^^^^^ > 8 at 67 (2:51)
-    </template>
-    
-----
-        onC={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "c" as const, ($event) => {
-          call.a['func']($event)
-                ^^^^^^^^ > 8 at 1502 (34:16)
-          }, {  });
-        }}
-`;
-
-exports[`sourcemaps directives 13`] = `
-
-    <template>
-      <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
                                                             ^^^^^^ > 6 at 76 (2:60)
     </template>
     
 ----
-        onC={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "c" as const, ($event) => {
+        onC={__VueDX_TypeCheck.internal.first([
+          ($event) => {
           call.a['func']($event)
-                         ^^^^^^ > 6 at 1511 (34:25)
-          }, {  });
-        }}
+                         ^^^^^^ > 6 at 1372 (37:25)
+          }, 
+        ])}
 `;
 
-exports[`sourcemaps directives 14`] = `
+exports[`sourcemaps v-if on template + v-slot 1`] = `
+import * as __VueDX_TypeCheck from 'vuedx~runtime';
+//#region <script>
+import { defineComponent as __VueDX_Script_defineComponent } from "vue";
 
-    <template>
-      <B a="" @a="onNum" @b.once="onNum" @c="call.a['func']($event)" />
-                                                            ^^^^^^ > 6 at 76 (2:60)
-    </template>
-    
-----
-        onC={() => {
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "c" as const, ($event) => {
-          call.a['func']($event)
-                         ^^^^^^ > 6 at 1511 (34:25)
-          }, {  });
-        }}
+const __VueDX_Script_Component = __VueDX_Script_defineComponent({});
+function __VueDX_RegisterSelf<T extends {}>(arg0: T) {
+  const key = "Example" as const;
+  return { ...arg0, [key]: Example };
+}
+//#endregion
+const __VueDX_ctx = __VueDX_RegisterSelf(new __VueDX_Script_Component())
+//#region <template>
+import type { GlobalComponents as __VueDX_GlobalComponents } from 'vue';
+/*<vuedx:templateGlobals>*/
+const __VueDX__get_identifier_A = () => A;
+/*</vuedx:templateGlobals>*/
+function __VueDX_render() {
+  /*<vuedx:templateGlobals>*/
+  let $slots = __VueDX_ctx.$slots
+  let foo = __VueDX_ctx.foo
+  /*</vuedx:templateGlobals>*/
+  /*<vuedx:templateGlobals>*/
+  const A = __VueDX_TypeCheck.internal.resolveComponent({} as unknown as __VueDX_GlobalComponents, {} as unknown as JSX.IntrinsicElements, __VueDX_ctx, __VueDX__get_identifier_A(), "A" as const, "A" as const);
+  /*</vuedx:templateGlobals>*/
+  return (
+    <>
+      <A
+        /*<vuedx:tsx-completions-target/>*/
+      >
+        {__VueDX_TypeCheck.internal.checkSlots(A, {
+          "a": () => {
+            return (
+              <>
+                {$slots.a
+                  ? <>
+                      {foo}
+                    </>
+                  : null
+                }
+              </>
+            )
+          },
+        })}
+      </A>
+    </>
+  )
+}
+__VueDX_render();
+/*<vuedx:diagnosticsIgnore>*/
+function __VueDX_slots() {
+  /*<vuedx:templateGlobals>*/
+  let $slots = __VueDX_ctx.$slots
+  let foo = __VueDX_ctx.foo
+  /*</vuedx:templateGlobals>*/
+  return __VueDX_TypeCheck.internal.union(__VueDX_TypeCheck.internal.flat([
+  ]))
+}
+/*</vuedx:diagnosticsIgnore>*/
+const __VueDX_attrs = (() => {
+  return __VueDX_TypeCheck.internal.first(__VueDX_TypeCheck.internal.flat([{}]))
+})();
+
+//#endregion
+//#region public component definition
+export default class Example {
+  $props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ctx.$props, typeof __VueDX_attrs>;
+  $slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX_slots>>;
+}
+//#endregion
+
 `;
 
 exports[`sourcemaps v-on shorthand 1`] = `
@@ -317,10 +445,10 @@ exports[`sourcemaps v-on shorthand 1`] = `
 ----
       <B
         a=""
-        onA={() => {
-         > 0 at 944 (25:8)
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onStr, {  });
-        }}
+        onA={__VueDX_TypeCheck.internal.first([
+         > 0 at 1097 (28:8)
+          onStr, 
+        ])}
 `;
 
 exports[`sourcemaps v-on shorthand 2`] = `
@@ -333,10 +461,10 @@ exports[`sourcemaps v-on shorthand 2`] = `
 ----
       <B
         a=""
-        onA={() => {
-         > 0 at 944 (25:8)
-          __VueDX_TypeCheck.internal.checkOnDirective({} as unknown as __VueDX_JSX.JSX.IntrinsicElements, B, "a" as const, onStr, {  });
-        }}
+        onA={__VueDX_TypeCheck.internal.first([
+         > 0 at 1097 (28:8)
+          onStr, 
+        ])}
 `;
 
 exports[`sourcemaps v-text 1`] = `
@@ -350,7 +478,7 @@ exports[`sourcemaps v-text 1`] = `
     <>
       <div
         innerHTML={a}
-                   ^ > 1 at 672 (21:19)
+                   ^ > 1 at 718 (21:19)
         /*<vuedx:tsx-completions-target/>*/
       />
 `;
@@ -366,7 +494,7 @@ exports[`sourcemaps v-text 2`] = `
     <>
       <div
         innerHTML={a}
-                   ^ > 1 at 672 (21:19)
+                   ^ > 1 at 718 (21:19)
         /*<vuedx:tsx-completions-target/>*/
       />
 `;

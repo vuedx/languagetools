@@ -18,9 +18,12 @@ abstract class BaseCache<K, V> implements Cache<K, V> {
   abstract clear(): void
 
   resolve(key: K, getter: (key: K) => V): V {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    if (this.has(key)) return this.get(key)!
+    if (this.has(key)) {
+      if (__DEV__) console.debug('[cache] hit', key)
+      return this.get(key) as V
+    }
 
+    if (__DEV__) console.debug('[cache] miss', key)
     const value = getter(key)
 
     this.set(key, value)
@@ -221,6 +224,7 @@ function getOrCreate<K, V>(
   }
 }
 
+/** Cache results using as secondary version key. */
 export function versioned<T extends unknown[], R = unknown>(
   getKey: (args: T) => R = (args) =>
     args[0] as T extends [k: infer K] ? K & R : never,

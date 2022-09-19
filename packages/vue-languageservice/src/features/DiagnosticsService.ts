@@ -1,3 +1,4 @@
+import { versioned } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 
 import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
@@ -27,16 +28,22 @@ export class DiagnosticsService
     private readonly declarations: TemplateDeclarationsService,
   ) {}
 
+  public getVersion(fileName: string): string {
+    return this.fs.getVersion(fileName)
+  }
+
   public getCompilerOptionsDiagnostics(): TypeScript.Diagnostic[] {
     return this.ts.service.getCompilerOptionsDiagnostics()
   }
 
+  @versioned()
   public getSemanticDiagnostics(fileName: string): TypeScript.Diagnostic[] {
     return this.run(fileName, (fileName) =>
       this.ts.service.getSemanticDiagnostics(fileName),
     )
   }
 
+  @versioned()
   public getSyntacticDiagnostics(
     fileName: string,
   ): TypeScript.DiagnosticWithLocation[] {
@@ -45,6 +52,7 @@ export class DiagnosticsService
     )
   }
 
+  @versioned()
   public getSuggestionDiagnostics(
     fileName: string,
   ): TypeScript.DiagnosticWithLocation[] {
@@ -53,6 +61,7 @@ export class DiagnosticsService
     )
   }
 
+  @versioned()
   public getVueCompilerDiagnostic(
     fileName: string,
   ): TypeScript.DiagnosticWithLocation[] {
@@ -66,13 +75,23 @@ export class DiagnosticsService
     const syntax: SyntaxError[] = []
     for (const error of file.errors) {
       if ('loc' in error && error.loc != null) {
+        const loc = error.loc
+        const span = (() => {
+          try {
+            return {
+              start: loc.start.offset,
+              length: loc.end.offset - loc.start.offset,
+            }
+          } catch {
+            return { start: 0, length: 1 }
+          }
+        })()
         this.logger.error('Vue Compiler Error', error.message, error.loc)
         diagnostics.push({
           category,
           code: Number(error.code),
+          ...span,
           file: fakeSourceFile,
-          start: error.loc.start.offset,
-          length: error.loc.end.offset - error.loc.start.offset,
           messageText: error.message,
           source: 'VueDX/Compiler',
         })
@@ -110,7 +129,7 @@ export class DiagnosticsService
 
     file.snapshot.unusedIdentifiers.forEach((identifier) => {
       const declaration = setupVariables.get(identifier)
-      if (declaration == null) return
+      if (declaration == null || declaration.kind === 'component') return
       if (declaration.references.length > 0) return
       const span = file.findOriginalTextSpan(declaration.initializer)
       if (span == null) return
@@ -221,13 +240,19 @@ export class DiagnosticsService
         file: file.getSourceFile() as unknown as TypeScript.SourceFile,
       }
 
+      this.logger.debug(
+        '@@@ processDiagnostic\n',
+        diagnostic.messageText,
+        file.positionAt(diagnostic.start ?? 0),
+      )
+
       if (diagnostic.start != null) {
         const position = file.generated.positionAt(diagnostic.start)
         const declaration = this.declarations
           .getTemplateDeclaration(file.originalFileName)
           .byLine.get(position.line)
 
-        if (declaration != null) {
+        if (declaration != null && declaration.kind !== 'component') {
           if (declaration.kind === 'setup') {
             const span = file.findOriginalTextSpan(declaration.initializer)
             if (span == null) return []
@@ -249,8 +274,6 @@ export class DiagnosticsService
             start: diagnostic.start,
             length: diagnostic.length ?? 1,
           })
-
-          this.logger.debug('@@@ Debug Directive', span, position, diagnostic)
 
           if (span == null) return []
           return [{ ...base, ...span }]

@@ -4,6 +4,7 @@ export function getRuntimeFn(
     | 'checkDirective'
     | 'checkOnDirective'
     | 'checkSlots'
+    | 'first'
     | 'flat'
     | 'guard'
     | 'renderList'

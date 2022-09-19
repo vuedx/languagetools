@@ -40,14 +40,9 @@ export class FilesystemService implements Disposable {
   ) {}
 
   public getVersion(fileName: string): string {
-    fileName = this.getRealFileNameIfAny(fileName)
-
-    return (
-      this.ts
-        .getProjectFor(fileName)
-        ?.getScriptInfo(fileName)
-        ?.getLatestVersion() ?? '0'
-    )
+    return `${this.ts.project.getProjectVersion()}|${this.ts.project.getScriptVersion(
+      fileName,
+    )}`
   }
 
   private readonly textDocumentCache = new CacheService<TextDocument>(
@@ -112,7 +107,7 @@ export class FilesystemService implements Disposable {
     if (!this.provider.exists(fileName)) return null
 
     const file = VueSFCDocument.create(fileName, this.provider.read(fileName), {
-      isTypeScript: !this.ts.project.isJsOnlyProject(),
+      isTypeScript: this.ts.isTypeScriptProject,
     })
 
     const registerFileUpdate = (
@@ -178,6 +173,17 @@ export class FilesystemService implements Disposable {
     span: TextSpan,
   ): string {
     return doc.getText().slice(span.start, span.start + span.length)
+  }
+
+  public getLineText(
+    doc: Pick<TextDocument, 'getText' | 'positionAt' | 'offsetAt'>,
+    offset: number,
+  ): string {
+    const { line } = doc.positionAt(offset)
+    const start = doc.offsetAt({ line, character: 0 })
+    const end = doc.offsetAt({ line: line + 1, character: 0 })
+
+    return doc.getText().slice(start, end - 1)
   }
 
   public isVueFile(fileName: string): boolean {

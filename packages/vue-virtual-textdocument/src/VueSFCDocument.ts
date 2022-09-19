@@ -364,33 +364,23 @@ export class VueSFCDocument implements TextDocument {
       character: low[MappingKey.GeneratedColumn],
     })
 
-    const start =
-      this.original.offsetAt({
-        line: low[MappingKey.OriginalLine],
-        character: low[MappingKey.OriginalColumn],
-      }) +
-      // source mappings are prefix based, so we assume the original
-      // and generated text have the same prefix.
-      Math.abs(generatedStart - spanInGeneratedText.start)
+    const originalStart = this.original.offsetAt({
+      line: low[MappingKey.OriginalLine],
+      character: low[MappingKey.OriginalColumn],
+    })
 
-    const high = this.findMapping(
-      'generated',
-      position,
-      BinarySearchBias.LEAST_UPPER_BOUND,
-    )
-    if (high != null && high[MappingKey.OriginalLine] >= 0) {
-      const end = this.original.offsetAt({
-        line: high[MappingKey.OriginalLine],
-        character: high[MappingKey.OriginalColumn],
-      })
+    // prefix match
+    const originalString = this.original.getText().slice(originalStart)
+    const generatedString = this.generated.getText().slice(generatedStart)
 
-      return {
-        start,
-        length: Math.min(end - start, spanInGeneratedText.length),
-      }
+    const prefixLength = findCommonPrefixLength(originalString, generatedString)
+    if (generatedStart + prefixLength < spanInGeneratedText.start) return null // no mapping
+
+    return {
+      start:
+        originalStart + Math.abs(generatedStart - spanInGeneratedText.start),
+      length: Math.min(prefixLength, spanInGeneratedText.length),
     }
-
-    return { start, length: spanInGeneratedText.length }
   }
 
   public findGeneratedTextSpan(spanInOriginalText: TextSpan): TextSpan | null {
@@ -666,4 +656,33 @@ function contains(haystack: TextSpan, needle: TextSpan): boolean {
     haystack.start <= needle.start &&
     haystack.start + haystack.length >= needle.start + needle.length
   )
+}
+
+// Binary search.
+// Performance analysis: http://neil.fraser.name/news/2007/10/09/
+function findCommonPrefixLength(a: string, b: string): number {
+  if (a.length === 0 || b.length === 0 || a.charCodeAt(0) !== b.charCodeAt(0))
+    return 0
+  let low = 0
+  let high = Math.min(a.length, b.length)
+  let mid = high
+  let start = 0
+  while (low < mid) {
+    if (a.slice(start, mid) === b.slice(start, mid)) {
+      low = mid
+      start = low
+    } else {
+      high = mid
+    }
+
+    mid = Math.floor((high - low) / 2 + low)
+  }
+
+  if (isSurrogatePair(a.charCodeAt(mid - 1))) mid--
+
+  return mid
+}
+
+function isSurrogatePair(ch: number): boolean {
+  return ch >= 0xd800 && ch <= 0xdbff
 }

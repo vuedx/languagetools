@@ -1,5 +1,16 @@
-import { findDir, NodeTransform } from '@vue/compiler-core'
-import { isComponentNode, isTemplateNode } from '@vuedx/template-ast-types'
+import {
+  DirectiveNode,
+  findDir,
+  IfBranchNode,
+  IfNode,
+  NodeTransform,
+  TemplateNode,
+} from '@vue/compiler-core'
+import {
+  isComponentNode,
+  isTemplateNode,
+  NodeTypes,
+} from '@vuedx/template-ast-types'
 import type { NodeTransformContext } from '../types/NodeTransformContext'
 
 export function createComponentChildrenTransform(
@@ -36,11 +47,14 @@ export function createComponentChildrenTransform(
           if (isTemplateNode(node)) {
             const dir = findDir(node, 'slot', true)
             if (dir != null) {
+              const _if = findDir(node, 'if', true)
+
               slots.push({
                 name: dir.arg,
                 args: dir.exp,
                 hoists: node.hoists ?? [],
-                children: node.children,
+                children:
+                  _if == null ? node.children : [createIfNode(node, _if)],
                 template: node,
               })
 
@@ -59,5 +73,26 @@ export function createComponentChildrenTransform(
         ]
       }
     }
+  }
+}
+function createIfNode(node: TemplateNode, dir: DirectiveNode): IfNode {
+  return {
+    type: NodeTypes.IF,
+    branches: [createIfBranchNode(node, dir)],
+    loc: node.loc,
+    scope: node.scope,
+  }
+}
+
+function createIfBranchNode(
+  node: TemplateNode,
+  dir: DirectiveNode,
+): IfBranchNode {
+  return {
+    type: NodeTypes.IF_BRANCH,
+    children: node.children,
+    condition: dir.exp,
+    loc: node.loc,
+    scope: node.scope,
   }
 }

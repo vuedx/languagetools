@@ -49,6 +49,8 @@ export function transformTemplate(
         error.loc.end.line += line
       }
 
+      error.message += ` (in <template>)`
+
       return error
     }),
   }

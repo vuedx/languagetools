@@ -14,6 +14,7 @@ import {
   IfNode,
   InterpolationNode,
   Node,
+  PlainElementNode,
   RootNode,
   SimpleExpressionNode,
   SlotOutletNode,
@@ -24,7 +25,6 @@ import {
 import {
   camelize,
   capitalize,
-  first,
   invariant,
   last,
   pascalCase,
@@ -32,17 +32,21 @@ import {
 import {
   ElementTypes,
   isAttributeNode,
+  isCommentNode,
   isComponentNode,
   isDirectiveNode,
   isExpressionNode,
   isPlainElementNode,
+  isRootNode,
   isSimpleExpressionNode,
   isSimpleIdentifier,
   isSlotNode,
+  isTemplateNode,
   isTextNode,
   NodeTypes,
   TraversalAncestors,
   traverse,
+  traverseEvery,
 } from '@vuedx/template-ast-types'
 import type { DecodedSourceMap } from 'magic-string'
 import type { TransformedCode } from '../types/TransformedCode'
@@ -61,6 +65,7 @@ interface GenerateContext extends NodeTransformContext {
   indent(): GenerateContext
   deindent(): GenerateContext
   getOutput(): TransformedCode
+  setSourceMapMode(enabled: boolean): boolean
   typeGuards: Array<SimpleExpressionNode | CompoundExpressionNode | undefined>
 }
 
@@ -115,11 +120,22 @@ export function generate(
   writeLine(
     `import type { GlobalComponents as ${ctx.internalIdentifierPrefix}GlobalComponents } from '${ctx.runtimeModuleName}';`,
   )
-  ctx.used.components.forEach((component) => {
-    writeLine(
-      `const ${ctx.internalIdentifierPrefix}_get_identifier_${component} = () => ${component};`,
+
+  if (ctx.used.components.size > 0) {
+    wrap(
+      `${annotations.templateGlobals.start}\n`,
+      `${annotations.templateGlobals.end}\n`,
+      () => {
+        ctx.used.components.forEach((component) => {
+          if (isSimpleIdentifier(component)) {
+            writeLine(
+              `const ${ctx.internalIdentifierPrefix}_get_identifier_${component} = () => ${component};`,
+            )
+          }
+        })
+      },
     )
-  })
+  }
 
   genRootNode(root)
   genSlotTypes(root)
@@ -420,12 +436,14 @@ function genComponentNode(node: ComponentNode): void {
 }
 
 function genTypeGuards(): void {
+  const value = ctx.setSourceMapMode(false)
   ctx.typeGuards.forEach((guard) => {
     if (guard == null) return
     ctx.write(`if(!(`)
     genExpressionNode(guard)
     ctx.write(')) throw new Error;').newLine()
   })
+  ctx.setSourceMapMode(value)
 }
 
 function genSlotOutletNode(node: SlotOutletNode): void {
@@ -521,12 +539,12 @@ function genProps(el: ElementNode | ComponentNode): void {
   const directives = el.props.filter(isDirectiveNode)
   el.props.forEach((prop) => {
     if (isAttributeNode(prop)) {
-      genAttribute(prop)
+      genAttribute(prop, el)
       ctx.newLine()
     } else if (rendered.has(prop)) {
       // already rendered
     } else if (prop.name === 'bind') {
-      genVBindDirective(prop)
+      genVBindDirective(prop, el)
       ctx.newLine()
     } else if (prop.name === 'on') {
       if (prop.arg == null) {
@@ -551,64 +569,21 @@ function genProps(el: ElementNode | ComponentNode): void {
         )
 
         const genHandler = (): void => {
-          const args = typeCastAs(
-            typeCastAs('{}', `unknown`),
-            `JSX.IntrinsicElements`,
-          )
-          ctx.write('() => {').newLine()
+          ctx.write(`${getRuntimeFn(ctx.typeIdentifier, 'first')}([`).newLine()
           indent(() => {
             all.forEach((directive) => {
               rendered.add(directive)
-              ctx.write(
-                `${getRuntimeFn(
-                  ctx.typeIdentifier,
-                  'checkOnDirective',
-                )}(${args}, `,
-              )
 
-              if (isComponentNode(el)) {
-                ctx.write(
-                  el.resolvedName ?? asConst(JSON.stringify(el.tag)),
-                  el.tagLoc,
-                )
+              if (directive.exp != null) {
+                genExpressionNodeAsFunction(directive.exp)
               } else {
-                ctx.write(asConst(JSON.stringify(el.tag)), el.tagLoc)
+                ctx.write(annotations.missingExpression, directive.loc)
               }
               ctx.write(', ')
-
-              if (directive.arg != null) {
-                if (isStaticExpression(directive.arg)) {
-                  ctx.write(
-                    asConst(JSON.stringify(directive.arg.content)),
-                    directive.arg.loc,
-                  )
-                } else {
-                  genExpressionNode(directive.arg)
-                }
-              } else ctx.write('undefined')
-              ctx.write(', ')
-              if (directive.exp != null)
-                genExpressionNodeAsFunction(directive.exp)
-              else ctx.write('() => {}')
-              ctx.write(', ')
-              wrap('{ ', ' }', () => {
-                directive.modifiers.forEach((modifier, index) => {
-                  if (modifier.trim() === '') return
-                  ctx.write(
-                    `${JSON.stringify(modifier)}`,
-                    directive.modifierLocs[index],
-                    true,
-                  )
-                  ctx.write(': ')
-                  ctx.write(asConst('true'))
-                  ctx.write(', ')
-                })
-              })
-              ctx.write(');')
               ctx.newLine()
             })
           })
-          ctx.write('}')
+          ctx.write('])')
         }
 
         if (isStaticExpression(prop.arg)) {
@@ -645,14 +620,43 @@ function genProps(el: ElementNode | ComponentNode): void {
       }
       if (prop.arg == null) {
         // TODO: get attribute name at runtime
-        if (isComponentNode(el)) {
-          ctx.write('modelValue', prop.nameLoc)
+        let isCheckbox = false
+        if (['input', 'select', 'textarea'].includes(el.tag)) {
+          const type = findProp(el, 'type')
+          if (
+            isAttributeNode(type) &&
+            (type.value?.content === 'checkbox' ||
+              type.value?.content === 'radio')
+          ) {
+            isCheckbox = true
+            ctx.write('checked', prop.nameLoc)
+          } else {
+            ctx.write('value', prop.nameLoc)
+          }
         } else {
-          ctx.write('value', prop.nameLoc)
+          ctx.write('modelValue', prop.nameLoc)
         }
 
         ctx.write('={')
         genExp()
+        if (isCheckbox) {
+          const value = findProp(el, 'value')
+          if (isAttributeNode(value)) {
+            ctx.write(' === ')
+            if (value.value != null) {
+              genTextNode(value.value)
+            } else {
+              ctx.write('undefined', value.loc)
+            }
+          } else if (isDirectiveNode(value)) {
+            ctx.write(' === ')
+            if (value.exp != null) {
+              genExpressionNode(value.exp)
+            } else {
+              ctx.write('undefined', value.loc)
+            }
+          }
+        }
         ctx.write('}')
       } else if (isStaticExpression(prop.arg)) {
         genExpressionNode(prop.arg)
@@ -666,26 +670,36 @@ function genProps(el: ElementNode | ComponentNode): void {
         genExp()
         ctx.write('})}')
       }
+      ctx.newLine()
     }
   })
 }
 
-function genAttribute(prop: AttributeNode): void {
-  if (prop.name === 'class' || prop.name === 'style') return // TODO: handle class and style eventually
+function genAttribute(
+  attribute: AttributeNode,
+  element: ElementNode | CommentNode,
+): void {
+  if (attribute.name === 'class' || attribute.name === 'style') return // TODO: handle class and style eventually
   const name =
-    prop.name.startsWith('data-') || prop.name.startsWith('aria-')
-      ? prop.name
-      : camelize(prop.name)
-  ctx.write(name, prop.nameLoc, true)
-  if (prop.value != null) {
+    isPlainElementNode(element) ||
+    attribute.name.startsWith('data-') ||
+    attribute.name.startsWith('aria-')
+      ? attribute.name
+      : camelize(attribute.name)
+  ctx.write(name, attribute.nameLoc, true)
+  if (attribute.value != null) {
     ctx.write('=')
-    genTextNode(prop.value)
+    genTextNode(attribute.value)
   }
 }
 
-function genVBindDirective(prop: DirectiveNode): void {
+function genVBindDirective(
+  prop: DirectiveNode,
+  element: ElementNode | CommentNode,
+): void {
   if (isStaticExpression(prop.arg)) {
     const name =
+      isPlainElementNode(element) ||
       prop.arg.content.startsWith('data-') ||
       prop.arg.content.startsWith('aria-')
         ? prop.arg.content
@@ -795,6 +809,7 @@ function createGenerateContext(options: NodeTransformContext): GenerateContext {
   const names: string[] = []
   const mappings: DecodedSourceMap['mappings'] = [[]]
   let shouldIndent = false
+  let shouldWriteMapping = true
 
   const nl = '\n'
 
@@ -805,7 +820,7 @@ function createGenerateContext(options: NodeTransformContext): GenerateContext {
   ): void {
     output += chunk
     const lines = chunk.split(nl)
-    if (loc != null) {
+    if (loc != null && shouldWriteMapping) {
       let index: number | null = null
       if (addMappingType) {
         const name = loc.source.startsWith(chunk)
@@ -841,6 +856,11 @@ function createGenerateContext(options: NodeTransformContext): GenerateContext {
   const context: GenerateContext = {
     ...options,
     typeGuards: [],
+    setSourceMapMode(enabled) {
+      const current = shouldWriteMapping
+      shouldWriteMapping = enabled
+      return current
+    },
     write(code, loc, addMappingType) {
       if (shouldIndent) {
         shouldIndent = false
@@ -888,7 +908,7 @@ function isStaticExpression(node?: Node): node is SimpleExpressionNode {
 
 function genSlotTypes(root: RootNode): void {
   const slots: Array<[ElementNode, TraversalAncestors]> = []
-
+  const value = ctx.setSourceMapMode(false)
   traverse(root, (node, ancestors) => {
     if (isSlotNode(node)) {
       slots.push([node, ancestors.slice()])
@@ -1030,6 +1050,7 @@ function genSlotTypes(root: RootNode): void {
   })
   ctx.write('}').newLine()
   writeLine(annotations.diagnosticsIgnore.end)
+  ctx.setSourceMapMode(value)
 }
 
 function genObjectProperty(
@@ -1256,30 +1277,87 @@ function typeCastAs(value: string, type: string): string {
 }
 
 function genAttrTypes(root: RootNode): void {
-  const elements = root.children.filter(isPlainElementNode)
+  const value = ctx.setSourceMapMode(false)
+  // TODO: Support components.
+  const nodes: PlainElementNode[] = []
+
+  if (root.loc.source.includes('@vue-attrs-target')) {
+    traverse(root, {
+      enter(node, ancestors) {
+        if (isCommentNode(node)) {
+          if (node.content.includes('@vue-attrs-target')) {
+            const { node: parent, key, index } = last(ancestors)
+            if (index != null) {
+              const el = (
+                parent[key as keyof typeof parent] as unknown as Node[]
+              )?.[index + 1]
+
+              if (isPlainElementNode(el)) {
+                nodes.push(el)
+              }
+            }
+          }
+        }
+      },
+    })
+  } else {
+    traverseEvery(root, (node, ancestors) => {
+      if (isPlainElementNode(node)) {
+        const { node: parent } = last(ancestors)
+        if (isRootNode(parent)) {
+          if (parent.children.filter(isPlainElementNode).length === 1) {
+            nodes.push(node)
+          }
+        } else {
+          nodes.push(node)
+        }
+      } else if (isTemplateNode(node) || isRootNode(node)) {
+        return true
+      } else if (
+        node.type === NodeTypes.IF ||
+        node.type === NodeTypes.IF_BRANCH ||
+        node.type === NodeTypes.FOR
+      ) {
+        return true
+      }
+
+      return false
+    })
+  }
+
   ctx.write(`const ${ctx.internalIdentifierPrefix}attrs = (() => {`).newLine()
   indent(() => {
     const value = typeCastAs('{}', 'unknown')
-    // TODO: find $attrs target
-    // TODO: check inheritAttrs
+    ctx.write('return ')
 
-    if (elements.length !== 1) {
-      ctx.write('return ')
-      ctx.write(typeCastAs(value, '{}'))
+    ctx.write(getRuntimeFn(ctx.typeIdentifier, 'first'))
+    ctx.write('(')
+    ctx.write(getRuntimeFn(ctx.typeIdentifier, 'flat'))
+    ctx.write('([')
+
+    if (nodes.length > 0) {
+      indent(() => {
+        ctx.newLine()
+        for (const node of nodes) {
+          const type = JSON.stringify(node.tag)
+          ctx.write(
+            typeCastAs(
+              value,
+              `${ctx.typeIdentifier}.internal.PropsOf<JSX.IntrinsicElements, ${type}>`,
+            ),
+          )
+          ctx.write(',')
+          ctx.newLine()
+        }
+      })
     } else {
-      const element = first(elements)
-      const type = JSON.stringify(element.tag)
-      ctx.write('return ')
-      ctx.write(
-        typeCastAs(
-          value,
-          `${ctx.typeIdentifier}.internal.PropsOf<JSX.IntrinsicElements, ${type}>`,
-        ),
-      )
+      ctx.write('{}')
     }
 
+    ctx.write(']))')
     ctx.newLine()
   })
 
   ctx.write('})();').newLine()
+  ctx.setSourceMapMode(value)
 }

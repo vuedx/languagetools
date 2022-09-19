@@ -103,10 +103,8 @@ export class TypeScriptServerHost {
 
     this.readline.on('line', (line) => {
       if (line.startsWith('{')) {
-        const payload:
-          | Proto.Request
-          | Proto.Response
-          | Proto.Event = JSON.parse(line)
+        const payload: Proto.Request | Proto.Response | Proto.Event =
+          JSON.parse(line)
 
         debug('RECV:', payload)
         if (payload.type === 'response') {
@@ -157,6 +155,12 @@ export class TypeScriptServerHost {
     ) => void | Promise<void>,
   ): () => void
   public on(
+    event: Proto.ProjectLoadingFinishEventName,
+    fn: (
+      event: Required<Proto.ProjectLoadingFinishEvent>['body'],
+    ) => void | Promise<void>,
+  ): () => void
+  public on(
     event: Proto.ProjectsUpdatedInBackgroundEventName,
     fn: (
       event: Required<Proto.ProjectsUpdatedInBackgroundEvent>['body'],
@@ -167,6 +171,7 @@ export class TypeScriptServerHost {
     event:
       | Proto.DiagnosticEventKind
       | Proto.RequestCompletedEventName
+      | Proto.ProjectLoadingFinishEventName
       | Proto.ProjectsUpdatedInBackgroundEventName,
     fn: Function,
   ): () => void {

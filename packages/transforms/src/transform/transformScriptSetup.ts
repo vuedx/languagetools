@@ -1,6 +1,6 @@
 import { GeneratorResult } from '@babel/generator'
 import * as T from '@babel/types'
-import { invariant, memoizeByFirstArg } from '@vuedx/shared'
+import { first, invariant, memoizeByFirstArg } from '@vuedx/shared'
 import { generate } from '../generate'
 import { findScopeBindings } from '../search/findScopeBindings'
 
@@ -82,10 +82,12 @@ export const transformScriptSetup = memoizeByFirstArg(
                 )
 
                 break
-              case 'defineExpose':
-                others.push(createVariable(expose, statement.expression))
-                result.exposeIdentifier = expose
+              case 'defineExpose': {
+                hoists.push(
+                  T.expressionStatement(transformExpose(statement.expression)),
+                )
                 break
+              }
               default:
                 others.push(statement)
             }
@@ -138,14 +140,6 @@ export const transformScriptSetup = memoizeByFirstArg(
                   )
 
                   break
-                case 'defineExpose':
-                  others.push(
-                    statement.declarations.length === 1
-                      ? statement
-                      : createVariable(declaration.id, declaration.init),
-                  )
-                  result.exposeIdentifier = declaration.id.name
-                  break
 
                 default:
                   isHandled = false
@@ -185,10 +179,15 @@ export const transformScriptSetup = memoizeByFirstArg(
 
     result.identifiers = findScopeBindings(ast.program.body)
 
+    const exportsFromSetup = result.identifiers.slice()
+    if (result.exposeIdentifier != null) {
+      exportsFromSetup.push(result.exposeIdentifier)
+    }
+
     const arg0 = T.identifier(options.internalIdentifierPrefix + 'arg0')
     const returnStatement = T.returnStatement(
       T.objectExpression(
-        result.identifiers.map((id) =>
+        exportsFromSetup.map((id) =>
           T.objectProperty(T.identifier(id), T.identifier(id), false, true),
         ),
       ),
@@ -221,7 +220,6 @@ export const transformScriptSetup = memoizeByFirstArg(
     }
 
     const component = T.callExpression(T.identifier(defineComponent), [setup])
-
     const node = createVariable(result.exportIdentifier, component)
     const output = generate([...hoists, node])
 
@@ -276,6 +274,177 @@ export const transformScriptSetup = memoizeByFirstArg(
 
       return node
     }
+
+    function transformExpose(node: T.CallExpression): T.CallExpression {
+      node = T.cloneNode(node, true)
+
+      if (node.arguments.length > 0) {
+        if (T.isExpression(node.arguments[0])) {
+          hoists.push(createVariable(expose, node.arguments[0]))
+          node.arguments[0] = T.identifier(expose)
+          result.exposeIdentifier = expose
+        }
+      } else if (node.typeParameters?.params?.[0] != null) {
+        const exposeType = `${expose}Type`
+        hoists.push(
+          T.tsTypeAliasDeclaration(
+            T.identifier(exposeType),
+            null,
+            node.typeParameters.params[0],
+          ),
+        )
+
+        node.typeParameters.params[0] = T.tsTypeReference(
+          T.identifier(exposeType),
+        )
+        // TODO: add expose for type-only usage
+        // result.exposeIdentifier = expose
+      }
+
+      return node
+    }
+  },
+)
+
+export interface TransformScriptResult extends GeneratorResult {
+  exportIdentifier: string
+  selfName?: string
+  inheritAttrs?: boolean
+  identifiers: string[]
+}
+
+export const transformScript = memoizeByFirstArg(
+  (ast: T.File, options: TransformScriptSetupOptions) => {
+    const result: TransformScriptResult = {
+      code: '',
+      map: null,
+      exportIdentifier: options.internalIdentifierPrefix + 'Script_Component',
+      identifiers: [],
+    }
+
+    const defineComponent =
+      options.internalIdentifierPrefix + 'Script_defineComponent'
+    let exportDefaultDecl: T.ExportDefaultDeclaration | undefined
+
+    ast.program.body.forEach((statement) => {
+      if (T.isExportDefaultDeclaration(statement)) {
+        exportDefaultDecl = statement
+      } else if (T.isExportNamedDeclaration(statement)) {
+        if (T.isVariableDeclaration(statement.declaration)) {
+          statement.declaration.declarations.forEach((decl) => {
+            if (T.isIdentifier(decl.id)) {
+              if (decl.id.name === 'inheritAttrs') {
+                if (T.isBooleanLiteral(decl.init)) {
+                  result.inheritAttrs = decl.init.value
+                }
+              } else if (decl.id.name === 'name') {
+                if (T.isStringLiteral(decl.init)) {
+                  result.selfName = decl.init.value
+                }
+              }
+            }
+          })
+        }
+      }
+    })
+
+    const statements: T.Statement[] = []
+
+    let definition: T.CallExpression | undefined
+    if (exportDefaultDecl != null) {
+      if (T.isCallExpression(exportDefaultDecl.declaration)) {
+        definition = exportDefaultDecl.declaration
+        if (exportDefaultDecl.declaration.arguments.length > 0) {
+          const arg = first(exportDefaultDecl.declaration.arguments)
+          if (T.isObjectExpression(arg)) {
+            arg.properties.forEach((prop) => {
+              if (T.isObjectProperty(prop)) {
+                if (T.isIdentifier(prop.key)) {
+                  if (prop.key.name === 'inheritAttrs') {
+                    if (T.isBooleanLiteral(prop.value)) {
+                      result.inheritAttrs = prop.value.value
+                    }
+                  } else if (prop.key.name === 'name') {
+                    if (T.isStringLiteral(prop.value)) {
+                      result.selfName = prop.value.value
+                    }
+                  }
+                }
+              }
+            })
+          }
+        }
+      } else if (T.isExpression(exportDefaultDecl.declaration)) {
+        statements.push(
+          createNamedImport(
+            'defineComponent',
+            defineComponent,
+            options.runtimeModuleName,
+          ),
+        )
+        definition = T.callExpression(T.identifier(defineComponent), [
+          exportDefaultDecl.declaration,
+        ])
+
+        if (T.isObjectExpression(exportDefaultDecl.declaration)) {
+          exportDefaultDecl.declaration.properties.forEach((prop) => {
+            if (T.isObjectProperty(prop)) {
+              if (T.isIdentifier(prop.key)) {
+                if (prop.key.name === 'inheritAttrs') {
+                  if (T.isBooleanLiteral(prop.value)) {
+                    result.inheritAttrs = prop.value.value
+                  }
+                } else if (prop.key.name === 'name') {
+                  if (T.isStringLiteral(prop.value)) {
+                    result.selfName = prop.value.value
+                  }
+                }
+              }
+            }
+          })
+        }
+      }
+    }
+
+    if (definition == null) {
+      statements.push(
+        createNamedImport(
+          'defineComponent',
+          defineComponent,
+          options.runtimeModuleName,
+        ),
+      )
+      definition = T.callExpression(T.identifier(defineComponent), [
+        T.objectExpression([]),
+      ])
+
+      statements.push(
+        T.variableDeclaration('const', [
+          T.variableDeclarator(
+            T.identifier(result.exportIdentifier),
+            definition,
+          ),
+        ]),
+      )
+    }
+
+    result.identifiers = findScopeBindings(ast.program.body)
+
+    const output = generate([
+      ...statements,
+      ...ast.program.body.map((statement) =>
+        statement === exportDefaultDecl
+          ? T.variableDeclaration('const', [
+              T.variableDeclarator(
+                T.identifier(result.exportIdentifier),
+                definition,
+              ),
+            ])
+          : statement,
+      ),
+    ])
+
+    return { ...result, ...output }
   },
 )
 

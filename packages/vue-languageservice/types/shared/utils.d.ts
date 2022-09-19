@@ -174,6 +174,8 @@ export function flat<T extends unknown[], D extends number = 1>(
   depth?: D,
 ): Array<FlatArray<T, D>>
 
+export function first<T>(items: T[]): T
+
 export function union<T extends unknown[]>(...args: T): TupleToUnion<T>
 
 export type Get<T, K, F = never> = K extends keyof T ? T[K] : F

@@ -1,20 +1,20 @@
-/** @jsx __VueDX__JSX.createElement */
-import * as __VueDX__JSX from 'vue';
 import * as __VueDX__TypeCheck from 'vuedx~runtime';
 //#region <script>
-import { defineComponent as __VueDX__defineComponent } from 'vue';
-export const __VueDX__Component = __VueDX__defineComponent({});
+import { defineComponent as __VueDX__Script_defineComponent } from "vue";
 
+const __VueDX__Script_Component = __VueDX__Script_defineComponent({});
 function __VueDX__RegisterSelf<T extends {}>(arg0: T) {
   const key = "IfElseIf" as const;
   return { ...arg0, [key]: IfElseIf };
 }
 //#endregion
-const __VueDX__ctx = __VueDX__RegisterSelf(new __VueDX__Component())
+const __VueDX__ctx = __VueDX__RegisterSelf(new __VueDX__Script_Component())
 //#region <template>
-export function __VueDX__render() {
+import type { GlobalComponents as __VueDX__GlobalComponents } from 'vue';
+function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
-  let type = __VueDX__ctx.type;
+  let type = __VueDX__ctx.type
+  let $slots = __VueDX__ctx.$slots
   /*</vuedx:templateGlobals>*/
   return (
     <>
@@ -53,20 +53,30 @@ export function __VueDX__render() {
     </>
   )
 }
+__VueDX__render();
 /*<vuedx:diagnosticsIgnore>*/
 function __VueDX__slots() {
   /*<vuedx:templateGlobals>*/
-  let type = __VueDX__ctx.type;
+  let type = __VueDX__ctx.type
+  let $slots = __VueDX__ctx.$slots
   /*</vuedx:templateGlobals>*/
   return __VueDX__TypeCheck.internal.union(__VueDX__TypeCheck.internal.flat([
   ]))
 }
 /*</vuedx:diagnosticsIgnore>*/
+const __VueDX__attrs = (() => {
+  return __VueDX__TypeCheck.internal.first(__VueDX__TypeCheck.internal.flat([
+    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
+    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
+    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
+    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
+  ]))
+})();
 
 //#endregion
 //#region public component definition
 export default class IfElseIf {
-  $props = null as unknown as typeof __VueDX__ctx.$props;
+  $props = null as unknown as __VueDX__TypeCheck.internal.MergeAttrs<typeof __VueDX__ctx.$props, typeof __VueDX__attrs>;
   $slots = null as unknown as __VueDX__TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>;
 }
 //#endregion

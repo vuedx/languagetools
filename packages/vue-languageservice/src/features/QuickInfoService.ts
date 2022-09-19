@@ -77,6 +77,29 @@ export class QuickInfoService {
       position,
     )
     if (generatedPosition == null) return
+    this.logger.debug('@@@ QuickInfo:', {
+      original: this.fs.getLineText(file.original, position),
+      generated: this.fs.getLineText(
+        file.generated,
+        generatedPosition.position,
+      ),
+      project: this.ts.project.getProjectName(),
+      originalProject: this.ts
+        .getProjectFor(file.originalFileName)
+        ?.getProjectName(),
+      generatedProject: this.ts
+        .getProjectFor(file.generatedFileName)
+        ?.getProjectName(),
+      files: this.ts.project
+        .getFileNames()
+        .filter((file) => file.toString().includes('.vue')),
+      sources: this.ts.service
+        .getProgram()
+        ?.getSourceFiles()
+        .map((file) => file.fileName)
+        .filter((file) => file.toString().includes('.vue')),
+    })
+
     const result = this.ts.service.getQuickInfoAtPosition(
       file.generatedFileName,
       generatedPosition.position,

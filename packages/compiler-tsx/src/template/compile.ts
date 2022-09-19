@@ -88,8 +88,10 @@ export function compileFromAST(
 }
 
 function clone<T>(obj: T): T {
-  // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-  // @ts-ignore
-  if (typeof structuredClone !== 'undefined') return structuredClone(obj)
+  try {
+    // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+    // @ts-ignore
+    if (typeof structuredClone !== 'undefined') return structuredClone(obj)
+  } catch {}
   return JSON.parse(JSON.stringify(obj))
 }

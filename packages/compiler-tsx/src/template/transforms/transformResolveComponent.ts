@@ -11,6 +11,7 @@ import {
   isComponentNode,
   isDirectiveNode,
   isElementNode,
+  isSimpleIdentifier,
 } from '@vuedx/template-ast-types'
 import { directives } from '../builtins'
 import { getRuntimeFn } from '../runtime'
@@ -80,7 +81,9 @@ export function createResolveComponentTransform(
               'const ',
               id,
               ` = ${h('resolveComponent')}(${resolveComponentArgs}`,
-              `${ctx.internalIdentifierPrefix}_get_identifier_${id}()`,
+              isSimpleIdentifier(id)
+                ? `${ctx.internalIdentifierPrefix}_get_identifier_${id}()`
+                : 'null',
               ', ',
               s(name),
               ', ',

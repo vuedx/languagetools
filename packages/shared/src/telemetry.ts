@@ -62,7 +62,7 @@ export class Telemetry {
   }
 
   measure(name: string, duration: number): void {
-    console.log(`[measure] ${name}: ${Math.trunc(duration)}ms`)
+    console.debug(`[measure] ${name}: ${Math.trunc(duration)}ms`)
   }
 
   trace(name: string, description?: string): () => void {
@@ -148,9 +148,17 @@ export class Telemetry {
   private static _instance?: Telemetry
   static get instance(): Telemetry {
     if (this._instance == null) {
-      throw new Error(
-        'Use "Telemetry.setup()" to instantiate telemetry client.',
-      )
+      if (process.env['JEST_WORKER_ID'] != null) {
+        this._instance = new Telemetry('', {
+          release: '',
+          environment: '',
+          tracesSampleRate: 0,
+        })
+      } else {
+        throw new Error(
+          'Use "Telemetry.setup()" to instantiate telemetry client.',
+        )
+      }
     }
 
     return this._instance

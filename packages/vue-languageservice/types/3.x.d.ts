@@ -18,14 +18,14 @@ import { MergeAttrs, PropsOf } from './shared/Props'
 import { renderList } from './shared/renderList'
 import { renderSlot } from './shared/renderSlot'
 import { Slots, SlotsFrom, GetSlotProps, checkSlots } from './shared/Slots'
-import { flat, union, merge, getNameOption } from './shared/utils'
+import { first, flat, union, merge, getNameOption } from './shared/utils'
 import { EmitsToProps, EmitTypeToEmits } from './shared/emits'
 import {} from './shared/jsx'
 
 export type version = '3.x'
 
 export namespace internal {
-  export { flat, union, merge, getNameOption }
+  export { first, flat, union, merge, getNameOption }
   export { resolveComponent, resolveDirective, getElementType }
   export { renderList, renderSlot, Slots, GetSlotProps }
   export { defineComponent }

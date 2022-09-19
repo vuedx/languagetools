@@ -1,6 +1,6 @@
 import { collectError, Telemetry } from '@vuedx/shared'
 import { version } from '../package.json'
-import { Diagnostics, getDiagnostics2 } from './diagnostics'
+import { Diagnostics, getDiagnostics as _getDiagnostics } from './diagnostics'
 
 import { cli as cli2 } from './cli'
 
@@ -14,7 +14,7 @@ export async function getDiagnostics(directory: string): Promise<Diagnostics> {
   setup()
 
   try {
-    return await getDiagnostics2(directory)
+    return await _getDiagnostics(directory)
   } catch (error) {
     collectError(error as Error)
     return []
