@@ -1,4 +1,5 @@
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd'
+import * as VueDX from '../types/3.x'
 import A from './fixtures/component'
 import B from './fixtures/component-setup'
 import C from './fixtures/component-setup-type-only'
