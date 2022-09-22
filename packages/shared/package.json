@@ -8,7 +8,6 @@
     "lib"
   ],
   "dependencies": {
-    "@sentry/node": "^5.30.0",
-    "node-unique-machine-id": "^1.1.0"
+    "@sentry/node": "^5.30.0"
   }
 }

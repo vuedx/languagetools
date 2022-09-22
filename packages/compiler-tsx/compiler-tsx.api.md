@@ -4,55 +4,90 @@
 
 ```ts
 
-import { CodegenResult as CodegenResult_2 } from '@vue/compiler-core';
-import { CompilerError } from '@vue/compiler-core';
-import { CompilerOptions } from '@vue/compiler-core';
-import { ParserOptions } from '@vue/compiler-core';
-import { RootNode } from '@vue/compiler-core';
+import type { AttributeNode } from '@vue/compiler-core';
+import type { BaseElementNode } from '@vue/compiler-core';
+import type { Cache as Cache_2 } from '@vuedx/shared';
+import { CompilerError } from '@vuedx/compiler-sfc';
+import type { CompoundExpressionNode } from '@vue/compiler-core';
+import type { DecodedSourceMap } from 'magic-string';
+import { Node as Node_2 } from '@vue/compiler-core';
+import type { RawSourceMap } from 'source-map';
+import type { RootNode } from '@vue/compiler-core';
+import { SFCDescriptor } from '@vuedx/compiler-sfc';
+import type { SourceLocation } from '@vue/compiler-core';
 
 // @public (undocumented)
-export interface CodegenResult extends CodegenResult_2 {
-    // (undocumented)
-    errors: CompilerError[];
-    expressions: Array<[number, number]>;
-    mappings: Array<[number, number, number, number, number]>;
-}
-
-// @public (undocumented)
-export function compile(template: string, options: Options & CompilerOptions): CodegenResult;
-
-// @public (undocumented)
-export interface ComponentImport {
-    // (undocumented)
-    name?: string;
-    // (undocumented)
-    named?: boolean;
-    // (undocumented)
-    path: string;
-}
-
-// Warning: (ae-internal-missing-underscore) The name "getTopLevelIdentifiers" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal (undocumented)
-export function getTopLevelIdentifiers(source: string, ignoreImportsFrom: string[]): {
-    identifiers: Set<string>;
-    components: Set<string>;
-    directives: Set<string>;
-    propsIdentifier: string | undefined;
-    emitIdentifier: string | undefined;
+export const annotations: {
+    diagnosticsIgnore: {
+        start: string;
+        end: string;
+    };
+    templateGlobals: {
+        start: string;
+        end: string;
+    };
+    setupGlobals: {
+        start: string;
+        end: string;
+    };
+    missingExpression: string;
+    tsxCompletions: string;
+    tsCompletions: string;
 };
 
 // @public (undocumented)
-export interface Options {
+export function compile(source: string, options: CompileOptions): Omit<CompileOutput, 'map'> & {
+    map: RawSourceMap;
+};
+
+// Warning: (ae-forgotten-export) The symbol "TransformOptions" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface CompileOptions extends TransformOptions {
+}
+
+// Warning: (ae-forgotten-export) The symbol "TransformedCode" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface CompileOutput extends TransformedCode {
     // (undocumented)
-    components?: Record<string, ComponentImport>;
+    descriptor: SFCDescriptor;
     // (undocumented)
-    filename: string;
+    errors: Array<CompilerError | SyntaxError>;
+    // (undocumented)
+    template?: RootNode;
+    // (undocumented)
+    unusedIdentifiers: string[];
 }
 
 // @public (undocumented)
-export function parse(template: string, options: ParserOptions): RootNode;
+export function compileWithDecodedSourceMap(source: string, options: CompileOptions): CompileOutput;
 
+// @public (undocumented)
+export interface CustomAttributeNode extends AttributeNode {
+    // (undocumented)
+    nameLoc: SourceLocation;
+}
+
+// @public (undocumented)
+export interface CustomBaseElementNode extends BaseElementNode {
+    // (undocumented)
+    endTagLoc?: SourceLocation;
+    // (undocumented)
+    hoists?: CompoundExpressionNode[];
+    // (undocumented)
+    startTagLoc: SourceLocation;
+    // (undocumented)
+    tagLoc: SourceLocation;
+}
+
+// @public (undocumented)
+export interface CustomNode extends Node_2 {
+    // Warning: (ae-forgotten-export) The symbol "Scope" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    scope: Scope;
+}
 
 // (No @packageDocumentation comment for this package)
 

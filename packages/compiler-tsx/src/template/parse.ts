@@ -31,6 +31,7 @@ const preprocess: NodeTransform = (node, context) => {
 
   if (!isElementNode(node)) return
 
+  if (/^[a-z]+$/.test(node.tag)) node.tagType = 0 /* ELEMENT */ // force element for lower case tags
   node.props.forEach((prop, index) => {
     // remove empty modifiers
     if (isDirectiveNode(prop)) {

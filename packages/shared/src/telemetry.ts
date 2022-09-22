@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node'
-import { machineSync } from 'node-unique-machine-id'
 import { platform } from 'os'
 import { inspect } from 'util'
 
@@ -54,11 +53,7 @@ export class Telemetry {
   }
 
   private getUserId(): string {
-    try {
-      return machineSync(false, true)
-    } catch {
-      return ''
-    }
+    return ''
   }
 
   measure(name: string, duration: number): void {

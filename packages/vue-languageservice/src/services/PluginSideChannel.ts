@@ -1,4 +1,9 @@
-import { isVueSFCDescriptorFile, isVueTemplateASTFile } from '@vuedx/shared'
+import {
+  isVueSFCDescriptorFile,
+  isVueTemplateASTFile,
+  parseFileName,
+  toFileName,
+} from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import { FilesystemService } from './FilesystemService'
 import { TypescriptContextService } from './TypescriptContextService'
@@ -19,7 +24,7 @@ export class PluginSideChannel {
   public async getVirtualFileContents(
     fileName: string,
   ): Promise<string | undefined> {
-    if (this.fs.isVueTsFile(fileName)) {
+    if (this.fs.isGeneratedVueFile(fileName)) {
       const file = this.fs.getVueFile(fileName)
       if (file == null) return undefined
 
@@ -31,11 +36,11 @@ export class PluginSideChannel {
     } else if (this.fs.isProjectRuntimeFile(fileName)) {
       return this.ts.getProjectRuntimeFile(fileName)
     } else if (isVueSFCDescriptorFile(fileName)) {
-      const vueFile = this.fs.getVueFile(fileName)
+      const vueFile = this.fs.getVueFile(parseFileName(fileName).fileName)
       if (vueFile != null) return stringify(vueFile.descriptor)
       return '{}'
     } else if (isVueTemplateASTFile(fileName)) {
-      const vueFile = this.fs.getVueFile(fileName)
+      const vueFile = this.fs.getVueFile(parseFileName(fileName).fileName)
       if (vueFile?.templateAST != null) return stringify(vueFile.templateAST)
       return '{}'
     }
@@ -46,7 +51,11 @@ export class PluginSideChannel {
   public async getRelatedVirtualFiles(fileName: string): Promise<string[]> {
     const file = this.fs.getVueFile(fileName)
     if (file == null) return []
-    return [file.generatedFileName]
+    return [
+      file.generatedFileName,
+      toFileName({ type: 'vue-descriptor', fileName: file.originalFileName }),
+      toFileName({ type: 'vue-template-ast', fileName: file.originalFileName }),
+    ]
   }
 }
 

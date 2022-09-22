@@ -363,8 +363,13 @@ export class TypescriptPluginService
     position: number,
     options: TypeScript.GetCompletionsAtPositionOptions | undefined,
   ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getCompletionsAtPosition(fileName, position, options)
+    return this.pick(
+      fileName,
+      () =>
+        this.completions.getCompletionsAtPosition(fileName, position, options),
+      () =>
+        this.ts.service.getCompletionsAtPosition(fileName, position, options),
+    )
   }
 
   public getCompletionEntryDetails(

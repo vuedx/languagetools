@@ -7,7 +7,7 @@
   "compiler": {
     "tsconfigFilePath": "<projectFolder>/tsconfig.json",
     "overrideTsconfig": {},
-    "skipLibCheck": true
+    "skipLibCheck": false
   },
   "apiReport": {
     "enabled": true,

@@ -11,67 +11,9 @@ npm add @vuedx/vue-virtual-textdocument
 ## API
 
 
-<a href="#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-class" id="-vuedx-vue-virtual-textdocument-AsyncDocumentStore-class"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-class" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-class"></a>
 
-### [AsyncDocumentStore](#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-class)
-
-
-
-<details><summary>More info</summary>
-
-**Signature:**
-```ts
-declare class AsyncDocumentStore<T> extends DocumentStore<T> {
-  constructor(resolve: (uri: string) => T | Promise<T | null> | null, normalize?: (uri: string) => string);
-  get(uri: string): T | null;
-  get(uri: string): Promise<T | null>;
-}
-```
-
-**Members:**
-
-
-<a href="#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-1-" id="-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-1-"></a>
-
-#### [get](#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-1-)
-
-
-
-**Signature:**
-```ts
-get(uri: string): T | null;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| uri | <code>string</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-2-" id="-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-2-"></a>
-
-#### [get](#-vuedx-vue-virtual-textdocument-AsyncDocumentStore-get-member-2-)
-
-
-
-**Signature:**
-```ts
-get(uri: string): Promise<T | null>;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| uri | <code>string</code> | - |
-
-<br>
-</details>
-
-<br>
-
-
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-class" id="-vuedx-vue-virtual-textdocument-DocumentStore-class"></a>
-
-### [DocumentStore](#-vuedx-vue-virtual-textdocument-DocumentStore-class)
+### [VueSFCDocument](#-vuedx-vue-virtual-textdocument-VueSFCDocument-class)
 
 
 
@@ -79,920 +21,312 @@ get(uri: string): Promise<T | null>;
 
 **Signature:**
 ```ts
-declare class DocumentStore<T> {
-  constructor(resolve: (uri: string) => T | null, normalize?: (uri: string) => string);
-  all(): string[];
-  delete(uri: string): boolean;
-  dispose(): void;
-  get(uri: string): T | null;
-  protected getNormalizedUri(uri: string): string;
-  has(uri: string): boolean;
-  protected map: Map<string, T>;
-  normalize: (uri: string) => string;
-  protected resolve: (uri: string) => T | null;
-  protected reverseUriMap: Map<string, string>;
-  set(uri: string, document: T): void;
-}
-```
-
-**Members:**
-
-
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-all-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-all-member-1-"></a>
-
-#### [all](#-vuedx-vue-virtual-textdocument-DocumentStore-all-member-1-)
-
-
-
-**Signature:**
-```ts
-all(): string[];
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-delete-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-delete-member-1-"></a>
-
-#### [delete](#-vuedx-vue-virtual-textdocument-DocumentStore-delete-member-1-)
-
-
-
-**Signature:**
-```ts
-delete(uri: string): boolean;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| uri | <code>string</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-dispose-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-dispose-member-1-"></a>
-
-#### [dispose](#-vuedx-vue-virtual-textdocument-DocumentStore-dispose-member-1-)
-
-
-
-**Signature:**
-```ts
-dispose(): void;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-get-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-get-member-1-"></a>
-
-#### [get](#-vuedx-vue-virtual-textdocument-DocumentStore-get-member-1-)
-
-
-
-**Signature:**
-```ts
-get(uri: string): T | null;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| uri | <code>string</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-getNormalizedUri-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-getNormalizedUri-member-1-"></a>
-
-#### [getNormalizedUri](#-vuedx-vue-virtual-textdocument-DocumentStore-getNormalizedUri-member-1-)
-
-
-
-**Signature:**
-```ts
-protected getNormalizedUri(uri: string): string;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| uri | <code>string</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-has-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-has-member-1-"></a>
-
-#### [has](#-vuedx-vue-virtual-textdocument-DocumentStore-has-member-1-)
-
-
-
-**Signature:**
-```ts
-has(uri: string): boolean;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| uri | <code>string</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-DocumentStore-set-member-1-" id="-vuedx-vue-virtual-textdocument-DocumentStore-set-member-1-"></a>
-
-#### [set](#-vuedx-vue-virtual-textdocument-DocumentStore-set-member-1-)
-
-
-
-**Signature:**
-```ts
-set(uri: string, document: T): void;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| uri | <code>string</code> | - |
-| document | <code>T</code> | - |
-
-<br>
-</details>
-
-<br>
-
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-class" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-class"></a>
-
-### [RenderFunctionTextDocument](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-class)
-
-
-
-<details><summary>More info</summary>
-
-**Signature:**
-```ts
-declare class RenderFunctionTextDocument extends TransformedBlockTextDocument {
-  constructor(container: VueTextDocument, selector: Selector, transformed: TextDocument, source: TextDocument);
-  get ast(): CodegenResult['ast'] | undefined;
-  get contextCompletionsTriggerOffset(): number;
-  static create(options: CreateVirtualTextDocumentOptions): RenderFunctionTextDocument;
-  findExpression(offset: number, length: number): undefined | {
-        offset: number;
-        length: number;
-    };
-  protected generate(): string;
-  getAllGeneratedOffsetsAt(offset: number): undefined | Array<{
-        length: number;
-        offset: number;
-    }>;
-  getGeneratedOffsetAt(offset: number): undefined | {
-        length: number;
-        offset: number;
-    };
-  protected getKnownComponents(): Record<string, ComponentImport>;
-  getOriginalOffsetAt(offset: number): undefined | {
-        offset: number;
-        length: number;
-    };
-  isInGeneratedRange(offset: number): boolean;
-  isInTemplateIdentifierRange(offset: number): boolean;
-  get parserErrors(): CodegenResult['errors'];
-  get tagCompletionsTriggerOffset(): number;
-  toDisplayMappings(): string;
-  protected tryGenerate(): string;
-}
-```
-
-**Members:**
-
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-create-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-create-member-1-"></a>
-
-#### [create](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-create-member-1-)
-
-
-
-**Signature:**
-```ts
-static create(options: CreateVirtualTextDocumentOptions): RenderFunctionTextDocument;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| options | <code><a href="#-vuedx-vue-virtual-textdocument--CreateVirtualTextDocumentOptions-interface">CreateVirtualTextDocumentOptions</a></code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-findExpression-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-findExpression-member-1-"></a>
-
-#### [findExpression](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-findExpression-member-1-)
-
-
-
-**Signature:**
-```ts
-findExpression(offset: number, length: number): undefined | {
-        offset: number;
-        length: number;
-    };
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| offset | <code>number</code> | - |
-| length | <code>number</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-generate-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-generate-member-1-"></a>
-
-#### [generate](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-generate-member-1-)
-
-
-
-**Signature:**
-```ts
-protected generate(): string;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getAllGeneratedOffsetsAt-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getAllGeneratedOffsetsAt-member-1-"></a>
-
-#### [getAllGeneratedOffsetsAt](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getAllGeneratedOffsetsAt-member-1-)
-
-
-
-**Signature:**
-```ts
-getAllGeneratedOffsetsAt(offset: number): undefined | Array<{
-        length: number;
-        offset: number;
-    }>;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| offset | <code>number</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getGeneratedOffsetAt-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getGeneratedOffsetAt-member-1-"></a>
-
-#### [getGeneratedOffsetAt](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getGeneratedOffsetAt-member-1-)
-
-
-
-**Signature:**
-```ts
-getGeneratedOffsetAt(offset: number): undefined | {
-        length: number;
-        offset: number;
-    };
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| offset | <code>number</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getKnownComponents-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getKnownComponents-member-1-"></a>
-
-#### [getKnownComponents](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getKnownComponents-member-1-)
-
-
-
-**Signature:**
-```ts
-protected getKnownComponents(): Record<string, ComponentImport>;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getOriginalOffsetAt-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getOriginalOffsetAt-member-1-"></a>
-
-#### [getOriginalOffsetAt](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-getOriginalOffsetAt-member-1-)
-
-
-
-**Signature:**
-```ts
-getOriginalOffsetAt(offset: number): undefined | {
-        offset: number;
-        length: number;
-    };
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| offset | <code>number</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInGeneratedRange-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInGeneratedRange-member-1-"></a>
-
-#### [isInGeneratedRange](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInGeneratedRange-member-1-)
-
-
-
-**Signature:**
-```ts
-isInGeneratedRange(offset: number): boolean;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| offset | <code>number</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInTemplateIdentifierRange-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInTemplateIdentifierRange-member-1-"></a>
-
-#### [isInTemplateIdentifierRange](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-isInTemplateIdentifierRange-member-1-)
-
-
-
-**Signature:**
-```ts
-isInTemplateIdentifierRange(offset: number): boolean;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| offset | <code>number</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-toDisplayMappings-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-toDisplayMappings-member-1-"></a>
-
-#### [toDisplayMappings](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-toDisplayMappings-member-1-)
-
-
-
-**Signature:**
-```ts
-toDisplayMappings(): string;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-tryGenerate-member-1-" id="-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-tryGenerate-member-1-"></a>
-
-#### [tryGenerate](#-vuedx-vue-virtual-textdocument-RenderFunctionTextDocument-tryGenerate-member-1-)
-
-
-
-**Signature:**
-```ts
-protected tryGenerate(): string;
-```
-
-
-<br>
-</details>
-
-<br>
-
-
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-class" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-class"></a>
-
-### [TransformedBlockTextDocument](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-class)
-
-
-
-<details><summary>More info</summary>
-
-**Signature:**
-```ts
-declare class TransformedBlockTextDocument extends VirtualTextDocument {
-  protected constructor(container: VueTextDocument, selector: Selector, transformed: TextDocument, source: TextDocument | VirtualTextDocument, _transform: (document: TransformedBlockTextDocument) => BlockTransformResult);
-  static create(options: CreateTransformedBlockTextDocumentOptions): TransformedBlockTextDocument;
-  protected refresh(): void;
-  transform(): BlockTransformResult;
-  tryGetGeneratedOffset(offset: number): number | undefined;
-  tryGetSourceOffset(offset: number): number | undefined;
-}
-```
-
-**Members:**
-
-
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-create-member-1-" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-create-member-1-"></a>
-
-#### [create](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-create-member-1-)
-
-
-
-**Signature:**
-```ts
-static create(options: CreateTransformedBlockTextDocumentOptions): TransformedBlockTextDocument;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| options | <code><a href="#-vuedx-vue-virtual-textdocument--CreateTransformedBlockTextDocumentOptions-interface">CreateTransformedBlockTextDocumentOptions</a></code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-refresh-member-1-" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-refresh-member-1-"></a>
-
-#### [refresh](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-refresh-member-1-)
-
-
-
-**Signature:**
-```ts
-protected refresh(): void;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-transform-member-1-" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-transform-member-1-"></a>
-
-#### [transform](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-transform-member-1-)
-
-
-
-**Signature:**
-```ts
-transform(): BlockTransformResult;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetGeneratedOffset-member-1-" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetGeneratedOffset-member-1-"></a>
-
-#### [tryGetGeneratedOffset](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetGeneratedOffset-member-1-)
-
-
-
-**Signature:**
-```ts
-tryGetGeneratedOffset(offset: number): number | undefined;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| offset | <code>number</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetSourceOffset-member-1-" id="-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetSourceOffset-member-1-"></a>
-
-#### [tryGetSourceOffset](#-vuedx-vue-virtual-textdocument-TransformedBlockTextDocument-tryGetSourceOffset-member-1-)
-
-
-
-**Signature:**
-```ts
-tryGetSourceOffset(offset: number): number | undefined;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| offset | <code>number</code> | - |
-
-<br>
-</details>
-
-<br>
-
-
-<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-class" id="-vuedx-vue-virtual-textdocument-VirtualTextDocument-class"></a>
-
-### [VirtualTextDocument](#-vuedx-vue-virtual-textdocument-VirtualTextDocument-class)
-
-
-
-<details><summary>More info</summary>
-
-**Signature:**
-```ts
-declare class VirtualTextDocument extends ProxyTextDocument {
-  protected constructor(container: VueTextDocument, selector: Selector, doc: TextDocument);
-  readonly container: VueTextDocument;
-  static create(options: CreateVirtualTextDocumentOptions): VirtualTextDocument;
-  protected isDirty: boolean;
-  markDirty(): void;
-  protected refresh(): void;
-  readonly selector: Selector;
-}
-```
-
-**Members:**
-
-
-<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-create-member-1-" id="-vuedx-vue-virtual-textdocument-VirtualTextDocument-create-member-1-"></a>
-
-#### [create](#-vuedx-vue-virtual-textdocument-VirtualTextDocument-create-member-1-)
-
-
-
-**Signature:**
-```ts
-static create(options: CreateVirtualTextDocumentOptions): VirtualTextDocument;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| options | <code><a href="#-vuedx-vue-virtual-textdocument--CreateVirtualTextDocumentOptions-interface">CreateVirtualTextDocumentOptions</a></code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-markDirty-member-1-" id="-vuedx-vue-virtual-textdocument-VirtualTextDocument-markDirty-member-1-"></a>
-
-#### [markDirty](#-vuedx-vue-virtual-textdocument-VirtualTextDocument-markDirty-member-1-)
-
-
-
-**Signature:**
-```ts
-markDirty(): void;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-VirtualTextDocument-refresh-member-1-" id="-vuedx-vue-virtual-textdocument-VirtualTextDocument-refresh-member-1-"></a>
-
-#### [refresh](#-vuedx-vue-virtual-textdocument-VirtualTextDocument-refresh-member-1-)
-
-
-
-**Signature:**
-```ts
-protected refresh(): void;
-```
-
-
-<br>
-</details>
-
-<br>
-
-
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-class" id="-vuedx-vue-virtual-textdocument-VueTextDocument-class"></a>
-
-### [VueTextDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-class)
-
-
-
-<details><summary>More info</summary>
-
-**Signature:**
-```ts
-declare class VueTextDocument extends ProxyTextDocument {
-  constructor(doc: TextDocument, options?: VueTextDocumentOptions, parseOptions?: SFCParseOptions);
-  all(): VirtualTextDocument[];
-  blockAt(position: Position | number): SFCBlock | null | undefined;
-  static create(uri: string, languageId: string, version: number, content: string, options?: VueTextDocumentOptions, parseOptions?: SFCParseOptions): VueTextDocument;
-  protected createBlockDocument(selector: BlockSelector): VirtualTextDocument | undefined;
-  protected createInternalModuleDocument(): TransformedBlockTextDocument;
-  protected createModuleDocument(): TransformedBlockTextDocument;
-  protected createRenderDocument(): RenderFunctionTextDocument;
-  protected createTemplateASTDocument(): TransformedBlockTextDocument;
+export declare class VueSFCDocument implements TextDocument {
+  get blocks(): SFCBlock[];
+  static create(fileName: string, content: string, options?: Omit<CompileOptions, 'cache' | 'fileName'>, version?: number): VueSFCDocument;
   get descriptor(): SFCDescriptor;
-  documentAt(position: Position | number): VirtualTextDocument | undefined;
-  getBlock(selector: BlockSelector): SFCBlock | null | undefined;
-  getBlockSelector(block: SFCBlock): BlockSelector | undefined;
-  getDocument(selector: typeof RENDER_SELECTOR): RenderFunctionTextDocument;
-  getDocument(selector: SelectorLike): VirtualTextDocument;
-  getDocument(selector: string): VirtualTextDocument | undefined;
-  getDocumentFileName(selectorLike: SelectorLike): string;
-  protected getDocumentId(selector: Selector): string;
-  protected getDocumentLanguage(selector: Selector): string;
-  markDirty(): void;
-  readonly options: VueTextDocumentOptions;
-  protected parse(): void;
-  static update(document: VueTextDocument, changes: TextDocumentContentChangeEvent[], version: number): VueTextDocument;
+  get errors(): Array<CompilerError | SyntaxError>;
+  get fileName(): string;
+  findGeneratedTextSpan(spanInOriginalText: TextSpan): TextSpan | null;
+  findMapping(positionType: 'original' | 'generated', position: Position, searchBias?: SourceMapBiasType): Mapping | null;
+  findOriginalTextSpan(spanInGeneratedText: TextSpan): TextSpan | null;
+  get generated(): TextDocument;
+  readonly generatedFileName: string;
+  generatedOffsetAt(offset: number): number | null;
+  generatedPositionFor(position: Position): Position | null;
+  getBlockAt(offset: number): SFCBlock | null;
+  getLineAndCharacterOfPosition(position: number): Position;
+  getSourceFile(fileName?: string): {
+        fileName: string;
+        readonly text: string;
+        lineMap: unknown;
+        getLineAndCharacterOfPosition: (position: number) => Position;
+    };
+  getText(range?: Range): string;
+  get languageId(): string;
+  get lineCount(): number;
+  lineMap: unknown | undefined;
+  get map(): string;
+  offsetAt(position: Position): number;
+  readonly options: Required<CompileOptions>;
+  get original(): TextDocument;
+  readonly originalFileName: string;
+  originalOffsetAt(offset: number): number | null;
+  originalPositionFor(position: Position): Position | null;
+  positionAt(offset: number): Position;
+  get snapshot(): VueToTsxSnapshot;
+  get templateAST(): RootNode | undefined;
+  get text(): string;
+  update(changes: TextDocumentContentChangeEvent[], version: number): void;
+  get uri(): string;
+  get version(): number;
 }
 ```
 
 **Members:**
 
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-all-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-all-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-create-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-create-member-1-"></a>
 
-#### [all](#-vuedx-vue-virtual-textdocument-VueTextDocument-all-member-1-)
-
-
-
-**Signature:**
-```ts
-all(): VirtualTextDocument[];
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-blockAt-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-blockAt-member-1-"></a>
-
-#### [blockAt](#-vuedx-vue-virtual-textdocument-VueTextDocument-blockAt-member-1-)
+#### [create](#-vuedx-vue-virtual-textdocument-VueSFCDocument-create-member-1-)
 
 
 
 **Signature:**
 ```ts
-blockAt(position: Position | number): SFCBlock | null | undefined;
+static create(fileName: string, content: string, options?: Omit<CompileOptions, 'cache' | 'fileName'>, version?: number): VueSFCDocument;
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| position | <code><a href="#vscode-languageserver-textdocument-Position-interface">Position</a> &#124; number</code> | - |
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-create-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-create-member-1-"></a>
-
-#### [create](#-vuedx-vue-virtual-textdocument-VueTextDocument-create-member-1-)
-
-
-
-**Signature:**
-```ts
-static create(uri: string, languageId: string, version: number, content: string, options?: VueTextDocumentOptions, parseOptions?: SFCParseOptions): VueTextDocument;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| uri | <code>string</code> | - |
-| languageId | <code>string</code> | - |
-| version | <code>number</code> | - |
+| fileName | <code>string</code> | - |
 | content | <code>string</code> | - |
-| options | <code><a href="#-vuedx-vue-virtual-textdocument--VueTextDocumentOptions-interface">VueTextDocumentOptions</a></code> | - |
-| parseOptions | <code><a href="#-vue-compiler-sfc-SFCParseOptions-interface">SFCParseOptions</a></code> | - |
+| options | <code><a href="#-Omit-type">Omit</a><<a href="#-vuedx-compiler-tsx-CompileOptions-interface">CompileOptions</a>, 'cache' &#124; 'fileName'></code> | - |
+| version | <code>number</code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createBlockDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-createBlockDocument-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-findGeneratedTextSpan-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-findGeneratedTextSpan-member-1-"></a>
 
-#### [createBlockDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-createBlockDocument-member-1-)
+#### [findGeneratedTextSpan](#-vuedx-vue-virtual-textdocument-VueSFCDocument-findGeneratedTextSpan-member-1-)
 
 
 
 **Signature:**
 ```ts
-protected createBlockDocument(selector: BlockSelector): VirtualTextDocument | undefined;
+findGeneratedTextSpan(spanInOriginalText: TextSpan): TextSpan | null;
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <code><a href="#-vuedx-vue-virtual-textdocument--BlockSelector-type">BlockSelector</a></code> | - |
+| spanInOriginalText | <code><a href="#-vuedx-vue-virtual-textdocument-TextSpan-interface">TextSpan</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createInternalModuleDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-createInternalModuleDocument-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-findMapping-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-findMapping-member-1-"></a>
 
-#### [createInternalModuleDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-createInternalModuleDocument-member-1-)
+#### [findMapping](#-vuedx-vue-virtual-textdocument-VueSFCDocument-findMapping-member-1-)
 
 
 
 **Signature:**
 ```ts
-protected createInternalModuleDocument(): TransformedBlockTextDocument;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createModuleDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-createModuleDocument-member-1-"></a>
-
-#### [createModuleDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-createModuleDocument-member-1-)
-
-
-
-**Signature:**
-```ts
-protected createModuleDocument(): TransformedBlockTextDocument;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createRenderDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-createRenderDocument-member-1-"></a>
-
-#### [createRenderDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-createRenderDocument-member-1-)
-
-
-
-**Signature:**
-```ts
-protected createRenderDocument(): RenderFunctionTextDocument;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-createTemplateASTDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-createTemplateASTDocument-member-1-"></a>
-
-#### [createTemplateASTDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-createTemplateASTDocument-member-1-)
-
-
-
-**Signature:**
-```ts
-protected createTemplateASTDocument(): TransformedBlockTextDocument;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-documentAt-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-documentAt-member-1-"></a>
-
-#### [documentAt](#-vuedx-vue-virtual-textdocument-VueTextDocument-documentAt-member-1-)
-
-
-
-**Signature:**
-```ts
-documentAt(position: Position | number): VirtualTextDocument | undefined;
+findMapping(positionType: 'original' | 'generated', position: Position, searchBias?: SourceMapBiasType): Mapping | null;
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| position | <code><a href="#vscode-languageserver-textdocument-Position-interface">Position</a> &#124; number</code> | - |
+| positionType | <code>'original' &#124; 'generated'</code> | - |
+| position | <code><a href="#vscode-languageserver-textdocument-Position-interface">Position</a></code> | - |
+| searchBias | <code><a href="#-vuedx-vue-virtual-textdocument--SourceMapBiasType-type">SourceMapBiasType</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getBlock-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getBlock-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-findOriginalTextSpan-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-findOriginalTextSpan-member-1-"></a>
 
-#### [getBlock](#-vuedx-vue-virtual-textdocument-VueTextDocument-getBlock-member-1-)
+#### [findOriginalTextSpan](#-vuedx-vue-virtual-textdocument-VueSFCDocument-findOriginalTextSpan-member-1-)
 
 
 
 **Signature:**
 ```ts
-getBlock(selector: BlockSelector): SFCBlock | null | undefined;
+findOriginalTextSpan(spanInGeneratedText: TextSpan): TextSpan | null;
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <code><a href="#-vuedx-vue-virtual-textdocument--BlockSelector-type">BlockSelector</a></code> | - |
+| spanInGeneratedText | <code><a href="#-vuedx-vue-virtual-textdocument-TextSpan-interface">TextSpan</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getBlockSelector-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getBlockSelector-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-generatedOffsetAt-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-generatedOffsetAt-member-1-"></a>
 
-#### [getBlockSelector](#-vuedx-vue-virtual-textdocument-VueTextDocument-getBlockSelector-member-1-)
+#### [generatedOffsetAt](#-vuedx-vue-virtual-textdocument-VueSFCDocument-generatedOffsetAt-member-1-)
 
 
 
 **Signature:**
 ```ts
-getBlockSelector(block: SFCBlock): BlockSelector | undefined;
+generatedOffsetAt(offset: number): number | null;
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| block | <code><a href="#-vue-compiler-sfc-SFCBlock-interface">SFCBlock</a></code> | - |
+| offset | <code>number</code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-generatedPositionFor-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-generatedPositionFor-member-1-"></a>
 
-#### [getDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-1-)
+#### [generatedPositionFor](#-vuedx-vue-virtual-textdocument-VueSFCDocument-generatedPositionFor-member-1-)
 
 
 
 **Signature:**
 ```ts
-getDocument(selector: typeof RENDER_SELECTOR): RenderFunctionTextDocument;
+generatedPositionFor(position: Position): Position | null;
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <code>typeof <a href="#-vuedx-vue-virtual-textdocument--RENDER-SELECTOR-var">RENDER_SELECTOR</a></code> | - |
+| position | <code><a href="#vscode-languageserver-textdocument-Position-interface">Position</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-2-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-2-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-getBlockAt-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-getBlockAt-member-1-"></a>
 
-#### [getDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-2-)
+#### [getBlockAt](#-vuedx-vue-virtual-textdocument-VueSFCDocument-getBlockAt-member-1-)
 
 
 
 **Signature:**
 ```ts
-getDocument(selector: SelectorLike): VirtualTextDocument;
+getBlockAt(offset: number): SFCBlock | null;
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <code><a href="#-vuedx-vue-virtual-textdocument--SelectorLike-type">SelectorLike</a></code> | - |
+| offset | <code>number</code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-3-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-3-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-getLineAndCharacterOfPosition-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-getLineAndCharacterOfPosition-member-1-"></a>
 
-#### [getDocument](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocument-member-3-)
+#### [getLineAndCharacterOfPosition](#-vuedx-vue-virtual-textdocument-VueSFCDocument-getLineAndCharacterOfPosition-member-1-)
 
 
 
 **Signature:**
 ```ts
-getDocument(selector: string): VirtualTextDocument | undefined;
+getLineAndCharacterOfPosition(position: number): Position;
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <code>string</code> | - |
+| position | <code>number</code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentFileName-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentFileName-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-getSourceFile-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-getSourceFile-member-1-"></a>
 
-#### [getDocumentFileName](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentFileName-member-1-)
+#### [getSourceFile](#-vuedx-vue-virtual-textdocument-VueSFCDocument-getSourceFile-member-1-)
 
 
 
 **Signature:**
 ```ts
-getDocumentFileName(selectorLike: SelectorLike): string;
+getSourceFile(fileName?: string): {
+        fileName: string;
+        readonly text: string;
+        lineMap: unknown;
+        getLineAndCharacterOfPosition: (position: number) => Position;
+    };
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selectorLike | <code><a href="#-vuedx-vue-virtual-textdocument--SelectorLike-type">SelectorLike</a></code> | - |
+| fileName | <code>string</code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentId-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentId-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-getText-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-getText-member-1-"></a>
 
-#### [getDocumentId](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentId-member-1-)
+#### [getText](#-vuedx-vue-virtual-textdocument-VueSFCDocument-getText-member-1-)
 
 
 
 **Signature:**
 ```ts
-protected getDocumentId(selector: Selector): string;
+getText(range?: Range): string;
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <code><a href="#-vuedx-vue-virtual-textdocument--Selector-type">Selector</a></code> | - |
+| range | <code><a href="#vscode-languageserver-textdocument-Range-interface">Range</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentLanguage-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentLanguage-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-offsetAt-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-offsetAt-member-1-"></a>
 
-#### [getDocumentLanguage](#-vuedx-vue-virtual-textdocument-VueTextDocument-getDocumentLanguage-member-1-)
+#### [offsetAt](#-vuedx-vue-virtual-textdocument-VueSFCDocument-offsetAt-member-1-)
 
 
 
 **Signature:**
 ```ts
-protected getDocumentLanguage(selector: Selector): string;
+offsetAt(position: Position): number;
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| selector | <code><a href="#-vuedx-vue-virtual-textdocument--Selector-type">Selector</a></code> | - |
+| position | <code><a href="#vscode-languageserver-textdocument-Position-interface">Position</a></code> | - |
 
 <br>
 
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-markDirty-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-markDirty-member-1-"></a>
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-originalOffsetAt-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-originalOffsetAt-member-1-"></a>
 
-#### [markDirty](#-vuedx-vue-virtual-textdocument-VueTextDocument-markDirty-member-1-)
+#### [originalOffsetAt](#-vuedx-vue-virtual-textdocument-VueSFCDocument-originalOffsetAt-member-1-)
 
 
 
 **Signature:**
 ```ts
-markDirty(): void;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-parse-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-parse-member-1-"></a>
-
-#### [parse](#-vuedx-vue-virtual-textdocument-VueTextDocument-parse-member-1-)
-
-
-
-**Signature:**
-```ts
-protected parse(): void;
-```
-
-
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-VueTextDocument-update-member-1-" id="-vuedx-vue-virtual-textdocument-VueTextDocument-update-member-1-"></a>
-
-#### [update](#-vuedx-vue-virtual-textdocument-VueTextDocument-update-member-1-)
-
-
-
-**Signature:**
-```ts
-static update(document: VueTextDocument, changes: TextDocumentContentChangeEvent[], version: number): VueTextDocument;
+originalOffsetAt(offset: number): number | null;
 ```
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| document | <code><a href="#-vuedx-vue-virtual-textdocument--VueTextDocument-class">VueTextDocument</a></code> | - |
+| offset | <code>number</code> | - |
+
+<br>
+
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-originalPositionFor-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-originalPositionFor-member-1-"></a>
+
+#### [originalPositionFor](#-vuedx-vue-virtual-textdocument-VueSFCDocument-originalPositionFor-member-1-)
+
+
+
+**Signature:**
+```ts
+originalPositionFor(position: Position): Position | null;
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| position | <code><a href="#vscode-languageserver-textdocument-Position-interface">Position</a></code> | - |
+
+<br>
+
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-positionAt-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-positionAt-member-1-"></a>
+
+#### [positionAt](#-vuedx-vue-virtual-textdocument-VueSFCDocument-positionAt-member-1-)
+
+
+
+**Signature:**
+```ts
+positionAt(offset: number): Position;
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| offset | <code>number</code> | - |
+
+<br>
+
+<a href="#-vuedx-vue-virtual-textdocument-VueSFCDocument-update-member-1-" id="-vuedx-vue-virtual-textdocument-VueSFCDocument-update-member-1-"></a>
+
+#### [update](#-vuedx-vue-virtual-textdocument-VueSFCDocument-update-member-1-)
+
+
+
+**Signature:**
+```ts
+update(changes: TextDocumentContentChangeEvent[], version: number): void;
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
 | changes | <code><a href="#vscode-languageserver-textdocument-TextDocumentContentChangeEvent-type">TextDocumentContentChangeEvent</a>[]</code> | - |
 | version | <code>number</code> | - |
 
@@ -1002,347 +336,23 @@ static update(document: VueTextDocument, changes: TextDocumentContentChangeEvent
 <br>
 
 
-<a href="#-vuedx-vue-virtual-textdocument-asFsPath-function-1-" id="-vuedx-vue-virtual-textdocument-asFsPath-function-1-"></a>
-
-### [asFsPath](#-vuedx-vue-virtual-textdocument-asFsPath-function-1-)
+## Types
 
 
+<a href="#-vuedx-vue-virtual-textdocument-TextSpan-interface" id="-vuedx-vue-virtual-textdocument-TextSpan-interface"></a>
 
-<details>
-<summary>More info</summary>
+### [TextSpan](#-vuedx-vue-virtual-textdocument-TextSpan-interface)
 
-**Signature:**
+
+
 ```ts
-declare function asFsPath(uri: string): string;
+export interface TextSpan {
+  length: number;
+  start: number;
+}
 ```
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| uri | <code>string</code> | - |
 
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-asFsUri-function-1-" id="-vuedx-vue-virtual-textdocument-asFsUri-function-1-"></a>
-
-### [asFsUri](#-vuedx-vue-virtual-textdocument-asFsUri-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function asFsUri(fileName: string): string;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| fileName | <code>string</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-asUri-function-1-" id="-vuedx-vue-virtual-textdocument-asUri-function-1-"></a>
-
-### [asUri](#-vuedx-vue-virtual-textdocument-asUri-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function asUri(fileNameOrUri: string): string;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| fileNameOrUri | <code>string</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-basename-function-1-" id="-vuedx-vue-virtual-textdocument-basename-function-1-"></a>
-
-### [basename](#-vuedx-vue-virtual-textdocument-basename-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function basename(fileName: string): string;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| fileName | <code>string</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-binarySearch-function-1-" id="-vuedx-vue-virtual-textdocument-binarySearch-function-1-"></a>
-
-### [binarySearch](#-vuedx-vue-virtual-textdocument-binarySearch-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function binarySearch<T>(array: T[], isMatch: (a: T) => number, returnMin?: boolean): T | undefined;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| array | <code>T[]</code> | - |
-| isMatch | <code>(a: T) => number</code> | - |
-| returnMin | <code>boolean</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-getBlockLanguage-function-1-" id="-vuedx-vue-virtual-textdocument-getBlockLanguage-function-1-"></a>
-
-### [getBlockLanguage](#-vuedx-vue-virtual-textdocument-getBlockLanguage-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function getBlockLanguage(block?: SFCBlock | null): string;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| block | <code><a href="#-vue-compiler-sfc-SFCBlock-interface">SFCBlock</a> &#124; null</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-getContainingFile-function-1-" id="-vuedx-vue-virtual-textdocument-getContainingFile-function-1-"></a>
-
-### [getContainingFile](#-vuedx-vue-virtual-textdocument-getContainingFile-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function getContainingFile(fileName: string): string;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| fileName | <code>string</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-getLanguageExtension-function-1-" id="-vuedx-vue-virtual-textdocument-getLanguageExtension-function-1-"></a>
-
-### [getLanguageExtension](#-vuedx-vue-virtual-textdocument-getLanguageExtension-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function getLanguageExtension(lang: string): string;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| lang | <code>string</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-getLanguageIdFromExtension-function-1-" id="-vuedx-vue-virtual-textdocument-getLanguageIdFromExtension-function-1-"></a>
-
-### [getLanguageIdFromExtension](#-vuedx-vue-virtual-textdocument-getLanguageIdFromExtension-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function getLanguageIdFromExtension(ext: string): string;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| ext | <code>string</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-isOffsetInBlock-function-1-" id="-vuedx-vue-virtual-textdocument-isOffsetInBlock-function-1-"></a>
-
-### [isOffsetInBlock](#-vuedx-vue-virtual-textdocument-isOffsetInBlock-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function isOffsetInBlock(offset: number, block?: SFCBlock | null): boolean;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| offset | <code>number</code> | - |
-| block | <code><a href="#-vue-compiler-sfc-SFCBlock-interface">SFCBlock</a> &#124; null</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-isVirtualFile-function-1-" id="-vuedx-vue-virtual-textdocument-isVirtualFile-function-1-"></a>
-
-### [isVirtualFile](#-vuedx-vue-virtual-textdocument-isVirtualFile-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function isVirtualFile(fileName: string): boolean;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| fileName | <code>string</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-isVirtualFileOfType-function-1-" id="-vuedx-vue-virtual-textdocument-isVirtualFileOfType-function-1-"></a>
-
-### [isVirtualFileOfType](#-vuedx-vue-virtual-textdocument-isVirtualFileOfType-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function isVirtualFileOfType(fileName: string, type: '_render' | '_module' | '_internal' | 'script' | 'scriptSetup'): boolean;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| fileName | <code>string</code> | - |
-| type | <code>'_render' &#124; '_module' &#124; '_internal' &#124; 'script' &#124; 'scriptSetup'</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-isVueFile-function-1-" id="-vuedx-vue-virtual-textdocument-isVueFile-function-1-"></a>
-
-### [isVueFile](#-vuedx-vue-virtual-textdocument-isVueFile-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function isVueFile(fileName: string): boolean;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| fileName | <code>string</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-parseVirtualFileName-function-1-" id="-vuedx-vue-virtual-textdocument-parseVirtualFileName-function-1-"></a>
-
-### [parseVirtualFileName](#-vuedx-vue-virtual-textdocument-parseVirtualFileName-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function parseVirtualFileName(fileName: string): {
-    uri: string;
-    selector: Selector;
-} | null;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| fileName | <code>string</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-relativeVirtualImportPath-function-1-" id="-vuedx-vue-virtual-textdocument-relativeVirtualImportPath-function-1-"></a>
-
-### [relativeVirtualImportPath](#-vuedx-vue-virtual-textdocument-relativeVirtualImportPath-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function relativeVirtualImportPath(fileName: string): string;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| fileName | <code>string</code> | - |
-
-</details>
-<br>
-
-<a href="#-vuedx-vue-virtual-textdocument-replaceSlashes-function-1-" id="-vuedx-vue-virtual-textdocument-replaceSlashes-function-1-"></a>
-
-### [replaceSlashes](#-vuedx-vue-virtual-textdocument-replaceSlashes-function-1-)
-
-
-
-<details>
-<summary>More info</summary>
-
-**Signature:**
-```ts
-declare function replaceSlashes(fileName: string): string;
-```
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| fileName | <code>string</code> | - |
-
-</details>
 <br>
 <!-- #region API-DOCS -->
 

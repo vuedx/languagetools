@@ -15,6 +15,7 @@ npm add @vuedx/template-ast-types
 
 ## API
 
+
 <a href="#-vuedx-template-ast-types-createSimpleExpression-function-1-" id="-vuedx-template-ast-types-createSimpleExpression-function-1-"></a>
 
 ### [createSimpleExpression](#-vuedx-template-ast-types-createSimpleExpression-function-1-)
@@ -25,22 +26,16 @@ Create AST Node
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function createSimpleExpression(
-  content: SimpleExpressionNode['content'],
-  isStatic: SimpleExpressionNode['isStatic'],
-  loc?: SourceLocation,
-  isConstant?: boolean,
-): SimpleExpressionNode
+export declare function createSimpleExpression(content: SimpleExpressionNode['content'], isStatic: SimpleExpressionNode['isStatic'], loc?: SourceLocation, isConstant?: boolean): SimpleExpressionNode;
 ```
 
-| Parameter  | Type                                                                                                           | Description |
-| ---------- | -------------------------------------------------------------------------------------------------------------- | ----------- |
-| content    | <code><a href="#-vue-compiler-core-SimpleExpressionNode-interface">SimpleExpressionNode</a>['content']</code>  | -           |
-| isStatic   | <code><a href="#-vue-compiler-core-SimpleExpressionNode-interface">SimpleExpressionNode</a>['isStatic']</code> | -           |
-| loc        | <code><a href="#-vue-compiler-core-SourceLocation-interface">SourceLocation</a></code>                         | -           |
-| isConstant | <code>boolean</code>                                                                                           | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| content | <code><a href="#-vue-compiler-core-SimpleExpressionNode-interface">SimpleExpressionNode</a>['content']</code> | - |
+| isStatic | <code><a href="#-vue-compiler-core-SimpleExpressionNode-interface">SimpleExpressionNode</a>['isStatic']</code> | - |
+| loc | <code><a href="#-vue-compiler-core-SourceLocation-interface">SourceLocation</a></code> | - |
+| isConstant | <code>boolean</code> | - |
 
 </details>
 <br>
@@ -55,18 +50,14 @@ Find the parent element node.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function findParentNode(
-  ast: RootNode,
-  node: Node,
-): ElementNode | undefined
+export declare function findParentNode(ast: RootNode, node: Node): ElementNode | undefined;
 ```
 
-| Parameter | Type                                                                       | Description |
-| --------- | -------------------------------------------------------------------------- | ----------- |
-| ast       | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | -           |
-| node      | <code><a href="#-vue-compiler-core--Node-2-interface">Node</a></code>      | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| ast | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | - |
+| node | <code><a href="#-vue-compiler-core-Node-2-interface">Node</a></code> | - |
 
 </details>
 <br>
@@ -81,20 +72,15 @@ Find a child (element, component, text, interpolation, or comment) node containi
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function findTemplateChildNodeAt(
-  ast: RootNode,
-  position: number,
-  mode?: 'start' | 'end',
-): SearchResult
+export declare function findTemplateChildNodeAt(ast: RootNode, position: number, mode?: 'start' | 'end'): SearchResult;
 ```
 
-| Parameter | Type                                                                       | Description                                                                                                                                      |
-| --------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ast       | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | -                                                                                                                                                |
-| position  | <code>number</code>                                                        | -                                                                                                                                                |
-| mode      | <code>'start' &#124; 'end'</code>                                          | Open/close range comparison mode: • undefined - position in [start, end] • 'start' — position in [start, end) • 'end' - position in (start, end] |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| ast | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | - |
+| position | <code>number</code> | - |
+| mode | <code>'start' &#124; 'end'</code> | Open/close range comparison mode: • undefined - position in [start, end] • 'start' — position in [start, end) • 'end' - position in (start, end] |
 
 </details>
 <br>
@@ -109,20 +95,15 @@ Get all child (element, component, text, interpolation, or comment) nodes contai
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function findTemplateChildrenInRange(
-  ast: RootNode,
-  start: number,
-  end: number,
-): Node[]
+export declare function findTemplateChildrenInRange(ast: RootNode, start: number, end: number): Node[];
 ```
 
-| Parameter | Type                                                                       | Description |
-| --------- | -------------------------------------------------------------------------- | ----------- |
-| ast       | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | -           |
-| start     | <code>number</code>                                                        | -           |
-| end       | <code>number</code>                                                        | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| ast | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | - |
+| start | <code>number</code> | - |
+| end | <code>number</code> | - |
 
 </details>
 <br>
@@ -137,18 +118,14 @@ Find the deepest node containing the given position.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function findTemplateNodeAt(
-  ast: RootNode,
-  position: number,
-): SearchResult
+export declare function findTemplateNodeAt(ast: RootNode, position: number): SearchResult;
 ```
 
-| Parameter | Type                                                                       | Description |
-| --------- | -------------------------------------------------------------------------- | ----------- |
-| ast       | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | -           |
-| position  | <code>number</code>                                                        | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| ast | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | - |
+| position | <code>number</code> | - |
 
 </details>
 <br>
@@ -163,22 +140,16 @@ Find the deepest node containing the given position.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function findTemplateNodeInRange(
-  ast: RootNode,
-  start: number,
-  end: number,
-  mode?: 'start' | 'end',
-): SearchResult
+export declare function findTemplateNodeInRange(ast: RootNode, start: number, end: number, mode?: 'start' | 'end'): SearchResult;
 ```
 
-| Parameter | Type                                                                       | Description                                                                                                                                      |
-| --------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ast       | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | -                                                                                                                                                |
-| start     | <code>number</code>                                                        | -                                                                                                                                                |
-| end       | <code>number</code>                                                        | -                                                                                                                                                |
-| mode      | <code>'start' &#124; 'end'</code>                                          | Open/close range comparison mode: • undefined - position in [start, end] • 'start' — position in [start, end) • 'end' - position in (start, end] |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| ast | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | - |
+| start | <code>number</code> | - |
+| end | <code>number</code> | - |
+| mode | <code>'start' &#124; 'end'</code> | Open/close range comparison mode: • undefined - position in [start, end] • 'start' — position in [start, end) • 'end' - position in (start, end] |
 
 </details>
 <br>
@@ -193,20 +164,15 @@ Get all nodes contained in given range. (partial overlaps are ignored)
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function findTemplateNodesInRange(
-  ast: RootNode,
-  start: number,
-  end: number,
-): Node[]
+export declare function findTemplateNodesInRange(ast: RootNode, start: number, end: number): Node[];
 ```
 
-| Parameter | Type                                                                       | Description |
-| --------- | -------------------------------------------------------------------------- | ----------- |
-| ast       | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | -           |
-| start     | <code>number</code>                                                        | -           |
-| end       | <code>number</code>                                                        | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| ast | <code><a href="#-vue-compiler-core-RootNode-interface">RootNode</a></code> | - |
+| start | <code>number</code> | - |
+| end | <code>number</code> | - |
 
 </details>
 <br>
@@ -221,14 +187,13 @@ Checks if it is an AST AttributeNode.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isAttributeNode(node: unknown): node is AttributeNode
+export declare function isAttributeNode(node: unknown): node is AttributeNode;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -243,14 +208,13 @@ Checks if it is an AST CommentNode.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isCommentNode(node: unknown): node is CommentNode
+export declare function isCommentNode(node: unknown): node is CommentNode;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -265,14 +229,34 @@ Checks if it is an AST ComponentNode.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isComponentNode(node: unknown): node is ComponentNode
+export declare function isComponentNode(node: unknown): node is ComponentNode;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
+
+</details>
+<br>
+
+<a href="#-vuedx-template-ast-types-isCompoundExpressionNode-function-1-" id="-vuedx-template-ast-types-isCompoundExpressionNode-function-1-"></a>
+
+### [isCompoundExpressionNode](#-vuedx-template-ast-types-isCompoundExpressionNode-function-1-)
+
+Checks if it is an AST ExpressionNode.
+
+<details>
+<summary>More info</summary>
+
+**Signature:**
+```ts
+export declare function isCompoundExpressionNode(node: unknown): node is SimpleExpressionNode;
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -287,14 +271,13 @@ Checks if it is an AST DirectiveNode.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isDirectiveNode(node: unknown): node is DirectiveNode
+export declare function isDirectiveNode(node: unknown): node is DirectiveNode;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -309,14 +292,34 @@ Checks if it is an AST ElementNode.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isElementNode(node: unknown): node is ElementNode
+export declare function isElementNode(node: unknown): node is ElementNode;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
+
+</details>
+<br>
+
+<a href="#-vuedx-template-ast-types-isExpressionNode-function-1-" id="-vuedx-template-ast-types-isExpressionNode-function-1-"></a>
+
+### [isExpressionNode](#-vuedx-template-ast-types-isExpressionNode-function-1-)
+
+Checks if it is an AST ExpressionNode.
+
+<details>
+<summary>More info</summary>
+
+**Signature:**
+```ts
+export declare function isExpressionNode(node: unknown): node is ExpressionNode;
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -331,14 +334,13 @@ Checks if it is an AST InterpolationNode.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isInterpolationNode(node: unknown): node is InterpolationNode
+export declare function isInterpolationNode(node: unknown): node is InterpolationNode;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -353,14 +355,13 @@ Checks if it is Vue template AST Node.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isNode(node: unknown): node is Node
+export declare function isNode(node: unknown): node is Node;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -375,14 +376,13 @@ Checks if it is an AST PlainElementNode.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isPlainElementNode(node: unknown): node is PlainElementNode
+export declare function isPlainElementNode(node: unknown): node is PlainElementNode;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -397,14 +397,13 @@ Checks if it is an AST RootNode.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isRootNode(node: unknown): node is RootNode
+export declare function isRootNode(node: unknown): node is RootNode;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -419,16 +418,13 @@ Checks if it is an AST ExpressionNode.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isSimpleExpressionNode(
-  node: unknown,
-): node is SimpleExpressionNode
+export declare function isSimpleExpressionNode(node: unknown): node is SimpleExpressionNode;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -437,20 +433,40 @@ declare function isSimpleExpressionNode(
 
 ### [isSimpleIdentifier](#-vuedx-template-ast-types-isSimpleIdentifier-function-1-)
 
-Checks if it is a valid JavaScript identifers.
+Checks if it is a valid JavaScript identifiers.
 
 <details>
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isSimpleIdentifier(content: string): boolean
+export declare function isSimpleIdentifier(content: string): boolean;
 ```
 
-| Parameter | Type                | Description |
-| --------- | ------------------- | ----------- |
-| content   | <code>string</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| content | <code>string</code> | - |
+
+</details>
+<br>
+
+<a href="#-vuedx-template-ast-types-isSlotNode-function-1-" id="-vuedx-template-ast-types-isSlotNode-function-1-"></a>
+
+### [isSlotNode](#-vuedx-template-ast-types-isSlotNode-function-1-)
+
+Checks if it is an AST SlotNode.
+
+<details>
+<summary>More info</summary>
+
+**Signature:**
+```ts
+export declare function isSlotNode(node: unknown): node is SlotOutletNode;
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -465,14 +481,13 @@ Checks if it is an AST TemplateNode.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isTemplateNode(node: unknown): node is TemplateNode
+export declare function isTemplateNode(node: unknown): node is TemplateNode;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -487,14 +502,13 @@ Checks if it is an AST TextNode.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function isTextNode(node: unknown): node is TextNode
+export declare function isTextNode(node: unknown): node is TextNode;
 ```
 
-| Parameter | Type                 | Description |
-| --------- | -------------------- | ----------- |
-| node      | <code>unknown</code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>unknown</code> | - |
 
 </details>
 <br>
@@ -509,18 +523,14 @@ Convert template AST to template code.
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function stringify(
-  node: Node | Node[],
-  options?: Partial<StringifyOptions>,
-): string
+export declare function stringify(node: Node | Node[], options?: Partial<StringifyOptions>): string;
 ```
 
-| Parameter | Type                                                                                                                                     | Description |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| node      | <code><a href="#-vue-compiler-core--Node-2-interface">Node</a> &#124; <a href="#-vue-compiler-core--Node-2-interface">Node</a>[]</code>  | -           |
-| options   | <code><a href="#-Partial-type">Partial</a><<a href="#-vuedx-template-ast-types--StringifyOptions-interface">StringifyOptions</a>></code> | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code><a href="#-vue-compiler-core-Node-2-interface">Node</a> &#124; <a href="#-vue-compiler-core-Node-2-interface">Node</a>[]</code> | - |
+| options | <code><a href="#-Partial-type">Partial</a><<a href="#-vuedx-template-ast-types-StringifyOptions-interface">StringifyOptions</a>></code> | - |
 
 </details>
 <br>
@@ -535,20 +545,15 @@ A general AST traversal utility with both prefix and postfix handlers, and a sta
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function traverse<T>(
-  node: Node,
-  handlers: TraversalHandler<T> | TraversalHandlers<T>,
-  state?: T,
-): void
+export declare function traverse<T>(node: Node, handlers: TraversalHandler<T> | TraversalHandlers<T>, state?: T): void;
 ```
 
-| Parameter | Type                                                                                                                                                                                               | Description |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| node      | <code><a href="#-vue-compiler-core--Node-2-interface">Node</a></code>                                                                                                                              | -           |
-| handlers  | <code><a href="#-vuedx-template-ast-types--TraversalHandler-type">TraversalHandler</a><T> &#124; <a href="#-vuedx-template-ast-types--TraversalHandlers-interface">TraversalHandlers</a><T></code> | -           |
-| state     | <code>T</code>                                                                                                                                                                                     | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code><a href="#-vue-compiler-core-Node-2-interface">Node</a></code> | - |
+| handlers | <code><a href="#-vuedx-template-ast-types-TraversalHandler-type">TraversalHandler</a><T> &#124; <a href="#-vuedx-template-ast-types-TraversalHandlers-interface">TraversalHandlers</a><T></code> | - |
+| state | <code>T</code> | - |
 
 </details>
 <br>
@@ -563,22 +568,16 @@ An abortable AST traversal utility. Return false (or falsy value) to stop traver
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function traverseEvery<T>(
-  node: Node,
-  enter: (node: Node, ancestors: TraversalAncestors, state: T) => boolean,
-  state?: any,
-  ancestors?: TraversalAncestors,
-): void
+export declare function traverseEvery<T>(node: Node, enter: (node: Node, ancestors: TraversalAncestors, state: T) => boolean, state?: any, ancestors?: TraversalAncestors): void;
 ```
 
-| Parameter | Type                                                                                                                                                                                                | Description |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| node      | <code><a href="#-vue-compiler-core--Node-2-interface">Node</a></code>                                                                                                                               | -           |
-| enter     | <code>(node: <a href="#-vue-compiler-core--Node-2-interface">Node</a>, ancestors: <a href="#-vuedx-template-ast-types--TraversalAncestors-type">TraversalAncestors</a>, state: T) => boolean</code> | -           |
-| state     | <code>any</code>                                                                                                                                                                                    | -           |
-| ancestors | <code><a href="#-vuedx-template-ast-types--TraversalAncestors-type">TraversalAncestors</a></code>                                                                                                   | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code><a href="#-vue-compiler-core-Node-2-interface">Node</a></code> | - |
+| enter | <code>(node: <a href="#-vue-compiler-core-Node-2-interface">Node</a>, ancestors: <a href="#-vuedx-template-ast-types-TraversalAncestors-type">TraversalAncestors</a>, state: T) => boolean</code> | - |
+| state | <code>any</code> | - |
+| ancestors | <code><a href="#-vuedx-template-ast-types-TraversalAncestors-type">TraversalAncestors</a></code> | - |
 
 </details>
 <br>
@@ -593,36 +592,35 @@ A faster AST traversal utility. It behaves same as [traverse()] but there is no 
 <summary>More info</summary>
 
 **Signature:**
-
 ```ts
-declare function traverseFast<T = any>(
-  node: object,
-  enter: (node: Node, state: T, stop: () => void) => void,
-  state?: T,
-): void
+export declare function traverseFast<T = any>(node: object, enter: (node: Node, state: T, stop: () => void) => void, state?: T): void;
 ```
 
-| Parameter | Type                                                                                                              | Description |
-| --------- | ----------------------------------------------------------------------------------------------------------------- | ----------- |
-| node      | <code>object</code>                                                                                               | -           |
-| enter     | <code>(node: <a href="#-vue-compiler-core--Node-2-interface">Node</a>, state: T, stop: () => void) => void</code> | -           |
-| state     | <code>T</code>                                                                                                    | -           |
+| Parameter | Type | Description |
+| --- | --- | --- |
+| node | <code>object</code> | - |
+| enter | <code>(node: <a href="#-vue-compiler-core-Node-2-interface">Node</a>, state: T, stop: () => void) => void</code> | - |
+| state | <code>T</code> | - |
 
 </details>
 <br>
 
 ## Types
 
+
 <a href="#-vuedx-template-ast-types-SearchResult-interface" id="-vuedx-template-ast-types-SearchResult-interface"></a>
 
 ### [SearchResult](#-vuedx-template-ast-types-SearchResult-interface)
 
+
+
 ```ts
-interface SearchResult {
-  ancestors: TraversalAncestors
-  node: Node | null
+export interface SearchResult {
+  ancestors: TraversalAncestors;
+  node: Node | null;
 }
 ```
+
 
 <br>
 
@@ -630,14 +628,17 @@ interface SearchResult {
 
 ### [StringifyOptions](#-vuedx-template-ast-types-StringifyOptions-interface)
 
+
+
 ```ts
-interface StringifyOptions {
-  directive: 'shorthand' | 'longhand'
-  indent: number
-  initialIndent: number
-  replaceNodes: Map<Node, Node | null>
+export interface StringifyOptions {
+  directive: 'shorthand' | 'longhand';
+  indent: number;
+  initialIndent: number;
+  replaceNodes: Map<Node, Node | null>;
 }
 ```
+
 
 <br>
 
@@ -645,12 +646,15 @@ interface StringifyOptions {
 
 ### [TraversalHandlers](#-vuedx-template-ast-types-TraversalHandlers-interface)
 
+
+
 ```ts
-interface TraversalHandlers<T> {
-  enter?: TraversalHandler<T>
-  exit?: TraversalHandler<T>
+export interface TraversalHandlers<T> {
+  enter?: TraversalHandler<T>;
+  exit?: TraversalHandler<T>;
 }
 ```
+
 
 <br>
 <!-- #region API-DOCS -->

@@ -284,19 +284,20 @@ function genNodeHoists(node: { hoists: CompoundExpressionNode[] }): void {
 function genElementNode(node: ElementNode): void {
   genDirectiveChecks(node)
   ctx.write('<', node.startTagLoc)
-  ctx.write(node.tag, node.tagLoc, true).newLine()
-  indent(() => {
-    genProps(node)
-    ctx.write(
-      `${annotations.tsxCompletions}`,
-      createLoc(
-        node.startTagLoc,
-        node.tagLoc.end.offset - node.loc.start.offset,
-      ),
-    )
-  })
-
-  ctx.newLine()
+  if (node.tag !== '') {
+    ctx.write(node.tag, node.tagLoc, true).newLine()
+    indent(() => {
+      genProps(node)
+      ctx.write(
+        `${annotations.tsxCompletions}`,
+        createLoc(
+          node.startTagLoc,
+          node.tagLoc.end.offset - node.loc.start.offset,
+        ),
+      )
+    })
+    ctx.newLine()
+  }
   if (node.isSelfClosing) {
     ctx.write('/>')
     return // done

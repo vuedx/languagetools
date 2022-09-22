@@ -26,6 +26,8 @@ export interface SFCDescriptor {
 
 export type Parser = Pick<Required<SFCParseOptions>['compiler'], 'parse'>
 
+let isParsingBrokenTemplate = false
+
 export function parse(
   source: string,
   compiler: Parser = {
@@ -43,7 +45,7 @@ export function parse(
   const ast = compiler.parse(source, {
     // there are no components at SFC parsing level
     isNativeTag: () => true,
-    decodeEntities: string => string,
+    decodeEntities: (string) => string,
     // preserve all whitespace
     isPreTag: () => true,
     getTextMode: ({ tag, props }, parent) => {
@@ -57,8 +59,8 @@ export function parse(
             (p) =>
               p.type === NodeTypes.ATTRIBUTE &&
               p.name === 'lang' &&
-              p.value &&
-              p.value.content &&
+              p.value != null &&
+              p.value.content.length > 0 &&
               p.value.content !== 'html',
           ))
       ) {
@@ -80,11 +82,7 @@ export function parse(
     switch (node.tag) {
       case 'template':
         if (descriptor.template == null) {
-          const templateBlock = (descriptor.template = createBlock(
-            node,
-            source,
-          ) as SFCTemplateBlock)
-          templateBlock.ast = node
+          descriptor.template = createBlock(node, source) as SFCTemplateBlock
         } else {
           errors.push(createDuplicateBlockError(node))
         }
@@ -119,6 +117,32 @@ export function parse(
         break
     }
   })
+
+  if (descriptor.template != null && !isParsingBrokenTemplate) {
+    const start = descriptor.template.loc.start.offset
+    const end = source.lastIndexOf('</template')
+    if (end < descriptor.template.loc.end.offset) {
+      // There is an parsing error in the template.
+      const proxy =
+        source.slice(0, start) +
+        placeholder(source.slice(start, end)) +
+        source.slice(end)
+
+      isParsingBrokenTemplate = true
+      try {
+        const result = parse(proxy, compiler)
+
+        if (result.descriptor.template != null) {
+          result.descriptor.template.content = source.slice(start, end)
+          result.descriptor.template.loc.source = source.slice(start, end)
+        }
+
+        return result
+      } finally {
+        isParsingBrokenTemplate = false
+      }
+    }
+  }
 
   if (descriptor.scriptSetup != null) {
     if (descriptor.scriptSetup.src != null) {
@@ -209,4 +233,13 @@ function createBlock(node: ElementNode, source: string): SFCBlock {
     }
   })
   return block
+}
+
+function placeholder(content: string): string {
+  let output = ''
+  const nl = '\n'.charCodeAt(0)
+  for (let i = 0; i < content.length; i++) {
+    output += content.charCodeAt(i) === nl ? '\n' : ' '
+  }
+  return output
 }

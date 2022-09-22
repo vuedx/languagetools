@@ -9,16 +9,22 @@ import { CommentNode } from '@vue/compiler-core';
 import { ComponentNode } from '@vue/compiler-core';
 import { DirectiveNode } from '@vue/compiler-core';
 import { ElementNode } from '@vue/compiler-core';
+import { ExpressionNode } from '@vue/compiler-core';
 import { InterpolationNode } from '@vue/compiler-core';
 import { Node as Node_2 } from '@vue/compiler-core';
+import type { NodeTypes as NodeTypes_2 } from '@vue/compiler-core';
 import { PlainElementNode } from '@vue/compiler-core';
 import { RootNode } from '@vue/compiler-core';
 import { SimpleExpressionNode } from '@vue/compiler-core';
+import { SlotOutletNode } from '@vue/compiler-core';
 import { SourceLocation } from '@vue/compiler-core';
 import { TemplateNode } from '@vue/compiler-core';
 import { TextNode } from '@vue/compiler-core';
 
 export { AttributeNode }
+
+// @public (undocumented)
+export const builtInDirectives: readonly ["bind", "cloak", "else-if", "else", "for", "html", "if", "model", "on", "on", "once", "pre", "show", "slot", "text"];
 
 export { CommentNode }
 
@@ -30,6 +36,14 @@ export function createSimpleExpression(content: SimpleExpressionNode['content'],
 export { DirectiveNode }
 
 export { ElementNode }
+
+// @public (undocumented)
+export const ElementTypes: {
+    ELEMENT: number;
+    COMPONENT: number;
+    SLOT: number;
+    TEMPLATE: number;
+};
 
 // @public
 export function findParentNode(ast: RootNode, node: Node_2): ElementNode | undefined;
@@ -61,10 +75,16 @@ export function isCommentNode(node: unknown): node is CommentNode;
 export function isComponentNode(node: unknown): node is ComponentNode;
 
 // @public
+export function isCompoundExpressionNode(node: unknown): node is SimpleExpressionNode;
+
+// @public
 export function isDirectiveNode(node: unknown): node is DirectiveNode;
 
 // @public
 export function isElementNode(node: unknown): node is ElementNode;
+
+// @public
+export function isExpressionNode(node: unknown): node is ExpressionNode;
 
 // @public
 export function isInterpolationNode(node: unknown): node is InterpolationNode;
@@ -85,12 +105,46 @@ export function isSimpleExpressionNode(node: unknown): node is SimpleExpressionN
 export function isSimpleIdentifier(content: string): boolean;
 
 // @public
+export function isSlotNode(node: unknown): node is SlotOutletNode;
+
+// @public
 export function isTemplateNode(node: unknown): node is TemplateNode;
 
 // @public
 export function isTextNode(node: unknown): node is TextNode;
 
 export { Node_2 as Node }
+
+// @public (undocumented)
+export const NodeTypes: {
+    ROOT: NodeTypes_2.ROOT;
+    ELEMENT: NodeTypes_2.ELEMENT;
+    TEXT: NodeTypes_2.TEXT;
+    COMMENT: NodeTypes_2.COMMENT;
+    SIMPLE_EXPRESSION: NodeTypes_2.SIMPLE_EXPRESSION;
+    INTERPOLATION: NodeTypes_2.INTERPOLATION;
+    ATTRIBUTE: NodeTypes_2.ATTRIBUTE;
+    DIRECTIVE: NodeTypes_2.DIRECTIVE;
+    COMPOUND_EXPRESSION: NodeTypes_2.COMPOUND_EXPRESSION;
+    IF: NodeTypes_2.IF;
+    IF_BRANCH: NodeTypes_2.IF_BRANCH;
+    FOR: NodeTypes_2.FOR;
+    TEXT_CALL: NodeTypes_2.TEXT_CALL;
+    VNODE_CALL: NodeTypes_2.VNODE_CALL;
+    JS_CALL_EXPRESSION: NodeTypes_2.JS_CALL_EXPRESSION;
+    JS_OBJECT_EXPRESSION: NodeTypes_2.JS_OBJECT_EXPRESSION;
+    JS_PROPERTY: NodeTypes_2.JS_PROPERTY;
+    JS_ARRAY_EXPRESSION: NodeTypes_2.JS_ARRAY_EXPRESSION;
+    JS_FUNCTION_EXPRESSION: NodeTypes_2.JS_FUNCTION_EXPRESSION;
+    JS_CONDITIONAL_EXPRESSION: NodeTypes_2.JS_CONDITIONAL_EXPRESSION;
+    JS_CACHE_EXPRESSION: NodeTypes_2.JS_CACHE_EXPRESSION;
+    JS_BLOCK_STATEMENT: NodeTypes_2.JS_BLOCK_STATEMENT;
+    JS_TEMPLATE_LITERAL: NodeTypes_2.JS_TEMPLATE_LITERAL;
+    JS_IF_STATEMENT: NodeTypes_2.JS_IF_STATEMENT;
+    JS_ASSIGNMENT_EXPRESSION: NodeTypes_2.JS_ASSIGNMENT_EXPRESSION;
+    JS_SEQUENCE_EXPRESSION: NodeTypes_2.JS_SEQUENCE_EXPRESSION;
+    JS_RETURN_STATEMENT: NodeTypes_2.JS_RETURN_STATEMENT;
+};
 
 export { PlainElementNode }
 
@@ -153,7 +207,6 @@ export function traverseEvery<T>(node: Node_2, enter: (node: Node_2, ancestors: 
 
 // @public
 export function traverseFast<T = any>(node: object, enter: (node: Node_2, state: T, stop: () => void) => void, state?: T): void;
-
 
 // (No @packageDocumentation comment for this package)
 
