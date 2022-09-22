@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { invariant } from '@vuedx/shared'
 import * as FS from 'fs'
 import { addSerializer } from 'jest-specific-snapshot'
@@ -134,6 +135,7 @@ function parseFixtures(content: string) {
               `${result.code}\n` +
               '```\n\n' +
               `[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#${
+                // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
                 // @ts-ignore
                 btoa(
                   `${result.code.length}\0${utf16ToUTF8(result.code)}${

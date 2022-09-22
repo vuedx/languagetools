@@ -31,7 +31,14 @@ const preprocess: NodeTransform = (node, context) => {
 
   if (!isElementNode(node)) return
 
-  if (/^[a-z]+$/.test(node.tag)) node.tagType = 0 /* ELEMENT */ // force element for lower case tags
+  if (
+    /^[a-z]+$/.test(node.tag) &&
+    node.tagType === 1 &&
+    node.tag !== 'component'
+  ) {
+    // force element for lower case unknown tags as user might be typing these partial html/svg tags
+    node.tagType = 0 /* ELEMENT */
+  }
   node.props.forEach((prop, index) => {
     // remove empty modifiers
     if (isDirectiveNode(prop)) {

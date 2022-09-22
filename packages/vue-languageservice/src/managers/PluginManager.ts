@@ -293,7 +293,6 @@ export class PluginManager {
 
         try {
           const fileNames = plugin.getScriptFileNames(original)
-
           logger.debug('@@@ getScriptFileNames:', fileNames)
           return fileNames
         } catch (e) {
