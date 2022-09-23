@@ -52,7 +52,7 @@ jobs:
         run: |
           pnpm recursive --filter @vuedx/monorepo-tools run build
           pnpm run ci:build
-          pnpm recursive --filter ./extensions run build
+          pnpm recursive --filter './extensions/*' run build
       - name: Upload build artefact
         uses: actions/upload-artifact@v2
         with:
@@ -207,14 +207,14 @@ jobs:
           path: .
       - name: Publish Pre-release Extension
         run: >
-          pnpm recursive --filter ./extensions run build
+          pnpm recursive --filter './extensions/*' run build
 
-          pnpm recursive --filter ./extensions run pre-release
+          pnpm recursive --filter './extensions/*' run pre-release
 
-          pnpx -y ovsx publish -p ${OVSX_REGISTRY_TOKEN}
+          pnpx ovsx publish -p ${OVSX_REGISTRY_TOKEN}
           ./extensions/vscode-vue/vue.vsix
 
-          pnpx -y ovsx publish -p ${OVSX_REGISTRY_TOKEN}
+          pnpx ovsx publish -p ${OVSX_REGISTRY_TOKEN}
           ./extensions/vscode-vue-language-features/vue-language-features.vsix
         env:
           RELEASE_CHANNEL: pre-release
@@ -282,14 +282,14 @@ jobs:
           path: .
       - name: Publish Extension
         run: >
-          pnpm recursive --filter ./extensions run build
+          pnpm recursive --filter './extensions/*' run build
 
-          pnpm recursive --filter ./extensions run release
+          pnpm recursive --filter './extensions/*' run release
 
-          pnpx -y ovsx publish -p ${OVSX_REGISTRY_TOKEN}
+          pnpx ovsx publish -p ${OVSX_REGISTRY_TOKEN}
           ./extensions/vscode-vue/vue.vsix
 
-          pnpx -y ovsx publish -p ${OVSX_REGISTRY_TOKEN}
+          pnpx ovsx publish -p ${OVSX_REGISTRY_TOKEN}
           ./extensions/vscode-vue-language-features/vue-language-features.vsix
         env:
           VSCODE_MARKETPLACE_TOKEN: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
