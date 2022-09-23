@@ -4,10 +4,7 @@
   "description": "A virtual filesystem to access blocks in SFC as files",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
-  "types": "src/index.ts",
-  "publishConfig": {
-    "types": "lib/index.d.ts"
-  },
+  "types": "lib/index.d.ts",
   "files": [
     "lib"
   ],
@@ -39,7 +36,7 @@
     "@vuedx/shared": "workspace:*",
     "@vuedx/template-ast-types": "workspace:*",
     "@vuedx/transforms": "workspace:*",
-    "source-map": "^0.6.1",
+    "sourcemap-codec": "^1.4.8",
     "vscode-languageserver-textdocument": "^1.0.1",
     "vscode-uri": "^2.1.2"
   },

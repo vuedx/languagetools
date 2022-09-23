@@ -2,11 +2,16 @@
   "cSpell.words": [
     "Builtins",
     "Codegen",
+    "deindent",
+    "endregion",
     "hygen",
+    "lcfirst",
     "onwarn",
     "textdocument",
     "treeshake",
     "typecheck",
+    "ucfirst",
+    "Uncapitalize",
     "vetur",
     "vuedx"
   ],

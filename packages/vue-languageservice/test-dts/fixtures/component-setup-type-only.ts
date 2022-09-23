@@ -1,10 +1,8 @@
-import type {} from '@vue/runtime-core'
-import type {} from '../../types/3.x'
+import { defineComponent } from '@vue/runtime-core'
+import * as VueDX from '../../types/3.x'
 
-const props = defineProps<{
-  a: string
-  b?: number
-  c?: { foo?: string }
-}>()
-
-export default VueDX.internal.defineSetupComponent(props, {}, {}, {})
+const Comp = defineComponent(
+  (props: { a: string; b?: number; c?: { foo?: string } }) => {},
+)
+const _ctx = new Comp()
+const _a = VueDX.internal.resolveComponent(_ctx, a, 'a', 'A')

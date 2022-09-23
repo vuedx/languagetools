@@ -2,12 +2,9 @@
   "name": "@vuedx/typecheck",
   "version": "0.7.5",
   "description": "TypeScript plugin for Vue",
-  "main": "lib/index.js",
+  "main": "lib/index.cjs",
   "module": "lib/index.mjs",
-  "types": "src/index.ts",
-  "publishConfig": {
-    "types": "lib/index.d.ts"
-  },
+  "types": "lib/index.d.ts",
   "files": [
     "lib",
     "bin"
@@ -44,6 +41,9 @@
     "fast-glob": "^3.2.4",
     "minimist": "^1.2.5",
     "resolve-from": "^5.0.0",
-    "typescript": "^4.6.3"
+    "typescript": "^4.8.2"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.2"
   }
 }

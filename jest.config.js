@@ -1,15 +1,20 @@
 module.exports = {
-  preset: 'ts-jest',
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        isolatedModules: true,
+        tsconfig: {
+          esModuleInterop: true,
+          experimentalDecorators: true,
+          emitDecoratorMetadata: true,
+        },
+      },
+    ],
+  },
   testMatch: ['**/*.spec.ts'],
   globals: {
-    __DEV__: true,
-    'ts-jest': {
-      tsconfig: {
-        esModuleInterop: true,
-        experimentalDecorators: true,
-        emitDecoratorMetadata: true,
-      },
-    },
+    __DEV__: false,
   },
   coverageReporters: ['json', 'lcov', 'text-summary', 'html-spa'],
   coverageProvider: 'v8',

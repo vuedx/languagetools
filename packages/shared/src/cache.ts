@@ -18,9 +18,12 @@ abstract class BaseCache<K, V> implements Cache<K, V> {
   abstract clear(): void
 
   resolve(key: K, getter: (key: K) => V): V {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    if (this.has(key)) return this.get(key)!
+    if (this.has(key)) {
+      if (__DEV__) console.debug('[cache] hit', key)
+      return this.get(key) as V
+    }
 
+    if (__DEV__) console.debug('[cache] miss', key)
     const value = getter(key)
 
     this.set(key, value)
@@ -174,7 +177,7 @@ export function createMultiKeyCache<K, V, R = unknown>(
 export function createVersionedCache<
   K,
   V,
-  Version extends string | number = string | number
+  Version extends string | number = string | number,
 >(
   getVersion: (key: K) => Version,
   size: number = DEFAULT_CACHE_SIZE,
@@ -221,6 +224,7 @@ function getOrCreate<K, V>(
   }
 }
 
+/** Cache results using as secondary version key. */
 export function versioned<T extends unknown[], R = unknown>(
   getKey: (args: T) => R = (args) =>
     args[0] as T extends [k: infer K] ? K & R : never,
@@ -230,7 +234,7 @@ export function versioned<T extends unknown[], R = unknown>(
 ): MethodDecorator {
   const method = isAsync ? 'resolveAsync' : 'resolve'
   return (target, propertyKey, descriptor) => {
-    const fn = (descriptor?.value as unknown) as (...args: T) => any
+    const fn = descriptor?.value as unknown as (...args: T) => any
     if (typeof fn === 'function') {
       const caches = new WeakMap<typeof target, Cache<R, any>>()
       const using = getOrCreate(caches, (instance) => {
@@ -257,12 +261,6 @@ export function versioned<T extends unknown[], R = unknown>(
   }
 }
 
-/**
- * Cache returned value from function.
- *
- * By default, it uses a "least recently used" or LRU cache
- * of size 100.
- */
 export function cache<T extends unknown[], I = unknown, R = unknown>(
   getKey: (args: T, instance: I) => R = (args) => args[0] as R,
   isAsync: boolean = false,
@@ -270,7 +268,7 @@ export function cache<T extends unknown[], I = unknown, R = unknown>(
 ): MethodDecorator {
   const method = isAsync ? 'resolveAsync' : 'resolve'
   return (target, propertyKey, descriptor) => {
-    const fn = (descriptor?.value as unknown) as (...args: T) => any
+    const fn = descriptor?.value as unknown as (...args: T) => any
     if (typeof fn === 'function') {
       const caches = new WeakMap<typeof target, Cache<R, any>>()
       addToStore(target, propertyKey, caches)

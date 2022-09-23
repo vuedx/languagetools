@@ -1,10 +1,9 @@
 import {
   isProjectRuntimeFile,
+  isVueJsxFile,
   isVueSFCDescriptorFile,
-  isVueTemplateASTFile,
-  isVueTsFile,
-  parseFileName,
-  ucfirst,
+  isVueTemplateASTFile, isVueTsxFile,
+  parseFileName
 } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import { basename } from 'path'
@@ -54,20 +53,11 @@ export class SelectVirtualFileCommand {
   }
 
   private getDisplayName(fileName: string): string {
-    if (isVueTsFile(fileName)) return 'Virtual Module'
+    if (isVueTsxFile(fileName) || isVueJsxFile(fileName))
+      return 'Virtual Module'
     if (isProjectRuntimeFile(fileName)) return 'Project Globals'
     if (isVueSFCDescriptorFile(fileName)) return 'SFC Descriptor'
     if (isVueTemplateASTFile(fileName)) return 'Template AST'
-    const parsed = parseFileName(fileName)
-    if (parsed.type === 'virtual') {
-      if (parsed.blockType === 'sript') {
-        return parsed.setup === true ? 'Virtual Script Setup' : 'Virtual Script'
-      } else if (parsed.blockIndex == null) {
-        return `Virtual ${ucfirst(parsed.blockType)}`
-      } else {
-        return `Virtual ${ucfirst(parsed.blockType)} ${parsed.blockIndex}`
-      }
-    }
 
     return basename(fileName)
   }

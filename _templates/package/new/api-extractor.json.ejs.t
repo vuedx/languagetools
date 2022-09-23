@@ -10,7 +10,7 @@ to: packages/<%= name %>/api-extractor.json
   "compiler": {
     "tsconfigFilePath": "<projectFolder>/tsconfig.json",
     "overrideTsconfig": {},
-    "skipLibCheck": true
+    "skipLibCheck": false
   },
   "apiReport": {
     "enabled": true,

@@ -1,4 +1,4 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 importers:
 
@@ -37,8 +37,10 @@ importers:
 
   vue3/typescript-diagnostics:
     specifiers:
+      typescript: ^4.8.3
       vue: ^3.2
     dependencies:
+      typescript: 4.8.3
       vue: 3.2.1
 
   vue3/typescript-unconfigured:
@@ -65,6 +67,8 @@ packages:
     resolution: {integrity: sha512-N3UxG+uuF4CMYoNj8AhnbAcJF0PiuJ9KHuy1lQmkYsxTer/MAH9UBNHsBoAX/4s6NvlDD047No8mYVGGzLL4hg==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+    dependencies:
+      '@babel/types': 7.12.12
     dev: false
 
   /@babel/types/7.12.12:
@@ -141,6 +145,12 @@ packages:
   /to-fast-properties/2.0.0:
     resolution: {integrity: sha1-3F5pjL0HkmW8c+A3doGk5Og/YW4=}
     engines: {node: '>=4'}
+    dev: false
+
+  /typescript/4.8.3:
+    resolution: {integrity: sha512-goMHfm00nWPa8UvR/CPSvykqf6dVV8x/dp0c5mFTMTIu0u0FlGWRioyy7Nn0PGAdHxpJZnuO/ut+PpQ8UiHAig==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
     dev: false
 
   /vue-router/4.0.12_vue@3.2.1:

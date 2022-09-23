@@ -1,4 +1,4 @@
-import { isVueFile, parseFileName, VueVirtualFileName } from '@vuedx/shared'
+import { isVueFile, parseFileName } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import vscode from 'vscode'
 import { PluginCommunicationService } from '../services/PluginCommunicationService'
@@ -8,7 +8,8 @@ import { getVirtualFileNameFromUri } from '../utils/uri'
 @injectable()
 export class VueVirtualDocumentProvider
   extends Installable
-  implements vscode.TextDocumentContentProvider {
+  implements vscode.TextDocumentContentProvider
+{
   constructor(
     @inject(PluginCommunicationService)
     private readonly plugin: PluginCommunicationService,
@@ -36,7 +37,7 @@ export class VueVirtualDocumentProvider
       vscode.workspace.onDidOpenTextDocument(({ uri }) => {
         if (uri.scheme === 'vue') {
           const fileName = getVirtualFileNameFromUri(uri)
-          const parsed = parseFileName(fileName) as VueVirtualFileName
+          const parsed = parseFileName(fileName)
           const openFiles = this.openVueFiles.get(parsed.fileName)
           if (openFiles == null) {
             this.openVueFiles.set(parsed.fileName, new Set([uri.toString()]))
@@ -48,7 +49,7 @@ export class VueVirtualDocumentProvider
       vscode.workspace.onDidCloseTextDocument(({ uri }) => {
         if (uri.scheme === 'vue') {
           const fileName = getVirtualFileNameFromUri(uri)
-          const parsed = parseFileName(fileName) as VueVirtualFileName
+          const parsed = parseFileName(fileName)
           const openFiles = this.openVueFiles.get(parsed.fileName)
           if (openFiles == null) return
           openFiles.delete(uri.toString())
@@ -79,12 +80,13 @@ export class VueVirtualDocumentProvider
 
             const start = textEditor.document.offsetAt(editor.selection.start)
             const end = textEditor.document.offsetAt(editor.selection.end)
-            const result = await this.plugin.first(async (conneciton) => {
-              return await conneciton.findGeneratedFileAndRange(
-                fileName,
-                start,
-                end,
-              )
+            const result = await this.plugin.first(async (_conneciton) => {
+              console.log(start, end)
+              return null as null | {
+                fileName: string
+                start: number
+                end: number
+              } // TODO: fix this
             })
 
             // not found or cancelled

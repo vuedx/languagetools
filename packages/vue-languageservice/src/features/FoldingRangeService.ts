@@ -6,7 +6,8 @@ import { TypescriptContextService } from '../services/TypescriptContextService'
 
 @injectable()
 export class FoldingRangeService
-  implements Pick<TSLanguageService, 'getOutliningSpans'> {
+  implements Pick<TSLanguageService, 'getOutliningSpans'>
+{
   constructor(
     @inject(TypescriptContextService)
     private readonly ts: TypescriptContextService,
@@ -15,11 +16,7 @@ export class FoldingRangeService
   ) {}
 
   public getOutliningSpans(fileName: string): OutliningSpan[] {
-    if (this.fs.isVueSchemeFile(fileName)) {
-      return this.ts.service.getOutliningSpans(
-        this.fs.getRealFileName(fileName),
-      )
-    } else if (this.fs.isVueFile(fileName)) {
+    if (this.fs.isVueFile(fileName)) {
       const file = this.fs.getVueFile(fileName)
       if (file == null) return []
       const blockSpans: OutliningSpan[] = file.blocks.map((block) => {

@@ -1,62 +1,90 @@
+// @ts-check
 import commonjs from '@rollup/plugin-commonjs'
-import alias from '@rollup/plugin-alias'
 import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
 import typescript from '@rollup/plugin-typescript'
 import { generateRollupOptions } from '@vuedx/monorepo-tools'
+import dts from 'rollup-plugin-dts'
 import { define, processVueSFC } from './scripts/rollup-plugins'
 
-const configs = generateRollupOptions({
-  dirPatterns: ['packages/*', 'extensions/*'],
-  extend(kind, { rollupOptions, tsconfig, packageJson, packageRoot }) {
-    if (kind === 'dts') {
-      if (packageJson.name === '@vuedx/compiler-sfc') {
-        rollupOptions.onwarn = (warning, warn) => {
-          if (warning.code === 'UNUSED_EXTERNAL_IMPORT') return // Some imports are left unused after rewriting cjs to esm
-          warn(warning)
+const configs = ['packages/*', 'extensions/*'].flatMap((pattern) => {
+  return generateRollupOptions({
+    dirPatterns: [pattern],
+    extend({ rollupOptions: options, tsconfig, packageJson, packageRoot }) {
+      if (options.input.endsWith('.d.ts')) {
+        return {
+          ...options,
+          plugins: [dts()],
         }
       }
 
-      return rollupOptions
-    }
-
-    const config = {
-      ...rollupOptions,
-      external: [
-        ...rollupOptions.external.filter((id) => id !== '@vue/compiler-core'),
-        '@vue/compiler-core/dist/compiler-core.cjs.js',
-      ],
-      plugins: [
-        json(),
-        define(),
-        alias({
-          entries: [
-            {
-              find: /^@vue\/compiler-core$/,
-              replacement: '@vue/compiler-core/dist/compiler-core.cjs.js',
-            },
-          ],
-        }),
-        resolve({ preferBuiltins: true }),
-        typescript({
-          tsconfig: tsconfig ? tsconfig.configFile : undefined,
-          rootDir: packageRoot,
-        }),
-        commonjs({ transformMixedEsModules: true }),
-      ],
-    }
-
-    if (packageJson.name === '@vuedx/compiler-sfc') {
-      config.plugins.splice(1, 0, processVueSFC())
-      config.treeshake = {
-        moduleSideEffects: () => false,
+      if (tsconfig?.configFile == null) {
+        throw new Error(`${packageJson.name} does not have a tsconfig.json`)
       }
-    }
 
-    return config
-  },
+      const config = {
+        ...options,
+        plugins: [
+          resolve(),
+          commonjs(),
+          typescript({
+            tsconfig: tsconfig?.configFile,
+            compilerOptions: {
+              declaration: true,
+              declarationMap: true,
+              declarationDir: 'types',
+            },
+          }),
+          ...options.plugins,
+          json(),
+          define(packageJson.version ?? ''),
+          compiler()
+        ],
+      }
+
+      if (packageJson.name === '@vuedx/compiler-sfc') {
+        config.plugins.splice(1, 0, processVueSFC())
+        config.treeshake = {
+          moduleSideEffects: () => false,
+        }
+        config.onwarn = (warning, defaultHandler) => {
+          if (
+            warning.code === 'UNUSED_EXTERNAL_IMPORT' &&
+            warning.source === 'lru-cache'
+          )
+            return
+
+          defaultHandler(warning)
+        }
+      }
+
+      return config
+    },
+  })
 })
 
 // console.log(require('util').inspect(configs, false, 6))
 
 export default configs
+
+/**
+ *
+ * @returns {import('rollup').Plugin}
+ */
+function compiler() {
+  return {
+    name: 'vue/compiler',
+    generateBundle(options, bundle) {
+      Object.values(bundle).forEach((chunk) => {
+        if (chunk.type === 'chunk') {
+          if (chunk.code.includes('@vue/compiler-core')) {
+            chunk.code = chunk.code.replace(
+              /@vue\/compiler-core/g,
+              '@vue/compiler-core/dist/compiler-core.cjs.js',
+            )
+          }
+        }
+      })
+    },
+  }
+}

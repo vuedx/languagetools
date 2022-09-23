@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node'
-import { machineSync } from 'node-unique-machine-id'
 import { platform } from 'os'
 import { inspect } from 'util'
 
@@ -54,14 +53,12 @@ export class Telemetry {
   }
 
   private getUserId(): string {
-    try {
-      return machineSync(false, true)
-    } catch {
-      return ''
-    }
+    return ''
   }
 
-  measure(_name: string, _duration: number): void {}
+  measure(name: string, duration: number): void {
+    console.debug(`[measure] ${name}: ${Math.trunc(duration)}ms`)
+  }
 
   trace(name: string, description?: string): () => void {
     if (!this.isTelemetryEnabled) return () => {}
@@ -146,9 +143,17 @@ export class Telemetry {
   private static _instance?: Telemetry
   static get instance(): Telemetry {
     if (this._instance == null) {
-      throw new Error(
-        'Use "Telemetry.setup()" to instantiate telemetry client.',
-      )
+      if (process.env['JEST_WORKER_ID'] != null) {
+        this._instance = new Telemetry('', {
+          release: '',
+          environment: '',
+          tracesSampleRate: 0,
+        })
+      } else {
+        throw new Error(
+          'Use "Telemetry.setup()" to instantiate telemetry client.',
+        )
+      }
     }
 
     return this._instance

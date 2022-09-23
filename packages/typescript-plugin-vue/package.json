@@ -4,10 +4,7 @@
   "description": "TypeScript plugin for Vue",
   "main": "index.js",
   "module": "lib/standalone.mjs",
-  "types": "src/index.ts",
-  "publishConfig": {
-    "types": "lib/index.d.ts"
-  },
+  "types": "lib/index.d.ts",
   "files": [
     "lib",
     "runtime"
@@ -17,26 +14,34 @@
     "sources": {
       "src/index.ts": [
         {
-          "format": "dts",
-          "file": "lib/index.d.ts"
-        },
-        {
-          "format": "commonjs",
-          "file": "lib/standalone.js",
-          "bundle": true
+          "format": "module",
+          "file": "lib/standalone.cjs",
+          "bundle": {
+            "platform": "node",
+            "format": "cjs",
+            "external": [
+              "typescript",
+              "typescript/lib/tsserverlibrary"
+            ]
+          }
         },
         {
           "format": "module",
           "file": "lib/standalone.mjs",
-          "bundle": true
+          "bundle": {
+            "platform": "node",
+            "format": "esm",
+            "external": [
+              "typescript",
+              "typescript/lib/tsserverlibrary"
+            ]
+          }
         }
       ]
     },
     "external": [
       "typescript",
-      "typescript/lib/tsserverlibrary",
-      "@vuedx/shared",
-      "@vuedx/vue-languageservice"
+      "typescript/lib/tsserverlibrary"
     ]
   },
   "private": false,
@@ -60,10 +65,11 @@
     "url": "https://github.com/znck/vue-developer-experience/issues"
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
-  "dependencies": {},
-  "devDependencies": {
+  "dependencies": {
     "@vuedx/shared": "workspace:*",
-    "@vuedx/vue-languageservice": "workspace:*",
+    "@vuedx/vue-languageservice": "workspace:*"
+  },
+  "devDependencies": {
     "typescript": "^4.6.3"
   }
 }

@@ -1,4 +1,4 @@
-import { flatten, isNotNull, parseFileName } from '@vuedx/shared'
+import { flatten, invariant } from '@vuedx/shared'
 import glob from 'fast-glob'
 import * as FS from 'fs'
 import * as Path from 'path'
@@ -41,14 +41,24 @@ export class AbortController {
   }
 }
 
-export async function* getDiagnostics(
+export async function* getDiagnosticsStream(
   directory: string,
-  cancellationToken: AbortSignal,
+  cancellationToken: AbortSignal | null,
   logging: boolean = false,
-): AsyncGenerator<Diagnostics, Diagnostics> {
+  filter: (fileName: string) => boolean = () => true,
+): AsyncGenerator<
+  {
+    fileName: string
+    diagnostics: ts.server.protocol.Diagnostic[]
+  },
+  Diagnostics
+> {
+  const debug: typeof console.debug = logging ? console.debug : () => {}
   const host = new TypeScriptServerHost()
-  cancellationToken.onabort = async () => {
-    await host.close()
+  if (cancellationToken != null) {
+    cancellationToken.onabort = async () => {
+      await host.close()
+    }
   }
   const projectRootPath = toNormalizedPath(directory)
   const diagnosticsPerFile = new Map<
@@ -65,13 +75,26 @@ export async function* getDiagnostics(
     kind: 'semantic' | 'syntax' | 'suggestion',
     diagnostics: ts.server.protocol.Diagnostic[],
   ): void {
-    if (fileName.includes('/node_modules/')) return
-    if (diagnostics.length > 0) {
-      const current = diagnosticsPerFile.get(fileName) ?? {}
-      diagnosticsPerFile.set(fileName, {
-        ...current,
-        [kind]: diagnostics,
-      })
+    debug(`[diagnostics] ${kind} ${fileName}`)
+    const current = {
+      ...(diagnosticsPerFile.get(fileName) ?? {}),
+      [kind]: diagnostics,
+    }
+    diagnosticsPerFile.set(fileName, current)
+
+    if (
+      current.semantic != null &&
+      current.syntax != null &&
+      current.suggestion != null
+    ) {
+      const all = merge(current.semantic, current.syntax, current.suggestion)
+      if (all.length > 0) {
+        results.push({ fileName, diagnostics: all })
+        debug(`Completed ${fileName}. ${all.length} issue(s).`)
+      } else {
+        debug(`Completed ${fileName}. No issues.`)
+      }
+      pending.delete(fileName)
     }
   }
   const pack = (): Diagnostics =>
@@ -86,88 +109,48 @@ export async function* getDiagnostics(
       }))
       .filter((item) => item.diagnostics.length > 0)
 
-  let useProject: boolean = true
-  const refresh = async (files: string[]): Promise<Diagnostics> => {
-    diagnosticsPerFile.clear()
-    const start = Date.now()
-    if (logging) console.log(`Checking...`)
-    const id =
-      useProject && files[0] != null
-        ? await host.sendCommand('geterrForProject', {
-            file: files[0],
-            delay: 1,
-          })
-        : await host.sendCommand('geterr', { files, delay: 1 })
-
-    return await new Promise((resolve) => {
-      const off = host.on('requestCompleted', async (event) => {
-        if (event.request_seq === id) {
-          if (logging) {
-            console.log(
-              `Completed in ${((Date.now() - start) / 1000).toFixed(2)}s`,
-            )
-          }
-          resolve(pack())
-          off()
-        }
-      })
-    })
-  }
   await host.sendCommand('configure', {
     hostInfo: '@vuedx/typecheck',
     preferences: { disableSuggestions: false },
   })
 
   let files: string[]
+  let projectFileName: string | undefined
   const jsConfig = Path.resolve(directory, 'jsconfig.json')
   const tsConfig = Path.resolve(directory, 'tsconfig.json')
   if (FS.existsSync(tsConfig) || FS.existsSync(jsConfig)) {
-    useProject = true
-    const configFile = FS.existsSync(tsConfig) ? tsConfig : jsConfig
+    projectFileName = FS.existsSync(tsConfig) ? tsConfig : jsConfig
+    debug('Using project', projectFileName)
     await host.sendCommand('updateOpen', {
       openFiles: [
         {
-          file: toNormalizedPath(configFile),
+          file: toNormalizedPath(projectFileName),
           projectRootPath,
         },
       ],
     })
 
     const { body } = await host.sendCommand('projectInfo', {
-      file: toNormalizedPath(configFile),
-      projectFileName: toNormalizedPath(configFile),
+      file: toNormalizedPath(projectFileName),
+      projectFileName: toNormalizedPath(projectFileName),
       needFileNameList: true,
     })
 
-    files = Array.from(
-      new Set(
-        (body?.fileNames ?? [])
-          .map((fileName) => {
-            if (
-              fileName.includes('/node_modules/') ||
-              fileName.endsWith('.json')
-            ) {
-              return null
-            }
+    invariant(body != null, 'Project info is null.')
+    invariant(body.fileNames != null, 'Project has no files.')
 
-            return parseFileName(fileName).fileName
-          })
-          .filter(isNotNull),
-      ),
-    )
+    files = body.fileNames.filter((fileName) => {
+      if (
+        fileName.includes('/node_modules/') ||
+        fileName.endsWith('.json') ||
+        fileName.endsWith('.vue.tsx') ||
+        fileName.endsWith('.vue.jsx')
+      ) {
+        return false
+      }
 
-    if (files.length > 0) {
-      await host.sendCommand('updateOpen', {
-        closedFiles: [toNormalizedPath(configFile)],
-      })
-      const projectFileName = toNormalizedPath(configFile)
-      await host.sendCommand('updateOpen', {
-        openFiles: files.map((file) => ({
-          file: toNormalizedPath(file),
-          projectFileName,
-        })),
-      })
-    }
+      return filter(fileName)
+    })
   } else {
     await host.sendCommand('compilerOptionsForInferredProjects', {
       options: {
@@ -186,28 +169,14 @@ export async function* getDiagnostics(
         absolute: true,
         ignore: ['node_modules', 'dist'],
       })
-    ).map((fileName) => toNormalizedPath(fileName))
+    )
+      .filter(filter)
+      .map((fileName) => toNormalizedPath(fileName))
 
-    await host.sendCommand('updateOpen', {
-      openFiles: files.map((file) => ({ file, projectRootPath })),
-    })
+    debug('Using inferred project', directory)
   }
 
-  let done: (result: Diagnostics) => void
-  let promise = new Promise<Diagnostics>((resolve) => {
-    done = resolve
-    void refresh(files).then(done)
-  })
-
-  const next = (): void => {
-    promise = new Promise((resolve) => {
-      done = resolve
-    })
-  }
-
-  host.on('projectsUpdatedInBackground', async () => {
-    done(await refresh(files))
-  })
+  debug(`found ${files.length} files`)
 
   host.on('semanticDiag', (event) => {
     setDiagnostics(event.file, 'semantic', event.diagnostics)
@@ -221,21 +190,56 @@ export async function* getDiagnostics(
     setDiagnostics(event.file, 'suggestion', event.diagnostics)
   })
 
-  while (!cancellationToken.aborted) {
-    yield await promise
-    next()
+  const pending = new Set<string>(files)
+  const results: Diagnostics = []
+
+  void Promise.all(
+    files.map(async (file) => {
+      await host.sendCommand('updateOpen', {
+        openFiles: [
+          {
+            file,
+            projectRootPath,
+            projectFileName,
+          },
+        ],
+      })
+      await host.sendCommand('geterr', { files, delay: 1 })
+    }),
+  )
+
+  while (
+    cancellationToken == null ? pending.size > 0 : !cancellationToken.aborted
+  ) {
+    const result = results.shift()
+    if (result != null) {
+      debug(`Yielding ${result.fileName}`)
+      yield result
+    }
+    if (pending.size === 0) break
+    else {
+      debug(`Waiting for ${pending.size} files`)
+      await new Promise((resolve) => setTimeout(resolve, 100))
+    }
   }
+
+  debug(`Done.`)
+
+  await host.close()
 
   return pack()
 }
 
-export async function getDiagnostics2(directory: string): Promise<Diagnostics> {
-  const controller = new AbortController()
-  const stream = getDiagnostics(directory, controller.signal)
-  const result = await stream.next()
-  await controller.abort()
-
-  return result.value
+export async function getDiagnostics(directory: string): Promise<Diagnostics> {
+  const stream = getDiagnosticsStream(
+    directory,
+    null,
+    process.env['DEBUG'] != null,
+  )
+  let next: IteratorResult<Diagnostics[0], Diagnostics>
+  while ((next = await stream.next()).done === false);
+  invariant(next.done === true, 'Stream should be done.')
+  return next.value
 }
 
 function merge<T>(...items: Array<T[] | undefined>): T[] {

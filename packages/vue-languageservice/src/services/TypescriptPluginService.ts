@@ -1,4 +1,4 @@
-import { cache, debug, toFileName } from '@vuedx/shared'
+import { cache, debug, invariant } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import type {
   ExtendedTSLanguageService,
@@ -33,7 +33,8 @@ import { TypescriptContextService } from './TypescriptContextService'
 
 @injectable()
 export class TypescriptPluginService
-  implements Partial<ExtendedTSLanguageService> {
+  implements Partial<ExtendedTSLanguageService>
+{
   //#region setup
   private readonly logger = LoggerService.getLogger(
     TypescriptPluginService.name,
@@ -88,6 +89,22 @@ export class TypescriptPluginService
         this.languages.registerLanguageService(language, service)
       })
     })
+
+    if (Math.random() > 1) {
+      console.log([
+        this.classifications,
+        this.codeFix,
+        this.completions,
+        this.definitions,
+        this.folding,
+        this.implementation,
+        this.quickInfo,
+        this.refactor,
+        this.references,
+        this.rename,
+        this.signature,
+      ])
+    }
   }
   //#endregion
 
@@ -97,80 +114,98 @@ export class TypescriptPluginService
     return this.#isVueProject
   }
 
+  public getScriptFileNames(all: string[]): string[] {
+    const isTypeScript = this.ts.isTypeScriptProject
+    const output = new Set<string>(all)
+
+    const ext = isTypeScript ? 'tsx' : 'jsx'
+    all.forEach((fileName) => {
+      if (!this.fs.isVueFile(fileName)) return
+      if (!this.ts.serverHost.fileExists(fileName)) return
+      const generatedFileName = `${fileName}.${ext}`
+
+      if (this.ts.project.getScriptInfo(fileName) == null) {
+        const scriptInfo =
+          this.ts.projectService.getOrCreateScriptInfoForNormalizedPath(
+            this.ts.toNormalizedPath(fileName),
+            false,
+          )
+
+        invariant(scriptInfo != null, "Couldn't create script info")
+        if (scriptInfo.attachToProject(this.ts.project)) {
+          this.ts.project.markAsDirty()
+        }
+      }
+
+      if (this.ts.project.getScriptInfo(generatedFileName) == null) {
+        this.logger.debug(`Creating generated .vue file: ${generatedFileName}`)
+        const scriptInfo =
+          this.ts.projectService.getOrCreateScriptInfoForNormalizedPath(
+            this.ts.toNormalizedPath(generatedFileName),
+            false,
+          )
+
+        invariant(scriptInfo != null, "Couldn't create script info")
+        if (scriptInfo.attachToProject(this.ts.project)) {
+          this.ts.project.markAsDirty()
+        }
+      }
+
+      output.add(generatedFileName)
+      output.add(this.ts.getProjectRuntimeFileNameFor(fileName))
+    })
+
+    return Array.from(output)
+  }
+
   @cache((_args, { ts }: TypescriptPluginService) => {
     ts.project.getLanguageService(true) // triggers updateGraph if project is dirty
     return ts.project.getProjectVersion()
   })
   public getExternalFiles(): string[] {
-    let hasVirtualSchemeFiles = false
-    const allFileNames: string[] = this.ts.project.getFileNames(true, true)
-    const vueFileNames = new Set<string>()
-    const virtualFileNames = new Set<string>()
+    const all: string[] = this.ts.project.getFileNames(true, true)
+    const vue = new Set<string>()
+    const virtual = new Set<string>()
 
-    if (this.ts.isConfugeredProject(this.ts.project)) {
+    if (this.ts.isConfiguredProject(this.ts.project)) {
       const options = this.ts.project.getParsedCommandLine?.(
         this.ts.project.getConfigFilePath(),
       )
 
-      if (options != null) allFileNames.push(...options.fileNames)
+      if (options != null) all.push(...options.fileNames)
     }
 
-    for (const fileName of allFileNames) {
-      if (this.fs.isVueSchemeFile(fileName)) {
-        const realProject = this.ts.getProjectFor(
-          this.fs.getRealFileName(fileName),
-        )
-        if (realProject != null) {
-          this.ts.project.getScriptInfo(fileName)?.attachToProject(realProject)
-        }
-
-        hasVirtualSchemeFiles = realProject !== this.ts.project
+    for (const fileName of all) {
+      if (fileName.charAt(0) === '^') {
+        // ignore typescript virtual files
       } else if (this.fs.isVueFile(fileName)) {
-        vueFileNames.add(this.fs.getRealFileName(fileName))
-      } else if (
-        this.fs.isVueTsFile(fileName) ||
-        this.fs.isVueVirtualFile(fileName)
-      ) {
-        vueFileNames.add(this.fs.getRealFileName(fileName))
-        // virtualFileNames.add(fileName)
+        vue.add(fileName)
+      } else if (this.fs.isGeneratedVueFile(fileName)) {
+        vue.add(this.fs.getRealFileNameIfAny(fileName))
       } else if (this.fs.isProjectRuntimeFile(fileName)) {
-        virtualFileNames.add(fileName)
+        virtual.add(fileName)
       }
     }
 
-    if (this.ts.isInferredProject(this.ts.project) && hasVirtualSchemeFiles) {
+    if (vue.size === 0) {
       this.#isVueProject = false
-      return [] // do not retain any files for inferred projects containing virtual scheme files
-    }
-
-    vueFileNames.forEach((fileName) => {
-      if (!this.ts.serverHost.fileExists(fileName)) return
-      const tsFileName = toFileName({ type: 'vue-ts', fileName })
-
-      this.ts.ensureProject(fileName)
-      this.ts.ensureProject(tsFileName)
-
-      this.fs
-        .getVueFile(fileName)
-        ?.getActiveTSDocIDs()
-        .forEach((fileName) => virtualFileNames.add(fileName))
-
-      virtualFileNames.add(tsFileName)
-      virtualFileNames.add(this.ts.getProjectRuntimeFileName(fileName))
-    })
-
-    if (vueFileNames.size === 0) {
-      this.#isVueProject = false
+      this.logger.debug('Not a Vue project')
       return [] // do not retain any files if no .vue files
     }
 
     this.#isVueProject = true
-    const fileNames = Array.from(vueFileNames).concat(
-      Array.from(virtualFileNames),
-    )
+    const fileNames = [...this.getScriptFileNames([...vue]), ...virtual]
 
+    this.logger.debug(`Project: ${this.ts.project.getProjectName()}`)
     this.logger.debug(`External files:`, fileNames)
-    this.logger.debug('Open files:', this.ts.projectService.openFiles)
+    this.logger.debug(
+      'Open external files:',
+      fileNames.filter((fileName) =>
+        this.ts.projectService.openFiles.has(
+          this.ts.toNormalizedPath(fileName),
+        ),
+      ),
+    )
 
     return fileNames
   }
@@ -179,45 +214,76 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
   ): TypeScript.LineAndCharacter {
-    if (this.fs.isVueSchemeFile(fileName)) {
-      fileName = this.fs.getRealFileName(fileName)
-
-      return (
-        this.fs.getFile(fileName)?.positionAt(position) ?? {
-          line: 0,
-          character: position,
+    if (this.fs.isGeneratedVueFile(fileName)) {
+      const file = this.fs.getVueFile(fileName)
+      if (file != null) {
+        const originalPosition = file.findOriginalTextSpan({
+          start: position,
+          length: 1,
+        })
+        if (originalPosition != null) {
+          return file.original.positionAt(originalPosition.start)
         }
-      )
+      }
     }
 
-    return (
-      this.ts.service.toLineColumnOffset?.(fileName, position) ?? {
-        line: 0,
-        character: position,
-      }
-    )
+    if (this.ts.service.toLineColumnOffset == null) {
+      return { line: 0, character: position }
+    }
+
+    return this.ts.service.toLineColumnOffset(fileName, position)
   }
   //#endregion
 
-  //#region diagnotics
+  //#region diagnostics
   public getCompilerOptionsDiagnostics(): TypeScript.Diagnostic[] {
     return this.diagnostics.getCompilerOptionsDiagnostics()
   }
 
   public getSemanticDiagnostics(fileName: string): TypeScript.Diagnostic[] {
-    return this.diagnostics.getSemanticDiagnostics(fileName)
+    return this.pick(
+      fileName,
+      () => this.diagnostics.getSemanticDiagnostics(fileName),
+      () =>
+        this.ts.service
+          .getSemanticDiagnostics(fileName)
+          .flatMap((diagnostic) =>
+            this.diagnostics.processDiagnostic(diagnostic),
+          ),
+    )
   }
 
   public getSyntacticDiagnostics(
     fileName: string,
   ): TypeScript.DiagnosticWithLocation[] {
-    return this.diagnostics.getSyntacticDiagnostics(fileName)
+    return this.pick(
+      fileName,
+      () => [
+        ...this.diagnostics.getSyntacticDiagnostics(fileName),
+        ...this.diagnostics.getVueCompilerDiagnostic(fileName),
+      ],
+      () =>
+        this.ts.service
+          .getSyntacticDiagnostics(fileName)
+          .flatMap((diagnostic) =>
+            this.diagnostics.processDiagnostic(diagnostic),
+          ),
+    )
   }
 
   public getSuggestionDiagnostics(
     fileName: string,
   ): TypeScript.DiagnosticWithLocation[] {
-    return this.diagnostics.getSuggestionDiagnostics(fileName)
+    return this.pick(
+      fileName,
+      () => this.diagnostics.getSuggestionDiagnostics(fileName),
+      () =>
+        this.ts.service
+          .getSuggestionDiagnostics(fileName)
+          .flatMap((diagnostic) =>
+            this.diagnostics.processDiagnostic(diagnostic),
+          ),
+    )
   }
   //#endregion
 
@@ -226,21 +292,55 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
   ): readonly TypeScript.DefinitionInfo[] | undefined {
-    return this.definitions.getDefinitionAtPosition(fileName, position)
+    return this.pick(
+      fileName,
+      () => this.definitions.getDefinitionAtPosition(fileName, position),
+      () =>
+        this.ts.service
+          .getDefinitionAtPosition(fileName, position)
+          ?.flatMap((definition) =>
+            this.definitions.processDefinitionInfo(definition),
+          ),
+    )
   }
 
   public getTypeDefinitionAtPosition(
     fileName: string,
     position: number,
   ): readonly TypeScript.DefinitionInfo[] | undefined {
-    return this.definitions.getTypeDefinitionAtPosition(fileName, position)
+    return this.pick(
+      fileName,
+      () => this.definitions.getTypeDefinitionAtPosition(fileName, position),
+      () =>
+        this.ts.service
+          .getTypeDefinitionAtPosition(fileName, position)
+          ?.flatMap((definition) =>
+            this.definitions.processDefinitionInfo(definition),
+          ),
+    )
   }
 
   public getDefinitionAndBoundSpan(
     fileName: string,
     position: number,
   ): TypeScript.DefinitionInfoAndBoundSpan | undefined {
-    return this.definitions.getDefinitionAndBoundSpan(fileName, position)
+    return this.pick(
+      fileName,
+      () => this.definitions.getDefinitionAndBoundSpan(fileName, position),
+      () => {
+        const result = this.ts.service.getDefinitionAndBoundSpan(
+          fileName,
+          position,
+        )
+        if (result == null) return
+        return {
+          ...result,
+          definitions: result.definitions?.flatMap((definition) =>
+            this.definitions.processDefinitionInfo(definition),
+          ),
+        }
+      },
+    )
   }
   //#endregion
 
@@ -249,7 +349,11 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
   ): TypeScript.QuickInfo | undefined {
-    return this.quickInfo.getQuickInfoAtPosition(fileName, position)
+    return this.pick(
+      fileName,
+      () => this.quickInfo.getQuickInfoAtPosition(fileName, position),
+      () => this.ts.service.getQuickInfoAtPosition(fileName, position),
+    )
   }
   //#endregion
 
@@ -259,10 +363,12 @@ export class TypescriptPluginService
     position: number,
     options: TypeScript.GetCompletionsAtPositionOptions | undefined,
   ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
-    return this.completions.getCompletionsAtPosition(
+    return this.pick(
       fileName,
-      position,
-      options,
+      () =>
+        this.completions.getCompletionsAtPosition(fileName, position, options),
+      () =>
+        this.ts.service.getCompletionsAtPosition(fileName, position, options),
     )
   }
 
@@ -278,7 +384,8 @@ export class TypescriptPluginService
     preferences: TypeScript.UserPreferences | undefined,
     data: TypeScript.CompletionEntryData | undefined,
   ): TypeScript.CompletionEntryDetails | undefined {
-    return this.completions.getCompletionEntryDetails(
+    if (this.fs.isVueFile(fileName)) return
+    return this.ts.service.getCompletionEntryDetails(
       fileName,
       position,
       entryName,
@@ -295,7 +402,8 @@ export class TypescriptPluginService
     name: string,
     source: string | undefined,
   ): TypeScript.Symbol | undefined {
-    return this.completions.getCompletionEntrySymbol(
+    if (this.fs.isVueFile(fileName)) return
+    return this.ts.service.getCompletionEntrySymbol(
       fileName,
       position,
       name,
@@ -308,7 +416,8 @@ export class TypescriptPluginService
     position: number,
     options?: TypeScript.DocCommentTemplateOptions,
   ): TypeScript.TextInsertion | undefined {
-    return this.completions.getDocCommentTemplateAtPosition(
+    if (this.fs.isVueFile(fileName)) return
+    return this.ts.service.getDocCommentTemplateAtPosition(
       fileName,
       position,
       options,
@@ -319,7 +428,8 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
   ): TypeScript.JsxClosingTagInfo | undefined {
-    return this.completions.getJsxClosingTagAtPosition(fileName, position)
+    if (this.fs.isVueFile(fileName)) return
+    return this.ts.service.getJsxClosingTagAtPosition(fileName, position)
   }
   //#endregion
 
@@ -328,10 +438,8 @@ export class TypescriptPluginService
     fileName: string,
     span: TypeScript.TextSpan,
   ): TypeScript.Classifications {
-    return this.classifications.getEncodedSyntacticClassifications(
-      fileName,
-      span,
-    )
+    if (this.fs.isVueFile(fileName)) return { spans: [], endOfLineState: 0 }
+    return this.ts.service.getEncodedSyntacticClassifications(fileName, span)
   }
 
   public getEncodedSemanticClassifications(
@@ -339,7 +447,8 @@ export class TypescriptPluginService
     span: TypeScript.TextSpan,
     format?: TypeScript.SemanticClassificationFormat,
   ): TypeScript.Classifications {
-    return this.classifications.getEncodedSemanticClassifications(
+    if (this.fs.isVueFile(fileName)) return { spans: [], endOfLineState: 0 }
+    return this.ts.service.getEncodedSemanticClassifications(
       fileName,
       span,
       format,
@@ -352,7 +461,8 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
   ): TypeScript.ReferenceEntry[] | undefined {
-    return this.references.getReferencesAtPosition(fileName, position)
+    if (this.fs.isVueFile(fileName)) return
+    return this.ts.service.getReferencesAtPosition(fileName, position)
   }
 
   @debug()
@@ -360,11 +470,13 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
   ): TypeScript.ReferencedSymbol[] | undefined {
-    return this.references.findReferences(fileName, position)
+    if (this.fs.isVueFile(fileName)) return
+    return this.ts.service.findReferences(fileName, position)
   }
 
   public getFileReferences(fileName: string): TypeScript.ReferenceEntry[] {
-    return this.references.getFileReferences(fileName)
+    if (this.fs.isVueFile(fileName)) return []
+    return this.ts.service.getFileReferences(fileName)
   }
   //#endregion
 
@@ -373,7 +485,8 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
   ): readonly TypeScript.ImplementationLocation[] | undefined {
-    return this.implementation.getImplementationAtPosition(fileName, position)
+    if (this.fs.isVueFile(fileName)) return
+    return this.ts.service.getImplementationAtPosition(fileName, position)
   }
   //#endregion
 
@@ -420,7 +533,8 @@ export class TypescriptPluginService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences | undefined,
   ): readonly TypeScript.FileTextChanges[] {
-    return this.refactor.organizeImports(args, formatOptions, preferences)
+    if (this.fs.isVueFile(args.fileName)) return []
+    return this.ts.service.organizeImports(args, formatOptions, preferences)
   }
 
   public toggleLineComment(
@@ -460,9 +574,16 @@ export class TypescriptPluginService
   public getRenameInfo(
     fileName: string,
     position: number,
-    options?: TypeScript.RenameInfoOptions,
+    preferences: TypeScript.UserPreferences,
   ): TypeScript.RenameInfo {
-    return this.rename.getRenameInfo(fileName, position, options)
+    if (this.fs.isVueFile(fileName)) {
+      return {
+        canRename: false,
+        localizedErrorMessage: 'Cannot rename in .vue files',
+      }
+    }
+
+    return this.ts.service.getRenameInfo(fileName, position, preferences)
   }
 
   public findRenameLocations(
@@ -472,7 +593,8 @@ export class TypescriptPluginService
     findInComments: boolean,
     providePrefixAndSuffixTextForRename?: boolean,
   ): readonly TypeScript.RenameLocation[] | undefined {
-    return this.rename.findRenameLocations(
+    if (this.fs.isVueFile(fileName)) return
+    return this.ts.service.findRenameLocations(
       fileName,
       position,
       findInStrings,
@@ -487,7 +609,8 @@ export class TypescriptPluginService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences | undefined,
   ): readonly TypeScript.FileTextChanges[] {
-    return this.rename.getEditsForFileRename(
+    if (this.fs.isVueFile(oldFilePath)) return []
+    return this.ts.service.getEditsForFileRename(
       oldFilePath,
       newFilePath,
       formatOptions,
@@ -505,7 +628,8 @@ export class TypescriptPluginService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences,
   ): readonly TypeScript.CodeFixAction[] {
-    return this.codeFix.getCodeFixesAtPosition(
+    if (this.fs.isVueFile(fileName)) return []
+    return this.ts.service.getCodeFixesAtPosition(
       fileName,
       start,
       end,
@@ -521,7 +645,8 @@ export class TypescriptPluginService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences,
   ): TypeScript.CombinedCodeActions {
-    return this.codeFix.getCombinedCodeFix(
+    if (this.fs.isVueFile(scope.fileName)) return { changes: [] }
+    return this.ts.service.getCombinedCodeFix(
       scope,
       fixId,
       formatOptions,
@@ -532,7 +657,8 @@ export class TypescriptPluginService
 
   //#region folding
   public getOutliningSpans(fileName: string): TypeScript.OutliningSpan[] {
-    return this.folding.getOutliningSpans(fileName)
+    if (this.fs.isVueFile(fileName)) return []
+    return this.ts.service.getOutliningSpans(fileName)
   }
   //#endregion
 
@@ -583,14 +709,16 @@ export class TypescriptPluginService
     position: number,
     options: TypeScript.SignatureHelpItemsOptions,
   ): TypeScript.SignatureHelpItems | undefined {
-    return this.signature.getSignatureHelpItems(fileName, position, options)
+    if (this.fs.isVueFile(fileName)) return
+    return this.ts.service.getSignatureHelpItems(fileName, position, options)
   }
 
   public prepareCallHierarchy(
     fileName: string,
     position: number,
   ): TypeScript.CallHierarchyItem | TypeScript.CallHierarchyItem[] | undefined {
-    return this.signature.prepareCallHierarchy(fileName, position)
+    if (this.fs.isVueFile(fileName)) return
+    return this.ts.service.prepareCallHierarchy(fileName, position)
   }
 
   public provideCallHierarchyIncomingCalls(
@@ -598,7 +726,7 @@ export class TypescriptPluginService
     position: number,
   ): TypeScript.CallHierarchyIncomingCall[] {
     if (this.fs.isVueFile(fileName)) return []
-    return this.signature.provideCallHierarchyIncomingCalls(fileName, position)
+    return this.ts.service.provideCallHierarchyIncomingCalls(fileName, position)
   }
 
   public provideCallHierarchyOutgoingCalls(
@@ -606,14 +734,14 @@ export class TypescriptPluginService
     position: number,
   ): TypeScript.CallHierarchyOutgoingCall[] {
     if (this.fs.isVueFile(fileName)) return []
-    return this.signature.provideCallHierarchyOutgoingCalls(fileName, position)
+    return this.ts.service.provideCallHierarchyOutgoingCalls(fileName, position)
   }
 
   public getBraceMatchingAtPosition(
     fileName: string,
     position: number,
   ): TypeScript.TextSpan[] {
-    return this.signature.getBraceMatchingAtPosition(fileName, position)
+    return this.ts.service.getBraceMatchingAtPosition(fileName, position)
   }
 
   public isValidBraceCompletionAtPosition(
@@ -621,7 +749,8 @@ export class TypescriptPluginService
     position: number,
     openingBrace: number,
   ): boolean {
-    return this.signature.isValidBraceCompletionAtPosition(
+    if (this.fs.isVueFile(fileName)) return false
+    return this.ts.service.isValidBraceCompletionAtPosition(
       fileName,
       position,
       openingBrace,
@@ -633,7 +762,8 @@ export class TypescriptPluginService
     startPos: number,
     endPos: number,
   ): TypeScript.TextSpan | undefined {
-    return this.signature.getNameOrDottedNameSpan(fileName, startPos, endPos)
+    if (this.fs.isVueFile(fileName)) return
+    return this.ts.service.getNameOrDottedNameSpan(fileName, startPos, endPos)
   }
   //#endregion
 
@@ -643,7 +773,6 @@ export class TypescriptPluginService
     filesToSearch: string[],
   ): TypeScript.DocumentHighlights[] | undefined {
     if (this.fs.isVueFile(fileName)) return []
-    if (this.fs.isVueSchemeFile(fileName)) return []
 
     return this.ts.service.getDocumentHighlights(
       fileName,
@@ -657,13 +786,7 @@ export class TypescriptPluginService
     emitOnlyDtsFiles?: boolean,
     forceDtsEmit?: boolean,
   ): TypeScript.EmitOutput {
-    if (
-      this.fs.isVueFile(fileName) ||
-      this.fs.isVueSchemeFile(fileName) ||
-      this.fs.isVueRuntimeFile(fileName) ||
-      this.fs.isProjectRuntimeFile(fileName) ||
-      this.fs.isVueVirtualFile(fileName)
-    ) {
+    if (this.fs.isVueFile(fileName)) {
       return { outputFiles: [], emitSkipped: true }
     }
 
@@ -750,5 +873,14 @@ export class TypescriptPluginService
   public dispose(): void {
     this.ipc.dispose()
     this.ts.service.dispose()
+  }
+
+  private pick<R>(
+    fileName: string,
+    forVueFile: () => R,
+    forOtherFiles: () => R,
+  ): R {
+    if (this.fs.isVueFile(fileName)) return forVueFile()
+    else return forOtherFiles()
   }
 }

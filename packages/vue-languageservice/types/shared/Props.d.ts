@@ -1,31 +1,16 @@
-import {
-  AllowedComponentProps,
-  ComponentCustomProps,
-  VNodeProps,
-  ExtractPropTypes,
-  DefineComponent,
-} from '@vue/runtime-core'
 import type { KnownKeys } from './utils'
 
-type ComponentLike<T> = new (...args: unknown[]) => { $props: T }
+type Instantiate<T> = T extends new (...args: any) => infer R ? R : never
 
-export type PropsOf<T> = T extends ComponentLike<infer Props>
+export type PropsOf<IntrinsicElements, T> = T extends KnownKeys<
+  keyof IntrinsicElements
+>
+  ? IntrinsicElements[T]
+  : Instantiate<T> extends {
+      $props: infer Props
+    }
   ? Props
-  : T extends (props: infer Props) => unknown
-  ? Props
-  : T extends DefineComponent<infer PropsOrPropOptions>
-  ? ExtractPropTypes<PropsOrPropOptions>
-  : T extends KnownKeys<keyof JSX.IntrinsicElements>
-  ? JSX.IntrinsicElements[T]
-  : AllowedComponentProps & ComponentCustomProps & VNodeProps
+  : never
 
-export type AttrsOf<T> = T extends KnownKeys<keyof JSX.IntrinsicElements>
-  ? JSX.IntrinsicElements[T]
-  : {}
-
-export type MergeAttrs<P, A> = P & Omit<A, keyof KnownKeys<P>>
-
-export function propCompletionHelper<T>(
-  propName: keyof PropsOf<T>,
-  tagOrComponent: T,
-): any
+export type MergeAttrs<Props, Attrs> = Props &
+  Omit<Attrs, keyof KnownKeys<Props>>

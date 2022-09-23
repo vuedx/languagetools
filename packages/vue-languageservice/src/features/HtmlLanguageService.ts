@@ -214,14 +214,12 @@ export class VueSfcLanguageService extends HtmlLanguageService {
     return result
   }
 
-  #getBlockCompletions(
-    fileName: string,
-  ): Array<
+  #getBlockCompletions(fileName: string): Array<
     LanguageService.CompletionItem & {
       _kind: 'snippet' | 'script' | 'scriptSetup' | 'style' | 'template'
     }
   > {
-    const preferences = this.ts.getVuePrefrencesFor(fileName)
+    const preferences = this.ts.getVuePreferencesFor(fileName)
     const scriptLang = preferences.script.language ?? '$1'
     const styleLang = preferences.style.language ?? '$1'
     const scriptSetupTemplate =

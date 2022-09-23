@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+import { invariant } from '@vuedx/shared'
 import * as FS from 'fs'
 import { addSerializer } from 'jest-specific-snapshot'
 import * as Path from 'path'
-import { compile, Options } from '../src'
+import { compile, CompileOptions } from '../src'
 
 addSerializer({
   serialize(val: any) {
@@ -15,7 +17,7 @@ addSerializer({
 interface Fixture {
   name: string
   template: string
-  options?: Options
+  options?: CompileOptions
 }
 
 function parseFixtures(content: string) {
@@ -82,6 +84,7 @@ function parseFixtures(content: string) {
           try {
             fixture.options = JSON.parse(content)
           } catch (error) {
+            invariant(error instanceof Error)
             error.message = `${String(error.message)} on line ${i}`
 
             throw error
@@ -111,14 +114,16 @@ function parseFixtures(content: string) {
       describe(group.name, () => {
         group.children.forEach((fixture, j) => {
           test(fixture.name === '' ? 'default' : fixture.name, () => {
-            const result = compile(fixture.template, {
-              filename: '/tmp/compiler-tsx/Example.vue',
-              selfSrc: '/tmp/compiler-tsx/Example.vue?vue&type=script&lang.ts',
-              components: {},
-              directives: {},
-              ...fixture.options,
-            })
+            const result = compile(
+              `<template>\n${fixture.template}\n</template>`,
+              {
+                fileName: '/tmp/compiler-tsx/Example.vue',
+                isTypeScript: true,
+                ...fixture.options,
+              },
+            )
 
+            const map = JSON.stringify(result.map)
             const output =
               `## ${i + 1}.${j + 1}. ${group.name.trim()} ${
                 fixture.name.trim() === '' ? '' : `> ${fixture.name.trim()}`
@@ -128,33 +133,44 @@ function parseFixtures(content: string) {
               '```\n\n' +
               '```tsx\n' +
               `${result.code}\n` +
-              `//# sourceMappingURL=data:application/json;base64,${Buffer.from(
-                JSON.stringify(result.map),
-              ).toString('base64')}\n` +
-              '```\n\n'
+              '```\n\n' +
+              `[Open in SourceMap Visualizer](https://evanw.github.io/source-map-visualization/#${
+                // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+                // @ts-ignore
+                btoa(
+                  `${result.code.length}\0${utf16ToUTF8(result.code)}${
+                    map.length
+                  }\0${utf16ToUTF8(map)}`,
+                )
+              })` +
+              '\n\n'
 
             expect(output).toMatchSpecificSnapshot(snapshotFile)
           })
         })
       })
     })
+  })
 
-    afterAll(() => {
-      const snapshots = Array.from(
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        Object.values(require(snapshotFile) as Record<string, string>),
-      ).map((snapshot) => snapshot.trim())
-      let content = `# ${root.name}\n\n`
+  afterAll(() => {
+    const snapshots = Array.from(
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      Object.values(require(snapshotFile) as Record<string, string>),
+    ).map((snapshot) => snapshot.trim())
+    let content = `# ${root.name}\n\n`
 
-      snapshots.sort((a, b) => {
-        return parseFloat(a.substr(3)) - parseFloat(b.substr(3))
-      })
-
-      snapshots.forEach((snapshot) => {
-        content += snapshot + '\n\n'
-      })
-
-      FS.writeFileSync(snapshotFile.replace(/\.js$/, '.md'), content)
+    snapshots.sort((a, b) => {
+      return parseFloat(a.slice(3)) - parseFloat(b.slice(3))
     })
+
+    snapshots.forEach((snapshot) => {
+      content += snapshot + '\n\n'
+    })
+
+    FS.writeFileSync(snapshotFile.replace(/\.js$/, '.md'), content)
   })
 })
+
+function utf16ToUTF8(x: string): string {
+  return unescape(encodeURIComponent(x))
+}

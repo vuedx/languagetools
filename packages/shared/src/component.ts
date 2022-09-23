@@ -1,9 +1,12 @@
 import * as Path from 'path'
+import { toPosixPath } from './path'
 import { isKebabCase, kebabCase, pascalCase } from './string'
 
 export function getComponentName(fileName: string): string {
   const name = pascalCase(
-    Path.posix.basename(fileName).replace(/\.(vue|ts|tsx|js|jsx)$/, ''),
+    Path.posix
+      .basename(toPosixPath(fileName))
+      .replace(/\.(vue|ts|tsx|js|jsx)$/, ''),
   )
 
   return prefixIfStartsWithNumber(name)
@@ -19,7 +22,7 @@ export function getComponentNameAliases(
   fileNameOrComponentName: string,
 ): string[] {
   const name = Path.posix
-    .basename(fileNameOrComponentName)
+    .basename(toPosixPath(fileNameOrComponentName))
     .replace(/\.(vue|ts|tsx|js|jsx)$/, '')
   return isKebabCase(name)
     ? [prefixIfStartsWithNumber(kebabCase(name))]

@@ -1,142 +1,186 @@
 import type {
+  CompilerError,
   SFCBlock,
   SFCDescriptor,
-  SFCScriptBlock,
-  SFCStyleBlock,
-  SFCTemplateBlock,
 } from '@vuedx/compiler-sfc'
-import { CompilerError, parse } from '@vuedx/compiler-sfc'
 import {
-  getComponentName,
+  CompileOptions,
+  CompileOutput,
+  compileWithDecodedSourceMap,
+} from '@vuedx/compiler-tsx'
+import {
+  binarySearch,
+  BinarySearchBias,
+  createCache,
+  invariant,
   isNotNull,
-  parseFileName,
-  toFileName,
+  startMeasure,
 } from '@vuedx/shared'
 import type { RootNode } from '@vuedx/template-ast-types'
-import * as Path from 'path'
 import {
+  Position,
+  Range,
   TextDocument,
   TextDocumentContentChangeEvent,
 } from 'vscode-languageserver-textdocument'
-import { BlockTransformer, builtins } from './BlockTransformer'
-import { ProxyDocument } from './ProxyDocument'
-import { VueBlockDocument } from './VueBlockDocument'
+import { encode } from 'sourcemap-codec'
 
-export interface VueSFCDocumentOptions {
-  transformers?: Record<string, BlockTransformer>
+export type Mapping = [
+  GeneratedLine: number,
+  GeneratedColumn: number,
+  OriginalLine: number,
+  OriginalColumn: number,
+  Name: string | undefined,
+]
+interface VueToTsxSnapshot extends CompileOutput {
+  readonly document: TextDocument
+  readonly mappingsByOriginalOrder: Mapping[]
+  readonly mappingsByGeneratedOrder: Mapping[]
+  readonly blocks: SFCBlock[]
 }
 
-export class VueSFCDocument extends ProxyDocument {
-  private readonly _tsFileName: string
-  private constructor(
-    private readonly _fileName: string,
-    private readonly _options: Required<VueSFCDocumentOptions>,
-    source: TextDocument,
-  ) {
-    super(source)
+type SourceMapBiasType = typeof BinarySearchBias[keyof typeof BinarySearchBias]
 
-    this._tsFileName = `${this.fileName}.ts`
+const enum MappingKey {
+  GeneratedLine,
+  GeneratedColumn,
+  OriginalLine,
+  OriginalColumn,
+  Name,
+}
+
+const MappingNameRE = /^<<(P|S|T)>>(\d+)(?:|\d+)$/
+
+export class VueSFCDocument implements TextDocument {
+  public readonly originalFileName: string
+  public readonly generatedFileName: string
+  public readonly options: Required<CompileOptions>
+
+  private _original: TextDocument
+
+  private constructor(
+    original: TextDocument,
+    options: Omit<CompileOptions, 'cache'>,
+  ) {
+    this._original = original
+    this.options = {
+      isTypeScript: true,
+      internalIdentifierPrefix: '__VueDX_',
+      runtimeModuleName: 'vue',
+      typeCheckModuleName: 'vuedx~runtime',
+      ...options,
+      cache: createCache(15), // More than 15 blocks in SFC is not common.
+    }
+    this.originalFileName = this.options.fileName
+    this.generatedFileName = `${this.options.fileName}${
+      this.options.isTypeScript ? '.tsx' : '.jsx'
+    }`
+  }
+
+  /** @deprecated used by tsserver */
+  public lineMap: unknown | undefined
+
+  /** @deprecated used by tsserver */
+  public get text(): string {
+    return this.original.getText()
+  }
+
+  /** @deprecated used by tsserver */
+  public getLineAndCharacterOfPosition(position: number): Position {
+    return this.original.positionAt(position)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  public getSourceFile(fileName: string = this.fileName) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const ctx = this
+
+    return {
+      fileName,
+      get text(): string {
+        return ctx.text
+      },
+      get lineMap(): unknown | undefined {
+        return ctx.lineMap
+      },
+      set lineMap(value: unknown | undefined) {
+        ctx.lineMap = value
+      },
+      getLineAndCharacterOfPosition: (position: number) =>
+        ctx.getLineAndCharacterOfPosition(position),
+    }
   }
 
   public get fileName(): string {
-    return this._fileName
-  }
-
-  public get tsFileName(): string {
-    return this._tsFileName
-  }
-
-  public get options(): Readonly<Required<VueSFCDocumentOptions>> {
-    return this._options
-  }
-
-  private _isDirty = true
-  private _descriptor: SFCDescriptor | null = null
-  private _errors: Array<CompilerError | SyntaxError> = []
-  private _mainText: string = ''
-
-  private readonly blockDocs = new Map<string, VueBlockDocument>()
-
-  public templateAST: RootNode | null = null
-
-  // Used by tsserver for caching line map
-  public lineMap: any
-  public get text(): string {
-    return this.getText()
-  }
-
-  public readonly fallbackScript: SFCScriptBlock = {
-    loc: {
-      source: '',
-      start: { offset: 0, line: 0, column: 0 },
-      end: { offset: 0, line: 0, column: 0 },
-    },
-    type: 'script',
-    attrs: { fallback: true },
-    content: `import { defineComponent } from 'vue'\nexport default defineComponent({})\n`,
-  }
-
-  public declarations = {
-    identifiers: new Set<string>(),
+    return this.originalFileName
   }
 
   public get descriptor(): SFCDescriptor {
-    return this._parse()
+    return this._compile().descriptor
   }
 
   public get errors(): Array<CompilerError | SyntaxError> {
-    this._parse()
-    return this._errors
+    return this._compile().errors
+  }
+
+  public get templateAST(): RootNode | undefined {
+    return this._compile().template
+  }
+
+  public get original(): TextDocument {
+    return this._original
+  }
+
+  public get generated(): TextDocument {
+    return this._compile().document
   }
 
   public get blocks(): SFCBlock[] {
-    const descriptor = this.descriptor
-    return [
-      descriptor.scriptSetup,
-      descriptor.script,
-      descriptor.template,
-      ...descriptor.styles,
-      ...descriptor.customBlocks,
-    ].filter(isNotNull)
+    return this._compile().blocks
   }
 
-  private _activeTSDocIDs = new Set<string>()
-  public getActiveTSDocIDs(): Set<string> {
-    this._parse()
-
-    return this._activeTSDocIDs
+  public get snapshot(): VueToTsxSnapshot {
+    return this._compile()
   }
 
-  public getTypeScriptText(): string {
-    this._parse()
-
-    return this._mainText
+  public get map(): string {
+    const map = this._compile().map
+    return JSON.stringify({
+      ...map,
+      version: 3,
+      mappings: encode(map.mappings),
+    })
   }
 
-  public getDocById(id: string): VueBlockDocument | null {
-    this._parse()
-
-    const { block, index } = this._getBlockFromId(id)
-    if (block == null) {
-      console.debug(`[VueDX] No block for "${id}"`)
-      return null
-    }
-    return this._getBlockDocument(block, index)
+  public getText(range?: Range): string {
+    return this.generated.getText(range)
   }
 
-  public getDoc(block: SFCBlock): VueBlockDocument | null {
-    return this._getBlockDocument(block)
+  public positionAt(offset: number): Position {
+    return this.generated.positionAt(offset)
   }
 
-  public getBlockId(block: SFCBlock): string {
-    this._parse()
+  public offsetAt(position: Position): number {
+    return this.generated.offsetAt(position)
+  }
 
-    return this._getBlockFileName(block, this._indexOf(block))
+  public get version(): number {
+    return this.original.version // use original version as generated code might be out of date
+  }
+
+  public get lineCount(): number {
+    return this.generated.lineCount
+  }
+
+  public get uri(): string {
+    return `file://${this.originalFileName}`
+  }
+
+  public get languageId(): string {
+    return this.options.isTypeScript ? 'typescript' : 'javascript'
   }
 
   public getBlockAt(offset: number): SFCBlock | null {
-    this._parse()
-
     const block = this.blocks.find(
       (block) =>
         block.loc.start.offset <= offset && offset <= block.loc.end.offset,
@@ -145,362 +189,429 @@ export class VueSFCDocument extends ProxyDocument {
     return block ?? null
   }
 
-  public getDocAt(offset: number): VueBlockDocument | null {
-    this._parse()
+  private _snapshot: VueToTsxSnapshot | null = null
+  private _compile(): VueToTsxSnapshot {
+    if (this._snapshot?.document.version !== this.original.version) {
+      const previous = this._snapshot
+      try {
+        const endCompileMeasure = startMeasure('VueSFCDocument.compile')
+        const result = compileWithDecodedSourceMap(
+          this.original.getText(),
+          this.options,
+        )
+        const mappings = memoize(() =>
+          result.map.mappings.flatMap((mappings, line) =>
+            mappings.map((mapping) => {
+              const m: Mapping = [
+                line,
+                mapping[0],
+                mapping[2] ?? -1,
+                mapping[3] ?? -1,
+                result.map.names[mapping[4] ?? -1],
+              ]
+              return m
+            }),
+          ),
+        )
+        const descriptor = result.descriptor
+        const mappingsByOriginalOrder = memoize(() =>
+          mappings().slice().sort(compareOriginal),
+        )
+        const mappingsByGeneratedOrder = memoize(() =>
+          mappings().slice().sort(compareGenerated),
+        )
+        const blocks = memoize(() => {
+          return [
+            descriptor.scriptSetup,
+            descriptor.script,
+            descriptor.template,
+            ...descriptor.styles,
+            ...descriptor.customBlocks,
+          ]
+            .filter(isNotNull)
+            .sort((a, b) => a.loc.start.offset - b.loc.start.offset)
+        })
+        this._snapshot = {
+          ...result,
+          get mappingsByOriginalOrder() {
+            return mappingsByOriginalOrder()
+          },
+          get mappingsByGeneratedOrder() {
+            return mappingsByGeneratedOrder()
+          },
+          get blocks() {
+            return blocks()
+          },
+          document: TextDocument.create(
+            `file://${this.generatedFileName}`,
+            this.options.isTypeScript ? 'typescript' : 'javascript',
+            this.original.version,
+            result.code,
+          ),
+        }
 
-    const block = this.getBlockAt(offset)
-    if (block != null) return this.getDoc(block)
+        endCompileMeasure()
+      } catch (e) {
+        console.error('Failed to compile', e)
+        if (previous != null) {
+          this._snapshot = {
+            ...previous,
+            errors: [...previous.errors, e as SyntaxError],
+            document: TextDocument.update(
+              previous.document,
+              [],
+              this.original.version,
+            ),
+          }
+        } else {
+          this._snapshot = {
+            descriptor: {
+              script: null,
+              scriptSetup: null,
+              template: null,
+              styles: [],
+              customBlocks: [],
+            },
+            errors: [e as SyntaxError],
+            blocks: [],
+            code: '',
+            map: {
+              file: '',
+              mappings: [],
+              names: [],
+              sources: [],
+              sourcesContent: [],
+            },
+            document: TextDocument.create(
+              `file://${this.generatedFileName}`,
+              this.options.isTypeScript ? 'typescript' : 'javascript',
+              this.original.version,
+              '',
+            ),
+            mappingsByGeneratedOrder: [],
+            mappingsByOriginalOrder: [],
+            unusedIdentifiers: [],
+          }
+        }
+      }
+    }
+
+    return this._snapshot
+  }
+
+  public findMapping(
+    positionType: 'original' | 'generated',
+    position: Position,
+    searchBias: SourceMapBiasType = BinarySearchBias.GREATEST_LOWER_BOUND,
+  ): Mapping | null {
+    const snapshot = this._snapshot ?? this._compile()
+    const needle = [] as unknown as Mapping
+    if (positionType === 'original') {
+      needle[MappingKey.OriginalLine] = position.line
+      needle[MappingKey.OriginalColumn] = position.character
+    } else {
+      needle[MappingKey.GeneratedLine] = position.line
+      needle[MappingKey.GeneratedColumn] = position.character
+    }
+    const index = binarySearch(
+      needle,
+      positionType === 'original'
+        ? snapshot.mappingsByOriginalOrder
+        : snapshot.mappingsByGeneratedOrder,
+      positionType === 'original' ? compareOriginal : compareGenerated,
+      searchBias,
+    )
+    if (index < 0) return null
+
+    return (
+      (positionType === 'original'
+        ? snapshot.mappingsByOriginalOrder[index]
+        : snapshot.mappingsByGeneratedOrder[index]) ?? null
+    )
+  }
+
+  public originalPositionFor(position: Position): Position | null {
+    const offset = this.generated.offsetAt(position)
+    const originalOffset = this.originalOffsetAt(offset)
+    if (originalOffset == null) return null
+    return this.original.positionAt(originalOffset)
+  }
+
+  public originalOffsetAt(offset: number): number | null {
+    const span = this.findOriginalTextSpan({ start: offset, length: 1 })
+    if (span == null) return null
+    return span.start
+  }
+
+  public findOriginalTextSpan(spanInGeneratedText: TextSpan): TextSpan | null {
+    const position = this.generated.positionAt(spanInGeneratedText.start)
+    const low = this.findMapping(
+      'generated',
+      position,
+      BinarySearchBias.GREATEST_LOWER_BOUND,
+    )
+
+    if (low == null || low[MappingKey.OriginalLine] < 0) return null
+    const result = this._processMappingUsingMeta(
+      'generated',
+      spanInGeneratedText,
+      low,
+    )
+    if (result != null) return result
+
+    const generatedStart = this.generated.offsetAt({
+      line: low[MappingKey.GeneratedLine],
+      character: low[MappingKey.GeneratedColumn],
+    })
+
+    const originalStart = this.original.offsetAt({
+      line: low[MappingKey.OriginalLine],
+      character: low[MappingKey.OriginalColumn],
+    })
+
+    // prefix match
+    const originalString = this.original.getText().slice(originalStart)
+    const generatedString = this.generated.getText().slice(generatedStart)
+
+    const prefixLength = findCommonPrefixLength(originalString, generatedString)
+    if (generatedStart + prefixLength < spanInGeneratedText.start) return null // no mapping
+
+    return {
+      start:
+        originalStart + Math.abs(generatedStart - spanInGeneratedText.start),
+      length: Math.min(prefixLength, spanInGeneratedText.length),
+    }
+  }
+
+  public findGeneratedTextSpan(spanInOriginalText: TextSpan): TextSpan | null {
+    const position = this.original.positionAt(spanInOriginalText.start)
+    const low = this.findMapping(
+      'original',
+      position,
+      BinarySearchBias.GREATEST_LOWER_BOUND,
+    )
+
+    if (low == null) return null
+    const result = this._processMappingUsingMeta(
+      'original',
+      spanInOriginalText,
+      low,
+    )
+    if (result != null) return result
+
+    const originalStart = this.original.offsetAt({
+      line: low[MappingKey.OriginalLine],
+      character: low[MappingKey.OriginalColumn],
+    })
+    const start =
+      this.generated.offsetAt({
+        line: low[MappingKey.GeneratedLine],
+        character: low[MappingKey.GeneratedColumn],
+      }) +
+      // source mappings are prefix based, so we assume the original
+      // and generated text have the same prefix.
+      Math.abs(originalStart - spanInOriginalText.start)
+
+    const high = this.findMapping(
+      'original',
+      position,
+      BinarySearchBias.LEAST_UPPER_BOUND,
+    )
+    if (high != null) {
+      const end = this.generated.offsetAt({
+        line: high[MappingKey.GeneratedLine],
+        character: high[MappingKey.GeneratedColumn],
+      })
+
+      return {
+        start,
+        length: Math.min(end - start, spanInOriginalText.length),
+      }
+    }
+
+    return {
+      start,
+      length: spanInOriginalText.length,
+    }
+  }
+
+  private _processMappingUsingMeta(
+    kind: 'generated' | 'original',
+    span: TextSpan,
+    mapping: Mapping,
+  ): TextSpan | null {
+    const name = mapping[MappingKey.Name]
+    if (name == null) return null
+    const result = MappingNameRE.exec(name)
+    if (result != null) {
+      switch (result[1]) {
+        case 'P':
+          {
+            invariant(result[2])
+            const generatedLength = parseInt(result[2], 10)
+            invariant(Number.isInteger(generatedLength))
+            const original = this.original.offsetAt({
+              line: mapping[MappingKey.OriginalLine],
+              character: mapping[MappingKey.OriginalColumn],
+            })
+            const generated = this.generated.offsetAt({
+              line: mapping[MappingKey.GeneratedLine],
+              character: mapping[MappingKey.GeneratedColumn],
+            })
+
+            if (kind === 'generated') {
+              // if span is in generated range
+              if (
+                contains({ start: generated, length: generatedLength }, span)
+              ) {
+                const skipLength = Math.abs(span.start - generated)
+                const length = Math.min(
+                  generatedLength - skipLength,
+                  span.length,
+                )
+
+                return {
+                  start: original + skipLength,
+                  length,
+                }
+              }
+            } else {
+              if (
+                contains({ start: original, length: generatedLength }, span)
+              ) {
+                const skipLength = Math.abs(span.start - original)
+                const length = Math.min(
+                  generatedLength - skipLength,
+                  span.length,
+                )
+
+                return {
+                  start: generated + skipLength,
+                  length,
+                }
+              }
+            }
+          }
+          break
+        case 'S':
+          {
+            invariant(result[2] != null && result[3] != null)
+            const originalLength = parseInt(result[2], 10)
+            const generatedLength = parseInt(result[3], 10)
+            invariant(Number.isInteger(originalLength))
+            invariant(Number.isInteger(generatedLength))
+            invariant(originalLength >= generatedLength)
+            const diffLength = Math.abs(generatedLength - originalLength)
+            const original = this.original.offsetAt({
+              line: mapping[MappingKey.OriginalLine],
+              character: mapping[MappingKey.OriginalColumn],
+            })
+            const generated = this.generated.offsetAt({
+              line: mapping[MappingKey.GeneratedLine],
+              character: mapping[MappingKey.GeneratedColumn],
+            })
+
+            if (kind === 'generated') {
+              if (
+                contains({ start: generated, length: generatedLength }, span)
+              ) {
+                const skipLength = Math.abs(span.start - generated)
+                if (skipLength <= diffLength) {
+                  return { start: original, length: originalLength }
+                }
+
+                const length = Math.min(
+                  originalLength - (skipLength - diffLength),
+                  span.length,
+                )
+
+                return {
+                  start: original + skipLength,
+                  length,
+                }
+              } else {
+                if (
+                  contains({ start: original, length: originalLength }, span)
+                ) {
+                  const skipLength = Math.abs(span.start - original)
+                  const length = Math.min(
+                    originalLength - skipLength,
+                    span.length,
+                  )
+
+                  return {
+                    start: generated + diffLength + skipLength,
+                    length,
+                  }
+                }
+              }
+            }
+          }
+          break
+        case 'T':
+          {
+            invariant(result[2] != null && result[3] != null)
+            const originalLength = parseInt(result[2], 10)
+            const generatedLength = parseInt(result[3], 10)
+            invariant(Number.isInteger(originalLength))
+            invariant(Number.isInteger(generatedLength))
+            invariant(originalLength >= generatedLength)
+            const original = this.original.offsetAt({
+              line: mapping[MappingKey.OriginalLine],
+              character: mapping[MappingKey.OriginalColumn],
+            })
+
+            const genreated = this.generated.offsetAt({
+              line: mapping[MappingKey.GeneratedLine],
+              character: mapping[MappingKey.GeneratedColumn],
+            })
+
+            if (kind === 'generated') {
+              if (
+                contains({ start: genreated, length: generatedLength }, span)
+              ) {
+                return {
+                  start: original,
+                  length: originalLength,
+                }
+              }
+            } else {
+              if (contains({ start: original, length: originalLength }, span)) {
+                return {
+                  start: genreated,
+                  length: generatedLength,
+                }
+              }
+            }
+          }
+          break
+      }
+    }
     return null
   }
 
-  private _getBlockDocument(block: SFCBlock, index?: number): VueBlockDocument {
-    const id = this._getBlockFileName(block, index ?? this._indexOf(block))
-    const existing = this.blockDocs.get(id)
-    if (existing != null) return existing
-    const transformer = this.options.transformers[block.type]
-
-    const doc = new VueBlockDocument(
-      id,
-      this,
-      this._createBlockGetter(block, index),
-      () => this.descriptor,
-      transformer,
-    )
-
-    this.blockDocs.set(id, doc)
-
-    return doc
+  public generatedPositionFor(position: Position): Position | null {
+    const offset = this.original.offsetAt(position)
+    const generatedOffset = this.generatedOffsetAt(offset)
+    if (generatedOffset == null) return null
+    return this.generated.positionAt(generatedOffset)
   }
 
-  private _indexOf(block: SFCBlock): number {
-    const descriptor = this._descriptor
-    if (descriptor == null) return -1
-    if (block.type === 'script' || block.type === 'template') return -1
-
-    const index =
-      block.type === 'style'
-        ? descriptor.styles.indexOf(block as SFCStyleBlock)
-        : descriptor.customBlocks.indexOf(block)
-
-    return index
-  }
-
-  private _createBlockGetter(
-    block: SFCBlock | SFCTemplateBlock | SFCScriptBlock | SFCStyleBlock,
-    index: number = -1,
-  ): () => SFCBlock {
-    switch (block.type) {
-      case 'template':
-        return () => this._descriptor?.template ?? block
-      case 'script':
-        return 'setup' in block && block.setup != null && block.setup !== false
-          ? () => this._descriptor?.scriptSetup ?? block
-          : () => this._descriptor?.script ?? block
-      case 'style':
-        return () => this._descriptor?.styles[index] ?? block
-      default:
-        return () => this._descriptor?.customBlocks[index] ?? block
-    }
-  }
-
-  private _parse(): SFCDescriptor {
-    if (this._descriptor == null || this._isDirty) {
-      if (this._descriptor == null) {
-        console.debug(`[VueDX] (SFC) Parse: ${this.fileName}`)
-      } else {
-        console.debug(`[VueDX] (SFC) Re-parse: ${this.fileName}`)
-      }
-      // TODO: Incremental SFC Parser using
-      const result = parse(this.source.getText(), {
-        sourceMap: false,
-        filename: this.fileName,
-        pad: false,
-        ignoreEmpty: false,
-      })
-
-      if (this._descriptor != null) {
-        // Delete stale documents.
-        const prev = this._descriptor
-        const next = result.descriptor
-
-        const hasTemplateChanged = hasBlockChanged(prev.template, next.template)
-        const hasScriptChanged = hasBlockChanged(prev.script, next.script)
-        const hasScriptSetupChanged = hasBlockChanged(
-          prev.scriptSetup,
-          next.scriptSetup,
-        )
-
-        if (hasTemplateChanged || hasScriptChanged || hasScriptSetupChanged) {
-          if (prev.template != null) {
-            const fileName = this._getBlockFileName(prev.template, 0)
-            this.blockDocs.delete(fileName)
-            console.debug(`[VueDX] (SFC) Stale: ${fileName}`)
-          }
-        }
-
-        if (hasScriptSetupChanged || hasTemplateChanged) {
-          if (prev.scriptSetup != null) {
-            const fileName = this._getBlockFileName(prev.scriptSetup, 0)
-            this.blockDocs.delete(fileName)
-            console.debug(`[VueDX] (SFC) Stale: ${fileName}`)
-          }
-        }
-
-        if (hasScriptChanged) {
-          if (prev.script != null) {
-            const fileName = this._getBlockFileName(prev.script, 0)
-            this.blockDocs.delete(fileName)
-            console.debug(`[VueDX] (SFC) Stale: ${fileName}`)
-          }
-        }
-
-        prev.styles.forEach((block, i) => {
-          if (
-            hasBlockChanged(prev.styles[i], next.styles[i]) &&
-            block != null
-          ) {
-            this.blockDocs.delete(this._getBlockFileName(block, i))
-          }
-        })
-
-        prev.customBlocks.forEach((block, i) => {
-          if (
-            hasBlockChanged(prev.customBlocks[i], next.customBlocks[i]) &&
-            block != null
-          ) {
-            this.blockDocs.delete(this._getBlockFileName(block, i))
-          }
-        })
-      }
-
-      const code = this._generateMainModuleText(result.descriptor)
-
-      this._descriptor = result.descriptor
-      this._errors = result.errors
-      this._mainText = code.content
-      this._activeTSDocIDs = code.files
-      this._isDirty = false
-      console.debug(
-        `[VueDX] (SFC) New Files: ${JSON.stringify(
-          Array.from(code.files),
-          null,
-          2,
-        )}`,
-      )
-    }
-
-    return this._descriptor
-  }
-
-  private _generateMainModuleText(
-    descriptor: SFCDescriptor,
-  ): { content: string; files: Set<string> } {
-    const { template, script, scriptSetup, styles, customBlocks } = descriptor
-
-    const code: string[] = [
-      `import 'vuedx~runtime'`,
-      `import 'vuedx~project-runtime'`,
-    ]
-    const props: string[] = []
-    const slots: string[] = [] // TODO: Detect slot types from script/script setup.
-    const attrs: string[] = []
-    const files = new Set<string>()
-
-    const createImportSource = (id: string): string =>
-      JSON.stringify(`./${Path.posix.basename(id.replace(/\.[tj]sx?$/, ''))}`)
-
-    if (template != null) {
-      const id = this._getBlockTSId(template, 0)
-      if (id != null) {
-        files.add(id)
-        code.push(
-          `import { __VueDX_Slots, __VueDX_Attrs } from ${createImportSource(
-            id,
-          )}`,
-        )
-        slots.push('__VueDX_Slots')
-        attrs.push('__VueDX_Attrs')
-      }
-    }
-
-    styles.forEach((block, index) => {
-      const id = this._getBlockTSId(block, index)
-      if (id != null) {
-        files.add(id)
-        code.push(`import ${createImportSource(id)}`)
-      }
-    })
-
-    customBlocks.forEach((block, index) => {
-      const id = this._getBlockTSId(block, index)
-      if (id != null) {
-        files.add(id)
-        code.push(`import ${createImportSource(id)}`)
-      }
-    })
-
-    let hasExposeIdentifier = false
-    const name = getComponentName(this.fileName)
-    if (scriptSetup != null) {
-      const id = this._getBlockTSId(scriptSetup, 0)
-      if (id != null) {
-        files.add(id)
-        const idPath = createImportSource(id)
-        hasExposeIdentifier = true
-        props.push(`InstanceType<typeof _Self>['$props']`)
-        code.push(
-          `import { __VueDX_DefineComponent as _Self, __VueDX_expose } from ${idPath}`,
-        )
-        code.push(`export * from ${idPath}`) // TODO: Only type exports are supported.
-        // TODO: detect useAttrs() decalration to find `attrsVarName`.
-        if (script != null) {
-          const id = this._getBlockTSId(script, 0)
-          if (id != null) {
-            files.add(id)
-            code.push(`export * from ${createImportSource(id)}`)
-          }
-        }
-      }
-    } else if (script != null) {
-      const id = this._getBlockTSId(script, 0)
-
-      if (id != null) {
-        files.add(id)
-        const idPath = createImportSource(id)
-        hasExposeIdentifier = true
-        props.push(`InstanceType<typeof _Self>['$props']`)
-        code.push(
-          `import { __VueDX_DefineComponent as _Self, __VueDX_expose } from ${idPath}`,
-        )
-        code.push(`export * from ${idPath}`)
-      }
-    }
-
-    if (!hasExposeIdentifier) {
-      code.push('const __VueDX_expose = {}')
-    }
-
-    if (props.length === 0) {
-      props.push(...attrs)
-    } else if (attrs.length > 0) {
-      const copy = props.slice()
-      props.length = 0
-      props.push(
-        `VueDX.internal.MergeAttrs<${copy.join(' & ')}, ${attrs.join(' & ')}>`,
-      )
-    }
-
-    if (props.length === 0) props.push('{}')
-    if (slots.length === 0) slots.push('{}')
-
-    code.push('const Exposed: new () => typeof __VueDX_expose = null as any')
-    code.push(`class ${name} extends Exposed {`)
-    code.push(`  $props!: ${props.join(' & ')}`)
-    code.push(`  $slots!: ${slots.join(' & ')}`)
-    code.push('}')
-    code.push(`export default ${name}`)
-    code.push(``)
-
-    return {
-      content: code.join('\n'),
-      files,
-    }
-  }
-
-  private _getBlockFileName(
-    block: SFCBlock | SFCScriptBlock | SFCStyleBlock | SFCTemplateBlock,
-    index: number,
-    lang: string = this._getBlockLanguage(block),
-  ): string {
-    return toFileName({
-      type: 'virtual',
-      fileName: this.fileName,
-      blockType: block.type,
-      blockLang: lang,
-      blockIndex: ['script', 'template'].includes(block.type)
-        ? undefined
-        : index,
-      setup:
-        isScriptBlock(block) && typeof block.setup === 'boolean'
-          ? block.setup
-          : undefined,
-    })
-  }
-
-  private _getBlockTSId(
-    block: SFCBlock | SFCScriptBlock | SFCStyleBlock | SFCTemplateBlock,
-    index: number,
-  ): string | null {
-    const transformer = this.options.transformers[block.type]
-    if (transformer == null) return null
-    return this._getBlockFileName(block, index, transformer.output(block))
-  }
-
-  private _getBlockLanguage(block: SFCBlock): string {
-    if (block.lang != null) return block.lang
-
-    switch (block.type) {
-      case 'script':
-        return 'js'
-      case 'template':
-        return 'vue-html'
-      case 'style':
-        return 'css'
-      default:
-        return block.type // TODO: Support extending block default language
-    }
-  }
-
-  private _getBlockFromId(
-    id: string,
-  ): {
-    block: SFCBlock | SFCStyleBlock | SFCTemplateBlock | SFCScriptBlock | null
-    index?: number
-  } {
-    const fileName = parseFileName(id)
-    if (fileName.type !== 'virtual') return { block: null }
-    if (this._descriptor == null) return { block: null }
-    switch (fileName.blockType) {
-      case 'template':
-        return { block: this._descriptor.template }
-      case 'script':
-        return {
-          block:
-            fileName.setup === true
-              ? this._descriptor.scriptSetup
-              : this._descriptor.script,
-        }
-      case 'style':
-        if (fileName.blockIndex == null) return { block: null }
-        return {
-          block: this._descriptor.styles[fileName.blockIndex] ?? null,
-          index: fileName.blockIndex,
-        }
-      default:
-        if (fileName.blockIndex == null) return { block: null }
-        return {
-          block: this._descriptor.customBlocks[fileName.blockIndex] ?? null,
-          index: fileName.blockIndex,
-        }
-    }
+  public generatedOffsetAt(offset: number): number | null {
+    const span = this.findGeneratedTextSpan({ start: offset, length: 1 })
+    if (span == null) return null
+    return span.start
   }
 
   static create(
     fileName: string,
     content: string,
-    options: VueSFCDocumentOptions = {},
+    options: Omit<CompileOptions, 'cache' | 'fileName'> = {},
     version: number = 0,
   ): VueSFCDocument {
     return new VueSFCDocument(
-      fileName,
-      {
-        ...options,
-        transformers: {
-          ...options.transformers,
-          ...builtins,
-        },
-      },
       TextDocument.create(`file://${fileName}`, 'vue', version, content),
+      { ...options, fileName },
     )
   }
 
@@ -508,50 +619,70 @@ export class VueSFCDocument extends ProxyDocument {
     changes: TextDocumentContentChangeEvent[],
     version: number,
   ): void {
-    this.source = TextDocument.update(this.source, changes, version)
-    this._isDirty = true
+    this._original = TextDocument.update(this._original, changes, version)
     this.lineMap = undefined
-    console.debug(
-      `[VueDX] (SFC) ${this.version} ${this.fileName}  is marked dirty`,
-    )
   }
 }
 
-function hasBlockChanged(
-  a: SFCBlock | null | undefined,
-  b: SFCBlock | null | undefined,
-): boolean {
-  if (a === b) return false
-  if (a == null || b == null) return true
-  if (
-    a.content !== b.content ||
-    a.lang !== b.lang ||
-    a.loc.start.offset !== b.loc.start.offset ||
-    a.loc.end.offset !== b.loc.end.offset
-  ) {
-    return true
-  }
-
-  const aKeys = Array.from(Object.keys(a.attrs))
-  const bKeys = new Set(Object.keys(b.attrs))
-
-  if (aKeys.length !== bKeys.size) return true
-
-  if (
-    aKeys.some((key) => {
-      try {
-        return !bKeys.has(key) || a.attrs[key] !== b.attrs[key]
-      } finally {
-        bKeys.delete(key)
-      }
-    })
-  ) {
-    return true
-  }
-
-  return bKeys.size > 0
+function compareOriginal(a: Mapping, b: Mapping): number {
+  const comparison = a[MappingKey.OriginalLine] - b[MappingKey.OriginalLine]
+  return comparison !== 0
+    ? comparison
+    : a[MappingKey.OriginalColumn] - b[MappingKey.OriginalColumn]
 }
 
-function isScriptBlock(block: SFCBlock): block is SFCScriptBlock {
-  return block.type === 'script'
+function compareGenerated(a: Mapping, b: Mapping): number {
+  const comparison = a[MappingKey.GeneratedLine] - b[MappingKey.GeneratedLine]
+  return comparison !== 0
+    ? comparison
+    : a[MappingKey.GeneratedColumn] - b[MappingKey.GeneratedColumn]
+}
+
+function memoize<T>(fn: () => T): () => T {
+  let value: T | undefined
+  return () => {
+    if (value === undefined) value = fn()
+    return value
+  }
+}
+
+export interface TextSpan {
+  start: number
+  length: number
+}
+
+function contains(haystack: TextSpan, needle: TextSpan): boolean {
+  return (
+    haystack.start <= needle.start &&
+    haystack.start + haystack.length >= needle.start + needle.length
+  )
+}
+
+// Binary search.
+// Performance analysis: http://neil.fraser.name/news/2007/10/09/
+function findCommonPrefixLength(a: string, b: string): number {
+  if (a.length === 0 || b.length === 0 || a.charCodeAt(0) !== b.charCodeAt(0))
+    return 0
+  let low = 0
+  let high = Math.min(a.length, b.length)
+  let mid = high
+  let start = 0
+  while (low < mid) {
+    if (a.slice(start, mid) === b.slice(start, mid)) {
+      low = mid
+      start = low
+    } else {
+      high = mid
+    }
+
+    mid = Math.floor((high - low) / 2 + low)
+  }
+
+  if (isSurrogatePair(a.charCodeAt(mid - 1))) mid--
+
+  return mid
+}
+
+function isSurrogatePair(ch: number): boolean {
+  return ch >= 0xd800 && ch <= 0xdbff
 }

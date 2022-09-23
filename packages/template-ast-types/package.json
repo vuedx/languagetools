@@ -2,14 +2,13 @@
   "name": "@vuedx/template-ast-types",
   "version": "0.7.3",
   "description": "Helper functions for Vue template AST",
-  "main": "lib/index.js",
+  "main": "lib/index.cjs",
   "module": "lib/index.mjs",
-  "types": "src/index.ts",
-  "publishConfig": {
-    "types": "lib/index.d.ts"
-  },
+  "types": "lib/index.d.ts",
   "files": [
-    "lib"
+    "lib/index.cjs",
+    "lib/index.mjs",
+    "lib/index.d.ts"
   ],
   "keywords": [
     "ast",

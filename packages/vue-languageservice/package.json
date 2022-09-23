@@ -4,12 +4,9 @@
   "version": "0.0.1",
   "displayName": "Vue languageservice",
   "description": "Service powering LSP implementation for Vue",
-  "main": "lib/index.js",
+  "main": "lib/index.cjs",
   "module": "lib/index.mjs",
-  "types": "src/index.ts",
-  "publishConfig": {
-    "types": "lib/index.d.ts"
-  },
+  "types": "lib/index.d.ts",
   "buildConfig": {
     "sources": {
       "types/3.x.d.ts": [
@@ -61,10 +58,12 @@
     "vscode-html-languageservice": "^4.2.2"
   },
   "devDependencies": {
+    "csstype": "^3.1.0",
+    "@vuedx/compiler-tsx": "workspace:*",
     "@types/web": "^0.0.56",
-    "@vue/runtime-core": "^3.2.31",
+    "@vue/runtime-core": "^3.2.39",
     "quick-lru": "^6.0.1",
     "vscode-languageserver-types": "^3.16.0",
-    "vue": "^3.2"
+    "vue": "^3.2.39"
   }
 }

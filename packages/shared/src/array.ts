@@ -1,3 +1,5 @@
+import { invariant } from './assert'
+
 export function isArray<T>(value: any): value is T[] {
   return Array.isArray(value)
 }
@@ -129,7 +131,7 @@ type Chunk<T, Size extends number> = {
         19,
         20,
       ][Size]
-    >
+    >,
   ]
 }[Size extends 0 ? 'done' : 'recurr']
 
@@ -143,4 +145,110 @@ export function chunk<T, D extends number>(
   }
 
   return chunks
+}
+
+export const BinarySearchBias = {
+  GREATEST_LOWER_BOUND: 1,
+  LEAST_UPPER_BOUND: 2,
+}
+
+type BinarySearchBiasType =
+  typeof BinarySearchBias[keyof typeof BinarySearchBias]
+function recursiveSearch<T>(
+  low: number,
+  high: number,
+  needle: T,
+  haystack: T[],
+  compare: (a: T, b: T) => number,
+  bias: BinarySearchBiasType,
+): number {
+  if (haystack.length === 0) return -1
+  const mid = Math.floor((low + high) / 2)
+  const value = haystack[mid] as T
+  const comparison = ((): number => {
+    try {
+      return compare(needle, value)
+    } catch (e) {
+      throw new Error(
+        `ComparisonError: ${
+          (e as Error).message
+        }. low: ${low}, high: ${high}, mid: ${mid}`,
+      )
+    }
+  })()
+
+  if (comparison === 0) return mid
+  else if (comparison > 0) {
+    if (high - mid > 1) {
+      return recursiveSearch(mid, high, needle, haystack, compare, bias)
+    }
+
+    if (bias === BinarySearchBias.LEAST_UPPER_BOUND) {
+      return high < haystack.length ? high : -1
+    } else {
+      return mid
+    }
+  } else {
+    if (mid - low > 1) {
+      return recursiveSearch(low, mid, needle, haystack, compare, bias)
+    }
+
+    if (bias === BinarySearchBias.GREATEST_LOWER_BOUND) {
+      return low < 0 ? -1 : low
+    } else {
+      return mid
+    }
+  }
+}
+
+export function binarySearch<T>(
+  needle: T,
+  haystack: T[],
+  compare: (a: T, b: T) => number,
+  bias: BinarySearchBiasType = BinarySearchBias.GREATEST_LOWER_BOUND,
+): number {
+  let index = recursiveSearch(
+    -1,
+    haystack.length,
+    needle,
+    haystack,
+    compare,
+    bias,
+  )
+
+  if (index < 0) return -1
+
+  while (
+    index > 0 &&
+    compare(haystack[index] as T, haystack[index - 1] as T) === 0
+  ) {
+    --index
+  }
+
+  return index
+}
+
+export function binarySearchKey<T, U>(
+  array: readonly T[],
+  key: U,
+  keySelector: (value: T, index: number) => U,
+  keyComparer: (a: U, b: U) => number,
+  offset: number = 0,
+): number {
+  if (array.length === 0) return -1
+
+  let low = offset
+  let high = array.length - 1
+  while (low <= high) {
+    const middle = low + ((high - low) >> 1)
+    const middleValue = array[middle]
+    invariant(middleValue != null)
+    const midKey = keySelector(middleValue, middle)
+    const comparison = keyComparer(midKey, key)
+    if (comparison === 0) return middle
+    else if (comparison < 0) low = middle + 1
+    else high = middle - 1
+  }
+
+  return ~low
 }

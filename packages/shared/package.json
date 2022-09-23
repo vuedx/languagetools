@@ -1,17 +1,13 @@
 {
   "name": "@vuedx/shared",
   "version": "0.7.4",
-  "main": "lib/index.js",
+  "main": "lib/index.cjs",
   "module": "lib/index.mjs",
-  "types": "src/index.ts",
-  "publishConfig": {
-    "types": "lib/index.d.ts"
-  },
+  "types": "lib/index.d.ts",
   "files": [
     "lib"
   ],
   "dependencies": {
-    "@sentry/node": "^5.30.0",
-    "node-unique-machine-id": "^1.1.0"
+    "@sentry/node": "^5.30.0"
   }
 }

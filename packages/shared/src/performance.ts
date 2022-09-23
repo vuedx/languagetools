@@ -1,6 +1,18 @@
 import { performance } from 'perf_hooks'
 import { Telemetry } from './telemetry'
 
+export function startMeasure(name: string): () => void {
+  const start = performance.now()
+  performance.mark(`${name}|start`)
+
+  return () => {
+    const duration = performance.now() - start
+    performance.mark(`${name}|end`)
+    performance.measure(name, `${name}|start`, `${name}|end`)
+    Telemetry.instance.measure(name, duration)
+  }
+}
+
 export function measure(name?: string): MethodDecorator {
   return createMethodDecorator(({ target, propertyKey, next }) => {
     const id = name ?? `${target.constructor.name}#${propertyKey.toString()}`

@@ -1,7 +1,4 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src", "types"],
-  "compilerOptions": {
-    "typeRoots": ["../../@types"]
-  }
+  "include": ["src/", "../global.d.ts"]
 }

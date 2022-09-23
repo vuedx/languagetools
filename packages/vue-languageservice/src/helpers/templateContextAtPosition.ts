@@ -21,6 +21,8 @@ import {
   TraversalAncestors,
 } from '@vuedx/template-ast-types'
 
+import type {} from '@vuedx/compiler-tsx'
+
 export const enum TemplateContextType {
   OpenTag = 'open-tag',
   CloseTag = 'close-tag',

@@ -1,4 +1,5 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src", "../../global.d.ts"]
+  "include": ["src", "../../global.d.ts"],
+  "exclude": ["**/*.spec.ts"]
 }

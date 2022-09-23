@@ -1,90 +1,54 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import type {
-  AllowedComponentProps,
-  ComponentCustomProps,
-  DefineComponent,
-  EmitsOptions,
-  VNodeProps,
-  VNodeChild,
-  GlobalComponents,
-  Component,
-} from '@vue/runtime-core'
-import type { EmitsToProps } from './emits'
-import type {
-  KnownKeys,
-  Overloads,
-  TupleToUnion,
-  UnionToIntersection,
-} from './utils'
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {}
-    interface IntrinsicAttributes {}
-  }
-}
+import { KnownKeys } from './utils'
 
 declare module '@vue/runtime-core' {
-  export interface GlobalComponents extends Record<string, Component> {}
+  export interface GlobalComponents {}
 }
 
-type ComponentFromProps<P> = new () => {
-  $props: P
-  $slots: { default(): VNodeChild }
+declare module '@vue/runtime-dom' {
+  export interface GlobalComponents {}
 }
 
-export function resolveComponent<T extends {}, A, B>(
-  localRegisteredComponents: T,
-  tagNameOrComponent: A,
-  tagNameInPascalName?: B,
-): A extends Component
-  ? A
-  : A extends keyof KnownKeys<T>
-  ? T[A]
-  : B extends keyof KnownKeys<T>
-  ? T[B]
-  : A extends keyof KnownKeys<JSX.IntrinsicElements>
-  ? ComponentFromProps<JSX.IntrinsicElements[A]>
-  : B extends keyof KnownKeys<JSX.IntrinsicElements>
-  ? ComponentFromProps<JSX.IntrinsicElements[B]>
-  : A extends keyof KnownKeys<GlobalComponents>
-  ? GlobalComponents[A]
-  : B extends keyof KnownKeys<GlobalComponents>
-  ? GlobalComponents[B]
-  : never
+declare module 'vue' {
+  export interface GlobalComponents {}
+}
 
-type TypeEmitsToOptions<
-  T,
-  TU = TupleToUnion<Overloads<T>>
-> = UnionToIntersection<
-  TU extends (eventName: infer P, ...rest: infer A) => infer R
-    ? P extends string
-      ? { [K in P]: (...args: A) => R }
-      : {}
-    : {}
->
-type ToEmitOptions<T> = T extends (...args: any) => any
-  ? TypeEmitsToOptions<T> & {}
-  : T extends EmitsOptions
-  ? T
-  : {}
+export function resolveComponent<
+  GlobalComponents,
+  IntrinsicElements,
+  T extends {},
+  A,
+  B,
+  C,
+>(
+  globalComponents: GlobalComponents,
+  elements: IntrinsicElements,
+  context: T,
+  id: A,
+  usedName?: B,
+  pascalName?: C,
+): true extends IsNotComponent<A>
+  ? B extends keyof KnownKeys<T>
+    ? T[B]
+    : C extends keyof KnownKeys<T>
+    ? T[C]
+    : B extends keyof KnownKeys<GlobalComponents>
+    ? GlobalComponents[B]
+    : C extends keyof KnownKeys<GlobalComponents>
+    ? GlobalComponents[C]
+    : B extends keyof KnownKeys<IntrinsicElements>
+    ? IntrinsicElements[B]
+    : C extends keyof KnownKeys<IntrinsicElements>
+    ? IntrinsicElements[C]
+    : A
+  : A
 
-export function defineSetupComponent<P, E, B>(
-  props: P,
-  emits: E,
-  bindings: B,
-  options: any,
-): DefineComponent<
-  {}, // PropsOrPropOptions
-  B, // RawBindings
-  {}, // D
-  {}, // C = ComputedOptions
-  {}, // M = MethodOptions
-  {}, // Mixin
-  {}, // Extends
-  {}, // E = EmitsOptions
-  string, // EE
-  VNodeProps & AllowedComponentProps & ComponentCustomProps, // PP = PublicProps
-  P & EmitsToProps<ToEmitOptions<E>>, // Props
-  {} // Defaults
->
+type IsNotComponent<T> = true extends IsStrictlyAny<T>
+  ? true
+  : T extends null | undefined | never
+  ? true
+  : false
+
+type IsStrictlyAny<T> = (T extends never ? true : false) extends false
+  ? false
+  : true

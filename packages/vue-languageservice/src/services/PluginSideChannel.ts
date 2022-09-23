@@ -1,10 +1,10 @@
 import {
   isVueSFCDescriptorFile,
   isVueTemplateASTFile,
+  parseFileName,
   toFileName,
 } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
-import { ConfigManager } from '../managers/ConfigManager'
 import { FilesystemService } from './FilesystemService'
 import { TypescriptContextService } from './TypescriptContextService'
 
@@ -24,29 +24,23 @@ export class PluginSideChannel {
   public async getVirtualFileContents(
     fileName: string,
   ): Promise<string | undefined> {
-    if (this.fs.isVueTsFile(fileName)) {
-      return this.fs.getVueFile(fileName)?.getTypeScriptText()
-    } else if (this.fs.isVueVirtualFile(fileName)) {
-      const doc = this.fs.getVueFile(fileName)?.getDocById(fileName)
-      if (doc == null || doc.generated == null) return
-      const debugSourceMaps =
-        ConfigManager.instance.state.debugSourceMaps ?? false
+    if (this.fs.isGeneratedVueFile(fileName)) {
+      const file = this.fs.getVueFile(fileName)
+      if (file == null) return undefined
+
       return (
-        doc.generated.getText() +
-        (debugSourceMaps
-          ? '\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,' +
-            Buffer.from(JSON.stringify(doc.rawSourceMap)).toString('base64') +
-            '\n'
-          : '')
+        file.getText() +
+        '\n//#sourceMappingURL=data:application/json;base64,' +
+        Buffer.from(file.map).toString('base64')
       )
     } else if (this.fs.isProjectRuntimeFile(fileName)) {
       return this.ts.getProjectRuntimeFile(fileName)
     } else if (isVueSFCDescriptorFile(fileName)) {
-      const vueFile = this.fs.getVueFile(fileName)
+      const vueFile = this.fs.getVueFile(parseFileName(fileName).fileName)
       if (vueFile != null) return stringify(vueFile.descriptor)
       return '{}'
     } else if (isVueTemplateASTFile(fileName)) {
-      const vueFile = this.fs.getVueFile(fileName)
+      const vueFile = this.fs.getVueFile(parseFileName(fileName).fileName)
       if (vueFile?.templateAST != null) return stringify(vueFile.templateAST)
       return '{}'
     }
@@ -54,48 +48,13 @@ export class PluginSideChannel {
     return undefined
   }
 
-  /**
-   * Get contents of a virtual file.
-   */
-  public async getVirtualFileAt(
-    fileName: string,
-    position: number,
-  ): Promise<string | undefined> {
-    if (!this.fs.isVueFile(fileName)) return
-
-    return (
-      this.fs.getVirtualFileAt(fileName, position)?.tsFileName ??
-      this.fs.getVueFile(fileName)?.tsFileName
-    )
-  }
-
-  public async findGeneratedFileAndRange(
-    fileName: string,
-    start: number,
-    end: number,
-  ): Promise<undefined | { fileName: string; start: number; end: number }> {
-    const offset = Math.min(start, end)
-    const length = Math.abs(end - start)
-    const blockFile = this.fs.getVirtualFileAt(fileName, offset)
-    if (blockFile?.tsFileName == null) return
-    const result = blockFile.generatedOffetAndLengthAt(offset, length)
-
-    return {
-      fileName: blockFile.tsFileName,
-      start: result.offset,
-      end: result.offset + result.length,
-    }
-  }
-
   public async getRelatedVirtualFiles(fileName: string): Promise<string[]> {
     const file = this.fs.getVueFile(fileName)
     if (file == null) return []
     return [
-      file.tsFileName,
-      ...file.getActiveTSDocIDs(),
-      toFileName({ type: 'vue-descriptor', fileName: file.fileName }),
-      toFileName({ type: 'vue-template-ast', fileName: file.fileName }),
-      this.ts.getProjectRuntimeFileName(fileName),
+      file.generatedFileName,
+      toFileName({ type: 'vue-descriptor', fileName: file.originalFileName }),
+      toFileName({ type: 'vue-template-ast', fileName: file.originalFileName }),
     ]
   }
 }

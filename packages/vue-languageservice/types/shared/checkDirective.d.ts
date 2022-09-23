@@ -1,35 +1,26 @@
-import { Directive } from '@vue/runtime-core'
+import type { Directive } from '@vue/runtime-core'
 
 export function checkDirective<
   T,
-  D extends
-    | Directive<T, unknown>
-    | 'show'
-    | 'text'
-    | 'html'
-    | 'once'
-    | 'pre'
-    | 'cloak'
-    | 'memo',
-  A extends string | undefined,
-  E extends GetExp<T, D>,
-  M extends GetModifiers<D>
->(dir: D, tag: T, arg: A, exp: E, modifiers: Partial<Record<M, boolean>>): E
+  D extends Directive<T, unknown> | 'show' | 'once' | 'pre' | 'cloak' | 'memo',
+>(
+  dir: D,
+  tag: T,
+  arg: GetArg<D>,
+  exp: GetExp<T, D>,
+  modifiers: Partial<Record<GetModifiers<D>, boolean>>,
+): void
+
+type GetArg<D> = D extends Directive<any, any> ? string | undefined : undefined
 
 type GetExp<T, D> = D extends 'show'
   ? boolean | undefined
-  : D extends 'text' | 'html'
-  ? T extends keyof JSX.IntrinsicElements
-    ? string | undefined
-    : T extends JSX.IntrinsicAttributes[keyof JSX.IntrinsicAttributes]
-    ? string | undefined
-    : never
   : D extends 'once' | 'pre' | 'cloak'
-  ? undefined
+  ? never
   : D extends 'memo'
-  ? any[]
-  : D extends Directive<unknown, infer E>
+  ? unknown[]
+  : D extends Directive<T, infer E>
   ? E
-  : undefined
+  : any
 
 type GetModifiers<D> = D extends Directive<unknown, unknown> ? never : never

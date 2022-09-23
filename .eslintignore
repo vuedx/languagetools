@@ -7,3 +7,4 @@ _templates/
 samples/**
 coverage/
 @types/
+**/*.spec.ts

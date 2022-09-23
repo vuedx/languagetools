@@ -10,41 +10,34 @@ import {
 } from './shared/checkDirectiveOn'
 import { checkInterpolation } from './shared/checkInterpolation'
 import { checkRef } from './shared/checkRef'
-import { checkSlots, SlotsFrom } from './shared/checkSlots'
-import { defineSetupComponent, resolveComponent } from './shared/components'
+
+import { resolveComponent } from './shared/components'
 import { resolveDirective } from './shared/directives'
 import { getElementType } from './shared/element'
-import {
-  AttrsOf,
-  MergeAttrs,
-  propCompletionHelper,
-  PropsOf,
-} from './shared/Props'
+import { MergeAttrs, PropsOf } from './shared/Props'
 import { renderList } from './shared/renderList'
 import { renderSlot } from './shared/renderSlot'
-import { Slots } from './shared/Slots'
-import { flat, union } from './shared/utils'
+import { Slots, SlotsFrom, GetSlotProps, checkSlots } from './shared/Slots'
+import { first, flat, union, merge, getNameOption } from './shared/utils'
+import { EmitsToProps, EmitTypeToEmits } from './shared/emits'
+import {} from './shared/jsx'
 
 export type version = '3.x'
 
-declare global {
-  namespace VueDX {
-    namespace internal {
-      export { flat, union }
-      export { resolveComponent, resolveDirective, getElementType }
-      export { renderList, renderSlot, Slots }
-      export { defineComponent, defineSetupComponent }
-      export {
-        checkInterpolation,
-        checkRef,
-        checkSlots,
-        checkDirective,
-        checkOnDirective,
-        checkHTMLElementType,
-        checkModelDirective,
-      }
-      export { propCompletionHelper }
-      export { PropsOf, AttrsOf, SlotsFrom, MergeAttrs }
-    }
+export namespace internal {
+  export { first, flat, union, merge, getNameOption }
+  export { resolveComponent, resolveDirective, getElementType }
+  export { renderList, renderSlot, Slots, GetSlotProps }
+  export { defineComponent }
+  export {
+    checkInterpolation,
+    checkRef,
+    checkSlots,
+    checkDirective,
+    checkOnDirective,
+    checkHTMLElementType,
+    checkModelDirective,
   }
+
+  export { PropsOf, SlotsFrom, MergeAttrs, EmitsToProps, EmitTypeToEmits }
 }

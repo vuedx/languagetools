@@ -2,10 +2,9 @@ import {
   isProjectRuntimeFile,
   isVueFile,
   parseFileName,
-  toFileName,
-  ucfirst,
+  toFileName
 } from '@vuedx/shared'
-import {} from '@vuedx/vue-virtual-textdocument'
+import { } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import {
   Disposable,
@@ -13,7 +12,7 @@ import {
   StatusBarItem,
   TextEditor,
   Uri,
-  window,
+  window
 } from 'vscode'
 import { Installable } from '../utils/installable'
 import { getVirtualFileUri } from '../utils/uri'
@@ -77,23 +76,14 @@ export class VirtualFileSwitcher extends Installable {
 
     this._lastFile = parsed.fileName
 
-    if (parsed.type === 'virtual') {
-      this.statusBar.tooltip = `Showing virtual file from "${editor.document.fileName}"`
-      this.statusBar.text = `$(file-submodule) Virtual ${ucfirst(
-        parsed.blockType,
-      )}`
-      this.statusBar.command = {
-        title: 'Select virtual file',
-        command: 'vuedx.selectVirtualFile',
-        arguments: [editor.document.uri],
-      }
-    } else if (
-      parsed.type === 'vue-ts' ||
+    if (
+      parsed.type === 'vue-tsx' ||
+      parsed.type === 'vue-jsx' ||
       parsed.type === 'vue-descriptor' ||
       parsed.type === 'vue-template-ast'
     ) {
       const displayName =
-        parsed.type === 'vue-ts'
+        parsed.type === 'vue-tsx' || parsed.type === 'vue-jsx'
           ? 'Virtual Module'
           : parsed.type === 'vue-descriptor'
           ? 'SFC Descriptor'
@@ -113,7 +103,7 @@ export class VirtualFileSwitcher extends Installable {
         command: 'vuedx.openVirtualFile',
         arguments: [
           getVirtualFileUri(
-            toFileName({ type: 'vue-ts', fileName: parsed.fileName }),
+            toFileName({ type: 'vue-tsx', fileName: parsed.fileName }),
           ),
         ],
       }
