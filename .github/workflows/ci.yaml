@@ -70,7 +70,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - windows-latest
         node_version:
           - '18'
         include:
