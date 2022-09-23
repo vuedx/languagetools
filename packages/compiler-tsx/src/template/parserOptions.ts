@@ -1,20 +1,15 @@
-import {
-  ElementNode,
-  Namespaces,
-  NodeTypes,
-  ParserOptions,
-  TextModes,
-} from '@vue/compiler-core'
+import type { ElementNode, ParserOptions, TextModes } from '@vue/compiler-core'
 import {
   isHTMLTag,
   isRawTextContainer,
   isSVGTag,
   isVoidTag,
 } from '@vuedx/shared'
+import { NodeTypes } from '@vuedx/template-ast-types'
 import { decodeHtml } from './decodeEntities'
 
 export const enum DOMNamespaces {
-  HTML = Namespaces.HTML,
+  HTML = 0,
   SVG,
   MATH_ML,
 }
@@ -78,12 +73,12 @@ export const parserOptions: ParserOptions = {
   getTextMode({ tag, ns }: ElementNode): TextModes {
     if (ns === DOMNamespaces.HTML) {
       if (tag === 'textarea' || tag === 'title') {
-        return TextModes.RCDATA
+        return 1 /* TextModes.RCDATA */
       }
       if (isRawTextContainer(tag)) {
-        return TextModes.RAWTEXT
+        return 2 /* TextModes.RAWTEXT */
       }
     }
-    return TextModes.DATA
+    return 0 /* TextModes.DATA */
   },
 }

@@ -3,11 +3,11 @@
 exports[`Vue to TSX compiler if-else-if.vue: if-else-if.vue 1`] = `
 "import * as __VueDX__TypeCheck from 'vuedx~runtime';
 //#region <script>
-import { defineComponent as __VueDX__Script_defineComponent } from \\"vue\\";
+import { defineComponent as __VueDX__Script_defineComponent } from "vue";
 
 const __VueDX__Script_Component = __VueDX__Script_defineComponent({});
 function __VueDX__RegisterSelf<T extends {}>(arg0: T) {
-  const key = \\"IfElseIf\\" as const;
+  const key = "IfElseIf" as const;
   return { ...arg0, [key]: IfElseIf };
 }
 //#endregion
@@ -26,7 +26,7 @@ function __VueDX__render() {
             <div
               /*<vuedx:tsx-completions-target/>*/
             >
-              {\\"A\\"}
+              {"A"}
             </div>
           </>
         : type === 'B'
@@ -34,7 +34,7 @@ function __VueDX__render() {
             <div
               /*<vuedx:tsx-completions-target/>*/
             >
-              {\\"B\\"}
+              {"B"}
             </div>
           </>
         : type === 'C'
@@ -42,14 +42,14 @@ function __VueDX__render() {
             <div
               /*<vuedx:tsx-completions-target/>*/
             >
-              {\\"C\\"}
+              {"C"}
             </div>
           </>
         : <>
             <div
               /*<vuedx:tsx-completions-target/>*/
             >
-              {\\"Not A/B/C\\"}
+              {"Not A/B/C"}
             </div>
           </>
       }
@@ -69,10 +69,10 @@ function __VueDX__slots() {
 /*</vuedx:diagnosticsIgnore>*/
 const __VueDX__attrs = (() => {
   return __VueDX__TypeCheck.internal.first(__VueDX__TypeCheck.internal.flat([
-    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, \\"div\\">,
-    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, \\"div\\">,
-    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, \\"div\\">,
-    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, \\"div\\">,
+    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
+    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
+    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
+    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
   ]))
 })();
 
@@ -89,11 +89,11 @@ export default class IfElseIf {
 exports[`Vue to TSX compiler nested-for-slot.vue: nested-for-slot.vue 1`] = `
 "import * as __VueDX__TypeCheck from 'vuedx~runtime';
 //#region <script>
-import { defineComponent as __VueDX__Script_defineComponent } from \\"vue\\";
+import { defineComponent as __VueDX__Script_defineComponent } from "vue";
 
 const __VueDX__Script_Component = __VueDX__Script_defineComponent({});
 function __VueDX__RegisterSelf<T extends {}>(arg0: T) {
-  const key = \\"NestedForSlot\\" as const;
+  const key = "NestedForSlot" as const;
   return { ...arg0, [key]: NestedForSlot };
 }
 //#endregion
@@ -117,7 +117,7 @@ function __VueDX__render() {
               {
                 $slots.default != null ? $slots.default({}) : (
                   <>
-                    {\\"fallback content\\"}
+                    {"fallback content"}
                   </>
                 )
 
@@ -134,7 +134,7 @@ function __VueDX__render() {
                           myProp: item,
                         }) : (
                           <>
-                            {\\"fallback content\\"}
+                            {"fallback content"}
                           </>
                         )
 
@@ -171,7 +171,7 @@ function __VueDX__slots() {
         __VueDX__TypeCheck.internal.flat(
           __VueDX__TypeCheck.internal.renderList(items, (item) => (
             {
-              \\"other\\": {
+              "other": {
                 ...(props),
                 myProp: item,
               },
@@ -185,7 +185,7 @@ function __VueDX__slots() {
 /*</vuedx:diagnosticsIgnore>*/
 const __VueDX__attrs = (() => {
   return __VueDX__TypeCheck.internal.first(__VueDX__TypeCheck.internal.flat([
-    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, \\"div\\">,
+    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
   ]))
 })();
 
@@ -210,7 +210,7 @@ const __VueDX__Script_Component = defineComponent({
   })
 });
 function __VueDX__RegisterSelf<T extends {}>(arg0: T) {
-  const key = \\"TsScriptTemplate\\" as const;
+  const key = "TsScriptTemplate" as const;
   return { ...arg0, [key]: TsScriptTemplate };
 }
 //#endregion
@@ -263,7 +263,7 @@ function __VueDX__slots() {
 /*</vuedx:diagnosticsIgnore>*/
 const __VueDX__attrs = (() => {
   return __VueDX__TypeCheck.internal.first(__VueDX__TypeCheck.internal.flat([
-    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, \\"div\\">,
+    {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
   ]))
 })();
 

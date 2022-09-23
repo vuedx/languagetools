@@ -71,7 +71,7 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
-        Array [
+        [
           "Type 'boolean' is not assignable to type 'string'.",
           "Type 'number' is not assignable to type 'string'.",
           "Type '{ foo: string; } | undefined' is not assignable to type 'string | undefined'.
@@ -85,7 +85,7 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
-        Array [
+        [
           "Variable 'c' is used before being assigned.",
           "Argument of type 'boolean' is not assignable to parameter of type 'unknown[]'.",
           "Argument of type 'number' is not assignable to parameter of type 'unknown[]'.",
@@ -98,7 +98,7 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
-        Array [
+        [
           "Type '{ modelValue: string | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { bar?: string | number | undefined; foo?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.
           Property 'modelValue' does not exist on type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { bar?: string | number | undefined; foo?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.",
           "Type 'number | undefined' is not assignable to type 'string | undefined'.
@@ -114,11 +114,11 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
-        Array [
-          "Type '\\"yes\\" | \\"no\\"' is not assignable to type 'Booleanish | undefined'.
-          Type '\\"yes\\"' is not assignable to type 'Booleanish | undefined'.",
-          "Type '\\"yes\\" | \\"no\\"' is not assignable to type 'Booleanish | undefined'.",
-          "Type '\\"yes\\" | \\"no\\"' is not assignable to type 'Booleanish | undefined'.",
+        [
+          "Type '"yes" | "no"' is not assignable to type 'Booleanish | undefined'.
+          Type '"yes"' is not assignable to type 'Booleanish | undefined'.",
+          "Type '"yes" | "no"' is not assignable to type 'Booleanish | undefined'.",
+          "Type '"yes" | "no"' is not assignable to type 'Booleanish | undefined'.",
           "Object is possibly 'null'.",
           "Property 'checked' does not exist on type 'EventTarget'.",
         ]
@@ -130,7 +130,7 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
-        Array [
+        [
           "Type 'Date | undefined' is not assignable to type 'string | number | string[] | undefined'.
           Type 'Date' is not assignable to type 'string | number | string[] | undefined'.
             Type 'Date' is missing the following properties from type 'string[]': length, pop, push, concat, and 26 more.",
@@ -144,7 +144,7 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(
         semantic.map((diagnostic) => diagnostic.text),
-      ).toMatchInlineSnapshot(`Array []`)
+      ).toMatchInlineSnapshot(`[]`)
     })
 
     test('v-on-native', async () => {
@@ -152,7 +152,7 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
-        Array [
+        [
           "Type '(event: PointerEvent) => void' is not assignable to type '(payload: MouseEvent) => void'.
           Types of parameters 'event' and 'payload' are incompatible.
             Type 'MouseEvent' is missing the following properties from type 'PointerEvent': height, isPrimary, pointerId, pointerType, and 8 more.",
@@ -170,7 +170,7 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
-        Array [
+        [
           "Type '{ onA: () => void; onInput: () => void; onClick: () => void; onSubmit: () => void; }' is not assignable to type 'ReservedProps & ButtonHTMLAttributes & InputHTMLAttributes'.
           Property 'onA' does not exist on type 'ReservedProps & ButtonHTMLAttributes & InputHTMLAttributes'.",
           "Type '(payload?: number | undefined) => void' is not assignable to type '(_payload: string) => void'.
@@ -191,7 +191,7 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
-        Array [
+        [
           "Argument of type 'boolean' is not assignable to parameter of type 'never'.",
           "Argument of type 'number' is not assignable to parameter of type 'never'.",
           "Argument of type '{ foo: string; } | undefined' is not assignable to parameter of type 'never'.
@@ -207,7 +207,7 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(
         semantic.map((diagnostic) => diagnostic.text),
-      ).toMatchInlineSnapshot(`Array []`)
+      ).toMatchInlineSnapshot(`[]`)
     })
 
     test('v-show', async () => {
@@ -215,7 +215,7 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
-        Array [
+        [
           "Argument of type 'number' is not assignable to parameter of type 'boolean | undefined'.",
           "Argument of type '{ foo: string; } | undefined' is not assignable to parameter of type 'boolean | undefined'.
           Type '{ foo: string; }' is not assignable to type 'boolean | undefined'.",
@@ -228,7 +228,7 @@ describe('project', () => {
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
-        Array [
+        [
           "Type 'boolean' is not assignable to type 'string'.",
           "Type 'number' is not assignable to type 'string'.",
           "Type '{ foo: string; } | undefined' is not assignable to type 'string | undefined'.

@@ -25,16 +25,16 @@ describe('VueSFCDocument', () => {
     expect(doc.getText()).toMatchInlineSnapshot(`
       "import * as __VueDX_TypeCheck from 'vuedx~runtime';
       //#region <script>
-      import { defineComponent as __VueDX_Script_defineComponent } from \\"vue\\";
+      import { defineComponent as __VueDX_Script_defineComponent } from "vue";
 
       const __VueDX_Script_Component = __VueDX_Script_defineComponent({});
       function __VueDX_RegisterSelf<T extends {}>(arg0: T) {
-        const key = \\"Example\\" as const;
+        const key = "Example" as const;
         return { ...arg0, [key]: Example };
       }
       //#endregion
       //#region <script setup>
-      import { defineComponent as __VueDX_defineComponent } from \\"vue\\";
+      import { defineComponent as __VueDX_defineComponent } from "vue";
       import Foo from './foo';
 
       const __VueDX_SetupComponent = __VueDX_defineComponent(__VueDX_arg0 => {
@@ -60,7 +60,7 @@ describe('VueSFCDocument', () => {
         let $slots = __VueDX_ctx.$slots
         /*</vuedx:templateGlobals>*/
         /*<vuedx:templateGlobals>*/
-        const Foo = __VueDX_TypeCheck.internal.resolveComponent({} as unknown as __VueDX_GlobalComponents, {} as unknown as JSX.IntrinsicElements, __VueDX_ctx, __VueDX__get_identifier_Foo(), \\"Foo\\" as const, \\"Foo\\" as const);
+        const Foo = __VueDX_TypeCheck.internal.resolveComponent({} as unknown as __VueDX_GlobalComponents, {} as unknown as JSX.IntrinsicElements, __VueDX_ctx, __VueDX__get_identifier_Foo(), "Foo" as const, "Foo" as const);
         /*</vuedx:templateGlobals>*/
         return (
           <>
