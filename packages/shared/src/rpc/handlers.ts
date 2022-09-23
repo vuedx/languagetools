@@ -239,7 +239,7 @@ export function toValue(endpoint: Endpoint, value: unknown): Value {
       if (handler.canHandle(value)) {
         return {
           type: ValueType.HANDLER,
-          name: name,
+          name,
           value: handler.serialize(value),
         }
       }
@@ -247,7 +247,7 @@ export function toValue(endpoint: Endpoint, value: unknown): Value {
 
     return {
       type: ValueType.RAW,
-      value: value,
+      value,
     }
   })
 }
