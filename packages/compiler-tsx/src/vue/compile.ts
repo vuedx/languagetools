@@ -4,14 +4,17 @@ import {
   SFCBlock,
   SFCDescriptor,
 } from '@vuedx/compiler-sfc'
-import { Cache, createCache, getComponentName } from '@vuedx/shared'
+import {
+  Cache,
+  createCache,
+  rebaseSourceMap,
+  SourceTransformer,
+} from '@vuedx/shared'
 import type {
   TransformOptions,
   TransformOptionsResolved,
 } from '../types/TransformOptions'
 import { transformCustomBlock } from './blocks/transformCustomBlock'
-import { SourceBuilder } from './SourceBuilder'
-import { rebaseSourceMap } from './sourceMapHelpers'
 
 import type { RootNode } from '@vue/compiler-core'
 import type { RawSourceMap } from 'source-map'
@@ -28,7 +31,6 @@ export interface CompileOutput extends TransformedCode {
   template?: RootNode
   descriptor: SFCDescriptor
   errors: Array<CompilerError | SyntaxError>
-  unusedIdentifiers: string[]
 }
 
 export function compile(
@@ -53,7 +55,7 @@ export function compileWithDecodedSourceMap(
 ): CompileOutput {
   // performance.mark('beforeTransform')
   const cache = options.cache ?? createCache(100)
-  const key = (name: string): string => `${options.fileName}::${name}`
+  const key = (name: string): string => `${options.fileName}::block:${name}`
   const previous = cache.get(key('descriptor')) as SFCDescriptor | undefined
   const { descriptor, errors } = parse(source)
 
@@ -72,42 +74,63 @@ export function compileWithDecodedSourceMap(
     isTypeScript: options.isTypeScript ?? (lang === 'ts' || lang === 'tsx'),
     cache,
     descriptor,
+    identifiers: new Set(),
   }
-  const builder = new SourceBuilder(options.fileName, source)
+  const builder = new SourceTransformer(options.fileName, source)
 
-  const script = runIfNeeded(
-    key('script'),
-    previous?.script,
-    descriptor.script,
-    cache,
-    () => transformScript(descriptor.script, resolvedOptions),
+  const isScriptChanged = hasBlockChanged(previous?.script, descriptor.script)
+
+  const script = runIfNeeded(key('script'), isScriptChanged, cache, () =>
+    transformScript(descriptor.script, resolvedOptions),
   )
 
-  const scriptSetup = runIfNeeded(
-    key('scriptSetup'),
+  const isScriptSetupChanged = hasBlockChanged(
     previous?.scriptSetup,
     descriptor.scriptSetup,
+  )
+  const scriptSetup = runIfNeeded(
+    key('scriptSetup'),
+    isScriptSetupChanged,
     cache,
     () => transformScriptSetup(descriptor.scriptSetup, resolvedOptions),
   )
 
+  resolvedOptions.identifiers = new Set([
+    ...script.identifiers,
+    ...scriptSetup.identifiers,
+  ])
+
   const template = runIfNeeded(
     key('template'),
-    previous?.template,
-    descriptor.template,
+    isScriptChanged ||
+      isScriptSetupChanged ||
+      hasBlockChanged(previous?.template, descriptor.template),
     cache,
     () => transformTemplate(descriptor.template, resolvedOptions),
   )
 
+  const name = script.name
   function region(name: string, fn: () => void): void {
+    builder.nextLine()
     builder.append(`//#region ${name}`)
+    builder.nextLine()
     fn()
+    builder.nextLine()
     builder.append(`//#endregion`)
+    builder.nextLine()
   }
 
   builder.append(
-    `import * as ${resolvedOptions.typeIdentifier} from '${resolvedOptions.typeCheckModuleName}';`,
+    [
+      `import * as ${resolvedOptions.typeIdentifier} from '${resolvedOptions.typeCheckModuleName}';`,
+      `import { ${['defineComponent', 'GlobalComponents']
+        .map(
+          (id) => `${id} as ${resolvedOptions.internalIdentifierPrefix}${id}`,
+        )
+        .join(', ')} } from '${resolvedOptions.runtimeModuleName}';`,
+    ].join('\n'),
   )
+  builder.nextLine()
   region('<script>', () => {
     builder.append(
       script.code,
@@ -115,20 +138,10 @@ export function compileWithDecodedSourceMap(
     )
   })
 
-  if (scriptSetup != null) {
-    region('<script setup>', () => {
-      builder.append(
-        scriptSetup.code,
-        rebaseSourceMap(scriptSetup.map, descriptor.scriptSetup?.loc.start),
-      )
-    })
-  }
-
   const customBlocksResults = descriptor.customBlocks.map((block, index) => {
     const result = runIfNeeded(
       key(`customBlock${index}`),
-      previous?.customBlocks[index],
-      block,
+      hasBlockChanged(previous?.customBlocks[index], block),
       cache,
       () => transformCustomBlock(block, resolvedOptions),
     )
@@ -140,11 +153,28 @@ export function compileWithDecodedSourceMap(
     return result
   })
 
+  region('<script setup>', () => {
+    builder.append(
+      scriptSetup.code,
+      rebaseSourceMap(scriptSetup.map, descriptor.scriptSetup?.loc.start),
+    )
+  })
   const defaultExportIdentifier =
-    scriptSetup != null ? scriptSetup.exportIdentifier : script.exportIdentifier
+    descriptor.scriptSetup != null
+      ? scriptSetup.exportIdentifier
+      : script.exportIdentifier
 
   builder.append(
-    `const ${contextIdentifier} = ${[...customBlocksResults, script].reduce(
+    [
+      `function ${internalIdentifierPrefix}RegisterSelf<T>(ctx: T) {`,
+      `  return { ...ctx, [${JSON.stringify(name)}]: ${name} }`,
+      `}`,
+    ].join('\n'),
+  )
+  builder.nextLine()
+
+  builder.append(
+    `const ${contextIdentifier} = ${customBlocksResults.reduce(
       (code, result) => {
         if (result.decoratorIdentifier != null) {
           return `${result.decoratorIdentifier}(${code})`
@@ -152,9 +182,11 @@ export function compileWithDecodedSourceMap(
 
         return code
       },
-      `new ${defaultExportIdentifier}()`,
+      `${internalIdentifierPrefix}RegisterSelf(new ${defaultExportIdentifier}())`,
     )}`,
   )
+
+  builder.nextLine()
 
   region(`<template>`, () => {
     builder.append(
@@ -166,8 +198,7 @@ export function compileWithDecodedSourceMap(
   descriptor.styles.forEach((style, index) => {
     const result = runIfNeeded(
       key(`style${index}`),
-      previous?.styles[index],
-      style,
+      hasBlockChanged(previous?.styles[index], style),
       cache,
       () => transformStyle(style, resolvedOptions),
     )
@@ -177,34 +208,46 @@ export function compileWithDecodedSourceMap(
     })
   })
 
+  const exported = [
+    scriptSetup.exportIdentifier,
+    scriptSetup.propsIdentifier,
+    scriptSetup.emitsIdentifier,
+    scriptSetup.exposeIdentifier,
+    template.attrsIdentifier,
+    template.slotsIdentifier,
+    resolvedOptions.contextIdentifier,
+    ...Object.values(scriptSetup.exports),
+  ].join(', ')
+
+  builder.append(`return {${exported}};});`)
+  builder.nextLine()
+  builder.append(`const {${exported}} = ${scriptSetup.scopeIdentifier};\n`)
+  Object.entries(scriptSetup.exports).forEach(([name, identifier]) => {
+    builder.append(`export type ${name} = typeof ${identifier};\n`)
+  })
+
   region('public component definition', () => {
-    const name = script.selfName ?? getComponentName(options.fileName)
-    const props =
-      scriptSetup?.propsIdentifier != null
-        ? scriptSetup.propsIdentifier
-        : `${resolvedOptions.contextIdentifier}.$props`
+    const props = `${resolvedOptions.contextIdentifier}.$props`
 
-    let parentClassIfAny = ''
-    if (scriptSetup?.exposeIdentifier != null) {
-      const type = `new () => typeof ${resolvedOptions.contextIdentifier}.${scriptSetup.exposeIdentifier}`
-      if (resolvedOptions.isTypeScript) {
-        builder.append(`const ${name}Public = null as unknown as ${type};`)
-      } else {
-        builder.append(
-          `const ${name}Public = /** @type {${type}} */ (/** @type {unknown} */ (null));`,
-        )
-      }
-
-      parentClassIfAny = ` extends ${name}Public`
+    const parentClassIfAny = ` extends ${name}Public`
+    const type = `new () => typeof ${scriptSetup.exposeIdentifier}`
+    if (resolvedOptions.isTypeScript) {
+      builder.append(`const ${name}Public = null as unknown as ${type};`)
+      builder.nextLine()
+    } else {
+      builder.append(
+        `const ${name}Public = /** @type {${type}} */ (/** @type {unknown} */ (null));`,
+      )
+      builder.nextLine()
     }
 
     const inheritAttrs =
       descriptor.template?.content.includes('@vue-attrs-target') === true ||
-      (script.inheritAttrs ?? true)
+      script.inheritAttrs
 
     const propsType =
-      scriptSetup?.emitIdentifier != null
-        ? `typeof ${props} & ${resolvedOptions.typeIdentifier}.internal.EmitsToProps<typeof ${scriptSetup.emitIdentifier}>`
+      descriptor.scriptSetup != null
+        ? `typeof ${props} & ${resolvedOptions.typeIdentifier}.internal.EmitsToProps<typeof ${scriptSetup.emitsIdentifier}>`
         : `typeof ${props}`
     const attrsType = `typeof ${template.attrsIdentifier}`
 
@@ -224,20 +267,12 @@ export function compileWithDecodedSourceMap(
         `}`,
       ].join('\n'),
     )
+    builder.nextLine()
   })
 
   const output = builder.end()
   // performance.mark('afterTransform')
   // performance.measure('transform', 'beforeTransform', 'afterTransform')
-
-  const usedIdentifiers = new Set(
-    template.ast != null ? template.ast.scope.globals : [],
-  )
-  const identifiers =
-    scriptSetup?.identifiers.filter((id) => {
-      if (usedIdentifiers.has(id)) return false
-      return true
-    }) ?? []
 
   return {
     code: output.code,
@@ -251,7 +286,6 @@ export function compileWithDecodedSourceMap(
     descriptor,
     errors: [...errors, ...template.errors],
     template: template.ast,
-    unusedIdentifiers: identifiers,
   }
 
   function defineProperty(name: string, type: string): string {
@@ -261,14 +295,13 @@ export function compileWithDecodedSourceMap(
   }
 }
 
-function runIfNeeded<Block extends SFCBlock, R>(
+function runIfNeeded<R>(
   key: string,
-  previous: Block | undefined | null,
-  current: Block | null,
+  forceEvict: boolean,
   cache: Cache<string, unknown>,
   fn: () => R,
 ): R {
-  if (cache.has(key) && hasBlockChanged(previous, current)) cache.delete(key)
+  if (forceEvict) cache.delete(key)
   return cache.resolve(key, fn) as R
 }
 

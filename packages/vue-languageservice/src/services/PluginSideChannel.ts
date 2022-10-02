@@ -4,6 +4,7 @@ import {
   parseFileName,
   toFileName,
 } from '@vuedx/shared'
+import { TextSpan } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import { FilesystemService } from './FilesystemService'
 import { TypescriptContextService } from './TypescriptContextService'
@@ -46,6 +47,24 @@ export class PluginSideChannel {
     }
 
     return undefined
+  }
+
+  public async findGeneratedTextSpan(
+    fileName: string,
+    textSpan: TextSpan,
+  ): Promise<TextSpan | null> {
+    const file = this.fs.getVueFile(fileName)
+    if (file == null) return null
+    return file.findGeneratedTextSpan(textSpan)
+  }
+
+  public async findOriginalTextSpan(
+    fileName: string,
+    textSpan: TextSpan,
+  ): Promise<TextSpan | null> {
+    const file = this.fs.getVueFile(fileName)
+    if (file == null) return null
+    return file.findOriginalTextSpan(textSpan)
   }
 
   public async getRelatedVirtualFiles(fileName: string): Promise<string[]> {

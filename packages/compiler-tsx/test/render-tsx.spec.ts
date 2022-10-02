@@ -4,6 +4,7 @@ import * as FS from 'fs'
 import { addSerializer } from 'jest-specific-snapshot'
 import * as Path from 'path'
 import { compile, CompileOptions } from '../src'
+import * as typescript from 'typescript/lib/tsserverlibrary'
 
 addSerializer({
   serialize(val: any) {
@@ -120,6 +121,7 @@ function parseFixtures(content: string) {
                 fileName: '/tmp/compiler-tsx/Example.vue',
                 isTypeScript: true,
                 ...fixture.options,
+                typescript,
               },
             )
 

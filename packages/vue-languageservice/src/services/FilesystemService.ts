@@ -108,6 +108,7 @@ export class FilesystemService implements Disposable {
 
     const file = VueSFCDocument.create(fileName, this.provider.read(fileName), {
       isTypeScript: this.ts.isTypeScriptProject,
+      typescript: this.ts.lib,
     })
 
     const registerFileUpdate = (

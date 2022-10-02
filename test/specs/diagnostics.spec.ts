@@ -86,7 +86,6 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         [
-          "Variable 'c' is used before being assigned.",
           "Argument of type 'boolean' is not assignable to parameter of type 'unknown[]'.",
           "Argument of type 'number' is not assignable to parameter of type 'unknown[]'.",
         ]

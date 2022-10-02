@@ -1,20 +1,26 @@
 import * as __VueDX__TypeCheck from 'vuedx~runtime';
+import { defineComponent as __VueDX__defineComponent, GlobalComponents as __VueDX__GlobalComponents } from 'vue';
 //#region <script>
-import { defineComponent } from 'vue';
 
-const __VueDX__Script_Component = defineComponent({
-  data: () => ({
-    foo: 'string'
-  })
-});
-function __VueDX__RegisterSelf<T extends {}>(arg0: T) {
-  const key = "TsScriptTemplate" as const;
-  return { ...arg0, [key]: TsScriptTemplate };
-}
+import { defineComponent } from 'vue'
+const __VueDX___Script_Component =  defineComponent({
+  data: () => ({ foo: 'string' }),
+})
 //#endregion
-const __VueDX__ctx = __VueDX__RegisterSelf(new __VueDX__Script_Component())
+//#region <script setup>
+ ;const __VueDX___ScriptSetup_scope = __VueDX__TypeCheck.internal.scope(async () => {
+const __VueDX___ScriptSetup_props = defineProps({});
+const __VueDX___ScriptSetup_emits = ({});
+const __VueDX___ScriptSetup_expose = {};
+const __VueDX___ScriptSetup_internalProps = {};
+const __VueDX___ScriptSetup_Component = __VueDX__defineComponent((_: typeof __VueDX___ScriptSetup_internalProps)=> {});
+
+//#endregion
+function __VueDX__RegisterSelf<T>(ctx: T) {
+  return { ...ctx, ["TsScriptTemplate"]: TsScriptTemplate }
+}
+const __VueDX__ctx = __VueDX__RegisterSelf(new __VueDX___Script_Component())
 //#region <template>
-import type { GlobalComponents as __VueDX__GlobalComponents } from 'vue';
 function __VueDX__render() {
   /*<vuedx:templateGlobals>*/
   let foo = __VueDX__ctx.foo
@@ -49,7 +55,7 @@ function __VueDX__render() {
 }
 __VueDX__render();
 /*<vuedx:diagnosticsIgnore>*/
-function __VueDX__slots() {
+function __VueDX___slots() {
   /*<vuedx:templateGlobals>*/
   let foo = __VueDX__ctx.foo
   let console = __VueDX__ctx.console
@@ -59,16 +65,18 @@ function __VueDX__slots() {
   ]))
 }
 /*</vuedx:diagnosticsIgnore>*/
-const __VueDX__attrs = (() => {
+const __VueDX___attrs = (() => {
   return __VueDX__TypeCheck.internal.first(__VueDX__TypeCheck.internal.flat([
     {} as unknown as __VueDX__TypeCheck.internal.PropsOf<JSX.IntrinsicElements, "div">,
   ]))
 })();
-
 //#endregion
+return {__VueDX___ScriptSetup_Component, __VueDX___ScriptSetup_props, __VueDX___ScriptSetup_emits, __VueDX___ScriptSetup_expose, __VueDX___attrs, __VueDX___slots, __VueDX__ctx};});
+const {__VueDX___ScriptSetup_Component, __VueDX___ScriptSetup_props, __VueDX___ScriptSetup_emits, __VueDX___ScriptSetup_expose, __VueDX___attrs, __VueDX___slots, __VueDX__ctx} = __VueDX___ScriptSetup_scope;
 //#region public component definition
-export default class TsScriptTemplate {
-  $props = null as unknown as __VueDX__TypeCheck.internal.MergeAttrs<typeof __VueDX__ctx.$props, typeof __VueDX__attrs>;
-  $slots = null as unknown as __VueDX__TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>;
+const TsScriptTemplatePublic = null as unknown as new () => typeof __VueDX___ScriptSetup_expose;
+export default class TsScriptTemplate extends TsScriptTemplatePublic {
+  $props = null as unknown as __VueDX__TypeCheck.internal.MergeAttrs<typeof __VueDX__ctx.$props, typeof __VueDX___attrs>;
+  $slots = null as unknown as __VueDX__TypeCheck.internal.Slots<ReturnType<typeof __VueDX___slots>>;
 }
 //#endregion

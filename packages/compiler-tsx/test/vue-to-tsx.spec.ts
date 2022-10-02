@@ -2,6 +2,7 @@ import FS from 'fs'
 import Path from 'path'
 import { encode } from 'sourcemap-codec'
 import { compileWithDecodedSourceMap } from '../src/vue/compile'
+import * as typescript from 'typescript/lib/tsserverlibrary'
 
 describe('Vue to TSX compiler', () => {
   const dir = Path.join(__dirname, 'fixtures')
@@ -12,7 +13,7 @@ describe('Vue to TSX compiler', () => {
     const fixture = await FS.promises.readFile(fileName, 'utf-8')
     const result = compileWithDecodedSourceMap(fixture, {
       fileName,
-
+      typescript,
       isTypeScript: true,
     })
     expect(result.code).toMatchSnapshot(file)

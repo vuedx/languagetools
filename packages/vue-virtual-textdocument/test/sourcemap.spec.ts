@@ -1,4 +1,5 @@
 import { TextSpan, VueSFCDocument } from '../src'
+import * as typescript from 'typescript/lib/tsserverlibrary'
 
 expect.addSnapshotSerializer({
   serialize(val) {
@@ -171,7 +172,9 @@ function checkSnapshot(
 }
 
 function getTemplateFile(code: string) {
-  const file = VueSFCDocument.create('/foo/bar/Example.vue', code)
+  const file = VueSFCDocument.create('/foo/bar/Example.vue', code, {
+    typescript,
+  })
 
   function original(range: TextSpan) {
     return file.original

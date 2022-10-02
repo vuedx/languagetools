@@ -9,6 +9,7 @@
     "onwarn",
     "textdocument",
     "treeshake",
+    "tsserverlibrary",
     "typecheck",
     "ucfirst",
     "Uncapitalize",

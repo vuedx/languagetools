@@ -11,6 +11,7 @@ export interface TransformOptions {
   cache?: Cache<string, unknown>
   runtimeModuleName?: string
   typeCheckModuleName?: string
+  typescript: typeof import('typescript/lib/tsserverlibrary')
 }
 
 export interface TransformOptionsResolved extends TransformOptions {
@@ -58,4 +59,9 @@ export interface TransformOptionsResolved extends TransformOptions {
    * SFC Descriptor.
    */
   descriptor: SFCDescriptor
+
+  /**
+   * Known identifiers.
+   */
+  identifiers: Set<string>
 }

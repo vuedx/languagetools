@@ -178,20 +178,24 @@ export class DefinitionService
               this.ts.service
                 .getDefinitionAtPosition(
                   file.generatedFileName,
-                  templateDeclaration.initializer.start,
+                  templateDeclaration.initializer.start + 1,
                 )
                 ?.flatMap((definition) =>
                   this.processDefinitionInfo(definition),
                 ) ?? []
             )
           } else if (templateDeclaration.kind === 'identifier') {
+            const span = this.fs.getTextSpan(
+              file,
+              templateDeclaration.initializer,
+            )
             return (
               this.ts.service
                 .getDefinitionAtPosition(
                   file.generatedFileName,
                   templateDeclaration.initializer.start +
                     templateDeclaration.initializer.length -
-                    1, // check at the end of the line
+                    (span.endsWith(');') ? 2 : 1), // check at the end of the line
                 )
                 ?.flatMap((definition) =>
                   this.processDefinitionInfo(definition),

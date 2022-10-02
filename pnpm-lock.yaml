@@ -270,8 +270,10 @@ importers:
   packages/shared:
     specifiers:
       '@sentry/node': ^5.30.0
+      sourcemap-codec: ^1.4.8
     dependencies:
       '@sentry/node': 5.30.0
+      sourcemap-codec: 1.4.8
 
   packages/template-ast-types:
     specifiers:
@@ -284,25 +286,11 @@ importers:
 
   packages/transforms:
     specifiers:
-      '@babel/generator': ^7.19.0
-      '@babel/parser': ^7.19.0
-      '@babel/template': ^7.18.10
-      '@babel/types': ^7.19.0
-      '@types/babel__generator': ^7.6.4
-      '@types/babel__template': ^7.4.1
       '@vuedx/shared': workspace:*
-      magic-string: ^0.26.1
       typescript: ^4.8.2
     dependencies:
-      '@babel/generator': 7.19.0
-      '@babel/parser': 7.19.0
-      '@babel/template': 7.18.10
-      '@babel/types': 7.19.0
       '@vuedx/shared': link:../shared
-      magic-string: 0.26.1
     devDependencies:
-      '@types/babel__generator': 7.6.4
-      '@types/babel__template': 7.4.1
       typescript: 4.8.2
 
   packages/typecheck:
@@ -451,6 +439,7 @@ packages:
       '@babel/types': 7.19.0
       '@jridgewell/gen-mapping': 0.3.2
       jsesc: 2.5.2
+    dev: true
 
   /@babel/helper-compilation-targets/7.17.7_@babel+core@7.17.9:
     resolution: {integrity: sha512-UFzlz2jjd8kroj0hmCFV5zr+tQPi1dpC2cRsDV/3IEW8bJfCPrPpmcSN6ZS8RqIq4LXcmpipCQFPddyFA5Yc7w==}
@@ -607,6 +596,7 @@ packages:
     hasBin: true
     dependencies:
       '@babel/types': 7.19.0
+    dev: true
 
   /@babel/plugin-syntax-async-generators/7.8.4_@babel+core@7.17.9:
     resolution: {integrity: sha512-tycmZxkGfZaxhMRbXlPXuVFpdWlXpir2W4AMhSJgRKzk/eDlIXOhb2LHWoLpDF7TEHylV5zNhykX6KAgHJmTNw==}
@@ -751,6 +741,7 @@ packages:
       '@babel/code-frame': 7.18.6
       '@babel/parser': 7.19.0
       '@babel/types': 7.19.0
+    dev: true
 
   /@babel/traverse/7.17.9:
     resolution: {integrity: sha512-PQO8sDIJ8SIwipTPiR71kJQCKQYB5NGImbOviK8K+kg5xkNSYXLBupuX9QhatFowrsvo9Hj8WgArg3W7ijNAQw==}
@@ -1325,17 +1316,21 @@ packages:
       '@jridgewell/set-array': 1.1.2
       '@jridgewell/sourcemap-codec': 1.4.11
       '@jridgewell/trace-mapping': 0.3.9
+    dev: true
 
   /@jridgewell/resolve-uri/3.0.6:
     resolution: {integrity: sha512-R7xHtBSNm+9SyvpJkdQl+qrM3Hm2fea3Ef197M3mUug+v+yR+Rhfbs7PBtcBUVnIWJ4JcAdjvij+c8hXS9p5aw==}
     engines: {node: '>=6.0.0'}
+    dev: true
 
   /@jridgewell/set-array/1.1.2:
     resolution: {integrity: sha512-xnkseuNADM0gt2bs+BvhO0p78Mk762YnZdsuzFV018NoG1Sj1SCQvpSqa7XUaTam5vAGasABV9qXASMKnFMwMw==}
     engines: {node: '>=6.0.0'}
+    dev: true
 
   /@jridgewell/sourcemap-codec/1.4.11:
     resolution: {integrity: sha512-Fg32GrJo61m+VqYSdRSjRXMjQ06j8YIYfcTqndLYVAaHmroZHLJZCydsWBOTDqXS2v+mjxohBWEMfg97GXmYQg==}
+    dev: true
 
   /@jridgewell/trace-mapping/0.3.15:
     resolution: {integrity: sha512-oWZNOULl+UbhsgB51uuZzglikfIKSUBO/M9W2OfEjn7cmqoAiCgmv9lyACTUacZwBz0ITnJ2NqjU8Tx0DHL88g==}
@@ -1349,6 +1344,7 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.0.6
       '@jridgewell/sourcemap-codec': 1.4.11
+    dev: true
 
   /@jspm/core/2.0.0-beta.26:
     resolution: {integrity: sha512-InkzDEAhIHxRa9AFh/a0gDSJMJqBvu5fSOP5A4wE8GKVnLzkAHJcu/FIZwfnbRcs18DxFoVc62tY75JxOvDphw==}
@@ -5972,6 +5968,7 @@ packages:
     resolution: {integrity: sha512-OYu7XEzjkCQ3C5Ps3QIZsQfNpqoJyZZA99wd9aWd05NCtC5pWOkShK2mkL6HXQR6/Cy2lbNdPlZBpuQHXE63gA==}
     engines: {node: '>=4'}
     hasBin: true
+    dev: true
 
   /json-parse-better-errors/1.0.2:
     resolution: {integrity: sha512-mrqyZKfX5EhL7hvqcV6WG1yYjnjeuYDzDhhcAAUrq8Po85NBQBJP+ZDUT75qZQ98IkUoBqdkExkukOU7Ts2wrw==}
@@ -6266,13 +6263,6 @@ packages:
     dependencies:
       sourcemap-codec: 1.4.8
     dev: true
-
-  /magic-string/0.26.1:
-    resolution: {integrity: sha512-ndThHmvgtieXe8J/VGPjG+Apu7v7ItcD5mhEIvOscWjPF/ccOiLxHaSuCAS2G+3x4GKsAbT8u7zdyamupui8Tg==}
-    engines: {node: '>=12'}
-    dependencies:
-      sourcemap-codec: 1.4.8
-    dev: false
 
   /magic-string/0.26.2:
     resolution: {integrity: sha512-NzzlXpclt5zAbmo6h6jNc8zl2gNRGHvmsZW4IvZhTC4W7k4OlLP+S5YLussa/r3ixNT66KOQfNORlXHSOy/X4A==}

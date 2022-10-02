@@ -120,31 +120,6 @@ export class DiagnosticsService
       })
     }
 
-    const setupVariables = new Map(
-      this.declarations
-        .getTemplateDeclaration(file.originalFileName)
-        .declarations.filter((declaration) => declaration.kind === 'setup')
-        .map((declaration) => [declaration.id, declaration]),
-    )
-
-    file.snapshot.unusedIdentifiers.forEach((identifier) => {
-      const declaration = setupVariables.get(identifier)
-      if (declaration == null || declaration.kind === 'component') return
-      if (declaration.references.length > 0) return
-      const span = file.findOriginalTextSpan(declaration.initializer)
-      if (span == null) return
-      const diagnostic: TypeScript.DiagnosticWithLocation = {
-        category: this.ts.lib.DiagnosticCategory.Suggestion,
-        code: 6133,
-        source: 'VueDX/Compiler',
-        file: fakeSourceFile,
-        ...span,
-        messageText: `'${declaration.id}' is declared but its value is never read.`, // TODO: localize.
-        reportsUnnecessary: true,
-      }
-      diagnostics.push(diagnostic)
-    })
-
     diagnostics.push(
       ...this.declarations
         .getUndefinedGlobals(fileName)

@@ -117,10 +117,6 @@ export function generate(
 ): TransformedCode {
   ctx = createGenerateContext(options)
 
-  writeLine(
-    `import type { GlobalComponents as ${ctx.internalIdentifierPrefix}GlobalComponents } from '${ctx.runtimeModuleName}';`,
-  )
-
   if (ctx.used.components.size > 0) {
     wrap(
       `${annotations.templateGlobals.start}\n`,
@@ -191,6 +187,7 @@ function writeLine(code: string): void {
 }
 
 function genRootNode(node: RootNode): void {
+  genKnownIdentifierGetters(node.scope.globals)
   writeLine(`function ${ctx.internalIdentifierPrefix}render() {`)
   indent(() => {
     node.scope.getBinding('$slots') // forces to declare $slots
@@ -206,6 +203,29 @@ function genRootNode(node: RootNode): void {
   })
   writeLine('}')
   writeLine(`${ctx.internalIdentifierPrefix}render();`)
+}
+
+function genKnownIdentifierGetters(ids: string[]): void {
+  const known = ids.filter((id) => ctx.identifiers.has(id))
+  if (known.length === 0) return
+  wrap(
+    annotations.templateGlobals.start,
+    annotations.templateGlobals.end,
+    () => {
+      ctx.newLine()
+      known.forEach((id) => {
+        writeLine(
+          `const ${
+            ctx.internalIdentifierPrefix
+          }_get_identifier_${id} = () => ${getRuntimeFn(
+            ctx.typeIdentifier,
+            'unref',
+          )}(${id});`,
+        )
+      })
+    },
+  )
+  ctx.newLine()
 }
 
 function genDirectiveChecks(el: BaseElementNode): void {
@@ -267,7 +287,13 @@ function genGlobalDeclarations(node: Node): void {
   if (node.scope.globals.length === 0) return
   writeLine(annotations.templateGlobals.start)
   node.scope.globals.forEach((id) => {
-    writeLine(`let ${id} = ${ctx.contextIdentifier}.${id}`)
+    if (ctx.identifiers.has(id)) {
+      writeLine(
+        `let ${id} = ${ctx.internalIdentifierPrefix}_get_identifier_${id}();`,
+      )
+    } else {
+      writeLine(`let ${id} = ${ctx.contextIdentifier}.${id}`)
+    }
   })
   writeLine(annotations.templateGlobals.end)
 }
@@ -917,7 +943,7 @@ function genSlotTypes(root: RootNode): void {
   })
 
   writeLine(annotations.diagnosticsIgnore.start)
-  ctx.write(`function ${ctx.internalIdentifierPrefix}slots() {`).newLine()
+  ctx.write(`function ${ctx.internalIdentifierPrefix}_slots() {`).newLine()
   indent(() => {
     genGlobalDeclarations(root)
     ctx
@@ -1326,7 +1352,7 @@ function genAttrTypes(root: RootNode): void {
     })
   }
 
-  ctx.write(`const ${ctx.internalIdentifierPrefix}attrs = (() => {`).newLine()
+  ctx.write(`const ${ctx.internalIdentifierPrefix}_attrs = (() => {`).newLine()
   indent(() => {
     const value = typeCastAs('{}', 'unknown')
     ctx.write('return ')
