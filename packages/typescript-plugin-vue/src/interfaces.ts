@@ -1,5 +1,5 @@
-import type { PluginConfig } from '@vuedx/vue-languageservice'
 import type * as TS from 'typescript/lib/tsserverlibrary'
+import type { PluginConfig } from './managers/ConfigManager'
 
 export { TS }
 export interface Modules {

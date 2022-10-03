@@ -7,15 +7,17 @@ console.log =
   console.trace =
     () => {}
 
-export type {
-  PluginConfig,
-  PluginSideChannel
-} from '@vuedx/vue-languageservice'
+import 'reflect-metadata'
 
 import { Telemetry } from '@vuedx/shared'
-import { pluginManager } from '@vuedx/vue-languageservice'
 import * as Path from 'path'
 import type { Modules, PluginCreateInfo, TS } from './interfaces'
+import type { PluginConfig } from './managers/ConfigManager'
+import { pluginManager } from './managers/PluginManager'
+import { PluginSideChannel } from './services/PluginSideChannel'
+
+export { PluginSideChannel }
+export type { PluginConfig }
 
 pluginManager.fixConsole(console)
 
