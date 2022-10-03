@@ -67,7 +67,10 @@ export class TemplateDeclarationsService {
     const file = this.fs.getVueFile(fileName)
     if (file == null) return null
     const declarations = this.getTemplateDeclaration(fileName)
-    const { line } = file.generated.positionAt(offset)
+    const { line, character } = file.generated.positionAt(offset)
+    this.logger.debug(
+      `Line(${line}:${character}): ${this.fs.getLineText(file, offset)}`,
+    )
     return declarations.byLine.get(line) ?? null
   }
 
@@ -83,9 +86,9 @@ export class TemplateDeclarationsService {
     const contents = file.getText()
 
     const ContextVariableRE =
-      /(?<prefixInitializer>(?<prefixName>let )(?<name>[A-Za-z$_][A-Za-z0-9$_]*) = (?:[^.]+)\.)(?<initializer>\k<name>)/
+      /(?<prefixInitializer>(?<prefixName>let )(?<name>[A-Za-z$_][A-Za-z0-9$_]*) = )(?<initializer>.*)/
     const HoistedVariableRE =
-      /(?<prefixInitializer>(?<prefixName>const )(?<name>[A-Za-z$_][A-Za-z0-9$_]*) = (?<initializer>.*))/
+      /(?<prefixInitializer>(?<prefixName>const )(?<name>[A-Za-z$_][A-Za-z0-9$_]*) = )(?<initializer>.*)/
     findAnnotatedTextRanges(
       contents,
       annotations.templateGlobals.start,
