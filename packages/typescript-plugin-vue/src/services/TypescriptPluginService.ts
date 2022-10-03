@@ -6,18 +6,9 @@ import type {
 } from '../contracts/TypeScript'
 import { CodeFixService } from '../features/CodeFixService'
 import { CompletionsService } from '../features/CompletionsService'
-import {
-  CssLanguageService,
-  LessLanguageService,
-  ScssLanguageService,
-} from '../features/CssLanguageService'
 import { DefinitionService } from '../features/DefinitionService'
 import { DiagnosticsService } from '../features/DiagnosticsService'
 import { FoldingRangeService } from '../features/FoldingRangeService'
-import {
-  VueHtmlLanguageService,
-  VueSfcLanguageService,
-} from '../features/HtmlLanguageService'
 import { ImplementationService } from '../features/ImplementationService'
 import { QuickInfoService } from '../features/QuickInfoService'
 import { RefactorService } from '../features/RefactorService'
@@ -27,7 +18,6 @@ import { SignatureHelpService } from '../features/SignatureHelpService'
 import { EncodedClassificationsService } from './EncodedClassificationsService'
 import { FilesystemService } from './FilesystemService'
 import { IPCService } from './IPCService'
-import { LanguageServiceProvider } from './LanguageServiceProvider'
 import { LoggerService } from './LoggerService'
 import { TypescriptContextService } from './TypescriptContextService'
 
@@ -71,25 +61,7 @@ export class TypescriptPluginService
     private readonly ts: TypescriptContextService,
     @inject(IPCService)
     private readonly ipc: IPCService,
-    @inject(LanguageServiceProvider)
-    private readonly languages: LanguageServiceProvider,
-    @inject(CssLanguageService)
-    css: CssLanguageService,
-    @inject(ScssLanguageService)
-    scss: ScssLanguageService,
-    @inject(LessLanguageService)
-    less: LessLanguageService,
-    @inject(VueHtmlLanguageService)
-    html: VueHtmlLanguageService,
-    @inject(VueSfcLanguageService)
-    sfc: VueSfcLanguageService,
   ) {
-    ;[css, scss, less, html, sfc].forEach((service) => {
-      service.supportedLanguages.forEach((language) => {
-        this.languages.registerLanguageService(language, service)
-      })
-    })
-
     if (Math.random() > 1) {
       console.log([
         this.classifications,

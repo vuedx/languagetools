@@ -37,6 +37,12 @@
             ]
           }
         }
+      ],
+      "types/3.x.d.ts": [
+        {
+          "format": "dts",
+          "file": "runtime/3.x.vuedx_runtime.d.ts"
+        }
       ]
     },
     "external": [
@@ -66,10 +72,22 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
+    "@vuedx/projectconfig": "workspace:*",
     "@vuedx/shared": "workspace:*",
-    "@vuedx/vue-languageservice": "workspace:*"
+    "@vuedx/template-ast-types": "workspace:*",
+    "@vuedx/vue-virtual-textdocument": "workspace:*",
+    "inversify": "^5.1.1",
+    "json5": "^2.2.0",
+    "node-ipc": "10.1.0",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
-    "typescript": "^4.6.3"
+    "csstype": "^3.1.0",
+    "@vuedx/compiler-tsx": "workspace:*",
+    "@types/web": "^0.0.56",
+    "@vue/runtime-core": "^3.2.39",
+    "quick-lru": "^6.0.1",
+    "vscode-languageserver-types": "^3.16.0",
+    "vue": "^3.2.39"
   }
 }
