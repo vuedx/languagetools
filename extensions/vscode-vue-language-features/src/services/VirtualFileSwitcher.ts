@@ -2,9 +2,8 @@ import {
   isProjectRuntimeFile,
   isVueFile,
   parseFileName,
-  toFileName
+  toFileName,
 } from '@vuedx/shared'
-import { } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import {
   Disposable,
@@ -12,7 +11,7 @@ import {
   StatusBarItem,
   TextEditor,
   Uri,
-  window
+  window,
 } from 'vscode'
 import { Installable } from '../utils/installable'
 import { getVirtualFileUri } from '../utils/uri'
@@ -41,8 +40,8 @@ export class VirtualFileSwitcher extends Installable {
       window.onDidChangeActiveTextEditor(async (editor) => {
         await this.showStatusBar(editor)
       }),
-      this.plugin.onChange(() => {
-        void this.showStatusBar(window.activeTextEditor)
+      this.plugin.onChange(async () => {
+        await this.showStatusBar(window.activeTextEditor)
       }),
     )
   }

@@ -13,27 +13,28 @@ npm add @vuedx/compiler-tsx
 
 ## API
 
-
 <a href="#-vuedx-compiler-tsx-compile-function-1-" id="-vuedx-compiler-tsx-compile-function-1-"></a>
 
 ### [compile](#-vuedx-compiler-tsx-compile-function-1-)
-
-
 
 <details>
 <summary>More info</summary>
 
 **Signature:**
+
 ```ts
-export declare function compile(source: string, options: CompileOptions): Omit<CompileOutput, 'map'> & {
-    map: RawSourceMap;
-};
+export declare function compile(
+  source: string,
+  options: CompileOptions,
+): Omit<CompileOutput, 'map'> & {
+  map: RawSourceMap
+}
 ```
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| source | <code>string</code> | - |
-| options | <code><a href="#-vuedx-compiler-tsx-CompileOptions-interface">CompileOptions</a></code> | - |
+| Parameter | Type                                                                                    | Description |
+| --------- | --------------------------------------------------------------------------------------- | ----------- |
+| source    | <code>string</code>                                                                     | -           |
+| options   | <code><a href="#-vuedx-compiler-tsx-CompileOptions-interface">CompileOptions</a></code> | -           |
 
 </details>
 <br>
@@ -42,38 +43,35 @@ export declare function compile(source: string, options: CompileOptions): Omit<C
 
 ### [compileWithDecodedSourceMap](#-vuedx-compiler-tsx-compileWithDecodedSourceMap-function-1-)
 
-
-
 <details>
 <summary>More info</summary>
 
 **Signature:**
+
 ```ts
-export declare function compileWithDecodedSourceMap(source: string, options: CompileOptions): CompileOutput;
+export declare function compileWithDecodedSourceMap(
+  source: string,
+  options: CompileOptions,
+): CompileOutput
 ```
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| source | <code>string</code> | - |
-| options | <code><a href="#-vuedx-compiler-tsx-CompileOptions-interface">CompileOptions</a></code> | - |
+| Parameter | Type                                                                                    | Description |
+| --------- | --------------------------------------------------------------------------------------- | ----------- |
+| source    | <code>string</code>                                                                     | -           |
+| options   | <code><a href="#-vuedx-compiler-tsx-CompileOptions-interface">CompileOptions</a></code> | -           |
 
 </details>
 <br>
 
 ## Types
 
-
 <a href="#-vuedx-compiler-tsx-CompileOptions-interface" id="-vuedx-compiler-tsx-CompileOptions-interface"></a>
 
 ### [CompileOptions](#-vuedx-compiler-tsx-CompileOptions-interface)
 
-
-
 ```ts
-export interface CompileOptions extends TransformOptions {
-}
+export interface CompileOptions extends TransformOptions {}
 ```
-
 
 <br>
 
@@ -81,17 +79,13 @@ export interface CompileOptions extends TransformOptions {
 
 ### [CompileOutput](#-vuedx-compiler-tsx-CompileOutput-interface)
 
-
-
 ```ts
 export interface CompileOutput extends TransformedCode {
-  descriptor: SFCDescriptor;
-  errors: Array<CompilerError | SyntaxError>;
-  template?: RootNode;
-  unusedIdentifiers: string[];
+  descriptor: SFCDescriptor
+  errors: Array<CompilerError | SyntaxError>
+  template?: RootNode
 }
 ```
-
 
 <br>
 
@@ -99,14 +93,11 @@ export interface CompileOutput extends TransformedCode {
 
 ### [CustomAttributeNode](#-vuedx-compiler-tsx-CustomAttributeNode-interface)
 
-
-
 ```ts
 export interface CustomAttributeNode extends AttributeNode {
-  nameLoc: SourceLocation;
+  nameLoc: SourceLocation
 }
 ```
-
 
 <br>
 
@@ -114,17 +105,14 @@ export interface CustomAttributeNode extends AttributeNode {
 
 ### [CustomBaseElementNode](#-vuedx-compiler-tsx-CustomBaseElementNode-interface)
 
-
-
 ```ts
 export interface CustomBaseElementNode extends BaseElementNode {
-  endTagLoc?: SourceLocation;
-  hoists?: CompoundExpressionNode[];
-  startTagLoc: SourceLocation;
-  tagLoc: SourceLocation;
+  endTagLoc?: SourceLocation
+  hoists?: CompoundExpressionNode[]
+  startTagLoc: SourceLocation
+  tagLoc: SourceLocation
 }
 ```
-
 
 <br>
 
@@ -132,14 +120,11 @@ export interface CustomBaseElementNode extends BaseElementNode {
 
 ### [CustomNode](#-vuedx-compiler-tsx-CustomNode-interface)
 
-
-
 ```ts
 export interface CustomNode extends Node {
-  scope: Scope;
+  scope: Scope
 }
 ```
-
 
 <br>
 <!-- #region API-DOCS -->

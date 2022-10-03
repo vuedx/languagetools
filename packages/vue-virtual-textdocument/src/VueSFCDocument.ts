@@ -290,7 +290,6 @@ export class VueSFCDocument implements TextDocument {
             ),
             mappingsByGeneratedOrder: [],
             mappingsByOriginalOrder: [],
-            unusedIdentifiers: [],
           }
         }
       }
@@ -376,6 +375,7 @@ export class VueSFCDocument implements TextDocument {
     const prefixLength = findCommonPrefixLength(originalString, generatedString)
     if (generatedStart + prefixLength < spanInGeneratedText.start) return null // no mapping
 
+    // TODO: original position should be contained in a block
     return {
       start:
         originalStart + Math.abs(generatedStart - spanInGeneratedText.start),
@@ -384,55 +384,17 @@ export class VueSFCDocument implements TextDocument {
   }
 
   public findGeneratedTextSpan(spanInOriginalText: TextSpan): TextSpan | null {
-    const position = this.original.positionAt(spanInOriginalText.start)
-    const low = this.findMapping(
-      'original',
-      position,
-      BinarySearchBias.GREATEST_LOWER_BOUND,
-    )
+    const start = this.generatedOffsetAt(spanInOriginalText.start)
+    if (start == null) return null
+    if (spanInOriginalText.length === 0) return { start, length: 0 }
 
-    if (low == null) return null
-    const result = this._processMappingUsingMeta(
-      'original',
-      spanInOriginalText,
-      low,
-    )
-    if (result != null) return result
+    // TODO: collapse text span end to the end of the block
+    const end =
+      this.generatedOffsetAt(
+        spanInOriginalText.start + spanInOriginalText.length,
+      ) ?? start
 
-    const originalStart = this.original.offsetAt({
-      line: low[MappingKey.OriginalLine],
-      character: low[MappingKey.OriginalColumn],
-    })
-    const start =
-      this.generated.offsetAt({
-        line: low[MappingKey.GeneratedLine],
-        character: low[MappingKey.GeneratedColumn],
-      }) +
-      // source mappings are prefix based, so we assume the original
-      // and generated text have the same prefix.
-      Math.abs(originalStart - spanInOriginalText.start)
-
-    const high = this.findMapping(
-      'original',
-      position,
-      BinarySearchBias.LEAST_UPPER_BOUND,
-    )
-    if (high != null) {
-      const end = this.generated.offsetAt({
-        line: high[MappingKey.GeneratedLine],
-        character: high[MappingKey.GeneratedColumn],
-      })
-
-      return {
-        start,
-        length: Math.min(end - start, spanInOriginalText.length),
-      }
-    }
-
-    return {
-      start,
-      length: spanInOriginalText.length,
-    }
+    return { start: Math.min(start, end), length: Math.abs(end - start) }
   }
 
   private _processMappingUsingMeta(
@@ -598,15 +560,41 @@ export class VueSFCDocument implements TextDocument {
   }
 
   public generatedOffsetAt(offset: number): number | null {
-    const span = this.findGeneratedTextSpan({ start: offset, length: 1 })
-    if (span == null) return null
-    return span.start
+    const position = this.original.positionAt(offset)
+    const low = this.findMapping(
+      'original',
+      position,
+      BinarySearchBias.GREATEST_LOWER_BOUND,
+    )
+
+    if (low == null) return null
+    const result = this._processMappingUsingMeta(
+      'original',
+      { start: offset, length: 0 },
+      low,
+    )
+    if (result != null) return result.start
+
+    const originalStart = this.original.offsetAt({
+      line: low[MappingKey.OriginalLine],
+      character: low[MappingKey.OriginalColumn],
+    })
+    const start =
+      this.generated.offsetAt({
+        line: low[MappingKey.GeneratedLine],
+        character: low[MappingKey.GeneratedColumn],
+      }) +
+      // source mappings are prefix based, so we assume the original
+      // and generated text have the same prefix.
+      Math.abs(originalStart - offset)
+
+    return start
   }
 
   static create(
     fileName: string,
     content: string,
-    options: Omit<CompileOptions, 'cache' | 'fileName'> = {},
+    options: Omit<CompileOptions, 'cache' | 'fileName'>,
     version: number = 0,
   ): VueSFCDocument {
     return new VueSFCDocument(

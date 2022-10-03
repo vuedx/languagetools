@@ -1,45 +1,45 @@
 import type { SFCScriptBlock } from '@vuedx/compiler-sfc'
 import { invariant } from '@vuedx/shared'
-import { parse, transformScriptSetup as transform } from '@vuedx/transforms'
-import { decode } from 'sourcemap-codec'
+import { transformScriptSetup as transform } from '@vuedx/transforms'
 import type { TransformedCode } from '../../types/TransformedCode'
 import type { TransformOptionsResolved } from '../../types/TransformOptions'
 
 export interface ScriptSetupBlockTransformResult extends TransformedCode {
   exportIdentifier: string
-  propsIdentifier?: string
-  emitIdentifier?: string
-  exposeIdentifier?: string
+  scopeIdentifier: string
+  propsIdentifier: string
+  emitsIdentifier: string
+  exposeIdentifier: string
   identifiers: string[]
+  exports: Record<string, string>
 }
 
 export function transformScriptSetup(
   script: SFCScriptBlock | null,
   options: TransformOptionsResolved,
-): ScriptSetupBlockTransformResult | null {
-  if (script == null) return null
-  const ast = parse(script.content, { isScriptSetup: true, lang: script.lang })
-  const result = transform(ast, {
+): ScriptSetupBlockTransformResult {
+  const content = script?.content ?? ''
+  const result = transform(content, {
     internalIdentifierPrefix: options.internalIdentifierPrefix,
     runtimeModuleName: options.runtimeModuleName,
     typeIdentifier: options.typeIdentifier,
-    isTypeScript:
-      script.lang === 'ts' || script.lang === 'tsx' || options.isTypeScript,
+    lang: (script?.lang ?? 'ts') as any,
+    fileName: options.fileName,
+    lib: options.typescript,
+    cache: options.cache,
   })
 
   invariant(result.map != null)
 
   return {
     code: result.code,
-    map: {
-      ...result.map,
-      sourcesContent: result.map.sourcesContent ?? [],
-      mappings: decode(result.map.mappings),
-    },
-    exportIdentifier: result.exportIdentifier,
-    propsIdentifier: result.propsIdentifier,
-    emitIdentifier: result.emitIdentifier,
-    exposeIdentifier: result.exposeIdentifier,
+    map: result.map,
     identifiers: result.identifiers,
+    exportIdentifier: result.componentIdentifier,
+    scopeIdentifier: result.scopeIdentifier,
+    propsIdentifier: result.propsIdentifier,
+    emitsIdentifier: result.emitsIdentifier,
+    exposeIdentifier: result.exposeIdentifier,
+    exports: result.exports,
   }
 }

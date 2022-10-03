@@ -15,8 +15,8 @@ export function transformTemplate(
   template: SFCTemplateBlock | null,
   options: TransformOptionsResolved,
 ): TemplateBlockTransformResult {
-  const slotsIdentifier = `${options.internalIdentifierPrefix}slots`
-  const attrsIdentifier = `${options.internalIdentifierPrefix}attrs`
+  const slotsIdentifier = `${options.internalIdentifierPrefix}_slots`
+  const attrsIdentifier = `${options.internalIdentifierPrefix}_attrs`
   if (template == null) {
     return {
       code: `function ${slotsIdentifier}() { return {} }; const ${attrsIdentifier} = {};`,

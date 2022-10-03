@@ -56,8 +56,6 @@ export interface CompileOutput extends TransformedCode {
     errors: Array<CompilerError | SyntaxError>;
     // (undocumented)
     template?: RootNode;
-    // (undocumented)
-    unusedIdentifiers: string[];
 }
 
 // @public (undocumented)

@@ -8,6 +8,7 @@
     "lib"
   ],
   "dependencies": {
-    "@sentry/node": "^5.30.0"
+    "@sentry/node": "^5.30.0",
+    "sourcemap-codec": "^1.4.8"
   }
 }

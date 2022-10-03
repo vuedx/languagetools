@@ -12,7 +12,8 @@ export function getRuntimeFn(
     | 'resolveDirective'
     | 'union'
     | 'getAttrs'
-    | 'getProps',
+    | 'getProps'
+    | 'unref',
 ): string {
   return `${prefix}.internal.${name}`
 }

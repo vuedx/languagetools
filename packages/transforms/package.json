@@ -24,16 +24,9 @@
   },
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
-    "@vuedx/shared": "workspace:*",
-    "@babel/generator": "^7.19.0",
-    "@babel/parser": "^7.19.0",
-    "@babel/template": "^7.18.10",
-    "@babel/types": "^7.19.0",
-    "magic-string": "^0.26.1"
+    "@vuedx/shared": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^4.6.3",
-    "@types/babel__template": "^7.4.1",
-    "@types/babel__generator": "^7.6.4"
+    "typescript": "^4.6.3"
   }
 }
