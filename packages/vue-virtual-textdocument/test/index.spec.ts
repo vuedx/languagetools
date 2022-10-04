@@ -26,7 +26,8 @@ describe('VueSFCDocument', () => {
 
     expect(doc.getText()).toMatchInlineSnapshot(`
       "import * as __VueDX_TypeCheck from 'vuedx~runtime';
-      import { defineComponent as __VueDX_defineComponent, GlobalComponents as __VueDX_GlobalComponents } from 'vue';
+      declare const __VueDX_defineComponent: typeof import("vue").defineComponent;
+      type __VueDX_GlobalComponents = import("vue").GlobalComponents;
       //#region <script>
 
       const __VueDX__Script_Component = __VueDX_defineComponent({});
