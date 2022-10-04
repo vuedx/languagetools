@@ -338,9 +338,7 @@ export class TypescriptContextService implements Disposable {
   public ensureUptoDate(fileName: string): void {
     this.project.getLanguageService(true) // forces update
     if (isVueFile(fileName)) {
-      fileName = this.isTypeScriptProject
-        ? `${fileName}.tsx`
-        : `${fileName}.jsx`
+      fileName = this.getGeneratedFileName(fileName)
     }
 
     if (
@@ -353,6 +351,11 @@ export class TypescriptContextService implements Disposable {
         true,
       )
     }
+  }
+
+  public getGeneratedFileName(fileName: string): string {
+    invariant(isVueFile(fileName), 'fileName must be a vue file')
+    return this.isTypeScriptProject ? `${fileName}.tsx` : `${fileName}.jsx`
   }
 
   /** @deprecated */

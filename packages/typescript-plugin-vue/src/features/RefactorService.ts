@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify'
 import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
+import { FilesystemService } from '../services/FilesystemService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
 
 @injectable()
@@ -9,6 +10,8 @@ export class RefactorService
   constructor(
     @inject(TypescriptContextService)
     private readonly ts: TypescriptContextService,
+    @inject(FilesystemService)
+    private readonly fs: FilesystemService,
   ) {}
 
   public organizeImports(
@@ -16,6 +19,15 @@ export class RefactorService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences | undefined,
   ): readonly TypeScript.FileTextChanges[] {
-    return this.ts.service.organizeImports(args, formatOptions, preferences)
+    const file = this.fs.getVueFile(args.fileName)
+    if (file == null) return []
+
+    return this.fs.resolveAllFileTextChanges(
+      this.ts.service.organizeImports(
+        { ...args, fileName: file.generatedFileName },
+        formatOptions,
+        preferences,
+      ),
+    )
   }
 }

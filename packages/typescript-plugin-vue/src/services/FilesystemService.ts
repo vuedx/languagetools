@@ -294,7 +294,7 @@ export class FilesystemService implements Disposable {
   public resolveFileTextChanges<T extends TypeScript.FileTextChanges>(
     fileTextChanges: T,
   ): T | null {
-    if (this.isVueTsFile(fileTextChanges.fileName)) {
+    if (this.isGeneratedVueFile(fileTextChanges.fileName)) {
       const asFileTextChanges = (changes: T): T => {
         if (fileTextChanges.isNewFile !== true) return changes
         return { ...changes, isNewFile: fileTextChanges.isNewFile }

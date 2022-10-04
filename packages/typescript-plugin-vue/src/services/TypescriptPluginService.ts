@@ -1,4 +1,4 @@
-import { cache, debug, invariant } from '@vuedx/shared'
+import { cache, invariant } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import type {
   ExtendedTSLanguageService,
@@ -356,15 +356,28 @@ export class TypescriptPluginService
     preferences: TypeScript.UserPreferences | undefined,
     data: TypeScript.CompletionEntryData | undefined,
   ): TypeScript.CompletionEntryDetails | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getCompletionEntryDetails(
+    return this.pick(
       fileName,
-      position,
-      entryName,
-      formatOptions,
-      source,
-      preferences,
-      data,
+      () =>
+        this.completions.getCompletionEntryDetails(
+          fileName,
+          position,
+          entryName,
+          formatOptions,
+          source,
+          preferences,
+          data,
+        ),
+      () =>
+        this.ts.service.getCompletionEntryDetails(
+          fileName,
+          position,
+          entryName,
+          formatOptions,
+          source,
+          preferences,
+          data,
+        ),
     )
   }
 
@@ -374,12 +387,22 @@ export class TypescriptPluginService
     name: string,
     source: string | undefined,
   ): TypeScript.Symbol | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getCompletionEntrySymbol(
+    return this.pick(
       fileName,
-      position,
-      name,
-      source,
+      () =>
+        this.completions.getCompletionEntrySymbol(
+          fileName,
+          position,
+          name,
+          source,
+        ),
+      () =>
+        this.ts.service.getCompletionEntrySymbol(
+          fileName,
+          position,
+          name,
+          source,
+        ),
     )
   }
 
@@ -388,11 +411,20 @@ export class TypescriptPluginService
     position: number,
     options?: TypeScript.DocCommentTemplateOptions,
   ): TypeScript.TextInsertion | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getDocCommentTemplateAtPosition(
+    return this.pick(
       fileName,
-      position,
-      options,
+      () =>
+        this.completions.getDocCommentTemplateAtPosition(
+          fileName,
+          position,
+          options,
+        ),
+      () =>
+        this.ts.service.getDocCommentTemplateAtPosition(
+          fileName,
+          position,
+          options,
+        ),
     )
   }
 
@@ -400,8 +432,11 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
   ): TypeScript.JsxClosingTagInfo | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getJsxClosingTagAtPosition(fileName, position)
+    return this.pick(
+      fileName,
+      () => this.completions.getJsxClosingTagAtPosition(fileName, position),
+      () => this.ts.service.getJsxClosingTagAtPosition(fileName, position),
+    )
   }
   //#endregion
 
@@ -433,22 +468,30 @@ export class TypescriptPluginService
     fileName: string,
     position: number,
   ): TypeScript.ReferenceEntry[] | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getReferencesAtPosition(fileName, position)
+    return this.pick(
+      fileName,
+      () => this.references.getReferencesAtPosition(fileName, position),
+      () => this.ts.service.getReferencesAtPosition(fileName, position),
+    )
   }
 
-  @debug()
   public findReferences(
     fileName: string,
     position: number,
   ): TypeScript.ReferencedSymbol[] | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.findReferences(fileName, position)
+    return this.pick(
+      fileName,
+      () => this.references.findReferences(fileName, position),
+      () => this.ts.service.findReferences(fileName, position),
+    )
   }
 
   public getFileReferences(fileName: string): TypeScript.ReferenceEntry[] {
-    if (this.fs.isVueFile(fileName)) return []
-    return this.ts.service.getFileReferences(fileName)
+    return this.pick(
+      fileName,
+      () => this.references.getFileReferences(fileName),
+      () => this.ts.service.getFileReferences(fileName),
+    )
   }
   //#endregion
 
@@ -505,8 +548,11 @@ export class TypescriptPluginService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences | undefined,
   ): readonly TypeScript.FileTextChanges[] {
-    if (this.fs.isVueFile(args.fileName)) return []
-    return this.ts.service.organizeImports(args, formatOptions, preferences)
+    return this.pick(
+      args.fileName,
+      () => this.refactor.organizeImports(args, formatOptions, preferences),
+      () => this.ts.service.organizeImports(args, formatOptions, preferences),
+    )
   }
 
   public toggleLineComment(
@@ -548,14 +594,11 @@ export class TypescriptPluginService
     position: number,
     preferences: TypeScript.UserPreferences,
   ): TypeScript.RenameInfo {
-    if (this.fs.isVueFile(fileName)) {
-      return {
-        canRename: false,
-        localizedErrorMessage: 'Cannot rename in .vue files',
-      }
-    }
-
-    return this.ts.service.getRenameInfo(fileName, position, preferences)
+    return this.pick(
+      fileName,
+      () => this.rename.getRenameInfo(fileName, position, preferences),
+      () => this.ts.service.getRenameInfo(fileName, position, preferences),
+    )
   }
 
   public findRenameLocations(
@@ -565,13 +608,24 @@ export class TypescriptPluginService
     findInComments: boolean,
     providePrefixAndSuffixTextForRename?: boolean,
   ): readonly TypeScript.RenameLocation[] | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.findRenameLocations(
+    return this.pick(
       fileName,
-      position,
-      findInStrings,
-      findInComments,
-      providePrefixAndSuffixTextForRename,
+      () =>
+        this.rename.findRenameLocations(
+          fileName,
+          position,
+          findInStrings,
+          findInComments,
+          providePrefixAndSuffixTextForRename,
+        ),
+      () =>
+        this.ts.service.findRenameLocations(
+          fileName,
+          position,
+          findInStrings,
+          findInComments,
+          providePrefixAndSuffixTextForRename,
+        ),
     )
   }
 
@@ -581,13 +635,21 @@ export class TypescriptPluginService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences | undefined,
   ): readonly TypeScript.FileTextChanges[] {
-    if (this.fs.isVueFile(oldFilePath)) return []
-    return this.ts.service.getEditsForFileRename(
-      oldFilePath,
-      newFilePath,
-      formatOptions,
-      preferences,
-    )
+    if (this.fs.isVueFile(oldFilePath) || this.fs.isVueFile(newFilePath)) {
+      return this.rename.getEditsForFileRename(
+        oldFilePath,
+        newFilePath,
+        formatOptions,
+        preferences,
+      )
+    } else {
+      return this.ts.service.getEditsForFileRename(
+        oldFilePath,
+        newFilePath,
+        formatOptions,
+        preferences,
+      )
+    }
   }
   //#endregion
 
@@ -600,14 +662,26 @@ export class TypescriptPluginService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences,
   ): readonly TypeScript.CodeFixAction[] {
-    if (this.fs.isVueFile(fileName)) return []
-    return this.ts.service.getCodeFixesAtPosition(
+    return this.pick(
       fileName,
-      start,
-      end,
-      errorCodes,
-      formatOptions,
-      preferences,
+      () =>
+        this.codeFix.getCodeFixesAtPosition(
+          fileName,
+          start,
+          end,
+          errorCodes,
+          formatOptions,
+          preferences,
+        ),
+      () =>
+        this.ts.service.getCodeFixesAtPosition(
+          fileName,
+          start,
+          end,
+          errorCodes,
+          formatOptions,
+          preferences,
+        ),
     )
   }
 
@@ -617,12 +691,22 @@ export class TypescriptPluginService
     formatOptions: TypeScript.FormatCodeSettings,
     preferences: TypeScript.UserPreferences,
   ): TypeScript.CombinedCodeActions {
-    if (this.fs.isVueFile(scope.fileName)) return { changes: [] }
-    return this.ts.service.getCombinedCodeFix(
-      scope,
-      fixId,
-      formatOptions,
-      preferences,
+    return this.pick(
+      scope.fileName,
+      () =>
+        this.codeFix.getCombinedCodeFix(
+          scope,
+          fixId,
+          formatOptions,
+          preferences,
+        ),
+      () =>
+        this.ts.service.getCombinedCodeFix(
+          scope,
+          fixId,
+          formatOptions,
+          preferences,
+        ),
     )
   }
   //#endregion
@@ -681,39 +765,59 @@ export class TypescriptPluginService
     position: number,
     options: TypeScript.SignatureHelpItemsOptions,
   ): TypeScript.SignatureHelpItems | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getSignatureHelpItems(fileName, position, options)
+    return this.pick(
+      fileName,
+      () => this.signature.getSignatureHelpItems(fileName, position, options),
+      () => this.ts.service.getSignatureHelpItems(fileName, position, options),
+    )
   }
 
   public prepareCallHierarchy(
     fileName: string,
     position: number,
   ): TypeScript.CallHierarchyItem | TypeScript.CallHierarchyItem[] | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.prepareCallHierarchy(fileName, position)
+    return this.pick(
+      fileName,
+      () => this.signature.prepareCallHierarchy(fileName, position),
+      () => this.ts.service.prepareCallHierarchy(fileName, position),
+    )
   }
 
   public provideCallHierarchyIncomingCalls(
     fileName: string,
     position: number,
   ): TypeScript.CallHierarchyIncomingCall[] {
-    if (this.fs.isVueFile(fileName)) return []
-    return this.ts.service.provideCallHierarchyIncomingCalls(fileName, position)
+    return this.pick(
+      fileName,
+      () =>
+        this.signature.provideCallHierarchyIncomingCalls(fileName, position),
+      () =>
+        this.ts.service.provideCallHierarchyIncomingCalls(fileName, position),
+    )
   }
 
   public provideCallHierarchyOutgoingCalls(
     fileName: string,
     position: number,
   ): TypeScript.CallHierarchyOutgoingCall[] {
-    if (this.fs.isVueFile(fileName)) return []
-    return this.ts.service.provideCallHierarchyOutgoingCalls(fileName, position)
+    return this.pick(
+      fileName,
+      () =>
+        this.signature.provideCallHierarchyOutgoingCalls(fileName, position),
+      () =>
+        this.ts.service.provideCallHierarchyOutgoingCalls(fileName, position),
+    )
   }
 
   public getBraceMatchingAtPosition(
     fileName: string,
     position: number,
   ): TypeScript.TextSpan[] {
-    return this.ts.service.getBraceMatchingAtPosition(fileName, position)
+    return this.pick(
+      fileName,
+      () => this.signature.getBraceMatchingAtPosition(fileName, position),
+      () => this.ts.service.getBraceMatchingAtPosition(fileName, position),
+    )
   }
 
   public isValidBraceCompletionAtPosition(
@@ -721,11 +825,20 @@ export class TypescriptPluginService
     position: number,
     openingBrace: number,
   ): boolean {
-    if (this.fs.isVueFile(fileName)) return false
-    return this.ts.service.isValidBraceCompletionAtPosition(
+    return this.pick(
       fileName,
-      position,
-      openingBrace,
+      () =>
+        this.signature.isValidBraceCompletionAtPosition(
+          fileName,
+          position,
+          openingBrace,
+        ),
+      () =>
+        this.ts.service.isValidBraceCompletionAtPosition(
+          fileName,
+          position,
+          openingBrace,
+        ),
     )
   }
 
@@ -734,8 +847,11 @@ export class TypescriptPluginService
     startPos: number,
     endPos: number,
   ): TypeScript.TextSpan | undefined {
-    if (this.fs.isVueFile(fileName)) return
-    return this.ts.service.getNameOrDottedNameSpan(fileName, startPos, endPos)
+    return this.pick(
+      fileName,
+      () => this.signature.getNameOrDottedNameSpan(fileName, startPos, endPos),
+      () => this.ts.service.getNameOrDottedNameSpan(fileName, startPos, endPos),
+    )
   }
   //#endregion
 
