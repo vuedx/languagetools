@@ -1,5 +1,6 @@
 import * as __VueDX__TypeCheck from 'vuedx~runtime';
-import { defineComponent as __VueDX__defineComponent, GlobalComponents as __VueDX__GlobalComponents } from 'vue';
+declare const __VueDX__defineComponent: typeof import("vue").defineComponent;
+type __VueDX__GlobalComponents = import("vue").GlobalComponents;
 //#region <script>
 
 const __VueDX___Script_Component = __VueDX__defineComponent({});

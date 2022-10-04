@@ -2,7 +2,8 @@
 
 exports[`Vue to TSX compiler if-else-if.vue: if-else-if.vue 1`] = `
 "import * as __VueDX__TypeCheck from 'vuedx~runtime';
-import { defineComponent as __VueDX__defineComponent, GlobalComponents as __VueDX__GlobalComponents } from 'vue';
+declare const __VueDX__defineComponent: typeof import("vue").defineComponent;
+type __VueDX__GlobalComponents = import("vue").GlobalComponents;
 //#region <script>
 
 const __VueDX___Script_Component = __VueDX__defineComponent({});
@@ -97,7 +98,8 @@ export default class IfElseIf extends IfElseIfPublic {
 
 exports[`Vue to TSX compiler nested-for-slot.vue: nested-for-slot.vue 1`] = `
 "import * as __VueDX__TypeCheck from 'vuedx~runtime';
-import { defineComponent as __VueDX__defineComponent, GlobalComponents as __VueDX__GlobalComponents } from 'vue';
+declare const __VueDX__defineComponent: typeof import("vue").defineComponent;
+type __VueDX__GlobalComponents = import("vue").GlobalComponents;
 //#region <script>
 
 const __VueDX___Script_Component = __VueDX__defineComponent({});
@@ -219,7 +221,8 @@ export default class NestedForSlot extends NestedForSlotPublic {
 
 exports[`Vue to TSX compiler ts-script-template.vue: ts-script-template.vue 1`] = `
 "import * as __VueDX__TypeCheck from 'vuedx~runtime';
-import { defineComponent as __VueDX__defineComponent, GlobalComponents as __VueDX__GlobalComponents } from 'vue';
+declare const __VueDX__defineComponent: typeof import("vue").defineComponent;
+type __VueDX__GlobalComponents = import("vue").GlobalComponents;
 //#region <script>
 
 import { defineComponent } from 'vue'

@@ -123,11 +123,16 @@ export function compileWithDecodedSourceMap(
   builder.append(
     [
       `import * as ${resolvedOptions.typeIdentifier} from '${resolvedOptions.typeCheckModuleName}';`,
-      `import { ${['defineComponent', 'GlobalComponents']
-        .map(
-          (id) => `${id} as ${resolvedOptions.internalIdentifierPrefix}${id}`,
-        )
-        .join(', ')} } from '${resolvedOptions.runtimeModuleName}';`,
+      `declare const ${
+        resolvedOptions.internalIdentifierPrefix
+      }defineComponent: typeof import(${JSON.stringify(
+        resolvedOptions.runtimeModuleName,
+      )}).defineComponent;`,
+      `type ${
+        resolvedOptions.internalIdentifierPrefix
+      }GlobalComponents = import(${JSON.stringify(
+        resolvedOptions.runtimeModuleName,
+      )}).GlobalComponents;`,
     ].join('\n'),
   )
   builder.nextLine()

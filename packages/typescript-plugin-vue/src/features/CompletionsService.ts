@@ -1,15 +1,8 @@
-import { annotations } from '@vuedx/compiler-tsx'
-import { debug } from '@vuedx/shared'
-import { isElementNode } from '@vuedx/template-ast-types'
+import { VueSFCDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
-import { isOffsetInSourceLocation } from '../helpers/isOffsetInSourceLocation'
 import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService } from '../services/LoggerService'
-import {
-  TemplateDeclarationsService,
-  GeneratedPositionKind,
-} from '../services/TemplateDeclarationsService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
 
 @injectable()
@@ -17,11 +10,11 @@ export class CompletionsService
   implements
     Pick<
       TSLanguageService,
-      'getCompletionsAtPosition'
-      // | 'getCompletionEntryDetails'
-      // | 'getCompletionEntrySymbol'
-      // | 'getDocCommentTemplateAtPosition'
-      // | 'getJsxClosingTagAtPosition'
+      | 'getCompletionsAtPosition'
+      | 'getCompletionEntryDetails'
+      | 'getCompletionEntrySymbol'
+      | 'getDocCommentTemplateAtPosition'
+      | 'getJsxClosingTagAtPosition'
     >
 {
   public readonly logger = new LoggerService(CompletionsService)
@@ -31,54 +24,158 @@ export class CompletionsService
     private readonly fs: FilesystemService,
     @inject(TypescriptContextService)
     private readonly ts: TypescriptContextService,
-    @inject(TemplateDeclarationsService)
-    private readonly declarations: TemplateDeclarationsService,
   ) {}
 
   // TODO: provide template completions, e.g. v-model, v-for, etc.
   // TODO: provide v-bind and v-on completions for props and events.
   // TODO: provide modifiers completions for directives.
 
-  @debug()
   public getCompletionsAtPosition(
     fileName: string,
     position: number,
     options: TypeScript.GetCompletionsAtPositionOptions | undefined,
   ): TypeScript.WithMetadata<TypeScript.CompletionInfo> | undefined {
+    return this.pick(fileName, position, {
+      script: (file) => {
+        const generatedPosition = file.generatedOffsetAt(position)
+        if (generatedPosition == null) return
+        return this.processCompletionInfo(
+          this.ts.service.getCompletionsAtPosition(
+            file.generatedFileName,
+            generatedPosition,
+            options,
+          ),
+        )
+      },
+    })
+  }
+
+  public getCompletionEntryDetails(
+    fileName: string,
+    position: number,
+    entryName: string,
+    formatOptions:
+      | TypeScript.FormatCodeOptions
+      | TypeScript.FormatCodeSettings
+      | undefined,
+    source: string | undefined,
+    preferences: TypeScript.UserPreferences | undefined,
+    data: TypeScript.CompletionEntryData | undefined,
+  ): TypeScript.CompletionEntryDetails | undefined {
+    return this.pick(fileName, position, {
+      script: (file) => {
+        const generatedPosition = file.generatedOffsetAt(position)
+        if (generatedPosition == null) return
+        return this.processCompletionEntryDetails(
+          this.ts.service.getCompletionEntryDetails(
+            file.generatedFileName,
+            generatedPosition,
+            entryName,
+            formatOptions,
+            source,
+            preferences,
+            data,
+          ),
+        )
+      },
+    })
+  }
+
+  public getCompletionEntrySymbol(
+    fileName: string,
+    position: number,
+    name: string,
+    source: string | undefined,
+  ): TypeScript.Symbol | undefined {
+    return this.pick(fileName, position, {
+      script: (file) => {
+        const generatedPosition = file.generatedOffsetAt(position)
+        if (generatedPosition == null) return
+        return this.ts.service.getCompletionEntrySymbol(
+          file.generatedFileName,
+          generatedPosition,
+          name,
+          source,
+        )
+      },
+    })
+  }
+
+  public getDocCommentTemplateAtPosition(
+    fileName: string,
+    position: number,
+    options?: TypeScript.DocCommentTemplateOptions,
+  ): TypeScript.TextInsertion | undefined {
+    return this.pick(fileName, position, {
+      script: (file) => {
+        const generatedPosition = file.generatedOffsetAt(position)
+        if (generatedPosition == null) return
+        return this.ts.service.getDocCommentTemplateAtPosition(
+          file.generatedFileName,
+          generatedPosition,
+          options,
+        )
+      },
+    })
+  }
+
+  public getJsxClosingTagAtPosition(
+    fileName: string,
+    position: number,
+  ): TypeScript.JsxClosingTagInfo | undefined {
+    return this.pick(fileName, position, {
+      script: (file) => {
+        const generatedPosition = file.generatedOffsetAt(position)
+        if (generatedPosition == null) return
+        return this.ts.service.getJsxClosingTagAtPosition(
+          file.generatedFileName,
+          generatedPosition,
+        )
+      },
+    })
+  }
+
+  private pick<R>(
+    fileName: string,
+    position: number,
+    fns: Record<string, (file: VueSFCDocument) => R>,
+  ): R | undefined {
     const file = this.fs.getVueFile(fileName)
     if (file == null) return
-    const generated = this.declarations.findGeneratedPosition(file, position)
-    if (generated == null) return
-    if (generated.kind === GeneratedPositionKind.TEMPLATE_NODE) {
-      const { node, templateRange } = generated
-      const offset = position - templateRange.start
-      if (
-        isElementNode(node) &&
-        isOffsetInSourceLocation(node.startTagLoc, offset) &&
-        node.tag !== ''
-      ) {
-        const generatedPosition = file.generatedOffsetAt(
-          node.tagLoc.start.offset + templateRange.start,
-        )
+    const block = file.getBlockAt(position)
+    if (block == null) return
+    const fn = fns[block.type]
+    if (fn == null) return
+    return fn(file)
+  }
 
-        if (generatedPosition != null) {
-          return this.ts.service.getCompletionsAtPosition(
-            file.generatedFileName,
-            generatedPosition +
-              file.generated
-                .getText()
-                .slice(generatedPosition)
-                .indexOf(annotations.tsxCompletions),
-            options,
-          )
-        }
-      }
+  public processCompletionInfo<T extends TypeScript.CompletionInfo | undefined>(
+    info: T,
+  ): T {
+    if (info == null) return info
+
+    return {
+      ...info,
+      entries: info.entries.flatMap((entry) => {
+        if (entry.name.startsWith('__VueDX_')) return [] // exclude internals
+
+        return [entry]
+      }),
     }
+  }
 
-    return this.ts.service.getCompletionsAtPosition(
-      file.generatedFileName,
-      generated.position,
-      options,
-    )
+  public processCompletionEntryDetails(
+    entryDetails: TypeScript.CompletionEntryDetails | undefined,
+  ): TypeScript.CompletionEntryDetails | undefined {
+    if (entryDetails == null) return entryDetails
+
+    return {
+      ...entryDetails,
+      codeActions: entryDetails.codeActions?.flatMap((action) => {
+        const changes = this.fs.resolveAllFileTextChanges(action.changes)
+        if (changes.length === 0) return []
+        return { ...action, changes }
+      }),
+    }
   }
 }
