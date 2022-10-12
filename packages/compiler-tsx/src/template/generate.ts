@@ -314,13 +314,7 @@ function genElementNode(node: ElementNode): void {
     ctx.write(node.tag, node.tagLoc, true).newLine()
     indent(() => {
       genProps(node)
-      ctx.write(
-        `${annotations.tsxCompletions}`,
-        createLoc(
-          node.startTagLoc,
-          node.tagLoc.end.offset - node.loc.start.offset,
-        ),
-      )
+      ctx.write(`${annotations.tsxCompletions}`)
     })
     ctx.newLine()
   }
@@ -399,13 +393,7 @@ function genComponentNode(node: ComponentNode): void {
   ctx.write(node.resolvedName ?? node.tag, node.tagLoc).newLine()
   indent(() => {
     genProps(node)
-    ctx.write(
-      `${annotations.tsxCompletions}`,
-      createLoc(
-        node.startTagLoc,
-        node.tagLoc.end.offset - node.loc.start.offset,
-      ),
-    )
+    ctx.write(`${annotations.tsxCompletions}`)
   })
 
   ctx.newLine()

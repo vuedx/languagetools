@@ -34,7 +34,8 @@ describe('VueSFCDocument', () => {
       //#endregion
       //#region <script setup>
 
-              import Foo from './foo' ;const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
+              import Foo from './foo'
+      const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
 
               const val = $ref(1)
               

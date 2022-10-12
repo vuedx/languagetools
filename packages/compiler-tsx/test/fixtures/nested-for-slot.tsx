@@ -6,7 +6,8 @@ type __VueDX__GlobalComponents = import("vue").GlobalComponents;
 const __VueDX___Script_Component = __VueDX__defineComponent({});
 //#endregion
 //#region <script setup>
- ;const __VueDX___ScriptSetup_scope = __VueDX__TypeCheck.internal.scope(async () => {
+
+const __VueDX___ScriptSetup_scope = __VueDX__TypeCheck.internal.scope(async () => {
 const __VueDX___ScriptSetup_props = defineProps({});
 const __VueDX___ScriptSetup_emits = ({});
 const __VueDX___ScriptSetup_expose = {};

@@ -128,6 +128,7 @@ importers:
       '@types/vscode': ^1.63.0
       '@vuedx/shared': workspace:*
       '@vuedx/typescript-plugin-vue': workspace:*
+      '@vuedx/vue-language-server': workspace:*
       '@vuedx/vue-virtual-textdocument': workspace:*
       fast-glob: ^3.2.4
       inversify: ^5.0.1
@@ -136,15 +137,18 @@ importers:
       reflect-metadata: ^0.1.13
       typescript: ^4.8.2
       vsce: 2.6.7
+      vscode-languageclient: ^8.0.2
     dependencies:
       '@vuedx/shared': link:../../packages/shared
       '@vuedx/typescript-plugin-vue': link:../../packages/typescript-plugin-vue
+      '@vuedx/vue-language-server': link:../../packages/vue-language-server
       '@vuedx/vue-virtual-textdocument': link:../../packages/vue-virtual-textdocument
       fast-glob: 3.2.5
       inversify: 5.0.1
       json5: 2.1.3
       node-ipc: 10.1.0
       reflect-metadata: 0.1.13
+      vscode-languageclient: 8.0.2
     devDependencies:
       '@types/node': 10.17.48
       '@types/vscode': 1.64.0
@@ -351,21 +355,35 @@ importers:
       vscode-languageserver-types: 3.16.0
       vue: 3.2.39
 
-  packages/vue-languageservice:
+  packages/vue-language-server:
     specifiers:
       '@vuedx/shared': workspace:*
-      '@vuedx/template-ast-types': workspace:*
-      inversify: ^5.1.1
-      reflect-metadata: ^0.1.13
-      vscode-css-languageservice: ^5.1.13
-      vscode-html-languageservice: ^4.2.2
+      '@vuedx/vue-languageservice': workspace:*
+      vscode-languageserver: ^8.0.2
     dependencies:
       '@vuedx/shared': link:../shared
+      '@vuedx/vue-languageservice': link:../vue-languageservice
+      vscode-languageserver: 8.0.2
+
+  packages/vue-languageservice:
+    specifiers:
+      '@vuedx/compiler-sfc': workspace:*
+      '@vuedx/shared': workspace:*
+      '@vuedx/template-ast-types': workspace:*
+      vscode-css-languageservice: ^5.1.13
+      vscode-html-languageservice: ^4.2.2
+      vscode-languageserver-protocol: ^3.17.2
+      vscode-languageserver-textdocument: ^1.0.7
+      vscode-languageserver-types: ^3.17.2
+    dependencies:
+      '@vuedx/compiler-sfc': link:../compiler-sfc
+      '@vuedx/shared': link:../shared
       '@vuedx/template-ast-types': link:../template-ast-types
-      inversify: 5.1.1
-      reflect-metadata: 0.1.13
       vscode-css-languageservice: 5.1.13
       vscode-html-languageservice: 4.2.2
+      vscode-languageserver-protocol: 3.17.2
+      vscode-languageserver-textdocument: 1.0.7
+      vscode-languageserver-types: 3.17.2
 
   packages/vue-virtual-textdocument:
     specifiers:
@@ -2734,9 +2752,9 @@ packages:
       tslib: 2.0.3
       unzipper: 0.10.11
       uuid: 7.0.3
-      vscode-languageserver-protocol: 3.15.3
-      vscode-languageserver-textdocument: 1.0.1
-      vscode-languageserver-types: 3.16.0
+      vscode-languageserver-protocol: 3.17.2
+      vscode-languageserver-textdocument: 1.0.7
+      vscode-languageserver-types: 3.17.2
       vscode-uri: 2.1.2
       which: 2.0.2
     transitivePeerDependencies:
@@ -8335,8 +8353,8 @@ packages:
   /vscode-css-languageservice/5.1.13:
     resolution: {integrity: sha512-FA0foqMzMmEoO0WJP+MjoD4dRERhKS+Ag+yBrtmWQDmw2OuZ1R/5FkvI/XdTkCpHmTD9VMczugpHRejQyTXCNQ==}
     dependencies:
-      vscode-languageserver-textdocument: 1.0.4
-      vscode-languageserver-types: 3.16.0
+      vscode-languageserver-textdocument: 1.0.7
+      vscode-languageserver-types: 3.17.2
       vscode-nls: 5.0.0
       vscode-uri: 3.0.3
     dev: false
@@ -8344,36 +8362,55 @@ packages:
   /vscode-html-languageservice/4.2.2:
     resolution: {integrity: sha512-4ICwlpplGbiNQq6D/LZr4qLbPZuMmnSQeX/57UAYP7jD1LOvKeru4lVI+f6d6Eyd7uS46nLJ5DUY4AAlq35C0g==}
     dependencies:
-      vscode-languageserver-textdocument: 1.0.4
-      vscode-languageserver-types: 3.16.0
+      vscode-languageserver-textdocument: 1.0.7
+      vscode-languageserver-types: 3.17.2
       vscode-nls: 5.0.0
       vscode-uri: 3.0.3
     dev: false
 
-  /vscode-jsonrpc/5.0.1:
-    resolution: {integrity: sha512-JvONPptw3GAQGXlVV2utDcHx0BiY34FupW/kI6mZ5x06ER5DdPG/tXWMVHjTNULF5uKPOUUD0SaXg5QaubJL0A==}
-    engines: {node: '>=8.0.0 || >=10.0.0'}
-    dev: true
+  /vscode-jsonrpc/8.0.2:
+    resolution: {integrity: sha512-RY7HwI/ydoC1Wwg4gJ3y6LpU9FJRZAUnTYMXthqhFXXu77ErDd/xkREpGuk4MyYkk4a+XDWAMqe0S3KkelYQEQ==}
+    engines: {node: '>=14.0.0'}
 
-  /vscode-languageserver-protocol/3.15.3:
-    resolution: {integrity: sha512-zrMuwHOAQRhjDSnflWdJG+O2ztMWss8GqUUB8dXLR/FPenwkiBNkMIJJYfSN6sgskvsF0rHAoBowNQfbyZnnvw==}
+  /vscode-languageclient/8.0.2:
+    resolution: {integrity: sha512-lHlthJtphG9gibGb/y72CKqQUxwPsMXijJVpHEC2bvbFqxmkj9LwQ3aGU9dwjBLqsX1S4KjShYppLvg1UJDF/Q==}
+    engines: {vscode: ^1.67.0}
     dependencies:
-      vscode-jsonrpc: 5.0.1
-      vscode-languageserver-types: 3.15.1
-    dev: true
+      minimatch: 3.1.2
+      semver: 7.3.7
+      vscode-languageserver-protocol: 3.17.2
+    dev: false
+
+  /vscode-languageserver-protocol/3.17.2:
+    resolution: {integrity: sha512-8kYisQ3z/SQ2kyjlNeQxbkkTNmVFoQCqkmGrzLH6A9ecPlgTbp3wDTnUNqaUxYr4vlAcloxx8zwy7G5WdguYNg==}
+    dependencies:
+      vscode-jsonrpc: 8.0.2
+      vscode-languageserver-types: 3.17.2
 
   /vscode-languageserver-textdocument/1.0.1:
     resolution: {integrity: sha512-UIcJDjX7IFkck7cSkNNyzIz5FyvpQfY7sdzVy+wkKN/BLaD4DQ0ppXQrKePomCxTS7RrolK1I0pey0bG9eh8dA==}
+    dev: false
 
   /vscode-languageserver-textdocument/1.0.4:
     resolution: {integrity: sha512-/xhqXP/2A2RSs+J8JNXpiiNVvvNM0oTosNVmQnunlKvq9o4mupHOBAnnzH0lwIPKazXKvAKsVp1kr+H/K4lgoQ==}
-
-  /vscode-languageserver-types/3.15.1:
-    resolution: {integrity: sha512-+a9MPUQrNGRrGU630OGbYVQ+11iOIovjCkqxajPa9w57Sd5ruK8WQNsslzpa0x/QJqC8kRc2DUxWjIFwoNm4ZQ==}
     dev: true
+
+  /vscode-languageserver-textdocument/1.0.7:
+    resolution: {integrity: sha512-bFJH7UQxlXT8kKeyiyu41r22jCZXG8kuuVVA33OEJn1diWOZK5n8zBSPZFHVBOu8kXZ6h0LIRhf5UnCo61J4Hg==}
 
   /vscode-languageserver-types/3.16.0:
     resolution: {integrity: sha512-k8luDIWJWyenLc5ToFQQMaSrqCHiLwyKPHKPQZ5zz21vM+vIVUSvsRpcbiECH4WR88K2XZqc4ScRcZ7nk/jbeA==}
+    dev: true
+
+  /vscode-languageserver-types/3.17.2:
+    resolution: {integrity: sha512-zHhCWatviizPIq9B7Vh9uvrH6x3sK8itC84HkamnBWoDFJtzBf7SWlpLCZUit72b3os45h6RWQNC9xHRDF8dRA==}
+
+  /vscode-languageserver/8.0.2:
+    resolution: {integrity: sha512-bpEt2ggPxKzsAOZlXmCJ50bV7VrxwCS5BI4+egUmure/oI/t4OlFzi/YNtVvY24A2UDOZAgwFGgnZPwqSJubkA==}
+    hasBin: true
+    dependencies:
+      vscode-languageserver-protocol: 3.17.2
+    dev: false
 
   /vscode-nls/5.0.0:
     resolution: {integrity: sha512-u0Lw+IYlgbEJFF6/qAqG2d1jQmJl0eyAGJHoAJqr2HT4M2BNuQYSEiSE75f52pXHSJm8AlTjnLLbBFPrdz2hpA==}

@@ -305,9 +305,11 @@ export class TemplateDeclarationsService {
       ancestors: [],
     }
     if (file.templateAST == null) return fallback
-    const block = file.getBlockAt(position)
+    const block = file.descriptor.template
     if (block == null) return fallback
-    if (block.type !== 'template') return fallback
+    if (position < block.loc.start.offset || position > block.loc.end.offset) {
+      return fallback
+    }
     const offset = position - block.loc.start.offset
 
     return {
