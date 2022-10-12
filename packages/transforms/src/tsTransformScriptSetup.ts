@@ -107,7 +107,6 @@ export function transformScriptSetup(
 
   // annotate range
   code.append(`\n`, { mappings: [[[0, 0, line + 1, 0]]] })
-  code.append(`;`, { mappings: [[[0, 0, line + 1, 0]]] })
   code.append(
     `const ${vars.scope} = ${options.typeIdentifier}.internal.scope(async () => {`,
     { mappings: [[[0, 0, line + 1, 0]]] },
