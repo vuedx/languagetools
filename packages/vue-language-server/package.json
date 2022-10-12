@@ -1,0 +1,49 @@
+{
+  "private": false,
+  "name": "@vuedx/vue-language-server",
+  "version": "0.0.0",
+  "displayName": "Vue language server",
+  "description": "Language server protocol implementation for .vue",
+  "main": "lib/index.js",
+  "buildConfig": {
+    "useMain": false,
+    "sources": {
+      "src/index.ts": [
+        {
+          "file": "lib/index.js",
+          "format": "cjs",
+          "bundle": {
+            "target": "node16",
+            "platform": "node"
+          }
+        }
+      ]
+    },
+    "external": []
+  },
+  "files": [
+    "lib/"
+  ],
+  "keywords": [],
+  "author": "Rahul Kadyan <hi@znck.me>",
+  "license": "MIT",
+  "homepage": "https://github.com/znck/vue-developer-experience/tree/main/packages/vue-language-server",
+  "bugs": {
+    "url": "https://github.com/znck/vue-developer-experience/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/znck/vue-developer-experience.git",
+    "directory": "packages/vue-language-server"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/znck"
+  },
+  "dependencies": {
+    "vscode-languageserver": "^8.0.2",
+    "@vuedx/shared": "workspace:*",
+    "@vuedx/vue-languageservice": "workspace:*"
+  },
+  "devDependencies": {}
+}

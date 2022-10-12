@@ -74,7 +74,6 @@ class LineColumnMapper {
 export class SourceTransformer {
   private readonly source: string
   private readonly sourceMap: DecodedSourceMap
-  private sourceLineColumnMapper?: LineColumnMapper
 
   private code: string = ''
 
@@ -160,13 +159,19 @@ export class SourceTransformer {
     }
   }
 
+  private _sourceLineColumnMapper?: LineColumnMapper
+  public get sourceLineColumnMapper(): LineColumnMapper {
+    return (
+      this._sourceLineColumnMapper ??
+      (this._sourceLineColumnMapper = new LineColumnMapper(this.source))
+    )
+  }
+
   clone(start: number, end: number): void {
     if (start >= end) return
     const code = this.source.slice(start, end)
     if (code.length === 0) return
-    const mapper =
-      this.sourceLineColumnMapper ??
-      (this.sourceLineColumnMapper = new LineColumnMapper(this.source))
+    const mapper = this.sourceLineColumnMapper
     const { line, column } = mapper.positionAt(start)
     const lines = code.split('\n')
     const sourceMap: PartialDecodedSourceMap = {

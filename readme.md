@@ -48,6 +48,7 @@ Have a question, or want to provide feedback? Use [repository discussions](https
 - [@vuedx/template-ast-types](./packages/template-ast-types) — a collection of utility functions to work with `<template>` AST, think `@babel/types` but for Vue
 - [@vuedx/typecheck](./packages/typecheck) — a command line tool to check types, functionally equivalent to `tsc --noEmit` but includes .vue support
 - [@vuedx/typescript-plugin-vue](./packages/typescript-plugin-vue) — enables TypeScript language server to understand `.vue` files
+- [@vuedx/vue-language-server](./packages/vue-language-server) — Language server protocol implementation for .vue
 <!--EOL:Packages-->
 
 ## Sponsors

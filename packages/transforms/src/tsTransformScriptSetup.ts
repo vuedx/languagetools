@@ -103,9 +103,14 @@ export function transformScriptSetup(
   } else {
     code.clone(0, offset)
   }
+  const { line } = code.sourceLineColumnMapper.positionAt(offset)
+
   // annotate range
+  code.append(`\n`, { mappings: [[[0, 0, line + 1, 0]]] })
+  code.append(`;`, { mappings: [[[0, 0, line + 1, 0]]] })
   code.append(
-    ` ;const ${vars.scope} = ${options.typeIdentifier}.internal.scope(async () => {`,
+    `const ${vars.scope} = ${options.typeIdentifier}.internal.scope(async () => {`,
+    { mappings: [[[0, 0, line + 1, 0]]] },
   )
 
   if (exportedNodes.length > 0) {

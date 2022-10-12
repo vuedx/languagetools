@@ -3,6 +3,8 @@ import type { PluginConfig } from '@vuedx/typescript-plugin-vue'
 import { Container } from 'inversify'
 import 'reflect-metadata'
 import vscode from 'vscode'
+import { LanguageClient } from 'vscode-languageclient/node'
+import { createClient } from './client'
 import { OpenVirtualFileCommand } from './commands/openVirtualFile'
 import { SelectVirtualFileCommand } from './commands/selectVirtualFile'
 import { VueVirtualDocumentProvider } from './scheme/vue'
@@ -11,6 +13,8 @@ import { StyleLanguageProxy } from './services/StyleLanguageProxy'
 import { TemplateLanguageProxy } from './services/TemplateLanguageProxy'
 import { VirtualFileSwitcher } from './services/VirtualFileSwitcher'
 
+let client: LanguageClient | undefined
+
 export async function activate(
   context: vscode.ExtensionContext,
 ): Promise<void> {
@@ -18,6 +22,8 @@ export async function activate(
     autoBindInjectable: true,
     defaultScope: 'Singleton',
   })
+
+  client = createClient(context)
 
   container.bind('context').toConstantValue(context)
   context.subscriptions.push(
@@ -58,7 +64,12 @@ export async function activate(
     }
   }
 
+  await client.start()
   await checkForConflicts()
+}
+
+export async function deactivate(): Promise<void> {
+  await client?.stop()
 }
 
 function syncConfig(api: any, config: PluginConfig): void {
@@ -87,7 +98,12 @@ async function checkForConflicts(): Promise<void> {
     return
   }
 
-  const ids = ['johnsoncodehk.volar', 'octref.vetur']
+  const ids = [
+    'johnsoncodehk.volar',
+    'Vue.volar',
+    'Vue.vscode-typescript-vue-plugin',
+    'octref.vetur',
+  ]
   const extensions = ids
     .map((id) => vscode.extensions.getExtension(id))
     .filter(isNotNull)
