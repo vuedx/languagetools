@@ -14,6 +14,9 @@ const packages = {
   '@vuedx/typescript-plugin-vue': {
     files: ['runtime/*.d.ts', 'lib/standalone.cjs', 'index.js'],
   },
+  '@vuedx/vue-language-server': {
+    files: ['lib/index.js'],
+  },
 }
 
 const __dirname = Path.dirname(fileURLToPath(import.meta.url))
