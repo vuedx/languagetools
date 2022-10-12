@@ -9,7 +9,8 @@ type __VueDX_GlobalComponents = import("vue").GlobalComponents;
 const __VueDX__Script_Component = __VueDX_defineComponent({});
 //#endregion
 //#region <script setup>
- ;const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
+
+;const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
 const __VueDX__ScriptSetup_props = defineProps({});
 const __VueDX__ScriptSetup_emits = ({});
 const __VueDX__ScriptSetup_expose = {};
@@ -100,7 +101,8 @@ const __VueDX__Script_Component = __VueDX_defineComponent({});
 //#endregion
 //#region <script setup>
 
-import { ref } from 'vue' ;const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
+import { ref } from 'vue'
+;const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
 
 const a = ref(false)
 let b  = 5
@@ -190,7 +192,7 @@ exports[`sourcemaps directives 1`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-          ^^^^^ > 5 at 1545 (38:10)
+          ^^^^^ > 5 at 1545 (39:10)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -206,7 +208,7 @@ exports[`sourcemaps directives 2`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-          ^^^^^ > 5 at 1545 (38:10)
+          ^^^^^ > 5 at 1545 (39:10)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -222,7 +224,7 @@ exports[`sourcemaps directives 3`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-             ^^ > 2 at 1548 (38:13)
+             ^^ > 2 at 1548 (39:13)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -238,7 +240,7 @@ exports[`sourcemaps directives 4`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-             ^^ > 2 at 1548 (38:13)
+             ^^ > 2 at 1548 (39:13)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -254,7 +256,7 @@ exports[`sourcemaps directives 5`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-          ^^^^^ > 5 at 1545 (38:10)
+          ^^^^^ > 5 at 1545 (39:10)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -270,7 +272,7 @@ exports[`sourcemaps directives 6`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-          ^^^^^ > 5 at 1545 (38:10)
+          ^^^^^ > 5 at 1545 (39:10)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -286,7 +288,7 @@ exports[`sourcemaps directives 7`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-             ^^ > 2 at 1548 (38:13)
+             ^^ > 2 at 1548 (39:13)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -302,7 +304,7 @@ exports[`sourcemaps directives 8`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-             ^^ > 2 at 1548 (38:13)
+             ^^ > 2 at 1548 (39:13)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -318,7 +320,7 @@ exports[`sourcemaps directives 9`] = `
         onC={__VueDX_TypeCheck.internal.first([
           ($event) => {
           call.a['func']($event)
-                ^^^^^^^^ > 8 at 1731 (45:16)
+                ^^^^^^^^ > 8 at 1731 (46:16)
           }, 
         ])}
 `;
@@ -334,7 +336,7 @@ exports[`sourcemaps directives 10`] = `
         onC={__VueDX_TypeCheck.internal.first([
           ($event) => {
           call.a['func']($event)
-                ^^^^^^^^ > 8 at 1731 (45:16)
+                ^^^^^^^^ > 8 at 1731 (46:16)
           }, 
         ])}
 `;
@@ -350,7 +352,7 @@ exports[`sourcemaps directives 11`] = `
         onC={__VueDX_TypeCheck.internal.first([
           ($event) => {
           call.a['func']($event)
-                         ^^^^^^ > 6 at 1740 (45:25)
+                         ^^^^^^ > 6 at 1740 (46:25)
           }, 
         ])}
 `;
@@ -366,7 +368,7 @@ exports[`sourcemaps directives 12`] = `
         onC={__VueDX_TypeCheck.internal.first([
           ($event) => {
           call.a['func']($event)
-                         ^^^^^^ > 6 at 1740 (45:25)
+                         ^^^^^^ > 6 at 1740 (46:25)
           }, 
         ])}
 `;
@@ -380,7 +382,8 @@ type __VueDX_GlobalComponents = import("vue").GlobalComponents;
 const __VueDX__Script_Component = __VueDX_defineComponent({});
 //#endregion
 //#region <script setup>
- ;const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
+
+;const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
 const __VueDX__ScriptSetup_props = defineProps({});
 const __VueDX__ScriptSetup_emits = ({});
 const __VueDX__ScriptSetup_expose = {};
@@ -465,7 +468,7 @@ exports[`sourcemaps v-on shorthand 1`] = `
       <B
         a=""
         onA={__VueDX_TypeCheck.internal.first([
-        ^ > 1 at 1465 (36:8)
+        ^ > 1 at 1465 (37:8)
           onStr, 
         ])}
 `;
@@ -481,7 +484,7 @@ exports[`sourcemaps v-on shorthand 2`] = `
       <B
         a=""
         onA={__VueDX_TypeCheck.internal.first([
-        ^ > 1 at 1465 (36:8)
+        ^ > 1 at 1465 (37:8)
           onStr, 
         ])}
 `;
@@ -497,7 +500,7 @@ exports[`sourcemaps v-text 1`] = `
     <>
       <div
         innerHTML={a}
-                   ^ > 1 at 1086 (29:19)
+                   ^ > 1 at 1086 (30:19)
         /*<vuedx:tsx-completions-target/>*/
       />
 `;
@@ -513,7 +516,7 @@ exports[`sourcemaps v-text 2`] = `
     <>
       <div
         innerHTML={a}
-                   ^ > 1 at 1086 (29:19)
+                   ^ > 1 at 1086 (30:19)
         /*<vuedx:tsx-completions-target/>*/
       />
 `;
