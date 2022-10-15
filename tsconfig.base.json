@@ -23,12 +23,11 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
 
-
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
 
     "resolveJsonModule": true,
 
-    "lib": ["ES2019"]
+    "lib": ["ES2020"]
   }
 }
