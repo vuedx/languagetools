@@ -125,7 +125,7 @@ importers:
   extensions/vscode-vue-language-features:
     specifiers:
       '@types/node': ^10.12.0
-      '@types/vscode': ^1.63.0
+      '@types/vscode': ^1.67.0
       '@vuedx/shared': workspace:*
       '@vuedx/typescript-plugin-vue': workspace:*
       '@vuedx/vue-language-server': workspace:*
@@ -151,7 +151,7 @@ importers:
       vscode-languageclient: 8.0.2
     devDependencies:
       '@types/node': 10.17.48
-      '@types/vscode': 1.64.0
+      '@types/vscode': 1.72.0
       typescript: 4.8.2
       vsce: 2.6.7
 
@@ -1841,6 +1841,10 @@ packages:
 
   /@types/vscode/1.64.0:
     resolution: {integrity: sha512-bSlAWz5WtcSL3cO9tAT/KpEH9rv5OBnm93OIIFwdCshaAiqr2bp1AUyEwW9MWeCvZBHEXc3V0fTYVdVyzDNwHA==}
+    dev: true
+
+  /@types/vscode/1.72.0:
+    resolution: {integrity: sha512-WvHluhUo+lQvE3I4wUagRpnkHuysB4qSyOQUyIAS9n9PYMJjepzTUD8Jyks0YeXoPD0UGctjqp2u84/b3v6Ydw==}
     dev: true
 
   /@types/web/0.0.56:

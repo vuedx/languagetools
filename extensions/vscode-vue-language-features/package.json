@@ -54,7 +54,7 @@
   "author": "Rahul Kadyan <rahulkdn@gmail.com> (https://znck.me/)",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.63.0"
+    "vscode": "^1.67.0"
   },
   "categories": [
     "Programming Languages"
@@ -329,7 +329,7 @@
   },
   "devDependencies": {
     "@types/node": "^10.12.0",
-    "@types/vscode": "^1.63.0",
+    "@types/vscode": "^1.67.0",
     "typescript": "^4.6.3",
     "vsce": "2.6.7"
   },
