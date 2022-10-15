@@ -25,6 +25,7 @@ import {
 import {
   camelize,
   capitalize,
+  getClassNameForTagName,
   invariant,
   last,
   pascalCase,
@@ -584,6 +585,15 @@ function genProps(el: ElementNode | ComponentNode): void {
         )
 
         const genHandler = (): void => {
+          if (isPlainElementNode(el)) {
+            ctx.typeGuards.push(
+              createCompoundExpression([
+                `$event.currentTarget instanceof `,
+                getClassNameForTagName(el.tag),
+              ]),
+            )
+          }
+
           ctx.write(`${getRuntimeFn(ctx.typeIdentifier, 'first')}([`).newLine()
           indent(() => {
             all.forEach((directive) => {
@@ -599,6 +609,9 @@ function genProps(el: ElementNode | ComponentNode): void {
             })
           })
           ctx.write('])')
+          if (isPlainElementNode(el)) {
+            ctx.typeGuards.pop()
+          }
         }
 
         if (isStaticExpression(prop.arg)) {
@@ -795,6 +808,7 @@ function genExpressionNodeAsFunction(node: ExpressionNode): void {
     node.content.includes('$event')
       ? ctx.write('($event) => {').newLine()
       : ctx.write('() => {').newLine()
+    genTypeGuards()
     genSimpleExpressionNode(node)
     ctx.newLine().write('}')
   }

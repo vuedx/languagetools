@@ -92,7 +92,22 @@ export function transformScriptSetup(
 
   const identifiers = program
     .getTypeChecker()
-    .getSymbolsInScope(sourceFile, ts.SymbolFlags.Value)
+    .getSymbolsInScope(
+      sourceFile,
+      (ts.SymbolFlags.FunctionScopedVariable |
+        ts.SymbolFlags.BlockScopedVariable |
+        ts.SymbolFlags.Function |
+        ts.SymbolFlags.Class |
+        ts.SymbolFlags.ConstEnum |
+        ts.SymbolFlags.RegularEnum |
+        ts.SymbolFlags.Alias) &
+        ~(
+          ts.SymbolFlags.Interface |
+          ts.SymbolFlags.TypeLiteral |
+          ts.SymbolFlags.TypeParameter |
+          ts.SymbolFlags.TypeAlias
+        ),
+    )
     .map((sym) => sym.getName())
 
   const offset =

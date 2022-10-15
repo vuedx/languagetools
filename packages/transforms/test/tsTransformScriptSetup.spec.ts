@@ -271,6 +271,49 @@ describe(transformScriptSetup, () => {
       const __ScriptSetup_Component = _defineComponent((_: typeof __ScriptSetup_internalProps)=> {});
     `)
   })
+
+  it('should detect all symbols', () => {
+    const { identifiers } = compile(`
+      import { aNamedImport, type TypeNamedImport } from 'vue'
+      import * as aNamespaceImport from 'vue'
+      import aDefaultImport from './A.vue'
+      import type TypeDefaultImport from './B.vue'
+      import type * as TypeNamespaceImport from './C.vue'
+      
+      var aVar = 0
+      let aLet = 0
+      const aConst = ref(0)
+      enum aEnum {}
+      const {aDestructuredProperty} = {}
+      const [aDestructuredArray] = []
+      function aFunction() {}
+      class aClass {}
+      interface TypeInterface {}
+      type TypeType = {}
+      namespace aNamespace {
+        export const aConst = 0
+      }
+    `)
+
+    expect(identifiers.sort()).toEqual([
+      // False positives
+      'TypeDefaultImport',
+      'TypeNamedImport',
+      'TypeNamespaceImport',
+      // True positives
+      'aClass',
+      'aConst',
+      'aDefaultImport',
+      'aDestructuredArray',
+      'aDestructuredProperty',
+      'aEnum',
+      'aFunction',
+      'aLet',
+      'aNamedImport',
+      'aNamespaceImport',
+      'aVar',
+    ])
+  })
 })
 
 function trimIndent(str: string) {
