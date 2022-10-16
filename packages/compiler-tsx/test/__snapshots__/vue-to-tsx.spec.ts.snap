@@ -263,18 +263,21 @@ function __VueDX__render() {
         {...(foo)}
         onClick={__VueDX__TypeCheck.internal.first([
           () => {
+          if(!($event.currentTarget instanceof HTMLDivElement)) throw new Error;
           console.log
           }, 
           () => {
+          if(!($event.currentTarget instanceof HTMLDivElement)) throw new Error;
           console.log
           }, 
           () => {
+          if(!($event.currentTarget instanceof HTMLDivElement)) throw new Error;
           console.log
           }, 
         ])}
         /*<vuedx:tsx-completions-target/>*/
       >
-        {foo}
+         {foo} 
       </div>
     </>
   )

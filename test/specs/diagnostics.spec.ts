@@ -67,7 +67,7 @@ describe('project', () => {
     )
 
     test('v-html', async () => {
-      const fileName = await editor.open('src/v-html.vue')
+      const { fsPath: fileName } = await editor.open('src/v-html.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
@@ -81,7 +81,7 @@ describe('project', () => {
     })
 
     test('v-memo', async () => {
-      const fileName = await editor.open('src/v-memo.vue')
+      const { fsPath: fileName } = await editor.open('src/v-memo.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
@@ -93,7 +93,7 @@ describe('project', () => {
     })
 
     test('v-model', async () => {
-      const fileName = await editor.open('src/v-model.vue')
+      const { fsPath: fileName } = await editor.open('src/v-model.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
@@ -104,12 +104,21 @@ describe('project', () => {
           Type 'number' is not assignable to type 'string'.",
           "Type '{ modelValue: number | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { bar?: string | number | undefined; foo?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.
           Property 'modelValue' does not exist on type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { bar?: string | number | undefined; foo?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.",
+          "Type '{ foo: string | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
+          Property 'foo' does not exist on type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.",
+          "Type '{ foo: number | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
+          Property 'foo' does not exist on type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.",
+          "Type 'number | undefined' is not assignable to type 'string | undefined'.",
+          "Type '{ bar: string | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
+          Property 'bar' does not exist on type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.",
+          "Type '{ bar: number | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
+          Property 'bar' does not exist on type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.",
         ]
       `)
     })
 
     test('v-model-checkbox', async () => {
-      const fileName = await editor.open('src/v-model-checkbox.vue')
+      const { fsPath: fileName } = await editor.open('src/v-model-checkbox.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
@@ -118,14 +127,12 @@ describe('project', () => {
           Type '"yes"' is not assignable to type 'Booleanish | undefined'.",
           "Type '"yes" | "no"' is not assignable to type 'Booleanish | undefined'.",
           "Type '"yes" | "no"' is not assignable to type 'Booleanish | undefined'.",
-          "Object is possibly 'null'.",
-          "Property 'checked' does not exist on type 'EventTarget'.",
         ]
       `)
     })
 
     test('v-model-input', async () => {
-      const fileName = await editor.open('src/v-model-input.vue')
+      const { fsPath: fileName } = await editor.open('src/v-model-input.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
@@ -139,7 +146,7 @@ describe('project', () => {
     })
 
     test('v-model-select', async () => {
-      const fileName = await editor.open('src/v-model-select.vue')
+      const { fsPath: fileName } = await editor.open('src/v-model-select.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(
         semantic.map((diagnostic) => diagnostic.text),
@@ -147,7 +154,7 @@ describe('project', () => {
     })
 
     test('v-on-native', async () => {
-      const fileName = await editor.open('src/v-on-native.vue')
+      const { fsPath: fileName } = await editor.open('src/v-on-native.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
@@ -165,7 +172,7 @@ describe('project', () => {
     })
 
     test('v-on', async () => {
-      const fileName = await editor.open('src/v-on.vue')
+      const { fsPath: fileName } = await editor.open('src/v-on.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
@@ -186,7 +193,7 @@ describe('project', () => {
     })
 
     test('v-once', async () => {
-      const fileName = await editor.open('src/v-once.vue')
+      const { fsPath: fileName } = await editor.open('src/v-once.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
@@ -202,7 +209,7 @@ describe('project', () => {
     })
 
     test('v-pre', async () => {
-      const fileName = await editor.open('src/v-pre.vue')
+      const { fsPath: fileName } = await editor.open('src/v-pre.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(
         semantic.map((diagnostic) => diagnostic.text),
@@ -210,7 +217,7 @@ describe('project', () => {
     })
 
     test('v-show', async () => {
-      const fileName = await editor.open('src/v-show.vue')
+      const { fsPath: fileName } = await editor.open('src/v-show.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
@@ -223,7 +230,7 @@ describe('project', () => {
     })
 
     test('v-text', async () => {
-      const fileName = await editor.open('src/v-text.vue')
+      const { fsPath: fileName } = await editor.open('src/v-text.vue')
       const { semantic } = await editor.getDiagnostics(fileName)
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
