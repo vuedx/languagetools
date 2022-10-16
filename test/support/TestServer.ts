@@ -278,7 +278,7 @@ export class TestServer {
     event: string,
     check: (event: any) => boolean = () => true,
   ): Promise<Proto.Event> {
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
       this.onceEventHandlers.push((payload) => {
         if (payload.event === event && check(payload)) {
           resolve(payload)

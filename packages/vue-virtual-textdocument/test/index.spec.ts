@@ -52,10 +52,8 @@ describe('VueSFCDocument', () => {
       const __VueDX_ctx = __VueDX_RegisterSelf(new __VueDX__ScriptSetup_Component())
       //#region <template>
       /*<vuedx:templateGlobals>*/
-      const __VueDX__get_identifier_Foo = () => Foo;
-      /*</vuedx:templateGlobals>*/
-      /*<vuedx:templateGlobals>*/
       const __VueDX__get_identifier_val = () => __VueDX_TypeCheck.internal.unref(val);
+      const __VueDX__get_identifier_Foo = () => __VueDX_TypeCheck.internal.unref(Foo);
       /*</vuedx:templateGlobals>*/
       function __VueDX_render() {
         /*<vuedx:templateGlobals>*/
@@ -63,7 +61,7 @@ describe('VueSFCDocument', () => {
         let $slots = __VueDX_ctx.$slots
         /*</vuedx:templateGlobals>*/
         /*<vuedx:templateGlobals>*/
-        const Foo = __VueDX_TypeCheck.internal.resolveComponent({} as unknown as __VueDX_GlobalComponents, {} as unknown as JSX.IntrinsicElements, __VueDX_ctx, __VueDX__get_identifier_Foo(), "Foo" as const, "Foo" as const);
+        const Foo = __VueDX__get_identifier_Foo();
         /*</vuedx:templateGlobals>*/
         return (
           <>
@@ -74,7 +72,7 @@ describe('VueSFCDocument', () => {
                 default: () => {
                   return (
                     <>
-                      {val}
+                       {val} 
                     </>
                   )
                 },

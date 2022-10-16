@@ -9,7 +9,7 @@ import {
   RootNode,
   transform,
 } from '@vue/compiler-core'
-import { last } from '@vuedx/shared'
+import { first, last } from '@vuedx/shared'
 import {
   createSimpleExpression,
   isDirectiveNode,
@@ -24,7 +24,7 @@ import './types/Node'
 const preprocess: NodeTransform = (node, context) => {
   if (isTextNode(node) && node.content.trim().startsWith('<')) {
     // Incomplete element tag
-    context.replaceNode(createPlainElementNode(node.content, node.loc))
+    context.replaceNode(createPlainElementNode(node.loc))
 
     return
   }
@@ -42,14 +42,18 @@ const preprocess: NodeTransform = (node, context) => {
   node.props.forEach((prop, index) => {
     // remove empty modifiers
     if (isDirectiveNode(prop)) {
-      const isShorthand = /^[:@.^]/.test(prop.loc.source)
-      const nameEndOffset = isShorthand ? 1 : 2 + prop.name.length
+      const nameEndOffset = prop.loc.source.startsWith('v-')
+        ? 2 + prop.name.length
+        : 1
       let offset =
         prop.arg != null
           ? prop.arg.loc.end.offset - prop.loc.start.offset
           : nameEndOffset
 
       prop.nameLoc = sliceLoc(prop.loc, 0, nameEndOffset)
+      if (prop.modifiers.length === 1 && first(prop.modifiers) === '') {
+        prop.modifiers = []
+      }
       prop.modifierLocs = prop.modifiers.map((modifier) => {
         try {
           offset += 1
@@ -78,11 +82,13 @@ const preprocess: NodeTransform = (node, context) => {
                 false,
                 createLoc(prop.loc, 1, prop.name.length - 1),
               )
-            : createSimpleExpression(
+            : prop.name.length > 1
+            ? createSimpleExpression(
                 prop.name.slice(1),
                 true,
                 createLoc(prop.loc, 1, prop.name.length - 1),
-              ),
+              )
+            : undefined,
           loc: prop.loc,
           modifiers: [],
           modifierLocs: [],
@@ -105,6 +111,7 @@ const preprocess: NodeTransform = (node, context) => {
   node.tagLoc = createLoc(node.loc, 1, node.tag.length)
   if (node.isSelfClosing) {
     node.startTagLoc = node.loc
+    node.endTagLoc = sliceLoc(node.loc, -2)
   } else {
     const startTagIndex = node.loc.source.indexOf(
       '>',
@@ -145,23 +152,22 @@ export function parse(template: string, options: ParserOptions): RootNode {
   return ast
 }
 
-function createPlainElementNode(
-  content: string,
-  contentLoc: SourceLocation,
-): PlainElementNode {
-  const source = content.trim()
+function createPlainElementNode(contentLoc: SourceLocation): PlainElementNode {
+  const offset = contentLoc.source.indexOf('<')
+  const loc = sliceLoc(contentLoc, offset)
+  const tag = loc.source.slice(1).trim()
   return {
     type: 1 /* ELEMENT */,
-    tag: source.slice(1),
+    tag,
     tagType: 0 /* ELEMENT */,
     codegenNode: undefined,
     children: [],
-    isSelfClosing: false,
-    loc: contentLoc,
+    isSelfClosing: tag.length > 0,
+    loc,
     ns: 0,
     props: [],
-    tagLoc: createLoc(contentLoc, 1, content.length - 1),
-    startTagLoc: contentLoc,
+    tagLoc: sliceLoc(loc, 1),
+    startTagLoc: loc,
     endTagLoc: undefined,
     scope: new Scope(),
   }

@@ -13,6 +13,7 @@ import {
   isElementNode,
   isSimpleIdentifier,
 } from '@vuedx/template-ast-types'
+import { KnownIdentifier } from '@vuedx/transforms'
 import { directives } from '../builtins'
 import { getRuntimeFn } from '../runtime'
 import type { NodeTransformContext } from '../types/NodeTransformContext'
@@ -42,19 +43,30 @@ export function createResolveComponentTransform(
 
           const id = `v${pascalCase(node.name)}`
           node.resolvedName = id
+
           if (!ctx.scope.hasIdentifier(id)) {
-            ctx.scope.addIdentifier(id)
-            ctx.scope.hoist(
-              createCompoundExpression([
-                'const ',
-                id,
-                ` = ${h('resolveDirective')}(${ctx.contextIdentifier}, `,
-                s(node.name),
-                ', ',
-                s(camelCase(node.name)),
-                ');',
-              ]),
-            )
+            const knownId = ctx.identifiers.get(id)
+            if (knownId == null) {
+              ctx.scope.addIdentifier(id)
+              ctx.scope.hoist(
+                createCompoundExpression([
+                  'const ',
+                  id,
+                  ` = ${h('resolveDirective')}(${ctx.contextIdentifier}, `,
+                  s(node.name),
+                  ', ',
+                  s(camelCase(node.name)),
+                  ');',
+                ]),
+              )
+            } else if (mayBeRef(knownId)) {
+              ctx.scope.addIdentifier(id)
+              ctx.scope.hoist(
+                createCompoundExpression([
+                  `const ${id} = ${ctx.internalIdentifierPrefix}_get_identifier_${id}();`,
+                ]),
+              )
+            }
           }
         }
       })
@@ -74,23 +86,34 @@ export function createResolveComponentTransform(
           ? id + node.tag.slice(name.length)
           : id
         if (!ctx.scope.hasIdentifier(id)) {
-          ctx.used.components.add(id)
-          ctx.scope.addIdentifier(id)
-          ctx.scope.hoist(
-            createCompoundExpression([
-              'const ',
-              id,
-              ` = ${h('resolveComponent')}(${resolveComponentArgs}`,
-              isSimpleIdentifier(id)
-                ? `${ctx.internalIdentifierPrefix}_get_identifier_${id}()`
-                : 'null',
-              ', ',
-              s(name),
-              ', ',
-              s(pascalCase(name)),
-              ');',
-            ]),
-          )
+          const knownId = ctx.identifiers.get(id)
+          if (knownId == null || !isSimpleIdentifier(id)) {
+            ctx.used.components.add(id)
+            ctx.scope.addIdentifier(id)
+            ctx.scope.hoist(
+              createCompoundExpression([
+                'const ',
+                id,
+                ` = ${h('resolveComponent')}(${resolveComponentArgs}`,
+                isSimpleIdentifier(id)
+                  ? `${ctx.internalIdentifierPrefix}_get_identifier_${id}()`
+                  : 'null',
+                ', ',
+                s(name),
+                ', ',
+                s(pascalCase(name)),
+                ');',
+              ]),
+            )
+          } else if (mayBeRef(knownId)) {
+            ctx.used.components.add(id)
+            ctx.scope.addIdentifier(id)
+            ctx.scope.hoist(
+              createCompoundExpression([
+                `const ${id} = ${ctx.internalIdentifierPrefix}_get_identifier_${id}();`,
+              ]),
+            )
+          }
         }
       }
       return undefined
@@ -102,4 +125,13 @@ export function createResolveComponentTransform(
     }
     return undefined
   }
+}
+
+function mayBeRef(id: KnownIdentifier): boolean {
+  return (
+    id.kind === 'ref' ||
+    id.kind === 'maybeRef' ||
+    id.kind === 'externalRef' ||
+    id.kind === 'externalMaybeRef'
+  )
 }

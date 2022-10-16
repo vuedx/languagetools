@@ -11,6 +11,7 @@ import { VueVirtualDocumentProvider } from './scheme/vue'
 import { PluginCommunicationService } from './services/PluginCommunicationService'
 import { StyleLanguageProxy } from './services/StyleLanguageProxy'
 import { TemplateLanguageProxy } from './services/TemplateLanguageProxy'
+import { TriggerCompletionService } from './services/TriggerCompletionService'
 import { TwoSlashService } from './services/TwoSlashService'
 import { VirtualFileSwitcher } from './services/VirtualFileSwitcher'
 
@@ -36,6 +37,7 @@ export async function activate(
     container.get(SelectVirtualFileCommand).install(),
     container.get(VirtualFileSwitcher).install(),
     container.get(TwoSlashService).install(),
+    container.get(TriggerCompletionService).install(),
     new vscode.Disposable(() => container.unbindAll()),
   )
   const ts = vscode.extensions.getExtension(

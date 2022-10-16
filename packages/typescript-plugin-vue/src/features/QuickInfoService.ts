@@ -90,6 +90,15 @@ export class QuickInfoService {
     const textSpan = file.findOriginalTextSpan(quickInfo.textSpan)
     if (textSpan == null) return
 
-    return { ...quickInfo, textSpan }
+    return {
+      ...quickInfo,
+      textSpan,
+      displayParts: quickInfo.displayParts?.map((part) => {
+        return {
+          ...part,
+          text: part.text.replace('__VueDX_', ''),
+        }
+      }),
+    }
   }
 }

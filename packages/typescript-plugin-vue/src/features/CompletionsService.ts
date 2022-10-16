@@ -1,12 +1,14 @@
 import { annotations } from '@vuedx/compiler-tsx'
 import { VueProject } from '@vuedx/projectconfig'
-import { lcfirst, ucfirst } from '@vuedx/shared'
+import { isHTMLTag, isSVGTag, last, lcfirst, ucfirst } from '@vuedx/shared'
 import {
   isAttributeNode,
   isComponentNode,
   isDirectiveNode,
   isPlainElementNode,
+  isSimpleExpressionNode,
   Node,
+  TraversalAncestors,
 } from '@vuedx/template-ast-types'
 import { VueSFCDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
@@ -16,6 +18,13 @@ import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService } from '../services/LoggerService'
 import { TemplateDeclarationsService } from '../services/TemplateDeclarationsService'
 import { TypescriptContextService } from '../services/TypescriptContextService'
+
+type CompletionContextKind =
+  | 'tag'
+  | 'attribute'
+  | 'propName'
+  | 'eventName'
+  | 'directiveArg'
 
 @injectable()
 export class CompletionsService
@@ -62,24 +71,28 @@ export class CompletionsService
         )
       },
       template: (file) => {
-        const { node, templateRange } = this.declarations.findTemplateNode(
-          file,
-          position,
-        )
+        const { node, ancestors, templateRange } =
+          this.declarations.findTemplateNode(file, position)
+
         if (node == null) return
         let generatedPosition = file.generatedOffsetAt(position)
         if (generatedPosition == null) return
 
         const kind = this.detectCompletionContext(
+          ancestors,
           node,
           position - templateRange.start,
         )
 
+        console.log(`@@@ completion`, kind, node)
+
         if (kind === 'attribute') {
-          generatedPosition = file.generated
+          const index = file.generated
             .getText()
             .indexOf(annotations.tsxCompletions, generatedPosition)
-          if (generatedPosition === -1) return
+          if (index !== -1) {
+            generatedPosition = index
+          }
         }
 
         return this.processCompletionInfo(
@@ -124,11 +137,20 @@ export class CompletionsService
         )
       },
       template: (file) => {
-        const actualEntryName = /^(:|v-bind:)/.test(entryName)
-          ? entryName.replace(/^(:|v-bind:)/, '')
-          : /^(@|v-on:)/.test(entryName)
-          ? `on${ucfirst(entryName.replace(/^(@|v-on:)/, ''))}`
-          : entryName
+        const { ancestors, node, templateRange } =
+          this.declarations.findTemplateNode(file, position)
+        if (node == null) return
+        const mode = this.detectCompletionContext(
+          ancestors,
+          node,
+          position - templateRange.start,
+        )
+        const actualEntryName =
+          mode === 'eventName'
+            ? `on${ucfirst(entryName)}`
+            : mode === 'attribute'
+            ? entryName.replace(/^(v-(?:bind|on):|[@:^.])/, '')
+            : entryName
         const generatedPosition = file.generatedOffsetAt(position)
         if (generatedPosition == null) return
         return this.processCompletionEntryDetails(
@@ -141,6 +163,7 @@ export class CompletionsService
             preferences,
             data,
           ),
+          entryName,
         )
       },
     })
@@ -216,7 +239,7 @@ export class CompletionsService
 
   public processCompletionInfo<T extends TypeScript.CompletionInfo | undefined>(
     info: T,
-    kind?: 'attribute' | 'tag',
+    kind?: CompletionContextKind,
     project?: VueProject,
   ): T {
     if (info == null) return info
@@ -230,18 +253,75 @@ export class CompletionsService
       ...info,
       entries: info.entries.flatMap((entry) => {
         if (entry.name.startsWith('__VueDX_')) return [] // exclude internals
-        if (kind === 'attribute') {
+        if (kind === 'tag') {
+          if (
+            entry.kind === this.ts.lib.ScriptElementKind.alias ||
+            entry.kind === this.ts.lib.ScriptElementKind.classElement
+          ) {
+            if (
+              /^[A-Z]/.test(entry.name) &&
+              entry.kindModifiers?.includes('export') === true
+            ) {
+              return [entry]
+            }
+          }
+
+          if (
+            entry.kind === this.ts.lib.ScriptElementKind.memberVariableElement
+          ) {
+            // TODO: filter depending on svg/html context
+            if (isHTMLTag(entry.name) || isSVGTag(entry.name)) return [entry]
+          }
+
+          return []
+        }
+
+        if (
+          kind === 'attribute' ||
+          kind === 'eventName' ||
+          kind === 'propName'
+        ) {
           if (
             entry.kind === this.ts.lib.ScriptElementKind.memberVariableElement // TODO: check others
           ) {
             if (entry.name.startsWith('on')) {
-              return [
-                { ...entry, name: `${vOn}${lcfirst(entry.name.slice(2))}` },
-              ]
-            } else {
-              return [entry, { ...entry, name: `${vBind}${entry.name}` }]
+              if (kind === 'propName') return []
+              const arg = lcfirst(entry.name.slice(2))
+              const name = kind === 'attribute' ? `${vOn}${arg}` : `${arg}`
+              const insertText =
+                entry.insertText != null
+                  ? entry.isSnippet
+                    ? `${name}="$1"`
+                    : name
+                  : undefined
+
+              return [{ ...entry, name, insertText }]
+            } else if (kind !== 'eventName') {
+              const attribute = {
+                ...entry,
+                insertText:
+                  entry.insertText != null
+                    ? entry.isSnippet
+                      ? `${entry.name}="$1"`
+                      : entry.name
+                    : undefined,
+              }
+              const prop = {
+                ...entry,
+                name: `${vBind}${entry.name}`,
+                insertText:
+                  entry.insertText != null
+                    ? entry.isSnippet
+                      ? `${vBind}${entry.name}="$1"`
+                      : entry.name
+                    : undefined,
+              }
+
+              return kind === 'attribute' ? [attribute, prop] : [attribute]
             }
           }
+
+          return []
         }
 
         return [entry]
@@ -251,17 +331,14 @@ export class CompletionsService
 
   public processCompletionEntryDetails(
     entryDetails: TypeScript.CompletionEntryDetails | undefined,
+    entryName?: string,
   ): TypeScript.CompletionEntryDetails | undefined {
     if (entryDetails == null) return entryDetails
 
     return {
       ...entryDetails,
+      name: entryName ?? entryDetails.name,
       codeActions: entryDetails.codeActions?.flatMap((action) => {
-        this.logger.debug(
-          '@@@ codeActions',
-          action,
-          JSON.stringify(action.changes, null, 2),
-        )
         const changes = this.fs.resolveAllFileTextChanges(action.changes)
         if (changes.length === 0) return []
         return { ...action, changes }
@@ -270,10 +347,13 @@ export class CompletionsService
   }
 
   private detectCompletionContext(
+    ancestors: TraversalAncestors,
     node: Node,
     offset: number,
-  ): 'attribute' | 'tag' | undefined {
+  ): CompletionContextKind | undefined {
     if (isComponentNode(node) || isPlainElementNode(node)) {
+      if (node.tag.trim() === '') return 'tag'
+
       const isOpenTag = isOffsetInSourceLocation(node.startTagLoc, offset)
       const isTagName = isOffsetInSourceLocation(node.tagLoc, offset)
 
@@ -289,13 +369,32 @@ export class CompletionsService
         return 'attribute'
       }
     } else if (isDirectiveNode(node)) {
-      const isDirectiveArgument = isOffsetInSourceLocation(
-        node.arg?.loc,
-        offset,
-      )
+      const isDirectiveArgument =
+        (node.arg == null && node.exp == null && node.modifiers.length === 0) ||
+        isOffsetInSourceLocation(node.arg?.loc, offset)
 
       if (isDirectiveArgument) {
-        return 'attribute'
+        return node.name === 'on'
+          ? 'eventName'
+          : node.name === 'bind'
+          ? 'propName'
+          : 'directiveArg'
+      }
+    } else if (isSimpleExpressionNode(node) && ancestors.length > 0) {
+      const directive = last(ancestors).node
+      if (isDirectiveNode(directive)) {
+        const isDirectiveArgument = isOffsetInSourceLocation(
+          directive.arg?.loc,
+          offset,
+        )
+
+        if (isDirectiveArgument) {
+          return directive.name === 'on'
+            ? 'eventName'
+            : directive.name === 'bind'
+            ? 'propName'
+            : 'directiveArg'
+        }
       }
     }
 

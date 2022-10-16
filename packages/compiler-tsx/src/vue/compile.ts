@@ -74,7 +74,7 @@ export function compileWithDecodedSourceMap(
     isTypeScript: options.isTypeScript ?? (lang === 'ts' || lang === 'tsx'),
     cache,
     descriptor,
-    identifiers: new Set(),
+    identifiers: new Map(),
   }
   const builder = new SourceTransformer(options.fileName, source)
 
@@ -95,10 +95,15 @@ export function compileWithDecodedSourceMap(
     () => transformScriptSetup(descriptor.scriptSetup, resolvedOptions),
   )
 
-  resolvedOptions.identifiers = new Set([
-    ...script.identifiers,
-    ...scriptSetup.identifiers,
-  ])
+  resolvedOptions.identifiers = new Map()
+
+  script.identifiers.forEach((identifier) => {
+    resolvedOptions.identifiers.set(identifier.name, identifier)
+  })
+
+  scriptSetup.identifiers.forEach((identifier) => {
+    resolvedOptions.identifiers.set(identifier.name, identifier)
+  })
 
   const template = runIfNeeded(
     key('template'),

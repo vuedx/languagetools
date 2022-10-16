@@ -5,11 +5,12 @@ import {
   SourceTransformer,
 } from '@vuedx/shared'
 import type TypeScript from 'typescript/lib/tsserverlibrary'
+import { findIdentifiers, KnownIdentifier } from './findIdentifiers'
 import { TransformScriptOptions } from './TransformScriptOptions'
 export interface TransformScriptResult {
   code: string
   map: DecodedSourceMap
-  identifiers: string[]
+  identifiers: KnownIdentifier[]
   componentIdentifier: string
   name: string
   inheritAttrs: boolean
@@ -71,10 +72,7 @@ export function transformScript(
 
   findNodes(sourceFile)
 
-  const identifiers = program
-    .getTypeChecker()
-    .getSymbolsInScope(sourceFile, ts.SymbolFlags.Value)
-    .map((sym) => sym.getName())
+  const identifiers = findIdentifiers(ts, program, sourceFile)
 
   if (defaultExport != null) {
     const needsDefineComponent = ts.isObjectLiteralExpression(

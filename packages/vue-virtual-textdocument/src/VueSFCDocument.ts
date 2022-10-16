@@ -49,8 +49,6 @@ const enum MappingKey {
   Name,
 }
 
-const MappingNameRE = /^<<(P|S|T)>>(\d+)(?:|\d+)$/
-
 export class VueSFCDocument implements TextDocument {
   public readonly originalFileName: string
   public readonly generatedFileName: string
@@ -384,14 +382,17 @@ export class VueSFCDocument implements TextDocument {
   }
 
   public findGeneratedTextSpan(spanInOriginalText: TextSpan): TextSpan | null {
-    const start = this.generatedOffsetAt(spanInOriginalText.start)
+    const block = this.getBlockAt(spanInOriginalText.start)
+    if (block == null) return null
+    const isZeroWidth = spanInOriginalText.length === 0
+    const start = this.generatedOffsetAt(spanInOriginalText.start, isZeroWidth)
     if (start == null) return null
-    if (spanInOriginalText.length === 0) return { start, length: 0 }
+    if (isZeroWidth) return { start, length: 0 }
 
-    // TODO: collapse text span end to the end of the block
     const end =
       this.generatedOffsetAt(
         spanInOriginalText.start + spanInOriginalText.length,
+        true,
       ) ?? start
 
     return { start: Math.min(start, end), length: Math.abs(end - start) }
@@ -401,10 +402,10 @@ export class VueSFCDocument implements TextDocument {
     kind: 'generated' | 'original',
     span: TextSpan,
     mapping: Mapping,
-  ): TextSpan | null {
+  ): (TextSpan & { mapping: 'P' | 'S' | 'T' }) | null {
     const name = mapping[MappingKey.Name]
     if (name == null) return null
-    const result = MappingNameRE.exec(name)
+    const result = /^<<(P|S|T)>>(\d+)(?:\|(\d+))?$/.exec(name)
     if (result != null) {
       switch (result[1]) {
         case 'P':
@@ -435,6 +436,7 @@ export class VueSFCDocument implements TextDocument {
                 return {
                   start: original + skipLength,
                   length,
+                  mapping: 'P',
                 }
               }
             } else {
@@ -450,6 +452,7 @@ export class VueSFCDocument implements TextDocument {
                 return {
                   start: generated + skipLength,
                   length,
+                  mapping: 'P',
                 }
               }
             }
@@ -479,7 +482,11 @@ export class VueSFCDocument implements TextDocument {
               ) {
                 const skipLength = Math.abs(span.start - generated)
                 if (skipLength <= diffLength) {
-                  return { start: original, length: originalLength }
+                  return {
+                    start: original,
+                    length: originalLength,
+                    mapping: 'S',
+                  }
                 }
 
                 const length = Math.min(
@@ -490,6 +497,7 @@ export class VueSFCDocument implements TextDocument {
                 return {
                   start: original + skipLength,
                   length,
+                  mapping: 'S',
                 }
               } else {
                 if (
@@ -504,6 +512,7 @@ export class VueSFCDocument implements TextDocument {
                   return {
                     start: generated + diffLength + skipLength,
                     length,
+                    mapping: 'S',
                   }
                 }
               }
@@ -517,31 +526,32 @@ export class VueSFCDocument implements TextDocument {
             const generatedLength = parseInt(result[3], 10)
             invariant(Number.isInteger(originalLength))
             invariant(Number.isInteger(generatedLength))
-            invariant(originalLength >= generatedLength)
             const original = this.original.offsetAt({
               line: mapping[MappingKey.OriginalLine],
               character: mapping[MappingKey.OriginalColumn],
             })
 
-            const genreated = this.generated.offsetAt({
+            const generated = this.generated.offsetAt({
               line: mapping[MappingKey.GeneratedLine],
               character: mapping[MappingKey.GeneratedColumn],
             })
 
             if (kind === 'generated') {
               if (
-                contains({ start: genreated, length: generatedLength }, span)
+                contains({ start: generated, length: generatedLength }, span)
               ) {
                 return {
                   start: original,
                   length: originalLength,
+                  mapping: 'T',
                 }
               }
             } else {
               if (contains({ start: original, length: originalLength }, span)) {
                 return {
-                  start: genreated,
+                  start: generated,
                   length: generatedLength,
+                  mapping: 'T',
                 }
               }
             }
@@ -559,7 +569,10 @@ export class VueSFCDocument implements TextDocument {
     return this.generated.positionAt(generatedOffset)
   }
 
-  public generatedOffsetAt(offset: number): number | null {
+  public generatedOffsetAt(
+    offset: number,
+    isZeroWidth: boolean = false,
+  ): number | null {
     const position = this.original.positionAt(offset)
     const low = this.findMapping(
       'original',
@@ -573,7 +586,11 @@ export class VueSFCDocument implements TextDocument {
       { start: offset, length: 0 },
       low,
     )
-    if (result != null) return result.start
+    if (result != null) {
+      return isZeroWidth && result.mapping === 'T'
+        ? result.start + result.length
+        : result.start
+    }
 
     const originalStart = this.original.offsetAt({
       line: low[MappingKey.OriginalLine],

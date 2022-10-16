@@ -1,6 +1,9 @@
 import type { SFCScriptBlock } from '@vuedx/compiler-sfc'
 import { invariant } from '@vuedx/shared'
-import { transformScript as transform } from '@vuedx/transforms'
+import {
+  transformScript as transform,
+  type KnownIdentifier,
+} from '@vuedx/transforms'
 import type { TransformedCode } from '../../types/TransformedCode'
 import type { TransformOptionsResolved } from '../../types/TransformOptions'
 
@@ -8,7 +11,7 @@ export interface ScriptBlockTransformResult extends TransformedCode {
   exportIdentifier: string
   name: string
   inheritAttrs: boolean
-  identifiers: string[]
+  identifiers: KnownIdentifier[]
 }
 export function transformScript(
   script: SFCScriptBlock | null,

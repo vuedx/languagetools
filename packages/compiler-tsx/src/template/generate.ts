@@ -25,6 +25,7 @@ import {
 import {
   camelize,
   capitalize,
+  getClassNameForTagName,
   invariant,
   last,
   pascalCase,
@@ -117,22 +118,6 @@ export function generate(
 ): TransformedCode {
   ctx = createGenerateContext(options)
 
-  if (ctx.used.components.size > 0) {
-    wrap(
-      `${annotations.templateGlobals.start}\n`,
-      `${annotations.templateGlobals.end}\n`,
-      () => {
-        ctx.used.components.forEach((component) => {
-          if (isSimpleIdentifier(component)) {
-            writeLine(
-              `const ${ctx.internalIdentifierPrefix}_get_identifier_${component} = () => ${component};`,
-            )
-          }
-        })
-      },
-    )
-  }
-
   genRootNode(root)
   genSlotTypes(root)
   genAttrTypes(root)
@@ -206,14 +191,25 @@ function genRootNode(node: RootNode): void {
 }
 
 function genKnownIdentifierGetters(ids: string[]): void {
-  const known = ids.filter((id) => ctx.identifiers.has(id))
-  if (known.length === 0) return
+  ids = Array.from(
+    new Set([...ids, ...ctx.used.components, ...ctx.used.directives]),
+  )
+  if (!ids.some((id) => ctx.identifiers.has(id))) return
   wrap(
     annotations.templateGlobals.start,
     annotations.templateGlobals.end,
     () => {
       ctx.newLine()
-      known.forEach((id) => {
+      ids.forEach((id) => {
+        const knownId = ctx.identifiers.get(id)
+        if (knownId == null) return
+        if (
+          !['ref', 'maybeRef', 'externalMaybeRef', 'externalRef'].includes(
+            knownId.kind,
+          )
+        )
+          return
+
         writeLine(
           `const ${
             ctx.internalIdentifierPrefix
@@ -287,10 +283,17 @@ function genGlobalDeclarations(node: Node): void {
   if (node.scope.globals.length === 0) return
   writeLine(annotations.templateGlobals.start)
   node.scope.globals.forEach((id) => {
-    if (ctx.identifiers.has(id)) {
-      writeLine(
-        `let ${id} = ${ctx.internalIdentifierPrefix}_get_identifier_${id}();`,
-      )
+    const knownId = ctx.identifiers.get(id)
+    if (knownId != null) {
+      if (
+        ['ref', 'maybeRef', 'externalMaybeRef', 'externalRef'].includes(
+          knownId.kind,
+        )
+      ) {
+        writeLine(
+          `let ${id} = ${ctx.internalIdentifierPrefix}_get_identifier_${id}();`,
+        )
+      }
     } else {
       writeLine(`let ${id} = ${ctx.contextIdentifier}.${id}`)
     }
@@ -317,9 +320,12 @@ function genElementNode(node: ElementNode): void {
       ctx.write(`${annotations.tsxCompletions}`)
     })
     ctx.newLine()
+  } else {
+    return // tag is empty, when only "<" is present
   }
+
   if (node.isSelfClosing) {
-    ctx.write('/>')
+    ctx.write('/>', node.endTagLoc)
     return // done
   }
   ctx.write('>').newLine()
@@ -390,7 +396,7 @@ function genComponentNode(node: ComponentNode): void {
 
   genDirectiveChecks(node)
   ctx.write('<', node.loc)
-  ctx.write(node.resolvedName ?? node.tag, node.tagLoc).newLine()
+  ctx.write(node.resolvedName ?? node.tag, node.tagLoc, true).newLine()
   indent(() => {
     genProps(node)
     ctx.write(`${annotations.tsxCompletions}`)
@@ -398,7 +404,7 @@ function genComponentNode(node: ComponentNode): void {
 
   ctx.newLine()
   if (node.isSelfClosing) {
-    writeLine('/>')
+    ctx.write('/>', node.endTagLoc).newLine()
     return // done
   }
   writeLine('>')
@@ -563,16 +569,13 @@ function genProps(el: ElementNode | ComponentNode): void {
       ctx.newLine()
     } else if (prop.name === 'on') {
       if (prop.arg == null) {
-        ctx.write('{...(')
-        if (prop.exp != null) {
-          genExpressionNode(prop.exp)
+        if (prop.exp == null) {
+          ctx.write('on', prop.loc, true)
         } else {
-          ctx.write(
-            annotations.missingExpression,
-            createLoc(prop.loc, prop.loc.source.length),
-          )
+          ctx.write('{...(')
+          genExpressionNode(prop.exp)
+          ctx.write(')}')
         }
-        ctx.write(')}')
       } else {
         invariant(isSimpleExpressionNode(prop.arg))
         const id = prop.arg.content
@@ -584,6 +587,15 @@ function genProps(el: ElementNode | ComponentNode): void {
         )
 
         const genHandler = (): void => {
+          if (isPlainElementNode(el)) {
+            ctx.typeGuards.push(
+              createCompoundExpression([
+                `$event.currentTarget instanceof `,
+                getClassNameForTagName(el.tag),
+              ]),
+            )
+          }
+
           ctx.write(`${getRuntimeFn(ctx.typeIdentifier, 'first')}([`).newLine()
           indent(() => {
             all.forEach((directive) => {
@@ -599,6 +611,9 @@ function genProps(el: ElementNode | ComponentNode): void {
             })
           })
           ctx.write('])')
+          if (isPlainElementNode(el)) {
+            ctx.typeGuards.pop()
+          }
         }
 
         if (isStaticExpression(prop.arg)) {
@@ -644,12 +659,12 @@ function genProps(el: ElementNode | ComponentNode): void {
               type.value?.content === 'radio')
           ) {
             isCheckbox = true
-            ctx.write('checked', prop.nameLoc)
+            ctx.write('checked', prop.nameLoc, true)
           } else {
-            ctx.write('value', prop.nameLoc)
+            ctx.write('value', prop.nameLoc, true)
           }
         } else {
-          ctx.write('modelValue', prop.nameLoc)
+          ctx.write('modelValue', prop.nameLoc, true)
         }
 
         ctx.write('={')
@@ -674,7 +689,7 @@ function genProps(el: ElementNode | ComponentNode): void {
         }
         ctx.write('}')
       } else if (isStaticExpression(prop.arg)) {
-        genExpressionNode(prop.arg)
+        ctx.write(prop.arg.content, prop.arg.loc)
         ctx.write('={')
         genExp()
         ctx.write('}')
@@ -737,15 +752,14 @@ function genVBindDirective(
       ctx.write(': true')
     }
     ctx.write('})}')
+  } else if (prop.exp == null) {
+    ctx.write(' ', prop.loc)
   } else {
     ctx.write('{...(')
     if (prop.exp != null) {
       genExpressionNode(prop.exp)
     } else {
-      ctx.write(
-        annotations.missingExpression,
-        createLoc(prop.loc, prop.loc.source.length),
-      )
+      ctx.write(' ', createLoc(prop.loc, prop.loc.source.length))
     }
     ctx.write(')}')
   }
@@ -756,12 +770,9 @@ function genTextNode(node: TextNode): void {
 }
 
 function genInterpolationNode(node: InterpolationNode): void {
-  ctx.write('{', node.loc)
+  ctx.write(' {', node.loc)
   genExpressionNode(node.content)
-  ctx.write(
-    '}',
-    createLoc(node.loc, node.content.loc.end.offset - node.loc.start.offset),
-  )
+  ctx.write('} ', sliceLoc(node.loc, -2))
 }
 
 function genExpressionNode(node: ExpressionNode): void {
@@ -795,6 +806,7 @@ function genExpressionNodeAsFunction(node: ExpressionNode): void {
     node.content.includes('$event')
       ? ctx.write('($event) => {').newLine()
       : ctx.write('() => {').newLine()
+    genTypeGuards()
     genSimpleExpressionNode(node)
     ctx.newLine().write('}')
   }

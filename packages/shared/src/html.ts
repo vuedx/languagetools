@@ -24,7 +24,7 @@ const SVG_TAGS = new Set(
     'svg,animate,animateMotion,animateTransform,circle,clipPath,color-profile,' +
     'defs,desc,discard,ellipse,feBlend,feColorMatrix,feComponentTransfer,' +
     'feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,' +
-    'feDistanceLight,feDropShadow,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,' +
+    'feDistantLight,feDropShadow,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,' +
     'feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,' +
     'fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,filter,' +
     'foreignObject,g,hatch,hatchpath,image,line,linearGradient,marker,mask,' +
@@ -42,3 +42,168 @@ const VOID_TAGS = new Set(
   ),
 )
 export const isVoidTag = (tagName: string): boolean => VOID_TAGS.has(tagName)
+
+export const HTML_TAG_NAME_TO_CLASS_NAME = {
+  a: 'HTMLAnchorElement',
+  area: 'HTMLAreaElement',
+  audio: 'HTMLAudioElement',
+  base: 'HTMLBaseElement',
+  blockquote: 'HTMLQuoteElement',
+  body: 'HTMLBodyElement',
+  br: 'HTMLBRElement',
+  button: 'HTMLButtonElement',
+  canvas: 'HTMLCanvasElement',
+  caption: 'HTMLTableCaptionElement',
+  data: 'HTMLDataElement',
+  datalist: 'HTMLDataListElement',
+  details: 'HTMLDetailsElement',
+  dialog: 'HTMLDialogElement',
+  div: 'HTMLDivElement',
+  dl: 'HTMLDListElement',
+  embed: 'HTMLEmbedElement',
+  fieldset: 'HTMLFieldSetElement',
+  form: 'HTMLFormElement',
+  h1: 'HTMLHeadingElement',
+  head: 'HTMLHeadElement',
+  hr: 'HTMLHRElement',
+  html: 'HTMLHtmlElement',
+  iframe: 'HTMLIFrameElement',
+  img: 'HTMLImageElement',
+  input: 'HTMLInputElement',
+  label: 'HTMLLabelElement',
+  legend: 'HTMLLegendElement',
+  li: 'HTMLLIElement',
+  link: 'HTMLLinkElement',
+  main: 'HTMLMainElement',
+  map: 'HTMLMapElement',
+  menu: 'HTMLMenuElement',
+  meta: 'HTMLMetaElement',
+  meter: 'HTMLMeterElement',
+  nav: 'HTMLNavElement',
+  object: 'HTMLObjectElement',
+  ol: 'HTMLOListElement',
+  optgroup: 'HTMLOptGroupElement',
+  option: 'HTMLOptionElement',
+  output: 'HTMLOutputElement',
+  p: 'HTMLParagraphElement',
+  param: 'HTMLParamElement',
+  picture: 'HTMLPictureElement',
+  pre: 'HTMLPreElement',
+  progress: 'HTMLProgressElement',
+  q: 'HTMLQuoteElement',
+  script: 'HTMLScriptElement',
+  select: 'HTMLSelectElement',
+  slot: 'HTMLSlotElement',
+  source: 'HTMLSourceElement',
+  span: 'HTMLSpanElement',
+  style: 'HTMLStyleElement',
+  table: 'HTMLTableElement',
+  tbody: 'HTMLTableSectionElement',
+  td: 'HTMLTableCellElement',
+  template: 'HTMLTemplateElement',
+  textarea: 'HTMLTextAreaElement',
+  tfoot: 'HTMLTableSectionElement',
+  th: 'HTMLTableCellElement',
+  thead: 'HTMLTableSectionElement',
+  title: 'HTMLTitleElement',
+  tr: 'HTMLTableRowElement',
+  track: 'HTMLTrackElement',
+  ul: 'HTMLUListElement',
+  video: 'HTMLVideoElement',
+}
+
+export const SVG_TAG_NAME_TO_CLASS_NAME = {
+  a: 'SVGAElement',
+  altGlyph: 'SVGAltGlyphElement',
+  altGlyphDef: 'SVGAltGlyphDefElement',
+  altGlyphItem: 'SVGAltGlyphItemElement',
+  animate: 'SVGAnimateElement',
+  animateMotion: 'SVGAnimateMotionElement',
+  animateTransform: 'SVGAnimateTransformElement',
+  circle: 'SVGCircleElement',
+  clipPath: 'SVGClipPathElement',
+  defs: 'SVGDefsElement',
+  desc: 'SVGDescElement',
+  ellipse: 'SVGEllipseElement',
+  feBlend: 'SVGFEBlendElement',
+  feColorMatrix: 'SVGFEColorMatrixElement',
+  feComponentTransfer: 'SVGFEComponentTransferElement',
+  feComposite: 'SVGFECompositeElement',
+  feConvolveMatrix: 'SVGFEConvolveMatrixElement',
+  feDiffuseLighting: 'SVGFEDiffuseLightingElement',
+  feDisplacementMap: 'SVGFEDisplacementMapElement',
+  feDistantLight: 'SVGFEDistantLightElement',
+  feDropShadow: 'SVGFEDropShadowElement',
+  feFlood: 'SVGFEFloodElement',
+  feFuncA: 'SVGFEFuncAElement',
+  feFuncB: 'SVGFEFuncBElement',
+  feFuncG: 'SVGFEFuncGElement',
+  feFuncR: 'SVGFEFuncRElement',
+  feGaussianBlur: 'SVGFEGaussianBlurElement',
+  feImage: 'SVGFEImageElement',
+  feMerge: 'SVGFEMergeElement',
+  feMergeNode: 'SVGFEMergeNodeElement',
+  feMorphology: 'SVGFEMorphologyElement',
+  feOffset: 'SVGFEOffsetElement',
+  fePointLight: 'SVGFEPointLightElement',
+  feSpecularLighting: 'SVGFESpecularLightingElement',
+  feSpotLight: 'SVGFESpotLightElement',
+  feTile: 'SVGFETileElement',
+  feTurbulence: 'SVGFETurbulenceElement',
+  filter: 'SVGFilterElement',
+  foreignObject: 'SVGForeignObjectElement',
+  g: 'SVGGElement',
+  hatch: 'SVGHatchElement',
+  hatchpath: 'SVGHatchpathElement',
+  image: 'SVGImageElement',
+  line: 'SVGLineElement',
+  linearGradient: 'SVGLinearGradientElement',
+  marker: 'SVGMarkerElement',
+  mask: 'SVGMaskElement',
+  mesh: 'SVGMeshElement',
+  meshgradient: 'SVGMeshGradientElement',
+  meshpatch: 'SVGMeshPatchElement',
+  meshrow: 'SVGMeshRowElement',
+  metadata: 'SVGMetadataElement',
+  mpath: 'SVGMPathElement',
+  path: 'SVGPathElement',
+  pattern: 'SVGPatternElement',
+  polygon: 'SVGPolygonElement',
+  polyline: 'SVGPolylineElement',
+  radialGradient: 'SVGRadialGradientElement',
+  rect: 'SVGRectElement',
+  script: 'SVGScriptElement',
+  set: 'SVGSetElement',
+  stop: 'SVGStopElement',
+  style: 'SVGStyleElement',
+  svg: 'SVGSVGElement',
+  switch: 'SVGSwitchElement',
+  symbol: 'SVGSymbolElement',
+  text: 'SVGTextElement',
+  textPath: 'SVGTextPathElement',
+  title: 'SVGTitleElement',
+  tspan: 'SVGTSpanElement',
+  unknown: 'SVGUnknownElement',
+  use: 'SVGUseElement',
+  view: 'SVGViewElement',
+}
+
+export function getClassNameForTagName(tagName: string): string {
+  if (isSVGTag(tagName)) {
+    return (
+      SVG_TAG_NAME_TO_CLASS_NAME[
+        tagName as keyof typeof SVG_TAG_NAME_TO_CLASS_NAME
+      ] ?? 'SVGElement'
+    )
+  }
+
+  if (isHTMLTag(tagName)) {
+    return (
+      HTML_TAG_NAME_TO_CLASS_NAME[
+        tagName as keyof typeof HTML_TAG_NAME_TO_CLASS_NAME
+      ] ?? 'HTMLElement'
+    )
+  }
+
+  return 'Element'
+}

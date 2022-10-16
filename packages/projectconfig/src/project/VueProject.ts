@@ -12,7 +12,7 @@ import {
 } from './FilesystemHost'
 import { resolveComponents } from './resolveComponents'
 import { resolveDirectives } from './resolveDirectives'
-import * as JSON5 from 'json5'
+import JSON5 from 'json5'
 import * as Path from 'path'
 
 export class VueProject {
@@ -72,6 +72,8 @@ export class VueProject {
         fs.watchFile(projectFile, (_fileName, event) => {
           if (event === FileWatcherEventKind.Changed) {
             this.onProjectFileChange()
+          } else if (event === FileWatcherEventKind.Deleted) {
+            this._config = DEFAULT_PROJECT_CONFIG
           }
         }),
       )

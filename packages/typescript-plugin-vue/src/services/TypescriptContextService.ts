@@ -8,10 +8,8 @@ import {
   toPosixPath,
 } from '@vuedx/shared'
 import * as Path from 'path'
-import { TS_LANGUAGE_SERVICE } from '../constants'
 import type { Disposable } from '../contracts/Disposable'
 import type {
-  ExtendedTSLanguageService,
   TSLanguageService,
   TSLanguageServiceHost,
   TSProject,
@@ -254,49 +252,16 @@ export class TypescriptContextService implements Disposable {
       rootDir.startsWith(key),
     )
 
-    // If key is not null, then the project must exist.
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    if (key != null) return this.#projects.get(key)!
+    if (key != null) {
+      const project = this.#projects.get(key)
+      invariant(project != null)
+      return project
+    }
 
     const project = VueProject.create(this.serverHost, rootDir)
-
     this.#projects.set(rootDir, project)
 
     return project
-  }
-
-  /**
-   * Find typescript laguage service for the file.
-   */
-  public getServiceFor(fileName: string): TypeScript.LanguageService | null {
-    return this.getProjectFor(fileName)?.getLanguageService() ?? null
-  }
-
-  /**
-   * Find typescript laguage service for the file.
-   */
-  public getUndecoratedServiceFor(
-    fileName: string,
-  ): TypeScript.LanguageService | null {
-    const service = this.getServiceFor(fileName) as ExtendedTSLanguageService
-    if (service == null) return null
-    if (TS_LANGUAGE_SERVICE in service) return service[TS_LANGUAGE_SERVICE]()
-    return service
-  }
-
-  public ensureProjectFor(fileName: string): void {
-    const scriptInfo =
-      this.projectService.getScriptInfoEnsuringProjectsUptoDate(fileName)
-
-    if (scriptInfo == null) {
-      this.logger.debug(`No ScriptInfo for ${fileName}`)
-      return
-    }
-
-    this.logger.debug(
-      `Project of ${fileName}`,
-      scriptInfo.containingProjects.map((project) => project.getProjectName()),
-    )
   }
 
   /**
@@ -308,10 +273,6 @@ export class TypescriptContextService implements Disposable {
     } catch {
       return null
     }
-  }
-
-  public getTypeChecker(): TypeScript.TypeChecker | null {
-    return this.service.getProgram()?.getTypeChecker() ?? null
   }
 
   public dispose(): void {

@@ -2,6 +2,7 @@ import {
   isNotNull,
   isProjectRuntimeFile,
   isVueRuntimeFile,
+  last,
 } from '@vuedx/shared'
 import {
   Range,
@@ -308,8 +309,23 @@ export class FilesystemService implements Disposable {
         textChanges: fileTextChanges.textChanges
           .map((textChange) => {
             const span = file.findOriginalTextSpan(textChange.span)
-
             if (span == null) return null
+            const block = file.getBlockAt(span.start)
+            if (block == null) {
+              const previous = file.blocks.filter(
+                (block) => block.loc.end.offset <= span.start,
+              )
+              const target =
+                previous.length === 0
+                  ? file.descriptor.scriptSetup ?? file.descriptor.script
+                  : last(previous)
+
+              if (target != null) {
+                span.start = target.loc.end.offset
+                span.length = 0
+              }
+            }
+
             return { span, newText: textChange.newText }
           })
           .filter(isNotNull),
