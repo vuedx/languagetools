@@ -1,5 +1,6 @@
 import type { SFCDescriptor } from '@vuedx/compiler-sfc'
 import type { Cache } from '@vuedx/shared'
+import type { KnownIdentifier } from '@vuedx/transforms'
 
 export interface TransformOptions {
   /**
@@ -63,5 +64,5 @@ export interface TransformOptionsResolved extends TransformOptions {
   /**
    * Known identifiers.
    */
-  identifiers: Set<string>
+  identifiers: Map<string, KnownIdentifier>
 }

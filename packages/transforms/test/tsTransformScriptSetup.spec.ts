@@ -281,7 +281,7 @@ describe(transformScriptSetup, () => {
       import type * as TypeNamespaceImport from './C.vue'
       
       var aVar = 0
-      let aLet = 0
+      let aLet: Ref<number> | number = 0
       const aConst = ref(0)
       enum aEnum {}
       const {aDestructuredProperty} = {}
@@ -295,23 +295,51 @@ describe(transformScriptSetup, () => {
       }
     `)
 
-    expect(identifiers.sort()).toEqual([
-      // False positives
-      'TypeDefaultImport',
-      'TypeNamedImport',
-      'TypeNamespaceImport',
-      // True positives
-      'aClass',
-      'aConst',
-      'aDefaultImport',
-      'aDestructuredArray',
-      'aDestructuredProperty',
-      'aEnum',
-      'aFunction',
-      'aLet',
-      'aNamedImport',
-      'aNamespaceImport',
-      'aVar',
+    expect(identifiers).toEqual([
+      {
+        kind: 'function',
+        name: 'aFunction',
+      },
+      {
+        kind: 'externalMaybeRef',
+        name: 'aNamedImport',
+      },
+      {
+        kind: 'externalMaybeRef',
+        name: 'aNamespaceImport',
+      },
+      {
+        kind: 'external',
+        name: 'aDefaultImport',
+      },
+      {
+        kind: 'variable',
+        name: 'aVar',
+      },
+      {
+        kind: 'maybeRef',
+        name: 'aLet',
+      },
+      {
+        kind: 'maybeRef',
+        name: 'aConst',
+      },
+      {
+        kind: 'enum',
+        name: 'aEnum',
+      },
+      {
+        kind: 'maybeRef',
+        name: 'aDestructuredProperty',
+      },
+      {
+        kind: 'maybeRef',
+        name: 'aDestructuredArray',
+      },
+      {
+        kind: 'class',
+        name: 'aClass',
+      },
     ])
   })
 })

@@ -212,7 +212,7 @@ function getTemplateFile(code: string) {
     lines.push(line(start))
     lines.push(
       ' '.repeat(C) +
-        '^'.repeat(range.length) +
+        '^'.repeat(Math.max(1, range.length)) +
         ` > ${range.length} at ${range.start} (${L}:${C})`,
     )
 

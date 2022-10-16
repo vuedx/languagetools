@@ -121,13 +121,11 @@ const __VueDX_ctx = __VueDX_RegisterSelf(new __VueDX__ScriptSetup_Component())
 //#region <template>
 /*<vuedx:templateGlobals>*/
 const __VueDX__get_identifier_a = () => __VueDX_TypeCheck.internal.unref(a);
-const __VueDX__get_identifier_b = () => __VueDX_TypeCheck.internal.unref(b);
 const __VueDX__get_identifier_c = () => __VueDX_TypeCheck.internal.unref(c);
 /*</vuedx:templateGlobals>*/
 function __VueDX_render() {
   /*<vuedx:templateGlobals>*/
   let a = __VueDX__get_identifier_a();
-  let b = __VueDX__get_identifier_b();
   let c = __VueDX__get_identifier_c();
   let $slots = __VueDX_ctx.$slots
   /*</vuedx:templateGlobals>*/
@@ -157,7 +155,6 @@ __VueDX_render();
 function __VueDX__slots() {
   /*<vuedx:templateGlobals>*/
   let a = __VueDX__get_identifier_a();
-  let b = __VueDX__get_identifier_b();
   let c = __VueDX__get_identifier_c();
   let $slots = __VueDX_ctx.$slots
   /*</vuedx:templateGlobals>*/
@@ -455,6 +452,20 @@ export default class Example extends ExamplePublic {
 }
 //#endregion
 
+`;
+
+exports[`sourcemaps v-on missing arg and exp 1`] = `
+<template>
+  <A v-model="foo" />
+         ^ > 0 at 20 (1:9)
+</template>
+----
+    <>
+      <A
+        modelValue={foo}
+                  ^ > 0 at 1357 (33:18)
+        /*<vuedx:tsx-completions-target/>*/
+      />
 `;
 
 exports[`sourcemaps v-on shorthand 1`] = `

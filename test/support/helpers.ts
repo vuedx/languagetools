@@ -1,8 +1,14 @@
 import * as _FS from 'fs'
 import * as Path from 'path'
-import type { CodeEdit, Location, TextSpan } from 'typescript/lib/protocol'
+import type {
+  CodeEdit,
+  FileLocationRequestArgs,
+  Location,
+  TextSpan,
+} from 'typescript/lib/protocol'
 import {
   Position,
+  Range,
   TextDocument,
   TextEdit,
 } from 'vscode-languageserver-textdocument'
@@ -105,10 +111,10 @@ export async function findAllPositionsIn(
   return pos
 }
 
-const cache = new Map<string, TextDocument>()
+const documents = new Map<string, TextDocument>()
 
 export async function getTextDocument(file: string): Promise<TextDocument> {
-  return cache.get(file) ?? (await createTextDocument(file))
+  return documents.get(file) ?? (await createTextDocument(file))
 }
 
 async function createTextDocument(file: string): Promise<TextDocument> {
@@ -120,7 +126,7 @@ async function createTextDocument(file: string): Promise<TextDocument> {
     content,
   )
 
-  cache.set(file, document)
+  documents.set(file, document)
 
   return document
 }
@@ -141,6 +147,116 @@ export function getProjectPath(
   version = 'vue3',
 ): string {
   return Path.resolve(__dirname, '../../samples', version, name)
+}
+
+export class Editor {
+  private readonly server: TestServer
+
+  private _document: TextDocument
+  private _selections: Range[]
+
+  public readonly fsPath: string
+
+  public get document(): TextDocument {
+    return this._document
+  }
+
+  /**
+   * 0-based line number and character offset
+   */
+  public get cursor(): Position {
+    const selection = this._selections[0]
+    if (selection == null) throw new Error('No cursor set')
+    return selection.end
+  }
+
+  public get fileAndLocation(): FileLocationRequestArgs {
+    const location = positionToLocation(this.cursor)
+    return {
+      file: this.fsPath,
+      line: location.line,
+      offset: location.offset,
+    }
+  }
+
+  public get selection(): Range {
+    const selection = this._selections[0]
+    if (selection == null) throw new Error('No cursor set')
+    return selection
+  }
+
+  constructor(server: TestServer, fsPath: string, document: TextDocument) {
+    this.server = server
+    this.fsPath = fsPath
+    this._document = document
+    const end = this._document.positionAt(this._document.getText().length)
+    this._selections = [{ start: end, end }]
+  }
+
+  async type(newText: string): Promise<void> {
+    await this._apply(
+      this._selections.map((range) => ({
+        range,
+        newText,
+      })),
+    )
+  }
+
+  private _transform(offset: number, edits: TextEdit[]): number {
+    edits = edits
+      .slice()
+      .sort((a, b) => a.range.start.line - b.range.start.line)
+
+    let delta = 0
+    for (const edit of edits) {
+      const rangeOffset = this.document.offsetAt(edit.range.start)
+      if (offset < rangeOffset) break
+      delta += edit.newText.length - this.document.getText(edit.range).length
+    }
+
+    return offset + delta
+  }
+
+  private async _apply(edits: TextEdit[]): Promise<void> {
+    const offset = this._transform(this.document.offsetAt(this.cursor), edits)
+    const content = TextDocument.applyEdits(this._document, edits)
+    this._document = TextDocument.update(
+      this._document,
+      [{ text: content }],
+      this._document.version + 1,
+    )
+
+    documents.set(this.fsPath, this._document)
+
+    this.setCursor(this.document.positionAt(offset))
+
+    await this.server.sendCommand('updateOpen', {
+      changedFiles: [
+        {
+          fileName: this.fsPath,
+          textChanges: edits.map(textEditToCodeEdit),
+        },
+      ],
+    })
+  }
+
+  async edit(textChanges: CodeEdit[]): Promise<void> {
+    await this._apply(textChanges.map(codeEditToTextEdit))
+  }
+
+  /**
+   * 0-based line number and character offset
+   */
+  setSelection(cursor: Range): void {
+    this._selections = [cursor]
+  }
+
+  /**
+   * 0-based line number and character offset
+   */
+  setCursor(cursor: Position): void {
+    this.setSelection({ start: cursor, end: cursor })
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -164,92 +280,13 @@ export function createEditorContext(server: TestServer, rootDir: string) {
         })),
       })
 
-      return absFilePath
-    },
-
-    async edit(fileName: string, textOrEdits: string | TextEdit[]) {
-      const absFilePath = abs(fileName)
-      const document = await getTextDocument(absFilePath)
-      const edits: TextEdit[] =
-        typeof textOrEdits === 'string'
-          ? [
-              {
-                newText: textOrEdits,
-                range: {
-                  start: document.positionAt(0),
-                  end: document.positionAt(document.getText().length),
-                },
-              },
-            ]
-          : textOrEdits
-      const content = TextDocument.applyEdits(document, edits)
-
-      cache.set(
-        fileName,
-        TextDocument.update(
-          document,
-          [{ text: content }],
-          document.version + 1,
-        ),
-      )
-
-      await server.sendCommand('updateOpen', {
-        changedFiles: [
-          {
-            fileName: absFilePath,
-            textChanges: edits.map((edit) => textEditToCodeEdit(edit)),
-          },
-        ],
-      })
-    },
-
-    async replaceIn(
-      fileName: string,
-      search: string | RegExp,
-      replace: (...args: string[]) => string,
-    ) {
-      const absFilePath = abs(fileName)
-      const document = await getTextDocument(absFilePath)
-      const content = document.getText()
-
-      if (typeof search === 'string') {
-        const index = content.indexOf(search)
-        if (index < 0) return false
-        await this.edit(fileName, [
-          {
-            range: {
-              start: document.positionAt(index),
-              end: document.positionAt(index + search.length),
-            },
-            newText: replace(),
-          },
-        ])
-        return true
-      } else {
-        const edits: TextEdit[] = []
-        let matches: RegExpExecArray | null
-        while ((matches = search.exec(content)) != null) {
-          const text = matches[0] as string
-          const index = matches.index
-          edits.push({
-            range: {
-              start: document.positionAt(index),
-              end: document.positionAt(index + text.length),
-            },
-            newText: replace(...matches),
-          })
-        }
-        if (edits.length > 0) {
-          await this.edit(fileName, edits)
-        }
-        return false
-      }
+      return new Editor(server, absFilePath, await getTextDocument(absFilePath))
     },
 
     async close(fileName: string) {
       const absFilePath = abs(fileName)
 
-      cache.delete(absFilePath)
+      documents.delete(absFilePath)
       openFiles.delete(absFilePath)
 
       const result = await server.sendCommand('updateOpen', {
@@ -262,17 +299,20 @@ export function createEditorContext(server: TestServer, rootDir: string) {
 
       if (!result.success) throw new Error(result.message)
     },
+
     async closeAll() {
       const result = await server.sendCommand('updateOpen', {
         closedFiles: Array.from(openFiles),
       })
       openFiles.forEach((fileName) => {
-        cache.delete(fileName)
+        documents.delete(fileName)
       })
       if (!result.success) throw new Error(result.message)
       await server.flush(['events', 'requests', 'responses'])
+      documents.clear()
       openFiles.clear()
     },
+
     async getCompilerDiagnostics(fileName: string) {
       const info = await api.getProjectInfo(api.abs(fileName))
 

@@ -5,11 +5,12 @@ import {
   SourceTransformer,
 } from '@vuedx/shared'
 import type TypeScript from 'typescript/lib/tsserverlibrary'
+import { findIdentifiers, KnownIdentifier } from './findIdentifiers'
 import { TransformScriptOptions } from './TransformScriptOptions'
 export interface TransformScriptSetupResult {
   code: string
   map: DecodedSourceMap
-  identifiers: string[]
+  identifiers: KnownIdentifier[]
   propsIdentifier: string
   emitsIdentifier: string
   exposeIdentifier: string
@@ -90,25 +91,7 @@ export function transformScriptSetup(
 
   findNodes(sourceFile)
 
-  const identifiers = program
-    .getTypeChecker()
-    .getSymbolsInScope(
-      sourceFile,
-      (ts.SymbolFlags.FunctionScopedVariable |
-        ts.SymbolFlags.BlockScopedVariable |
-        ts.SymbolFlags.Function |
-        ts.SymbolFlags.Class |
-        ts.SymbolFlags.ConstEnum |
-        ts.SymbolFlags.RegularEnum |
-        ts.SymbolFlags.Alias) &
-        ~(
-          ts.SymbolFlags.Interface |
-          ts.SymbolFlags.TypeLiteral |
-          ts.SymbolFlags.TypeParameter |
-          ts.SymbolFlags.TypeAlias
-        ),
-    )
-    .map((sym) => sym.getName())
+  const identifiers = findIdentifiers(ts, program, sourceFile)
 
   const offset =
     firstStatement == null ? source.length : firstStatement.getFullStart()
