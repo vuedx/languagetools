@@ -44,14 +44,7 @@ describe(SourceTransformer, () => {
     const result = transformer.end()
     expect(result.code).toBe('foobarbaz')
     expect(result.map.mappings).toHaveLength(result.code.split('\n').length)
-    expect(result.map.mappings[0][0]).toMatchInlineSnapshot(`
-      [
-        3,
-        0,
-        0,
-        4,
-      ]
-    `)
+    expect(result.map.mappings[0][0]).toEqual([3, 0, 0, 4])
   })
   it('clone source multiline', () => {
     const transformer = new SourceTransformer('', 'foo\nbar\nbaz')
@@ -61,14 +54,7 @@ describe(SourceTransformer, () => {
     const result = transformer.end()
     expect(result.code).toBe('foobarbaz')
     expect(result.map.mappings).toHaveLength(result.code.split('\n').length)
-    expect(result.map.mappings[0][0]).toMatchInlineSnapshot(`
-      [
-        3,
-        0,
-        1,
-        0,
-      ]
-    `)
+    expect(result.map.mappings[0][0]).toEqual([3, 0, 1, 0])
   })
 
   it('generates correct source map', () => {
@@ -81,13 +67,6 @@ describe(SourceTransformer, () => {
     transformer.nextLine()
     const result = transformer.end()
     expect(result.map.mappings).toHaveLength(result.code.split('\n').length)
-    expect(result.map.mappings).toMatchInlineSnapshot(`
-      [
-        [],
-        [],
-        [],
-        [],
-      ]
-    `)
+    expect(result.map.mappings).toEqual([[], [], [], []])
   })
 })

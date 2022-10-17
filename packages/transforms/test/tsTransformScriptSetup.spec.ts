@@ -15,6 +15,8 @@ describe(transformScriptSetup, () => {
       runtimeModuleName: 'vue',
       typeIdentifier: 'VueDX',
       lib: typescript,
+      attrsIdentifier: '_attrs',
+      slotsIdentifier: '_slots',
     })
   }
 
@@ -22,25 +24,18 @@ describe(transformScriptSetup, () => {
     expect(() => compile('')).not.toThrow()
   })
 
-  it('should transform script setup', () => {
+  it('should hoist imports', () => {
     const { code } = compile(`
       import { ref } from 'vue'
       const foo = ref(0)
     `)
 
-    expect(code).toMatchInlineSnapshot(`
-      import { ref } from 'vue'
-      function _ScriptSetup_scope() {
-      const foo = ref(0)
-      const _ScriptSetup_internalProps = {};
-      const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof _ScriptSetup_internalProps)=> {});
-      const _ScriptSetup_props = defineProps({});
-      const _ScriptSetup_emits = ({});
-      class _ScriptSetup_Component {
-      $props = null as unknown as VueDX.internal.MergeAttrs<typeof _ScriptSetup_props & VueDX.internal.EmitsToProps<typeof _ScriptSetup_emits>, typeof undefined>;
-      $slots = null as unknown as VueDX.internal.Slots<ReturnType<typeof undefined>>;
-      }
-    `)
+    expect(code.indexOf('_ScriptSetup_scope')).toBeGreaterThan(
+      code.indexOf(`import { ref } from 'vue'`),
+    )
+    expect(code.indexOf('_ScriptSetup_scope')).toBeLessThan(
+      code.indexOf('const foo = ref(0)'),
+    )
   })
 
   it('should transform script setup with props (no variable)', () => {
@@ -52,28 +47,16 @@ describe(transformScriptSetup, () => {
       })
     `)
 
-    expect(code).toMatchInlineSnapshot(`
-      import { ref } from 'vue'
-      function _ScriptSetup_scope() {
-      const foo = ref(0)
-      defineProps({
-        bar: String
-      })
-
-      const foo = ref(0)
-      const _ScriptSetup_internalProps = defineProps({
-        bar: String
-      });
-      const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof _ScriptSetup_internalProps)=> {});
-      const _ScriptSetup_props = defineProps({
-        bar: String
-      });
-      const _ScriptSetup_emits = ({});
-      class _ScriptSetup_Component {
-      $props = null as unknown as VueDX.internal.MergeAttrs<typeof _ScriptSetup_props & VueDX.internal.EmitsToProps<typeof _ScriptSetup_emits>, typeof undefined>;
-      $slots = null as unknown as VueDX.internal.Slots<ReturnType<typeof undefined>>;
-      }
-    `)
+    expect(code).toEqual(
+      expect.stringContaining(
+        `const _ScriptSetup_internalProps = defineProps({`,
+      ),
+    )
+    expect(code).toEqual(
+      expect.stringContaining(
+        `const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof _ScriptSetup_internalProps)=> {});`,
+      ),
+    )
   })
 
   it('should transform script setup with props with types', () => {
@@ -85,30 +68,9 @@ describe(transformScriptSetup, () => {
       }>()
     `)
 
-    expect(code).toMatchInlineSnapshot(`
-      import { ref } from 'vue'
-      function _ScriptSetup_scope() {
-      const foo = ref(0)
-      defineProps<{
-        bar: string
-      }>()
-
-      const foo = ref(0)
-      const _ScriptSetup_internalProps = defineProps<{
-        bar: string
-      }>();
-      const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof _ScriptSetup_internalProps)=> {});
-      const _ScriptSetup_props = defineProps<{
-        bar: string
-      }>();
-      const _ScriptSetup_emits = ({});
-      class _ScriptSetup_Component {
-      $props = null as unknown as VueDX.internal.MergeAttrs<{
-        bar: string
-      } & VueDX.internal.EmitsToProps<typeof _ScriptSetup_emits>, typeof undefined>;
-      $slots = null as unknown as VueDX.internal.Slots<ReturnType<typeof undefined>>;
-      }
-    `)
+    expect(code).toEqual(
+      expect.stringContaining(`const _ScriptSetup_props = defineProps<{`),
+    )
   })
 
   it('should transform script setup with props with defaults (with variable)', () => {
@@ -120,28 +82,15 @@ describe(transformScriptSetup, () => {
       }), { bar: 'baz' })
     `)
 
-    expect(code).toMatchInlineSnapshot(`
-      import { ref } from 'vue'
-      function _ScriptSetup_scope() {
-      const foo = ref(0)
-      withDefaults(defineProps({
-        bar: String
-      }), { bar: 'baz' })
+    expect(code).toEqual(
+      expect.stringContaining(
+        `const _ScriptSetup_internalProps = withDefaults(defineProps({`,
+      ),
+    )
 
-      const foo = ref(0)
-      const _ScriptSetup_internalProps = withDefaults(defineProps({
-        bar: String
-      }), { bar: 'baz' });
-      const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof _ScriptSetup_internalProps)=> {});
-      const _ScriptSetup_props = defineProps({
-        bar: String
-      });
-      const _ScriptSetup_emits = ({});
-      class _ScriptSetup_Component {
-      $props = null as unknown as VueDX.internal.MergeAttrs<typeof _ScriptSetup_props & VueDX.internal.EmitsToProps<typeof _ScriptSetup_emits>, typeof undefined>;
-      $slots = null as unknown as VueDX.internal.Slots<ReturnType<typeof undefined>>;
-      }
-    `)
+    expect(code).toEqual(
+      expect.stringContaining(`const _ScriptSetup_props = defineProps({`),
+    )
   })
 
   it('should transform script setup with props (with variable)', () => {
@@ -153,157 +102,11 @@ describe(transformScriptSetup, () => {
       })
     `)
 
-    expect(code).toMatchInlineSnapshot(`
-      import { ref } from 'vue'
-      function _ScriptSetup_scope() {
-      const foo = ref(0)
-      const props = defineProps({
-        bar: String
-      })
-      const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof props)=> {});
-      const _ScriptSetup_props = props;
-      const _ScriptSetup_emits = ({});
-      class _ScriptSetup_Component {
-      $props = null as unknown as VueDX.internal.MergeAttrs<typeof _ScriptSetup_props & VueDX.internal.EmitsToProps<typeof _ScriptSetup_emits>, typeof undefined>;
-      $slots = null as unknown as VueDX.internal.Slots<ReturnType<typeof undefined>>;
-      }
-    `)
-  })
-
-  it('should transform script setup with props with defaults (with variable)', () => {
-    const { code } = compile(`
-      import { ref } from 'vue'
-      const foo = ref(0)
-      const props = withDefaults(defineProps({
-        bar: String
-      }), { bar: 'baz' })
-    `)
-
-    expect(code).toMatchInlineSnapshot(`
-      import { ref } from 'vue'
-      function _ScriptSetup_scope() {
-      const foo = ref(0)
-      const props = withDefaults(defineProps({
-        bar: String
-      }), { bar: 'baz' })
-      const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof props)=> {});
-      const _ScriptSetup_props = defineProps({
-        bar: String
-      });
-      const _ScriptSetup_emits = ({});
-      class _ScriptSetup_Component {
-      $props = null as unknown as VueDX.internal.MergeAttrs<typeof _ScriptSetup_props & VueDX.internal.EmitsToProps<typeof _ScriptSetup_emits>, typeof undefined>;
-      $slots = null as unknown as VueDX.internal.Slots<ReturnType<typeof undefined>>;
-      }
-    `)
-  })
-
-  it('should transform script setup with emits (no variable)', () => {
-    const { code } = compile(`
-      import { ref } from 'vue'
-      const foo = ref(0)
-      defineEmits(['bar'])
-    `)
-
-    expect(code).toMatchInlineSnapshot(`
-      import { ref } from 'vue'
-      function _ScriptSetup_scope() {
-      const foo = ref(0)
-      defineEmits(['bar'])
-      const _ScriptSetup_internalProps = {};
-      const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof _ScriptSetup_internalProps)=> {});
-      const _ScriptSetup_props = defineProps({});
-      const _ScriptSetup_emits = (['bar']);
-      class _ScriptSetup_Component {
-      $props = null as unknown as VueDX.internal.MergeAttrs<typeof _ScriptSetup_props & VueDX.internal.EmitsToProps<typeof _ScriptSetup_emits>, typeof undefined>;
-      $slots = null as unknown as VueDX.internal.Slots<ReturnType<typeof undefined>>;
-      }
-    `)
-  })
-
-  it('should transform script setup with emits (with variable)', () => {
-    const { code } = compile(`
-      import { ref } from 'vue'
-      const foo = ref(0)
-      const emits = defineEmits(['bar'])
-    `)
-
-    expect(code).toMatchInlineSnapshot(`
-      import { ref } from 'vue'
-      function _ScriptSetup_scope() {
-      const foo = ref(0)
-      const emits = defineEmits(['bar'])
-      const _ScriptSetup_internalProps = {};
-      const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof _ScriptSetup_internalProps)=> {});
-      const _ScriptSetup_props = defineProps({});
-      const _ScriptSetup_emits = (['bar']);
-      class _ScriptSetup_Component {
-      $props = null as unknown as VueDX.internal.MergeAttrs<typeof _ScriptSetup_props & VueDX.internal.EmitsToProps<typeof _ScriptSetup_emits>, typeof undefined>;
-      $slots = null as unknown as VueDX.internal.Slots<ReturnType<typeof undefined>>;
-      }
-    `)
-  })
-
-  it('should transform script setup with emits (with variable) with options', () => {
-    const { code } = compile(`
-      import { ref } from 'vue'
-      const foo = ref(0)
-      const emits = defineEmits({
-        bar: (arg: string) => typeof arg === 'string'
-      })
-      const options = {}
-    `)
-
-    expect(code).toMatchInlineSnapshot(`
-      import { ref } from 'vue'
-      function _ScriptSetup_scope() {
-      const foo = ref(0)
-      const emits = defineEmits({
-        bar: (arg: string) => typeof arg === 'string'
-      })
-      const options = {}
-      const _ScriptSetup_internalProps = {};
-      const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof _ScriptSetup_internalProps)=> {});
-      const _ScriptSetup_props = defineProps({});
-      const _ScriptSetup_emits = ({
-        bar: (arg: string) => typeof arg === 'string'
-      });
-      class _ScriptSetup_Component {
-      $props = null as unknown as VueDX.internal.MergeAttrs<typeof _ScriptSetup_props & VueDX.internal.EmitsToProps<typeof _ScriptSetup_emits>, typeof undefined>;
-      $slots = null as unknown as VueDX.internal.Slots<ReturnType<typeof undefined>>;
-      }
-    `)
-  })
-
-  it('should transform script setup with emits (with variable) with interface', () => {
-    const { code } = compile(`
-      import { ref } from 'vue'
-      const foo = ref(0)
-      defineEmits<{
-        (event: 'bar', arg: string) => boolean
-      }>()
-    `)
-
-    expect(code).toMatchInlineSnapshot(`
-      import { ref } from 'vue'
-      function _ScriptSetup_scope() {
-      const foo = ref(0)
-      defineEmits<{
-        (event: 'bar', arg: string) => boolean
-      }>()
-      const _ScriptSetup_internalProps = {};
-      const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof _ScriptSetup_internalProps)=> {});
-      const _ScriptSetup_props = defineProps({});
-      const _ScriptSetup_emits = ({} as unknown as VueDX.internal.EmitTypeToEmits<{
-        (event: 'bar', arg: string) => boolean
-      }>);
-      class _ScriptSetup_Component {
-      $props = null as unknown as VueDX.internal.MergeAttrs<typeof _ScriptSetup_props & VueDX.internal.EmitsToProps<VueDX.internal.EmitTypeToEmits<{
-        (event: 'bar', arg: string) => boolean
-      }>>, typeof undefined>;
-      $slots = null as unknown as VueDX.internal.Slots<ReturnType<typeof undefined>>;
-      }
-    `)
+    expect(code).toEqual(
+      expect.stringContaining(
+        `const _ScriptSetup_ComponentPrivate = _defineComponent((_: typeof props)=> {});`,
+      ),
+    )
   })
 
   it('should detect all symbols', () => {

@@ -358,7 +358,7 @@ export function createEditorContext(server: TestServer, rootDir: string) {
           suggestion: suggestion.body?.diagnostics ?? [],
         }
       } catch (error) {
-        if (error.message === 'Timeout') {
+        if ((error as Error).message === 'Timeout') {
           await response
           return { syntax: [], semantic: [], suggestion: [] }
         }

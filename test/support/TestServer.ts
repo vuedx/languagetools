@@ -115,10 +115,8 @@ export class TestServer {
 
     this.readline.on('line', (line) => {
       if (line.startsWith('{')) {
-        const payload:
-          | Proto.Request
-          | Proto.Response
-          | Proto.Event = JSON.parse(line)
+        const payload: Proto.Request | Proto.Response | Proto.Event =
+          JSON.parse(line)
 
         if (payload.type === 'response') {
           this.pendingResponses -= 1
@@ -365,5 +363,29 @@ export class TestServer {
 
   public async sendCommand(command: string, args: any): Promise<any> {
     return this.sendRequest({ command, arguments: args }) as any
+  }
+
+  public async completionInfo(
+    args: Proto.CompletionsRequestArgs,
+  ): Promise<Proto.CompletionInfo> {
+    const result = await this.sendCommand('completionInfo', args)
+    if (result.body == null) throw new Error('No body')
+    return result.body
+  }
+
+  public async completionEntryDetails(
+    args: Proto.CompletionDetailsRequestArgs,
+  ): Promise<Proto.CompletionEntryDetails[]> {
+    const result = await this.sendCommand('completionEntryDetails', args)
+    if (result.body == null) throw new Error('No body')
+    return result.body
+  }
+
+  public async quickInfo(
+    args: Proto.QuickInfoRequest['arguments'],
+  ): Promise<Proto.QuickInfoResponseBody> {
+    const result = await this.sendCommand('quickinfo', args)
+    if (result.body == null) throw new Error('No body')
+    return result.body
   }
 }
