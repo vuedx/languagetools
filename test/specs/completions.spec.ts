@@ -70,17 +70,12 @@ describe('completions', () => {
     const textChanges = details[0]?.codeActions?.[0]?.changes?.[0]?.textChanges
     assert(textChanges)
     await editor.edit(textChanges)
-    expect(editor.document.getText()).toMatchInlineSnapshot(`
-      "<script lang="ts" setup>
-      import FixtureAttrs from './fixture-attrs.vue';
-      import FixtureScript from './fixture-script.vue';
-      </script>
-
-      <template>
-        <
-      </template>
-      "
-    `)
+    expect(editor.document.getText()).toEqual(
+      expect.stringContaining(
+        `import FixtureAttrs from './fixture-attrs.vue';\n` +
+          `import FixtureScript from './fixture-script.vue';`,
+      ),
+    )
   })
 
   test('suggests attributes for components', async () => {
@@ -118,7 +113,7 @@ describe('completions', () => {
       ...editor.fileAndLocation,
       triggerKind: 1,
     })
-    
+
     const completions = response.entries.map((entry) => entry.name)
     expect(completions).toEqual(['a', 'b', 'c', 'class', 'key', 'ref', 'style'])
   })
@@ -131,7 +126,7 @@ describe('completions', () => {
       ...editor.fileAndLocation,
       triggerKind: 1,
     })
-    
+
     const completions = response.entries.map((entry) => entry.name)
     expect(completions).toContain('class')
   })

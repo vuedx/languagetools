@@ -17,7 +17,6 @@ const data = {
 describe.each(['js', 'ts'] as const)('project', (ext) => {
   const server = new TestServer()
   afterAll(async () => await server.close())
-
   const projects = data[ext]
 
   describe.each(projects)('%s', (project) => {
