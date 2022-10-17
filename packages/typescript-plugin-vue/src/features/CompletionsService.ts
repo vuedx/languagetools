@@ -84,8 +84,6 @@ export class CompletionsService
           position - templateRange.start,
         )
 
-        console.log(`@@@ completion`, kind, node)
-
         if (kind === 'attribute') {
           const index = file.generated
             .getText()
@@ -281,6 +279,7 @@ export class CompletionsService
           kind === 'eventName' ||
           kind === 'propName'
         ) {
+          if (entry.name === '$slots') return []
           if (
             entry.kind === this.ts.lib.ScriptElementKind.memberVariableElement // TODO: check others
           ) {

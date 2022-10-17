@@ -407,15 +407,11 @@ function genComponentNode(node: ComponentNode): void {
     ctx.write('/>', node.endTagLoc).newLine()
     return // done
   }
-  writeLine('>')
 
+  ctx.write('$slots=')
   indent(() => {
     wrap('{', '}', () => {
-      ctx.write(
-        `${getRuntimeFn(ctx.typeIdentifier, 'checkSlots')}(${
-          node.resolvedName ?? node.tag
-        }, {`,
-      )
+      ctx.write(`{`)
       ctx.newLine()
       indent(() => {
         node.slots.forEach((slotNode) => {
@@ -447,9 +443,10 @@ function genComponentNode(node: ComponentNode): void {
           ctx.write('},').newLine()
         })
       })
-      ctx.write('})')
+      ctx.write('}')
     })
   })
+  writeLine('>')
   ctx.newLine()
   ctx.write('</', node.endTagLoc)
   ctx.write(node.resolvedName ?? node.tag)

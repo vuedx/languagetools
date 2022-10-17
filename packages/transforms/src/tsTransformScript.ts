@@ -5,6 +5,7 @@ import {
   SourceTransformer,
 } from '@vuedx/shared'
 import type TypeScript from 'typescript/lib/tsserverlibrary'
+import { createProgram } from './createProgram'
 import { findIdentifiers, KnownIdentifier } from './findIdentifiers'
 import { TransformScriptOptions } from './TransformScriptOptions'
 export interface TransformScriptResult {
@@ -23,36 +24,11 @@ export function transformScript(
   const key = `${options.fileName}:script:program`
   const ts = options.lib
   const inputFile = `input.${options.lang}`
-  const compilerHost: TypeScript.CompilerHost = {
-    fileExists: () => true,
-    getCanonicalFileName: (filename) => filename,
-    getCurrentDirectory: () => '',
-    getDefaultLibFileName: () => 'lib.d.ts',
-    getNewLine: () => '\n',
-    getSourceFile: (filename) => {
-      if (filename !== inputFile) return
-
-      return ts.createSourceFile(
-        filename,
-        source,
-        ts.ScriptTarget.Latest,
-        true,
-        getScriptKind(options.lang),
-      )
-    },
-    readFile: () => undefined,
-    useCaseSensitiveFileNames: () => true,
-    writeFile: () => undefined,
-  }
-
-  const program = ts.createProgram(
-    [inputFile],
-    {
-      noResolve: true,
-      target: ts.ScriptTarget.Latest,
-      jsx: options.lang.endsWith('x') ? ts.JsxEmit.Preserve : undefined,
-    },
-    compilerHost,
+  const program = createProgram(
+    ts,
+    source,
+    inputFile,
+    options.lang,
     options.cache?.get(key) as TypeScript.Program,
   )
   options.cache?.set(key, program)
@@ -112,23 +88,6 @@ export function transformScript(
     componentIdentifier: vars.Component,
     name,
     inheritAttrs,
-  }
-
-  function getScriptKind(
-    lang: TransformScriptOptions['lang'],
-  ): TypeScript.ScriptKind {
-    switch (lang) {
-      case 'js':
-        return ts.ScriptKind.JS
-      case 'ts':
-        return ts.ScriptKind.TS
-      case 'tsx':
-        return ts.ScriptKind.TSX
-      case 'jsx':
-        return ts.ScriptKind.JSX
-      default:
-        throw new Error(`Unknown lang`)
-    }
   }
 
   function findNodes(sourceFile: TypeScript.SourceFile): void {

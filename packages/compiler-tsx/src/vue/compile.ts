@@ -7,6 +7,8 @@ import {
 import {
   Cache,
   createCache,
+  first,
+  invariant,
   rebaseSourceMap,
   SourceTransformer,
 } from '@vuedx/shared'
@@ -15,6 +17,7 @@ import type {
   TransformOptionsResolved,
 } from '../types/TransformOptions'
 import { transformCustomBlock } from './blocks/transformCustomBlock'
+import { createProgram } from '@vuedx/transforms'
 
 import type { RootNode } from '@vue/compiler-core'
 import type { RawSourceMap } from 'source-map'
@@ -219,64 +222,61 @@ export function compileWithDecodedSourceMap(
   })
 
   const exported = [
-    scriptSetup.exportIdentifier,
-    scriptSetup.propsIdentifier,
-    scriptSetup.emitsIdentifier,
-    scriptSetup.exposeIdentifier,
-    template.attrsIdentifier,
-    template.slotsIdentifier,
-    resolvedOptions.contextIdentifier,
+    ...(descriptor.scriptSetup == null
+      ? [template.attrsIdentifier, template.slotsIdentifier, contextIdentifier]
+      : [scriptSetup.componentIdentifier]),
     ...Object.values(scriptSetup.exports),
   ].join(', ')
 
-  builder.append(`return {${exported}};});`)
+  builder.append(`return {${exported}};};`)
   builder.nextLine()
-  builder.append(`const {${exported}} = ${scriptSetup.scopeIdentifier};\n`)
+  builder.append(`const {${exported}} = ${scriptSetup.scopeIdentifier}();\n`)
   Object.entries(scriptSetup.exports).forEach(([name, identifier]) => {
     builder.append(`export type ${name} = typeof ${identifier};\n`)
   })
 
   region('public component definition', () => {
-    const props = `${resolvedOptions.contextIdentifier}.$props`
-
-    const parentClassIfAny = ` extends ${name}Public`
-    const type = `new () => typeof ${scriptSetup.exposeIdentifier}`
-    if (resolvedOptions.isTypeScript) {
-      builder.append(`const ${name}Public = null as unknown as ${type};`)
-      builder.nextLine()
-    } else {
+    if (descriptor.scriptSetup == null) {
+      const props = `${resolvedOptions.contextIdentifier}.$props`
+      const inheritAttrs =
+        descriptor.template?.content.includes('@vue-attrs-target') === true ||
+        script.inheritAttrs
+      const propsType = `typeof ${props}`
+      const attrsType = `typeof ${template.attrsIdentifier}`
+      const slotsType = `${resolvedOptions.typeIdentifier}.internal.Slots<ReturnType<typeof ${template.slotsIdentifier}>>`
       builder.append(
-        `const ${name}Public = /** @type {${type}} */ (/** @type {unknown} */ (null));`,
+        [
+          `export default class ${name} {`,
+          defineProperty(
+            '$props',
+            inheritAttrs
+              ? `${resolvedOptions.typeIdentifier}.internal.MergeAttrs<${propsType}, ${attrsType}> & {$slots: ${slotsType}}`
+              : `${propsType} & {$slots: ${slotsType}}`,
+          ),
+          `}`,
+        ].join('\n'),
       )
-      builder.nextLine()
+    } else {
+      const generic =
+        typeof descriptor.scriptSetup.attrs['generic'] === 'string'
+          ? descriptor.scriptSetup.attrs['generic']
+          : ''
+      const typeArgs = parseGenericArgNames(generic)
+
+      const component =
+        typeArgs.length > 0
+          ? `(new (${scriptSetup.scopeIdentifier}<${typeArgs.join(', ')}>().${
+              scriptSetup.componentIdentifier
+            }<${typeArgs.join(', ')}>))`
+          : `(new (${scriptSetup.scopeIdentifier}().${scriptSetup.componentIdentifier}))`
+
+      const genericExp = typeArgs.length > 0 ? `<${generic}>` : ''
+      builder.append(`export default class ${name}${genericExp} {\n`)
+      builder.append(
+        ` $props = {...${component}.$props, $slots: ${component}.$slots };\n`,
+      )
+      builder.append(`}`)
     }
-
-    const inheritAttrs =
-      descriptor.template?.content.includes('@vue-attrs-target') === true ||
-      script.inheritAttrs
-
-    const propsType =
-      descriptor.scriptSetup != null
-        ? `typeof ${props} & ${resolvedOptions.typeIdentifier}.internal.EmitsToProps<typeof ${scriptSetup.emitsIdentifier}>`
-        : `typeof ${props}`
-    const attrsType = `typeof ${template.attrsIdentifier}`
-
-    builder.append(
-      [
-        `export default class ${name}${parentClassIfAny} {`,
-        defineProperty(
-          '$props',
-          inheritAttrs
-            ? `${resolvedOptions.typeIdentifier}.internal.MergeAttrs<${propsType}, ${attrsType}>`
-            : propsType,
-        ),
-        defineProperty(
-          '$slots',
-          `${resolvedOptions.typeIdentifier}.internal.Slots<ReturnType<typeof ${template.slotsIdentifier}>>`,
-        ),
-        `}`,
-      ].join('\n'),
-    )
     builder.nextLine()
   })
 
@@ -302,6 +302,17 @@ export function compileWithDecodedSourceMap(
     return resolvedOptions.isTypeScript
       ? `  ${name} = null as unknown as ${type};`
       : `  ${name} = /** @type {${type}} */ (/** @type {unknown} */ (null));`
+  }
+
+  function parseGenericArgNames(code: string): string[] {
+    const ts = options.typescript
+    const program = createProgram(ts, `function _<${code}>() {}`)
+    const sourceFile = program.getSourceFile('input.ts')
+    invariant(sourceFile != null, 'sourceFile should not be null')
+    const decl = first(sourceFile.statements)
+    invariant(ts.isFunctionDeclaration(decl))
+    invariant(decl.typeParameters != null)
+    return decl.typeParameters.map((p) => p.name.getText())
   }
 }
 

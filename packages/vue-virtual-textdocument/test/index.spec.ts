@@ -35,21 +35,24 @@ describe('VueSFCDocument', () => {
       //#region <script setup>
 
               import Foo from './foo'
-      const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
+      function __VueDX_ScriptSetup_scope() {
 
               const val = $ref(1)
               
-      const __VueDX__ScriptSetup_props = defineProps({});
-      const __VueDX__ScriptSetup_emits = ({});
-      const __VueDX__ScriptSetup_expose = {};
-      const __VueDX__ScriptSetup_internalProps = {};
-      const __VueDX__ScriptSetup_Component = __VueDX_defineComponent((_: typeof __VueDX__ScriptSetup_internalProps)=> {});
+      const __VueDX_ScriptSetup_internalProps = {};
+      const __VueDX_ScriptSetup_ComponentPrivate = __VueDX_defineComponent((_: typeof __VueDX_ScriptSetup_internalProps)=> {});
+      const __VueDX_ScriptSetup_props = defineProps({});
+      const __VueDX_ScriptSetup_emits = ({});
+      class __VueDX_ScriptSetup_Component {
+      $props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ScriptSetup_props & __VueDX_TypeCheck.internal.EmitsToProps<typeof __VueDX_ScriptSetup_emits>, typeof __VueDX__attrs>;
+      $slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>;
+      }
 
       //#endregion
       function __VueDX_RegisterSelf<T>(ctx: T) {
         return { ...ctx, ["Example"]: Example }
       }
-      const __VueDX_ctx = __VueDX_RegisterSelf(new __VueDX__ScriptSetup_Component())
+      const __VueDX_ctx = __VueDX_RegisterSelf(new __VueDX_ScriptSetup_ComponentPrivate())
       //#region <template>
       /*<vuedx:templateGlobals>*/
       const __VueDX__get_identifier_val = () => __VueDX_TypeCheck.internal.unref(val);
@@ -67,8 +70,7 @@ describe('VueSFCDocument', () => {
           <>
             <Foo.Bar
               /*<vuedx:tsx-completions-target/>*/
-            >
-              {__VueDX_TypeCheck.internal.checkSlots(Foo.Bar, {
+            $slots={{
                 default: () => {
                   return (
                     <>
@@ -76,7 +78,8 @@ describe('VueSFCDocument', () => {
                     </>
                   )
                 },
-              })}
+              }}>
+
             </Foo.Bar>
           </>
         )
@@ -96,13 +99,11 @@ describe('VueSFCDocument', () => {
         return __VueDX_TypeCheck.internal.first(__VueDX_TypeCheck.internal.flat([{}]))
       })();
       //#endregion
-      return {__VueDX__ScriptSetup_Component, __VueDX__ScriptSetup_props, __VueDX__ScriptSetup_emits, __VueDX__ScriptSetup_expose, __VueDX__attrs, __VueDX__slots, __VueDX_ctx};});
-      const {__VueDX__ScriptSetup_Component, __VueDX__ScriptSetup_props, __VueDX__ScriptSetup_emits, __VueDX__ScriptSetup_expose, __VueDX__attrs, __VueDX__slots, __VueDX_ctx} = __VueDX__ScriptSetup_scope;
+      return {__VueDX_ScriptSetup_Component};};
+      const {__VueDX_ScriptSetup_Component} = __VueDX_ScriptSetup_scope();
       //#region public component definition
-      const ExamplePublic = null as unknown as new () => typeof __VueDX__ScriptSetup_expose;
-      export default class Example extends ExamplePublic {
-        $props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ctx.$props & __VueDX_TypeCheck.internal.EmitsToProps<typeof __VueDX__ScriptSetup_emits>, typeof __VueDX__attrs>;
-        $slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>;
+      export default class Example {
+       $props = {...(new (__VueDX_ScriptSetup_scope().__VueDX_ScriptSetup_Component)).$props, $slots: (new (__VueDX_ScriptSetup_scope().__VueDX_ScriptSetup_Component)).$slots };
       }
       //#endregion
       "

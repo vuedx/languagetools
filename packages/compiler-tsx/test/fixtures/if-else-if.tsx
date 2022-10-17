@@ -7,12 +7,15 @@ const __VueDX___Script_Component = __VueDX__defineComponent({});
 //#endregion
 //#region <script setup>
 
-const __VueDX___ScriptSetup_scope = __VueDX__TypeCheck.internal.scope(async () => {
-const __VueDX___ScriptSetup_props = defineProps({});
-const __VueDX___ScriptSetup_emits = ({});
-const __VueDX___ScriptSetup_expose = {};
-const __VueDX___ScriptSetup_internalProps = {};
-const __VueDX___ScriptSetup_Component = __VueDX__defineComponent((_: typeof __VueDX___ScriptSetup_internalProps)=> {});
+function __VueDX__ScriptSetup_scope() {
+const __VueDX__ScriptSetup_internalProps = {};
+const __VueDX__ScriptSetup_ComponentPrivate = __VueDX__defineComponent((_: typeof __VueDX__ScriptSetup_internalProps)=> {});
+const __VueDX__ScriptSetup_props = defineProps({});
+const __VueDX__ScriptSetup_emits = ({});
+class __VueDX__ScriptSetup_Component {
+$props = null as unknown as __VueDX__TypeCheck.internal.MergeAttrs<typeof __VueDX__ScriptSetup_props & __VueDX__TypeCheck.internal.EmitsToProps<typeof __VueDX__ScriptSetup_emits>, typeof __VueDX___attrs>;
+$slots = null as unknown as __VueDX__TypeCheck.internal.Slots<ReturnType<typeof __VueDX___slots>>;
+}
 
 //#endregion
 function __VueDX__RegisterSelf<T>(ctx: T) {
@@ -82,12 +85,10 @@ const __VueDX___attrs = (() => {
   ]))
 })();
 //#endregion
-return {__VueDX___ScriptSetup_Component, __VueDX___ScriptSetup_props, __VueDX___ScriptSetup_emits, __VueDX___ScriptSetup_expose, __VueDX___attrs, __VueDX___slots, __VueDX__ctx};});
-const {__VueDX___ScriptSetup_Component, __VueDX___ScriptSetup_props, __VueDX___ScriptSetup_emits, __VueDX___ScriptSetup_expose, __VueDX___attrs, __VueDX___slots, __VueDX__ctx} = __VueDX___ScriptSetup_scope;
+return {__VueDX___attrs, __VueDX___slots, __VueDX__ctx};};
+const {__VueDX___attrs, __VueDX___slots, __VueDX__ctx} = __VueDX__ScriptSetup_scope();
 //#region public component definition
-const IfElseIfPublic = null as unknown as new () => typeof __VueDX___ScriptSetup_expose;
-export default class IfElseIf extends IfElseIfPublic {
-  $props = null as unknown as __VueDX__TypeCheck.internal.MergeAttrs<typeof __VueDX__ctx.$props, typeof __VueDX___attrs>;
-  $slots = null as unknown as __VueDX__TypeCheck.internal.Slots<ReturnType<typeof __VueDX___slots>>;
+export default class IfElseIf {
+  $props = null as unknown as __VueDX__TypeCheck.internal.MergeAttrs<typeof __VueDX__ctx.$props, typeof __VueDX___attrs> & {$slots: __VueDX__TypeCheck.internal.Slots<ReturnType<typeof __VueDX___slots>>};
 }
 //#endregion

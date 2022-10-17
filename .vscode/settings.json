@@ -3,6 +3,7 @@
     "Builtins",
     "Codegen",
     "deindent",
+    "depromisify",
     "endregion",
     "hygen",
     "lcfirst",

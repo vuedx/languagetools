@@ -10,12 +10,15 @@ const __VueDX__Script_Component = __VueDX_defineComponent({});
 //#endregion
 //#region <script setup>
 
-const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
-const __VueDX__ScriptSetup_props = defineProps({});
-const __VueDX__ScriptSetup_emits = ({});
-const __VueDX__ScriptSetup_expose = {};
-const __VueDX__ScriptSetup_internalProps = {};
-const __VueDX__ScriptSetup_Component = __VueDX_defineComponent((_: typeof __VueDX__ScriptSetup_internalProps)=> {});
+function __VueDX_ScriptSetup_scope() {
+const __VueDX_ScriptSetup_internalProps = {};
+const __VueDX_ScriptSetup_ComponentPrivate = __VueDX_defineComponent((_: typeof __VueDX_ScriptSetup_internalProps)=> {});
+const __VueDX_ScriptSetup_props = defineProps({});
+const __VueDX_ScriptSetup_emits = ({});
+class __VueDX_ScriptSetup_Component {
+$props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ScriptSetup_props & __VueDX_TypeCheck.internal.EmitsToProps<typeof __VueDX_ScriptSetup_emits>, typeof __VueDX__attrs>;
+$slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>;
+}
 
 //#endregion
 function __VueDX_RegisterSelf<T>(ctx: T) {
@@ -79,13 +82,11 @@ const __VueDX__attrs = (() => {
   ]))
 })();
 //#endregion
-return {__VueDX__ScriptSetup_Component, __VueDX__ScriptSetup_props, __VueDX__ScriptSetup_emits, __VueDX__ScriptSetup_expose, __VueDX__attrs, __VueDX__slots, __VueDX_ctx};});
-const {__VueDX__ScriptSetup_Component, __VueDX__ScriptSetup_props, __VueDX__ScriptSetup_emits, __VueDX__ScriptSetup_expose, __VueDX__attrs, __VueDX__slots, __VueDX_ctx} = __VueDX__ScriptSetup_scope;
+return {__VueDX__attrs, __VueDX__slots, __VueDX_ctx};};
+const {__VueDX__attrs, __VueDX__slots, __VueDX_ctx} = __VueDX_ScriptSetup_scope();
 //#region public component definition
-const ExamplePublic = null as unknown as new () => typeof __VueDX__ScriptSetup_expose;
-export default class Example extends ExamplePublic {
-  $props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ctx.$props, typeof __VueDX__attrs>;
-  $slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>;
+export default class Example {
+  $props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ctx.$props, typeof __VueDX__attrs> & {$slots: __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>};
 }
 //#endregion
 
@@ -102,22 +103,25 @@ const __VueDX__Script_Component = __VueDX_defineComponent({});
 //#region <script setup>
 
 import { ref } from 'vue'
-const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
+function __VueDX_ScriptSetup_scope() {
 
 const a = ref(false)
 let b  = 5
 let c: { foo: string} | undefined
-const __VueDX__ScriptSetup_props = defineProps({});
-const __VueDX__ScriptSetup_emits = ({});
-const __VueDX__ScriptSetup_expose = {};
-const __VueDX__ScriptSetup_internalProps = {};
-const __VueDX__ScriptSetup_Component = __VueDX_defineComponent((_: typeof __VueDX__ScriptSetup_internalProps)=> {});
+const __VueDX_ScriptSetup_internalProps = {};
+const __VueDX_ScriptSetup_ComponentPrivate = __VueDX_defineComponent((_: typeof __VueDX_ScriptSetup_internalProps)=> {});
+const __VueDX_ScriptSetup_props = defineProps({});
+const __VueDX_ScriptSetup_emits = ({});
+class __VueDX_ScriptSetup_Component {
+$props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ScriptSetup_props & __VueDX_TypeCheck.internal.EmitsToProps<typeof __VueDX_ScriptSetup_emits>, typeof __VueDX__attrs>;
+$slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>;
+}
 
 //#endregion
 function __VueDX_RegisterSelf<T>(ctx: T) {
   return { ...ctx, ["Example"]: Example }
 }
-const __VueDX_ctx = __VueDX_RegisterSelf(new __VueDX__ScriptSetup_Component())
+const __VueDX_ctx = __VueDX_RegisterSelf(new __VueDX_ScriptSetup_ComponentPrivate())
 //#region <template>
 /*<vuedx:templateGlobals>*/
 const __VueDX__get_identifier_a = () => __VueDX_TypeCheck.internal.unref(a);
@@ -166,13 +170,11 @@ const __VueDX__attrs = (() => {
   return __VueDX_TypeCheck.internal.first(__VueDX_TypeCheck.internal.flat([{}]))
 })();
 //#endregion
-return {__VueDX__ScriptSetup_Component, __VueDX__ScriptSetup_props, __VueDX__ScriptSetup_emits, __VueDX__ScriptSetup_expose, __VueDX__attrs, __VueDX__slots, __VueDX_ctx};});
-const {__VueDX__ScriptSetup_Component, __VueDX__ScriptSetup_props, __VueDX__ScriptSetup_emits, __VueDX__ScriptSetup_expose, __VueDX__attrs, __VueDX__slots, __VueDX_ctx} = __VueDX__ScriptSetup_scope;
+return {__VueDX_ScriptSetup_Component};};
+const {__VueDX_ScriptSetup_Component} = __VueDX_ScriptSetup_scope();
 //#region public component definition
-const ExamplePublic = null as unknown as new () => typeof __VueDX__ScriptSetup_expose;
-export default class Example extends ExamplePublic {
-  $props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ctx.$props & __VueDX_TypeCheck.internal.EmitsToProps<typeof __VueDX__ScriptSetup_emits>, typeof __VueDX__attrs>;
-  $slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>;
+export default class Example {
+ $props = {...(new (__VueDX_ScriptSetup_scope().__VueDX_ScriptSetup_Component)).$props, $slots: (new (__VueDX_ScriptSetup_scope().__VueDX_ScriptSetup_Component)).$slots };
 }
 //#endregion
 
@@ -189,7 +191,7 @@ exports[`sourcemaps directives 1`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-          ^^^^^ > 5 at 1444 (36:10)
+          ^^^^^ > 5 at 1700 (39:10)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -205,7 +207,7 @@ exports[`sourcemaps directives 2`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-          ^^^^^ > 5 at 1444 (36:10)
+          ^^^^^ > 5 at 1700 (39:10)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -221,7 +223,7 @@ exports[`sourcemaps directives 3`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-             ^^ > 2 at 1447 (36:13)
+             ^^ > 2 at 1703 (39:13)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -237,7 +239,7 @@ exports[`sourcemaps directives 4`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-             ^^ > 2 at 1447 (36:13)
+             ^^ > 2 at 1703 (39:13)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -253,7 +255,7 @@ exports[`sourcemaps directives 5`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-          ^^^^^ > 5 at 1444 (36:10)
+          ^^^^^ > 5 at 1700 (39:10)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -269,7 +271,7 @@ exports[`sourcemaps directives 6`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-          ^^^^^ > 5 at 1444 (36:10)
+          ^^^^^ > 5 at 1700 (39:10)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -285,7 +287,7 @@ exports[`sourcemaps directives 7`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-             ^^ > 2 at 1447 (36:13)
+             ^^ > 2 at 1703 (39:13)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -301,7 +303,7 @@ exports[`sourcemaps directives 8`] = `
         a=""
         onA={__VueDX_TypeCheck.internal.first([
           onNum, 
-             ^^ > 2 at 1447 (36:13)
+             ^^ > 2 at 1703 (39:13)
         ])}
         onB={__VueDX_TypeCheck.internal.first([
 `;
@@ -317,7 +319,7 @@ exports[`sourcemaps directives 9`] = `
         onC={__VueDX_TypeCheck.internal.first([
           ($event) => {
           call.a['func']($event)
-                ^^^^^^^^ > 8 at 1630 (43:16)
+                ^^^^^^^^ > 8 at 1886 (46:16)
           }, 
         ])}
 `;
@@ -333,7 +335,7 @@ exports[`sourcemaps directives 10`] = `
         onC={__VueDX_TypeCheck.internal.first([
           ($event) => {
           call.a['func']($event)
-                ^^^^^^^^ > 8 at 1630 (43:16)
+                ^^^^^^^^ > 8 at 1886 (46:16)
           }, 
         ])}
 `;
@@ -349,7 +351,7 @@ exports[`sourcemaps directives 11`] = `
         onC={__VueDX_TypeCheck.internal.first([
           ($event) => {
           call.a['func']($event)
-                         ^^^^^^ > 6 at 1639 (43:25)
+                         ^^^^^^ > 6 at 1895 (46:25)
           }, 
         ])}
 `;
@@ -365,7 +367,7 @@ exports[`sourcemaps directives 12`] = `
         onC={__VueDX_TypeCheck.internal.first([
           ($event) => {
           call.a['func']($event)
-                         ^^^^^^ > 6 at 1639 (43:25)
+                         ^^^^^^ > 6 at 1895 (46:25)
           }, 
         ])}
 `;
@@ -380,12 +382,15 @@ const __VueDX__Script_Component = __VueDX_defineComponent({});
 //#endregion
 //#region <script setup>
 
-const __VueDX__ScriptSetup_scope = __VueDX_TypeCheck.internal.scope(async () => {
-const __VueDX__ScriptSetup_props = defineProps({});
-const __VueDX__ScriptSetup_emits = ({});
-const __VueDX__ScriptSetup_expose = {};
-const __VueDX__ScriptSetup_internalProps = {};
-const __VueDX__ScriptSetup_Component = __VueDX_defineComponent((_: typeof __VueDX__ScriptSetup_internalProps)=> {});
+function __VueDX_ScriptSetup_scope() {
+const __VueDX_ScriptSetup_internalProps = {};
+const __VueDX_ScriptSetup_ComponentPrivate = __VueDX_defineComponent((_: typeof __VueDX_ScriptSetup_internalProps)=> {});
+const __VueDX_ScriptSetup_props = defineProps({});
+const __VueDX_ScriptSetup_emits = ({});
+class __VueDX_ScriptSetup_Component {
+$props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ScriptSetup_props & __VueDX_TypeCheck.internal.EmitsToProps<typeof __VueDX_ScriptSetup_emits>, typeof __VueDX__attrs>;
+$slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>;
+}
 
 //#endregion
 function __VueDX_RegisterSelf<T>(ctx: T) {
@@ -405,8 +410,7 @@ function __VueDX_render() {
     <>
       <A
         /*<vuedx:tsx-completions-target/>*/
-      >
-        {__VueDX_TypeCheck.internal.checkSlots(A, {
+      $slots={{
           "a": () => {
             return (
               <>
@@ -419,7 +423,8 @@ function __VueDX_render() {
               </>
             )
           },
-        })}
+        }}>
+
       </A>
     </>
   )
@@ -439,13 +444,11 @@ const __VueDX__attrs = (() => {
   return __VueDX_TypeCheck.internal.first(__VueDX_TypeCheck.internal.flat([{}]))
 })();
 //#endregion
-return {__VueDX__ScriptSetup_Component, __VueDX__ScriptSetup_props, __VueDX__ScriptSetup_emits, __VueDX__ScriptSetup_expose, __VueDX__attrs, __VueDX__slots, __VueDX_ctx};});
-const {__VueDX__ScriptSetup_Component, __VueDX__ScriptSetup_props, __VueDX__ScriptSetup_emits, __VueDX__ScriptSetup_expose, __VueDX__attrs, __VueDX__slots, __VueDX_ctx} = __VueDX__ScriptSetup_scope;
+return {__VueDX__attrs, __VueDX__slots, __VueDX_ctx};};
+const {__VueDX__attrs, __VueDX__slots, __VueDX_ctx} = __VueDX_ScriptSetup_scope();
 //#region public component definition
-const ExamplePublic = null as unknown as new () => typeof __VueDX__ScriptSetup_expose;
-export default class Example extends ExamplePublic {
-  $props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ctx.$props, typeof __VueDX__attrs>;
-  $slots = null as unknown as __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>;
+export default class Example {
+  $props = null as unknown as __VueDX_TypeCheck.internal.MergeAttrs<typeof __VueDX_ctx.$props, typeof __VueDX__attrs> & {$slots: __VueDX_TypeCheck.internal.Slots<ReturnType<typeof __VueDX__slots>>};
 }
 //#endregion
 
@@ -462,7 +465,7 @@ exports[`sourcemaps v-on shorthand 1`] = `
       <B
         a=""
         onA={__VueDX_TypeCheck.internal.first([
-        ^^^ > 3 at 1364 (34:8)
+        ^^^ > 3 at 1620 (37:8)
           onStr, 
         ])}
 `;
@@ -478,7 +481,7 @@ exports[`sourcemaps v-on shorthand 2`] = `
       <B
         a=""
         onA={__VueDX_TypeCheck.internal.first([
-        ^^^ > 3 at 1364 (34:8)
+        ^^^ > 3 at 1620 (37:8)
           onStr, 
         ])}
 `;
@@ -494,7 +497,7 @@ exports[`sourcemaps v-text 1`] = `
     <>
       <div
         innerHTML={a}
-                   ^ > 1 at 1085 (30:19)
+                   ^ > 1 at 1341 (33:19)
         /*<vuedx:tsx-completions-target/>*/
       />
 `;
@@ -510,7 +513,7 @@ exports[`sourcemaps v-text 2`] = `
     <>
       <div
         innerHTML={a}
-                   ^ > 1 at 1085 (30:19)
+                   ^ > 1 at 1341 (33:19)
         /*<vuedx:tsx-completions-target/>*/
       />
 `;
