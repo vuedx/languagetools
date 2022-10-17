@@ -174,7 +174,7 @@ export function flat<T extends unknown[], D extends number = 1>(
   depth?: D,
 ): Array<FlatArray<T, D>>
 
-export function scope<T>(fn: () => Promise<T>): T
+export function depromisify<T>(fn: () => Promise<T>): () => T
 
 export function first<T>(items: T[]): T
 

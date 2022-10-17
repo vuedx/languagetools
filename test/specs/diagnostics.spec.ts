@@ -11,15 +11,16 @@ describe('project', () => {
 
     afterAll(async () => await editor.closeAll())
 
-    test.skip('checks exports in <script setup>', async () => {
+    test('checks exports in <script setup>', async () => {
       await editor.open('src/script-setup.vue')
       const diagnostics = await editor.getDiagnostics('src/script-setup.vue')
 
       expect(diagnostics.semantic).toMatchObject(
         [
-          { text: 'A <script setup> block cannot have exports.' },
-          { text: 'A <script setup> block cannot have exports.' },
-          { text: 'A <script setup> block cannot have default exports.' },
+          { text: 'Modifiers cannot appear here.' },
+          {
+            text: 'A default export must be at the top level of a file or module declaration.',
+          },
         ].map((item) => expect.objectContaining(item)),
       )
     })
@@ -98,12 +99,12 @@ describe('project', () => {
       expect(semantic.map((diagnostic) => diagnostic.text))
         .toMatchInlineSnapshot(`
         [
-          "Type '{ modelValue: string | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { bar?: string | number | undefined; foo?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.
-          Property 'modelValue' does not exist on type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { bar?: string | number | undefined; foo?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.",
+          "Type '{ modelValue: string | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.
+          Property 'modelValue' does not exist on type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.",
           "Type 'number | undefined' is not assignable to type 'string | undefined'.
           Type 'number' is not assignable to type 'string'.",
-          "Type '{ modelValue: number | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { bar?: string | number | undefined; foo?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.
-          Property 'modelValue' does not exist on type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { bar?: string | number | undefined; foo?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.",
+          "Type '{ modelValue: number | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.
+          Property 'modelValue' does not exist on type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ foo?: unknown; bar?: unknown; } & {} & { foo?: string | undefined; bar?: string | number | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })),...'.",
           "Type '{ foo: string | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
           Property 'foo' does not exist on type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.",
           "Type '{ foo: number | undefined; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<((Readonly<{ modelValue?: unknown; } & {} & { modelValue?: string | undefined; }> & { [x: \`on\${Capitalize<string>}\`]: ((...args: any[]) => any) | undefined; }) | (Readonly<...> & { ...; })) & (VNodeProps & ... 3 more ... & ({ ...; } | { ...; })), never>'.
@@ -179,12 +180,24 @@ describe('project', () => {
         [
           "Type '{ onA: () => void; onInput: () => void; onClick: () => void; onSubmit: () => void; }' is not assignable to type 'ReservedProps & ButtonHTMLAttributes & InputHTMLAttributes'.
           Property 'onA' does not exist on type 'ReservedProps & ButtonHTMLAttributes & InputHTMLAttributes'.",
+          "Type '{ a: string; onA: () => void; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<Readonly<{ a?: unknown; b?: unknown; c?: unknown; } & { a: string; } & { b?: number | undefined; c?: { foo?: string | undefined; } | undefined; }> & { ...; } & VNodeProps & AllowedComponentProps & ComponentCustomProps, never> & Omit<...> & { ...; }'.
+          Property '$slots' is missing in type '{ a: string; onA: () => void; }' but required in type '{ $slots: InternalSlots<NoNullable<{}>>; }'.",
+          "Type '{ a: string; onA: (payload: string) => void; }' is not assignable to type 'ReservedProps & Partial<{}> & Omit<Readonly<{ a?: unknown; b?: unknown; c?: unknown; } & { a: string; } & { b?: number | undefined; c?: { foo?: string | undefined; } | undefined; }> & { ...; } & VNodeProps & AllowedComponentProps & ComponentCustomProps, never> & Omit<...> & { ...; }'.
+          Property '$slots' is missing in type '{ a: string; onA: (payload: string) => void; }' but required in type '{ $slots: InternalSlots<NoNullable<{}>>; }'.",
           "Type '(payload?: number | undefined) => void' is not assignable to type '(_payload: string) => void'.
           Types of parameters 'payload' and '_payload' are incompatible.
             Type 'string' is not assignable to type 'number'.",
+          "Type '{ a: string; onA: () => void; }' is not assignable to type 'ReservedProps & { $slots: InternalSlots<NoNullable<{}>>; a: string; b?: number | undefined; c?: { foo?: string | undefined; } | undefined; onB?: ((payload?: number | undefined) => any) | undefined; onC?: ((payload?: { ...; } | undefined) => any) | undefined; onA?: ((payload: string) => any) | undefined; }'.
+          Property '$slots' is missing in type '{ a: string; onA: () => void; }' but required in type '{ $slots: InternalSlots<NoNullable<{}>>; a: string; b?: number | undefined; c?: { foo?: string | undefined; } | undefined; onB?: ((payload?: number | undefined) => any) | undefined; onC?: ((payload?: { ...; } | undefined) => any) | undefined; onA?: ((payload: string) => any) | undefined; }'.",
+          "Type '{ a: string; onA: (payload: string) => void; }' is not assignable to type 'ReservedProps & { $slots: InternalSlots<NoNullable<{}>>; a: string; b?: number | undefined; c?: { foo?: string | undefined; } | undefined; onB?: ((payload?: number | undefined) => any) | undefined; onC?: ((payload?: { ...; } | undefined) => any) | undefined; onA?: ((payload: string) => any) | undefined; }'.
+          Property '$slots' is missing in type '{ a: string; onA: (payload: string) => void; }' but required in type '{ $slots: InternalSlots<NoNullable<{}>>; a: string; b?: number | undefined; c?: { foo?: string | undefined; } | undefined; onB?: ((payload?: number | undefined) => any) | undefined; onC?: ((payload?: { ...; } | undefined) => any) | undefined; onA?: ((payload: string) => any) | undefined; }'.",
           "Type '(payload?: number | undefined) => void' is not assignable to type '(payload: string) => any'.
           Types of parameters 'payload' and 'payload' are incompatible.
             Type 'string' is not assignable to type 'number'.",
+          "Type '{ a: string; onA: () => void; }' is not assignable to type 'ReservedProps & { $slots: InternalSlots<NoNullable<{}>>; a: string; b?: number | undefined; c?: { foo?: string | undefined; } | undefined; onB?: ((payload?: number | undefined) => any) | undefined; onC?: ((payload?: { ...; } | undefined) => any) | undefined; onA?: ((payload: string) => any) | undefined; }'.
+          Property '$slots' is missing in type '{ a: string; onA: () => void; }' but required in type '{ $slots: InternalSlots<NoNullable<{}>>; a: string; b?: number | undefined; c?: { foo?: string | undefined; } | undefined; onB?: ((payload?: number | undefined) => any) | undefined; onC?: ((payload?: { ...; } | undefined) => any) | undefined; onA?: ((payload: string) => any) | undefined; }'.",
+          "Type '{ a: string; onA: (payload: string) => void; }' is not assignable to type 'ReservedProps & { $slots: InternalSlots<NoNullable<{}>>; a: string; b?: number | undefined; c?: { foo?: string | undefined; } | undefined; onB?: ((payload?: number | undefined) => any) | undefined; onC?: ((payload?: { ...; } | undefined) => any) | undefined; onA?: ((payload: string) => any) | undefined; }'.
+          Property '$slots' is missing in type '{ a: string; onA: (payload: string) => void; }' but required in type '{ $slots: InternalSlots<NoNullable<{}>>; a: string; b?: number | undefined; c?: { foo?: string | undefined; } | undefined; onB?: ((payload?: number | undefined) => any) | undefined; onC?: ((payload?: { ...; } | undefined) => any) | undefined; onA?: ((payload: string) => any) | undefined; }'.",
           "Type '(payload?: number | undefined) => void' is not assignable to type '(payload: string) => any'.
           Types of parameters 'payload' and 'payload' are incompatible.
             Type 'string' is not assignable to type 'number'.",

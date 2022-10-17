@@ -8,11 +8,11 @@ import type { TransformedCode } from '../../types/TransformedCode'
 import type { TransformOptionsResolved } from '../../types/TransformOptions'
 
 export interface ScriptSetupBlockTransformResult extends TransformedCode {
+  /** private component */
   exportIdentifier: string
+  /** public component */
+  componentIdentifier: string
   scopeIdentifier: string
-  propsIdentifier: string
-  emitsIdentifier: string
-  exposeIdentifier: string
   identifiers: KnownIdentifier[]
   exports: Record<string, string>
 }
@@ -22,6 +22,7 @@ export function transformScriptSetup(
   options: TransformOptionsResolved,
 ): ScriptSetupBlockTransformResult {
   const content = script?.content ?? ''
+  const generic = script?.attrs?.['generic']
   const result = transform(content, {
     internalIdentifierPrefix: options.internalIdentifierPrefix,
     runtimeModuleName: options.runtimeModuleName,
@@ -30,6 +31,9 @@ export function transformScriptSetup(
     fileName: options.fileName,
     lib: options.typescript,
     cache: options.cache,
+    attrsIdentifier: `${options.internalIdentifierPrefix}_attrs`,
+    slotsIdentifier: `${options.internalIdentifierPrefix}_slots`,
+    generic: typeof generic === 'string' ? generic : undefined,
   })
 
   invariant(result.map != null)
@@ -38,11 +42,9 @@ export function transformScriptSetup(
     code: result.code,
     map: result.map,
     identifiers: result.identifiers,
-    exportIdentifier: result.componentIdentifier,
+    exportIdentifier: result.privateComponentIdentifier,
+    componentIdentifier: result.publicComponentIdentifier,
     scopeIdentifier: result.scopeIdentifier,
-    propsIdentifier: result.propsIdentifier,
-    emitsIdentifier: result.emitsIdentifier,
-    exposeIdentifier: result.exposeIdentifier,
     exports: result.exports,
   }
 }

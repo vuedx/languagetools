@@ -5,57 +5,37 @@ import {
   SourceTransformer,
 } from '@vuedx/shared'
 import type TypeScript from 'typescript/lib/tsserverlibrary'
+import { createProgram } from './createProgram'
 import { findIdentifiers, KnownIdentifier } from './findIdentifiers'
 import { TransformScriptOptions } from './TransformScriptOptions'
 export interface TransformScriptSetupResult {
   code: string
   map: DecodedSourceMap
   identifiers: KnownIdentifier[]
-  propsIdentifier: string
-  emitsIdentifier: string
-  exposeIdentifier: string
   scopeIdentifier: string
-  componentIdentifier: string
+  privateComponentIdentifier: string
+  publicComponentIdentifier: string
   exports: Record<string, string>
+}
+
+export interface TransformScriptSetupOptions extends TransformScriptOptions {
+  generic?: string
+  attrsIdentifier: string
+  slotsIdentifier: string
 }
 
 export function transformScriptSetup(
   source: string,
-  options: TransformScriptOptions,
+  options: TransformScriptSetupOptions,
 ): TransformScriptSetupResult {
   const key = `${options.fileName}:scriptSetup:program`
   const ts = options.lib
   const inputFile = `input.${options.lang}`
-  const compilerHost: TypeScript.CompilerHost = {
-    fileExists: () => true,
-    getCanonicalFileName: (filename) => filename,
-    getCurrentDirectory: () => '',
-    getDefaultLibFileName: () => 'lib.d.ts',
-    getNewLine: () => '\n',
-    getSourceFile: (filename) => {
-      if (filename !== inputFile) return
-
-      return ts.createSourceFile(
-        filename,
-        source,
-        ts.ScriptTarget.Latest,
-        true,
-        getScriptKind(options.lang),
-      )
-    },
-    readFile: () => undefined,
-    useCaseSensitiveFileNames: () => true,
-    writeFile: () => undefined,
-  }
-
-  const program = ts.createProgram(
-    [inputFile],
-    {
-      noResolve: true,
-      target: ts.ScriptTarget.Latest,
-      jsx: options.lang.endsWith('x') ? ts.JsxEmit.Preserve : undefined,
-    },
-    compilerHost,
+  const program = createProgram(
+    ts,
+    source,
+    inputFile,
+    options.lang,
     options.cache?.get(key) as TypeScript.Program,
   )
   options.cache?.set(key, program)
@@ -78,15 +58,17 @@ export function transformScriptSetup(
     | TypeScript.EnumDeclaration
   > = []
   const exportedNames: Record<string, string> = {}
-
+  const _ = options.internalIdentifierPrefix
   const vars = {
-    internalProps: `${options.internalIdentifierPrefix}_ScriptSetup_internalProps`,
-    scope: `${options.internalIdentifierPrefix}_ScriptSetup_scope`,
-    Component: `${options.internalIdentifierPrefix}_ScriptSetup_Component`,
-    emits: `${options.internalIdentifierPrefix}_ScriptSetup_emits`,
-    props: `${options.internalIdentifierPrefix}_ScriptSetup_props`,
-    expose: `${options.internalIdentifierPrefix}_ScriptSetup_expose`,
+    internalProps: `${_}ScriptSetup_internalProps`,
+    internalComponent: `${_}ScriptSetup_ComponentPrivate`,
+    publicComponent: `${_}ScriptSetup_Component`,
+    scope: `${_}ScriptSetup_scope`,
+    emits: `${_}ScriptSetup_emits`,
+    props: `${_}ScriptSetup_props`,
+    expose: `${_}ScriptSetup_expose`,
   }
+  const generic = options.generic != null ? `<${options.generic}>` : ''
   const code = new SourceTransformer(inputFile, source)
 
   findNodes(sourceFile)
@@ -103,12 +85,12 @@ export function transformScriptSetup(
   }
   const { line } = code.sourceLineColumnMapper.positionAt(offset)
 
-  // annotate range
+  // wrap setup code in a function
   code.append(`\n`, { mappings: [[[0, 0, line + 1, 0]]] })
-  code.append(
-    `const ${vars.scope} = ${options.typeIdentifier}.internal.scope(async () => {`,
-    { mappings: [[[0, 0, line + 1, 0]]] },
-  )
+
+  code.append(`function ${vars.scope}${generic}() {`, {
+    mappings: [[[0, 0, line + 1, 0]]],
+  })
 
   if (exportedNodes.length > 0) {
     genExportedNodes(offset, source.length)
@@ -143,6 +125,7 @@ export function transformScriptSetup(
     }
   }
 
+  // define private props (withDefaults)
   if (internalPropsIdentifier == null && internalPropsInitializer != null) {
     code.clone(offset, internalPropsInitializer.getStart())
     code.append(`const ${vars.internalProps} = `)
@@ -151,7 +134,30 @@ export function transformScriptSetup(
       internalPropsInitializer.getEnd(),
     )
     code.append(';\n')
+  } else if (
+    internalPropsIdentifier == null &&
+    internalPropsInitializer == null
+  ) {
+    code.append(`const ${vars.internalProps} = {};\n`)
   }
+  code.append(
+    `const ${vars.internalComponent} = ${_}defineComponent((_: typeof ${
+      internalPropsIdentifier?.getText() ?? vars.internalProps
+    })=> {});\n`,
+  )
+
+  // define expose
+  let expose = ''
+  if (exposeOptions != null) {
+    code.append(`const ${vars.expose} = (`)
+    code.clone(exposeOptions.getStart(), exposeOptions.getEnd())
+    code.append(`);\n`)
+    code.append(
+      `const ${vars.expose}_API = null as unknown as new () => typeof ${vars.expose};\n`,
+    )
+    expose = ` extends ${vars.expose}_API`
+  }
+
   // define props
   if (propsIdentifier != null) {
     code.append(`const ${vars.props} = ${propsIdentifier.text};\n`)
@@ -182,28 +188,34 @@ export function transformScriptSetup(
     code.append(`const ${vars.emits} = ({});\n`)
   }
 
-  // define expose
-  if (exposeOptions != null) {
-    code.append(`const ${vars.expose} = (`)
-    code.clone(exposeOptions.getStart(), exposeOptions.getEnd())
-    code.append(`);\n`)
-  } else {
-    code.append(`const ${vars.expose} = {};\n`)
-  }
-
-  if (internalPropsIdentifier == null && internalPropsInitializer == null) {
-    code.append(`const ${vars.internalProps} = {};\n`)
-  }
-
+  // define public component
+  code.append(`class ${vars.publicComponent}${generic}${expose} {\n`)
+  // define $props using mergeAttrs
   code.append(
-    [
-      `const ${vars.Component} = ${
-        options.internalIdentifierPrefix
-      }defineComponent((_: typeof ${
-        internalPropsIdentifier?.getText() ?? vars.internalProps
-      })=> {});\n`,
-    ].join('\n'),
+    `$props = null as unknown as ${options.typeIdentifier}.internal.MergeAttrs<`,
   )
+  // <props>
+  if (propsType != null) {
+    code.clone(propsType.getStart(), propsType.getEnd())
+  } else {
+    code.append(`typeof ${vars.props}`)
+  }
+  // <emits>
+  code.append(` & ${options.typeIdentifier}.internal.EmitsToProps<`)
+  if (emitsType != null) {
+    code.append(`${options.typeIdentifier}.internal.EmitTypeToEmits<`)
+    code.clone(emitsType.getStart(), emitsType.getEnd())
+    code.append(`>`)
+  } else {
+    code.append(`typeof ${vars.emits}`)
+  }
+  code.append(`>`)
+  // <attrs>
+  code.append(`, typeof ${options.attrsIdentifier}>;\n`)
+  code.append(
+    `$slots = null as unknown as ${options.typeIdentifier}.internal.Slots<ReturnType<typeof ${options.slotsIdentifier}>>;\n`,
+  )
+  code.append('}\n')
 
   code.append(`\n`)
   const result = code.end()
@@ -212,10 +224,8 @@ export function transformScriptSetup(
     code: result.code,
     map: result.map,
     identifiers,
-    componentIdentifier: vars.Component,
-    propsIdentifier: vars.props,
-    emitsIdentifier: vars.emits,
-    exposeIdentifier: vars.expose,
+    privateComponentIdentifier: vars.internalComponent,
+    publicComponentIdentifier: vars.publicComponent,
     scopeIdentifier: vars.scope,
     exports: exportedNames,
   }
@@ -252,23 +262,6 @@ export function transformScriptSetup(
     return modifier as TypeScript.ExportKeyword
   }
 
-  function getScriptKind(
-    lang: TransformScriptOptions['lang'],
-  ): TypeScript.ScriptKind {
-    switch (lang) {
-      case 'js':
-        return ts.ScriptKind.JS
-      case 'ts':
-        return ts.ScriptKind.TS
-      case 'tsx':
-        return ts.ScriptKind.TSX
-      case 'jsx':
-        return ts.ScriptKind.JSX
-      default:
-        throw new Error(`Unknown lang`)
-    }
-  }
-
   function findNodes(sourceFile: TypeScript.SourceFile): void {
     sourceFile.statements.forEach((statement) => {
       if (!ts.isImportDeclaration(statement)) {
@@ -287,6 +280,7 @@ export function transformScriptSetup(
               } else {
                 internalPropsInitializer = declaration.initializer
               }
+              processProps(declaration.initializer)
             } else if (isFnCall(declaration.initializer, 'withDefaults')) {
               if (ts.isIdentifier(declaration.name)) {
                 internalPropsIdentifier = declaration.name

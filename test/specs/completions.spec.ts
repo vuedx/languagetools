@@ -103,8 +103,6 @@ describe('completions', () => {
       ':b',
       'c',
       ':c',
-      'class',
-      ':class',
       'key',
       ':key',
       '@a',
@@ -112,8 +110,6 @@ describe('completions', () => {
       '@c',
       'ref',
       ':ref',
-      'style',
-      ':style',
     ])
   })
 
