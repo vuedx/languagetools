@@ -4,26 +4,15 @@ import { TestServer } from '../support/TestServer'
 
 describe('completions', () => {
   const server = new TestServer()
-  const service = createEditorContext(
+  const ctx = createEditorContext(
     server,
     getProjectPath('typescript-diagnostics'),
-  )
-
-  beforeAll(
-    async () =>
-      await server.sendCommand('configure', {
-        preferences: {
-          providePrefixAndSuffixTextForRename: true,
-          allowRenameOfImportPath: true,
-          includePackageJsonAutoImports: 'auto',
-        },
-      }),
   )
 
   afterAll(async () => await server.close())
 
   test('can detect slot types in generic component', async () => {
-    const editor = await service.open('src/test-generic-component.vue')
+    const editor = await ctx.open('src/test-generic-component.vue')
     const types: Record<string, Position> = {
       string: { line: 5, character: 33 },
       number: { line: 8, character: 29 },
@@ -32,11 +21,8 @@ describe('completions', () => {
 
     for (const [type, position] of Object.entries(types)) {
       await editor.setCursor(position)
-      const result = await server.sendCommand(
-        'quickinfo',
-        editor.fileAndLocation,
-      )
-      expect(result.body?.displayString).toBe(`(parameter) value: ${type}`)
+      const quickInfo = await server.quickInfo(editor.fileAndLocation)
+      expect(quickInfo.displayString).toBe(`(parameter) value: ${type}`)
     }
   })
 })

@@ -3,7 +3,7 @@ import { TestServer } from '../support/TestServer'
 
 describe('completions', () => {
   const server = new TestServer()
-  const service = createEditorContext(
+  const ctx = createEditorContext(
     server,
     getProjectPath('typescript-diagnostics'),
   )
@@ -22,37 +22,37 @@ describe('completions', () => {
   afterAll(async () => await server.close())
 
   test('suggests open tag', async () => {
-    const editor = await service.open('src/test-completions-tag.vue')
+    const editor = await ctx.open('src/test-completions-tag.vue')
     editor.setCursor({ line: 5, character: 3 })
 
-    const response = await server.sendCommand('completionInfo', {
+    const completionInfo = await server.completionInfo({
       ...editor.fileAndLocation,
       triggerKind: 1,
     })
-    assert(response.body)
-    const completions = response.body.entries.map((entry) => entry.name)
-    expect(completions).toContain('a')
-    expect(completions).toContain('FixtureAttrs')
+
+    const names = completionInfo.entries.map((entry) => entry.name)
+    expect(names).toContain('a')
+    expect(names).toContain('FixtureAttrs')
   })
 
   test('suggests auto import', async () => {
-    const editor = await service.open('src/test-completions-tag.vue')
+    const editor = await ctx.open('src/test-completions-tag.vue')
     editor.setCursor({ line: 5, character: 3 })
 
-    const response = await server.sendCommand('completionInfo', {
+    const completionInfo = await server.completionInfo({
       ...editor.fileAndLocation,
       triggerKind: 1,
       includeExternalModuleExports: true,
       includeInsertTextCompletions: true,
     })
-    assert(response.body)
-    const entry = response.body.entries.find(
+
+    const entry = completionInfo.entries.find(
       (entry) => entry.name === 'FixtureScript',
     )
 
     assert(entry)
 
-    const details = await server.sendCommand('completionEntryDetails', {
+    const details = await server.completionEntryDetails({
       ...editor.fileAndLocation,
       entryNames: [
         {
@@ -63,14 +63,11 @@ describe('completions', () => {
       ],
     })
 
-    assert(details.body)
-    expect(details.body).toEqual([
+    expect(details).toEqual([
       expect.objectContaining({ name: 'FixtureScript' }),
     ])
 
-    const textChanges =
-      details.body[0]?.codeActions?.[0]?.changes?.[0]?.textChanges
-
+    const textChanges = details[0]?.codeActions?.[0]?.changes?.[0]?.textChanges
     assert(textChanges)
     await editor.edit(textChanges)
     expect(editor.document.getText()).toMatchInlineSnapshot(`
@@ -87,15 +84,15 @@ describe('completions', () => {
   })
 
   test('suggests attributes for components', async () => {
-    const editor = await service.open('src/test-completions-attribute.vue')
+    const editor = await ctx.open('src/test-completions-attribute.vue')
     editor.setCursor({ line: 10, character: 17 })
 
-    const response = await server.sendCommand('completionInfo', {
+    const completionInfo = await server.completionInfo({
       ...editor.fileAndLocation,
       triggerKind: 1,
     })
-    assert(response.body)
-    const completions = response.body.entries.map((entry) => entry.name)
+
+    const completions = completionInfo.entries.map((entry) => entry.name)
     expect(completions).toEqual([
       'a',
       ':a',
@@ -114,41 +111,40 @@ describe('completions', () => {
   })
 
   test('suggests props for components', async () => {
-    const editor = await service.open('src/test-completions-attribute.vue')
+    const editor = await ctx.open('src/test-completions-attribute.vue')
     editor.setCursor({ line: 10, character: 17 })
     editor.type(':')
-    const response = await server.sendCommand('completionInfo', {
+    const response = await server.completionInfo({
       ...editor.fileAndLocation,
       triggerKind: 1,
     })
-    assert(response.body)
-    const completions = response.body.entries.map((entry) => entry.name)
+    
+    const completions = response.entries.map((entry) => entry.name)
     expect(completions).toEqual(['a', 'b', 'c', 'class', 'key', 'ref', 'style'])
   })
 
   test('suggests props for components with prefix', async () => {
-    const editor = await service.open('src/test-completions-attribute.vue')
+    const editor = await ctx.open('src/test-completions-attribute.vue')
     editor.setCursor({ line: 10, character: 17 })
     editor.type(':c')
-    const response = await server.sendCommand('completionInfo', {
+    const response = await server.completionInfo({
       ...editor.fileAndLocation,
       triggerKind: 1,
     })
-    assert(response.body)
-    const completions = response.body.entries.map((entry) => entry.name)
+    
+    const completions = response.entries.map((entry) => entry.name)
     expect(completions).toContain('class')
   })
 
   test('suggests events for components', async () => {
-    const editor = await service.open('src/test-completions-attribute.vue')
+    const editor = await ctx.open('src/test-completions-attribute.vue')
     editor.setCursor({ line: 10, character: 17 })
     editor.type('@')
-    const response = await server.sendCommand('completionInfo', {
+    const response = await server.completionInfo({
       ...editor.fileAndLocation,
       triggerKind: 1,
     })
-    assert(response.body)
-    const completions = response.body.entries.map((entry) => entry.name)
+    const completions = response.entries.map((entry) => entry.name)
     expect(completions).toEqual([
       'a',
       'b',
@@ -163,56 +159,52 @@ describe('completions', () => {
   })
 
   test('suggests attributes for elements', async () => {
-    const editor = await service.open('src/test-completions-attribute.vue')
+    const editor = await ctx.open('src/test-completions-attribute.vue')
     editor.setCursor({ line: 14, character: 9 })
 
-    const response = await server.sendCommand('completionInfo', {
+    const response = await server.completionInfo({
       ...editor.fileAndLocation,
       triggerKind: 1,
     })
-    assert(response.body)
-    const completions = response.body.entries.map((entry) => entry.name)
+    const completions = response.entries.map((entry) => entry.name)
     expect(completions).toContain('type')
     expect(completions).toContain(':type')
     expect(completions).toContain('@click')
   })
 
   test('suggests attributes for elements with prefix', async () => {
-    const editor = await service.open('src/test-completions-attribute.vue')
+    const editor = await ctx.open('src/test-completions-attribute.vue')
     editor.setCursor({ line: 14, character: 9 })
     editor.type(':ty')
-    const response = await server.sendCommand('completionInfo', {
+    const response = await server.completionInfo({
       ...editor.fileAndLocation,
       triggerKind: 1,
     })
-    assert(response.body)
-    const completions = response.body.entries.map((entry) => entry.name)
+    const completions = response.entries.map((entry) => entry.name)
     expect(completions).toContain('type')
   })
 
   test('suggests events for elements', async () => {
-    const editor = await service.open('src/test-completions-attribute.vue')
+    const editor = await ctx.open('src/test-completions-attribute.vue')
     editor.setCursor({ line: 14, character: 9 })
     editor.type('@')
-    const response = await server.sendCommand('completionInfo', {
+    const response = await server.completionInfo({
       ...editor.fileAndLocation,
       triggerKind: 1,
     })
-    assert(response.body)
-    const completions = response.body.entries.map((entry) => entry.name)
+    const completions = response.entries.map((entry) => entry.name)
     expect(completions).toContain('click')
   })
 
   test('suggests events for elements with prefix', async () => {
-    const editor = await service.open('src/test-completions-attribute.vue')
+    const editor = await ctx.open('src/test-completions-attribute.vue')
     editor.setCursor({ line: 14, character: 9 })
     editor.type('@c')
-    const response = await server.sendCommand('completionInfo', {
+    const response = await server.completionInfo({
       ...editor.fileAndLocation,
       triggerKind: 1,
     })
-    assert(response.body)
-    const completions = response.body.entries.map((entry) => entry.name)
+    const completions = response.entries.map((entry) => entry.name)
     expect(completions).toContain('click')
   })
 })

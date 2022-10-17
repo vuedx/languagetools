@@ -1,3 +1,5 @@
+// TODO: Why is this so slow?
+
 import { createEditorContext, getProjectPath } from '../support/helpers'
 import { TestServer } from '../support/TestServer'
 const data = {
