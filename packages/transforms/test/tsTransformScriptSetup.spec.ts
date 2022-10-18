@@ -1,5 +1,6 @@
 import { transformScriptSetup } from '../src/tsTransformScriptSetup'
 import * as typescript from 'typescript/lib/tsserverlibrary'
+import { trimIndent } from '@vuedx/shared'
 
 expect.addSnapshotSerializer({
   test: () => true,
@@ -180,17 +181,3 @@ describe(transformScriptSetup, () => {
     ])
   })
 })
-
-function trimIndent(str: string) {
-  const lines = str.trim().split('\n')
-  const size = lines
-    .slice(1)
-    .reduce(
-      (size, line) => Math.min(size, /^[ ]*/.exec(line)?.[0].length ?? 0),
-      Infinity,
-    )
-
-  return [lines[0], ...lines.slice(1).map((line) => line.slice(size))].join(
-    '\n',
-  )
-}

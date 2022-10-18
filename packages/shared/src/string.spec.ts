@@ -6,6 +6,7 @@ import {
   isPascalCase,
   isCamelCase,
   isKebabCase,
+  trimIndent,
 } from './string'
 
 describe('isString', () => {
@@ -139,5 +140,33 @@ describe('isKebabCase', () => {
     expect(isKebabCase('snake_case')).toBe(false)
     expect(isKebabCase('identifier')).toBe(true)
     expect(isKebabCase('_Prefix')).toBe(false)
+  })
+})
+
+describe('trimIndent', () => {
+  test('check', () => {
+    expect(trimIndent('  foo  ')).toBe('foo  \n')
+
+    expect(
+      trimIndent(`
+      foo
+        bar
+      baz
+    `),
+    ).toBe('foo\n  bar\nbaz\n')
+
+    expect(
+      trimIndent(`
+        foo
+        bar  
+    `),
+    ).toBe('foo\nbar  \n')
+
+    expect(
+      trimIndent(`foo
+        bar
+      baz
+    `),
+    ).toBe('foo\n  bar\nbaz\n')
   })
 })

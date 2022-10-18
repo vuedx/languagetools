@@ -1,3 +1,5 @@
+import { first } from './array'
+
 export function isString(value: any): value is string {
   return typeof value === 'string'
 }
@@ -64,4 +66,27 @@ export function ucfirst(str: string): string {
 
 export function lcfirst(str: string): string {
   return str.slice(0, 1).toLowerCase() + str.slice(1)
+}
+
+export function trimIndent(content: string): string {
+  const lines = content
+    .trimStart()
+    .replace(/\n\s*$/, '')
+    .split('\n')
+
+  const indent = lines.slice(1).reduce((min, line) => {
+    const match = line.match(/^\s+/)
+    const len = match?.[0] != null ? match[0].length : 0
+    return Math.min(min, len)
+  }, Infinity)
+  if (lines.length <= 1) return first(lines) + '\n'
+  return (
+    first(lines) +
+    '\n' +
+    lines
+      .slice(1)
+      .map((line) => line.slice(indent))
+      .join('\n') +
+    '\n'
+  )
 }
