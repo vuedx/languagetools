@@ -1,5 +1,4 @@
 import { first, setDebugging } from '@vuedx/shared'
-import { createHash } from 'crypto'
 import { Container } from 'inversify'
 import { TS_LANGUAGE_SERVICE } from '../constants'
 import type {
@@ -28,6 +27,7 @@ export class PluginManager {
   readonly #containers = new Map<string, Container>()
   private readonly logger = LoggerService.getLogger(PluginManager.name)
 
+  private _activeContainerId: string | undefined
   public create(options: Options): TSLanguageService {
     this.#setupLogger(options)
 
@@ -35,16 +35,24 @@ export class PluginManager {
       return options.languageService
     }
 
+    this.#patchTypescript(options.typescript)
+
+    const containerKey = options.project.getProjectName()
+
+    const container =
+      this.#containers.get(containerKey) ?? this.#createContainer(options)
+
+    if (this._activeContainerId === containerKey) {
+      return this.#createLanguageService(
+        options.languageService,
+        container.get(TypescriptPluginService),
+      )
+    }
+
     this.logger.debug(
       'Creating language service for project:',
       options.project.getProjectName(),
     )
-
-    this.#patchTypescript(options.typescript)
-
-    const container =
-      this.#containers.get(options.project.getProjectName()) ??
-      this.#createContainer(options)
 
     container.get(TypescriptContextService).updateOptions(options)
 
@@ -54,8 +62,13 @@ export class PluginManager {
 
     try {
       const plugin = container.get(TypescriptPluginService)
+      plugin.onDispose(() => {
+        this.#containers.delete(containerKey)
+        container.unbindAll()
+      })
       return this.#createLanguageService(options.languageService, plugin)
     } finally {
+      this._activeContainerId = containerKey
       const current = (
         (options.project.projectService as any)
           .hostConfiguration as TypeScript.server.HostConfiguration
@@ -72,6 +85,7 @@ export class PluginManager {
           extraFileExtensions: [],
         })
       }
+      this._activeContainerId = undefined
     }
   }
 
@@ -120,6 +134,7 @@ export class PluginManager {
 
   #patchProject(container: Container, project: TSProject): void {
     const ts = container.get(TypescriptContextService)
+    const fs = container.get(FilesystemService)
     const logger = LoggerService.getLogger('Project')
 
     overrideMethod(
@@ -178,6 +193,35 @@ export class PluginManager {
           return setHostConfiguration(args)
         }
       },
+    )
+
+    overrideMethod(
+      project as unknown as {
+        detachScriptInfoFromProject(
+          uncheckedFileName: string,
+          noRemoveResolution?: boolean,
+        ): void
+      },
+      'detachScriptInfoFromProject',
+      (detachScriptInfoFromProject) =>
+        (uncheckedFileName, noRemoveResolution) => {
+          if (fs.isVueFile(uncheckedFileName)) return
+          if (fs.isGeneratedVueFile(uncheckedFileName)) {
+            const fileName = fs.getRealFileNameIfAny(uncheckedFileName)
+            console.debug(`@@@ Detaching ${fileName}`)
+            return detachScriptInfoFromProject.call(
+              project,
+              fileName,
+              noRemoveResolution,
+            )
+          }
+
+          return detachScriptInfoFromProject.call(
+            project,
+            uncheckedFileName,
+            noRemoveResolution,
+          )
+        },
     )
   }
 
@@ -311,7 +355,8 @@ export class PluginManager {
           containingFile,
           reusedNames,
           redirectedReference,
-          _options,
+          options,
+          containingSourceFile,
         ) => {
           if (fs.isVueRuntimeFile(containingFile)) {
             const anyProjectFile = first(ts.project.getRootFiles())
@@ -320,7 +365,7 @@ export class PluginManager {
             const core = ts.lib.resolveModuleName(
               '@vue/runtime-core',
               anyProjectFile,
-              _options,
+              options,
               ts.serverHost,
               undefined,
               redirectedReference,
@@ -328,7 +373,7 @@ export class PluginManager {
             const vue = ts.lib.resolveModuleName(
               'vue',
               anyProjectFile,
-              _options,
+              options,
               ts.serverHost,
               undefined,
               redirectedReference,
@@ -352,13 +397,15 @@ export class PluginManager {
                   containingFile,
                   reusedNames,
                   redirectedReference,
-                  _options,
+                  options,
                 )
               : ts.project.resolveModuleNames(
                   moduleNames,
                   containingFile,
                   reusedNames,
                   redirectedReference,
+                  options,
+                  containingSourceFile,
                 )
 
           const known = {
@@ -373,7 +420,8 @@ export class PluginManager {
           }
           moduleNames.forEach((name, index) => {
             const handler = known[name as keyof typeof known]
-            if (handler != null && result[index] == null) {
+            const resolved = result[index]
+            if (handler != null && resolved == null) {
               result[index] = handler()
             }
           })
@@ -409,11 +457,13 @@ export class PluginManager {
     return container
   }
 
+  readonly #loggerIds = new Map<string, string>()
   #setupLogger(options: Options): void {
-    const id = createHash('md5')
-      .update(options.project.getProjectName())
-      .digest('hex')
-      .slice(0, 6)
+    const id =
+      this.#loggerIds.get(options.project.getProjectName()) ??
+      `${this.#loggerIds.size}`
+
+    this.#loggerIds.set(options.project.getProjectName(), id)
 
     if (LoggerService.currentId === id) return
     const logger = options.project.projectService.logger
@@ -464,7 +514,6 @@ export class PluginManager {
       has: (target, prop) => {
         return prop === TS_LANGUAGE_SERVICE || prop in target
       },
-      // TODO: Implement set?
     })
   }
 }
