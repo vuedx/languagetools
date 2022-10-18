@@ -368,6 +368,7 @@ importers:
   packages/vue-languageservice:
     specifiers:
       '@vuedx/compiler-sfc': workspace:*
+      '@vuedx/projectconfig': workspace:*
       '@vuedx/shared': workspace:*
       '@vuedx/template-ast-types': workspace:*
       vscode-css-languageservice: ^5.1.13
@@ -377,6 +378,7 @@ importers:
       vscode-languageserver-types: ^3.17.2
     dependencies:
       '@vuedx/compiler-sfc': link:../compiler-sfc
+      '@vuedx/projectconfig': link:../projectconfig
       '@vuedx/shared': link:../shared
       '@vuedx/template-ast-types': link:../template-ast-types
       vscode-css-languageservice: 5.1.13

@@ -1,6 +1,11 @@
-import { FileSystemProvider, FileType } from '@vuedx/vue-languageservice'
+import {
+  FilesystemHost,
+  FileSystemProvider,
+  FileType,
+} from '@vuedx/vue-languageservice'
+import FS from 'node:fs'
 import { readdir, stat } from 'node:fs/promises'
-import { posix } from 'node:path'
+import { extname, posix } from 'node:path'
 
 export function createFileSystemProvider(): FileSystemProvider {
   return {
@@ -47,6 +52,45 @@ export function createFileSystemProvider(): FileSystemProvider {
           ? (2 as FileType.Directory)
           : (0 as FileType.Unknown),
       ])
+    },
+  }
+}
+export function createFilesystemHost(): FilesystemHost {
+  return {
+    fileExists(path) {
+      return FS.existsSync(path)
+    },
+
+    readFile(path) {
+      return FS.readFileSync(path, 'utf-8')
+    },
+
+    watchFile(_path, _callback) {
+      return {
+        close() {
+          // TODO
+        },
+      }
+    },
+
+    watchDirectory(_path, _callback) {
+      return {
+        close() {
+          // TODO
+        },
+      }
+    },
+
+    readDirectory(dir, extensions) {
+      return FS.readdirSync(dir, {
+        withFileTypes: true,
+        encoding: 'utf8',
+      })
+        .filter(
+          (dirent) =>
+            dirent.isFile() && extensions.includes(extname(dirent.name)),
+        )
+        .map((dirent) => dirent.name)
     },
   }
 }

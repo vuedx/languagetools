@@ -13,3 +13,5 @@ export {
 export { LanguageModeVue, LanguageModeVueHTML } from './modes/LanguageModeHTML'
 export { VueLanguageService } from './VueLanguageService'
 export { VueTextDocument } from './VueTextDocument'
+export { VueProjectService } from './VueProjectService'
+export type { FilesystemHost, VueProject } from './VueProjectService'

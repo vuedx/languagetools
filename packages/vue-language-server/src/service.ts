@@ -7,11 +7,14 @@ import {
   LanguageModeVueHTML,
   VueLanguageService,
   VueTextDocument,
+  FilesystemHost,
+  VueProjectService,
 } from '@vuedx/vue-languageservice'
 import { TextDocuments } from 'vscode-languageserver'
 
 export function createVueLanguageService(
   documents: TextDocuments<VueTextDocument>,
+  host: FilesystemHost,
   fs: FileSystemProvider,
   supportsMarkdown: boolean = true,
 ): VueLanguageService {
@@ -48,7 +51,9 @@ export function createVueLanguageService(
     })
   })
 
-  service.registerLanguageMode(new LanguageModeVue(fs, supportsMarkdown))
+  service.registerLanguageMode(
+    new LanguageModeVue(new VueProjectService(host), fs, supportsMarkdown),
+  )
 
   return service
 }
