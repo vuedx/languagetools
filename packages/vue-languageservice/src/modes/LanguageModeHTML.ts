@@ -13,8 +13,15 @@ import {
   TokenType,
 } from 'vscode-html-languageservice'
 import { Position, TextDocument } from 'vscode-languageserver-textdocument'
-import { CompletionList, Hover } from 'vscode-languageserver-types'
+import {
+  CompletionItem,
+  CompletionList,
+  Hover,
+  TextEdit,
+} from 'vscode-languageserver-types'
+import { URI, uriToFsPath } from 'vscode-uri'
 import { FileSystemProvider } from '../FileSystemProvider'
+import { VueProjectService } from '../VueProjectService'
 import { SFC_BLOCKS } from './languageFacts/vue'
 import { VUE_HTML_EXTENSIONS } from './languageFacts/vue-html'
 import { LanguageMode } from './LanguageMode'
@@ -73,7 +80,7 @@ class BaseLanguageMode implements LanguageMode {
       this.context,
       {
         attributeDefaultValue: 'doublequotes',
-        hideAutoCompleteProposals: true,
+        hideAutoCompleteProposals: false,
       },
     )
 
@@ -96,6 +103,7 @@ class BaseLanguageMode implements LanguageMode {
 
 export class LanguageModeVueHTML extends BaseLanguageMode {
   private readonly template: IHTMLDataProvider
+  private isHtmlMode: boolean = false
 
   constructor(fs: FileSystemProvider, supportMarkdown: boolean = true) {
     const template = newHTMLDataProvider('vue-html', VUE_HTML_EXTENSIONS)
@@ -111,9 +119,9 @@ export class LanguageModeVueHTML extends BaseLanguageMode {
             getId: () => 'vue-html',
             isApplicable: (languageId) =>
               languageId === 'vue-html' || languageId === 'html',
-            provideTags: () => html.provideTags(),
+            provideTags: () => (this.isHtmlMode ? html.provideTags() : []),
             provideAttributes: (tag) => {
-              if (/^[A-Z]/.test(tag)) {
+              if (!this.isHtmlMode || /^[A-Z]/.test(tag)) {
                 return template.provideAttributes(tag)
               }
 
@@ -123,7 +131,7 @@ export class LanguageModeVueHTML extends BaseLanguageMode {
               ]
             },
             provideValues: (tag, attribute) => {
-              if (/^[A-Z]/.test(tag)) {
+              if (!this.isHtmlMode || /^[A-Z]/.test(tag)) {
                 return template.provideValues(tag, attribute)
               }
 
@@ -153,38 +161,43 @@ export class LanguageModeVueHTML extends BaseLanguageMode {
     document: TextDocument,
     position: Position,
   ): Promise<Hover | null> {
-    const offset = document.offsetAt(position)
-    const node = this.getHtmlDocument(document).findNodeAt(offset)
-    const result =
-      node.tag != null && /^[A-Z]/.test(node.tag)
-        ? null
-        : await super.hover(document, position)
-    if (result != null) return result
-    const scanner = this.findToken(document, offset, TokenType.AttributeName)
-    if (scanner == null) return null
+    this.isHtmlMode = true
+    try {
+      const offset = document.offsetAt(position)
+      const node = this.getHtmlDocument(document).findNodeAt(offset)
+      const result =
+        node.tag != null && /^[A-Z]/.test(node.tag)
+          ? null
+          : await super.hover(document, position)
+      if (result != null) return result
+      const scanner = this.findToken(document, offset, TokenType.AttributeName)
+      if (scanner == null) return null
 
-    const attribute = scanner.getTokenText()
-    const directive =
-      this.shorthands[attribute.charAt(0)] ?? attribute.replace(/:.*$/, '')
-    if (!directive.startsWith('v-')) return null
+      const attribute = scanner.getTokenText()
+      const directive =
+        this.shorthands[attribute.charAt(0)] ?? attribute.replace(/:.*$/, '')
+      if (!directive.startsWith('v-')) return null
 
-    const length = attribute.startsWith('v-') ? directive.length : 1
-    if (offset > scanner.getTokenOffset() + length + 1) return null
+      const length = attribute.startsWith('v-') ? directive.length : 1
+      if (offset > scanner.getTokenOffset() + length + 1) return null
 
-    const info = this.template
-      .provideAttributes('Component')
-      .filter((attribute) => attribute.name === directive)[0]
-    if (info == null) return null
+      const info = this.template
+        .provideAttributes('Component')
+        .filter((attribute) => attribute.name === directive)[0]
+      if (info == null) return null
 
-    const contents = generateDocumentation(info)
-    if (contents == null) return null
+      const contents = generateDocumentation(info)
+      if (contents == null) return null
 
-    const range = {
-      start: document.positionAt(scanner.getTokenOffset()),
-      end: document.positionAt(scanner.getTokenOffset() + length),
+      const range = {
+        start: document.positionAt(scanner.getTokenOffset()),
+        end: document.positionAt(scanner.getTokenOffset() + length),
+      }
+
+      return { range, contents }
+    } finally {
+      this.isHtmlMode = false
     }
-
-    return { range, contents }
   }
 
   private findToken(
@@ -205,7 +218,11 @@ export class LanguageModeVueHTML extends BaseLanguageMode {
 }
 
 export class LanguageModeVue extends BaseLanguageMode {
-  constructor(fs: FileSystemProvider, supportMarkdown: boolean = true) {
+  constructor(
+    private readonly projects: VueProjectService,
+    fs: FileSystemProvider,
+    supportMarkdown: boolean = true,
+  ) {
     super(
       'vue',
       getLanguageService({
@@ -215,6 +232,168 @@ export class LanguageModeVue extends BaseLanguageMode {
         fileSystemProvider: fs as any,
       }),
     )
+  }
+
+  public async complete(
+    document: TextDocument,
+    position: Position,
+  ): Promise<CompletionList> {
+    const result = await super.complete(document, position)
+
+    const { script, style } = this.projects.getProject(
+      uriToFsPath(URI.parse(document.uri, true), true),
+    ).config.preferences
+
+    const end = document.offsetAt(position)
+    let start = document.getText().slice(0, end).lastIndexOf('<')
+    if (start === -1) start = end
+
+    const textEdit: TextEdit = {
+      range: { start: position, end: position },
+      newText: '',
+    }
+
+    result.items = result.items.flatMap((item) => {
+      if (item.kind === 10) {
+        const offset = end - start
+        switch (item.label) {
+          case 'script': {
+            const items: CompletionItem[] = []
+
+            if (script.mode === 'setup') {
+              items.push({
+                ...item,
+                filterText: '<script'.slice(offset),
+                insertText: undefined,
+                insertTextFormat: 2,
+                textEdit: {
+                  ...textEdit,
+                  newText: '<script setup lang="ts">\n$0\n</script>'.slice(
+                    offset,
+                  ),
+                },
+                preselect: script.mode === 'setup',
+                label: 'script (setup + ts)',
+                detail: '<script setup lang="ts"></script>',
+              })
+
+              items.push({
+                ...item,
+                filterText: '<script'.slice(offset),
+                insertText: undefined,
+                insertTextFormat: 2,
+                textEdit: {
+                  ...textEdit,
+                  newText: '<script setup>\n$0\n</script>'.slice(offset),
+                },
+                label: 'script (setup)',
+                detail: '<script setup></script>',
+              })
+            }
+
+            items.push({
+              ...item,
+              filterText: '<script'.slice(offset),
+              insertText: undefined,
+              insertTextFormat: 2,
+              textEdit: {
+                ...textEdit,
+                newText: '<script lang="ts">\n$0\n</script>'.slice(offset),
+              },
+              preselect: script.mode === 'normal',
+              label: 'script (ts)',
+              detail: '<script lang="ts"></script>',
+            })
+
+            items.push({
+              ...item,
+              filterText: '<script'.slice(offset),
+              insertText: undefined,
+              insertTextFormat: 2,
+              textEdit: {
+                ...textEdit,
+                newText: '<script>\n$0\n</script>'.slice(offset),
+              },
+              label: 'script',
+              detail: '<script></script>',
+            })
+
+            return items
+          }
+
+          case 'style': {
+            const items: CompletionItem[] = []
+            const lang =
+              style.language === 'css' ? '' : ` lang="${style.language}"`
+
+            items.push({
+              ...item,
+              preselect: true,
+              filterText: '<style'.slice(offset),
+              insertText: undefined,
+              insertTextFormat: 2,
+              textEdit: {
+                ...textEdit,
+                newText: `<style${lang} scoped>\n$0\n</style>`.slice(offset),
+              },
+              label: 'style (scoped)',
+              detail: `<style${lang} scoped></style>`,
+            })
+
+            items.push({
+              ...item,
+              filterText: '<style'.slice(offset),
+              insertText: undefined,
+              insertTextFormat: 2,
+              textEdit: {
+                ...textEdit,
+                newText: `<style${lang} module>\n$0\n</style>`.slice(offset),
+              },
+              label: 'style (module)',
+              detail: `<style${lang} module></style>`,
+            })
+
+            items.push({
+              ...item,
+              filterText: '<style'.slice(offset),
+              insertText: undefined,
+              insertTextFormat: 2,
+              textEdit: {
+                ...textEdit,
+                newText: `<style${lang}>\n$0\n</style>`.slice(offset),
+              },
+              label: 'style',
+              detail: `<style${lang}></style>`,
+            })
+
+            return items
+          }
+
+          case 'template': {
+            const items: CompletionItem[] = []
+
+            items.push({
+              ...item,
+              filterText: '<template'.slice(offset),
+              insertText: undefined,
+              insertTextFormat: 2,
+              textEdit: {
+                ...textEdit,
+                newText: '<template>\n  $0\n</template>'.slice(offset),
+              },
+              label: 'template',
+              detail: '<template></template>',
+            })
+
+            return items
+          }
+        }
+      }
+
+      return item
+    })
+
+    return result
   }
 }
 

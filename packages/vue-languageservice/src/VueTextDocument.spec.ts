@@ -1,4 +1,5 @@
 import { VueTextDocument } from './VueTextDocument'
+import { trimIndent } from '@vuedx/shared'
 
 describe(VueTextDocument, () => {
   it('should return the correct block', () => {
@@ -120,21 +121,3 @@ describe(VueTextDocument, () => {
     `)
   })
 })
-
-function trimIndent(content: string): string {
-  const lines = content.trim().split('\n')
-  const indent = lines.slice(1).reduce((min, line) => {
-    const match = line.match(/^\s+/)
-    const len = match?.[0] != null ? match[0].length : 0
-    return Math.min(min, len)
-  }, Infinity)
-  return (
-    lines[0] +
-    '\n' +
-    lines
-      .slice(1)
-      .map((line) => line.slice(indent))
-      .join('\n') +
-    '\n'
-  )
-}

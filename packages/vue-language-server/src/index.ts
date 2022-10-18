@@ -8,7 +8,7 @@ import {
   TextDocuments,
   TextDocumentSyncKind,
 } from 'vscode-languageserver/node'
-import { createFileSystemProvider } from './fs.node'
+import { createFilesystemHost, createFileSystemProvider } from './fs.node'
 import { createVueLanguageService } from './service'
 
 const connection = createConnection(ProposedFeatures.all)
@@ -27,6 +27,7 @@ connection.onInitialize((client) => {
 
   const service = createVueLanguageService(
     documents,
+    createFilesystemHost(),
     createFileSystemProvider(),
     client.capabilities.general?.markdown != null,
   )

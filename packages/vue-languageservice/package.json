@@ -30,6 +30,7 @@
     "@vuedx/shared": "workspace:*",
     "@vuedx/template-ast-types": "workspace:*",
     "@vuedx/compiler-sfc": "workspace:*",
+    "@vuedx/projectconfig": "workspace:*",
     "vscode-languageserver-protocol": "^3.17.2",
     "vscode-languageserver-types": "^3.17.2",
     "vscode-languageserver-textdocument": "^1.0.7",
