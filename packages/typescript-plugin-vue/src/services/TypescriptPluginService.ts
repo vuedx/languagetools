@@ -63,19 +63,7 @@ export class TypescriptPluginService
     private readonly ipc: IPCService,
   ) {
     if (Math.random() > 1) {
-      console.log([
-        this.classifications,
-        this.codeFix,
-        this.completions,
-        this.definitions,
-        this.folding,
-        this.implementation,
-        this.quickInfo,
-        this.refactor,
-        this.references,
-        this.rename,
-        this.signature,
-      ])
+      console.log([this.classifications, this.folding, this.implementation])
     }
   }
   //#endregion
@@ -139,6 +127,7 @@ export class TypescriptPluginService
     const vue = new Set<string>()
     const virtual = new Set<string>()
 
+    // This is not needed for any functionality, but it's needed to prevent unnecessary creation of inferred project.
     this.ts.projectService.openFiles.forEach((_, file) => {
       const scriptInfo = this.ts.projectService.getScriptInfoForPath(
         file as TypeScript.Path,
@@ -963,8 +952,15 @@ export class TypescriptPluginService
     return this.ts.service.getTodoComments(fileName, descriptors)
   }
 
+  readonly #disposables: Array<() => void> = []
+
+  public onDispose(callback: () => void): void {
+    this.#disposables.push(callback)
+  }
+
   public dispose(): void {
     this.ipc.dispose()
+    this.#disposables.forEach((dispose) => dispose())
     this.ts.service.dispose()
   }
 
