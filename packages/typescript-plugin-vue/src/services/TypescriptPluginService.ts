@@ -139,6 +139,19 @@ export class TypescriptPluginService
     const vue = new Set<string>()
     const virtual = new Set<string>()
 
+    this.ts.projectService.openFiles.forEach((_, file) => {
+      const scriptInfo = this.ts.projectService.getScriptInfoForPath(
+        file as TypeScript.Path,
+      )
+      if (scriptInfo == null) return
+      if (
+        scriptInfo.containingProjects.length === 0 || // creating new project, so this is likely to be part of current project. TODO: verify hypothesis.
+        scriptInfo.containingProjects.includes(this.ts.project)
+      ) {
+        all.push(scriptInfo.fileName)
+      }
+    })
+
     if (this.ts.isConfiguredProject(this.ts.project)) {
       const options = this.ts.project.getParsedCommandLine?.(
         this.ts.project.getConfigFilePath(),
@@ -161,23 +174,15 @@ export class TypescriptPluginService
 
     if (vue.size === 0) {
       this.#isVueProject = false
-      this.logger.debug('Not a Vue project')
+      this.logger.debug('Not a Vue project:', this.ts.project.getProjectName())
       return [] // do not retain any files if no .vue files
     }
 
     this.#isVueProject = true
     const fileNames = [...this.getScriptFileNames([...vue]), ...virtual]
 
-    this.logger.debug(`Project: ${this.ts.project.getProjectName()}`)
+    this.logger.debug(`Project:`, this.ts.project.getProjectName())
     this.logger.debug(`External files:`, fileNames)
-    this.logger.debug(
-      'Open external files:',
-      fileNames.filter((fileName) =>
-        this.ts.projectService.openFiles.has(
-          this.ts.toNormalizedPath(fileName),
-        ),
-      ),
-    )
 
     return fileNames
   }
