@@ -180,6 +180,8 @@ export function first<T>(items: T[]): T
 
 export function union<T extends unknown[]>(...args: T): TupleToUnion<T>
 
+export function record<K extends string | number | symbol, V>(key: K, value: V): Record<K, V>
+
 export type Get<T, K, F = never> = K extends keyof T ? T[K] : F
 
 export function getNameOption<T>(

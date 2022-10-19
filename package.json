@@ -20,6 +20,7 @@
     "@vuedx/eslint-config": "workspace:*",
     "@vuedx/monorepo-tools": "workspace:*",
     "@vuedx/typescript-plugin-vue": "workspace:*",
+    "@vuedx/shared": "workspace:*",
     "doctrine": "^3.0.0",
     "eslint": "^8.23.0",
     "eslint-plugin-n": "^15.2.5",

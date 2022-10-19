@@ -24,6 +24,16 @@ export function positionToLocation(pos: Position): Location {
   return { line: pos.line + 1, offset: pos.character + 1 }
 }
 
+export function toRange<T extends { start: Location; end: Location }>({
+  start,
+  end,
+}: T): Range {
+  return {
+    start: locationToPosition(start),
+    end: locationToPosition(end),
+  }
+}
+
 export function codeEditToTextEdit(edit: CodeEdit): TextEdit {
   return {
     range: {
@@ -218,6 +228,7 @@ export class Editor {
   }
 
   private async _apply(edits: TextEdit[]): Promise<void> {
+     // Sometimes _transform produces wrong result.
     const offset = this._transform(this.document.offsetAt(this.cursor), edits)
     const content = TextDocument.applyEdits(this._document, edits)
     this._document = TextDocument.update(

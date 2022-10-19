@@ -1,5 +1,5 @@
 import type { VNodeChild } from '@vue/runtime-core'
-import type { UnionToIntersection, UnwrapArray } from './utils'
+import type { UnionToIntersection } from './utils'
 
 type InternalSlots<T> = {
   [K in keyof T]: (props: T[K]) => VNodeChild
@@ -9,9 +9,9 @@ type NoNullable<T> = {
   [P in keyof T as undefined extends T[P] ? never : P]-?: T[P]
 }
 
-export type Slots<T> = InternalSlots<
-  UnionToIntersection<NoNullable<UnwrapArray<T>>>
->
+export type Slots<T> = [T] extends [never]
+  ? Record<string|number|symbol, never>
+  : InternalSlots<UnionToIntersection<T>>
 
 type FirstParameter<T> = T extends (
   arg: infer P,

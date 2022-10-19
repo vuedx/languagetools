@@ -215,12 +215,6 @@ export class DiagnosticsService
         file: file.getSourceFile() as unknown as TypeScript.SourceFile,
       }
 
-      this.logger.debug(
-        '@@@ processDiagnostic\n',
-        diagnostic.messageText,
-        file.positionAt(diagnostic.start ?? 0),
-      )
-
       if (diagnostic.start != null) {
         const position = file.generated.positionAt(diagnostic.start)
         const declaration = this.declarations
