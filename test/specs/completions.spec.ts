@@ -95,13 +95,23 @@ describe('completions', () => {
       ':b',
       'c',
       ':c',
+      'class',
+      ':class',
       'key',
       ':key',
       '@a',
       '@b',
       '@c',
+      '@vnodeBeforeMount',
+      '@vnodeBeforeUnmount',
+      '@vnodeBeforeUpdate',
+      '@vnodeMounted',
+      '@vnodeUnmounted',
+      '@vnodeUpdated',
       'ref',
       ':ref',
+      'style',
+      ':style',
     ])
   })
 

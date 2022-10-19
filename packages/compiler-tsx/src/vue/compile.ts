@@ -243,9 +243,10 @@ export function compileWithDecodedSourceMap(
         script.inheritAttrs
       const propsType = `typeof ${props}`
       const attrsType = `typeof ${template.attrsIdentifier}`
-      const slotsType = `${resolvedOptions.typeIdentifier}.internal.Slots<ReturnType<typeof ${template.slotsIdentifier}>>`
+      const slotsType = `${resolvedOptions.typeIdentifier}.internal.Slots<typeof ${template.slotsIdentifier}_value>`
       builder.append(
         [
+          `const ${template.slotsIdentifier}_value = ${template.slotsIdentifier}();`,
           `export default class ${name} {`,
           defineProperty(
             '$props',

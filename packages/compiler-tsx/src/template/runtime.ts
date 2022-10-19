@@ -7,6 +7,7 @@ export function getRuntimeFn(
     | 'first'
     | 'flat'
     | 'guard'
+    | 'record'
     | 'renderList'
     | 'resolveComponent'
     | 'resolveDirective'

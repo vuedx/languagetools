@@ -25,6 +25,7 @@ importers:
       '@types/node': ^14.18.13
       '@vuedx/eslint-config': workspace:*
       '@vuedx/monorepo-tools': workspace:*
+      '@vuedx/shared': workspace:*
       '@vuedx/typescript-plugin-vue': workspace:*
       doctrine: ^3.0.0
       eslint: ^8.23.0
@@ -64,6 +65,7 @@ importers:
       '@types/node': 14.18.13
       '@vuedx/eslint-config': link:packages/eslint-config
       '@vuedx/monorepo-tools': link:packages/monorepo-tools
+      '@vuedx/shared': link:packages/shared
       '@vuedx/typescript-plugin-vue': link:packages/typescript-plugin-vue
       doctrine: 3.0.0
       eslint: 8.23.0

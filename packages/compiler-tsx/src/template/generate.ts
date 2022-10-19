@@ -404,6 +404,7 @@ function genComponentNode(node: ComponentNode): void {
 
   ctx.newLine()
   if (node.isSelfClosing) {
+    ctx.write('$slots={{}}')
     ctx.write('/>', node.endTagLoc).newLine()
     return // done
   }
@@ -482,7 +483,10 @@ function genSlotOutletNode(node: SlotOutletNode): void {
       isSimpleExpressionNode(name.arg) &&
       isSimpleIdentifier(name.arg.content)
     ) {
-      accessor.push('.', name.arg)
+      accessor.push(
+        '.',
+        createSimpleExpression(name.arg.content, false, name.arg.loc),
+      )
     } else {
       accessor.push('[', name.arg, ']')
     }
@@ -945,7 +949,7 @@ function genSlotTypes(root: RootNode): void {
     genGlobalDeclarations(root)
     ctx
       .write(
-        `return ${getRuntimeFn(ctx.typeIdentifier, 'union')}(${getRuntimeFn(
+        `return ${getRuntimeFn(ctx.typeIdentifier, 'union')}(...${getRuntimeFn(
           ctx.typeIdentifier,
           'flat',
         )}([`,
@@ -1031,7 +1035,10 @@ function genSlotTypes(root: RootNode): void {
             },
             fn() {
               const name = findProp(slot, 'name', false, true)
-              ctx.write('{').newLine()
+              ctx
+                .write(getRuntimeFn(ctx.typeIdentifier, 'record'))
+                .write('(')
+                .newLine()
               indent(() => {
                 if (isAttributeNode(name)) {
                   if (name.value != null) {
@@ -1040,17 +1047,15 @@ function genSlotTypes(root: RootNode): void {
                     ctx.write('undefined')
                   }
                 } else if (isDirectiveNode(name)) {
-                  ctx.write('[')
                   if (name.exp != null) {
                     genExpressionNode(name.exp)
                   } else {
                     ctx.write('undefined')
                   }
-                  ctx.write(']')
                 } else {
-                  ctx.write('default')
+                  ctx.write('"default" as const')
                 }
-                ctx.write(': ')
+                ctx.write(', ')
                 ctx.write('{')
                 indent(() => {
                   const props = slot.props.filter((prop) => prop !== name)
@@ -1063,7 +1068,7 @@ function genSlotTypes(root: RootNode): void {
                 })
                 ctx.write('},').newLine()
               })
-              ctx.write('}')
+              ctx.write(')')
             },
           },
         )

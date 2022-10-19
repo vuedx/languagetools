@@ -4,8 +4,8 @@ import { ref, defineComponent } from 'vue'
 const A = defineComponent<{ modelValue: string }>({})
 const B = defineComponent<{ foo: string, bar: string|number }>({})
 
-const str = ref<string>()
-const num = ref<number>()
+const str = ref<string>('')
+const num = ref<number>(1)
 </script>
 
 <template>
