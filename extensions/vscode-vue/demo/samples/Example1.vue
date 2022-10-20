@@ -6,6 +6,7 @@
   <div />
   <web-component />
   <VueComponent />
+  <Vue.Component />
 
   Attributes:
   <div attr="value" />

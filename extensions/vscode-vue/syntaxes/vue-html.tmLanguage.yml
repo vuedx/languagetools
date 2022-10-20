@@ -1,5 +1,5 @@
 # RegExp
-# buitldin directive: v-(text|html|show|if|else|else-if|for|on|bind|model|slot|pre|once|cloak)
+# builtin directive: v-(text|html|show|if|else|else-if|for|on|bind|model|slot|pre|once|cloak)
 
 name: Vue HTML
 scopeName: text.html.vue-html
@@ -127,7 +127,7 @@ repository:
     patterns:
       - match: ({{[\s]*}})
         name: invalid.illegal.interpolation.missing-expression.vue-html
-      - name: meta.interpolation
+      - name: meta.interpolation.vue-html
         begin: ({{)
         end: (}})
         beginCaptures:
@@ -135,11 +135,10 @@ repository:
         endCaptures:
           1: { name: punctuation.definition.tag.interpolation.end.vue-html }
         patterns:
-          - name: meta.embedded.source.expression.js
-            include: source.js#expression
+          - name: meta.embedded.source.expression.ts
+            include: source.ts#expression
 
   directive:
-    name: meta.directive.vue-html
     patterns:
       - include: '#invalid-directive-missing-value'
       - include: '#invalid-directive-unexpected-value'
@@ -159,7 +158,7 @@ repository:
     name: invalid.illegal.directive.missing-value.vue-html
     match: v-(text|html|show|if|else-if|for|on|bind|model)(?=[\s\/>])
 
-  invalid-directive-unxepected-value:
+  invalid-directive-unexpected-value:
     name: invalid.illegal.directive.missing-value.vue-html
     match: v-(pre|once|cloak|else)(=)(("[^"]*")|('[^']*')|([^\s\/>]))*
 
@@ -195,7 +194,7 @@ repository:
 
   directive-builtin-conditionals:
     patterns:
-      - name: meta.directive.$2.vue-html
+      - name: meta.directive.$3.vue-html
         begin: ((v-)(if|else-if))(=)
         end: (?=[\s\/>])
         beginCaptures:
@@ -203,7 +202,7 @@ repository:
           1: { name: keyword.control.conditional.vue-html }
           2: { name: punctuation.definition.directive.prefix.vue-html }
           3: { name: entity.name.directive.vue-html }
-          4: { name: punctuation.separater.key-value.vue-html }
+          4: { name: punctuation.separator.key-value.vue-html }
         patterns:
           - include: '#directive-expression'
       - name: meta.directive.else.vue-html
@@ -224,12 +223,11 @@ repository:
       1: { name: keyword.control.loop.vue-html }
       2: { name: punctuation.definition.directive.prefix.vue-html }
       3: { name: entity.name.directive.vue-html }
-      4: { name: punctuation.separater.key-value.vue-html }
+      4: { name: punctuation.separator.key-value.vue-html }
     patterns:
       - include: '#directive-expression'
 
   directive-builtin-bind:
-    name: meta.directive.bind.vue-html
     patterns:
       - name: meta.directive.bind.shorthand.vue-html
         begin: ([:.^])
@@ -243,10 +241,11 @@ repository:
           - begin: (=)
             end: (?=[\s\/>])
             beginCaptures:
-              1: { name: punctuation.separater.key-value.vue-html }
+              1: { name: punctuation.separator.key-value.vue-html }
             patterns:
               - include: '#directive-expression'
-      - begin: ((v-)(bind))
+      - name: meta.directive.bind.vue-html
+        begin: ((v-)(bind))
         end: (?=[\s\/>])|(?<=["'])
         beginCaptures:
           0: { name: support.other.directive.builtin.vue-html }
@@ -258,7 +257,7 @@ repository:
           - begin: (=)
             end: (?=[\s\/>])
             beginCaptures:
-              1: { name: punctuation.separater.key-value.vue-html }
+              1: { name: punctuation.separator.key-value.vue-html }
             patterns:
               - include: '#directive-expression'
           - begin: (:)
@@ -270,7 +269,6 @@ repository:
               - include: '#directive-argument'
 
   directive-builtin-on:
-    name: meta.directive.on.vue-html
     patterns:
       - name: meta.directive.on.shorthand.vue-html
         begin: (@)
@@ -284,10 +282,11 @@ repository:
           - begin: (=)
             end: (?=[\s\/>])
             beginCaptures:
-              1: { name: punctuation.separater.key-value.vue-html }
+              1: { name: punctuation.separator.key-value.vue-html }
             patterns:
               - include: '#directive-expression'
-      - begin: ((v-)(on))
+      - name: meta.directive.on.vue-html
+        begin: ((v-)(on))
         end: (?=[\s\/>])|(?<=["'])
         beginCaptures:
           0: { name: support.other.directive.builtin.vue-html }
@@ -299,7 +298,7 @@ repository:
           - begin: (=)
             end: (?=[\s\/>])
             beginCaptures:
-              1: { name: punctuation.separater.key-value.vue-html }
+              1: { name: punctuation.separator.key-value.vue-html }
             patterns:
               - include: '#directive-expression'
           - begin: (:)
@@ -311,7 +310,6 @@ repository:
               - include: '#directive-argument'
 
   directive-builtin-slot:
-    name: meta.directive.slot.vue-html
     patterns:
       - name: meta.directive.slot.shorthand.vue-html
         begin: (#)
@@ -324,10 +322,11 @@ repository:
           - begin: (=)
             end: (?=[\s\/>])
             beginCaptures:
-              1: { name: punctuation.separater.key-value.vue-html }
+              1: { name: punctuation.separator.key-value.vue-html }
             patterns:
               - include: '#directive-expression'
-      - begin: ((v-)(slot))
+      - name: meta.directive.slot.vue-html
+        begin: ((v-)(slot))
         end: (?=[\s\/>])|(?<=["'])
         beginCaptures:
           0: { name: support.other.directive.builtin.vue-html }
@@ -338,7 +337,7 @@ repository:
           - begin: (=)
             end: (?=[\s\/>])
             beginCaptures:
-              1: { name: punctuation.separater.key-value.vue-html }
+              1: { name: punctuation.separator.key-value.vue-html }
             patterns:
               - include: '#directive-expression'
           - begin: (:)
@@ -350,9 +349,9 @@ repository:
               - include: '#directive-argument'
 
   directive-builtin-model:
-    name: meta.directive.model.vue-html
     patterns:
-      - begin: ((v-)(model))
+      - name: meta.directive.model.vue-html
+        begin: ((v-)(model))
         end: (?=[\s\/>])|(?<=["'])
         beginCaptures:
           0: { name: support.other.directive.builtin.vue-html }
@@ -381,7 +380,7 @@ repository:
       0: { name: support.other.directive.builtin.vue-html }
       1: { name: punctuation.definition.directive.prefix.vue-html }
       2: { name: entity.name.directive.vue-html }
-      3: { name: punctuation.separater.key-value.vue-html }
+      3: { name: punctuation.separator.key-value.vue-html }
     patterns:
       - include: '#directive-modifier'
       - begin: (=)
@@ -420,33 +419,33 @@ repository:
 
   directive-modifier:
     patterns:
-      - name: meta.directive.modifier.vue-html
+      - name: meta.directive-modifier.vue-html
         match: (\.)([^.\/>=\s]+)
         captures:
-          0: { name: meta.directive.modifier.$2.vue-html }
+          0: { name: meta.directive-modifier.$2.vue-html }
           1:
             name: punctuation.definition.tag.directive.modifier.begin.vue-html
           2: { name: variable.other.directive.modifier.vue-html }
 
   directive-argument:
     patterns:
-      - name: meta.directive.dynamic-argument.vue-html
+      - name: meta.directive-argument.vue-html
         begin: (\[)
         end: (\])
         beginCaptures:
           0: { name: meta.brace.square.vue-html }
           1:
-            name: punctuation.definition.tag.directive.dynamic-argument.begin.vue-html
+            name: punctuation.definition.tag.directive-argument.begin.vue-html
         endCaptures:
           0: { name: meta.brace.square.vue-html }
           1:
-            name: punctuation.definition.tag.directive.dynamic-argument.end.vue-html
+            name: punctuation.definition.tag.directive-argument.end.vue-html
         patterns:
-          - name: meta.embedded.source.expression.js
+          - name: meta.embedded.source.expression.ts
             while: (?=[^\]])
-            include: source.js#expression
+            include: source.ts#expression
       - match: (?i)([a-z0-9-]+)
-        name: meta.directive.argument.vue-html
+        name: meta.directive-argument.vue-html
         captures:
           0: { name: variable.other.directive.argument.vue-html }
 
@@ -462,9 +461,9 @@ repository:
         endCaptures:
           1: { name: punctuation.definition.string.quoted.double.end.vue-html }
         patterns:
-          - name: meta.embedded.source.expression.js
+          - name: meta.embedded.source.expression.ts
             while: (?=[^"])
-            include: source.js#expression
+            include: source.ts#expression
       - begin: (')
         end: (')
         beginCaptures:
@@ -473,9 +472,9 @@ repository:
         endCaptures:
           1: { name: punctuation.definition.string.single.double.end.vue-html }
         patterns:
-          - name: meta.embedded.source.expression.js
+          - name: meta.embedded.source.expression.ts
             while: (?=[^'])
-            include: source.js#expression
+            include: source.ts#expression
 
   attribute:
     patterns:
@@ -483,7 +482,7 @@ repository:
         begin: (?<=[^=])\b([a-zA-Z0-9:_-]+)(=)(?=["'])
         beginCaptures:
           1: { name: entity.other.attribute-name.vue-html }
-          2: { name: punctuation.separater.key-value.vue-html }
+          2: { name: punctuation.separator.key-value.vue-html }
         end: (?=\4[\s/>])
         patterns:
           - { include: '#string' }
@@ -491,7 +490,7 @@ repository:
         match: (?<=[^=])\b([a-zA-Z0-9:_-]+)(=)([^\s\f\0"'`<>]+)
         captures:
           1: { name: entity.other.attribute-name.vue-html }
-          2: { name: punctuation.separater.key-value.vue-html }
+          2: { name: punctuation.separator.key-value.vue-html }
           3: { name: string.unquoted.vue-html }
       - name: meta.attribute.$1.vue-html
         match: (?<=[^=])\b([a-zA-Z0-9:_-]+)\b

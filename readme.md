@@ -18,7 +18,7 @@ A set of tools for better developer experience aka Vue Developer Experience or V
 
 ## Getting Started
 
-To start using VueDX, install one of the follwing extensions:
+To start using VueDX, install one of the following extensions:
 
 - Visual Studio Code
   - [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=znck.vue-language-features)
