@@ -10,13 +10,13 @@ const watchers = new Map<
 >()
 
 export function createFilesystemProvider(
-  projectService: TypeScript.server.ProjectService,
   serverHost: TypeScript.server.ServerHost,
+  projectService?: TypeScript.server.ProjectService,
 ): FilesystemProvider {
   const logger = LoggerService.getLogger('virtualFs')
 
   const fix = (fileName: string): void => {
-    const scriptInfo = projectService.getScriptInfo(fileName)
+    const scriptInfo = projectService?.getScriptInfo(fileName)
     if (scriptInfo == null) return
     overrideMethod(
       scriptInfo,
@@ -42,7 +42,7 @@ export function createFilesystemProvider(
   const fs: FilesystemProvider = {
     exists(fileName) {
       const result =
-        projectService.getScriptInfo(fileName) != null ||
+        projectService?.getScriptInfo(fileName) != null ||
         serverHost.fileExists(fileName)
 
       logger.debug(`${result ? 'Y' : 'N'} = exists(${fileName})`)
@@ -50,7 +50,7 @@ export function createFilesystemProvider(
       return result
     },
     read(fileName) {
-      const snapshot = projectService.getScriptInfo(fileName)?.getSnapshot()
+      const snapshot = projectService?.getScriptInfo(fileName)?.getSnapshot()
       if (snapshot == null) return serverHost.readFile(fileName) ?? ''
       return snapshot.getText(0, snapshot.getLength())
     },

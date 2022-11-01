@@ -62,8 +62,8 @@ function formatLocation(
   start: TS.server.protocol.Location,
 ): string {
   const relativeFileName = convertToRelativePath(fileName)
-  const line = start.line + 1
-  const column = start.offset + 1
+  const line = start.line
+  const column = start.offset
 
   let output = ''
   output += chalk.cyan(relativeFileName)

@@ -1,7 +1,7 @@
-import { cache, invariant } from '@vuedx/shared'
 import { inject, injectable } from 'inversify'
 import type {
   ExtendedTSLanguageService,
+  TSProject,
   TypeScript,
 } from '../contracts/TypeScript'
 import { CodeFixService } from '../features/CodeFixService'
@@ -74,42 +74,14 @@ export class TypescriptPluginService
     return this.#isVueProject
   }
 
-  public getScriptFileNames(all: string[]): string[] {
-    const isTypeScript = this.ts.isTypeScriptProject
+  private getScriptFileNames(all: string[]): string[] {
     const output = new Set<string>(all)
 
-    const ext = isTypeScript ? 'tsx' : 'jsx'
+    const ext = 'tsx'
     all.forEach((fileName) => {
       if (!this.fs.isVueFile(fileName)) return
       if (!this.ts.serverHost.fileExists(fileName)) return
       const generatedFileName = `${fileName}.${ext}`
-
-      if (this.ts.project.getScriptInfo(fileName) == null) {
-        const scriptInfo =
-          this.ts.projectService.getOrCreateScriptInfoForNormalizedPath(
-            this.ts.toNormalizedPath(fileName),
-            false,
-          )
-
-        invariant(scriptInfo != null, "Couldn't create script info")
-        if (scriptInfo.attachToProject(this.ts.project)) {
-          this.ts.project.markAsDirty()
-        }
-      }
-
-      if (this.ts.project.getScriptInfo(generatedFileName) == null) {
-        this.logger.debug(`Creating generated .vue file: ${generatedFileName}`)
-        const scriptInfo =
-          this.ts.projectService.getOrCreateScriptInfoForNormalizedPath(
-            this.ts.toNormalizedPath(generatedFileName),
-            false,
-          )
-
-        invariant(scriptInfo != null, "Couldn't create script info")
-        if (scriptInfo.attachToProject(this.ts.project)) {
-          this.ts.project.markAsDirty()
-        }
-      }
 
       output.add(generatedFileName)
       output.add(this.ts.getProjectRuntimeFileNameFor(fileName))
@@ -118,36 +90,26 @@ export class TypescriptPluginService
     return Array.from(output)
   }
 
-  @cache((_args, { ts }: TypescriptPluginService) => {
-    ts.project.getLanguageService(true) // triggers updateGraph if project is dirty
-    return ts.project.getProjectVersion()
-  })
-  public getExternalFiles(): string[] {
-    const all: string[] = this.ts.project.getFileNames(true, true)
+  public getExternalFiles(project: TSProject): string[] {
+    const all: string[] = project.getRootFiles()
     const vue = new Set<string>()
     const virtual = new Set<string>()
 
     // This is not needed for any functionality, but it's needed to prevent unnecessary creation of inferred project.
-    this.ts.projectService.openFiles.forEach((_, file) => {
-      const scriptInfo = this.ts.projectService.getScriptInfoForPath(
+
+    const projectService = project.projectService
+    projectService.openFiles.forEach((_, file) => {
+      const scriptInfo = projectService.getScriptInfoForPath(
         file as TypeScript.Path,
       )
       if (scriptInfo == null) return
       if (
         scriptInfo.containingProjects.length === 0 || // creating new project, so this is likely to be part of current project. TODO: verify hypothesis.
-        scriptInfo.containingProjects.includes(this.ts.project)
+        scriptInfo.containingProjects.includes(project)
       ) {
         all.push(scriptInfo.fileName)
       }
     })
-
-    if (this.ts.isConfiguredProject(this.ts.project)) {
-      const options = this.ts.project.getParsedCommandLine?.(
-        this.ts.project.getConfigFilePath(),
-      )
-
-      if (options != null) all.push(...options.fileNames)
-    }
 
     for (const fileName of all) {
       if (fileName.charAt(0) === '^') {
@@ -163,14 +125,14 @@ export class TypescriptPluginService
 
     if (vue.size === 0) {
       this.#isVueProject = false
-      this.logger.debug('Not a Vue project:', this.ts.project.getProjectName())
+      this.logger.debug('Not a Vue project:', project.getProjectName())
       return [] // do not retain any files if no .vue files
     }
 
     this.#isVueProject = true
     const fileNames = [...this.getScriptFileNames([...vue]), ...virtual]
 
-    this.logger.debug(`Project:`, this.ts.project.getProjectName())
+    this.logger.debug(`Project:`, project.getProjectName())
     this.logger.debug(`External files:`, fileNames)
 
     return fileNames

@@ -10,7 +10,6 @@ console.log =
 import 'reflect-metadata'
 
 import { Telemetry } from '@vuedx/shared'
-import * as Path from 'path'
 import type { Modules, PluginCreateInfo, TS } from './interfaces'
 import type { PluginConfig } from './managers/ConfigManager'
 import { pluginManager } from './managers/PluginManager'
@@ -30,12 +29,17 @@ export default function init({ typescript }: Modules): TS.server.PluginModule {
     { typescriptVersion: typescript.versionMajorMinor },
   )
 
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { resolve } = require('node:path') as {
+    resolve: typeof import('node:path').resolve
+  }
+
   return {
     create(info: PluginCreateInfo) {
       return pluginManager.create({
         ...info,
         typescript,
-        typesDir: Path.resolve(__dirname, '..', 'runtime'),
+        typesDir: resolve(__dirname, '..', 'runtime'),
       })
     },
     getExternalFiles(project) {
