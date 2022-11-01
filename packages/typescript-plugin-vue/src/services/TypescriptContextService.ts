@@ -20,7 +20,7 @@ import { CacheService } from './CacheService'
 import { LoggerService, LogLevel } from './LoggerService'
 
 interface TypescriptContextServiceOptions {
-  project: TSProject
+  project?: TSProject
   typesDir: string
   typescript: typeof TypeScript
   languageService: TSLanguageService
@@ -48,46 +48,20 @@ export class TypescriptContextService implements Disposable {
     return this.options.serverHost
   }
 
-  public get projectService(): TypeScript.server.ProjectService {
-    return this.options.project.projectService
+  public get projectService(): TypeScript.server.ProjectService | undefined {
+    return this.options.project?.projectService
   }
 
   public get service(): TSLanguageService {
     return this.options.languageService
   }
 
-  public get project(): TSProject {
+  public get serviceHost(): TSLanguageServiceHost {
+    return this.options.languageServiceHost
+  }
+
+  public get project(): TSProject | undefined {
     return this.options.project
-  }
-
-  public get isTypeScriptProject(): boolean {
-    try {
-      switch (this.project.projectKind) {
-        case this.lib.server.ProjectKind.Configured:
-          try {
-            return !this.project.isJsOnlyProject()
-          } catch {
-            return true
-          }
-
-        default:
-          return true
-      }
-    } catch {
-      return true
-    }
-  }
-
-  public isConfiguredProject(
-    project: TSProject,
-  ): project is TypeScript.server.ConfiguredProject & TSProject {
-    return project.projectKind === this.lib.server.ProjectKind.Configured
-  }
-
-  public isInferredProject(
-    project: TSProject,
-  ): project is TypeScript.server.InferredProject & TSProject {
-    return project.projectKind === this.lib.server.ProjectKind.Inferred
   }
 
   public updateOptions(
@@ -195,18 +169,6 @@ export class TypescriptContextService implements Disposable {
     return toPosixPath(project.runtimeFile)
   }
 
-  /**
-   * Find typescript project for the file.
-   */
-  public getProjectFor(fileName: string): TypeScript.server.Project | null {
-    return (
-      this.projectService.getDefaultProjectForFile(
-        this.toNormalizedPath(fileName),
-        false,
-      ) ?? null
-    )
-  }
-
   public getVuePreferencesFor(fileName: string): ProjectPreferences {
     const project = this.getVueProjectFor(fileName)
     const preferences = ConfigManager.instance.state.preferences
@@ -230,11 +192,6 @@ export class TypescriptContextService implements Disposable {
           },
         }
       : project.config.preferences
-  }
-
-  @cache()
-  public toNormalizedPath(fileName: string): TypeScript.server.NormalizedPath {
-    return this.lib.server.toNormalizedPath(fileName)
   }
 
   readonly #projects = new Map<string, VueProject>()
@@ -296,48 +253,9 @@ export class TypescriptContextService implements Disposable {
     }
   }
 
-  public ensureUptoDate(fileName: string): void {
-    this.project.getLanguageService(true) // forces update
-    if (isVueFile(fileName)) {
-      fileName = this.getGeneratedFileName(fileName)
-    }
-
-    if (
-      this.projectService.getScriptInfoEnsuringProjectsUptoDate(fileName) ==
-      null
-    ) {
-      this.logger.debug(`No ScriptInfo for ${fileName}. Creating one.`)
-      this.projectService.getOrCreateScriptInfoForNormalizedPath(
-        this.toNormalizedPath(fileName),
-        true,
-      )
-    }
-  }
-
   public getGeneratedFileName(fileName: string): string {
     invariant(isVueFile(fileName), 'fileName must be a vue file')
-    return this.isTypeScriptProject ? `${fileName}.tsx` : `${fileName}.jsx`
-  }
-
-  /** @deprecated */
-  public ensureProject(fileName: string): void {
-    const filePath = this.toNormalizedPath(fileName)
-    if (this.project.containsFile(filePath)) {
-      return // already in project
-    }
-
-    const scriptInfo =
-      this.projectService.getOrCreateScriptInfoForNormalizedPath(
-        filePath,
-        false,
-      )
-
-    if (scriptInfo == null) {
-      this.logger.debug('No ScriptInfo for project file:', fileName)
-      return
-    }
-
-    scriptInfo.attachToProject(this.project)
+    return `${fileName}.tsx`
   }
 
   public getTokenAtPosition(

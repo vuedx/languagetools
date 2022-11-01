@@ -1,4 +1,4 @@
-import { first, setDebugging } from '@vuedx/shared'
+import { first, invariant, setDebugging } from '@vuedx/shared'
 import { Container } from 'inversify'
 import { TS_LANGUAGE_SERVICE } from '../constants'
 import type {
@@ -15,7 +15,12 @@ import { TypescriptContextService } from '../services/TypescriptContextService'
 import { TypescriptPluginService } from '../services/TypescriptPluginService'
 import { ConfigManager, PluginConfig } from './ConfigManager'
 
-export interface Options extends TypeScript.server.PluginCreateInfo {
+export interface Options {
+  project?: TSProject
+  languageService: TSLanguageService
+  languageServiceHost: TSLanguageServiceHost
+  serverHost: TSServerHost
+  config: PluginConfig
   typescript: typeof TypeScript
   typesDir: string
 }
@@ -29,7 +34,9 @@ export class PluginManager {
 
   private _activeContainerId: string | undefined
   public create(options: Options): TSLanguageService {
-    this.#setupLogger(options)
+    const containerKey =
+      options.project?.getProjectName() ?? `${Date.now()}-${Math.random()}`
+    this.#setupLogger(containerKey, options)
 
     if (TS_LANGUAGE_SERVICE in options.languageService) {
       return options.languageService
@@ -37,10 +44,9 @@ export class PluginManager {
 
     this.#patchTypescript(options.typescript)
 
-    const containerKey = options.project.getProjectName()
-
     const container =
       this.#containers.get(containerKey) ?? this.#createContainer(options)
+    this.#containers.set(containerKey, container)
 
     if (this._activeContainerId === containerKey) {
       return this.#createLanguageService(
@@ -51,14 +57,19 @@ export class PluginManager {
 
     this.logger.debug(
       'Creating language service for project:',
-      options.project.getProjectName(),
+      options.project?.getProjectName(),
     )
 
     container.get(TypescriptContextService).updateOptions(options)
 
-    this.#patchProject(container, options.project)
-    this.#patchServerHost(container, options.serverHost)
-    this.#patchLanguageServerHost(container, options.languageServiceHost)
+    if (options.project != null) this.#patchProject(container, options.project)
+    this.#patchFilesystem(container, options.serverHost)
+    this.#patchFilesystemWatcher(container, options.serverHost)
+    this.#patchResolveModuleNames(container, options.languageServiceHost)
+    this.#patchGetScriptVersionAndGetScriptSnapshot(
+      container,
+      options.languageServiceHost,
+    )
 
     try {
       const plugin = container.get(TypescriptPluginService)
@@ -70,7 +81,7 @@ export class PluginManager {
     } finally {
       this._activeContainerId = containerKey
       const current = (
-        (options.project.projectService as any)
+        (options.project?.projectService as any)
           .hostConfiguration as TypeScript.server.HostConfiguration
       ).extraFileExtensions
 
@@ -81,7 +92,7 @@ export class PluginManager {
         // .vue exists
       } else if (Array.isArray(current)) {
         // Enable .vue after enhancing the language server.
-        options.project.projectService.setHostConfiguration({
+        options.project?.projectService.setHostConfiguration({
           extraFileExtensions: [],
         })
       }
@@ -94,7 +105,7 @@ export class PluginManager {
       this.#containers
         .get(project.getProjectName())
         ?.get(TypescriptPluginService)
-        .getExternalFiles() ?? []
+        .getExternalFiles(project) ?? []
     )
   }
 
@@ -225,68 +236,12 @@ export class PluginManager {
     )
   }
 
-  #patchServerHost(container: Container, serverHost: TSServerHost): void {
-    const fs = container.get(FilesystemService)
-    const ts = container.get(TypescriptContextService)
-    const logger = LoggerService.getLogger('ServerHost')
-
-    // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
-    overrideMethod(serverHost, 'fileExists', (fileExists) => (fileName) => {
-      return (
-        fs.isProjectRuntimeFile(fileName) ||
-        fileExists(fs.getRealFileNameIfAny(fileName))
-      )
-    })
-
-    // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
-    overrideMethod(
-      serverHost,
-      'watchFile',
-      (watchFile) => (fileName, callback) => {
-        if (fs.isGeneratedVueFile(fileName)) {
-          return watchFile(
-            fs.getRealFileNameIfAny(fileName),
-            (id, eventKind) => {
-              logger.info(
-                `Patched watchFile: ${fileName} - ${id} - ${eventKind}`,
-              )
-              callback(fileName, eventKind)
-            },
-          )
-        }
-
-        if (fs.isProjectRuntimeFile(fileName)) {
-          return { close: () => {} }
-        }
-
-        return watchFile(fileName, callback)
-      },
-    )
-
-    // Patch: get contents for virtual files from VueSFCDocument
-    overrideMethod(
-      serverHost,
-      'readFile',
-      (readFile) => (fileName, encoding) => {
-        if (fs.isGeneratedVueFile(fileName)) {
-          return fs.getVueFile(fileName)?.getText()
-        } else if (fs.isProjectRuntimeFile(fileName)) {
-          return ts.getProjectRuntimeFile(fileName)
-        }
-
-        return readFile(fileName, encoding)
-      },
-    )
-  }
-
-  #patchLanguageServerHost(
+  #patchGetScriptVersionAndGetScriptSnapshot(
     container: Container,
     languageServiceHost: TSLanguageServiceHost,
   ): void {
     const fs = container.get(FilesystemService)
     const ts = container.get(TypescriptContextService)
-    const plugin = container.get(TypescriptPluginService)
-    const logger = LoggerService.getLogger('LanguageServiceHost')
 
     overrideMethod(
       languageServiceHost,
@@ -313,9 +268,6 @@ export class PluginManager {
             if (file != null) {
               return ts.lib.ScriptSnapshot.fromString(file.getText())
             }
-
-            logger.debug(`VueTS file - missing snapshot: ${fileName}`)
-
             return undefined
           } else if (fs.isProjectRuntimeFile(fileName)) {
             return ts.lib.ScriptSnapshot.fromString(
@@ -326,26 +278,17 @@ export class PluginManager {
           }
         },
     )
+  }
 
-    // Patch: Add .vue.tsx, file for every .vue file
-    // This is used to create program.
-    overrideMethod(
-      languageServiceHost,
-      'getScriptFileNames',
-      (getScriptFileNames) => () => {
-        const original = getScriptFileNames()
+  #patchResolveModuleNames(
+    container: Container,
+    languageServiceHost: TSLanguageServiceHost,
+  ): void {
+    const fs = container.get(FilesystemService)
+    const ts = container.get(TypescriptContextService)
+    const logger = LoggerService.getLogger('LanguageServiceHost')
 
-        try {
-          const fileNames = plugin.getScriptFileNames(original)
-          logger.debug('@@@ getScriptFileNames:', fileNames)
-          return fileNames
-        } catch (e) {
-          logger.error('@@@ Error in getScriptFileNames:', e)
-          return original
-        }
-      },
-    )
-
+    let importedFrom: string | undefined
     overrideMethod(
       languageServiceHost,
       'resolveModuleNames',
@@ -359,9 +302,10 @@ export class PluginManager {
           containingSourceFile,
         ) => {
           if (fs.isVueRuntimeFile(containingFile)) {
-            const anyProjectFile = first(ts.project.getRootFiles())
+            const anyProjectFile =
+              importedFrom ?? first(ts.project?.getRootFiles() ?? [])
+
             // Runtime dependencies have only 'vue' dependency for now.
-            // TODO: Switch to resolveModuleNameFromCache
             const core = ts.lib.resolveModuleName(
               '@vue/runtime-core',
               anyProjectFile,
@@ -390,33 +334,33 @@ export class PluginManager {
             )
           }
 
-          const result =
-            resolveModuleNames != null // Very unlikely to be undefined
-              ? resolveModuleNames(
-                  moduleNames,
-                  containingFile,
-                  reusedNames,
-                  redirectedReference,
-                  options,
-                )
-              : ts.project.resolveModuleNames(
-                  moduleNames,
-                  containingFile,
-                  reusedNames,
-                  redirectedReference,
-                  options,
-                  containingSourceFile,
-                )
+          invariant(resolveModuleNames != null)
+
+          const result = resolveModuleNames(
+            moduleNames,
+            containingFile,
+            reusedNames,
+            redirectedReference,
+            options,
+            containingSourceFile,
+          )
 
           const known = {
-            'vuedx~runtime': () => ({
-              resolvedFileName: ts.getVueRuntimeFileNameFor(containingFile),
-              isExternalLibraryImport: true,
-            }),
-            'vuedx~runtime~project': () => ({
-              resolvedFileName: ts.getProjectRuntimeFileNameFor(containingFile),
-              isExternalLibraryImport: false,
-            }),
+            'vuedx~runtime': () => {
+              importedFrom = containingFile
+
+              return {
+                resolvedFileName: ts.getVueRuntimeFileNameFor(containingFile),
+                isExternalLibraryImport: true,
+              }
+            },
+            'vuedx~runtime~project': () => {
+              return {
+                resolvedFileName:
+                  ts.getProjectRuntimeFileNameFor(containingFile),
+                isExternalLibraryImport: false,
+              }
+            },
           }
           moduleNames.forEach((name, index) => {
             const handler = known[name as keyof typeof known]
@@ -431,12 +375,73 @@ export class PluginManager {
     )
   }
 
+  #patchFilesystem(
+    container: Container,
+    host: TSLanguageServiceHost | TSServerHost,
+  ): void {
+    const fs = container.get(FilesystemService)
+    const ts = container.get(TypescriptContextService)
+    // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
+    overrideMethod(host, 'fileExists', (fileExists) => (fileName) => {
+      return (
+        fs.isProjectRuntimeFile(fileName) ||
+        fileExists(fs.getRealFileNameIfAny(fileName))
+      )
+    })
+
+    // Patch: get contents for virtual files from VueSFCDocument
+    overrideMethod(host, 'readFile', (readFile) => (fileName, encoding) => {
+      if (fs.isGeneratedVueFile(fileName)) {
+        return fs.getVueFile(fileName)?.getText()
+      } else if (fs.isProjectRuntimeFile(fileName)) {
+        return ts.getProjectRuntimeFile(fileName)
+      }
+
+      return readFile(fileName, encoding)
+    })
+  }
+
+  #patchFilesystemWatcher(
+    container: Container,
+    serverHost: TSServerHost,
+  ): void {
+    const fs = container.get(FilesystemService)
+    const logger = LoggerService.getLogger('ServerHost')
+
+    // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
+    overrideMethod(
+      serverHost,
+      'watchFile',
+      (watchFile) => (fileName, callback) => {
+        if (fs.isGeneratedVueFile(fileName)) {
+          return watchFile(
+            fs.getRealFileNameIfAny(fileName),
+            (id, eventKind) => {
+              logger.info(
+                `Patched watchFile: ${fileName} - ${id} - ${eventKind}`,
+              )
+              callback(fileName, eventKind)
+            },
+          )
+        }
+
+        if (fs.isProjectRuntimeFile(fileName)) {
+          return { close: () => {} }
+        }
+
+        return watchFile(fileName, callback)
+      },
+    )
+  }
+
   #createContainer(options: Options): Container {
-    if (!options.project.projectService.logger.loggingEnabled()) {
+    if (options.project?.projectService.logger.loggingEnabled() === true) {
+      setDebugging(true)
+    } else {
       setDebugging(false)
     }
-    this.logger.debug('New project:', options.project.getProjectName(), {
-      rootDir: options.project.getCurrentDirectory(),
+    this.logger.debug('New project:', options.project?.getProjectName(), {
+      rootDir: options.project?.getCurrentDirectory(),
     })
     this.logger.debug('Active projects:', Array.from(this.#containers.keys()))
 
@@ -452,34 +457,33 @@ export class PluginManager {
     container.bind(TypescriptContextService).toConstantValue(ts)
     container.bind(FilesystemService).toConstantValue(fs)
 
-    this.#containers.set(options.project.getProjectName(), container)
-
     return container
   }
 
   readonly #loggerIds = new Map<string, string>()
-  #setupLogger(options: Options): void {
-    const id =
-      this.#loggerIds.get(options.project.getProjectName()) ??
-      `${this.#loggerIds.size}`
+  #setupLogger(name: string, options: Options): void {
+    const id = this.#loggerIds.get(name) ?? `${this.#loggerIds.size}`
 
-    this.#loggerIds.set(options.project.getProjectName(), id)
+    this.#loggerIds.set(name, id)
 
     if (LoggerService.currentId === id) return
-    const logger = options.project.projectService.logger
+    const logger = options.project?.projectService.logger
     const LogLevel = options.typescript.server.LogLevel
     LoggerService.currentId = id
 
     LoggerService.setWriter({
       info: (line) => {
+        if (logger == null) return
         if (!logger.hasLevel(LogLevel.normal)) return
         logger.msg(line, options.typescript.server.Msg.Info)
       },
       debug: (line) => {
+        if (logger == null) return
         if (!logger.hasLevel(LogLevel.verbose)) return
         logger.msg(line, options.typescript.server.Msg.Info)
       },
       error: (line) => {
+        if (logger == null) return
         logger.msg(line, options.typescript.server.Msg.Err)
       },
     })

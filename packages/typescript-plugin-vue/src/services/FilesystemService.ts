@@ -26,7 +26,7 @@ export class FilesystemService implements Disposable {
     ts: TypescriptContextService,
   ): FilesystemService {
     return new FilesystemService(
-      createFilesystemProvider(ts.projectService, ts.serverHost),
+      createFilesystemProvider(ts.serverHost, ts.projectService),
       ts,
     )
   }
@@ -41,9 +41,7 @@ export class FilesystemService implements Disposable {
   ) {}
 
   public getVersion(fileName: string): string {
-    return `${this.ts.project.getProjectVersion()}|${this.ts.project.getScriptVersion(
-      fileName,
-    )}`
+    return this.ts.serviceHost.getScriptVersion(fileName)
   }
 
   private readonly textDocumentCache = new CacheService<TextDocument>(
@@ -108,65 +106,67 @@ export class FilesystemService implements Disposable {
     if (!this.provider.exists(fileName)) return null
 
     const file = VueSFCDocument.create(fileName, this.provider.read(fileName), {
-      isTypeScript: this.ts.isTypeScriptProject,
+      isTypeScript: true,
       typescript: this.ts.lib,
     })
 
-    const registerFileUpdate = (
-      fileName: string,
-    ): TypeScript.server.ScriptInfo | undefined => {
-      const info = this.ts.project.getScriptInfo(fileName)
-      this.ts.project.registerFileUpdate(fileName)
-      this.ts.project.markAsDirty()
-      if (info == null) return
-      info.registerFileUpdate()
-      info.markContainingProjectsAsDirty()
-      return info
+    const project = this.ts.project
+    if (project != null) {
+      const registerFileUpdate = (
+        fileName: string,
+      ): TypeScript.server.ScriptInfo | undefined => {
+        const info = project.getScriptInfo(fileName)
+        project.registerFileUpdate(fileName)
+        project.markAsDirty()
+        if (info == null) return
+        info.registerFileUpdate()
+        info.markContainingProjectsAsDirty()
+        return info
+      }
+
+      const stopWatching = this.provider.watch(
+        file.originalFileName,
+        (changes, version) => {
+          file.update(changes, version)
+          registerFileUpdate(file.generatedFileName)
+          const scriptInfo = registerFileUpdate(file.originalFileName)
+          if (scriptInfo == null) return
+          scriptInfo.containingProjects.forEach((project) => {
+            project.refreshDiagnostics()
+          })
+        },
+      )
+
+      this.watchers.add(stopWatching)
+      this.vueFiles.set(fileName, file)
+
+      const fsWatcher = this.ts.serverHost.watchFile(
+        file.originalFileName,
+        (fileName, eventKind) => {
+          this.logger.info(`File changed: ${eventKind} - ${fileName}`)
+          if (eventKind === this.ts.lib.FileWatcherEventKind.Deleted) {
+            const generatedScriptInfo = project.getScriptInfo(
+              file.generatedFileName,
+            )
+            if (generatedScriptInfo != null) {
+              project.removeFile(generatedScriptInfo, false, true)
+            }
+
+            const originalScriptInfo = project.getScriptInfo(
+              file.originalFileName,
+            )
+            if (originalScriptInfo != null) {
+              project.removeFile(originalScriptInfo, false, true)
+            }
+
+            stopWatching()
+            this.vueFiles.delete(file.originalFileName)
+            this.watchers.delete(stopWatching)
+            fsWatcher.close()
+          }
+        },
+      )
     }
-
-    const stopWatching = this.provider.watch(
-      file.originalFileName,
-      (changes, version) => {
-        file.update(changes, version)
-        registerFileUpdate(file.generatedFileName)
-        const scriptInfo = registerFileUpdate(file.originalFileName)
-        if (scriptInfo == null) return
-        scriptInfo.containingProjects.forEach((project) => {
-          project.refreshDiagnostics()
-        })
-      },
-    )
-
-    this.watchers.add(stopWatching)
-    this.vueFiles.set(fileName, file)
-
-    const fsWatcher = this.ts.serverHost.watchFile(
-      file.originalFileName,
-      (fileName, eventKind) => {
-        this.logger.info(`File changed: ${eventKind} - ${fileName}`)
-        if (eventKind === this.ts.lib.FileWatcherEventKind.Deleted) {
-          const generatedScriptInfo = this.ts.project.getScriptInfo(
-            file.generatedFileName,
-          )
-          if (generatedScriptInfo != null) {
-            this.ts.project.removeFile(generatedScriptInfo, false, true)
-          }
-
-          const originalScriptInfo = this.ts.project.getScriptInfo(
-            file.originalFileName,
-          )
-          if (originalScriptInfo != null) {
-            this.ts.project.removeFile(originalScriptInfo, false, true)
-          }
-
-          stopWatching()
-          this.vueFiles.delete(file.originalFileName)
-          this.watchers.delete(stopWatching)
-          fsWatcher.close()
-        }
-      },
-    )
-
     return file
   }
 
