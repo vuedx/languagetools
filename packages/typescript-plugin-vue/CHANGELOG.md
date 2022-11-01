@@ -1,5 +1,16 @@
 # @vuedx/typescript-plugin-vue
 
+## 0.7.6
+
+### Patch Changes
+
+- c050704: Single file vue-to-tsx rewrite
+- Updated dependencies [c050704]
+  - @vuedx/projectconfig@0.7.3
+  - @vuedx/shared@0.7.5
+  - @vuedx/template-ast-types@0.7.4
+  - @vuedx/vue-virtual-textdocument@0.7.6
+
 ## 0.7.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @vuedx/eslint-config
 
+## 0.0.3
+
+### Patch Changes
+
+- c050704: Single file vue-to-tsx rewrite
+
 ## 0.0.2
 
 ### Patch Changes

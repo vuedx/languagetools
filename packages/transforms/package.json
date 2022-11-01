@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/transforms",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "AST Transforms",
   "main": "lib/index.cjs",
   "module": "lib/index.mjs",

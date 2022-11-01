@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/typescript-plugin-vue",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "TypeScript plugin for Vue",
   "main": "index.js",
   "module": "lib/standalone.mjs",
@@ -88,6 +88,6 @@
     "@vue/runtime-core": "^3.2.39",
     "quick-lru": "^6.0.1",
     "vscode-languageserver-types": "^3.16.0",
-    "vue": "^3.2.39"
+    "vue": "^0.12.2"
   }
 }

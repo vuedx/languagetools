@@ -1,5 +1,11 @@
 # @vuedx/shared
 
+## 0.7.5
+
+### Patch Changes
+
+- c050704: Single file vue-to-tsx rewrite
+
 ## 0.7.4
 
 ### Patch Changes

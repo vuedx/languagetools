@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/compiler-tsx",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Converts .vue file to .tsx for typechecking and intellisense",
   "main": "lib/index.cjs",
   "module": "lib/index.mjs",

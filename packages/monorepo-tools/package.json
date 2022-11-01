@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@vuedx/monorepo-tools",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "displayName": "Monorepo tools",
   "description": "Utility functions for monorepo management",
   "main": "lib/index.cjs",

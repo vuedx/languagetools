@@ -1,5 +1,16 @@
 # @vuedx/compiler-tsx
 
+## 0.8.1
+
+### Patch Changes
+
+- c050704: Single file vue-to-tsx rewrite
+- Updated dependencies [c050704]
+  - @vuedx/compiler-sfc@0.7.2
+  - @vuedx/shared@0.7.5
+  - @vuedx/template-ast-types@0.7.4
+  - @vuedx/transforms@0.7.6
+
 ## 0.8.0
 
 ### Minor Changes
