@@ -4,7 +4,7 @@
   "name": "vue-language-features",
   "publisher": "znck",
   "displayName": "VueDX",
-  "version": "0.10.4",
+  "version": "0.12.1",
   "description": "Advanced TypeScript/JavaScript support for Vue",
   "icon": "logo.png",
   "main": "dist/index.js",

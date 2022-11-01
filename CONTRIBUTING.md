@@ -13,3 +13,9 @@ This project uses [pnpm](https://pnpm.js.org/), if you don't have `pnpm` run `np
 ## Reading Code
 
 Start in [typescript-plugin-vue](./packages/typescript-plugin-vue/src/index.ts), then follow imports and [ask questions](https://github.com/vuedx/languagetools/discussions).
+
+## Publishing stable release
+
+- Make sure extension versions are updated in [packages/typescript-plugin-vue/package.json](./packages/typescript-plugin-vue/package.json) and [packages/vscode-vue-languageservice/package.json](./packages/vscode-vue-languageservice/package.json).
+- Create a git tag with the version number.
+- Push the tag to GitHub.
