@@ -1,5 +1,11 @@
 # @vuedx/template-ast-types
 
+## 0.7.4
+
+### Patch Changes
+
+- c050704: Single file vue-to-tsx rewrite
+
 ## 0.7.3
 
 ### Patch Changes

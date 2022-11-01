@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@vuedx/vue-language-server",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "displayName": "Vue language server",
   "description": "Language server protocol implementation for .vue",
   "main": "lib/index.js",

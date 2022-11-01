@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@vuedx/vue-languageservice",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "displayName": "Vue languageservice",
   "description": "Service powering LSP implementation for Vue",
   "main": "lib/index.cjs",

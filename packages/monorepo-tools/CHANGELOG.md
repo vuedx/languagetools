@@ -1,5 +1,11 @@
 # @vuedx/monorepo-tools
 
+## 0.2.2
+
+### Patch Changes
+
+- c050704: Single file vue-to-tsx rewrite
+
 ## 0.2.1
 
 ### Patch Changes

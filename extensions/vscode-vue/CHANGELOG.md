@@ -1,5 +1,12 @@
 # vue
 
+## 0.12.2
+
+### Patch Changes
+
+- Updated dependencies [c050704]
+  - @vuedx/vue-virtual-textdocument@0.7.6
+
 ## 0.8.1
 
 ### Patch Changes

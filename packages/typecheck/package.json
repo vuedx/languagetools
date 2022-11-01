@@ -1,6 +1,6 @@
 {
   "name": "@vuedx/typecheck",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "TypeScript plugin for Vue",
   "main": "lib/index.cjs",
   "module": "lib/index.mjs",

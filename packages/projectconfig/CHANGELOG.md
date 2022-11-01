@@ -1,5 +1,13 @@
 # @vuedx/projectconfig
 
+## 0.7.3
+
+### Patch Changes
+
+- c050704: Single file vue-to-tsx rewrite
+- Updated dependencies [c050704]
+  - @vuedx/shared@0.7.5
+
 ## 0.7.2
 
 ### Patch Changes

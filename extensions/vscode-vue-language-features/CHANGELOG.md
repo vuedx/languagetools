@@ -1,5 +1,15 @@
 # vue-language-features
 
+## 0.12.2
+
+### Patch Changes
+
+- Updated dependencies [c050704]
+  - @vuedx/shared@0.7.5
+  - @vuedx/typescript-plugin-vue@0.7.6
+  - @vuedx/vue-language-server@0.0.1
+  - @vuedx/vue-virtual-textdocument@0.7.6
+
 ## 0.8.1
 
 ### Patch Changes
