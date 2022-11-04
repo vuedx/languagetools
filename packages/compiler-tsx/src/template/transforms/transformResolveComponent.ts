@@ -95,9 +95,7 @@ export function createResolveComponentTransform(
                 'const ',
                 id,
                 ` = ${h('resolveComponent')}(${resolveComponentArgs}`,
-                isSimpleIdentifier(id)
-                  ? `${ctx.internalIdentifierPrefix}_get_identifier_${id}()`
-                  : 'null',
+                'null',
                 ', ',
                 s(name),
                 ', ',

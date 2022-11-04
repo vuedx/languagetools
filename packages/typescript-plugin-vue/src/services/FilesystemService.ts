@@ -334,4 +334,18 @@ export class FilesystemService implements Disposable {
 
     return fileTextChanges
   }
+
+  public pick<R>(
+    fileName: string,
+    position: number,
+    fns: Record<string, (file: VueSFCDocument) => R>,
+  ): R | undefined {
+    const file = this.getVueFile(fileName)
+    if (file == null) return
+    const block = file.getBlockAt(position)
+    if (block == null) return
+    const fn = fns[block.type]
+    if (fn == null) return
+    return fn(file)
+  }
 }

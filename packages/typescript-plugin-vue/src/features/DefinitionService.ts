@@ -1,10 +1,14 @@
 import { createCache, debug } from '@vuedx/shared'
+import { isComponentNode } from '@vuedx/template-ast-types'
 import { VueSFCDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
 import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService } from '../services/LoggerService'
-import { TemplateContextService } from '../services/TemplateContextService'
+import {
+  TemplateContextKind,
+  TemplateContextService,
+} from '../services/TemplateContextService'
 import {
   GeneratedPositionKind,
   TemplateDeclarationsService,
@@ -69,12 +73,11 @@ export class DefinitionService
       ?.flatMap((definition) => this.processDefinitionInfo(definition))
   }
 
-  @debug()
   public getDefinitionAndBoundSpan(
     fileName: string,
     position: number,
   ): TypeScript.DefinitionInfoAndBoundSpan | undefined {
-    return this.pick(fileName, position, {
+    return this.fs.pick(fileName, position, {
       script: (file) => {
         const generatedPosition = file.generatedOffsetAt(position)
         if (generatedPosition == null) return
@@ -91,12 +94,46 @@ export class DefinitionService
         // TODO: check what kind of node at position.
         const context = this.templateContext.getContext(file, position)
         if (context == null || context.node == null) return
-        const result = this.ts.service.getDefinitionAndBoundSpan(
-          file.generatedFileName,
-          context.offsetInGenerated,
-        )
+        if (context.kind === TemplateContextKind.Tag) {
+          if (isComponentNode(context.element)) {
+            const id = context.element.resolvedName ?? context.element.tag
+            const declaration = this.declarations
+              .getTemplateDeclaration(fileName)
+              .declarations.find((declaration) => declaration.id === id)
 
-        return this.processDefinitionInfoAndBoundSpan(file, position, result)
+            if (declaration != null) {
+              const definition = this.ts.service.getTypeDefinitionAtPosition(
+                file.generatedFileName,
+                declaration.name.start,
+              )
+
+              if (definition != null) {
+                return {
+                  textSpan: {
+                    start:
+                      context.template.loc.start.offset +
+                      context.element.tagLoc.start.offset,
+                    length:
+                      context.element.tagLoc.end.offset -
+                      context.element.tagLoc.start.offset,
+                  },
+                  definitions: definition.flatMap((definition) =>
+                    this.processDefinitionInfo(definition),
+                  ),
+                }
+              }
+            }
+          }
+        }
+
+        return this.processDefinitionInfoAndBoundSpan(
+          file,
+          position,
+          this.ts.service.getDefinitionAndBoundSpan(
+            file.generatedFileName,
+            context.offsetInGenerated,
+          ),
+        )
       },
     })
   }
@@ -258,19 +295,5 @@ export class DefinitionService
     return `${definition.fileName}:${this.fs.getVersion(definition.fileName)}:${
       definition.textSpan.start
     }:${definition.textSpan.length}`
-  }
-
-  private pick<R>(
-    fileName: string,
-    position: number,
-    fns: Record<string, (file: VueSFCDocument) => R>,
-  ): R | undefined {
-    const file = this.fs.getVueFile(fileName)
-    if (file == null) return
-    const block = file.getBlockAt(position)
-    if (block == null) return
-    const fn = fns[block.type]
-    if (fn == null) return
-    return fn(file)
   }
 }
