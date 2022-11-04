@@ -1,8 +1,10 @@
 import { createCache, debug } from '@vuedx/shared'
+import { VueSFCDocument } from '@vuedx/vue-virtual-textdocument'
 import { inject, injectable } from 'inversify'
 import type { TSLanguageService, TypeScript } from '../contracts/TypeScript'
 import { FilesystemService } from '../services/FilesystemService'
 import { LoggerService } from '../services/LoggerService'
+import { TemplateContextService } from '../services/TemplateContextService'
 import {
   GeneratedPositionKind,
   TemplateDeclarationsService,
@@ -32,6 +34,8 @@ export class DefinitionService
     private readonly ts: TypescriptContextService,
     @inject(TemplateDeclarationsService)
     private readonly declarations: TemplateDeclarationsService,
+    @inject(TemplateContextService)
+    private readonly templateContext: TemplateContextService,
   ) {}
 
   @debug()
@@ -70,60 +74,31 @@ export class DefinitionService
     fileName: string,
     position: number,
   ): TypeScript.DefinitionInfoAndBoundSpan | undefined {
-    const file = this.fs.getVueFile(fileName)
-    if (file == null) return
-    const generatedPosition = this.declarations.findGeneratedPosition(
-      file,
-      position,
-    )
+    return this.pick(fileName, position, {
+      script: (file) => {
+        const generatedPosition = file.generatedOffsetAt(position)
+        if (generatedPosition == null) return
+        return this.processDefinitionInfoAndBoundSpan(
+          file,
+          position,
+          this.ts.service.getDefinitionAndBoundSpan(
+            file.generatedFileName,
+            generatedPosition,
+          ),
+        )
+      },
+      template: (file) => {
+        // TODO: check what kind of node at position.
+        const context = this.templateContext.getContext(file, position)
+        if (context == null || context.node == null) return
+        const result = this.ts.service.getDefinitionAndBoundSpan(
+          file.generatedFileName,
+          context.offsetInGenerated,
+        )
 
-    if (generatedPosition == null) {
-      return
-    }
-    // If the generated position is a component, we need to get type definition
-    // instead of definition. This is due to resolveComponent finding component
-    // definition from different sources.
-    if (
-      generatedPosition.kind === GeneratedPositionKind.COMPONENT_TAG_EXPRESSION
-    ) {
-      const definitions = this.ts.service.getDefinitionAtPosition(
-        file.generatedFileName,
-        generatedPosition.position,
-      )
-
-      if (definitions == null) return
-      const loc =
-        generatedPosition.tagType === 'end'
-          ? generatedPosition.node.endTagLoc ?? generatedPosition.node.tagLoc
-          : generatedPosition.node.tagLoc
-
-      return {
-        definitions: definitions.flatMap((definition) =>
-          this.processDefinitionInfo(definition),
-        ),
-        textSpan: {
-          start: generatedPosition.templateRange.start + loc.start.offset,
-          length: loc.end.offset - loc.start.offset,
-        },
-      }
-    }
-
-    const result = this.ts.service.getDefinitionAndBoundSpan(
-      file.generatedFileName,
-      generatedPosition.position,
-    )
-
-    if (result == null) return
-
-    const textSpan = file.findOriginalTextSpan(result.textSpan)
-    if (textSpan == null) return // TODO: Handle this case
-
-    return {
-      textSpan,
-      definitions: result.definitions?.flatMap((definition) =>
-        this.processDefinitionInfo(definition),
-      ),
-    }
+        return this.processDefinitionInfoAndBoundSpan(file, position, result)
+      },
+    })
   }
 
   public getTypeDefinitionAtPosition(
@@ -165,7 +140,10 @@ export class DefinitionService
       if (!this.fs.isGeneratedVueFile(definition.fileName)) return [definition]
       const file = this.fs.getVueFile(definition.fileName)
       if (file == null) return []
-      const textSpan = file.findOriginalTextSpan(definition.textSpan)
+      const textSpan =
+        definition.textSpan.start === 0 && definition.textSpan.length === 0
+          ? definition.textSpan
+          : file.findOriginalTextSpan(definition.textSpan)
       if (textSpan == null) {
         // Traverse up the definition chain if there is a template declaration.
         const templateDeclaration = this.declarations.getTemplateDeclarationAt(
@@ -255,11 +233,44 @@ export class DefinitionService
     })
   }
 
+  private processDefinitionInfoAndBoundSpan(
+    file: VueSFCDocument,
+    position: number,
+    info: TypeScript.DefinitionInfoAndBoundSpan | undefined,
+  ): TypeScript.DefinitionInfoAndBoundSpan | undefined {
+    if (info == null) return
+    const textSpan = file.findOriginalTextSpan(info.textSpan) ?? {
+      start: position,
+      length: 0,
+    }
+
+    return {
+      textSpan,
+      definitions: info.definitions?.flatMap((definition) =>
+        this.processDefinitionInfo(definition),
+      ),
+    }
+  }
+
   private getDefinitionInfoCacheKey(
     definition: TypeScript.DefinitionInfo,
   ): string {
     return `${definition.fileName}:${this.fs.getVersion(definition.fileName)}:${
       definition.textSpan.start
     }:${definition.textSpan.length}`
+  }
+
+  private pick<R>(
+    fileName: string,
+    position: number,
+    fns: Record<string, (file: VueSFCDocument) => R>,
+  ): R | undefined {
+    const file = this.fs.getVueFile(fileName)
+    if (file == null) return
+    const block = file.getBlockAt(position)
+    if (block == null) return
+    const fn = fns[block.type]
+    if (fn == null) return
+    return fn(file)
   }
 }

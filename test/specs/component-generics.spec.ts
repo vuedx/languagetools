@@ -2,7 +2,7 @@ import { Position } from 'vscode-languageserver-textdocument'
 import { createEditorContext, getProjectPath } from '../support/helpers'
 import { TestServer } from '../support/TestServer'
 
-describe('completions', () => {
+describe('component generics', () => {
   const server = new TestServer()
   const ctx = createEditorContext(
     server,

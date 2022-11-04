@@ -388,4 +388,12 @@ export class TestServer {
     if (result.body == null) throw new Error('No body')
     return result.body
   }
+  
+  public async definitionAndBoundSpan(
+    args: Proto.DefinitionAndBoundSpanRequest['arguments'],
+  ): Promise<Proto.DefinitionInfoAndBoundSpan> {
+    const result = await this.sendCommand('definitionAndBoundSpan', args)
+    if (result.body == null) throw new Error('No body')
+    return result.body
+  }
 }

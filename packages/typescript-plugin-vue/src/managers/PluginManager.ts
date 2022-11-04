@@ -42,8 +42,6 @@ export class PluginManager {
       return options.languageService
     }
 
-    this.#patchTypescript(options.typescript)
-
     const container =
       this.#containers.get(containerKey) ?? this.#createContainer(options)
     this.#containers.set(containerKey, container)
@@ -121,26 +119,6 @@ export class PluginManager {
     console.trace = (...args) => logger.debug(...args, new Error().stack)
     console.warn = (...args) => logger.error(...args)
     console.error = (...args) => logger.error(...args)
-  }
-
-  #patchTypescript(typescript: typeof TypeScript): void {
-    overrideMethod(
-      typescript as any,
-      'getSupportedExtensions',
-      (fn) => (options: any, extraFileExtensions: any) => {
-        const extensions = fn(options, extraFileExtensions) as string[]
-        const index = extensions.indexOf('.vue')
-
-        if (index >= 0) {
-          // File extensions are sorted in order of their priorities.
-          // We need to put .vue before .ts
-          extensions.splice(index, 1)
-          extensions.unshift('.vue')
-        }
-
-        return extensions
-      },
-    )
   }
 
   #patchProject(container: Container, project: TSProject): void {
@@ -408,6 +386,7 @@ export class PluginManager {
     const fs = container.get(FilesystemService)
     const logger = LoggerService.getLogger('ServerHost')
 
+    // TODO: Do we need this?
     // Patch: check virtual files in activeTSDocIDs of VueSFCDocument
     overrideMethod(
       serverHost,
