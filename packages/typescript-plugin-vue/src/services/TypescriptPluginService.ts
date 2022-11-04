@@ -26,9 +26,7 @@ export class TypescriptPluginService
   implements Partial<ExtendedTSLanguageService>
 {
   //#region setup
-  private readonly logger = LoggerService.getLogger(
-    TypescriptPluginService.name,
-  )
+  public readonly logger = LoggerService.getLogger(TypescriptPluginService.name)
 
   constructor(
     @inject(FilesystemService)
@@ -132,8 +130,8 @@ export class TypescriptPluginService
     this.#isVueProject = true
     const fileNames = [...this.getScriptFileNames([...vue]), ...virtual]
 
-    this.logger.debug(`Project:`, project.getProjectName())
-    this.logger.debug(`External files:`, fileNames)
+    // this.logger.debug(`Project:`, project.getProjectName())
+    // this.logger.debug(`External files:`, fileNames)
 
     return fileNames
   }
