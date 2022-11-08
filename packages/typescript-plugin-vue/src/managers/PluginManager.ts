@@ -391,7 +391,7 @@ export class PluginManager {
     overrideMethod(
       serverHost,
       'watchFile',
-      (watchFile) => (fileName, callback) => {
+      (watchFile) => (fileName, callback, pollingInterval, options) => {
         if (fs.isGeneratedVueFile(fileName)) {
           return watchFile(
             fs.getRealFileNameIfAny(fileName),
@@ -401,6 +401,8 @@ export class PluginManager {
               )
               callback(fileName, eventKind)
             },
+            pollingInterval,
+            options,
           )
         }
 
@@ -408,7 +410,7 @@ export class PluginManager {
           return { close: () => {} }
         }
 
-        return watchFile(fileName, callback)
+        return watchFile(fileName, callback, pollingInterval, options)
       },
     )
   }
