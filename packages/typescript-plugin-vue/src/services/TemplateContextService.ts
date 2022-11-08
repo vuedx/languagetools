@@ -37,7 +37,7 @@ interface BaseTemplateContext extends SearchResult {
   kind: TemplateContextKind
   document: VueSFCDocument
   block: Exclude<VueSFCDocument['descriptor']['template'], null>
-  template: RootNode
+  root: RootNode
   offsetInDocument: number
   offsetInTemplate: number
   offsetInGenerated: number
@@ -117,17 +117,17 @@ export class TemplateContextService {
   ): TemplateContext | null {
     const block = document.descriptor.template
     if (block == null) return null
-    const template = document.templateAST
-    if (template == null) return null
+    const root = document.templateAST
+    if (root == null) return null
     const offsetInGenerated = document.generatedOffsetAt(offsetInDocument)
     if (offsetInGenerated == null) return null
     const offsetInTemplate = offsetInDocument - block.loc.start.offset
-    const { node, ancestors } = findTemplateNodeAt(template, offsetInTemplate)
+    const { node, ancestors } = findTemplateNodeAt(root, offsetInTemplate)
     if (node == null) return null
     const shared = {
       document,
       block,
-      template,
+      root,
       offsetInDocument,
       offsetInTemplate,
       offsetInGenerated,
