@@ -3,7 +3,7 @@ import * as Path from 'path'
 import { createInterface, Interface } from 'readline'
 import resolveFrom from 'resolve-from'
 import type { Readable, Writable } from 'stream'
-import type * as Proto from 'typescript/lib/protocol'
+import type * as TS from 'typescript/lib/tsserverlibrary'
 
 function resolve(moduleId: string, directory: string): string {
   try {
@@ -21,10 +21,10 @@ function debug(...args: any[]): void {
 }
 
 export class TypeScriptServerHost {
-  private readonly voidCommands: Proto.CommandTypes[] = [
-    'open' as Proto.CommandTypes.Open,
-    'geterr' as Proto.CommandTypes.Geterr,
-    'geterrForProject' as Proto.CommandTypes.GeterrForProject,
+  private readonly voidCommands: TS.server.protocol.CommandTypes[] = [
+    'open' as TS.server.protocol.CommandTypes.Open,
+    'geterr' as TS.server.protocol.CommandTypes.Geterr,
+    'geterrForProject' as TS.server.protocol.CommandTypes.GeterrForProject,
   ]
 
   public readonly serverPath = resolve('typescript/lib/tsserver', process.cwd())
@@ -45,7 +45,7 @@ export class TypeScriptServerHost {
 
   private readonly responseHandlers = new Map<
     number,
-    (response: Proto.Response) => void
+    (response: TS.server.protocol.Response) => void
   >()
 
   private _messageId = 0
@@ -103,8 +103,10 @@ export class TypeScriptServerHost {
 
     this.readline.on('line', (line) => {
       if (line.startsWith('{')) {
-        const payload: Proto.Request | Proto.Response | Proto.Event =
-          JSON.parse(line)
+        const payload:
+          | TS.server.protocol.Request
+          | TS.server.protocol.Response
+          | TS.server.protocol.Event = JSON.parse(line)
 
         debug('RECV:', payload)
         if (payload.type === 'response') {
@@ -125,11 +127,11 @@ export class TypeScriptServerHost {
 
   private eventHandlers: Record<string, Function[]> = {}
 
-  private onEvent(payload: Proto.Event): void {
+  private onEvent(payload: TS.server.protocol.Event): void {
     this.eventHandlers[payload.event]?.forEach((fn) => fn(payload.body))
   }
 
-  private send(message: Omit<Proto.Message, 'seq'>): number {
+  private send(message: Omit<TS.server.protocol.Message, 'seq'>): number {
     if (this.isClosed) {
       throw new Error('Cannot send messages to a closed server connection.')
     }
@@ -143,36 +145,36 @@ export class TypeScriptServerHost {
   }
 
   public on(
-    event: Proto.DiagnosticEventKind,
+    event: TS.server.protocol.DiagnosticEventKind,
     fn: (
-      event: Required<Proto.DiagnosticEvent>['body'],
+      event: Required<TS.server.protocol.DiagnosticEvent>['body'],
     ) => void | Promise<void>,
   ): () => void
   public on(
-    event: Proto.RequestCompletedEventName,
+    event: TS.server.protocol.RequestCompletedEventName,
     fn: (
-      event: Required<Proto.RequestCompletedEvent>['body'],
+      event: Required<TS.server.protocol.RequestCompletedEvent>['body'],
     ) => void | Promise<void>,
   ): () => void
   public on(
-    event: Proto.ProjectLoadingFinishEventName,
+    event: TS.server.protocol.ProjectLoadingFinishEventName,
     fn: (
-      event: Required<Proto.ProjectLoadingFinishEvent>['body'],
+      event: Required<TS.server.protocol.ProjectLoadingFinishEvent>['body'],
     ) => void | Promise<void>,
   ): () => void
   public on(
-    event: Proto.ProjectsUpdatedInBackgroundEventName,
+    event: TS.server.protocol.ProjectsUpdatedInBackgroundEventName,
     fn: (
-      event: Required<Proto.ProjectsUpdatedInBackgroundEvent>['body'],
+      event: Required<TS.server.protocol.ProjectsUpdatedInBackgroundEvent>['body'],
     ) => void | Promise<void>,
   ): () => void
 
   public on(
     event:
-      | Proto.DiagnosticEventKind
-      | Proto.RequestCompletedEventName
-      | Proto.ProjectLoadingFinishEventName
-      | Proto.ProjectsUpdatedInBackgroundEventName,
+      | TS.server.protocol.DiagnosticEventKind
+      | TS.server.protocol.RequestCompletedEventName
+      | TS.server.protocol.ProjectLoadingFinishEventName
+      | TS.server.protocol.ProjectsUpdatedInBackgroundEventName,
     fn: Function,
   ): () => void {
     const handlers =
@@ -189,11 +191,15 @@ export class TypeScriptServerHost {
   }
 
   public async sendRequest(
-    request: Omit<Proto.Request, 'seq' | 'type'>,
-  ): Promise<Proto.Response | number | undefined> {
+    request: Omit<TS.server.protocol.Request, 'seq' | 'type'>,
+  ): Promise<TS.server.protocol.Response | number | undefined> {
     const id = this.send({ type: 'request', ...request })
 
-    if (!this.voidCommands.includes(request.command as Proto.CommandTypes)) {
+    if (
+      !this.voidCommands.includes(
+        request.command as TS.server.protocol.CommandTypes,
+      )
+    ) {
       this.pendingResponses += 1
       return await new Promise((resolve) => {
         this.responseHandlers.set(id, (response) => resolve(response))
@@ -203,7 +209,9 @@ export class TypeScriptServerHost {
     }
   }
 
-  public sendEvent(event: Omit<Proto.Request, 'seq' | 'type'>): void {
+  public sendEvent(
+    event: Omit<TS.server.protocol.Request, 'seq' | 'type'>,
+  ): void {
     this.send({ type: 'event', ...event })
   }
 
@@ -224,33 +232,35 @@ export class TypeScriptServerHost {
   }
 
   public async sendCommand(
-    command: 'configure' | Proto.CommandTypes.Configure,
-    args: Proto.ConfigureRequest['arguments'],
-  ): Promise<Proto.ConfigureResponse>
+    command: 'configure' | TS.server.protocol.CommandTypes.Configure,
+    args: TS.server.protocol.ConfigureRequest['arguments'],
+  ): Promise<TS.server.protocol.ConfigureResponse>
   public async sendCommand(
-    command: 'projectInfo' | Proto.CommandTypes.ProjectInfo,
-    args: Proto.ProjectInfoRequest['arguments'],
-  ): Promise<Proto.ProjectInfoResponse>
+    command: 'projectInfo' | TS.server.protocol.CommandTypes.ProjectInfo,
+    args: TS.server.protocol.ProjectInfoRequest['arguments'],
+  ): Promise<TS.server.protocol.ProjectInfoResponse>
 
   public async sendCommand(
     command:
       | 'compilerOptionsForInferredProjects'
-      | Proto.CommandTypes.CompilerOptionsForInferredProjects,
-    args: Proto.SetCompilerOptionsForInferredProjectsRequest['arguments'],
-  ): Promise<Proto.SetCompilerOptionsForInferredProjectsResponse>
+      | TS.server.protocol.CommandTypes.CompilerOptionsForInferredProjects,
+    args: TS.server.protocol.SetCompilerOptionsForInferredProjectsRequest['arguments'],
+  ): Promise<TS.server.protocol.SetCompilerOptionsForInferredProjectsResponse>
 
   public async sendCommand(
-    command: 'updateOpen' | Proto.CommandTypes.UpdateOpen,
-    args: Proto.UpdateOpenRequest['arguments'],
+    command: 'updateOpen' | TS.server.protocol.CommandTypes.UpdateOpen,
+    args: TS.server.protocol.UpdateOpenRequest['arguments'],
   ): Promise<number>
 
   public async sendCommand(
-    command: 'geterr' | Proto.CommandTypes.Geterr,
-    args: Proto.GeterrRequest['arguments'],
+    command: 'geterr' | TS.server.protocol.CommandTypes.Geterr,
+    args: TS.server.protocol.GeterrRequest['arguments'],
   ): Promise<number>
   public async sendCommand(
-    command: 'geterrForProject' | Proto.CommandTypes.GeterrForProject,
-    args: Proto.GeterrForProjectRequest['arguments'],
+    command:
+      | 'geterrForProject'
+      | TS.server.protocol.CommandTypes.GeterrForProject,
+    args: TS.server.protocol.GeterrForProjectRequest['arguments'],
   ): Promise<number>
 
   public async sendCommand(command: string, args: any): Promise<any> {

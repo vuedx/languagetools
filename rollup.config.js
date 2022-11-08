@@ -38,7 +38,7 @@ const configs = ['packages/*', 'extensions/*'].flatMap((pattern) => {
           ...options.plugins,
           json(),
           define(packageJson.version ?? ''),
-          compiler()
+          compiler(),
         ],
       }
 

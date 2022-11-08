@@ -255,7 +255,7 @@ export function transformScriptSetup(
   ): TypeScript.ExportKeyword | null {
     if (!ts.canHaveModifiers(node)) return null
     const modifier = node.modifiers?.find(
-      (modifier): modifier is ts.ExportKeyword =>
+      (modifier): modifier is TypeScript.ExportKeyword =>
         modifier.kind === ts.SyntaxKind.ExportKeyword,
     )
     if (modifier == null) return null
