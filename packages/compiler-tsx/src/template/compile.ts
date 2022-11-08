@@ -52,7 +52,7 @@ export function compileFromAST(
   source: RootNode,
   options: Options & TransformOptionsResolved,
 ): Output {
-  const root = withScope(clone(source))
+  const root = withScope(clone(source), options.typescript)
   const ast = clone(source)
   ast.scope = root.scope
   const context: NodeTransformContext = {
