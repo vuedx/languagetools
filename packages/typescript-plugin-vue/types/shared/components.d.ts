@@ -5,16 +5,6 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {}
 }
 
-declare module '@vue/runtime-dom' {
-  export interface GlobalComponents {}
-}
-
-// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-// @ts-ignore
-declare module 'vue' {
-  export interface GlobalComponents {}
-}
-
 export function resolveComponent<
   GlobalComponents,
   IntrinsicElements,

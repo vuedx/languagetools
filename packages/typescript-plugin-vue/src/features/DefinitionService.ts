@@ -111,11 +111,9 @@ export class DefinitionService
                 return {
                   textSpan: {
                     start:
-                      context.template.loc.start.offset +
+                      context.block.loc.start.offset +
                       context.element.tagLoc.start.offset,
-                    length:
-                      context.element.tagLoc.end.offset -
-                      context.element.tagLoc.start.offset,
+                    length: context.element.tagLoc.source.length,
                   },
                   definitions: definition.flatMap((definition) =>
                     this.processDefinitionInfo(definition),
