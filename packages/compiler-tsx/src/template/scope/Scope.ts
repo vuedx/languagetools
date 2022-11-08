@@ -1,47 +1,14 @@
 // TODO: Migrate to typescript.
-import { parse, parseExpression } from '@babel/parser'
-import {
-  Expression,
-  File,
-  Identifier,
-  isArrayPattern,
-  isArrowFunctionExpression,
-  isAssignmentPattern,
-  isCallExpression,
-  isClassDeclaration,
-  isDeclaration,
-  isDeclareClass,
-  isDeclareFunction,
-  isDeclareVariable,
-  isEnumDeclaration,
-  isExpression,
-  isFile,
-  isFunction,
-  isFunctionDeclaration,
-  isIdentifier,
-  isImportDeclaration,
-  isImportSpecifier,
-  isMemberExpression,
-  isObjectMember,
-  isObjectPattern,
-  isOptionalMemberExpression,
-  isPrivateName,
-  isRestElement,
-  isVariableDeclaration,
-  LVal,
-  Node as BabelNode,
-  ObjectMember,
-  PatternLike,
-  traverse as traverseBabel,
-} from '@babel/types'
 import { isSimpleIdentifier, Node, RootNode } from '@vue/compiler-core'
-import { flatten, invariant, isCamelCase, isPascalCase } from '@vuedx/shared'
+import { invariant } from '@vuedx/shared'
 import {
   isDirectiveNode,
   isElementNode,
   isSimpleExpressionNode,
   traverse,
 } from '@vuedx/template-ast-types'
+import { createProgram } from '@vuedx/transforms'
+import type * as TypeScript from 'typescript/lib/tsserverlibrary'
 import { forAliasRE } from '../transforms/transformFor'
 
 export class Scope {
@@ -75,7 +42,7 @@ export class Scope {
   }
 }
 
-export function withScope(ast: RootNode): RootNode {
+export function withScope(ast: RootNode, ts: typeof TypeScript): RootNode {
   ast.scope = new Scope(null)
 
   traverse(ast, (node, ancestors) => {
@@ -92,7 +59,7 @@ export function withScope(ast: RootNode): RootNode {
         )
       ) {
         const isOnDirective = isDirectiveNode(parent) && parent.name === 'on'
-        getIdentifiers(node.content).forEach((identifier) => {
+        getIdentifiers(ts, node.content).forEach((identifier) => {
           if (isOnDirective && identifier === '$event') return
           scope.getBinding(identifier)
         })
@@ -106,7 +73,7 @@ export function withScope(ast: RootNode): RootNode {
               const localScope = (prop.exp.scope = new Scope(directiveScope))
               const content = prop.exp.content.trim()
 
-              getIdentifiers(`(${content}) => {}`, false).forEach(
+              getIdentifiers(ts, `(${content}) => {}`, false).forEach(
                 (identifier) => {
                   scope.setBinding(identifier, node)
                   localScope.getBinding(identifier)
@@ -120,11 +87,11 @@ export function withScope(ast: RootNode): RootNode {
               if (match != null) {
                 const [, LHS, RHS] = match
                 invariant(LHS != null && RHS != null)
-                getIdentifiers(RHS).forEach((identifier) => {
+                getIdentifiers(ts, RHS).forEach((identifier) => {
                   localScope.getBinding(identifier)
                 })
 
-                getIdentifiers(`${LHS ?? '()'} => {}`, false).forEach(
+                getIdentifiers(ts, `${LHS ?? '()'} => {}`, false).forEach(
                   (identifier) => {
                     scope.setBinding(identifier, node)
                     localScope.getBinding(identifier)
@@ -141,204 +108,74 @@ export function withScope(ast: RootNode): RootNode {
   return ast
 }
 
-/**
- * @internal
- */
-export function getTopLevelIdentifiers(
-  source: string,
-  ignoreImportsFrom: string[],
-): {
-  identifiers: Set<string>
-  components: Set<string>
-  directives: Set<string>
-  propsIdentifier: string | undefined
-  emitIdentifier: string | undefined
-} {
-  const identifiers = new Set<string>()
-  const components = new Set<string>()
-  const directives = new Set<string>()
-  let propsIdentifier: string | undefined
-  let emitIdentifier: string | undefined
-  let definePropsIdentifierFn: string | undefined
-  let defineEmitIdentifierFn: string | undefined
-  const ignoredSources = new Set(ignoreImportsFrom)
-  try {
-    const ast = parseUsingBabel(source, true)
-
-    const getIdentifiers = (node: LVal): string[] => {
-      if (isIdentifier(node)) return [node.name]
-      else if (isMemberExpression(node)) {
-        if (isIdentifier(node.property)) {
-          return [node.property.name]
-        } else if (isExpression(node.property)) {
-          return []
-        } else if (isPrivateName(node.property)) {
-          return [node.property.id.name]
-        } else {
-          return []
-        }
-      } else if (isRestElement(node)) {
-        return getIdentifiers(node.argument)
-      } else if (isAssignmentPattern(node)) {
-        return getIdentifiers(node.left)
-      } else if (isArrayPattern(node)) {
-        return flatten(
-          node.elements
-            .filter((element): element is PatternLike => element != null)
-            .map((element) => getIdentifiers(element)),
-        )
-      } else if (isObjectPattern(node)) {
-        return flatten(
-          node.properties.map((property) => {
-            if (isRestElement(property) || isIdentifier(property)) {
-              return getIdentifiers(property)
-            } else {
-              return []
-            }
-          }),
-        )
-      } else {
-        return []
-      }
-    }
-
-    if (isFile(ast)) {
-      ast.program.body.forEach((node) => {
-        if (!isDeclaration(node)) return
-        if (isVariableDeclaration(node)) {
-          node.declarations.forEach((declaration) => {
-            getIdentifiers(declaration.id).forEach((name) =>
-              identifiers.add(name),
-            )
-
-            if (
-              isIdentifier(declaration.id) &&
-              isCallExpression(declaration.init)
-            ) {
-              if (isIdentifier(declaration.init.callee)) {
-                if (declaration.init.callee.name === definePropsIdentifierFn) {
-                  propsIdentifier = declaration.id.name
-                } else if (
-                  declaration.init.callee.name === defineEmitIdentifierFn
-                ) {
-                  emitIdentifier = declaration.id.name
-                }
-              }
-            }
-          })
-        } else if (isFunctionDeclaration(node)) {
-          if (node.id != null) identifiers.add(node.id.name)
-        } else if (isImportDeclaration(node)) {
-          const isVue = node.source.value === 'vue'
-          node.specifiers.forEach((specifier) => {
-            if (isVue && isImportSpecifier(specifier)) {
-              const name = isIdentifier(specifier.imported)
-                ? specifier.imported.name
-                : specifier.imported.value
-
-              if (name === 'defineProps') {
-                definePropsIdentifierFn = specifier.local.name
-
-                return // -
-              } else if (name === 'defineEmit') {
-                defineEmitIdentifierFn = specifier.local.name
-
-                return // -
-              }
-            }
-
-            if (!ignoredSources.has(node.source.value)) {
-              identifiers.add(specifier.local.name)
-              if (
-                isCamelCase(specifier.local.name) &&
-                /^v[A-Z]/.test(specifier.local.name)
-              ) {
-                directives.add(specifier.local.name)
-              } else if (isPascalCase(specifier.local.name)) {
-                components.add(specifier.local.name)
-              }
-            }
-          })
-        } else if (isClassDeclaration(node)) {
-          identifiers.add(node.id.name)
-        } else if (isDeclareClass(node)) {
-          identifiers.add(node.id.name)
-        } else if (isDeclareFunction(node)) {
-          identifiers.add(node.id.name)
-        } else if (isDeclareVariable(node)) {
-          identifiers.add(node.id.name)
-        } else if (isEnumDeclaration(node)) {
-          identifiers.add(node.id.name)
-        }
-      })
-    }
-  } catch {
-    // FIXME: Handle errors
-  }
-
-  return {
-    identifiers,
-    components,
-    directives,
-    emitIdentifier,
-    propsIdentifier,
-  }
-}
 function getIdentifiers(
+  ts: typeof TypeScript,
   source: string,
   ignoreFunctionParameters = true,
 ): Set<string> {
-  source = source
-    .trim()
-    // Common errors when user is typing.
-    .replace(/(\.|\[\]?)\s*$/, '')
-
   const identifiers = new Set<string>()
   const add = (id: string): void => {
-    if (isValidIdentifier(id)) identifiers.add(id)
+    if (id === '__') return
+    if (isValidIdentifier(id) && !isKnownIdentifier(id)) identifiers.add(id)
   }
   if (isSimpleIdentifier(source.trim())) {
     add(source)
   } else {
     try {
-      const ast = parseUsingBabel(source, true)
-      let definedInScope = new Set<string>()
-      const scopes: Array<Set<string>> = []
-      const pushScope = (scope: Set<string>): void => {
-        if (!ignoreFunctionParameters) return
-        scopes.push(scope)
-        definedInScope = new Set([...definedInScope, ...scope])
-      }
-      const popScope = (): void => {
-        if (!ignoreFunctionParameters) return
-        scopes.pop()
-        definedInScope = new Set(scopes.flatMap((scope) => Array.from(scope)))
-      }
-      traverseBabel(ast, {
-        enter: (node, ancestors) => {
-          if (isFunctionDeclaration(node) || isArrowFunctionExpression(node)) {
-            const scope = new Set<string>()
-            node.params.forEach((param) => {
-              traverseBabel(param, (node) => {
-                if (isIdentifier(node)) scope.add(node.name)
-              })
-            })
-            pushScope(scope)
-          }
+      const [, sourceFile] = parseUsingTS(`const __ = ${source.trim()}`, ts)
 
-          if (isIdentifier(node) && !definedInScope.has(node.name)) {
-            if (shouldTrack(node, ancestors.slice())) {
-              add(node.name)
+      function walk(node: TypeScript.Node): void {
+        if (ts.isIdentifier(node)) {
+          let parent = node.parent
+          while (parent != null) {
+            if (ts.isPropertyAccessExpression(parent)) {
+              if (parent.expression === node) {
+                add(node.getText())
+              }
+
+              break
+            } else if (ts.isParameter(parent)) {
+              if (!ignoreFunctionParameters) {
+                add(node.getText())
+              }
+
+              break
+            } else if (ts.isBindingElement(parent)) {
+              if (parent.propertyName === node) {
+                break
+              }
+              parent = parent.parent
+            } else if (
+              ts.isObjectBindingPattern(parent) ||
+              ts.isArrayBindingPattern(parent)
+            ) {
+              parent = parent.parent
+            } else if (ts.isPropertyAssignment(parent)) {
+              if (parent.name === node) {
+                break
+              }
+              parent = parent.parent
+            } else if (ts.isShorthandPropertyAssignment(parent)) {
+              parent = parent.parent
+            } else {
+              // console.log(
+              //   node.getText(),
+              //   ts.SyntaxKind[parent.kind],
+              //   parent.getText(),
+              // )
+              add(node.getText())
+
+              break
             }
           }
-        },
-        exit: (node) => {
-          if (isFunctionDeclaration(node) || isArrowFunctionExpression(node)) {
-            popScope()
-          }
-        },
-      })
-    } catch {
+        }
+        node.forEachChild((child) => walk(child))
+      }
+
+      walk(sourceFile)
+
+      return identifiers
+    } catch (error) {
       const RE = /\b[a-z$_][a-z0-9$_]+\b/gi
       let match: RegExpMatchArray | null
       while ((match = RE.exec(source)) != null) {
@@ -356,61 +193,14 @@ function isValidIdentifier(id: string): boolean {
   )
 }
 
-function parseUsingBabel(source: string, withTS = false): File | Expression {
-  try {
-    return parse(source, {
-      plugins: withTS
-        ? ['bigInt', 'optionalChaining', 'typescript']
-        : ['bigInt', 'optionalChaining'],
-      // @ts-expect-error
-      errorRecovery: true,
-    }) as any
-  } catch {
-    return parseExpression(source, {
-      plugins: withTS
-        ? ['bigInt', 'optionalChaining', 'typescript']
-        : ['bigInt', 'optionalChaining'],
-      // @ts-expect-error
-      errorRecovery: true,
-    }) as any
-  }
-}
-
-// TODO: This misses destructured arguments
-function shouldTrack(
-  identifier: Identifier,
-  ancestors: Array<{
-    node: BabelNode
-    key: string
-    index?: number
-  }>,
-): boolean {
-  const ancestor = ancestors.pop()
-  if (ancestor == null) return true
-  const parent = ancestor.node
-
-  if (
-    // not id of a FunctionDeclaration
-    !(isFunction(parent) && (parent as any).id === identifier) &&
-    // not a key of Property
-    !isStaticPropertyKey(identifier, parent) &&
-    // not a property of a MemberExpression
-    !(
-      (isMemberExpression(parent) || isOptionalMemberExpression(parent)) &&
-      parent.property === identifier &&
-      !parent.computed
-    ) &&
-    // skip allowed globals
-    !isKnownIdentifier(identifier.name) &&
-    // special case for webpack compilation
-    identifier.name !== `require` &&
-    // is a special keyword but parsed as identifier
-    identifier.name !== `arguments`
-  ) {
-    return true
-  }
-
-  return false
+function parseUsingTS(
+  source: string,
+  ts: typeof TypeScript,
+): [TypeScript.Program, TypeScript.SourceFile] {
+  const program = createProgram(ts, source)
+  const sourceFile = program.getSourceFile('input.ts')
+  invariant(sourceFile != null)
+  return [program, sourceFile]
 }
 
 const KNOWN_IDENTIFIERS = new Set(
@@ -423,12 +213,4 @@ const KNOWN_IDENTIFIERS = new Set(
 
 function isKnownIdentifier(value: string): boolean {
   return KNOWN_IDENTIFIERS.has(value) || /^(true|false|null|this)$/.test(value)
-}
-
-function isStaticProperty(node: BabelNode): node is ObjectMember {
-  return isObjectMember(node) && !node.computed
-}
-
-function isStaticPropertyKey(node: BabelNode, parent: BabelNode): boolean {
-  return isStaticProperty(parent) && parent.key === node
 }
