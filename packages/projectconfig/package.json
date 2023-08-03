@@ -31,6 +31,6 @@
   "homepage": "https://github.com/znck/vue-developer-experience#readme",
   "dependencies": {
     "@vuedx/shared": "workspace:*",
-    "json5": "^2.2.0"
+    "json5": "^2.2.2"
   }
 }

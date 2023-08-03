@@ -322,7 +322,7 @@
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "fast-glob": "^3.2.4",
     "inversify": "^5.0.1",
-    "json5": "^2.1.3",
+    "json5": "^2.2.2",
     "node-ipc": "10.1.0",
     "reflect-metadata": "^0.1.13",
     "vscode-languageclient": "^8.0.2"

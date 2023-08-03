@@ -77,7 +77,7 @@
     "@vuedx/template-ast-types": "workspace:*",
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "inversify": "^5.1.1",
-    "json5": "^2.2.0",
+    "json5": "^2.2.2",
     "node-ipc": "10.1.0",
     "reflect-metadata": "^0.1.13"
   },
