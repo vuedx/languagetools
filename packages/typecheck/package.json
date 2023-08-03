@@ -39,7 +39,7 @@
     "@vuedx/vue-virtual-textdocument": "workspace:*",
     "chalk": "^4.1.0",
     "fast-glob": "^3.2.4",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "resolve-from": "^5.0.0",
     "typescript": "^4.8.2"
   },
